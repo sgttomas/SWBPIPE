@@ -214,7 +214,7 @@ describe("project handlers: open clears the previous project's operation diagnos
 
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
     openNodeGridReview();
-    fireEvent.change(screen.getByTestId("entity-grid-input-node:N-100-y"), { target: { value: "0.5" } });
+    fireEvent.change(reviewEditor("node:N-100-y"), { target: { value: "0.5" } });
     fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
     invokeMock.mockImplementation((command: string) =>
       command === "apply_model_operation" ? pendingApply.promise : Promise.reject(new Error(`Unexpected command ${command}`)),
@@ -593,7 +593,7 @@ describe("project handlers: a failed save or create leaves the open project's in
 async function applyGridEditWhilePending() {
   fireEvent.click(screen.getByTestId("layout-mode-grid"));
   openNodeGridReview();
-  fireEvent.change(screen.getByTestId("entity-grid-input-node:N-100-y"), { target: { value: "0.5" } });
+  fireEvent.change(reviewEditor("node:N-100-y"), { target: { value: "0.5" } });
   fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
   // The operation engine runs in the browser route for this one call.
   setTauriRuntime(false);
@@ -701,13 +701,13 @@ describe("project handlers: a landed write records snapshot verification even wh
     expect(workspace).toHaveAttribute("data-view", "table");
     expect(screen.getByTestId("rail-stage-loads")).toHaveAttribute("aria-current", "page");
     expect(screen.getByTestId("toolbar-project-name")).toHaveTextContent(envelope.model.project.name);
-    expect(screen.getByTestId("entity-grid-input-node:N-100-y")).toHaveValue("0.5");
+    expect(reviewValue("node:N-100-y")).toBe("0.5");
     expect(screen.getByTestId("workspace-undo")).toBeEnabled();
     fireEvent.click(screen.getByTestId("workspace-undo"));
-    expect(screen.getByTestId("entity-grid-input-node:N-100-y")).toHaveValue(String(envelope.model.nodes.find((node) => node.id === "node:N-100")!.position.y));
+    expect(reviewValue("node:N-100-y")).toBe(String(envelope.model.nodes.find((node) => node.id === "node:N-100")!.position.y));
     expect(screen.getByTestId("workspace-redo")).toBeEnabled();
     fireEvent.click(screen.getByTestId("workspace-redo"));
-    expect(screen.getByTestId("entity-grid-input-node:N-100-y")).toHaveValue("0.5");
+    expect(reviewValue("node:N-100-y")).toBe("0.5");
     fireEvent.click(screen.getByTestId("layout-mode-tree"));
     expect(screen.getByTestId(`tree-row-project-${encodeURIComponent(envelope.model.project.id)}`)).toBeInTheDocument();
   });
@@ -810,7 +810,7 @@ describe("B3A asynchronous canonical comparison", () => {
     expect(modelHashLine()).toHaveTextContent("integrity=not_persisted");
     expect(modelHashLine()).toHaveTextContent("source=open");
     expect(envelopeHashLine()).toHaveTextContent("source=open");
-    expect(screen.getByTestId("entity-grid-input-node:N-100-y")).toHaveValue("0.5");
+    expect(reviewValue("node:N-100-y")).toBe("0.5");
     expect(screen.getByTestId("project-edited")).toBeInTheDocument();
     fireEvent.click(screen.getByTestId("workspace-undo"));
     await waitFor(() => expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument());
@@ -1082,13 +1082,13 @@ describe("B3A P2 landed-write observation", () => {
     await waitFor(() => expect(projectMessage()).toHaveTextContent(openMessage));
     expect(modelHashLine()).toHaveTextContent("integrity=verified_match");
     expect(envelopeHashLine()).toHaveTextContent("integrity=verified_match");
-    expect(screen.getByTestId("entity-grid-input-node:N-100-y")).toHaveValue("0.5");
+    expect(reviewValue("node:N-100-y")).toBe("0.5");
     fireEvent.click(screen.getByTestId("workspace-undo"));
     await waitFor(() => expect(screen.getByTestId("project-edited")).toBeInTheDocument());
-    expect(screen.getByTestId("entity-grid-input-node:N-100-y")).toHaveValue("0");
+    expect(reviewValue("node:N-100-y")).toBe("0");
     fireEvent.click(screen.getByTestId("workspace-redo"));
     await waitFor(() => expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument());
-    expect(screen.getByTestId("entity-grid-input-node:N-100-y")).toHaveValue("0.5");
+    expect(reviewValue("node:N-100-y")).toBe("0.5");
   });
 
   it.each([true, false])("serializes Saves through verification and preserves canonical Undo/Redo (later response valid=%s)", async (laterValid) => {
@@ -1140,12 +1140,12 @@ describe("B3A P2 landed-write observation", () => {
       await flushPendingWork();
       if (laterValid) expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument();
       else expect(screen.getByTestId("project-edited")).toBeInTheDocument();
-      expect(screen.getByTestId("entity-grid-input-node:N-100-y")).toHaveValue("0");
+      expect(reviewValue("node:N-100-y")).toBe("0");
       fireEvent.click(screen.getByTestId("workspace-redo"));
       await waitFor(() => laterValid
         ? expect(screen.getByTestId("project-edited")).toBeInTheDocument()
         : expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument());
-      expect(screen.getByTestId("entity-grid-input-node:N-100-y")).toHaveValue("0.5");
+      expect(reviewValue("node:N-100-y")).toBe("0.5");
       fireEvent.click(screen.getByTestId("workspace-undo"));
       await waitFor(() => laterValid
         ? expect(screen.queryByTestId("project-edited")).not.toBeInTheDocument()
@@ -1246,4 +1246,25 @@ it.each([["Save", "file.save-local", "save_local_project", null], ["Save", "file
 function openNodeGridReview() {
   const summary = screen.getByTestId("node-grid-review-disclosure");
   if (summary.getAttribute("aria-expanded") !== "true") fireEvent.click(summary);
+}
+
+// The shared review table opens one cell editor at a time; retain any prior raw draft first.
+function reviewEditor(cell: string): HTMLInputElement {
+  const table = screen.getByTestId("engineering-table-review");
+  const existing = table.querySelector<HTMLInputElement>("input");
+  const split = cell.lastIndexOf("-"); const row = cell.slice(0, split); const column = cell.slice(split + 1);
+  if (existing?.getAttribute("aria-label")?.startsWith(`${row} ${column.length === 1 ? column.toUpperCase() : column === "label" ? "Label" : "Provenance"}`)) return existing;
+  const keep = table.querySelector<HTMLButtonElement>('[data-table-action="apply"]');
+  if (keep) fireEvent.click(keep);
+  fireEvent.doubleClick(screen.getByTestId(`review-cell-${cell}`));
+  return table.querySelector<HTMLInputElement>("input")!;
+}
+
+function reviewValue(cell: string): string {
+  const table = screen.getByTestId("engineering-table-review");
+  const button = table.querySelector<HTMLButtonElement>(`[data-testid="review-cell-${cell}"]`);
+  if (button) return button.textContent ?? "";
+  const input = table.querySelector<HTMLInputElement>("input");
+  if (!input) throw new Error(`Missing review cell ${cell}`);
+  return input.value;
 }

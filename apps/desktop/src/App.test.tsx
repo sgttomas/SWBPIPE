@@ -5130,22 +5130,22 @@ describe("SWBPIPE desktop preview", () => {
     openNodeGridReview();
     expect(within(tree).getByTestId("entity-grid")).toBeInTheDocument();
     expect(
-      within(tree).getByTestId("entity-grid-table-nodes"),
+      within(tree).getByTestId("engineering-table-review"),
     ).toBeInTheDocument();
 
-    fireEvent.click(within(tree).getByTestId("entity-grid-row-node-node:N-100"));
+    fireEvent.click(within(screen.getByTestId("engineering-table-review")).getByRole("button", { name: "node:N-100" }));
     expect(screen.getByLabelText("Property inspector").textContent).toContain(
       "node:N-100",
     );
 
     fireEvent.change(
-      within(tree).getByTestId("entity-grid-input-node:N-100-x"),
+      reviewEditor("node:N-100-x"),
       {
         target: { value: "1.25" },
       },
     );
     fireEvent.change(
-      within(tree).getByTestId("entity-grid-input-node:N-100-y"),
+      reviewEditor("node:N-100-y"),
       {
         target: { value: "0.5" },
       },
@@ -15805,7 +15805,7 @@ describe("existing toolkit v2", () => {
     render(<App />); await screen.findByTestId("desktop-preview-shell");
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
     openNodeGridReview();
-    fireEvent.change(screen.getByTestId("entity-grid-input-node:N-100-x"), { target: { value: "1.25" } });
+    fireEvent.change(reviewEditor("node:N-100-x"), { target: { value: "1.25" } });
     fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
     invokeMock.mockImplementation((command: string) => {
       if (command === "apply_model_operation") return pending.promise;
@@ -15899,7 +15899,7 @@ describe("existing toolkit v4 review repairs", () => {
     await screen.findByTestId("desktop-preview-shell");
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
     openNodeGridReview();
-    fireEvent.change(screen.getByTestId("entity-grid-input-node:N-100-x"), { target: { value: "1.25" } });
+    fireEvent.change(reviewEditor("node:N-100-x"), { target: { value: "1.25" } });
     fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
     const selectedBefore = screen.getByTestId("command-selection-readout").textContent;
     let requests = 0;
@@ -15917,7 +15917,7 @@ describe("existing toolkit v4 review repairs", () => {
     expect(screen.getByTestId("operation-apply-message")).toHaveTextContent("Requests already running will not change this session");
     expect(reviewControl("operation-apply-summary")).toHaveTextContent("0 queued; 0 applied");
     expect(reviewControl("undo-session-model-edit")).toBeDisabled();
-    fireEvent.change(screen.getByTestId("entity-grid-input-node:N-100-y"), { target: { value: "0.5" } });
+    fireEvent.change(reviewEditor("node:N-100-y"), { target: { value: "0.5" } });
     fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
     fireEvent.click(screen.getByTestId("validate-intent-editor-intent-2"));
     await waitFor(() => expect(requests).toBe(2));
@@ -15930,7 +15930,7 @@ describe("existing toolkit v4 review repairs", () => {
     expect(screen.getByTestId("operation-unit-policy-chip")).not.toHaveTextContent("withdrawn_response_marker");
     expect(screen.queryByTestId("operation-applied-ledger")).not.toBeInTheDocument();
     expect(reviewControl("operation-apply-summary")).toHaveTextContent("1 queued; 0 applied");
-    expect(screen.getByTestId("entity-grid-input-node:N-100-x")).toHaveValue("0");
+    expect(reviewValue("node:N-100-x")).toBe("0");
     expect(screen.getByTestId("command-selection-readout").textContent).toBe(selectedBefore);
     await act(async () => {
       newer.reject(new Error("New request deliberately ended by test"));
@@ -16360,7 +16360,7 @@ describe("native straight-route Add and Apply", () => {
 
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
     openNodeGridReview();
-    fireEvent.change(screen.getByTestId(`entity-grid-input-${model.nodes[0].id}-x`), {
+    fireEvent.change(reviewEditor(`${model.nodes[0].id}-x`), {
       target: { value: "1.25" },
     });
     fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
@@ -16506,7 +16506,7 @@ describe("Tier3 shared batch and proposed context", () => {
     fireEvent.click(screen.getByTestId("clear-pending-batches"));
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
     openNodeGridReview();
-    fireEvent.change(screen.getByTestId("entity-grid-input-node:N-100-y"), { target: { value: "0.5" } });
+    fireEvent.change(reviewEditor("node:N-100-y"), { target: { value: "0.5" } });
     fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
     fireEvent.click(screen.getByTestId("validate-intent-editor-intent-1"));
     await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("validate_model_operation", expect.any(Object)));
@@ -16565,11 +16565,11 @@ describe("Tier3 adversarial batch publication", () => {
     expect(screen.getByTestId("retained-context-summary")).toHaveTextContent("3 retained operation records");
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
     openNodeGridReview();
-    expect(screen.getByTestId("entity-grid-input-node:N-100-x")).toHaveValue("1.75");
-    expect(screen.getByTestId("entity-grid-input-node:N-100-y")).toHaveValue("0.5");
+    expect(reviewValue("node:N-100-x")).toBe("1.75");
+    expect(reviewValue("node:N-100-y")).toBe("0.5");
     fireEvent.click(reviewControl("undo-session-model-edit"));
-    expect(screen.getByTestId("entity-grid-input-node:N-100-x")).toHaveValue(String(envelope.model.nodes[0].position.x));
-    expect(screen.getByTestId("entity-grid-input-node:N-100-y")).toHaveValue(String(envelope.model.nodes[0].position.y));
+    expect(reviewValue("node:N-100-x")).toBe(String(envelope.model.nodes[0].position.x));
+    expect(reviewValue("node:N-100-y")).toBe(String(envelope.model.nodes[0].position.y));
     expect(reviewControl("undo-session-model-edit")).toBeDisabled();
   });
 
@@ -16821,7 +16821,7 @@ describe("persistent modeling workspace", () => {
 
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
     openNodeGridReview();
-    fireEvent.change(screen.getByTestId(`entity-grid-input-${model.nodes[0].id}-x`), {
+    fireEvent.change(reviewEditor(`${model.nodes[0].id}-x`), {
       target: { value: "1.75" },
     });
     fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
@@ -17020,7 +17020,7 @@ describe("workflow current and historical result boundaries", () => {
     await screen.findByTestId("desktop-preview-shell");
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
     openNodeGridReview();
-    fireEvent.change(screen.getByTestId("entity-grid-input-node:N-100-y"), { target: { value: "0.5" } });
+    fireEvent.change(reviewEditor("node:N-100-y"), { target: { value: "0.5" } });
     fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
     fireEvent.click(screen.getByTestId("apply-intent-editor-intent-1"));
     await waitFor(() => expect(reviewControl("session-history-chip")).toHaveTextContent("1 undo / 0 redo"));
@@ -17404,7 +17404,7 @@ describe("synchronous busy history boundary", () => {
     const historyBefore = reviewControl("session-history-chip").textContent;
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
     openNodeGridReview();
-    fireEvent.change(screen.getByTestId("entity-grid-input-node:N-100-y"), { target: { value: "0.5" } });
+    fireEvent.change(reviewEditor("node:N-100-y"), { target: { value: "0.5" } });
     fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
     const pending = deferred<unknown>();
     let pendingModel: PreviewModel | undefined;
@@ -17749,7 +17749,7 @@ describe("historical lifecycle history transitions", () => {
     expect(await snapshotHash()).toBe(baselineHash);
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
     openNodeGridReview();
-    fireEvent.change(screen.getByTestId("entity-grid-input-node:N-100-y"), { target: { value: "0.5" } });
+    fireEvent.change(reviewEditor("node:N-100-y"), { target: { value: "0.5" } });
     fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
     fireEvent.click(screen.getByTestId("apply-intent-editor-intent-1"));
     await waitFor(() => expect(reviewControl("session-history-chip")).toHaveTextContent("1 undo / 0 redo"));
@@ -18143,4 +18143,25 @@ describe("Box gesture cancellation routes", () => {
 function openNodeGridReview() {
   const summary = screen.getByTestId("node-grid-review-disclosure");
   if (summary.getAttribute("aria-expanded") !== "true") fireEvent.click(summary);
+}
+
+// The shared review table opens one cell editor at a time; retain any prior raw draft first.
+function reviewEditor(cell: string): HTMLInputElement {
+  const table = screen.getByTestId("engineering-table-review");
+  const existing = table.querySelector<HTMLInputElement>("input");
+  const split = cell.lastIndexOf("-"); const row = cell.slice(0, split); const column = cell.slice(split + 1);
+  if (existing?.getAttribute("aria-label")?.startsWith(`${row} ${column.length === 1 ? column.toUpperCase() : column === "label" ? "Label" : "Provenance"}`)) return existing;
+  const keep = table.querySelector<HTMLButtonElement>('[data-table-action="apply"]');
+  if (keep) fireEvent.click(keep);
+  fireEvent.doubleClick(screen.getByTestId(`review-cell-${cell}`));
+  return table.querySelector<HTMLInputElement>("input")!;
+}
+
+function reviewValue(cell: string): string {
+  const table = screen.getByTestId("engineering-table-review");
+  const button = table.querySelector<HTMLButtonElement>(`[data-testid="review-cell-${cell}"]`);
+  if (button) return button.textContent ?? "";
+  const input = table.querySelector<HTMLInputElement>("input");
+  if (!input) throw new Error(`Missing review cell ${cell}`);
+  return input.value;
 }

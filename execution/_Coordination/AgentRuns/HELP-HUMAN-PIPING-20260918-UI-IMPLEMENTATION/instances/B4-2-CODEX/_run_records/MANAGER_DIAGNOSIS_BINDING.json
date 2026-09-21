@@ -1,0 +1,12 @@
+{
+  "skill": ".agents/skills/software-defect-diagnosis/SKILL.md",
+  "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/.agents/skills/software-defect-diagnosis/SKILL.md",
+  "sha256": "f281558734732ab0a97cf1407ba80a53c25e8c2b9dd96069bec589fd521a7a23",
+  "use": "Classify actual connected unit review-focus regression separately from new driver/setup failures; preserve source/run boundary and affected checks",
+  "evidence": [
+    "worker/unit-connected.log",
+    "worker/browser-text-1.log",
+    "worker/browser-selected.log"
+  ],
+  "implementationAuthority": "Existing B4.2 brief and ROOT explicit preservation directions; no new scope"
+}

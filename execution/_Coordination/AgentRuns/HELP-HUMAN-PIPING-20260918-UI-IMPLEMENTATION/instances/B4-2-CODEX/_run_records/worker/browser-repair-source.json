@@ -1,0 +1,20 @@
+{
+  "base": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
+  "files": {
+    "projects/chirality-piping/apps/desktop/e2e/b3a-session-status.spec.ts": "b92e73b71a7fd2e1f6bc0f6ea99bdcc2f60363debaf46d62fb64c5a3a2d41191",
+    "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts": "d6272311a934630883cb50ce0c13ea38e48fef69a52eccf974b8f7047002d12d",
+    "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts": "9464cf1163a9a78bd2a607297721c65a71c9db8fc44cc174132dfb6cd0bf2ae5",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts": "0bbfd7c51482a5243e75a347b4ed39cfd5a698ef233b5f172c87fa4dc6a95fd3",
+    "projects/chirality-piping/apps/desktop/src/App.projectHandlers.test.tsx": "cdd85764dada5f5fb4d29d146efefb930c211b9d75429be8f57e8ceab9e729a8",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx": "5e16c0d91fe9d489aa523b179bcdc9bf79f78faa0b23f7ef6a72dc8f88a964d4",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.test.tsx": "7926460336148278d32c4559cf2ea263d7c9df055025d4f4b8bbda06fb6c14fa",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx": "46d4ced455e6d84700b930947b6dece16b0c37660c1b79a3a0786006a1a0b815",
+    "projects/chirality-piping/apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx": "a6200d9894c016ebd0853c6e62158eaadfe14d611fce6f8e3e3aa5b529220c3b",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.test.tsx": "cb4fc744eae1773053c95a905dd8c3033a5350d1a70318ad6a758ea549c605ae",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx": "c44ba7c8f30f2f8d32adfaa798706363f4d52f727bb0d6eec3d67f546846ab8d",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/ModelTree.table.test.tsx": "06aecc3960f817525f98078bf792cdfe871a711979793494355a32a0a40fd920",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/modelTableAdapter.ts": "322ef0e87914b8b04bf4986573021f9ce4bd2fbf2d4218528fd159a419cf048b",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/tableState.ts": "cbbd0eb55477aadc38fcbd75fc7cf99dde291e8f73d5d7bca414cc6f3d7803fd",
+    "projects/chirality-piping/apps/desktop/src/styles.css": "e27b40c3656d62404719b42737825fd5665ae36eed7661c028b0604192a93f7e"
+  }
+}

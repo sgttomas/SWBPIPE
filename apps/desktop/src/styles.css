@@ -3990,8 +3990,8 @@ body { min-width: 760px; min-height: 540px; }
 .engineering-table { min-width: 0; color: var(--ui-text); background: var(--ui-surface); }
 .engineering-table [role="grid"] { overflow-x: auto; }
 /* Header and virtual body move together inside the coordinate-only scroller. */
-.engineering-table [role="rowgroup"] { min-width: 420px; }
-.engineering-table-row { min-width: 420px; display: grid; align-items: stretch; min-height: 100%; border-bottom: 1px solid var(--ui-divider); }
+.engineering-table [role="rowgroup"] { min-width: var(--table-min-width, 420px); }
+.engineering-table-row { min-width: var(--table-min-width, 420px); display: grid; align-items: stretch; min-height: 100%; border-bottom: 1px solid var(--ui-divider); }
 .engineering-table-row > div { min-width: 0; border-right: 1px solid var(--ui-divider); }
 .engineering-table-row.selected { background: var(--ui-selection); }
 .engineering-table-row.stripe { background-color: var(--surface-zebra, var(--ui-bg)); }
@@ -4036,7 +4036,17 @@ body { min-width: 760px; min-height: 540px; }
 .engineering-table.bounded { display: flex; flex-direction: column; height: 100%; min-height: 0; }
 .engineering-table.bounded > [role="grid"] { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; overflow-y: hidden; overscroll-behavior-y: contain; }
 .engineering-table.bounded .engineering-table-header { flex: 0 0 auto; }
-.engineering-table-body-slot { min-width: 420px; }
+.engineering-table-body-slot { min-width: var(--table-min-width, 420px); }
 .engineering-table.bounded .engineering-table-body-slot { flex: 1 1 0; min-height: 0; overflow: hidden; }
 .engineering-table.bounded > .engineering-table-footer, .engineering-table.bounded > .engineering-table-message { flex: 0 0 auto; }
 .engineering-table.bounded [role="rowgroup"], .entity-grid.bounded [data-testid="entity-grid-virtual-rows"] { overscroll-behavior-y: contain; }
+
+/* Node direct and review surfaces share one finite table body. */
+.entity-grid.bounded .entity-grid-review-content > .node-review-workarea { flex: 1 1 0; min-height: 0; }
+.engineering-table-cell[data-kind="text"] button, .engineering-table-cell[data-kind="text"] input { text-align: left; }
+.engineering-table-cell button { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.engineering-table-cell[aria-readonly="true"] button { color: var(--ui-text-muted); }
+
+.engineering-table-cell.has-readout { display: flex; align-items: center; }
+.engineering-table-cell.has-readout > button, .engineering-table-cell.has-readout > input { min-width: 0; flex: 1 1 0; }
+.engineering-table-cell.has-readout > small { flex: 0 1 auto; max-width: 50%; padding: 0 4px; overflow: hidden; white-space: nowrap; font-size: 10px; }

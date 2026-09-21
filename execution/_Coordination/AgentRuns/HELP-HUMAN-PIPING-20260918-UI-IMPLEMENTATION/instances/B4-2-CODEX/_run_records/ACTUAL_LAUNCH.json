@@ -1,0 +1,17 @@
+{
+  "mechanism": "Codex harness-native collaboration.spawn_agent",
+  "parent": "/root/b3_manager",
+  "parentRole": "WORKING_ITEMS",
+  "parentModel": "gpt-6-astra",
+  "parentReasoning": "high",
+  "child": "/root/b3_manager/b4_2_table",
+  "role": "TASK",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "forkTurns": "none",
+  "descendants": "prohibited",
+  "briefSha256": "965a3dfa57ac60c4ee608bb81018a36a838717d6961d7a1d4ecc2148ec9fb51c",
+  "inputsSha256": "bda93ff14eb3771e261be5028ee6d975103c5d3ff539f08588528fe79c892ce0",
+  "scopeEnforcement": "instruction-enforced; unrestricted host; sole maintained writer",
+  "result": "spawn returned canonical child task name"
+}

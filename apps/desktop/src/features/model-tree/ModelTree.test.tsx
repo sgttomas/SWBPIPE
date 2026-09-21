@@ -57,24 +57,24 @@ describe("ModelTree virtual typed selection", () => {
     />);
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
     openNodeGridReview();
-    fireEvent.change(screen.getByTestId("entity-grid-input-n-0-x"), { target: { value: "10" } });
-    fireEvent.change(screen.getByTestId("entity-grid-input-n-1-x"), { target: { value: "11" } });
+    fireEvent.change(reviewEditor("n/0-x"), { target: { value: "10" } });
+    fireEvent.change(reviewEditor("n/1-x"), { target: { value: "11" } });
     fireEvent.click(screen.getByTestId("entity-grid-type-pipes"));
     fireEvent.click(screen.getByTestId("entity-grid-type-nodes"));
-    expect(screen.getByTestId("entity-grid-input-n-0-x")).toHaveValue("10");
-    expect(screen.getByTestId("entity-grid-input-n-1-x")).toHaveValue("11");
+    expect(reviewEditor("n/0-x")).toHaveValue("10");
+    expect(reviewEditor("n/1-x")).toHaveValue("11");
     fireEvent.click(screen.getByTestId("layout-mode-tree"));
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
     openNodeGridReview();
-    expect(screen.getByTestId("entity-grid-input-n-0-x")).toHaveValue("10");
-    expect(screen.getByTestId("entity-grid-input-n-1-x")).toHaveValue("11");
+    expect(reviewEditor("n/0-x")).toHaveValue("10");
+    expect(reviewEditor("n/1-x")).toHaveValue("11");
 
     fireEvent.change(screen.getByTestId("model-tree-filter-input"), { target: { value: "n/0" } });
     fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
     expect(onQueueIntent).toHaveBeenCalledTimes(1);
     fireEvent.change(screen.getByTestId("model-tree-filter-input"), { target: { value: "" } });
-    expect(screen.getByTestId("entity-grid-input-n-0-x")).toHaveValue("0");
-    expect(screen.getByTestId("entity-grid-input-n-1-x")).toHaveValue("11");
+    expect(reviewEditor("n/0-x")).toHaveValue("0");
+    expect(reviewEditor("n/1-x")).toHaveValue("11");
 
     view.rerender(<ModelTree
       model={structuredClone(model)}
@@ -83,7 +83,7 @@ describe("ModelTree virtual typed selection", () => {
       projectSessionGeneration={1}
       selection={{ type: "node", id: "n/0" }}
     />);
-    expect(screen.getByTestId("entity-grid-input-n-1-x")).toHaveValue("1");
+    expect(reviewEditor("n/1-x")).toHaveValue("1");
   });
 
   it("uses collision-safe IDs, publishes range metadata, and scrolls off-window keyboard focus", () => {
@@ -565,4 +565,16 @@ describe("legacy indexed tree search vocabulary", () => {
 function openNodeGridReview() {
   const summary = screen.getByTestId("node-grid-review-disclosure");
   if (summary.getAttribute("aria-expanded") !== "true") fireEvent.click(summary);
+}
+
+// The shared review table opens one cell editor at a time; retain any prior raw draft first.
+function reviewEditor(cell: string): HTMLInputElement {
+  const table = screen.getByTestId("engineering-table-review");
+  const existing = table.querySelector<HTMLInputElement>("input");
+  const split = cell.lastIndexOf("-"); const row = cell.slice(0, split); const column = cell.slice(split + 1);
+  if (existing?.getAttribute("aria-label")?.startsWith(`${row} ${column.length === 1 ? column.toUpperCase() : column === "label" ? "Label" : "Provenance"}`)) return existing;
+  const keep = table.querySelector<HTMLButtonElement>('[data-table-action="apply"]');
+  if (keep) fireEvent.click(keep);
+  fireEvent.doubleClick(screen.getByTestId(`review-cell-${cell}`));
+  return table.querySelector<HTMLInputElement>("input")!;
 }

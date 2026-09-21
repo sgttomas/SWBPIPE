@@ -1,0 +1,75 @@
+[2m[WebServer] [22m(node:71782) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 10 tests using 1 worker
+
+(node:71784) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:71784) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [chromium-desktop] › e2e/b4-table-editing.spec.ts:80:1 › B4 Both with Inspector keeps pointer horizontal scrolling inside the coordinate table (1.9s)
+  ✓   2 [chromium-desktop] › e2e/b4-table-editing.spec.ts:175:1 › B4 short Grid keeps vertical chrome fixed and retains alternate review drafts (2.4s)
+  ✓   3 [chromium-desktop] › e2e/b4-table-editing.spec.ts:208:1 › B4 virtual Grid confines body scrolling and boundary wheel without moving chrome (4.4s)
+  ✓   4 [chromium-desktop] › e2e/b4-table-editing.spec.ts:260:1 › B4 text fields apply, recover filtered focus, preserve text Undo and retain review drafts through pointer Queue and Clear (3.3s)
+  ✓   5 [chromium-desktop] › e2e/ui-foundation.spec.ts:349:1 › Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft (1.7s)
+(node:71815) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:71815) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   6 [chromium-compact] › e2e/b4-table-editing.spec.ts:80:1 › B4 Both with Inspector keeps pointer horizontal scrolling inside the coordinate table (1.4s)
+  ✘   7 [chromium-compact] › e2e/b4-table-editing.spec.ts:175:1 › B4 short Grid keeps vertical chrome fixed and retains alternate review drafts (11.8s)
+(node:71835) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:71835) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 [chromium-compact] › e2e/b4-table-editing.spec.ts:208:1 › B4 virtual Grid confines body scrolling and boundary wheel without moving chrome (4.2s)
+  ✓   9 [chromium-compact] › e2e/b4-table-editing.spec.ts:260:1 › B4 text fields apply, recover filtered focus, preserve text Undo and retain review drafts through pointer Queue and Clear (3.3s)
+  ✓  10 [chromium-compact] › e2e/ui-foundation.spec.ts:349:1 › Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft (1.7s)
+
+
+  1) [chromium-compact] › e2e/b4-table-editing.spec.ts:175:1 › B4 short Grid keeps vertical chrome fixed and retains alternate review drafts 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    [32m- Expected  - 1[39m
+    [31m+ Received  + 1[39m
+
+    [33m@@ -24,11 +24,11 @@[39m
+    [2m      "y": 656.203125,[22m
+    [2m    },[22m
+    [2m    "header": Object {[22m
+    [2m      "height": 33,[22m
+    [2m      "width": 700,[22m
+    [32m-     "x": 23,[39m
+    [31m+     "x": 68,[39m
+    [2m      "y": 369.1875,[22m
+    [2m    },[22m
+    [2m    "host": Object {[22m
+    [2m      "height": 667,[22m
+    [2m      "width": 348,[22m
+
+    Call Log:
+    - Timeout 10000ms exceeded while waiting on the predicate
+
+      186 |   await expect(editor).toHaveAttribute("aria-invalid", "true");
+      187 |   expect(await page.getByTestId("engineering-table").locator(".engineering-table-body-slot").evaluate((node) => node.clientHeight)).toBeGreaterThan(0);
+    > 188 |   const errorState = await gridChromeBounds(page); await rows.hover({ position: { x: 20, y: 20 } }); wheelEvidence.push(await tableWheel(page, 600, info)); await expect.poll(() => gridChromeBounds(page)).toEqual(errorState);
+          |                                                                                                                                                                                                             ^
+      189 |   const toggle = page.getByTestId("node-grid-review-disclosure"); await toggle.click(); await expect(table).toBeHidden(); await expect(page.getByTestId("retained-direct-draft")).toBeVisible();
+      190 |   await expect(toggle).toContainText("Return to node fields"); const bulk = page.getByTestId("review-cell-node:N-100-y"); await bulk.dblclick(); await page.getByTestId("engineering-table-review").getByRole("textbox").fill("0.5"); await page.getByRole("button", { name: "Keep draft", exact: true }).click();
+      191 |   const reviewState = await gridChromeBounds(page, true); await page.getByTestId("engineering-table-review-rows").hover({ position: { x: 20, y: 20 } }); wheelEvidence.push(await tableWheel(page, 600, info, false, "engineering-table-review-rows")); await expect.poll(() => gridChromeBounds(page, true)).toEqual(reviewState);
+        at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts:188:205
+
+    Error Context: ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-2-CODEX/_run_records/worker/browser-repair/b4-table-editing-B4-short--c7057-ins-alternate-review-drafts-chromium-compact/error-context.md
+
+    attachment #6: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-2-CODEX/_run_records/worker/browser-repair/b4-table-editing-B4-short--c7057-ins-alternate-review-drafts-chromium-compact/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-2-CODEX/_run_records/worker/browser-repair/b4-table-editing-B4-short--c7057-ins-alternate-review-drafts-chromium-compact/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium-compact] › e2e/b4-table-editing.spec.ts:175:1 › B4 short Grid keeps vertical chrome fixed and retains alternate review drafts 
+  9 passed (39.0s)
