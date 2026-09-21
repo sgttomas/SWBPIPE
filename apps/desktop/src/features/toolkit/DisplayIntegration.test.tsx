@@ -32,22 +32,48 @@ describe("typed model display integration", () => {
     changeFormControl(screen.getByTestId("editor-intent-field"), { target: { value: "position.x" } });
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
     openNodeGridReview();
-    const draft = reviewEditor(`${model.nodes[0].id}-x`);
-    fireEvent.change(draft, { target: { value: "2.3450" } });
-    fireEvent.change(screen.getByLabelText("Display units"), { target: { value: "US" } });
-    const position = screen.getByText("Position").parentElement!;
-    await waitFor(() => expect(position.querySelector('[data-display-status="converted"]')).not.toBeNull());
-    expect(position).toHaveTextContent("in");
-    expect(draft).toHaveValue("2.3450");
-    await waitFor(() => expect(draft.parentElement!.querySelector("[data-display-status=converted]")).not.toBeNull());
-    expect(draft.parentElement).toHaveTextContent("in");
-    expect(screen.getByTestId("editor-intent-value")).toHaveValue("1");
-    expect(JSON.stringify(model)).toBe(exact);
-    expect((await computeModelHash(model))?.value).toBe(hash?.value);
-    fireEvent.change(screen.getByLabelText("Display units"), { target: { value: "entered" } });
-    expect(position).toHaveTextContent("x=1 m");
-    await waitFor(() => expect(draft.parentElement).toHaveTextContent("1 m"));
-    expect(draft).toHaveValue("2.3450");
+    // jsdom has no layout. Allocate only this exact review surface and its
+    // live anchor; real clipping/positioning is covered by source-browser tests.
+    const reviewTable = screen.getByTestId("engineering-table-review");
+    const reviewGrid = within(reviewTable).getByRole("grid", { name: "Node review drafts" });
+    const reviewBody = reviewTable.querySelector(".engineering-table-body-slot")!;
+    const actualRect = HTMLElement.prototype.getBoundingClientRect;
+    const rectSpy = vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
+      if (reviewTable.closest("[hidden]")) return actualRect.call(this);
+      if (this === reviewTable) return new DOMRect(0, 0, 1000, 400);
+      if (this === reviewGrid) return new DOMRect(0, 0, 1000, 360);
+      if (this === reviewBody) return new DOMRect(0, 30, 1000, 300);
+      if (reviewTable.contains(this) && this.classList.contains("engineering-table-editor-anchor")) return new DOMRect(280, 30, 160, 36);
+      return actualRect.call(this);
+    });
+    const widthSpy = vi.spyOn(reviewGrid, "clientWidth", "get").mockReturnValue(1000);
+    const heightSpy = vi.spyOn(reviewGrid, "clientHeight", "get").mockReturnValue(360);
+    try {
+      const draft = reviewEditor(`${model.nodes[0].id}-x`);
+      const owners = Array.from(reviewTable.querySelectorAll<HTMLElement>('[role="gridcell"][aria-owns]'))
+        .filter((cell) => cell.getAttribute("aria-owns") === draft.id);
+      expect(owners).toHaveLength(1);
+      const draftCell = owners[0]; const draftRow = draftCell.closest<HTMLElement>('[role="row"]')!;
+      expect(within(draftRow).getByRole("rowheader")).toHaveTextContent(model.nodes[0].id);
+      const columnIndex = Array.from(draftRow.children).indexOf(draftCell);
+      expect(within(reviewTable.querySelector(".engineering-table-header")!.children[columnIndex] as HTMLElement).getByRole("button", { name: "Sort X" })).toBeInTheDocument();
+      expect(draft).toHaveAccessibleName(`${model.nodes[0].id} X [${model.project.units.length}]`);
+      fireEvent.change(draft, { target: { value: "2.3450" } });
+      fireEvent.change(screen.getByLabelText("Display units"), { target: { value: "US" } });
+      const position = screen.getByText("Position").parentElement!;
+      await waitFor(() => expect(position.querySelector('[data-display-status="converted"]')).not.toBeNull());
+      expect(position).toHaveTextContent("in");
+      expect(draft).toHaveValue("2.3450");
+      await waitFor(() => expect(draftCell!.querySelector("[data-display-status=converted]")).not.toBeNull());
+      expect(draftCell).toHaveTextContent("in");
+      expect(screen.getByTestId("editor-intent-value")).toHaveValue("1");
+      expect(JSON.stringify(model)).toBe(exact);
+      expect((await computeModelHash(model))?.value).toBe(hash?.value);
+      fireEvent.change(screen.getByLabelText("Display units"), { target: { value: "entered" } });
+      expect(position).toHaveTextContent("x=1 m");
+      await waitFor(() => expect(draftCell).toHaveTextContent("1 m"));
+      expect(draft).toHaveValue("2.3450");
+    } finally { rectSpy.mockRestore(); widthSpy.mockRestore(); heightSpy.mockRestore(); }
   });
 
   it("retains deformation geometry while converting only the viewport scale readout", async () => {

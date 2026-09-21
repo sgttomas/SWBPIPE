@@ -1,0 +1,30 @@
+{
+  "base": "3ba8b70f9cf3b89ac77a77a4a967f372df27865d",
+  "productSource": "75fa863ea5cfee9bfe8f5a6ebf0f31047663e4e5",
+  "parent": "/root/b3_manager WORKING_ITEMS gpt-6-astra/high",
+  "retainedTask": "/root/b3_manager/b4_3_materials TASK gpt-6-astra/low",
+  "bindings": [
+    {
+      "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_NODE_SORT_UNDO_REPAIR_DISPOSITION.md",
+      "sha256": "e118a18dd98e823cb6a14af275d0e7a60c6206cf73f3ef5b988b9d62e7543950"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-3-CODEX/_run_records/node-sort-undo/WORKER_RETURN.md",
+      "sha256": "66f7120fcd40f29f9bcef376a9cd056605f912ac14f1fe5e745ccdc96400c49a"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-3-CODEX/_run_records/node-sort-undo/EVIDENCE_MANIFEST.json",
+      "sha256": "dfa4a2d450dacb8a8e5408ee5922d133df647c4ad16da5d7b5fdd0de02e1a490"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-3-CODEX/_run_records/node-sort-undo/OBSERVATION_2.json",
+      "sha256": "76b74d7ab824a8ab8049983bcb53c7645cd1753c6c1949bb5cdbf5ade4d8c08f"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-3-CODEX/_run_records/node-sort-undo/DIAGNOSTIC_SOURCE_BINDING_2.json",
+      "sha256": "0b25586f818c0221f4c4dcb6455e8fd16dbbbd18203a04f07fe91d9bb78d8542"
+    }
+  ],
+  "diagnosticVerification": "manager verified23payloads, rawJSON attachment equalsOBSERVATION_2, decisive invariants/modelhash/history and unchangedproduction",
+  "resources": "ROOT browserlockgrant continues; native/build/fullsuite ungranted"
+}

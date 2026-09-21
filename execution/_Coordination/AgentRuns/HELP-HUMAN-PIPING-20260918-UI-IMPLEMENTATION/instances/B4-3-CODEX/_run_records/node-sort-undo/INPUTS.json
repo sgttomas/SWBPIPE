@@ -1,0 +1,24 @@
+{
+  "base": "53acac28c4e8554c708d860062fe95408e5ee1de",
+  "productSource": "75fa863ea5cfee9bfe8f5a6ebf0f31047663e4e5",
+  "parent": "/root/b3_manager WORKING_ITEMS gpt-6-astra/high",
+  "retainedTask": "/root/b3_manager/b4_3_materials TASK gpt-6-astra/low",
+  "bindings": [
+    {
+      "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_NODE_SORT_UNDO_DIAGNOSTIC_BRIEF.md",
+      "sha256": "8866966443b009b1aace77d127eded2088fcd7e2e0a2d33b203b36aa06f4b847"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_ROOT_NATIVE/RETURN.md",
+      "sha256": "e06a5049b68a56c6e064b4855bd887a2e1c32e5b73bd5ff7331d7660c08ac4d8"
+    }
+  ],
+  "sourceHashes": {
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx": "78b57cfae6b0e56b42a18061ec9030178b04673eb3ddfc1b6b9d91a77603b9b6",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx": "341184fe52c4a7880c41e0140842c4aa840a92cca7251da7a412e6368dad082e",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/VirtualList.tsx": "0ef58bdc7c98188be7b1a828125ac056de25bb7646ca38bff76f3ad11d49c92c",
+    "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts": "95ed1203b9dd40aa534acc853045611a97154b759b2c85db757042c972ec3fa7"
+  },
+  "resourceRelease": "ROOT confirmed16639 absent afterCmdQ, ports5173/5174/5175clear, lockabsent; explicit diagnosis activation",
+  "scope": "diagnosis only; one source browser profile"
+}

@@ -1,0 +1,30 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 261-293
+~								174 toggle button Nodes, Value: off
+~								177 toggle button Materials, Value: on
+~								240 table (settable) Material fields
+~											243 text Material
+~											247 button Sort Elastic
+~											249 button Sort Shear
+~											251 button Sort Thermal
+~										255 cell (selectable, settable) material:invented-carbon-steel
+~										256 cell (selectable, settable) material:invented-carbon-steel Label: Invented carbon-steel-like material
+~										257 cell (selectable, settable) material:invented-carbon-steel Elastic: 200000000000 Pa
+Quantity readout, Value: Pa
+200000000000
+Pa
+~										258 cell (selectable, settable) material:invented-carbon-steel Shear: 77000000000 Pa
+Quantity readout, Value: Pa
+77000000000
+Pa
+~										259 cell (selectable, settable) material:invented-carbon-steel Thermal: 0.000012 1/degC
+Quantity readout, Value: 1/degC
+0.000012
+1/degC
+~										260 cell (selectable, settable) material:invented-carbon-steel Provenance: invented_example_no_material_standard
++								261 container Material fields footer
++									262 text 1
++									263 text  of 
++									264 text 1
++									265 text  rows
+The focused UI element is 2 HTML content Description: SWBPIPE, URL: tauri://localhost

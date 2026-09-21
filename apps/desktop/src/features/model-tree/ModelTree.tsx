@@ -846,7 +846,7 @@ function EntityGrid({
         <span data-testid="entity-grid-change-count">{changedCells.length} changed cells</span>
       </div>
       <div className="node-review-workarea" hidden={entityType !== "nodes"} inert={entityType !== "nodes"}>
-        <EngineeringTable label="Node review drafts" policy="review" resetEditsKey={reviewReset} bounded={bounded} active={reviewVisible && entityType === "nodes"}
+        <EngineeringTable label="Node review drafts" persistentEditor policy="review" resetEditsKey={reviewReset} bounded={bounded} active={reviewVisible && entityType === "nodes"}
           rows={reviewRows} columns={reviewColumns} generation={tableGeneration} filter={filterText} density={density} selectedKey={entityKey(selection)}
           onSelect={(key) => { const row = nodeRows.find((candidate) => entityKey(candidate) === key); if (row) onSelect({ type: row.type, id: row.id }); }}
           onDraftChange={(captured, text) => {

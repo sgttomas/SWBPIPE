@@ -1,0 +1,54 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 262-289
++									316 row (selectable)
++										317 cell (selectable, settable) node:N-110
++										318 cell (selectable, settable) node:N-110 Label: Low point elbow
++										319 cell (selectable, settable) node:N-110 X: 3.2 m
+Quantity readout, Value: 3.2
+m
++										320 cell (selectable, settable) node:N-110 Y: 0 m
+Quantity readout, Value: 0
+m
++										321 cell (selectable, settable) node:N-110 Z: 0 m
+Quantity readout, Value: 0
+m
++										322 cell (selectable, settable) node:N-110 Provenance: invented_example
++									323 row (selectable)
++										324 cell (selectable, settable) node:N-120
++										325 cell (selectable, settable) node:N-120 Label: Riser elbow
++										326 cell (selectable, settable) node:N-120 X: 3.2 m
+Quantity readout, Value: 3.2
+m
++										327 cell (selectable, settable) node:N-120 Y: 2.4 m
+Quantity readout, Value: 2.4
+m
++										328 cell (selectable, settable) node:N-120 Z: 0 m
+Quantity readout, Value: 0
+m
++										329 cell (selectable, settable) node:N-120 Provenance: invented_example
++									330 row (selectable)
++										331 cell (selectable, settable) node:N-130
++										332 cell (selectable, settable) node:N-130 Label: Rack turn
++										333 cell (selectable, settable) node:N-130 X: 7.6 m
+Quantity readout, Value: 7.6
+m
++										334 cell (selectable, settable) node:N-130 Y: 2.4 m
+Quantity readout, Value: 2.4
+m
++										335 cell (selectable, settable) node:N-130 Z: 0 m
+Quantity readout, Value: 0
+m
++										336 cell (selectable, settable) node:N-130 Provenance: invented_example
++									337 row (selectable)
++										338 cell (selectable, settable) node:N-140
++										339 cell (selectable, settable) node:N-140 Label: Terminal tie-in
++										340 cell (selectable, settable) node:N-140 X: 7.6 m
+Quantity readout, Value: 7.6
+m
++										341 cell (selectable, settable) node:N-140 Y: 2.4 m
+Quantity readout, Value: 2.4
+m
++										342 cell (selectable, settable) node:N-140 Z: 2.2 m
+Quantity readout, Value: 2.2
+m
++										343 cell (selectable, settable) node:N-140 Provenance: invented_example

@@ -1,0 +1,30 @@
+{
+  "task": "/root/b3_manager/b4_3_materials",
+  "parent": "/root/b3_manager WORKING_ITEMS",
+  "mechanism": "retained Codex harness-native TASK",
+  "model": "gpt-6-astra",
+  "effort": "low",
+  "skill": "software-defect-diagnosis retained from original work; diagnosis only",
+  "reads": [
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-3-CODEX/_run_records/node-sort-undo/TASK_ADDENDUM.md",
+      "sha256": "18389b7f0217f09dc481322d2f34e2359a1232f49eeda77a4eca6d302dbb0b5b",
+      "coverage": "complete"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-3-CODEX/_run_records/node-sort-undo/INPUTS.json",
+      "sha256": "d2f5bed1f3b4641e10b439d26dbf6fe6b292f081b9cc759b728577099a237ca8",
+      "coverage": "complete"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_NODE_SORT_UNDO_DIAGNOSTIC_BRIEF.md",
+      "sha256": "8866966443b009b1aace77d127eded2088fcd7e2e0a2d33b203b36aa06f4b847",
+      "coverage": "complete"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_ROOT_NATIVE/RETURN.md",
+      "sha256": "e06a5049b68a56c6e064b4855bd887a2e1c32e5b73bd5ff7331d7660c08ac4d8",
+      "coverage": "complete"
+    }
+  ]
+}

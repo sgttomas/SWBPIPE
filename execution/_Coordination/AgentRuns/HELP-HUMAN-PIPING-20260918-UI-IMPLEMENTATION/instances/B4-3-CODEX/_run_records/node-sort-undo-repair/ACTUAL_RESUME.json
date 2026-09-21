@@ -1,0 +1,13 @@
+{
+  "mechanism": "collaboration.followup_task",
+  "parent": "/root/b3_manager WORKING_ITEMS gpt-6-astra/high",
+  "target": "/root/b3_manager/b4_3_materials TASK gpt-6-astra/low",
+  "diagnosticHead": "3ba8b70f9cf3b89ac77a77a4a967f372df27865d",
+  "briefSha256": "71b8d64b6ca65ca801ae5088d95da1d5cd1452da9bca5512ae875cba47b6ef41",
+  "inputsSha256": "bcf7eff842c35c349378b9b4aface1315140976f10bf897c4145a1eaa6bad278",
+  "result": "retainedTASK resumed afterROOT inspecteddiagnosticpacket",
+  "scope": "Node review consumer only plus affectedtests; no sharedcore/direct/Materials change",
+  "extraTestConsumer": "ROOT confirmed toolkit/DisplayIntegration.test.tsx exact unique aria-owns owning-cell locator adaptation; originaloracles preserved",
+  "native": "not granted",
+  "descendants": "prohibited"
+}

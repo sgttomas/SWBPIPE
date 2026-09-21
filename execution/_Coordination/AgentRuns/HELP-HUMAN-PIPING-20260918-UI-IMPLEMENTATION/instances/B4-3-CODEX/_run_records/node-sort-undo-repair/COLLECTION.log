@@ -1,0 +1,12 @@
+Listing tests:
+  [chromium-desktop] › b4-table-editing.spec.ts:260:1 › B4 text fields apply, recover filtered focus, preserve text Undo and retain review drafts through pointer Queue and Clear
+  [chromium-desktop] › b4-table-editing.spec.ts:323:5 › B4 character-start review label appends ordinary keys and preserves intentional selection
+  [chromium-desktop] › b4-table-editing.spec.ts:323:5 › B4 character-start review x appends ordinary keys and preserves intentional selection
+  [chromium-desktop] › b4-table-editing.spec.ts:553:1 › B4 diagnostic Node sorted review preserves text Undo after an active row crosses downward
+  [chromium-desktop] › b4-table-editing.spec.ts:617:1 › B4 Node review retained editor stays contained through hidden families and page resize
+  [chromium-compact] › b4-table-editing.spec.ts:260:1 › B4 text fields apply, recover filtered focus, preserve text Undo and retain review drafts through pointer Queue and Clear
+  [chromium-compact] › b4-table-editing.spec.ts:323:5 › B4 character-start review label appends ordinary keys and preserves intentional selection
+  [chromium-compact] › b4-table-editing.spec.ts:323:5 › B4 character-start review x appends ordinary keys and preserves intentional selection
+  [chromium-compact] › b4-table-editing.spec.ts:553:1 › B4 diagnostic Node sorted review preserves text Undo after an active row crosses downward
+  [chromium-compact] › b4-table-editing.spec.ts:617:1 › B4 Node review retained editor stays contained through hidden families and page resize
+Total: 10 tests in 1 file

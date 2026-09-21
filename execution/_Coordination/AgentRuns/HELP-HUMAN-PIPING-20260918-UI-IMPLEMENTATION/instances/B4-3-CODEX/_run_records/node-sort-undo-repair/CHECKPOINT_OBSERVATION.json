@@ -1,0 +1,7 @@
+{
+  "recordedAt": "2026-09-21T09:05:59.622423+00:00",
+  "head": "15186ef0973c0ba7f654743ed0f19913b0361c57",
+  "parentReportedCheckpoint": "15186ef0973c0ba7f654743ed0f19913b0361c57",
+  "sourceFreeze": "SOURCE_FREEZE_2.json",
+  "status": "source/test immutable; evidence-only closeout; independent backcheck pending"
+}
