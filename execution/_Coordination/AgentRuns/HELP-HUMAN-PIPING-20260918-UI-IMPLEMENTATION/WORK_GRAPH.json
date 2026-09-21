@@ -2386,7 +2386,7 @@
         "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_CACHE_P3_BACKCHECK_RETURN.md",
         "returnSha256": "af062577713d20c7c3ba715892677c57f54991d1d437c5402781f3bbfdb131bb"
       },
-      "state": "cache source/P3 backcheck passed; added Piping duration-data refresh and associated docs/tranche await independent bounded review; final combined/CI/main-cache observations remain",
+      "state": "cache/P3 and duration-data/docs/tranche independent backchecks PASS; ready for combined candidate gates and actual main-cache observations",
       "durationRefresh": {
         "authority": "owner effective-CI direction; ROOT bounded follow-up",
         "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_DURATION_REFRESH_ADDENDUM.md",
@@ -2397,7 +2397,21 @@
         "replay": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_HINT_REFRESH/REPLAY.json",
         "replaySha256": "5188981dce66c56c9cffb7ada9d04a622271c52252ce678829bb4a0b28a3b8db",
         "checks": "31 policy tests pass after retaining existing positive weight for one0ms-rounded report; initial2 errors retained; historical455-identity coverage/barrier unchanged",
-        "limits": "historical duration sums under alternate partitioning, not future CI timing; new Materials/Node cases retain30second fallback"
+        "limits": "historical duration sums under alternate partitioning, not future CI timing; new Materials/Node cases retain30second fallback",
+        "review": {
+          "state": "PASS, no actionable findings",
+          "actualAgent": "/root/ci_cache_review",
+          "role": "independent TASK",
+          "model": "gpt-6-astra",
+          "reasoning": "xhigh",
+          "mechanism": "ROOT retained reviewer followup",
+          "candidate": "cafc84827a71be6172c1811dcae1c2aaa3e65d7c",
+          "launch": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_HINT_REFRESH_REVIEW_LAUNCH.md",
+          "launchSha256": "b9f19203cecb5f1d9ceb3db08ec31bc7fa43c39fad4ccd9f08faeb33da1bfe86",
+          "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_HINT_REFRESH_REVIEW_RETURN.md",
+          "returnSha256": "3e918a6fcc6e22231571981b7b265fa3a42c0b0002ea846738db57405ef82d4c",
+          "provenance": "collection/plan fromd02bb990; durations/source bodies from80770322. Independent review verified only in-body portable Undo key differs, identity/config/grouping compatible; not a fresh8077 collection."
+        }
       }
     },
     "B4-3-CODEX-MANAGER": {
@@ -2557,16 +2571,16 @@
     "B4-3-INTEGRATION": {
       "role": "ROOT integration",
       "parent": "ROOT",
-      "state": "initial clean combined source/native/ROOT records; no final freeze or PR",
+      "state": "clean Node/Materials source and native packet integrated; reviewed final CI/ROOT records ready for merge, then complete candidate gates",
       "branch": "codex/swbpipe-b4-materials-integration-20260921",
-      "candidate": "8883aca03c091b57ee37fe6d3923650ca1755a44",
-      "desktopTree": "d389887bcbd67f286d65c8d0534161a5aa161df9",
+      "candidate": "8aa29afc2ca56474cebbaa311c1ece9849e5eedf",
+      "desktopTree": "569bb433ce914ef5f96234bc1ddfbb4a82700924",
       "scope": "reviewed Materials and cache maintenance plus truthful run evidence; Node diagnosis before final freeze",
       "remaining": [
-        "Node diagnostic disposition and any affected repair/review/native checks",
-        "single clean combined DEC-025 sweep",
-        "final combined source/evidence/records review and applicable preflight",
-        "actual-head hosted CI and merge"
+        "merge reviewed final CI and ROOT own-look/review records",
+        "cheap full-range preflight and one clean DEC-025 sweep",
+        "complete candidate source/evidence review including Node-native/ROOT packet",
+        "actual-head hosted CI/merge and main cache observation"
       ],
       "dependsOn": [
         "B4-3-CODEX-MANAGER",
@@ -2869,7 +2883,7 @@
       "B4-NODE-SORT-UNDO-DIAG"
     ]
   ],
-  "current_frontier": "Materials and Node-review repair are source-reviewed and natively checked; local native/browser resources released. Freeze duration-data refresh for bounded independent backcheck, then combine all source/evidence for final cheap gates, one clean full sweep, complete candidate review, actual-head CI/merge and main-cache observation. C4/live CLI decisions and qualification holds remain.",
+  "current_frontier": "All maintained component changes reviewed; scoped Materials/Node-native and ROOT observations complete. Compose final clean candidate, run cheap full-range gates and one registered sweep with complete combined review, then actual-head CI/merge and main-cache observation. C4/live CLI decisions and qualification holds remain.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -3157,19 +3171,19 @@
     "scope": "No silence-as-approval; unaffected authorized B4 work proceeds"
   },
   "liveContinuationState": {
-    "root": "132112c1edf99f159a7c150177b137de3d72ed6a plus current backcheck/continuity records",
+    "root": "cafc84827a71be6172c1811dcae1c2aaa3e65d7c plus CI review/continuity checkpoint",
     "originMain": "c9f19195214b2e097980dde5e0d5fccbfba8e34c",
     "integrationBranch": {
       "branch": "codex/swbpipe-b4-materials-integration-20260921",
-      "head": "6b48c8c5b427a7b1bd4731e91d8e15e3711923b8",
-      "state": "clean initial combined source; no final candidate/sweep yet; old Node integration branch preserved"
+      "head": "8aa29afc2ca56474cebbaa311c1ece9849e5eedf",
+      "state": "clean source/native fan-in; final reviewed CI/ROOT records next"
     },
     "shell": "clean native taildd8be592, desktop exactly reviewed15186; manager/source held",
     "canvas": "fb720420 preserved; C4 preparation returned",
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "isolated226b probe retains two authorized source edits and two untracked dependency entries; preserved, never fan-in",
     "resources": "nativePID22492 quit and process-only absent; ports5173/5174/5175/shared lock released. Peer notified. No local heavy run; next full-sweep reservation pending.",
-    "recordStatus": "all source/native scoped checks returned; CI hint data31policy pass, independent review and combined final gates next",
+    "recordStatus": "CI hint review PASS; final candidate composition and complete checks next",
     "observedAt": "2026-09-21T09:29:01.005295+00:00"
   },
   "historicalPauses": [
