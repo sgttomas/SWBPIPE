@@ -1,4 +1,4 @@
-# Brief — R2 package-wave worker (3–4 deliverables, sealed two passes)
+# Brief — R2 package-wave worker (2–4 deliverables, sealed two passes)
 
 Role: TASK (Type 2). Your parent is a WORKING_ITEMS manager for one package in
 run `HELP-HUMAN-PIPING-20260921-RECONCILIATION`, whose Agent 0 is HELP_HUMAN
@@ -7,7 +7,7 @@ message and nothing else. Do not delegate.
 
 The launch message supplies:
 
-- `{DELS}`: your 3–4 deliverable IDs, all from `{PKG}`;
+- `{DELS}`: your 2–4 deliverable IDs, all from `{PKG}`;
 - `{PKG}`: the package ID;
 - `{WAVE}`: the wave ID, for example `W1`;
 - `{FREEZE}`: a read-only checkout of the frozen state
@@ -74,8 +74,10 @@ Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
    - F2: Remaining units are `DECLARED_STATE`; an accurate item with an open
      action is `ALIGNED` with `OPEN_ACTION: <governing key>` only when a
      non-aligned governing row carries the work;
-   - F3: setup-era origin text (before 2026-07-14, by `git log -S`) is
-     `STALE_SETUP_SPECIFICATION`;
+   - F3: text first present at the initial migration (`7bee9ae41`,
+     2026-05-18, by `git log -S`) is `STALE_SETUP_SPECIFICATION`; keyed CS
+     rows keep their class, and revision pins, review states and metadata
+     stay `STALE_REVIEW_OR_EVIDENCE`;
    - F7: a tested engine with no product caller satisfies only claims about
      that engine; mark such `ALIGNED` rows `PRODUCT_CALLER: NONE`;
    - F8: the tier follows the remaining gap.

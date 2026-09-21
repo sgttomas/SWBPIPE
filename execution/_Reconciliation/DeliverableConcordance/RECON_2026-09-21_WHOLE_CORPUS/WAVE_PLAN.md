@@ -85,6 +85,8 @@ Wave 1 is not rerun; its disagreements are in `WAVES/W1/RESOLUTIONS.csv`.
   (Direction 6).
 - As each manager returns, its package verifier takes the freed slot, at
   `DOUBLE` sampling.
+- A verifier-triggered rerun manager (see "Verifier reruns") waits for a
+  free slot; the cap is never exceeded to start one.
 - Gate: the four wave 1 conditions, judged per package. Verifier
   resolutions are recorded in `WAVES/W2/RESOLUTIONS.csv` (F6), and condition
   3 is judged with batch mode `--resolutions`.
@@ -100,9 +102,10 @@ rolling queue rather than fixed waves:
 - Queue order: PKG-05, PKG-06, PKG-08 to PKG-12, PKG-13 to PKG-15 and PKG-17
   (the order approved at the start, after gate wave 2).
 - One manager per live package, as many as the cap allows. A manager's worker budget is set so that Agent 0 +
-  managers + all workers + verifiers = 16. Worker groups stay at 3–4
+  managers + all workers + verifiers = 16. Worker groups stay at 2–4
   deliverables from one package (`R0_REVIEW.md` §7, shared text judged by one
-  mind); with 89 deliverables queued this never limits concurrency.
+  mind); with 58 deliverables queued after gate wave 2 this never limits
+  concurrency.
 - When a worker returns, its manager launches the next group at once. When a
   package's workers are done, Agent 0 launches its verifier and the next
   package's manager as slots free, rebalancing budgets so the total stays at

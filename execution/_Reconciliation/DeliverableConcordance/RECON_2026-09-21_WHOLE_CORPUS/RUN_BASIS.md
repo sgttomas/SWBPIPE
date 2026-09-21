@@ -226,3 +226,14 @@ taxonomy per DEC-081).
   `--notes-gap` and batch `--resolutions`; the worker, manager and verifier
   briefs carry Part F; `WAVES/W1/RESOLUTIONS.csv` records all 32 wave 1
   disagreements. Gate wave 2 is PKG-00 to PKG-04 at the full cap.
+- 2026-09-21 — Backcheck 8 findings repaired. F3 now uses the ruled cutoff
+  (the initial migration `7bee9ae41`, 2026-05-18), and keyed CS rows, pins,
+  review states and metadata keep `STALE_REVIEW_OR_EVIDENCE`. F2's
+  generalised sentence is labelled AGENT. The `--notes-gap` check scans only
+  Notes and RemainingWork with path tokens removed, and matches "gaps" and
+  "no … test"; on wave 1 it flags 59 of 715 ALIGNED rows and catches all 5
+  firm false alignments. `GAP_WORDING_CHECKED` needs at least 25 characters.
+  The DEL-07-02 CLM-026 resolution is set to INVARIANT · IP_DATA;RECORD
+  under F8. Six verifier observations are added as CONTESTED or OBSERVED
+  rows (38 in total). Briefs say 2–4 deliverables per group, and a rerun
+  manager waits for a free slot.

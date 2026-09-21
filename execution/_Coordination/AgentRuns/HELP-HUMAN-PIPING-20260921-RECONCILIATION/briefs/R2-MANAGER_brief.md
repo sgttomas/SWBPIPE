@@ -12,7 +12,7 @@ The launch message supplies:
 
 - `{PKG}`;
 - `{WAVE}`;
-- `{ASSIGNMENTS}`: worker groups, 3–4 deliverables each;
+- `{ASSIGNMENTS}`: worker groups, 2–4 deliverables each;
 - `{WORKER_BUDGET}`: the maximum number of your children live at once;
 - `{FREEZE}`;
 - `{REPO}`.

@@ -420,19 +420,24 @@ accurate and the action it records is still open:
 - otherwise the Remaining row takes the gap disposition itself
   (`DOCUMENTED_UNIMPLEMENTED` or `PARTIALLY_IMPLEMENTED`), so the open work is
   not lost.
-A Remaining item whose runtime observation predates later changes to the
-code it describes, with no newer record, is `UNKNOWN · EVIDENCE_NOT_LOCATED`
-(the W1 resolution of body `1840ad3a…`).
+*AGENT (not ruled; precedence clause applies):* a Remaining item whose
+runtime observation predates later changes to the code it describes, with no
+newer record, is `UNKNOWN · EVIDENCE_NOT_LOCATED` (generalised from the W1
+verifier's resolution of body `1840ad3a…`).
 
 **F3. Origin test for the stale classes (clarifies C6(c)).** Text first
-present before the Scope of Work migration (2026-07-14), found with
-`git log -S` on the frozen history, is `STALE_SETUP_SPECIFICATION`, even
-where the migration re-declared it. `STALE_REVIEW_OR_EVIDENCE` is for text
-first declared at or after the migration.
+present at the initial migration (commit `7bee9ae41`, "Initial migrated
+Chirality repository", 2026-05-18), found with `git log -S` on the frozen
+history, is `STALE_SETUP_SPECIFICATION`, even where the Scope of Work
+migration later re-declared it. `STALE_REVIEW_OR_EVIDENCE` is for text first
+declared after the initial migration. Two exceptions keep C6(c) and the
+canonical table intact: keyed CS rows keep their assigned class, and revision
+pins, review states and metadata (such as dates) stay
+`STALE_REVIEW_OR_EVIDENCE` whatever their origin.
 
 **F4. Notes-gap check.** Before sealing, the worker runs the validator with
-`--notes-gap`. It lists `ALIGNED` rows whose evidence, `RemainingWork` or
-Notes contain gap wording. For each listed row the worker either re-disposes
+`--notes-gap`. It lists `ALIGNED` rows whose `RemainingWork` or Notes (path
+tokens removed) contain gap wording. For each listed row the worker either re-disposes
 it (F1) or writes `GAP_WORDING_CHECKED: <why the wording is not an unmet
 element of this claim>` in Notes. Verifiers sample every listed row.
 

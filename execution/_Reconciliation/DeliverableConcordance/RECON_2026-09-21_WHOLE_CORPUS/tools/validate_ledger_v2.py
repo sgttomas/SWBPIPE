@@ -19,8 +19,8 @@ Batch consistency mode (checks rows across several validated forward ledgers):
   recorded resolution values for the listed keys before comparing.
 
 Part F checks (CONVENTIONS F1, F2, F4), required from gate wave 2 onward:
-  add `--notes-gap` to single mode. It fails an ALIGNED row whose evidence,
-  RemainingWork or Notes carry gap wording, unless Notes give
+  add `--notes-gap` to single mode. It fails an ALIGNED row whose RemainingWork or Notes
+  (path tokens removed) carry gap wording, unless Notes give
   `GAP_WORDING_CHECKED: <reason>` or (Remaining rows) `OPEN_ACTION: <key>`;
   requires ClaimType DECLARED_STATE on STATUS#remaining units; and requires an
   OPEN_ACTION key to name a non-aligned row of the same ledger.
@@ -296,9 +296,14 @@ def validate_one(a, f):
 
 
 GAP_WORDING = re.compile(
-    r"not located|not found|carried on|carried by|dispositioned on|partial|unmet|missing|gap\b|"
-    r"no test|untested|not asserted|not exercised|not evidenced|absent|lacks|without", re.I)
-GAP_COLUMNS = ("ImplementationEvidence", "VerificationEvidence", "RemainingWork", "Notes")
+    r"not located|not found|carried on|carried by|dispositioned on|partial|unmet|missing|gaps?\b|"
+    r"\bno\b[^.;]{0,40}\btests?\b|untested|not asserted|not exercised|not evidenced|absent|lacks|without",
+    re.I)
+# Evidence columns hold path tokens only (Part D), so they are not scanned; path-like tokens are
+# stripped from Notes and RemainingWork before matching.
+GAP_COLUMNS = ("RemainingWork", "Notes")
+PATH_TOKEN = re.compile(r"`[^`]*`|\S*[/\\]\S*|\S+\.(?:py|rs|tsx?|mjs|js|json|ya?ml|md|csv)\b|\S+::\S+")
+ESCAPES = re.compile(r"(?:GAP_WORDING_CHECKED|CANONICAL_DEPARTURE|PRETYPE_OVERRIDE):[^|]*")
 
 
 def part_f(a, rows, f):
@@ -319,8 +324,9 @@ def part_f(a, rows, f):
                 f.append(f"{tag}: F2: OPEN_ACTION row {tgt} is ALIGNED, so it does not carry the open work")
         if r["Disposition"] != "ALIGNED":
             continue
-        hit = next((m.group(0) for c in GAP_COLUMNS for m in [GAP_WORDING.search(r[c])] if m), None)
-        if hit and not re.search(r"GAP_WORDING_CHECKED:\s*\S.{9,}", r["Notes"]) and not oa:
+        hit = next((m.group(0) for c in GAP_COLUMNS
+                    for m in [GAP_WORDING.search(PATH_TOKEN.sub(" ", ESCAPES.sub(" ", r[c])))] if m), None)
+        if hit and not re.search(r"GAP_WORDING_CHECKED:\s*\S.{24,}", r["Notes"]) and not oa:
             listed += 1
             f.append(f"{tag}: F4: ALIGNED row carries gap wording {hit!r}; re-dispose it (F1) or add "
                      "GAP_WORDING_CHECKED: <why this is not an unmet element of the claim>")
