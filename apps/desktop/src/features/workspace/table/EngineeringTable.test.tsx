@@ -316,3 +316,27 @@ it("keeps text rejection local and ignores a late text completion after same-ID 
   await act(async () => complete({ applied: true, messages: ["Old text accepted"] }));
   expect(screen.getByRole("textbox")).toHaveValue("New draft"); expect(screen.queryByText("Old text accepted")).not.toBeInTheDocument();
 });
+
+it.each(["direct", "review"] as const)("initializes %s numeric/text selection once per edit without resetting later caret placement", (policy) => {
+  for (const field of ["x", "label"] as const) {
+    const row = { key: rows()[0].key, label: "n:0", cells: { [field]: { value: "1234", unit: field === "x" ? "m" : "none" } } };
+    const shared = { label: "Initial selection", rows: [row], columns: [{ key: field, label: field === "x" ? "X" : "Label", unit: field === "x" ? "m" : "", kind: field === "x" ? "quantity" as const : "text" as const }], generation: "p", density: "comfortable" as const, filter: "", selectedKey: row.key, onSelect: vi.fn() };
+    const view = render(policy === "direct"
+      ? <EngineeringTable {...shared} onApply={vi.fn()} />
+      : <EngineeringTable {...shared} policy="review" resetEditsKey={0} onDraftChange={vi.fn()} onKeepDraft={() => ({ retained: true, messages: [] })} />);
+    const target = () => screen.getByTestId(`${policy === "review" ? "review" : "table"}-cell-n:0-${field}`);
+    fireEvent.keyDown(target(), { key: "7" });
+    let input = screen.getByRole("textbox") as HTMLInputElement;
+    expect(input.value).toBe("7"); expect([input.selectionStart, input.selectionEnd]).toEqual([1, 1]);
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    fireEvent.keyDown(target(), { key: "Enter" }); input = screen.getByRole("textbox") as HTMLInputElement;
+    expect([input.selectionStart, input.selectionEnd]).toEqual([0, 4]);
+    input.setSelectionRange(2, 2);
+    act(() => screen.getByRole("button", { name: policy === "review" ? "Keep draft" : "Apply" }).focus());
+    act(() => input.focus()); expect([input.selectionStart, input.selectionEnd]).toEqual([2, 2]);
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    fireEvent.doubleClick(target()); input = screen.getByRole("textbox") as HTMLInputElement;
+    expect([input.selectionStart, input.selectionEnd]).toEqual([0, 4]);
+    view.unmount();
+  }
+});

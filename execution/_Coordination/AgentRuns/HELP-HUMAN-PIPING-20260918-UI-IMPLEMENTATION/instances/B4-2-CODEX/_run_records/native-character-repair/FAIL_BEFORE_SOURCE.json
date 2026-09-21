@@ -1,0 +1,5 @@
+{
+  "src/features/workspace/table/EngineeringTable.tsx": "c44ba7c8f30f2f8d32adfaa798706363f4d52f727bb0d6eec3d67f546846ab8d",
+  "src/features/workspace/table/tableState.ts": "cbbd0eb55477aadc38fcbd75fc7cf99dde291e8f73d5d7bca414cc6f3d7803fd",
+  "e2e/b4-table-editing.spec.ts": "5fc543a8568ab141eee1c61f956e4c7f03ce0cedc328579fbfbeb96cfd19aeaf"
+}

@@ -1,0 +1,9 @@
+{
+  "base": "7b900eaad764603a3c58dd643ebaa34ea569a1d9",
+  "paths": {
+    "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts": "db302840c9a85c06484f2eb1e9806d41445e9ccaceb2c9a3340b7c61048e5bb6",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.test.tsx": "5dd1fc176b12136556dc3ec683e47629ab4ab922bcec69a8ade7b395f5518f61",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx": "ba39e200dc3a6136274de9f174c7b4131f2e2e99399e732a864fc84282de9e34",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/tableState.ts": "6e4c44c9bd3ea231317b48c15814df08cbfeda80f1a8828314837d79e5c89ffb"
+  }
+}
