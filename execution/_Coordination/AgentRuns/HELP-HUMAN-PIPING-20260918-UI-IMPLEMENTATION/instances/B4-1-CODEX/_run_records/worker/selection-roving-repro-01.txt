@@ -1,0 +1,60 @@
+
+ RUN  v4.1.10 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/workspace/table/EngineeringTable.test.tsx (23 tests | 4 failed | 19 skipped) 86ms
+     × preserves newer selection without DOM focus movement, including ABA=false 57ms
+     × preserves newer selection without DOM focus movement, including ABA=true 15ms
+     × restores a live roving entry after filter without stealing external focus 7ms
+     × restores a live roving entry after deletion without stealing external focus 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > preserves newer selection without DOM focus movement, including ABA=false
+ FAIL  src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > preserves newer selection without DOM focus movement, including ABA=true
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      "["node","n:1"]",
+    ]
+
+
+Number of calls: 1
+
+ ❯ src/features/workspace/table/EngineeringTable.test.tsx:183:90
+    181|     if (aba) view.rerender(<EngineeringTable {...props} selectedKey={i…
+    182|     expect(input).toHaveFocus(); select.mockClear();
+    183|     await act(async () => complete({ applied: true, messages: [] })); …
+       |                                                                                          ^
+    184|   });
+    185|   it.each(["filter", "deletion"])("restores a live roving entry after …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > restores a live roving entry after filter without stealing external focus
+ FAIL  src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > restores a live roving entry after deletion without stealing external focus
+Error: expect(element).toHaveAttribute("tabindex", "0") // element.getAttribute("tabindex") === "0"
+
+Expected the element to have attribute:
+  tabindex="0"
+Received:
+  tabindex="-1"
+ ❯ src/features/workspace/table/EngineeringTable.test.tsx:191:21
+    189|     act(() => cell().focus()); const outside = screen.getByRole("textb…
+    190|     view.rerender(<><input aria-label="Outside filter" /><EngineeringT…
+    191|     expect(cell(1)).toHaveAttribute("tabindex", "0"); expect(outside).…
+       |                     ^
+    192|     act(() => cell(1).focus()); expect(select).toHaveBeenLastCalledWit…
+    193|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 19 skipped (23)
+   Start at  16:53:43
+   Duration  669ms (transform 81ms, setup 93ms, import 92ms, tests 86ms, environment 309ms)
+

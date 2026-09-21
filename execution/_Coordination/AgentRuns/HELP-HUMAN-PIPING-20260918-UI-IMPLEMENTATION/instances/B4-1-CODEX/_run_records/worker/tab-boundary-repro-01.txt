@@ -1,0 +1,2127 @@
+
+ RUN  v4.1.10 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/workspace/table/EngineeringTable.test.tsx (19 tests | 3 failed | 14 skipped) 3129ms
+     × exits the editing forward boundary after no-op Apply to a persistent visible footer 1058ms
+     × exits the editing forward boundary after accepted Apply to a persistent visible footer 1016ms
+     × exits a no-op backward editing boundary to the row header 1018ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > exits the editing forward boundary after no-op Apply to a persistent visible footer
+Error: expect(element).toHaveFocus()
+
+Expected element with focus:
+  <div
+  class="engineering-table-footer"
+>
+  <span>
+    3
+     of·
+    3
+     rows
+  </span>
+</div>
+Received element with focus:
+  <body>
+  <div>
+    <input
+      aria-label="Filter"
+      value=""
+    />
+    <button
+      data-table-action="another-table"
+    >
+      Outside
+    </button>
+    <div
+      class="engineering-table"
+      data-testid="engineering-table"
+      tabindex="-1"
+    >
+      <div
+        aria-colcount="4"
+        aria-label="Node coordinates"
+        aria-rowcount="4"
+        role="grid"
+      >
+        <div
+          class="engineering-table-row engineering-table-header"
+          role="row"
+          style="grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"
+        >
+          <div
+            role="columnheader"
+          >
+            Node
+          </div>
+          <div
+            aria-sort="none"
+            role="columnheader"
+          >
+            <button
+              aria-label="Sort X"
+              type="button"
+            >
+              X
+               [
+              m
+              ]·
+              <span
+                aria-hidden="true"
+              >
+                ↕
+              </span>
+            </button>
+          </div>
+          <div
+            aria-sort="none"
+            role="columnheader"
+          >
+            <button
+              aria-label="Sort Y"
+              type="button"
+            >
+              Y
+               [
+              m
+              ]·
+              <span
+                aria-hidden="true"
+              >
+                ↕
+              </span>
+            </button>
+          </div>
+          <div
+            aria-sort="none"
+            role="columnheader"
+          >
+            <button
+              aria-label="Sort Z"
+              type="button"
+            >
+              Z
+               [
+              m
+              ]·
+              <span
+                aria-hidden="true"
+              >
+                ↕
+              </span>
+            </button>
+          </div>
+        </div>
+        <div
+          data-testid="engineering-table-rows"
+          role="rowgroup"
+          style="height: 360px; overflow-y: hidden;"
+        >
+          <div>
+            <div
+              data-virtual-index="0"
+              style="box-sizing: border-box; height: 36px; overflow: hidden;"
+            >
+              <div
+                aria-rowindex="2"
+                aria-selected="true"
+                class="engineering-table-row selected"
+                role="row"
+                style="grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"
+              >
+                <div
+                  role="rowheader"
+                >
+                  <button
+                    title="n:0"
+                    type="button"
+                  >
+                    n:0
+                  </button>
+                </div>
+                <div
+                  aria-selected="false"
+                  class="engineering-table-cell"
+                  role="gridcell"
+                >
+                  <button
+                    aria-label="n:0 X: 0 m"
+                    data-column-key="x"
+                    data-row-key="["node","n:0"]"
+                    data-table-cell="true"
+                    data-testid="table-cell-n:0-x"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    0
+                  </button>
+                </div>
+                <div
+                  aria-selected="false"
+                  class="engineering-table-cell"
+                  role="gridcell"
+                >
+                  <button
+                    aria-label="n:0 Y: 0 m"
+                    data-column-key="y"
+                    data-row-key="["node","n:0"]"
+                    data-table-cell="true"
+                    data-testid="table-cell-n:0-y"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    0
+                  </button>
+                </div>
+                <div
+                  aria-selected="false"
+                  class="engineering-table-cell"
+                  role="gridcell"
+                >
+                  <button
+                    aria-label="n:0 Z: 0 m"
+                    data-column-key="z"
+                    data-row-key="["node","n:0"]"
+                    data-table-cell="true"
+                    data-testid="table-cell-n:0-z"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    0
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div
+              data-virtual-index="1"
+              style="box-sizing: border-box; height: 36px; overflow: hidden;"
+            >
+              <div
+                aria-rowindex="3"
+                aria-selected="false"
+                class="engineering-table-row stripe"
+                role="row"
+                style="grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"
+              >
+                <div
+                  role="rowheader"
+                >
+                  <button
+                    title="n:1"
+                    type="button"
+                  >
+                    n:1
+                  </button>
+                </div>
+                <div
+                  aria-selected="false"
+                  class="engineering-table-cell"
+                  role="gridcell"
+                >
+                  <button
+                    aria-label="n:1 X: 1 m"
+                    data-column-key="x"
+                    data-row-key="["node","n:1"]"
+                    data-table-cell="true"
+                    data-testid="table-cell-n:1-x"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    1
+                  </button>
+                </div>
+                <div
+                  aria-selected="false"
+                  class="engineering-table-cell"
+                  role="gridcell"
+                >
+                  <button
+                    aria-label="n:1 Y: 0 m"
+                    data-column-key="y"
+                    data-row-key="["node","n:1"]"
+                    data-table-cell="true"
+                    data-testid="table-cell-n:1-y"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    0
+                  </button>
+                </div>
+                <div
+                  aria-selected="false"
+                  class="engineering-table-cell"
+                  role="gridcell"
+                >
+                  <button
+                    aria-label="n:1 Z: 0 m"
+                    data-column-key="z"
+                    data-row-key="["node","n:1"]"
+                    data-table-cell="true"
+                    data-testid="table-cell-n:1-z"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    0
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div
+              data-virtual-index="2"
+              style="box-sizing: border-box; height: 36px; overflow: hidden;"
+            >
+              <div
+                aria-rowindex="4"
+                aria-selected="false"
+                class="engineering-table-row"
+                role="row"
+                style="grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"
+              >
+                <div
+                  role="rowheader"
+                >
+                  <button
+                    title="n:2"
+                    type="button"
+                  >
+                    n:2
+                  </button>
+                </div>
+                <div
+                  aria-selected="false"
+                  class="engineering-table-cell"
+                  role="gridcell"
+                >
+                  <button
+                    aria-label="n:2 X: 2 m"
+                    data-column-key="x"
+                    data-row-key="["node","n:2"]"
+                    data-table-cell="true"
+                    data-testid="table-cell-n:2-x"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    2
+                  </button>
+                </div>
+                <div
+                  aria-selected="false"
+                  class="engineering-table-cell"
+                  role="gridcell"
+                >
+                  <button
+                    aria-label="n:2 Y: 0 m"
+                    data-column-key="y"
+                    data-row-key="["node","n:2"]"
+                    data-table-cell="true"
+                    data-testid="table-cell-n:2-y"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    0
+                  </button>
+                </div>
+                <div
+                  aria-selected="true"
+                  class="engineering-table-cell"
+                  role="gridcell"
+                >
+                  <button
+                    aria-label="n:2 Z: 0 m"
+                    data-column-key="z"
+                    data-row-key="["node","n:2"]"
+                    data-table-cell="true"
+                    data-testid="table-cell-n:2-z"
+                    tabindex="0"
+                    type="button"
+                  >
+                    0
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="engineering-table-footer"
+      >
+        <span>
+          3
+           of·
+          3
+           rows
+        </span>
+      </div>
+    </div>
+  </div>
+</body>
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<input[39m
+        [33maria-label[39m=[32m"Filter"[39m
+        [33mvalue[39m=[32m""[39m
+      [36m/>[39m
+      [36m<button[39m
+        [33mdata-table-action[39m=[32m"another-table"[39m
+      [36m>[39m
+        [0mOutside[0m
+      [36m</button>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"engineering-table"[39m
+        [33mdata-testid[39m=[32m"engineering-table"[39m
+        [33mtabindex[39m=[32m"-1"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33maria-colcount[39m=[32m"4"[39m
+          [33maria-label[39m=[32m"Node coordinates"[39m
+          [33maria-rowcount[39m=[32m"4"[39m
+          [33mrole[39m=[32m"grid"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"engineering-table-row engineering-table-header"[39m
+            [33mrole[39m=[32m"row"[39m
+            [33mstyle[39m=[32m"grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mrole[39m=[32m"columnheader"[39m
+            [36m>[39m
+              [0mNode[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33maria-sort[39m=[32m"none"[39m
+              [33mrole[39m=[32m"columnheader"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Sort X"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0mX[0m
+                [0m [[0m
+                [0mm[0m
+                [0m] [0m
+                [36m<span[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                [36m>[39m
+                  [0m↕[0m
+                [36m</span>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33maria-sort[39m=[32m"none"[39m
+              [33mrole[39m=[32m"columnheader"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Sort Y"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0mY[0m
+                [0m [[0m
+                [0mm[0m
+                [0m] [0m
+                [36m<span[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                [36m>[39m
+                  [0m↕[0m
+                [36m</span>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33maria-sort[39m=[32m"none"[39m
+              [33mrole[39m=[32m"columnheader"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Sort Z"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0mZ[0m
+                [0m [[0m
+                [0mm[0m
+                [0m] [0m
+                [36m<span[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                [36m>[39m
+                  [0m↕[0m
+                [36m</span>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mdata-testid[39m=[32m"engineering-table-rows"[39m
+            [33mrole[39m=[32m"rowgroup"[39m
+            [33mstyle[39m=[32m"height: 360px; overflow-y: hidden;"[39m
+          [36m>[39m
+            [36m<div>[39m
+              [36m<div[39m
+                [33mdata-virtual-index[39m=[32m"0"[39m
+                [33mstyle[39m=[32m"box-sizing: border-box; height: 36px; overflow: hidden;"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33maria-rowindex[39m=[32m"2"[39m
+                  [33maria-selected[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"engineering-table-row selected"[39m
+                  [33mrole[39m=[32m"row"[39m
+                  [33mstyle[39m=[32m"grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mrole[39m=[32m"rowheader"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33mtitle[39m=[32m"n:0"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0mn:0[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33maria-selected[39m=[32m"false"[39m
+                    [33mclass[39m=[32m"engineering-table-cell"[39m
+                    [33mrole[39m=[32m"gridcell"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33maria-label[39m=[32m"n:0 X: 0 m"[39m
+                      [33mdata-column-key[39m=[32m"x"[39m
+                      [33mdata-row-key[39m=[32m"[\"node\",\"n:0\"]"[39m
+                      [33mdata-table-cell[39m=[32m"true"[39m
+                      [33mdata-testid[39m=[32m"table-cell-n:0-x"[39m
+                      [33mtabindex[39m=[32m"-1"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0m0[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33maria-selected[39m=[32m"false"[39m
+                    [33mclass[39m=[32m"engineering-table-cell"[39m
+                    [33mrole[39m=[32m"gridcell"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33maria-label[39m=[32m"n:0 Y: 0 m"[39m
+                      [33mdata-column-key[39m=[32m"y"[39m
+                      [33mdata-row-key[39m=[32m"[\"node\",\"n:0\"]"[39m
+                      [33mdata-table-cell[39m=[32m"true"[39m
+                      [33mdata-testid[39m=[32m"table-cell-n:0-y"[39m
+                      [33mtabindex[39m=[32m"-1"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0m0[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33maria-selected[39m=[32m"false"[39m
+                    [33mclass[39m=[32m"engineering-table-cell"[39m
+                    [33mrole[39m=[32m"gridcell"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33maria-label[39m=[32m"n:0 Z: 0 m"[39m
+                      [33mdata-column-key[39m=[32m"z"[39m
+                      [33mdata-row-key[39m=[32m"[\"node\",\"n:0\"]"[39m
+                      [33mdata-table-cell[39m=[32m"true"[39m
+                      [33mdata-testid[39m=[32m"table-cell-n:0-z"[39m
+                      [33mtabindex[39m=[32m"-1"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0m0[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mdata-virtual-index[39m=[32m"1"[39m
+                [33mstyle[39m=[32m"box-sizing: border-box; height: 36px; overflow: hidden;"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33maria-rowindex[39m=[32m"3"[39m
+                  [33maria-selected[39m=[32m"false"[39m
+                  [33mclass[39m=[32m"engineering-table-row stripe"[39m
+                  [33mrole[39m=[32m"row"[39m
+                  [33mstyle[39m=[32m"grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mrole[39m=[32m"rowheader"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33mtitle[39m=[32m"n:1"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0mn:1[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33maria-selected[39m=[32m"false"[39m
+                    [33mclass[39m=[32m"engineering-table-cell"[39m
+                    [33mrole[39m=[32m"gridcell"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33maria-label[39m=[32m"n:1 X: 1 m"[39m
+                      [33mdata-column-key[39m=[32m"x"[39m
+                      [33mdata-row-key[39m=[32m"[\"node\",\"n:1\"]"[39m
+                      [33mdata-table-cell[39m=[32m"true"[39m
+                      [33mdata-testid[39m=[32m"table-cell-n:1-x"[39m
+                      [33mtabindex[39m=[32m"-1"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0m1[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33maria-selected[39m=[32m"false"[39m
+                    [33mclass[39m=[32m"engineering-table-cell"[39m
+                    [33mrole[39m=[32m"gridcell"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33maria-label[39m=[32m"n:1 Y: 0 m"[39m
+                      [33mdata-column-key[39m=[32m"y"[39m
+                      [33mdata-row-key[39m=[32m"[\"node\",\"n:1\"]"[39m
+                      [33mdata-table-cell[39m=[32m"true"[39m
+                      [33mdata-testid[39m=[32m"table-cell-n:1-y"[39m
+                      [33mtabindex[39m=[32m"-1"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0m0[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33maria-selected[39m=[32m"false"[39m
+                    [33mclass[39m=[32m"engineering-table-cell"[39m
+                    [33mrole[39m=[32m"gridcell"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33maria-label[39m=[32m"n:1 Z: 0 m"[39m
+                      [33mdata-column-key[39m=[32m"z"[39m
+                      [33mdata-row-key[39m=[32m"[\"node\",\"n:1\"]"[39m
+                      [33mdata-table-cell[39m=[32m"true"[39m
+                      [33mdata-testid[39m=[32m"table-cell-n:1-z"[39m
+                      [33mtabindex[39m=[32m"-1"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0m0[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mdata-virtual-index[39m=[32m"2"[39m
+                [33mstyle[39m=[32m"box-sizing: border-box; height: 36px; overflow: hidden;"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33maria-rowindex[39m=[32m"4"[39m
+                  [33maria-selected[39m=[32m"false"[39m
+                  [33mclass[39m=[32m"engineering-table-row"[39m
+                  [33mrole[39m=[32m"row"[39m
+                  [33mstyle[39m=[32m"grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mrole[39m=[32m"rowheader"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33mtitle[39m=[32m"n:2"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0mn:2[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33maria-selected[39m=[32m"false"[39m
+                    [33mclass[39m=[32m"engineering-table-cell"[39m
+                    [33mrole[39m=[32m"gridcell"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33maria-label[39m=[32m"n:2 X: 2 m"[39m
+                      [33mdata-column-key[39m=[32m"x"[39m
+                      [33mdata-row-key[39m=[32m"[\"node\",\"n:2\"]"[39m
+                      [33mdata-table-cell[39m=[32m"true"[39m
+                      [33mdata-testid[39m=[32m"table-cell-n:2-x"[39m
+                      [33mtabindex[39m=[32m"-1"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0m2[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33maria-selected[39m=[32m"false"[39m
+                    [33mclass[39m=[32m"engineering-table-cell"[39m
+                    [33mrole[39m=[32m"gridcell"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33maria-label[39m=[32m"n:2 Y: 0 m"[39m
+                      [33mdata-column-key[39m=[32m"y"[39m
+                      [33mdata-row-key[39m=[32m"[\"node\",\"n:2\"]"[39m
+                      [33mdata-table-cell[39m=[32m"true"[39m
+                      [33mdata-testid[39m=[32m"table-cell-n:2-y"[39m
+                      [33mtabindex[39m=[32m"-1"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0m0[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33maria-selected[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"engineering-table-cell"[39m
+                    [33mrole[39m=[32m"gridcell"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33maria-label[39m=[32m"n:2 Z: 0 m"[39m
+                      [33mdata-column-key[39m=[32m"z"[39m
+                      [33mdata-row-key[39m=[32m"[\"node\",\"n:2\"]"[39m
+                      [33mdata-table-cell[39m=[32m"true"[39m
+                      [33mdata-testid[39m=[32m"table-cell-n:2-z"[39m
+                      [33mtabindex[39m=[32m"0"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0m0[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"engineering-table-footer"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0m3[0m
+            [0m of [0m
+            [0m3[0m
+            [0m rows[0m
+          [36m</span>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ❯ src/features/workspace/table/EngineeringTable.test.tsx:152:85
+    150|     const input = edit(2, "z"); if (mode === "accepted") fireEvent.cha…
+    151|     fireEvent.keyDown(input, { key: "Tab" });
+    152|     await waitFor(() => expect(document.querySelector(".engineering-ta…
+       |                                                                                     ^
+    153|     expect(screen.queryByRole("textbox", { name: "n:2 Z [m]" })).not.t…
+    154|     expect(cell(2, "z")).not.toHaveFocus(); expect(apply).toHaveBeenCa…
+ ❯ runWithExpensiveErrorDiagnosticsDisabled ../../node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback ../../node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback ../../node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > exits the editing forward boundary after accepted Apply to a persistent visible footer
+Error: expect(element).toHaveFocus()
+
+Expected element with focus:
+  <div
+  class="engineering-table-footer"
+>
+  <span>
+    3
+     of·
+    3
+     rows
+  </span>
+</div>
+Received element with focus:
+  <body>
+  <div>
+    <input
+      aria-label="Filter"
+      value=""
+    />
+    <button
+      data-table-action="another-table"
+    >
+      Outside
+    </button>
+    <div
+      class="engineering-table"
+      data-testid="engineering-table"
+      tabindex="-1"
+    >
+      <div
+        aria-colcount="4"
+        aria-label="Node coordinates"
+        aria-rowcount="4"
+        role="grid"
+      >
+        <div
+          class="engineering-table-row engineering-table-header"
+          role="row"
+          style="grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"
+        >
+          <div
+            role="columnheader"
+          >
+            Node
+          </div>
+          <div
+            aria-sort="none"
+            role="columnheader"
+          >
+            <button
+              aria-label="Sort X"
+              type="button"
+            >
+              X
+               [
+              m
+              ]·
+              <span
+                aria-hidden="true"
+              >
+                ↕
+              </span>
+            </button>
+          </div>
+          <div
+            aria-sort="none"
+            role="columnheader"
+          >
+            <button
+              aria-label="Sort Y"
+              type="button"
+            >
+              Y
+               [
+              m
+              ]·
+              <span
+                aria-hidden="true"
+              >
+                ↕
+              </span>
+            </button>
+          </div>
+          <div
+            aria-sort="none"
+            role="columnheader"
+          >
+            <button
+              aria-label="Sort Z"
+              type="button"
+            >
+              Z
+               [
+              m
+              ]·
+              <span
+                aria-hidden="true"
+              >
+                ↕
+              </span>
+            </button>
+          </div>
+        </div>
+        <div
+          data-testid="engineering-table-rows"
+          role="rowgroup"
+          style="height: 360px; overflow-y: hidden;"
+        >
+          <div>
+            <div
+              data-virtual-index="0"
+              style="box-sizing: border-box; height: 36px; overflow: hidden;"
+            >
+              <div
+                aria-rowindex="2"
+                aria-selected="true"
+                class="engineering-table-row selected"
+                role="row"
+                style="grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"
+              >
+                <div
+                  role="rowheader"
+                >
+                  <button
+                    title="n:0"
+                    type="button"
+                  >
+                    n:0
+                  </button>
+                </div>
+                <div
+                  aria-selected="false"
+                  class="engineering-table-cell"
+                  role="gridcell"
+                >
+                  <button
+                    aria-label="n:0 X: 0 m"
+                    data-column-key="x"
+                    data-row-key="["node","n:0"]"
+                    data-table-cell="true"
+                    data-testid="table-cell-n:0-x"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    0
+                  </button>
+                </div>
+                <div
+                  aria-selected="false"
+                  class="engineering-table-cell"
+                  role="gridcell"
+                >
+                  <button
+                    aria-label="n:0 Y: 0 m"
+                    data-column-key="y"
+                    data-row-key="["node","n:0"]"
+                    data-table-cell="true"
+                    data-testid="table-cell-n:0-y"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    0
+                  </button>
+                </div>
+                <div
+                  aria-selected="false"
+                  class="engineering-table-cell"
+                  role="gridcell"
+                >
+                  <button
+                    aria-label="n:0 Z: 0 m"
+                    data-column-key="z"
+                    data-row-key="["node","n:0"]"
+                    data-table-cell="true"
+                    data-testid="table-cell-n:0-z"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    0
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div
+              data-virtual-index="1"
+              style="box-sizing: border-box; height: 36px; overflow: hidden;"
+            >
+              <div
+                aria-rowindex="3"
+                aria-selected="false"
+                class="engineering-table-row stripe"
+                role="row"
+                style="grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"
+              >
+                <div
+                  role="rowheader"
+                >
+                  <button
+                    title="n:1"
+                    type="button"
+                  >
+                    n:1
+                  </button>
+                </div>
+                <div
+                  aria-selected="false"
+                  class="engineering-table-cell"
+                  role="gridcell"
+                >
+                  <button
+                    aria-label="n:1 X: 1 m"
+                    data-column-key="x"
+                    data-row-key="["node","n:1"]"
+                    data-table-cell="true"
+                    data-testid="table-cell-n:1-x"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    1
+                  </button>
+                </div>
+                <div
+                  aria-selected="false"
+                  class="engineering-table-cell"
+                  role="gridcell"
+                >
+                  <button
+                    aria-label="n:1 Y: 0 m"
+                    data-column-key="y"
+                    data-row-key="["node","n:1"]"
+                    data-table-cell="true"
+                    data-testid="table-cell-n:1-y"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    0
+                  </button>
+                </div>
+                <div
+                  aria-selected="false"
+                  class="engineering-table-cell"
+                  role="gridcell"
+                >
+                  <button
+                    aria-label="n:1 Z: 0 m"
+                    data-column-key="z"
+                    data-row-key="["node","n:1"]"
+                    data-table-cell="true"
+                    data-testid="table-cell-n:1-z"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    0
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div
+              data-virtual-index="2"
+              style="box-sizing: border-box; height: 36px; overflow: hidden;"
+            >
+              <div
+                aria-rowindex="4"
+                aria-selected="false"
+                class="engineering-table-row"
+                role="row"
+                style="grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"
+              >
+                <div
+                  role="rowheader"
+                >
+                  <button
+                    title="n:2"
+                    type="button"
+                  >
+                    n:2
+                  </button>
+                </div>
+                <div
+                  aria-selected="false"
+                  class="engineering-table-cell"
+                  role="gridcell"
+                >
+                  <button
+                    aria-label="n:2 X: 2 m"
+                    data-column-key="x"
+                    data-row-key="["node","n:2"]"
+                    data-table-cell="true"
+                    data-testid="table-cell-n:2-x"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    2
+                  </button>
+                </div>
+                <div
+                  aria-selected="false"
+                  class="engineering-table-cell"
+                  role="gridcell"
+                >
+                  <button
+                    aria-label="n:2 Y: 0 m"
+                    data-column-key="y"
+                    data-row-key="["node","n:2"]"
+                    data-table-cell="true"
+                    data-testid="table-cell-n:2-y"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    0
+                  </button>
+                </div>
+                <div
+                  aria-selected="true"
+                  class="engineering-table-cell"
+                  role="gridcell"
+                >
+                  <button
+                    aria-label="n:2 Z: 3 m"
+                    data-column-key="z"
+                    data-row-key="["node","n:2"]"
+                    data-table-cell="true"
+                    data-testid="table-cell-n:2-z"
+                    tabindex="0"
+                    type="button"
+                  >
+                    3
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="engineering-table-footer"
+      >
+        <span>
+          3
+           of·
+          3
+           rows
+        </span>
+      </div>
+      <p
+        class="engineering-table-message"
+        role="status"
+      >
+        Cell applied.
+      </p>
+    </div>
+  </div>
+</body>
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<input[39m
+        [33maria-label[39m=[32m"Filter"[39m
+        [33mvalue[39m=[32m""[39m
+      [36m/>[39m
+      [36m<button[39m
+        [33mdata-table-action[39m=[32m"another-table"[39m
+      [36m>[39m
+        [0mOutside[0m
+      [36m</button>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"engineering-table"[39m
+        [33mdata-testid[39m=[32m"engineering-table"[39m
+        [33mtabindex[39m=[32m"-1"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33maria-colcount[39m=[32m"4"[39m
+          [33maria-label[39m=[32m"Node coordinates"[39m
+          [33maria-rowcount[39m=[32m"4"[39m
+          [33mrole[39m=[32m"grid"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"engineering-table-row engineering-table-header"[39m
+            [33mrole[39m=[32m"row"[39m
+            [33mstyle[39m=[32m"grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mrole[39m=[32m"columnheader"[39m
+            [36m>[39m
+              [0mNode[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33maria-sort[39m=[32m"none"[39m
+              [33mrole[39m=[32m"columnheader"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Sort X"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0mX[0m
+                [0m [[0m
+                [0mm[0m
+                [0m] [0m
+                [36m<span[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                [36m>[39m
+                  [0m↕[0m
+                [36m</span>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33maria-sort[39m=[32m"none"[39m
+              [33mrole[39m=[32m"columnheader"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Sort Y"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0mY[0m
+                [0m [[0m
+                [0mm[0m
+                [0m] [0m
+                [36m<span[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                [36m>[39m
+                  [0m↕[0m
+                [36m</span>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33maria-sort[39m=[32m"none"[39m
+              [33mrole[39m=[32m"columnheader"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Sort Z"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0mZ[0m
+                [0m [[0m
+                [0mm[0m
+                [0m] [0m
+                [36m<span[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                [36m>[39m
+                  [0m↕[0m
+                [36m</span>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mdata-testid[39m=[32m"engineering-table-rows"[39m
+            [33mrole[39m=[32m"rowgroup"[39m
+            [33mstyle[39m=[32m"height: 360px; overflow-y: hidden;"[39m
+          [36m>[39m
+            [36m<div>[39m
+              [36m<div[39m
+                [33mdata-virtual-index[39m=[32m"0"[39m
+                [33mstyle[39m=[32m"box-sizing: border-box; height: 36px; overflow: hidden;"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33maria-rowindex[39m=[32m"2"[39m
+                  [33maria-selected[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"engineering-table-row selected"[39m
+                  [33mrole[39m=[32m"row"[39m
+                  [33mstyle[39m=[32m"grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mrole[39m=[32m"rowheader"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33mtitle[39m=[32m"n:0"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0mn:0[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33maria-selected[39m=[32m"false"[39m
+                    [33mclass[39m=[32m"engineering-table-cell"[39m
+                    [33mrole[39m=[32m"gridcell"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33maria-label[39m=[32m"n:0 X: 0 m"[39m
+                      [33mdata-column-key[39m=[32m"x"[39m
+                      [33mdata-row-key[39m=[32m"[\"node\",\"n:0\"]"[39m
+                      [33mdata-table-cell[39m=[32m"true"[39m
+                      [33mdata-testid[39m=[32m"table-cell-n:0-x"[39m
+                      [33mtabindex[39m=[32m"-1"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0m0[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33maria-selected[39m=[32m"false"[39m
+                    [33mclass[39m=[32m"engineering-table-cell"[39m
+                    [33mrole[39m=[32m"gridcell"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33maria-label[39m=[32m"n:0 Y: 0 m"[39m
+                      [33mdata-column-key[39m=[32m"y"[39m
+                      [33mdata-row-key[39m=[32m"[\"node\",\"n:0\"]"[39m
+                      [33mdata-table-cell[39m=[32m"true"[39m
+                      [33mdata-testid[39m=[32m"table-cell-n:0-y"[39m
+                      [33mtabindex[39m=[32m"-1"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0m0[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33maria-selected[39m=[32m"false"[39m
+                    [33mclass[39m=[32m"engineering-table-cell"[39m
+                    [33mrole[39m=[32m"gridcell"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33maria-label[39m=[32m"n:0 Z: 0 m"[39m
+                      [33mdata-column-key[39m=[32m"z"[39m
+                      [33mdata-row-key[39m=[32m"[\"node\",\"n:0\"]"[39m
+                      [33mdata-table-cell[39m=[32m"true"[39m
+                      [33mdata-testid[39m=[32m"table-cell-n:0-z"[39m
+                      [33mtabindex[39m=[32m"-1"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0m0[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mdata-virtual-index[39m=[32m"1"[39m
+                [33mstyle[39m=[32m"box-sizing: border-box; height: 36px; overflow: hidden;"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33maria-rowindex[39m=[32m"3"[39m
+                  [33maria-selected[39m=[32m"false"[39m
+                  [33mclass[39m=[32m"engineering-table-row stripe"[39m
+                  [33mrole[39m=[32m"row"[39m
+                  [33mstyle[39m=[32m"grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mrole[39m=[32m"rowheader"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33mtitle[39m=[32m"n:1"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0mn:1[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33maria-selected[39m=[32m"false"[39m
+                    [33mclass[39m=[32m"engineering-table-cell"[39m
+                    [33mrole[39m=[32m"gridcell"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33maria-label[39m=[32m"n:1 X: 1 m"[39m
+                      [33mdata-column-key[39m=[32m"x"[39m
+                      [33mdata-row-key[39m=[32m"[\"node\",\"n:1\"]"[39m
+                      [33mdata-table-cell[39m=[32m"true"[39m
+                      [33mdata-testid[39m=[32m"table-cell-n:1-x"[39m
+                      [33mtabindex[39m=[32m"-1"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0m1[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33maria-selected[39m=[32m"false"[39m
+                    [33mclass[39m=[32m"engineering-table-cell"[39m
+                    [33mrole[39m=[32m"gridcell"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33maria-label[39m=[32m"n:1 Y: 0 m"[39m
+                      [33mdata-column-key[39m=[32m"y"[39m
+                      [33mdata-row-key[39m=[32m"[\"node\",\"n:1\"]"[39m
+                      [33mdata-table-cell[39m=[32m"true"[39m
+                      [33mdata-testid[39m=[32m"table-cell-n:1-y"[39m
+                      [33mtabindex[39m=[32m"-1"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0m0[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33maria-selected[39m=[32m"false"[39m
+                    [33mclass[39m=[32m"engineering-table-cell"[39m
+                    [33mrole[39m=[32m"gridcell"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33maria-label[39m=[32m"n:1 Z: 0 m"[39m
+                      [33mdata-column-key[39m=[32m"z"[39m
+                      [33mdata-row-key[39m=[32m"[\"node\",\"n:1\"]"[39m
+                      [33mdata-table-cell[39m=[32m"true"[39m
+                      [33mdata-testid[39m=[32m"table-cell-n:1-z"[39m
+                      [33mtabindex[39m=[32m"-1"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0m0[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mdata-virtual-index[39m=[32m"2"[39m
+                [33mstyle[39m=[32m"box-sizing: border-box; height: 36px; overflow: hidden;"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33maria-rowindex[39m=[32m"4"[39m
+                  [33maria-selected[39m=[32m"false"[39m
+                  [33mclass[39m=[32m"engineering-table-row"[39m
+                  [33mrole[39m=[32m"row"[39m
+                  [33mstyle[39m=[32m"grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mrole[39m=[32m"rowheader"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33mtitle[39m=[32m"n:2"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0mn:2[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33maria-selected[39m=[32m"false"[39m
+                    [33mclass[39m=[32m"engineering-table-cell"[39m
+                    [33mrole[39m=[32m"gridcell"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33maria-label[39m=[32m"n:2 X: 2 m"[39m
+                      [33mdata-column-key[39m=[32m"x"[39m
+                      [33mdata-row-key[39m=[32m"[\"node\",\"n:2\"]"[39m
+                      [33mdata-table-cell[39m=[32m"true"[39m
+                      [33mdata-testid[39m=[32m"table-cell-n:2-x"[39m
+                      [33mtabindex[39m=[32m"-1"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0m2[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33maria-selected[39m=[32m"false"[39m
+                    [33mclass[39m=[32m"engineering-table-cell"[39m
+                    [33mrole[39m=[32m"gridcell"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33maria-label[39m=[32m"n:2 Y: 0 m"[39m
+                      [33mdata-column-key[39m=[32m"y"[39m
+                      [33mdata-row-key[39m=[32m"[\"node\",\"n:2\"]"[39m
+                      [33mdata-table-cell[39m=[32m"true"[39m
+                      [33mdata-testid[39m=[32m"table-cell-n:2-y"[39m
+                      [33mtabindex[39m=[32m"-1"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0m0[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33maria-selected[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"engineering-table-cell"[39m
+                    [33mrole[39m=[32m"gridcell"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33maria-label[39m=[32m"n:2 Z: 3 m"[39m
+                      [33mdata-column-key[39m=[32m"z"[39m
+                      [33mdata-row-key[39m=[32m"[\"node\",\"n:2\"]"[39m
+                      [33mdata-table-cell[39m=[32m"true"[39m
+                      [33mdata-testid[39m=[32m"table-cell-n:2-z"[39m
+                      [33mtabindex[39m=[32m"0"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0m3[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"engineering-table-footer"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0m3[0m
+            [0m of [0m
+            [0m3[0m
+            [0m rows[0m
+          [36m</span>[39m
+        [36m</div>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"engineering-table-message"[39m
+          [33mrole[39m=[32m"status"[39m
+        [36m>[39m
+          [0mCell applied.[0m
+        [36m</p>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ❯ src/features/workspace/table/EngineeringTable.test.tsx:152:85
+    150|     const input = edit(2, "z"); if (mode === "accepted") fireEvent.cha…
+    151|     fireEvent.keyDown(input, { key: "Tab" });
+    152|     await waitFor(() => expect(document.querySelector(".engineering-ta…
+       |                                                                                     ^
+    153|     expect(screen.queryByRole("textbox", { name: "n:2 Z [m]" })).not.t…
+    154|     expect(cell(2, "z")).not.toHaveFocus(); expect(apply).toHaveBeenCa…
+ ❯ runWithExpensiveErrorDiagnosticsDisabled ../../node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback ../../node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback ../../node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > exits a no-op backward editing boundary to the row header
+Error: expect(element).toHaveFocus()
+
+Expected element with focus:
+  <button
+  title="n:0"
+  type="button"
+>
+  n:0
+</button>
+Received element with focus:
+  <body>
+  <div>
+    <input
+      aria-label="Filter"
+      value=""
+    />
+    <button
+      data-table-action="another-table"
+    >
+      Outside
+    </button>
+    <div
+      class="engineering-table"
+      data-testid="engineering-table"
+      tabindex="-1"
+    >
+      <div
+        aria-colcount="4"
+        aria-label="Node coordinates"
+        aria-rowcount="4"
+        role="grid"
+      >
+        <div
+          class="engineering-table-row engineering-table-header"
+          role="row"
+          style="grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"
+        >
+          <div
+            role="columnheader"
+          >
+            Node
+          </div>
+          <div
+            aria-sort="none"
+            role="columnheader"
+          >
+            <button
+              aria-label="Sort X"
+              type="button"
+            >
+              X
+               [
+              m
+              ]·
+              <span
+                aria-hidden="true"
+              >
+                ↕
+              </span>
+            </button>
+          </div>
+          <div
+            aria-sort="none"
+            role="columnheader"
+          >
+            <button
+              aria-label="Sort Y"
+              type="button"
+            >
+              Y
+               [
+              m
+              ]·
+              <span
+                aria-hidden="true"
+              >
+                ↕
+              </span>
+            </button>
+          </div>
+          <div
+            aria-sort="none"
+            role="columnheader"
+          >
+            <button
+              aria-label="Sort Z"
+              type="button"
+            >
+              Z
+               [
+              m
+              ]·
+              <span
+                aria-hidden="true"
+              >
+                ↕
+              </span>
+            </button>
+          </div>
+        </div>
+        <div
+          data-testid="engineering-table-rows"
+          role="rowgroup"
+          style="height: 360px; overflow-y: hidden;"
+        >
+          <div>
+            <div
+              data-virtual-index="0"
+              style="box-sizing: border-box; height: 36px; overflow: hidden;"
+            >
+              <div
+                aria-rowindex="2"
+                aria-selected="true"
+                class="engineering-table-row selected"
+                role="row"
+                style="grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"
+              >
+                <div
+                  role="rowheader"
+                >
+                  <button
+                    title="n:0"
+                    type="button"
+                  >
+                    n:0
+                  </button>
+                </div>
+                <div
+                  aria-selected="true"
+                  class="engineering-table-cell"
+                  role="gridcell"
+                >
+                  <button
+                    aria-label="n:0 X: 0 m"
+                    data-column-key="x"
+                    data-row-key="["node","n:0"]"
+                    data-table-cell="true"
+                    data-testid="table-cell-n:0-x"
+                    tabindex="0"
+                    type="button"
+                  >
+                    0
+                  </button>
+                </div>
+                <div
+                  aria-selected="false"
+                  class="engineering-table-cell"
+                  role="gridcell"
+                >
+                  <button
+                    aria-label="n:0 Y: 0 m"
+                    data-column-key="y"
+                    data-row-key="["node","n:0"]"
+                    data-table-cell="true"
+                    data-testid="table-cell-n:0-y"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    0
+                  </button>
+                </div>
+                <div
+                  aria-selected="false"
+                  class="engineering-table-cell"
+                  role="gridcell"
+                >
+                  <button
+                    aria-label="n:0 Z: 0 m"
+                    data-column-key="z"
+                    data-row-key="["node","n:0"]"
+                    data-table-cell="true"
+                    data-testid="table-cell-n:0-z"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    0
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div
+              data-virtual-index="1"
+              style="box-sizing: border-box; height: 36px; overflow: hidden;"
+            >
+              <div
+                aria-rowindex="3"
+                aria-selected="false"
+                class="engineering-table-row stripe"
+                role="row"
+                style="grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"
+              >
+                <div
+                  role="rowheader"
+                >
+                  <button
+                    title="n:1"
+                    type="button"
+                  >
+                    n:1
+                  </button>
+                </div>
+                <div
+                  aria-selected="false"
+                  class="engineering-table-cell"
+                  role="gridcell"
+                >
+                  <button
+                    aria-label="n:1 X: 1 m"
+                    data-column-key="x"
+                    data-row-key="["node","n:1"]"
+                    data-table-cell="true"
+                    data-testid="table-cell-n:1-x"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    1
+                  </button>
+                </div>
+                <div
+                  aria-selected="false"
+                  class="engineering-table-cell"
+                  role="gridcell"
+                >
+                  <button
+                    aria-label="n:1 Y: 0 m"
+                    data-column-key="y"
+                    data-row-key="["node","n:1"]"
+                    data-table-cell="true"
+                    data-testid="table-cell-n:1-y"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    0
+                  </button>
+                </div>
+                <div
+                  aria-selected="false"
+                  class="engineering-table-cell"
+                  role="gridcell"
+                >
+                  <button
+                    aria-label="n:1 Z: 0 m"
+                    data-column-key="z"
+                    data-row-key="["node","n:1"]"
+                    data-table-cell="true"
+                    data-testid="table-cell-n:1-z"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    0
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div
+              data-virtual-index="2"
+              style="box-sizing: border-box; height: 36px; overflow: hidden;"
+            >
+              <div
+                aria-rowindex="4"
+                aria-selected="false"
+                class="engineering-table-row"
+                role="row"
+                style="grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"
+              >
+                <div
+                  role="rowheader"
+                >
+                  <button
+                    title="n:2"
+                    type="button"
+                  >
+                    n:2
+                  </button>
+                </div>
+                <div
+                  aria-selected="false"
+                  class="engineering-table-cell"
+                  role="gridcell"
+                >
+                  <button
+                    aria-label="n:2 X: 2 m"
+                    data-column-key="x"
+                    data-row-key="["node","n:2"]"
+                    data-table-cell="true"
+                    data-testid="table-cell-n:2-x"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    2
+                  </button>
+                </div>
+                <div
+                  aria-selected="false"
+                  class="engineering-table-cell"
+                  role="gridcell"
+                >
+                  <button
+                    aria-label="n:2 Y: 0 m"
+                    data-column-key="y"
+                    data-row-key="["node","n:2"]"
+                    data-table-cell="true"
+                    data-testid="table-cell-n:2-y"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    0
+                  </button>
+                </div>
+                <div
+                  aria-selected="false"
+                  class="engineering-table-cell"
+                  role="gridcell"
+                >
+                  <button
+                    aria-label="n:2 Z: 0 m"
+                    data-column-key="z"
+                    data-row-key="["node","n:2"]"
+                    data-table-cell="true"
+                    data-testid="table-cell-n:2-z"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    0
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="engineering-table-footer"
+      >
+        <span>
+          3
+           of·
+          3
+           rows
+        </span>
+      </div>
+    </div>
+  </div>
+</body>
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<input[39m
+        [33maria-label[39m=[32m"Filter"[39m
+        [33mvalue[39m=[32m""[39m
+      [36m/>[39m
+      [36m<button[39m
+        [33mdata-table-action[39m=[32m"another-table"[39m
+      [36m>[39m
+        [0mOutside[0m
+      [36m</button>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"engineering-table"[39m
+        [33mdata-testid[39m=[32m"engineering-table"[39m
+        [33mtabindex[39m=[32m"-1"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33maria-colcount[39m=[32m"4"[39m
+          [33maria-label[39m=[32m"Node coordinates"[39m
+          [33maria-rowcount[39m=[32m"4"[39m
+          [33mrole[39m=[32m"grid"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"engineering-table-row engineering-table-header"[39m
+            [33mrole[39m=[32m"row"[39m
+            [33mstyle[39m=[32m"grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mrole[39m=[32m"columnheader"[39m
+            [36m>[39m
+              [0mNode[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33maria-sort[39m=[32m"none"[39m
+              [33mrole[39m=[32m"columnheader"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Sort X"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0mX[0m
+                [0m [[0m
+                [0mm[0m
+                [0m] [0m
+                [36m<span[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                [36m>[39m
+                  [0m↕[0m
+                [36m</span>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33maria-sort[39m=[32m"none"[39m
+              [33mrole[39m=[32m"columnheader"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Sort Y"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0mY[0m
+                [0m [[0m
+                [0mm[0m
+                [0m] [0m
+                [36m<span[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                [36m>[39m
+                  [0m↕[0m
+                [36m</span>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33maria-sort[39m=[32m"none"[39m
+              [33mrole[39m=[32m"columnheader"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Sort Z"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0mZ[0m
+                [0m [[0m
+                [0mm[0m
+                [0m] [0m
+                [36m<span[39m
+                  [33maria-hidden[39m=[32m"true"[39m
+                [36m>[39m
+                  [0m↕[0m
+                [36m</span>[39m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mdata-testid[39m=[32m"engineering-table-rows"[39m
+            [33mrole[39m=[32m"rowgroup"[39m
+            [33mstyle[39m=[32m"height: 360px; overflow-y: hidden;"[39m
+          [36m>[39m
+            [36m<div>[39m
+              [36m<div[39m
+                [33mdata-virtual-index[39m=[32m"0"[39m
+                [33mstyle[39m=[32m"box-sizing: border-box; height: 36px; overflow: hidden;"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33maria-rowindex[39m=[32m"2"[39m
+                  [33maria-selected[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"engineering-table-row selected"[39m
+                  [33mrole[39m=[32m"row"[39m
+                  [33mstyle[39m=[32m"grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mrole[39m=[32m"rowheader"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33mtitle[39m=[32m"n:0"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0mn:0[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33maria-selected[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"engineering-table-cell"[39m
+                    [33mrole[39m=[32m"gridcell"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33maria-label[39m=[32m"n:0 X: 0 m"[39m
+                      [33mdata-column-key[39m=[32m"x"[39m
+                      [33mdata-row-key[39m=[32m"[\"node\",\"n:0\"]"[39m
+                      [33mdata-table-cell[39m=[32m"true"[39m
+                      [33mdata-testid[39m=[32m"table-cell-n:0-x"[39m
+                      [33mtabindex[39m=[32m"0"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0m0[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33maria-selected[39m=[32m"false"[39m
+                    [33mclass[39m=[32m"engineering-table-cell"[39m
+                    [33mrole[39m=[32m"gridcell"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33maria-label[39m=[32m"n:0 Y: 0 m"[39m
+                      [33mdata-column-key[39m=[32m"y"[39m
+                      [33mdata-row-key[39m=[32m"[\"node\",\"n:0\"]"[39m
+                      [33mdata-table-cell[39m=[32m"true"[39m
+                      [33mdata-testid[39m=[32m"table-cell-n:0-y"[39m
+                      [33mtabindex[39m=[32m"-1"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0m0[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33maria-selected[39m=[32m"false"[39m
+                    [33mclass[39m=[32m"engineering-table-cell"[39m
+                    [33mrole[39m=[32m"gridcell"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33maria-label[39m=[32m"n:0 Z: 0 m"[39m
+                      [33mdata-column-key[39m=[32m"z"[39m
+                      [33mdata-row-key[39m=[32m"[\"node\",\"n:0\"]"[39m
+                      [33mdata-table-cell[39m=[32m"true"[39m
+                      [33mdata-testid[39m=[32m"table-cell-n:0-z"[39m
+                      [33mtabindex[39m=[32m"-1"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0m0[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mdata-virtual-index[39m=[32m"1"[39m
+                [33mstyle[39m=[32m"box-sizing: border-box; height: 36px; overflow: hidden;"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33maria-rowindex[39m=[32m"3"[39m
+                  [33maria-selected[39m=[32m"false"[39m
+                  [33mclass[39m=[32m"engineering-table-row stripe"[39m
+                  [33mrole[39m=[32m"row"[39m
+                  [33mstyle[39m=[32m"grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mrole[39m=[32m"rowheader"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33mtitle[39m=[32m"n:1"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0mn:1[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33maria-selected[39m=[32m"false"[39m
+                    [33mclass[39m=[32m"engineering-table-cell"[39m
+                    [33mrole[39m=[32m"gridcell"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33maria-label[39m=[32m"n:1 X: 1 m"[39m
+                      [33mdata-column-key[39m=[32m"x"[39m
+                      [33mdata-row-key[39m=[32m"[\"node\",\"n:1\"]"[39m
+                      [33mdata-table-cell[39m=[32m"true"[39m
+                      [33mdata-testid[39m=[32m"table-cell-n:1-x"[39m
+                      [33mtabindex[39m=[32m"-1"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0m1[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33maria-selected[39m=[32m"false"[39m
+                    [33mclass[39m=[32m"engineering-table-cell"[39m
+                    [33mrole[39m=[32m"gridcell"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33maria-label[39m=[32m"n:1 Y: 0 m"[39m
+                      [33mdata-column-key[39m=[32m"y"[39m
+                      [33mdata-row-key[39m=[32m"[\"node\",\"n:1\"]"[39m
+                      [33mdata-table-cell[39m=[32m"true"[39m
+                      [33mdata-testid[39m=[32m"table-cell-n:1-y"[39m
+                      [33mtabindex[39m=[32m"-1"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0m0[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33maria-selected[39m=[32m"false"[39m
+                    [33mclass[39m=[32m"engineering-table-cell"[39m
+                    [33mrole[39m=[32m"gridcell"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33maria-label[39m=[32m"n:1 Z: 0 m"[39m
+                      [33mdata-column-key[39m=[32m"z"[39m
+                      [33mdata-row-key[39m=[32m"[\"node\",\"n:1\"]"[39m
+                      [33mdata-table-cell[39m=[32m"true"[39m
+                      [33mdata-testid[39m=[32m"table-cell-n:1-z"[39m
+                      [33mtabindex[39m=[32m"-1"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0m0[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mdata-virtual-index[39m=[32m"2"[39m
+                [33mstyle[39m=[32m"box-sizing: border-box; height: 36px; overflow: hidden;"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33maria-rowindex[39m=[32m"4"[39m
+                  [33maria-selected[39m=[32m"false"[39m
+                  [33mclass[39m=[32m"engineering-table-row"[39m
+                  [33mrole[39m=[32m"row"[39m
+                  [33mstyle[39m=[32m"grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mrole[39m=[32m"rowheader"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33mtitle[39m=[32m"n:2"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0mn:2[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33maria-selected[39m=[32m"false"[39m
+                    [33mclass[39m=[32m"engineering-table-cell"[39m
+                    [33mrole[39m=[32m"gridcell"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33maria-label[39m=[32m"n:2 X: 2 m"[39m
+                      [33mdata-column-key[39m=[32m"x"[39m
+                      [33mdata-row-key[39m=[32m"[\"node\",\"n:2\"]"[39m
+                      [33mdata-table-cell[39m=[32m"true"[39m
+                      [33mdata-testid[39m=[32m"table-cell-n:2-x"[39m
+                      [33mtabindex[39m=[32m"-1"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0m2[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33maria-selected[39m=[32m"false"[39m
+                    [33mclass[39m=[32m"engineering-table-cell"[39m
+                    [33mrole[39m=[32m"gridcell"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33maria-label[39m=[32m"n:2 Y: 0 m"[39m
+                      [33mdata-column-key[39m=[32m"y"[39m
+                      [33mdata-row-key[39m=[32m"[\"node\",\"n:2\"]"[39m
+                      [33mdata-table-cell[39m=[32m"true"[39m
+                      [33mdata-testid[39m=[32m"table-cell-n:2-y"[39m
+                      [33mtabindex[39m=[32m"-1"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0m0[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33maria-selected[39m=[32m"false"[39m
+                    [33mclass[39m=[32m"engineering-table-cell"[39m
+                    [33mrole[39m=[32m"gridcell"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33maria-label[39m=[32m"n:2 Z: 0 m"[39m
+                      [33mdata-column-key[39m=[32m"z"[39m
+                      [33mdata-row-key[39m=[32m"[\"node\",\"n:2\"]"[39m
+                      [33mdata-table-cell[39m=[32m"true"[39m
+                      [33mdata-testid[39m=[32m"table-cell-n:2-z"[39m
+                      [33mtabindex[39m=[32m"-1"[39m
+                      [33mtype[39m=[32m"button"[39m
+                    [36m>[39m
+                      [0m0[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"engineering-table-footer"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0m3[0m
+            [0m of [0m
+            [0m3[0m
+            [0m rows[0m
+          [36m</span>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ❯ src/features/workspace/table/EngineeringTable.test.tsx:158:77
+    156|   it("exits a no-op backward editing boundary to the row header", asyn…
+    157|     render(<Harness />); fireEvent.keyDown(edit(), { key: "Tab", shift…
+    158|     await waitFor(() => expect(screen.getByRole("button", { name: "n:0…
+       |                                                                             ^
+    159|   });
+    160|   it("retains invalid and engine-rejected boundary edits instead of ex…
+ ❯ runWithExpensiveErrorDiagnosticsDisabled ../../node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback ../../node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback ../../node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 2 passed | 14 skipped (19)
+   Start at  16:50:04
+   Duration  3.70s (transform 76ms, setup 90ms, import 89ms, tests 3.13s, environment 308ms)
+

@@ -5127,6 +5127,7 @@ describe("SWBPIPE desktop preview", () => {
 
     const tree = await screen.findByLabelText("Model tree");
     fireEvent.click(within(tree).getByTestId("layout-mode-grid"));
+    openNodeGridReview();
     expect(within(tree).getByTestId("entity-grid")).toBeInTheDocument();
     expect(
       within(tree).getByTestId("entity-grid-table-nodes"),
@@ -15803,6 +15804,7 @@ describe("existing toolkit v2", () => {
     const basis = await loadPreviewModel(); const replacement = inventedOpenEnvelope(basis); const pending = deferred<unknown>();
     render(<App />); await screen.findByTestId("desktop-preview-shell");
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    openNodeGridReview();
     fireEvent.change(screen.getByTestId("entity-grid-input-node:N-100-x"), { target: { value: "1.25" } });
     fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
     invokeMock.mockImplementation((command: string) => {
@@ -15825,6 +15827,7 @@ describe("existing toolkit v2", () => {
     model.sections = [{ id: "section:invented", name: "Invented", section_type: "pipe", properties: {}, provenance: { source: "invented" } }];
     render(<ModelTree model={model} selection={{ type: "section", id: "section:invented" }} onSelect={vi.fn()} onQueueIntent={vi.fn()} />);
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    openNodeGridReview();
     const table = screen.getByTestId("entity-grid-table-sections");
     expect(within(table).queryByTestId("entity-grid-input-section:invented-provenance")).not.toBeInTheDocument();
     for (const input of within(table).getAllByRole("combobox")) expect(within(input).getAllByRole("option").filter((option) => !(option as HTMLOptionElement).disabled).map((option) => option.getAttribute("value"))).toEqual(["pipe"]);
@@ -15895,6 +15898,7 @@ describe("existing toolkit v4 review repairs", () => {
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    openNodeGridReview();
     fireEvent.change(screen.getByTestId("entity-grid-input-node:N-100-x"), { target: { value: "1.25" } });
     fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
     const selectedBefore = screen.getByTestId("command-selection-readout").textContent;
@@ -16355,6 +16359,7 @@ describe("native straight-route Add and Apply", () => {
     );
 
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    openNodeGridReview();
     fireEvent.change(screen.getByTestId(`entity-grid-input-${model.nodes[0].id}-x`), {
       target: { value: "1.25" },
     });
@@ -16500,6 +16505,7 @@ describe("Tier3 shared batch and proposed context", () => {
     await waitFor(() => expect(invokeMock).toHaveBeenCalledWith(`${mode}_model_operation_batch`, expect.any(Object)));
     fireEvent.click(screen.getByTestId("clear-pending-batches"));
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    openNodeGridReview();
     fireEvent.change(screen.getByTestId("entity-grid-input-node:N-100-y"), { target: { value: "0.5" } });
     fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
     fireEvent.click(screen.getByTestId("validate-intent-editor-intent-1"));
@@ -16558,6 +16564,7 @@ describe("Tier3 adversarial batch publication", () => {
     expect(receipt).toHaveTextContent(second.rationale);
     expect(screen.getByTestId("retained-context-summary")).toHaveTextContent("3 retained operation records");
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    openNodeGridReview();
     expect(screen.getByTestId("entity-grid-input-node:N-100-x")).toHaveValue("1.75");
     expect(screen.getByTestId("entity-grid-input-node:N-100-y")).toHaveValue("0.5");
     fireEvent.click(reviewControl("undo-session-model-edit"));
@@ -16813,6 +16820,7 @@ describe("persistent modeling workspace", () => {
     expect(await revealTreeRow("node", model.nodes[1].id)).toHaveAttribute("aria-selected", "true");
 
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    openNodeGridReview();
     fireEvent.change(screen.getByTestId(`entity-grid-input-${model.nodes[0].id}-x`), {
       target: { value: "1.75" },
     });
@@ -17011,6 +17019,7 @@ describe("workflow current and historical result boundaries", () => {
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    openNodeGridReview();
     fireEvent.change(screen.getByTestId("entity-grid-input-node:N-100-y"), { target: { value: "0.5" } });
     fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
     fireEvent.click(screen.getByTestId("apply-intent-editor-intent-1"));
@@ -17394,6 +17403,7 @@ describe("synchronous busy history boundary", () => {
     if (action === "redo") fireEvent.click(reviewControl("undo-session-model-edit"));
     const historyBefore = reviewControl("session-history-chip").textContent;
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    openNodeGridReview();
     fireEvent.change(screen.getByTestId("entity-grid-input-node:N-100-y"), { target: { value: "0.5" } });
     fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
     const pending = deferred<unknown>();
@@ -17738,6 +17748,7 @@ describe("historical lifecycle history transitions", () => {
     const baselineHash = (await computeModelHash(envelope.model))!.value;
     expect(await snapshotHash()).toBe(baselineHash);
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    openNodeGridReview();
     fireEvent.change(screen.getByTestId("entity-grid-input-node:N-100-y"), { target: { value: "0.5" } });
     fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
     fireEvent.click(screen.getByTestId("apply-intent-editor-intent-1"));
@@ -18127,3 +18138,9 @@ describe("Box gesture cancellation routes", () => {
     } finally { add.mockRestore(); remove.mockRestore(); }
   });
 });
+
+// Existing review journeys explicitly enter the retained multi-change workflow.
+function openNodeGridReview() {
+  const summary = screen.getByTestId("node-grid-review-disclosure");
+  if (summary.getAttribute("aria-expanded") !== "true") fireEvent.click(summary);
+}

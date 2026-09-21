@@ -1,0 +1,288 @@
+{
+  "config": {
+    "configFile": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/playwright.config.ts",
+    "rootDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-1-CODEX/_run_records/vertical-scroll-repair/vertical-04-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-1-CODEX/_run_records/vertical-scroll-repair/vertical-04-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-compact",
+        "name": "chromium-compact",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev -- --port 5174",
+      "reuseExistingServer": true,
+      "timeout": 30000,
+      "url": "http://127.0.0.1:5174"
+    }
+  },
+  "suites": [
+    {
+      "title": "b4-table-editing.spec.ts",
+      "file": "b4-table-editing.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "B4 virtual Grid confines body scrolling and boundary wheel without moving chrome",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 11431,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m0\u001b[39m\nReceived: \u001b[31m3\u001b[39m\n\nCall Log:\n- Timeout 10000ms exceeded while waiting on the predicate",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m0\u001b[39m\nReceived: \u001b[31m3\u001b[39m\n\nCall Log:\n- Timeout 10000ms exceeded while waiting on the predicate\n    at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts:209:126",
+                    "location": {
+                      "file": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+                      "column": 126,
+                      "line": 209
+                    },
+                    "snippet": "  207 |   wheelEvidence.push(await tableWheel(page, 1000000, info, true)); await expect.poll(async () => { const state = await scrollState(); return state.maximum - state.top; }).toBe(0);\n  208 |   wheelEvidence.push(await tableWheel(page, 600, info)); await expect.poll(() => gridChromeBounds(page)).toEqual(before);\n> 209 |   wheelEvidence.push(await tableWheel(page, -1000000, info, true)); await expect.poll(async () => (await scrollState()).top).toBe(0); wheelEvidence.push(await tableWheel(page, -600, info)); await expect.poll(() => gridChromeBounds(page)).toEqual(before);\n      |                                                                                                                              ^\n  210 |   await page.locator(\".entity-grid-tabs\").hover(); wheelEvidence.push(await tableWheel(page, 600, info)); await expect.poll(() => gridChromeBounds(page)).toEqual(before);\n  211 |   const filter = page.getByTestId(\"model-tree-filter-input\"); await filter.fill(model.nodes.at(-1).id);\n  212 |   await expect(rows.locator('[role=\"row\"]')).toHaveCount(1); const filtered = await gridChromeBounds(page); await rows.hover(); wheelEvidence.push(await tableWheel(page, 600, info)); await expect.poll(() => gridChromeBounds(page)).toEqual(filtered);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+                        "column": 126,
+                        "line": 209
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m0\u001b[39m\nReceived: \u001b[31m3\u001b[39m\n\nCall Log:\n- Timeout 10000ms exceeded while waiting on the predicate\n\n  207 |   wheelEvidence.push(await tableWheel(page, 1000000, info, true)); await expect.poll(async () => { const state = await scrollState(); return state.maximum - state.top; }).toBe(0);\n  208 |   wheelEvidence.push(await tableWheel(page, 600, info)); await expect.poll(() => gridChromeBounds(page)).toEqual(before);\n> 209 |   wheelEvidence.push(await tableWheel(page, -1000000, info, true)); await expect.poll(async () => (await scrollState()).top).toBe(0); wheelEvidence.push(await tableWheel(page, -600, info)); await expect.poll(() => gridChromeBounds(page)).toEqual(before);\n      |                                                                                                                              ^\n  210 |   await page.locator(\".entity-grid-tabs\").hover(); wheelEvidence.push(await tableWheel(page, 600, info)); await expect.poll(() => gridChromeBounds(page)).toEqual(before);\n  211 |   const filter = page.getByTestId(\"model-tree-filter-input\"); await filter.fill(model.nodes.at(-1).id);\n  212 |   await expect(rows.locator('[role=\"row\"]')).toHaveCount(1); const filtered = await gridChromeBounds(page); await rows.hover(); wheelEvidence.push(await tableWheel(page, 600, info)); await expect.poll(() => gridChromeBounds(page)).toEqual(filtered);\n    at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts:209:126"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-21T01:19:59.266Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser-identity",
+                      "contentType": "application/json",
+                      "body": "ewogICJjZHBWZXJzaW9uIjogewogICAgInByb3RvY29sVmVyc2lvbiI6ICIxLjMiLAogICAgInByb2R1Y3QiOiAiQ2hyb21lLzE0OC4wLjc3NzguOTYiLAogICAgInJldmlzaW9uIjogIkA4NjI1ZTA2NmZlYmM3MjFlMDE1ZWE5OTg0MmRhMTI5MDFlYjdlZDczIiwKICAgICJ1c2VyQWdlbnQiOiAiTW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTVfNykgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgSGVhZGxlc3NDaHJvbWUvMTQ4LjAuMC4wIFNhZmFyaS81MzcuMzYiLAogICAgImpzVmVyc2lvbiI6ICIxNC44LjE3OC4xNCIKICB9LAogICJwbGF5d3JpZ2h0QnJvd3NlclZlcnNpb24iOiAiMTQ4LjAuNzc3OC45NiIsCiAgImV4ZWN1dGFibGVQYXRoIjogIi9Vc2Vycy9yeWFuL0xpYnJhcnkvQ2FjaGVzL21zLXBsYXl3cmlnaHQvY2hyb21pdW0tMTIyMy9jaHJvbWUtbWFjLWFybTY0L0dvb2dsZSBDaHJvbWUgZm9yIFRlc3RpbmcuYXBwL0NvbnRlbnRzL01hY09TL0dvb2dsZSBDaHJvbWUgZm9yIFRlc3RpbmciLAogICJleGVjdXRhYmxlU2hhMjU2IjogIjI0NDdjN2JkZWE4ZThhZDM4YjUyNTk0ZjFiYTUzZTE4ODIxYzA1NDQ1ZThhMDdhZDFjZjNiMGYyMzkzMWQ4OWQiCn0="
+                    },
+                    {
+                      "name": "wheel-700-1789953601718",
+                      "contentType": "application/json",
+                      "body": "eyJyZWNlaXB0Ijp7ImRlbHRhWCI6MCwiZGVsdGFZIjo3MDAsInRhcmdldCI6IjxidXR0b24gdHlwZT1cImJ1dHRvblwiIGRhdGEtdGFibGUtY2VsbD1cInRydWVcIiBkYXRhLXJvdy1rZXk9XCJbJnF1b3Q7bm9kZSZxdW90OywmcXVvdDtub2RlOlVJRi0wMDAyNSZxdW90O11cIiBkYXRhLWNvbHVtbi1rZXk9XCJ4XCIgZGF0YS10ZXN0aWQ9XCJ0YWJsZS1jZWxsLW5vZGU6VUlGLTAwMDI1LXhcIiBhcmlhLWxhYmVsPVwibm9kZTpVSUYtMDAwMjUgWDogMi41IG1cIiB0YWJpbmRleD1cIi0xXCI+Mi41PC9idXR0b24+IiwiZnJhbWVzIjpbeyJ0b3AiOjcwMCwiY2xpZW50SGVpZ2h0Ijo0NTAsInNjcm9sbEhlaWdodCI6MzYwMzYsInNsb3RIZWlnaHQiOjQ1MCwiZmlsdGVyWSI6MTg3Ljc5Njg3NSwiZmFtaWx5WSI6MjUxLjE4NzUsImZvb3RlclkiOjgxNC4yMDMxMjV9LHsidG9wIjo3MDAsImNsaWVudEhlaWdodCI6NDUwLCJzY3JvbGxIZWlnaHQiOjM2MDM2LCJzbG90SGVpZ2h0Ijo0NTAsImZpbHRlclkiOjE4Ny43OTY4NzUsImZhbWlseVkiOjI1MS4xODc1LCJmb290ZXJZIjo4MTQuMjAzMTI1fV19LCJzY3JvbGxFbmRlZCI6dHJ1ZX0="
+                    },
+                    {
+                      "name": "wheel-1000000-1789953601925",
+                      "contentType": "application/json",
+                      "body": "eyJyZWNlaXB0Ijp7ImRlbHRhWCI6MCwiZGVsdGFZIjoxMDAwMDAwLCJ0YXJnZXQiOiI8ZGl2IHN0eWxlPVwiaGVpZ2h0OiAzNjAzNnB4OyBwb3NpdGlvbjogcmVsYXRpdmU7XCI+PGRpdiBkYXRhLXZpcnR1YWwtaW5kZXg9XCIwXCIgc3R5bGU9XCJoZWlnaHQ6IDM2cHg7IGxlZnQ6IDBweDsgcG9zaXRpb246IGFic29sdXRlOyByaWdodDogMHB4OyB0b3A6IDBweDtcIj48ZGl2IHJvbGU9XCJyb3dcIiBhcmlhLXJvd2luZGV4PVwiMlwiIGFyaWEtc2VsZWN0ZWQ9XCJmYWxzZVwiIGNsYXNzPVwiZW5naW5lZXJpbmctdGFibGUtcm93XCIgc3R5bGU9XCJncmlkLXRlbXBsYXRlLWNvbHVtbnM6IG1pbm1heCgxMzBweCwgMS40ZnIpIHJlcGVhdCgzLCBtaW5tYXgoOTBweCwgMWZyKSk7XCI+PGRpdiByb2xlPVwicm93aGVhZGVyXCI+PGJ1dHRvbiB0eXBlPVwiYnV0dG9uXCIgdGl0bGU9XCJub2RlOlVJRi0wMDAwMFwiPm5vZGU6VUlGLTAwMCIsImZyYW1lcyI6W3sidG9wIjozNTU4NiwiY2xpZW50SGVpZ2h0Ijo0NTAsInNjcm9sbEhlaWdodCI6MzYwMzYsInNsb3RIZWlnaHQiOjQ1MCwiZmlsdGVyWSI6MTg3Ljc5Njg3NSwiZmFtaWx5WSI6MjUxLjE4NzUsImZvb3RlclkiOjgxNC4yMDMxMjV9LHsidG9wIjozNTU4NiwiY2xpZW50SGVpZ2h0Ijo0NTAsInNjcm9sbEhlaWdodCI6MzYwMzYsInNsb3RIZWlnaHQiOjQ1MCwiZmlsdGVyWSI6MTg3Ljc5Njg3NSwiZmFtaWx5WSI6MjUxLjE4NzUsImZvb3RlclkiOjgxNC4yMDMxMjV9XX0sInNjcm9sbEVuZGVkIjp0cnVlfQ=="
+                    },
+                    {
+                      "name": "wheel-600-1789953602087",
+                      "contentType": "application/json",
+                      "body": "eyJyZWNlaXB0Ijp7ImRlbHRhWCI6MCwiZGVsdGFZIjo2MDAsInRhcmdldCI6IjxidXR0b24gdHlwZT1cImJ1dHRvblwiIGRhdGEtdGFibGUtY2VsbD1cInRydWVcIiBkYXRhLXJvdy1rZXk9XCJbJnF1b3Q7bm9kZSZxdW90OywmcXVvdDtub2RlOlVJRi0wMDk5NCZxdW90O11cIiBkYXRhLWNvbHVtbi1rZXk9XCJ4XCIgZGF0YS10ZXN0aWQ9XCJ0YWJsZS1jZWxsLW5vZGU6VUlGLTAwOTk0LXhcIiBhcmlhLWxhYmVsPVwibm9kZTpVSUYtMDA5OTQgWDogMS41IG1cIiB0YWJpbmRleD1cIi0xXCI+MS41PC9idXR0b24+IiwiZnJhbWVzIjpbeyJ0b3AiOjM1NTg2LCJjbGllbnRIZWlnaHQiOjQ1MCwic2Nyb2xsSGVpZ2h0IjozNjAzNiwic2xvdEhlaWdodCI6NDUwLCJmaWx0ZXJZIjoxODcuNzk2ODc1LCJmYW1pbHlZIjoyNTEuMTg3NSwiZm9vdGVyWSI6ODE0LjIwMzEyNX0seyJ0b3AiOjM1NTg2LCJjbGllbnRIZWlnaHQiOjQ1MCwic2Nyb2xsSGVpZ2h0IjozNjAzNiwic2xvdEhlaWdodCI6NDUwLCJmaWx0ZXJZIjoxODcuNzk2ODc1LCJmYW1pbHlZIjoyNTEuMTg3NSwiZm9vdGVyWSI6ODE0LjIwMzEyNX1dfSwic2Nyb2xsRW5kZWQiOmZhbHNlfQ=="
+                    },
+                    {
+                      "name": "wheel--1000000-1789953602271",
+                      "contentType": "application/json",
+                      "body": "eyJyZWNlaXB0Ijp7ImRlbHRhWCI6MCwiZGVsdGFZIjotMTAwMDAwMCwidGFyZ2V0IjoiPGJ1dHRvbiB0eXBlPVwiYnV0dG9uXCIgZGF0YS10YWJsZS1jZWxsPVwidHJ1ZVwiIGRhdGEtcm93LWtleT1cIlsmcXVvdDtub2RlJnF1b3Q7LCZxdW90O25vZGU6VUlGLTAwOTk0JnF1b3Q7XVwiIGRhdGEtY29sdW1uLWtleT1cInhcIiBkYXRhLXRlc3RpZD1cInRhYmxlLWNlbGwtbm9kZTpVSUYtMDA5OTQteFwiIGFyaWEtbGFiZWw9XCJub2RlOlVJRi0wMDk5NCBYOiAxLjUgbVwiIHRhYmluZGV4PVwiLTFcIj4xLjU8L2J1dHRvbj4iLCJmcmFtZXMiOlt7InRvcCI6MzU1ODYsImNsaWVudEhlaWdodCI6NDUwLCJzY3JvbGxIZWlnaHQiOjM2MDM2LCJzbG90SGVpZ2h0Ijo0NTAsImZpbHRlclkiOjE4Ny43OTY4NzUsImZhbWlseVkiOjI1MS4xODc1LCJmb290ZXJZIjo4MTQuMjAzMTI1fSx7InRvcCI6MywiY2xpZW50SGVpZ2h0Ijo0NTAsInNjcm9sbEhlaWdodCI6MzYwMzYsInNsb3RIZWlnaHQiOjQ1MCwiZmlsdGVyWSI6MTg3Ljc5Njg3NSwiZmFtaWx5WSI6MjUxLjE4NzUsImZvb3RlclkiOjgxNC4yMDMxMjV9XX0sInNjcm9sbEVuZGVkIjp0cnVlfQ=="
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-1-CODEX/_run_records/vertical-scroll-repair/vertical-04-artifacts/b4-table-editing-B4-virtua-f38ad-wheel-without-moving-chrome-chromium-desktop/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-1-CODEX/_run_records/vertical-scroll-repair/vertical-04-artifacts/b4-table-editing-B4-virtua-f38ad-wheel-without-moving-chrome-chromium-desktop/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+                    "column": 126,
+                    "line": 209
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "6f49393ff246acadcad3-870c55da79cdd62fd0ba",
+          "file": "b4-table-editing.spec.ts",
+          "line": 200,
+          "column": 1
+        },
+        {
+          "title": "B4 virtual Grid confines body scrolling and boundary wheel without moving chrome",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 11138,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m0\u001b[39m\nReceived: \u001b[31m3\u001b[39m\n\nCall Log:\n- Timeout 10000ms exceeded while waiting on the predicate",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m0\u001b[39m\nReceived: \u001b[31m3\u001b[39m\n\nCall Log:\n- Timeout 10000ms exceeded while waiting on the predicate\n    at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts:209:126",
+                    "location": {
+                      "file": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+                      "column": 126,
+                      "line": 209
+                    },
+                    "snippet": "  207 |   wheelEvidence.push(await tableWheel(page, 1000000, info, true)); await expect.poll(async () => { const state = await scrollState(); return state.maximum - state.top; }).toBe(0);\n  208 |   wheelEvidence.push(await tableWheel(page, 600, info)); await expect.poll(() => gridChromeBounds(page)).toEqual(before);\n> 209 |   wheelEvidence.push(await tableWheel(page, -1000000, info, true)); await expect.poll(async () => (await scrollState()).top).toBe(0); wheelEvidence.push(await tableWheel(page, -600, info)); await expect.poll(() => gridChromeBounds(page)).toEqual(before);\n      |                                                                                                                              ^\n  210 |   await page.locator(\".entity-grid-tabs\").hover(); wheelEvidence.push(await tableWheel(page, 600, info)); await expect.poll(() => gridChromeBounds(page)).toEqual(before);\n  211 |   const filter = page.getByTestId(\"model-tree-filter-input\"); await filter.fill(model.nodes.at(-1).id);\n  212 |   await expect(rows.locator('[role=\"row\"]')).toHaveCount(1); const filtered = await gridChromeBounds(page); await rows.hover(); wheelEvidence.push(await tableWheel(page, 600, info)); await expect.poll(() => gridChromeBounds(page)).toEqual(filtered);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+                        "column": 126,
+                        "line": 209
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m0\u001b[39m\nReceived: \u001b[31m3\u001b[39m\n\nCall Log:\n- Timeout 10000ms exceeded while waiting on the predicate\n\n  207 |   wheelEvidence.push(await tableWheel(page, 1000000, info, true)); await expect.poll(async () => { const state = await scrollState(); return state.maximum - state.top; }).toBe(0);\n  208 |   wheelEvidence.push(await tableWheel(page, 600, info)); await expect.poll(() => gridChromeBounds(page)).toEqual(before);\n> 209 |   wheelEvidence.push(await tableWheel(page, -1000000, info, true)); await expect.poll(async () => (await scrollState()).top).toBe(0); wheelEvidence.push(await tableWheel(page, -600, info)); await expect.poll(() => gridChromeBounds(page)).toEqual(before);\n      |                                                                                                                              ^\n  210 |   await page.locator(\".entity-grid-tabs\").hover(); wheelEvidence.push(await tableWheel(page, 600, info)); await expect.poll(() => gridChromeBounds(page)).toEqual(before);\n  211 |   const filter = page.getByTestId(\"model-tree-filter-input\"); await filter.fill(model.nodes.at(-1).id);\n  212 |   await expect(rows.locator('[role=\"row\"]')).toHaveCount(1); const filtered = await gridChromeBounds(page); await rows.hover(); wheelEvidence.push(await tableWheel(page, 600, info)); await expect.poll(() => gridChromeBounds(page)).toEqual(filtered);\n    at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts:209:126"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-21T01:20:11.986Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser-identity",
+                      "contentType": "application/json",
+                      "body": "ewogICJjZHBWZXJzaW9uIjogewogICAgInByb3RvY29sVmVyc2lvbiI6ICIxLjMiLAogICAgInByb2R1Y3QiOiAiQ2hyb21lLzE0OC4wLjc3NzguOTYiLAogICAgInJldmlzaW9uIjogIkA4NjI1ZTA2NmZlYmM3MjFlMDE1ZWE5OTg0MmRhMTI5MDFlYjdlZDczIiwKICAgICJ1c2VyQWdlbnQiOiAiTW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTVfNykgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgSGVhZGxlc3NDaHJvbWUvMTQ4LjAuMC4wIFNhZmFyaS81MzcuMzYiLAogICAgImpzVmVyc2lvbiI6ICIxNC44LjE3OC4xNCIKICB9LAogICJwbGF5d3JpZ2h0QnJvd3NlclZlcnNpb24iOiAiMTQ4LjAuNzc3OC45NiIsCiAgImV4ZWN1dGFibGVQYXRoIjogIi9Vc2Vycy9yeWFuL0xpYnJhcnkvQ2FjaGVzL21zLXBsYXl3cmlnaHQvY2hyb21pdW0tMTIyMy9jaHJvbWUtbWFjLWFybTY0L0dvb2dsZSBDaHJvbWUgZm9yIFRlc3RpbmcuYXBwL0NvbnRlbnRzL01hY09TL0dvb2dsZSBDaHJvbWUgZm9yIFRlc3RpbmciLAogICJleGVjdXRhYmxlU2hhMjU2IjogIjI0NDdjN2JkZWE4ZThhZDM4YjUyNTk0ZjFiYTUzZTE4ODIxYzA1NDQ1ZThhMDdhZDFjZjNiMGYyMzkzMWQ4OWQiCn0="
+                    },
+                    {
+                      "name": "wheel-700-1789953613699",
+                      "contentType": "application/json",
+                      "body": "eyJyZWNlaXB0Ijp7ImRlbHRhWCI6MCwiZGVsdGFZIjo3MDAsInRhcmdldCI6IjxidXR0b24gdHlwZT1cImJ1dHRvblwiIGRhdGEtdGFibGUtY2VsbD1cInRydWVcIiBkYXRhLXJvdy1rZXk9XCJbJnF1b3Q7bm9kZSZxdW90OywmcXVvdDtub2RlOlVJRi0wMDAyMyZxdW90O11cIiBkYXRhLWNvbHVtbi1rZXk9XCJ4XCIgZGF0YS10ZXN0aWQ9XCJ0YWJsZS1jZWxsLW5vZGU6VUlGLTAwMDIzLXhcIiBhcmlhLWxhYmVsPVwibm9kZTpVSUYtMDAwMjMgWDogMi4zIG1cIiB0YWJpbmRleD1cIi0xXCI+Mi4zPC9idXR0b24+IiwiZnJhbWVzIjpbeyJ0b3AiOjcwMCwiY2xpZW50SGVpZ2h0IjoyOTIsInNjcm9sbEhlaWdodCI6MzYwMzYsInNsb3RIZWlnaHQiOjI5MiwiZmlsdGVyWSI6MTg3Ljc5Njg3NSwiZmFtaWx5WSI6MjUxLjE4NzUsImZvb3RlclkiOjY5NC4yMDMxMjV9LHsidG9wIjo3MDAsImNsaWVudEhlaWdodCI6MjkyLCJzY3JvbGxIZWlnaHQiOjM2MDM2LCJzbG90SGVpZ2h0IjoyOTIsImZpbHRlclkiOjE4Ny43OTY4NzUsImZhbWlseVkiOjI1MS4xODc1LCJmb290ZXJZIjo2OTQuMjAzMTI1fV19LCJzY3JvbGxFbmRlZCI6dHJ1ZX0="
+                    },
+                    {
+                      "name": "wheel-1000000-1789953613883",
+                      "contentType": "application/json",
+                      "body": "eyJyZWNlaXB0Ijp7ImRlbHRhWCI6MCwiZGVsdGFZIjoxMDAwMDAwLCJ0YXJnZXQiOiI8ZGl2IHN0eWxlPVwiaGVpZ2h0OiAzNjAzNnB4OyBwb3NpdGlvbjogcmVsYXRpdmU7XCI+PGRpdiBkYXRhLXZpcnR1YWwtaW5kZXg9XCIwXCIgc3R5bGU9XCJoZWlnaHQ6IDM2cHg7IGxlZnQ6IDBweDsgcG9zaXRpb246IGFic29sdXRlOyByaWdodDogMHB4OyB0b3A6IDBweDtcIj48ZGl2IHJvbGU9XCJyb3dcIiBhcmlhLXJvd2luZGV4PVwiMlwiIGFyaWEtc2VsZWN0ZWQ9XCJmYWxzZVwiIGNsYXNzPVwiZW5naW5lZXJpbmctdGFibGUtcm93XCIgc3R5bGU9XCJncmlkLXRlbXBsYXRlLWNvbHVtbnM6IG1pbm1heCgxMzBweCwgMS40ZnIpIHJlcGVhdCgzLCBtaW5tYXgoOTBweCwgMWZyKSk7XCI+PGRpdiByb2xlPVwicm93aGVhZGVyXCI+PGJ1dHRvbiB0eXBlPVwiYnV0dG9uXCIgdGl0bGU9XCJub2RlOlVJRi0wMDAwMFwiPm5vZGU6VUlGLTAwMCIsImZyYW1lcyI6W3sidG9wIjozNTc0NCwiY2xpZW50SGVpZ2h0IjoyOTIsInNjcm9sbEhlaWdodCI6MzYwMzYsInNsb3RIZWlnaHQiOjI5MiwiZmlsdGVyWSI6MTg3Ljc5Njg3NSwiZmFtaWx5WSI6MjUxLjE4NzUsImZvb3RlclkiOjY5NC4yMDMxMjV9LHsidG9wIjozNTc0NCwiY2xpZW50SGVpZ2h0IjoyOTIsInNjcm9sbEhlaWdodCI6MzYwMzYsInNsb3RIZWlnaHQiOjI5MiwiZmlsdGVyWSI6MTg3Ljc5Njg3NSwiZmFtaWx5WSI6MjUxLjE4NzUsImZvb3RlclkiOjY5NC4yMDMxMjV9XX0sInNjcm9sbEVuZGVkIjp0cnVlfQ=="
+                    },
+                    {
+                      "name": "wheel-600-1789953614040",
+                      "contentType": "application/json",
+                      "body": "eyJyZWNlaXB0Ijp7ImRlbHRhWCI6MCwiZGVsdGFZIjo2MDAsInRhcmdldCI6IjxidXR0b24gdHlwZT1cImJ1dHRvblwiIGRhdGEtdGFibGUtY2VsbD1cInRydWVcIiBkYXRhLXJvdy1rZXk9XCJbJnF1b3Q7bm9kZSZxdW90OywmcXVvdDtub2RlOlVJRi0wMDk5NiZxdW90O11cIiBkYXRhLWNvbHVtbi1rZXk9XCJ4XCIgZGF0YS10ZXN0aWQ9XCJ0YWJsZS1jZWxsLW5vZGU6VUlGLTAwOTk2LXhcIiBhcmlhLWxhYmVsPVwibm9kZTpVSUYtMDA5OTYgWDogMS4zIG1cIiB0YWJpbmRleD1cIi0xXCI+MS4zPC9idXR0b24+IiwiZnJhbWVzIjpbeyJ0b3AiOjM1NzQ0LCJjbGllbnRIZWlnaHQiOjI5Miwic2Nyb2xsSGVpZ2h0IjozNjAzNiwic2xvdEhlaWdodCI6MjkyLCJmaWx0ZXJZIjoxODcuNzk2ODc1LCJmYW1pbHlZIjoyNTEuMTg3NSwiZm9vdGVyWSI6Njk0LjIwMzEyNX0seyJ0b3AiOjM1NzQ0LCJjbGllbnRIZWlnaHQiOjI5Miwic2Nyb2xsSGVpZ2h0IjozNjAzNiwic2xvdEhlaWdodCI6MjkyLCJmaWx0ZXJZIjoxODcuNzk2ODc1LCJmYW1pbHlZIjoyNTEuMTg3NSwiZm9vdGVyWSI6Njk0LjIwMzEyNX1dfSwic2Nyb2xsRW5kZWQiOmZhbHNlfQ=="
+                    },
+                    {
+                      "name": "wheel--1000000-1789953614222",
+                      "contentType": "application/json",
+                      "body": "eyJyZWNlaXB0Ijp7ImRlbHRhWCI6MCwiZGVsdGFZIjotMTAwMDAwMCwidGFyZ2V0IjoiPGJ1dHRvbiB0eXBlPVwiYnV0dG9uXCIgZGF0YS10YWJsZS1jZWxsPVwidHJ1ZVwiIGRhdGEtcm93LWtleT1cIlsmcXVvdDtub2RlJnF1b3Q7LCZxdW90O25vZGU6VUlGLTAwOTk2JnF1b3Q7XVwiIGRhdGEtY29sdW1uLWtleT1cInhcIiBkYXRhLXRlc3RpZD1cInRhYmxlLWNlbGwtbm9kZTpVSUYtMDA5OTYteFwiIGFyaWEtbGFiZWw9XCJub2RlOlVJRi0wMDk5NiBYOiAxLjMgbVwiIHRhYmluZGV4PVwiLTFcIj4xLjM8L2J1dHRvbj4iLCJmcmFtZXMiOlt7InRvcCI6MzU3NDQsImNsaWVudEhlaWdodCI6MjkyLCJzY3JvbGxIZWlnaHQiOjM2MDM2LCJzbG90SGVpZ2h0IjoyOTIsImZpbHRlclkiOjE4Ny43OTY4NzUsImZhbWlseVkiOjI1MS4xODc1LCJmb290ZXJZIjo2OTQuMjAzMTI1fSx7InRvcCI6MywiY2xpZW50SGVpZ2h0IjoyOTIsInNjcm9sbEhlaWdodCI6MzYwMzYsInNsb3RIZWlnaHQiOjI5MiwiZmlsdGVyWSI6MTg3Ljc5Njg3NSwiZmFtaWx5WSI6MjUxLjE4NzUsImZvb3RlclkiOjY5NC4yMDMxMjV9XX0sInNjcm9sbEVuZGVkIjp0cnVlfQ=="
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-1-CODEX/_run_records/vertical-scroll-repair/vertical-04-artifacts/b4-table-editing-B4-virtua-f38ad-wheel-without-moving-chrome-chromium-compact/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-1-CODEX/_run_records/vertical-scroll-repair/vertical-04-artifacts/b4-table-editing-B4-virtua-f38ad-wheel-without-moving-chrome-chromium-compact/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+                    "column": 126,
+                    "line": 209
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "6f49393ff246acadcad3-920cdf583ec6747f4624",
+          "file": "b4-table-editing.spec.ts",
+          "line": 200,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-21T01:19:58.406Z",
+    "duration": 25188.017,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

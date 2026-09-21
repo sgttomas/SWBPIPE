@@ -1,0 +1,22 @@
+{
+  "commandRecordSha256": "f59a04f54a7b7aba241f4ec144052032ca781a7222ef748e663b929e0e74598c",
+  "argv": [
+    "npx",
+    "playwright",
+    "test",
+    "e2e/ui-foundation.spec.ts",
+    "e2e/r2-smoke.spec.ts",
+    "e2e/b3a-session-status.spec.ts",
+    "--grep",
+    "(Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft|guided workbench shell keeps journey steps, details, and compact status reachable|canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot)$",
+    "--workers=1",
+    "--list"
+  ],
+  "exitCode": 0,
+  "collectedCases": 6,
+  "files": 3,
+  "expected": 6,
+  "actualMatchesExpected": true,
+  "rawSha256": "32163ba0a1d632a9ab8eb56277b38e0cff44f0c0e5cda5dbbb5f65c563c81c67",
+  "scope": "read-only collection; no browser/server or test execution"
+}

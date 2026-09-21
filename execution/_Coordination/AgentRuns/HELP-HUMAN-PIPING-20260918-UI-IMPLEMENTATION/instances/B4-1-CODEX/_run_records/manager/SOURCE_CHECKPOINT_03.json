@@ -1,0 +1,11 @@
+{
+  "commit": "6dd0e466f4432f21d3ce6913782b95f9a325f700",
+  "sourceFreeze": "worker/SOURCE_FREEZE_05.json",
+  "sha256": "846c95b48ab8f20265cf1a9d8f21a6653ebd22e8485992b48e4d49d97dc1ac93",
+  "changedFrom840a": [
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.test.tsx",
+    "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts"
+  ],
+  "checks": "31 core cases + TS pass; affected browser/native pending"
+}

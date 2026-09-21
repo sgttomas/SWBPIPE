@@ -1,0 +1,13 @@
+{
+  "originalAndRepairedNativeReturnsManifests": "all four exact hashes matched",
+  "expected": {
+    "NATIVE_RETURN.md": "56efa211650e91c1632cdc93053f692b8167c2569556dc99f2971bd54b3b6c41",
+    "_run_records/native/evidence-manifest.json": "687c49820f9628abd75ec0f46d7a81293e281dc724fa89af1a7652bba164fafb",
+    "NATIVE_REPAIR_RETURN.md": "8173d0123ac11e82331cb1752c0a50f4de94aa7436484881c43a9c32355a42c8",
+    "_run_records/native-repair/evidence-manifest.json": "3320e4fae62ca302e2efb9a6923b110369030d3538837938c700b8ccbebcefba"
+  },
+  "interimManifestEntriesVerified": 92,
+  "interimMismatches": [],
+  "productSource": "6dd0e466f4432f21d3ce6913782b95f9a325f700",
+  "state": "ROOT active own-look/fit; no manager UI/build/test"
+}

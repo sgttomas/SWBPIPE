@@ -1,0 +1,9 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview · Edited — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 155, 199, 203-205
+~										84 cell (selected, settable) node:N-110 X: 5.1 m
++									199 text 5
+~									200 text  of 
+~									201 text 5
+~									202 text  rows
++								203 text Cell applied.
+The focused UI element is 102 container Node coordinates footer

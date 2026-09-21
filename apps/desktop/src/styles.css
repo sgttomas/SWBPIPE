@@ -513,6 +513,7 @@ button:focus-visible {
 
 .entity-grid {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
   min-width: 0;
 }
@@ -3984,3 +3985,58 @@ body { min-width: 760px; min-height: 540px; }
   line-height: 22px;
 }
 .app-shell .viewport-hidden-count:focus-visible { outline-offset: -2px; }
+
+/* B4.1 entered-coordinate interaction; remaining table grammar is incremental. */
+.engineering-table { min-width: 0; color: var(--ui-text); background: var(--ui-surface); }
+.engineering-table [role="grid"] { overflow-x: auto; }
+/* Header and virtual body move together inside the coordinate-only scroller. */
+.engineering-table [role="rowgroup"] { min-width: 420px; }
+.engineering-table-row { min-width: 420px; display: grid; align-items: stretch; min-height: 100%; border-bottom: 1px solid var(--ui-divider); }
+.engineering-table-row > div { min-width: 0; border-right: 1px solid var(--ui-divider); }
+.engineering-table-row.selected { background: var(--ui-selection); }
+.engineering-table-row.stripe { background-color: var(--surface-zebra, var(--ui-bg)); }
+.engineering-table-row.selected { background-color: var(--ui-selection); }
+.engineering-table-header { min-height: 30px; background: var(--ui-raised); font-weight: 600; }
+.engineering-table-header > div:first-child { padding: 5px 8px; }
+.engineering-table-row button, .engineering-table-cell input { width: 100%; height: 100%; min-height: 28px; margin: 0; padding: 3px 8px; border: 0; border-radius: 0; background: transparent; color: inherit; text-align: right; font-variant-numeric: tabular-nums; }
+.engineering-table-row [role="rowheader"] button { text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.engineering-table-cell[aria-selected="true"] { outline: 1px solid var(--ui-focus); outline-offset: -1px; }
+.engineering-table-cell.editing { background: var(--ui-surface); outline: 2px solid var(--ui-focus); outline-offset: -2px; }
+.engineering-table-cell.invalid { outline-color: var(--ui-error-border); }
+.engineering-table-footer { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; min-height: 32px; padding: 4px 8px; border-top: 1px solid var(--ui-divider); font-size: 12px; }
+.engineering-table-footer button { padding: 3px 8px; }
+.engineering-table-message { margin: 0; padding: 5px 8px; font-size: 12px; }
+.engineering-table-message[role="alert"] { color: var(--ui-error-text); }
+.entity-grid-review-toggle { cursor: pointer; padding: 6px 8px; border-top: 1px solid var(--ui-divider); font-size: 12px; text-align: left; }
+.entity-grid-review.other-family { display: contents; }
+.entity-grid [hidden] { display: none !important; }
+
+/* B4 Grid owns a finite work area. Model drawer keeps its previous scroll
+   behavior until its minimum-height presentation gap is resolved. */
+.app-shell .shell-tree-host:has(> .model-tree[data-bounded-grid="true"]) { overflow: hidden; }
+.app-shell .model-tree[data-bounded-grid="true"] { height: 100%; min-height: 0; overflow: hidden; }
+.model-tree[data-bounded-grid="true"] > .panel-title,
+.model-tree[data-bounded-grid="true"] > .layout-mode-toggle,
+.model-tree[data-bounded-grid="true"] > .model-tree-controls { flex: 0 0 auto; }
+.model-tree[data-bounded-grid="true"] > .model-grid-frame { flex: 1 1 0; min-height: 0; }
+.entity-grid.bounded { height: 100%; display: flex; flex-direction: column; min-height: 0; }
+.entity-grid.bounded > .entity-grid-tabs, .retained-direct-draft { flex: 0 0 auto; }
+.retained-direct-draft { margin: 0; font-size: 12px; }
+.entity-grid.bounded > .direct-coordinate-workarea { flex: 1 1 0; min-height: 0; }
+.entity-grid.bounded > .entity-grid-review { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; }
+.entity-grid.bounded > .entity-grid-review-toggle { flex: 0 0 auto; }
+.entity-grid.bounded .entity-grid-review-content { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
+.entity-grid.bounded .entity-grid-review-content > :not(.entity-grid-scroll) { flex: 0 0 auto; }
+.entity-grid.bounded .entity-grid-scroll { flex: 1 1 0; min-height: 0; max-height: none; overscroll-behavior-y: contain; }
+.entity-grid.bounded .entity-grid-scroll:has(> .entity-grid-virtual-table) { display: flex; flex-direction: column; }
+.entity-grid.bounded .entity-grid-virtual-table { display: flex; flex-direction: column; flex: 1 1 0; min-height: 0; }
+.entity-grid.bounded .entity-grid-virtual-row.header { flex: 0 0 auto; }
+.bulk-grid-body-slot { min-height: 0; }
+.entity-grid.bounded .bulk-grid-body-slot { flex: 1 1 0; overflow: hidden; }
+.engineering-table.bounded { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.engineering-table.bounded > [role="grid"] { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; overflow-y: hidden; overscroll-behavior-y: contain; }
+.engineering-table.bounded .engineering-table-header { flex: 0 0 auto; }
+.engineering-table-body-slot { min-width: 420px; }
+.engineering-table.bounded .engineering-table-body-slot { flex: 1 1 0; min-height: 0; overflow: hidden; }
+.engineering-table.bounded > .engineering-table-footer, .engineering-table.bounded > .engineering-table-message { flex: 0 0 auto; }
+.engineering-table.bounded [role="rowgroup"], .entity-grid.bounded [data-testid="entity-grid-virtual-rows"] { overscroll-behavior-y: contain; }

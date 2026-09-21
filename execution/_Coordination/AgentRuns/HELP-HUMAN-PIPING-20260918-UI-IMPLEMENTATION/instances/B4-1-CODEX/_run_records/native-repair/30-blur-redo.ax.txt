@@ -1,0 +1,17 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview · Edited — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 147-150, 218-222
+~						13 button (disabled) Redo model edit, Help: Nothing to redo
+~									81 row (selectable)
+~										83 cell (selectable, settable) node:N-110 X: 5.1 m
+~									96 row (selected)
+~						135 text Selected:  node:N-140
+~							223 toggle button Select Terminal tie-in in viewport, Help: Terminal tie-in (node:N-140), Value: on
++							224 toggle button Select Vertical riser in viewport, Help: Vertical riser (pipe:P-110), Value: off
++							225 toggle button Select Invented branch connection marker in viewport, Help: Invented branch connection marker (component:C-120), Value: off
++							226 toggle button Select Riser elbow in viewport, Help: Riser elbow (node:N-120), Value: off
++							227 toggle button Select Tie-in rise in viewport, Help: Tie-in rise (pipe:P-130), Value: off
++							228 toggle button Select Invented semi-rigid valve marker in viewport, Help: Invented semi-rigid valve marker (component:C-130), Value: off
++							229 toggle button Select Pump nozzle in viewport, Help: Pump nozzle (node:N-100), Value: off
++							230 toggle button Select Rack turn in viewport, Help: Rack turn (node:N-130), Value: off
+~					201 text node: node:N-140 Entered
+The focused UI element is 2 HTML content Description: SWBPIPE, URL: tauri://localhost

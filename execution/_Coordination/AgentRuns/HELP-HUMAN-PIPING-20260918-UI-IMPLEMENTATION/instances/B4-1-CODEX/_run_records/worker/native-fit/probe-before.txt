@@ -1,0 +1,67 @@
+{
+  "gridBefore": {
+    "tag": "DIV",
+    "cls": "",
+    "role": "grid",
+    "clientWidth": 420,
+    "scrollWidth": 420,
+    "scrollLeft": 0,
+    "rect": {
+      "x": 68,
+      "y": 331.1875,
+      "width": 420,
+      "height": 393
+    },
+    "display": "block",
+    "minWidth": "0px",
+    "width": "420px",
+    "overflowX": "auto",
+    "columns": "none"
+  },
+  "gridAfter": {
+    "tag": "DIV",
+    "cls": "",
+    "role": "grid",
+    "clientWidth": 420,
+    "scrollWidth": 420,
+    "scrollLeft": 0,
+    "rect": {
+      "x": -16,
+      "y": 331.1875,
+      "width": 420,
+      "height": 393
+    },
+    "display": "block",
+    "minWidth": "0px",
+    "width": "420px",
+    "overflowX": "auto",
+    "columns": "none"
+  },
+  "zAfter": {
+    "clientWidth": 94,
+    "scrollWidth": 94,
+    "scrollLeft": 0,
+    "x": 308.53125,
+    "y": 364.1875,
+    "width": 94.453125,
+    "height": 35
+  },
+  "filterBefore": {
+    "clientWidth": 192,
+    "scrollWidth": 192,
+    "scrollLeft": 0,
+    "x": 157.953125,
+    "y": 187.796875,
+    "width": 194.046875,
+    "height": 32
+  },
+  "filterAfter": {
+    "clientWidth": 192,
+    "scrollWidth": 192,
+    "scrollLeft": 0,
+    "x": 73.953125,
+    "y": 187.796875,
+    "width": 194.046875,
+    "height": 32
+  }
+}

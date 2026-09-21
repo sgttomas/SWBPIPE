@@ -1,0 +1,10 @@
+{
+  "checkedAt": "2026-09-20T23:41:10.896138+00:00",
+  "port5174": {
+    "exitCode": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  "sharedLockExists": false,
+  "exactPinnedBrowserProcesses": []
+}

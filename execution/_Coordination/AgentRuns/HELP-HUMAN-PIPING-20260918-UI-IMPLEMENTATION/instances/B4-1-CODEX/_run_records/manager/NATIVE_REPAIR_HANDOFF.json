@@ -1,0 +1,10 @@
+{
+  "at": "2026-09-20T23:14:25.324441+00:00",
+  "task": "/root/b3_manager/b4_1_native",
+  "mechanism": "collaboration.followup_task",
+  "model": "gpt-6-astra/low unchanged existing bounded assignment",
+  "source": "6dd0e466f4432f21d3ce6913782b95f9a325f700",
+  "addendumSha256": "9360e7b8573c0489d1c490c803f4bdca828838d57017dde27d84a59c93c61132",
+  "gates": "ROOT independent source PASS; new-03 browser4PASS; old25376 process-only absence; resource regrant",
+  "permissions": "one uninstrumented rebuild/affected native witness; no maintained source changes; live ROOT handback"
+}

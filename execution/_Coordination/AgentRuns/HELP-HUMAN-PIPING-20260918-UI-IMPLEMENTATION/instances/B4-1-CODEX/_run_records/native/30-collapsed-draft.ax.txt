@@ -1,0 +1,6 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview · Edited — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 268-370
+~							266 summary Review multiple changes · 1 retained draft, Value: off
+~								267 text Review multiple changes
++								268 text  · 1 retained draft
+The focused UI element is 266 summary Review multiple changes · 1 retained draft, Value: off

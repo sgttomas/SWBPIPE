@@ -358,6 +358,7 @@ test("Grid drafts survive Tree round-trips and a filtered queue clears only its 
 
   await ensureRail(page, "tree", true);
   await activateWithKeyboard(page, page.getByTestId("layout-mode-grid"));
+  await openNodeGridReview(page);
   await activateWithKeyboard(page, page.getByTestId("entity-grid-type-nodes"));
   const visibleInput = page.getByTestId(`entity-grid-input-${visibleNode.id}-x`);
   const retainedInput = page.getByTestId(`entity-grid-input-${retainedNode.id}-x`);
@@ -368,6 +369,7 @@ test("Grid drafts survive Tree round-trips and a filtered queue clears only its 
   await activateWithKeyboard(page, page.getByTestId("layout-mode-tree"));
   await expect(page.getByRole("tree", { name: "Model" })).toBeVisible();
   await activateWithKeyboard(page, page.getByTestId("layout-mode-grid"));
+  await openNodeGridReview(page);
   await expect(visibleInput).toHaveValue(visibleDraft);
   await expect(retainedInput).toHaveValue(retainedDraft);
   await expect(page.getByTestId("entity-grid-change-count")).toContainText("2 changed cells");
@@ -2294,3 +2296,11 @@ for (const surface of ["palette", "drawer"] as const) test(`workspace Escape eve
 });
 
 });
+
+// Preserve this journey's reviewed multi-cell operation setup.
+async function openNodeGridReview(page: import("@playwright/test").Page) {
+  const summary = page.getByTestId("node-grid-review-disclosure");
+  if (await summary.getAttribute("aria-expanded") !== "true") {
+    await activateWithKeyboard(page, summary);
+  }
+}

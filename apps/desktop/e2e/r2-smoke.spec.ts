@@ -170,6 +170,7 @@ test("guided workbench shell keeps journey steps, details, and compact status re
   await ensureTreeExpanded(page);
   await expect(page.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", "true");
   await page.getByTestId("layout-mode-grid").click();
+  await openNodeGridReview(page);
   await expect(page.getByTestId("entity-grid")).toBeVisible();
   await expect(page.getByTestId("entity-grid-table-nodes")).toBeVisible();
   await page.getByTestId("entity-grid-row-node-node:N-100").click();
@@ -1880,4 +1881,12 @@ function paeth(left: number, up: number, upLeft: number): number {
   if (leftDistance <= upDistance && leftDistance <= upLeftDistance) return left;
   if (upDistance <= upLeftDistance) return up;
   return upLeft;
+}
+
+// Preserve this journey's reviewed multi-cell operation setup.
+async function openNodeGridReview(page: import("@playwright/test").Page) {
+  const summary = page.getByTestId("node-grid-review-disclosure");
+  if (await summary.getAttribute("aria-expanded") !== "true") {
+    await summary.click();
+  }
 }

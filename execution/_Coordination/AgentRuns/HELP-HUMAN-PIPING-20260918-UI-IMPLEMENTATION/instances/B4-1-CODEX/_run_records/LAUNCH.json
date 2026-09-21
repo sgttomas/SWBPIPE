@@ -1,0 +1,14 @@
+{
+  "launchedAt": "2026-09-20T22:12:32.159334+00:00",
+  "parent": "/root/b3_manager",
+  "actor": "/root/b3_manager/b4_1_table",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "mechanism": "collaboration.spawn_agent; fork_turns none",
+  "base": "fd195cf4287e84572a12183169478a6f7ddf6a92",
+  "briefSha256": "56df2fc1dec4fffac347042287cc90f9b50f548df24fa810d2d456e4fef43578",
+  "scope": "B4.1 table core and entered-unit node-coordinate slice; exact legacy impact inventory before adaptations",
+  "resourceBoundary": "focused one-worker unit/TypeScript only; browser/native/build reserved separately",
+  "enforcement": "unrestricted host, instruction-enforced"
+}

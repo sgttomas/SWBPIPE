@@ -1,0 +1,49 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 63-67, 163-165, 275-369
++							371 container
++								372 table (settable) Node coordinates
++									373 row (selectable)
++										374 cell (settable)
++											375 text Node
++										376 cell (settable)
++											377 button Sort X
++										378 cell (settable)
++											379 button Sort Y
++										380 cell (settable)
++											381 button Sort Z
++									382 row (selectable)
++										383 cell (selectable, settable) node:N-100
++										384 cell (selectable, settable) node:N-100 X: 0 m
++										385 cell (selectable, settable) node:N-100 Y: 0 m
++										386 cell (selectable, settable) node:N-100 Z: 0 m
++									387 row (selected)
++										388 cell (selectable, settable) node:N-110
++										389 cell (selected, settable)
++											390 text field (settable) node:N-110 X [m], Value: bad
++										391 cell (selectable, settable) node:N-110 Y: 0 m
++										392 cell (selectable, settable) node:N-110 Z: 0 m
++									393 row (selectable)
++										394 cell (selectable, settable) node:N-120
++										395 cell (selectable, settable) node:N-120 X: 3.2 m
++										396 cell (selectable, settable) node:N-120 Y: 2.4 m
++										397 cell (selectable, settable) node:N-120 Z: 0 m
++									398 row (selectable)
++										399 cell (selectable, settable) node:N-130
++										400 cell (selectable, settable) node:N-130 X: 7.6 m
++										401 cell (selectable, settable) node:N-130 Y: 2.4 m
++										402 cell (selectable, settable) node:N-130 Z: 0 m
++									403 row (selectable)
++										404 cell (selectable, settable) node:N-140
++										405 cell (selectable, settable) node:N-140 X: 7.6 m
++										406 cell (selectable, settable) node:N-140 Y: 2.4 m
++										407 cell (selectable, settable) node:N-140 Z: 2.2 m
++								408 container Node coordinates footer
++									409 text Editing 
++									410 text X
++									411 text  · 
++									412 text node:N-110
++									413 button Apply, Help: Apply (Enter)
++									414 button Cancel, Help: Cancel (Escape)
++								415 text Enter a finite number in the entered unit.
+~							370 button (collapsed) Review multiple changes · 1 retained draft, Secondary Actions: Expand
+The focused UI element is 2 HTML content Description: SWBPIPE, URL: tauri://localhost

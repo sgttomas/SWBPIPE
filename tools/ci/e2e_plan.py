@@ -149,11 +149,12 @@ def make_plan(root, event, base='', head='HEAD', pr=''):
                     selected = {FAST} | consumers
                     titles = {f: list(ts) for f, ts in LEAN_TITLES.items()}
                     if 'layout' in areas:
-                        selected.update(['e2e/workspace-layout.spec.ts', 'e2e/c3-viewport-visibility.spec.ts'])
+                        selected.update(['e2e/workspace-layout.spec.ts', 'e2e/c3-viewport-visibility.spec.ts',
+                                         'e2e/b4-table-editing.spec.ts'])
                         titles['e2e/ui-foundation.spec.ts'] += LAYOUT_TITLES
                     if 'authoring' in areas:
                         selected.update(['e2e/ui-foundation.spec.ts', 'e2e/linear-authoring.spec.ts',
-                                         'e2e/c3-viewport-visibility.spec.ts'])
+                                         'e2e/c3-viewport-visibility.spec.ts', 'e2e/b4-table-editing.spec.ts'])
                     if 'results' in areas:
                         selected.update(['e2e/result-compatibility.spec.ts', 'e2e/gui-workflow-validation.spec.ts',
                                          'e2e/b3a-session-status.spec.ts', 'e2e/r2-smoke.spec.ts',

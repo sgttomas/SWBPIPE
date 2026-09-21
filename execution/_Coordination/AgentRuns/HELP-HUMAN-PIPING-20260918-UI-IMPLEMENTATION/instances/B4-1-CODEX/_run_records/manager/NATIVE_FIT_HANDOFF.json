@@ -1,0 +1,10 @@
+{
+  "at": "2026-09-20T23:46:39.132317+00:00",
+  "task": "/root/b3_manager/b4_1_native",
+  "mechanism": "collaboration.followup_task",
+  "model": "gpt-6-astra/low unchanged",
+  "source": "1ad964e30b08bed57bba8f08e3a75e8c883c8b0b",
+  "addendumSha256": "31153491ad43148bf3bcd55baef1efdc25c1b6ad81a8ef6e8fe95535c4e116c8",
+  "gates": "ROOT complete2-path backcheckPASS/all20hashes;12unique browserPASS+precisionfit2PASS; old28041quit/process-onlyabsence; ROOT explicit regrant",
+  "scope": "one native uninstrumented1ad rebuild + physicalpointer-fit/ZCancel/SortClear; no source/lib/config/instrumentation; liveROOT handback"
+}

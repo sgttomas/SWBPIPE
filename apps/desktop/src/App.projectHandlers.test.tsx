@@ -213,6 +213,7 @@ describe("project handlers: open clears the previous project's operation diagnos
     const baselineIssues = issueCountShown();
 
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    openNodeGridReview();
     fireEvent.change(screen.getByTestId("entity-grid-input-node:N-100-y"), { target: { value: "0.5" } });
     fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
     invokeMock.mockImplementation((command: string) =>
@@ -591,6 +592,7 @@ describe("project handlers: a failed save or create leaves the open project's in
 // The open-time verification then no longer describes the stored bytes.
 async function applyGridEditWhilePending() {
   fireEvent.click(screen.getByTestId("layout-mode-grid"));
+  openNodeGridReview();
   fireEvent.change(screen.getByTestId("entity-grid-input-node:N-100-y"), { target: { value: "0.5" } });
   fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
   // The operation engine runs in the browser route for this one call.
@@ -1239,3 +1241,9 @@ it.each([["Save", "file.save-local", "save_local_project", null], ["Save", "file
   expect(modelHashLine()).toHaveTextContent("integrity=persistence_verification_not_run_this_session");
   expect(envelopeHashLine()).toHaveTextContent("integrity=persistence_verification_not_run_this_session");
 });
+
+// Existing review journeys explicitly enter the retained multi-change workflow.
+function openNodeGridReview() {
+  const summary = screen.getByTestId("node-grid-review-disclosure");
+  if (summary.getAttribute("aria-expanded") !== "true") fireEvent.click(summary);
+}

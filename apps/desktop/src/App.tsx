@@ -391,6 +391,7 @@ function AppSession() {
             <div className="shell-table-body" id="shell-table-body">
             <div className={shell.tab === "model-tree" ? "shell-tree-host" : "shell-tree-host inactive"} data-testid="shell-tree-host">
             <ModelTree
+              boundedGrid={!tableDrawer.collapsible}
               density={uiPreferences.density}
               hiddenKeys={effectiveHiddenKeys}
               model={model}
@@ -399,6 +400,14 @@ function AppSession() {
               selection={selection}
               selectionState={orderedSelection}
               onQueueIntent={handleQueueEditorIntent}
+              operationBusy={operationBusy}
+              onApplyCellIntent={async (intent) => {
+                const owned: { current?: Readonly<OperationOutcome> } = {};
+                const applied = await handleApplyIntent(intent, owned);
+                return { applied, rejected: Boolean(owned.current && !applied),
+                  messages: owned.current?.diagnostics.map((diagnostic) => `${diagnostic.code}: ${diagnostic.message}`) ??
+                    (applied ? [] : ["The operation was not applied. See the operation details before trying again."]) };
+              }}
               onSelect={handleSelectEntity}
               onFocusChange={(key) => commitSelectionState(setSelectionFocus(orderedSelectionRef.current, key))}
               onFilterPublication={handleTreePublication}

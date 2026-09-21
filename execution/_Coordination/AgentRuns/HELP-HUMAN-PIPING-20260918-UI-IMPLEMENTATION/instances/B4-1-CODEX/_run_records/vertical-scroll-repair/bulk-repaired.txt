@@ -1,0 +1,310 @@
+[
+  [
+    {
+      "cls": "bulk-grid-body-slot",
+      "role": null,
+      "height": 374,
+      "scroll": 374,
+      "width": 720,
+      "styleHeight": "373.828px",
+      "minHeight": "0px",
+      "display": "block",
+      "flex": "1 1 0px",
+      "bounds": {
+        "x": 70,
+        "y": 386.578125,
+        "width": 720,
+        "height": 373.828125
+      }
+    },
+    {
+      "cls": "entity-grid-virtual-table",
+      "role": "table",
+      "height": 402,
+      "scroll": 402,
+      "width": 720,
+      "styleHeight": "404.422px",
+      "minHeight": "0px",
+      "display": "flex",
+      "flex": "1 1 0px",
+      "bounds": {
+        "x": 69,
+        "y": 356.984375,
+        "width": 722,
+        "height": 404.421875
+      }
+    },
+    {
+      "cls": "entity-grid-scroll",
+      "role": "region",
+      "height": 404,
+      "scroll": 404,
+      "width": 410,
+      "styleHeight": "406.422px",
+      "minHeight": "0px",
+      "display": "flex",
+      "flex": "1 1 0px",
+      "bounds": {
+        "x": 68,
+        "y": 355.984375,
+        "width": 412,
+        "height": 406.421875
+      }
+    },
+    {
+      "cls": "entity-grid-review-content",
+      "role": null,
+      "height": 513,
+      "scroll": 513,
+      "width": 412,
+      "styleHeight": "512.812px",
+      "minHeight": "0px",
+      "display": "flex",
+      "flex": "1 1 0px",
+      "bounds": {
+        "x": 68,
+        "y": 331.1875,
+        "width": 412,
+        "height": 512.8125
+      }
+    },
+    {
+      "cls": "entity-grid-review",
+      "role": null,
+      "height": 513,
+      "scroll": 513,
+      "width": 412,
+      "styleHeight": "512.812px",
+      "minHeight": "0px",
+      "display": "flex",
+      "flex": "1 1 0px",
+      "bounds": {
+        "x": 68,
+        "y": 331.1875,
+        "width": 412,
+        "height": 512.8125
+      }
+    },
+    {
+      "cls": "entity-grid bounded",
+      "role": null,
+      "height": 633,
+      "scroll": 633,
+      "width": 412,
+      "styleHeight": "632.812px",
+      "minHeight": "0px",
+      "display": "flex",
+      "flex": "0 1 auto",
+      "bounds": {
+        "x": 68,
+        "y": 251.1875,
+        "width": 412,
+        "height": 632.8125
+      }
+    },
+    {
+      "cls": "model-grid-frame",
+      "role": null,
+      "height": 633,
+      "scroll": 633,
+      "width": 412,
+      "styleHeight": "632.812px",
+      "minHeight": "0px",
+      "display": "block",
+      "flex": "1 1 0px",
+      "bounds": {
+        "x": 68,
+        "y": 251.1875,
+        "width": 412,
+        "height": 632.8125
+      }
+    },
+    {
+      "cls": "panel model-tree",
+      "role": null,
+      "height": 787,
+      "scroll": 787,
+      "width": 436,
+      "styleHeight": "787px",
+      "minHeight": "0px",
+      "display": "flex",
+      "flex": "0 1 auto",
+      "bounds": {
+        "x": 56,
+        "y": 109,
+        "width": 436,
+        "height": 787
+      }
+    },
+    {
+      "cls": "shell-tree-host",
+      "role": null,
+      "height": 787,
+      "scroll": 787,
+      "width": 436,
+      "styleHeight": "787px",
+      "minHeight": "0px",
+      "display": "block",
+      "flex": "1 1 0px",
+      "bounds": {
+        "x": 56,
+        "y": 109,
+        "width": 436,
+        "height": 787
+      }
+    },
+    {
+      "cls": "shell-table-body",
+      "role": null,
+      "height": 787,
+      "scroll": 787,
+      "width": 436,
+      "styleHeight": "787px",
+      "minHeight": "0px",
+      "display": "flex",
+      "flex": "1 1 0px",
+      "bounds": {
+        "x": 56,
+        "y": 109,
+        "width": 436,
+        "height": 787
+      }
+    },
+    {
+      "cls": "workspace-pane workspace-pane-tree shell-table-pane",
+      "role": null,
+      "height": 815,
+      "scroll": 815,
+      "width": 436,
+      "styleHeight": "815px",
+      "minHeight": "0px",
+      "display": "flex",
+      "flex": "0 1 auto",
+      "bounds": {
+        "x": 56,
+        "y": 81,
+        "width": 437,
+        "height": 815
+      }
+    },
+    {
+      "cls": "modeling-workspace shell-surfaces",
+      "role": null,
+      "height": 815,
+      "scroll": 815,
+      "width": 1340,
+      "styleHeight": "815px",
+      "minHeight": "0px",
+      "display": "grid",
+      "flex": "0 0 auto",
+      "bounds": {
+        "x": 56,
+        "y": 81,
+        "width": 1340,
+        "height": 815
+      }
+    },
+    {
+      "cls": "workspace shell-surfaces-frame",
+      "role": null,
+      "height": 815,
+      "scroll": 815,
+      "width": 1340,
+      "styleHeight": "815px",
+      "minHeight": "0px",
+      "display": "block",
+      "flex": "1 1 0px",
+      "bounds": {
+        "x": 56,
+        "y": 81,
+        "width": 1340,
+        "height": 815
+      }
+    },
+    {
+      "cls": "shell-body",
+      "role": null,
+      "height": 815,
+      "scroll": 815,
+      "width": 1440,
+      "styleHeight": "815px",
+      "minHeight": "0px",
+      "display": "grid",
+      "flex": "1 1 0px",
+      "bounds": {
+        "x": 0,
+        "y": 81,
+        "width": 1440,
+        "height": 815
+      }
+    },
+    {
+      "cls": "app-shell",
+      "role": null,
+      "height": 920,
+      "scroll": 920,
+      "width": 1440,
+      "styleHeight": "920px",
+      "minHeight": "540px",
+      "display": "flex",
+      "flex": "0 1 auto",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 920
+      }
+    },
+    {
+      "cls": "",
+      "role": null,
+      "height": 920,
+      "scroll": 920,
+      "width": 1440,
+      "styleHeight": "920px",
+      "minHeight": "0px",
+      "display": "block",
+      "flex": "0 1 auto",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 920
+      }
+    },
+    {
+      "cls": "",
+      "role": null,
+      "height": 920,
+      "scroll": 920,
+      "width": 1440,
+      "styleHeight": "920px",
+      "minHeight": "540px",
+      "display": "block",
+      "flex": "0 1 auto",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 920
+      }
+    },
+    {
+      "cls": "",
+      "role": null,
+      "height": 920,
+      "scroll": 920,
+      "width": 1440,
+      "styleHeight": "920px",
+      "minHeight": "0px",
+      "display": "block",
+      "flex": "0 1 auto",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 920
+      }
+    }
+  ]
+]

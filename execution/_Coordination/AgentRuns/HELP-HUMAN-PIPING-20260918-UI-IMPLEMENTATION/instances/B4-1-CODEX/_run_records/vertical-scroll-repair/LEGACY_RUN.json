@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "sh",
+    "../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/tools/with_e2e_lock.sh",
+    "npx",
+    "playwright",
+    "test",
+    "e2e/ui-foundation.spec.ts",
+    "e2e/r2-smoke.spec.ts",
+    "e2e/b3a-session-status.spec.ts",
+    "--grep",
+    "(Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft|guided workbench shell keeps journey steps, details, and compact status reachable|canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot)$",
+    "--workers=1",
+    "--output",
+    "../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-1-CODEX/_run_records/vertical-scroll-repair/legacy-artifacts"
+  ],
+  "environment": {
+    "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH": "/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+    "PLAYWRIGHT_WORKERS": "1"
+  },
+  "collectionVerified": true
+}

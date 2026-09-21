@@ -1,0 +1,5 @@
+{
+  "pid": 25376,
+  "process": "25376 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop",
+  "binary_sha256": "7affe9aeee64aaad357475d84d2ff44ebebca9b1bde4620ba9b9fc0d4b96786b"
+}
