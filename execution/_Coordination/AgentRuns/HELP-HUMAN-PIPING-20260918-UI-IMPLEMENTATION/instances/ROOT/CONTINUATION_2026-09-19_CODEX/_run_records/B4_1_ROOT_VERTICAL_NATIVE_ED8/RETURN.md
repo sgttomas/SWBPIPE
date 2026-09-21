@@ -1,0 +1,18 @@
+# ROOT native own look — ed8
+
+HELP_HUMAN ROOT through Codex CUA. This is ROOT corroboration after the retained native TASK's return, not independent practitioner usability or a new owner ruling. Source ed8cc27fdb37b8df2f20eb5f877aacb61bfd7db1; live PID43662 was process-verified against the exact wt3 SWBPIPE.app executable before binding. On-disk binary SHA256a21fe722e419c51b87d8fe6929441d512f44685cbc306b912e424ed29fa8e87d matched the native return. No rebuild or source change.
+
+## Actions and observations
+
+- Initial fresh exact-path binding showed the worker's invented preview: N110X3.4, one applied operation, Edited, Undo enabled/Redo disabled, no drafts/filter/sort/queue action, Both/Grid Nodes, Inspector closed. ROOT clicked Undo and used the existing Inspector accelerator. N110X returned3.2, Edited disappeared, Undo disabled/Redo enabled. Inspector opened and Collapse table drawer remained disabled/expanded: full-height non-collapsible context. Screenshot01 records this narrow table.
+- A visible horizontal scrollbar now supplied an observable pointer method. ROOT dragged its thumb from[181,656] to[344,656]. Screenshot02 shows the header/body shifted together and Z exposed; title/filter/family controls remain fixed. This establishes pointer exposure by scrollbar in this ed8 context. It does not relabel earlier unsuccessful horizontal-wheel attempts or claim a trackpad/wheel witness.
+- ROOT physically double-clicked[345,436], observing the N110 Z[m] editor with0 selected; typed4.4; then physically clicked Cancel[283,677]. Screenshots03/04 and AX show Z returned0, no Edited marker or new history; focus returned to the coordinate. This also checks pointer editing/Cancel through the newly exposed column.
+- Vertical scroll down1 over body[250,490] and family controls[190,255] left title/filter/families/header/footer visibly fixed (05). The five-row direct body does not overflow. Corresponding up1 gestures were followed by pointer Review[185,718]. No values were entered in bulk review; count remained0 and Queue/Clear were disabled (06).
+- Down1 at reviewbody[241,550] moved the rows (N100 partly under the fixed header; N140 fully visible) while filter/families/header/Queue/Clear/Return stayed fixed (07). This is actual small-fixture review overflow, not large virtualized native proof.
+- Pointer Return[185,718] and Inspector toggle[845,53] restored the direct view and original closed Inspector. Final full AX/screenshot08 show canonical five-node coordinates, N110X3.2/Z0, no Edited marker, Undo disabled/Redo enabled, no drafts/filter/sort/queued action. No new operation was applied by ROOT; the worker's one synthetic edit was undone. No Save/List/stored-row/settings action. Theme/density and camera unchanged by ROOT; window position/size left as handed back.
+
+## Cleanup and limits
+
+ROOT issued super+q once. Process-only `ps -p 43662 -o pid=,lstart=,command=` returned exit1 with empty output. No app-target AX/getApp call followed Quit. Native/CUA was released to peer dev - app; source/dist5174/5175/shared E2E lock are reserved for the upcoming clean sweep.
+
+Bounded own-look PASS for the observed full-height native context, including the newly observed horizontal scrollbar route. Intermediate AX files may be diffs;08 is a full tree. Screenshots are raw JPEG bytes supplied by CUA, retained with matching file extensions. These are qualitative visual observations, not exact logical/CSS/drawing-buffer measurements. No native large-virtualized or collapsible-drawer proof, D72/usability/full B4, engineering acceptance, release or live-agent activation is claimed. Canonical native TASK return and earlier failed/partial observations remain unchanged. Final combined sweep/review/CI are pending.

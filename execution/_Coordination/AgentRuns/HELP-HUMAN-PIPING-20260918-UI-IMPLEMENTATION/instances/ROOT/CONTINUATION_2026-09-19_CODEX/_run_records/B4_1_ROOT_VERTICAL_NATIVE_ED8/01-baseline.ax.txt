@@ -1,0 +1,36 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 9-10
+~0 standard window Invented Utility Loop Preview — SWBPIPE, Secondary Actions: Raise
+~						12 button (disabled) Undo model edit, Help: Nothing to undo
+~						13 button Redo model edit, Help: Redo (⇧⌘Z)
+~						22 button (expanded) Inspector, Help: Inspector (⌘I), Secondary Actions: Collapse
+~										83 cell (selected, settable) node:N-110 X: 3.2 m
++					188 button Close inspector, Help: Close (⎋)
++					189 container Property inspector
++						190 heading Low point elbow — node: node:N-110, Value: 2
++							191 text Low point elbow —  node :  node:N-110
++						192 tab group (selectable) Inspector views
++							193 tab (selected) Properties
++							194 tab (selectable) Task
++						195 summary All properties, Value: off
++							196 text All properties
++						197 summary Sources and units, Value: off
++							198 text Sources and units
++						199 summary New support configuration, Value: off
++							200 text New support configuration
++						201 summary New section, Value: off
++							202 text New section
++						203 summary New material, Value: off
++							204 text New material
++						205 summary New support, Value: off
++							206 text New support
++						207 summary New component, Value: off
++							208 text New component
++						209 container Delete node intent
++							210 heading Delete node, Value: 3
++								211 text Delete node
++							212 button Queue delete node, Help: Queue node delete intent
++							213 container
++								214 text Operation op:delete-node-node:N-110; delete; proposed Target Node; node:N-110 Change delete_node; Explicit node deletion; nodes; before=Low point elbow; x=3.2; y=0; z=0; after=not_present Unit basis dimensionless; unit=none; explicit user-entered node deletion; endpoint and load reference integrity required Validation not_run; not_run; not_required_dimensionless; not_generated; not_applied Audit boundary Routed through the structured operations only; no direct model mutation; requires your acceptance; does not change the accepted model until applied Professional boundary Requires human review; no compliance claim; no approval claim Rationale explicit user-entered node deletion for project:invented-loop-01; requires reference validation before durable model change.
+~	180 text Invented Utility Loop Preview — SWBPIPE
+The focused UI element is 2 HTML content Description: SWBPIPE, URL: tauri://localhost
