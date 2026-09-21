@@ -1,0 +1,9 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~									389 text field (settable) New material elastic modulus, Value: 300000
+~									392 text field (settable) New material shear modulus, Value: 110000
+~									400 text field (settable) New material thermal expansion, Value: 0.00001
+~									403 text field (settable) New material provenance, Value: invented functional test only
+~								404 button Queue material, Help: Queue material create intent
++								405 container
++									406 text Operation op:create-material-material:b4-native-second; create; proposed Target Material; material:b4-native-second Change create_material; Explicit material; materials; before=not_present; after={"id":"material:b4-native-second","label":"Invented B4.3 sort witness","elastic_modulus":{"value":300000,"unit":"MPa"},"shear_modulus":{"value":110000,"unit":"MPa"},"provenance":"invented functional test only","thermal_expansion_coefficient":{"value":0.00001,"unit":"1/degC"}} Unit basis stress; unit=MPa; explicit user-entered material quantities; entered units preserved Validation not_run; not_run; stress=dec018_catalog_dimension_match; thermal_expansion_coefficient=dec018_catalog_dimension_match; not_generated; not_applied Audit boundary Routed through the structured operations only; no direct model mutation; requires your acceptance; does not change the accepted model until applied Professional boundary Requires human review; no compliance claim; no approval claim Rationale explicit user-entered material for project:invented-loop-01; requires service validation before durable model change.
+The focused UI element is 403 text field (settable) New material provenance, Value: invented functional test only

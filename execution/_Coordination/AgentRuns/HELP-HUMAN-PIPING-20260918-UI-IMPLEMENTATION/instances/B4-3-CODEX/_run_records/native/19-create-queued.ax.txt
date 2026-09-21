@@ -1,0 +1,51 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 41-52, 172-181, 237-260, 268-271, 405-406
+~						38 toggle button Model, Value: off
+~						39 toggle button Review changes 1, Help: Review changes, Value: on
++					405 container Operation Apply section
++						406 container Editing and review tools
++							407 toggle button Review changes, Value: on
++							408 toggle button Geometry, Value: off
++							409 toggle button Supports, Value: off
++							410 toggle button Self weight, Value: off
++							411 toggle button Agent, Value: off
++							412 toggle button Details, Value: off
++						413 container Batch review
++							414 heading Batch review, Value: 3
++								415 text Batch review
++							416 container
++								417 text 0  queued batches;  0  batches applied this session.
++							418 text Validate to preview all steps on temporary state. Apply commits the entire batch once or leaves the model unchanged. Batch drafts and receipts shown here belong to this session.
++							419 button (disabled) Clear pending changes and batches, Help: No pending batches or requests to clear.
++						420 container Apply structured operations
++							421 text APPLY OPERATIONS
++							422 container
++								423 text 1  queued;  1  applied this session. Applying validates through the structured-operation seam and replaces the session model document; saving the project stores it locally.
++							424 container Operation status
++								425 text Engine  ready 1 unit-bearing queued, 0 dimensionless queued; passed; 1 applied receipts.
++							426 container Session edit history
++								427 button (disabled) Undo, Help: Undo last local session model edit
++								428 button Redo, Help: Redo last undone local session model edit
++								429 text 0  undo /  1  redo
++							430 text Undid op:table-cell-d7a791ec-58de-42ca-969f-b781705b33e3 in the local session; previous solve results were cleared. Save is still required to persist the current session model.
++							431 container
++								432 text op:create-material-material:b4-native-second Material material:b4-native-second ;  materials : not_present  to {"id":"material:b4-native-second","label":"Invented B4.3 sort witness","elastic_modulus":{"value":300000,"unit":"MPa"},"shear_modulus":{"value":110000,"unit":"MPa"},"provenance":"invented functional test only","thermal_expansion_coefficient":{"value":0.00001,"unit":"1/degC"}}
++								433 button Validate, Help: Validate without applying
++								434 button Apply, Help: Validate and apply to the session model
++							435 text APPLIED THIS SESSION
++							436 container
++								437 text op:table-cell-d7a791ec-58de-42ca-969f-b781705b33e3 Material material:invented-carbon-steel ;  elastic_modulus.value : 200000000000  to {"value":210000000000,"unit":"Pa"} Applied through  tauri_backend_apply . Acceptance basis user_initiated_apply_in_local_session ; persistence session_state_only_not_yet_saved ; professional approval not recorded . model_hash= sha256:12b4f5ca95abc5053…
++							438 text Applying a structured operation records a user-initiated local-session acceptance only. Results of earlier solves are cleared because they no longer describe the edited model.
+~									378 text field (settable) New material ID, Value: material:M-1
+~									381 text field (settable) New material label, Value: Material M-1
+~									384 combo box (collapsed, settable) New material modulus unit, Secondary Actions: Expand, Value: Pa, DEC-018 canonical
+
+~										385 text Pa, DEC-018 canonical
+~									388 text Elastic modulus ( Pa, DEC-018 canonical )
+~									389 text field (settable) New material elastic modulus
+~									391 text Shear modulus ( Pa, DEC-018 canonical )
+~									392 text field (settable) New material shear modulus
+~									400 text field (settable) New material thermal expansion
+~									403 text field (settable) New material provenance, Value: user_entered_local_preview
+~								404 button (disabled) Queue material, Help: Queue material create intent
+The focused UI element is 2 HTML content Description: SWBPIPE, URL: tauri://localhost

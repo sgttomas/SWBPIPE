@@ -1,0 +1,21 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview · Edited — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 266-269, 272-275
+~0 standard window Invented Utility Loop Preview · Edited — SWBPIPE, Secondary Actions: Raise
++						266 container Unsaved model edits
++							267 text  · Edited
+~						10 button Undo model edit, Help: Undo (⌘Z)
+~										256 cell (selectable, settable) material:invented-carbon-steel Elastic: 210000000000 Pa
+Quantity readout, Value: Pa
+210000000000
+Pa
+~										257 cell (selected, settable) material:invented-carbon-steel Shear: 77000000000 Pa
+Quantity readout, Value: Pa
+77000000000
+Pa
++									268 text 1
++									269 text  of 
+~									270 text 1
+~									271 text  rows
++								272 text Cell applied.
+~	164 text Invented Utility Loop Preview · Edited — SWBPIPE
+The focused UI element is 273 button material:invented-carbon-steel Shear: 77000000000 Pa

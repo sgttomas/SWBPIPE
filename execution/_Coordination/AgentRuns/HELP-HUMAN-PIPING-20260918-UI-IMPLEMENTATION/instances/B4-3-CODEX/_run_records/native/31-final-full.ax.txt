@@ -1,0 +1,121 @@
+Window: "Invented Utility Loop Preview — SWBPIPE", App: SWBPIPE.
+0 standard window Invented Utility Loop Preview — SWBPIPE, Secondary Actions: Raise
+	1 scroll area
+		2 HTML content Description: SWBPIPE, URL: tauri://localhost
+			3 container
+				4 container Toolbar
+					5 heading SWBPIPE, Value: 1
+						6 text SWBPIPE
+					7 container Invented Utility Loop Preview
+						8 text Invented Utility Loop Preview
+					9 container Editing tools
+						10 button (disabled) Undo model edit, Help: Nothing to undo
+						11 button Redo model edit, Help: Redo (⇧⌘Z)
+						12 toggle button Description: Select (⎋), Value: on
+					13 container View
+						14 toggle button Table, Help: Table view (⌘1), Value: on
+						15 toggle button Model, Help: Model view (⌘2), Value: off
+						16 toggle button Both, Help: Both view (⌘3), Value: off
+					17 button Run
+					18 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
+					19 container Panels
+						20 button (disabled, collapsed) Inspector, Help: Table view opens rows in place, Secondary Actions: Expand
+						21 button (disabled) Agent, Help: Agent: not available yet
+					22 pop up button Display units, Value: Entered, Help: Display units. Readouts use the selected units where conversion is available. Unavailable quantities retain entered values. Editing uses entered units.
+					23 summary Appearance, Value: off
+					24 container Human toolkit
+						25 button (collapsed) Find modeling commands, Help: Search or command (⌘K), Secondary Actions: Expand
+				26 container Stages
+					27 content list
+						28 toggle button Model, Value: on
+						29 toggle button Loads, Value: off
+						30 toggle button (disabled) Results, Help: No run yet, Value: off
+						31 toggle button (disabled) Review, Help: No run yet, Value: off
+					32 content list
+						33 button (collapsed) Libraries, Secondary Actions: Expand
+						34 button (collapsed) Rules, Secondary Actions: Expand
+						35 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
+				36 container Modeling workspace
+					37 container Tables
+						38 toggle button Model, Value: on
+						39 toggle button Review changes, Value: off
+						40 button (disabled, expanded) Collapse table drawer, Help: Table view shows the tables at full width, Secondary Actions: Collapse
+					41 container Model tree
+						42 text MODEL
+						43 container Layout grid mode
+							44 toggle button Tree, Value: off
+							45 toggle button Grid, Value: on
+						46 container Model tree filtering
+							47 container
+								48 text Filter model
+								49 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
+									50 text Name, ID, type, or group
+							51 text 27  of  27  model entities visible
+							52 button (disabled) Clear model tree filter
+						53 container Bulk entity grid
+							54 container Grid entity type
+								55 toggle button Nodes, Value: off
+								56 toggle button Pipes, Value: off
+								57 toggle button Supports, Value: off
+								58 toggle button Materials, Value: on
+								59 toggle button Sections, Value: off
+								60 toggle button Components, Value: off
+								61 toggle button Load Cases, Value: off
+								62 toggle button Combinations, Value: off
+							63 container
+								64 table (settable) Material fields
+									65 row (selectable)
+										66 cell (settable)
+											67 text Material
+										68 cell (settable)
+											69 button Sort Label
+										70 cell (settable)
+											71 button Sort Elastic
+										72 cell (settable)
+											73 button Sort Shear
+										74 cell (settable)
+											75 button Sort Thermal
+										76 cell (settable)
+											77 button Sort Provenance
+									78 row (selected)
+										79 cell (selectable, settable) material:invented-carbon-steel
+										80 cell (selectable, settable) material:invented-carbon-steel Label: Invented carbon-steel-like material
+										81 cell (selected, settable) material:invented-carbon-steel Elastic: 200000000000 Pa
+Quantity readout, Value: Pa
+200000000000
+Pa
+										82 cell (selectable, settable) material:invented-carbon-steel Shear: 77000000000 Pa
+Quantity readout, Value: Pa
+77000000000
+Pa
+										83 cell (selectable, settable) material:invented-carbon-steel Thermal: 0.000012 1/degC
+Quantity readout, Value: 1/degC
+0.000012
+1/degC
+										84 cell (selectable, settable) material:invented-carbon-steel Provenance: invented_example_no_material_standard
+								85 container Material fields footer
+									86 text 1
+									87 text  of 
+									88 text 1
+									89 text  rows
+							90 button (collapsed) Review multiple changes, Secondary Actions: Expand
+				91 container Agent
+					92 button (disabled) Agent, Help: Agent: not available yet
+				93 container Workspace status
+					94 container Analysis statuses
+					95 button (collapsed) 5 Issues, Secondary Actions: Expand
+					96 text material: material:invented-carbon-steel Entered
+					97 button (collapsed) About SWBPIPE…, Secondary Actions: Expand
+	98 close button
+	99 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	100 minimize button
+	101 text Invented Utility Loop Preview — SWBPIPE
+102 menu bar
+	103 SWBPIPE
+	104 File
+	105 Edit
+	106 View
+	107 Insert
+	108 Analyze
+
+The focused UI element is 109 button material:invented-carbon-steel Elastic: 200000000000 Pa

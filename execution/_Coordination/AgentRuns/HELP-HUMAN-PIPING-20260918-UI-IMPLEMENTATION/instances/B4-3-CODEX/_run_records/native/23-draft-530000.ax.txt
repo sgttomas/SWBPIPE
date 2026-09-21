@@ -1,0 +1,17 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview · Edited — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 548-554
++									562 row (selected)
++										563 cell (selectable, settable) material:b4-native-second
++										564 cell (selectable, settable) material:b4-native-second Label: Invented B4.3 sort witness
++										565 cell (selected, settable) Quantity readout, Value: MPa
+300000
+MPa
++										566 cell (selectable, settable) material:b4-native-second Shear: 110000 MPa
+Quantity readout, Value: MPa
+110000
+MPa
++										567 cell (selectable, settable) material:b4-native-second Thermal: 0.00001 1/degC
+Quantity readout, Value: 1/degC
+0.00001
+1/degC
++										568 cell (selectable, settable) material:b4-native-second Provenance: invented functional test only

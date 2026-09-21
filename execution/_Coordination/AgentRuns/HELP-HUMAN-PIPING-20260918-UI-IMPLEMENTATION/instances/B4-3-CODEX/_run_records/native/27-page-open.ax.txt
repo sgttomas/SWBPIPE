@@ -1,0 +1,26 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview · Edited — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 36-40, 441-462, 497-538
+~						28 toggle button Model, Value: off
+~						33 button (expanded) Libraries, Secondary Actions: Collapse
++				441 container Workspace sections
++					442 container
++						443 heading Libraries, Value: 2
++							444 text Libraries
++						445 button Close, Help: Close (⎋)
++					446 container Libraries section
++						447 container Library manager
++							448 text PRIVATE LIBRARY MANAGER (LOCAL-ONLY) Project scope: project:invented-loop-01; storage: local SQLite only. Library kind
++							449 pop up button Library kind, Value: Material library
++							450 text Intended visibility (validation preview)
++							451 pop up button Intended visibility (validation preview), Value: Private (local-only)
++							452 text Visibility shapes the validation preview only. Save always persists to the private local store and stores only an accepted private import (DEC-036).
++							453 button Load invented sample
++							454 button Refresh local list
++							455 text Local library list not refreshed for this project yet. Library import document JSON (an already-parsed material/section/component library document with provenance — this manager validates and stores it; it does not parse external file formats)
++							456 text entry area (disabled, settable) Help: No import document; load an invented sample or paste a library document first., Placeholder: No import document. Load an invented sample or paste a library document., Library import document JSON (an already-parsed material/section/component library document with provenance — this manager validates and stores it; it does not parse external file formats)
++								457 text No import document. Load an invented sample or paste a library document.
++							458 button (disabled) Validate import, Help: No import document; load an invented sample or paste a library document first.
++							459 button (disabled) Save to local store, Help: No import document; load an invented sample or paste a library document first.
++							460 button (disabled) Discard import document, Help: No import document; load an invented sample or paste a library document first.
++							461 text No library-import action has run in this session.  Imported private libraries stay in local project storage only — never committed to the repository, transmitted, or bundled into public artifacts. Only an accepted private import is stored; a suspected-protected or otherwise-blocked import is refused, not stored (DEC-036). Import validation reports software findings over an already-parsed payload; no protected standards content — code-specific data is user-supplied.
+The focused UI element is 2 HTML content Description: SWBPIPE, URL: tauri://localhost

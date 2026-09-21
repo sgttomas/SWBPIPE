@@ -1,0 +1,33 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview · Edited — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 348-356, 430-434
+~0 standard window Invented Utility Loop Preview · Edited — SWBPIPE, Secondary Actions: Raise
++						439 container Unsaved model edits
++							440 text  · Edited
+~						10 button Undo model edit, Help: Undo (⌘Z)
+~						11 button (disabled) Redo model edit, Help: Nothing to redo
+~						39 toggle button Review changes, Value: on
+~								423 text 0  queued;  2  applied this session. Applying validates through the structured-operation seam and replaces the session model document; saving the project stores it locally.
+~								425 text Engine  ready 0 unit-bearing queued, 0 dimensionless queued; passed; 2 applied receipts.
+~								427 button Undo, Help: Undo last local session model edit
+~								428 button (disabled) Redo, Help: Redo last undone local session model edit
+~								429 text 1  undo /  0  redo
++							441 text Applied op:create-material-material:b4-native-second to the session model; previous solve results were cleared. Run a new solve, then save the project to store the edited model locally.
++							442 text Queue a review intent from the property inspector or viewport to validate and apply it here.
++							443 container
++								444 text op:create-material-material:b4-native-second Material material:b4-native-second ;  materials :  not_present  to {"id":"material:b4-native-second","label":"Invented B4.3 sort witness","elastic_modulus":{"value":300000,"unit":"MPa"},"shear_modulus":{"value":110000,"unit":"MPa"},"provenance":"invented functional test only","thermal_expansion_coefficient":{"value":0.00001,"unit":"1/degC"}} Applied through  tauri_backend_apply . Acceptance basis user_initiated_apply_in_local_session ; persistence session_state_only_not_yet_saved ; professional approval not recorded . model_hash= sha256:61a9c2d8faa7b25a1…
+~						299 text Selected:  material:b4-native-second
+~						339 heading Invented B4.3 sort witness — material:material:b4-native-second, Value: 2
+~							340 text Invented B4.3 sort witness —  material : material:b4-native-second
++						445 container Material temperature table
++							446 heading Temperature-dependent properties, Value: 3
++								447 text Temperature-dependent properties
++							448 text Enter values with their units and provenance. An incomplete point remains incomplete; load-case validation checks whether selected points can be used. Removing a referenced point may be blocked.
++							449 container Invented B4.3 sort witness
++								450 text Invented B4.3 sort witness
++								451 text No temperature points. Add a point to enter temperature-dependent properties.
++								452 button Add temperature point
++								453 button Queue temperature points
+~								361 text Remove  Invented B4.3 sort witness ( material:b4-native-second ). References from other records can block removal. No connected records will be removed automatically.
+~					159 text material: material:b4-native-second Entered
+~	164 text Invented Utility Loop Preview · Edited — SWBPIPE
+The focused UI element is 405 container Operation Apply section

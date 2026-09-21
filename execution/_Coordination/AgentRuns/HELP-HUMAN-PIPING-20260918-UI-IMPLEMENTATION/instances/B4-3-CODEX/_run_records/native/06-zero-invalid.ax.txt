@@ -1,0 +1,88 @@
+There has been no change in the accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE".
+Selected text: ```
+SWBPIPE
+Invented Utility Loop Preview
+￼
+￼
+￼
+Select
+￼
+Table
+￼
+Model
+￼
+Both
+￼
+Run
+￼
+Issues
+5
+￼
+Inspector
+￼
+Agent
+￼
+￼
+Search or command…
+⌘K
+￼
+Model
+￼
+Loads
+￼
+Results
+￼
+Review
+￼
+Libraries
+￼
+Rules
+￼
+Issues
+5
+￼Model
+￼Review changes
+￼
+MODEL
+￼Tree
+￼Grid
+Filter model
+￼
+27 of 27 model entities visible
+￼
+￼Nodes
+￼Pipes
+￼Supports
+￼Materials
+￼Sections
+￼Components
+￼Load Cases
+￼Combinations
+Material
+￼Label ↕
+￼Elastic [per-row entered unit] ↕
+￼Shear [per-row entered unit] ↕
+￼Thermal [per-row entered unit] ↕
+￼Provenance ↕
+￼material:invented-carbon-steel
+￼Invented carbon-steel-like material
+￼200000000000
+Pa
+200000000000 Pa
+￼77000000000
+Pa
+77000000000 Pa
+￼0.000012
+1/degC
+0.000012 1/degC
+￼invented_example_no_material_standard
+1 of 1 rows
+￼Review multiple changes
+￼
+Agent
+￼5 Issues
+project: project:invented-loop-01
+Entered
+```
+
+Note: Pay special attention to the content selected by the user. If the user asks a question or refers to the content they are looking at on-screen, they might be referring to the selected content (but they might be referring to something else that's visible, too).
