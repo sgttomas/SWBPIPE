@@ -179,3 +179,14 @@ taxonomy per DEC-081).
   `IMPLEMENTATION_SURFACES.csv` (598 capabilities). Mechanical indexes and the
   authority map were built earlier in R1.
 
+- 2026-09-21 — R0 PR backcheck 4 findings repaired. B4-2: routing widened
+  (PKG-03, PKG-04, PKG-05 add FEATC; PKG-09 adds FEATB and FEATC; PKG-10 adds
+  COREC). B4-3: worker routing files no longer mark the cross-area sample and
+  are ordered by hash; the mapping moved to `ROUTING_SAMPLE/SAMPLE_MANIFEST.csv`
+  for verifiers only. B4-1: `check_inventory.py` rejects directory tokens not
+  strictly under the project folder (all 12 inventories re-pass). B4-4:
+  `merge_inventories.py` and `build_path_hints.py` committed; both reproduce
+  the bound files byte for byte. The `.mjs` language label in
+  `VERIFICATION_INDEX.csv` (cosmetic) is left as is.
+- 2026-09-21 — R2 wave plan and briefs written (`WAVE_PLAN.md`; R2 manager,
+  worker and verifier briefs in the orchestration record).

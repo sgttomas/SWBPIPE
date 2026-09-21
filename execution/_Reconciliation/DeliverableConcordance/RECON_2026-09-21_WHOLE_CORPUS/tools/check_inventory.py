@@ -97,7 +97,10 @@ def main(argv):
                         covered |= {t for t in tree if t == p or t.startswith(p + "/")}
                     continue
                 if p in dirs and p not in tree:
-                    rel = p[len(P):] if p.startswith(P) else p
+                    if not p.startswith(P):
+                        f.append(f"{cid}: directory EntryPoint {p} is not strictly under {P}")
+                        continue
+                    rel = p[len(P):]
                     anc = [x for x in prefixes if x.rstrip("/").startswith(rel.rstrip("/") + "/") or x.rstrip("/") == rel.rstrip("/")]
                     if a.area not in DIR_OK_AREAS:
                         f.append(f"{cid}: directory EntryPoint {p} (only DATA, DOCS and CHECKS may cite directories)")

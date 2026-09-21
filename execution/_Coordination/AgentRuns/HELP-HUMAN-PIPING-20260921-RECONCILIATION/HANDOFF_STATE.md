@@ -9,21 +9,22 @@ A cold session starts here. Read in order: this file, `OWNER_DIRECTIONS.md`,
 
 - Piping development is paused by the owner until this run is done.
 - Frozen source: `00115c71931bcae79909602d653740d3bb72dfa1`.
-- D-73 is **RULED** (2026-09-21): whole corpus, R0–R4 only, no seeding, the
-  Item 5 surface boundary, Item 6 parameters. Ruling record, register flip and
-  `DEC-110` are on branch `claude/chirality-piping-reconciliation-7f7e70`,
-  not yet merged. R5/R6 need a separate owner authorization.
-- Nothing has been dispatched. No deliverable, code, test, DAG or lifecycle
-  surface has been written.
+- D-73 is **RULED** and merged to `main` (PR #837). R5/R6 need a separate
+  owner authorization.
+- R0 is ruled (`R0_CALIBRATION/R0_RULING.md`, with addendum). R1 is complete:
+  598 capabilities, mechanical indexes, authority map, routing.
+- Branch `claude/piping-recon-r0-20260921` carries R0 and R1 and is in
+  independent review (backchecks 1–4 repaired). No R2 worker has been
+  dispatched. No deliverable, code, test, DAG or lifecycle surface has been
+  written.
 
 ## Next actions
 
-1. Launch the one fresh read-only reviewer over the complete activation diff;
-   repair and backcheck findings; list any post-ruling profile change in the
-   ruling record's "Changes after ruling".
-2. Checks: `harness-self-check`, `harness-pytest`, the claims lint and the
-   receipt validator; then PR, CI and merge to `main`.
-3. R0 from the merged `main`, per `PLAN.md` Step 2.
+1. Close the R0/R1 PR review, then push, open the PR, pass CI and merge.
+2. Stale check, then R2 wave 1 per the evidence folder's `WAVE_PLAN.md`
+   (PKG-07 and PKG-16; two managers, four workers; then two verifiers at
+   double sampling). Gate before scale-out; show the owner the canonical
+   table with wave 1 results.
 
 ## Departures from the approved plan
 

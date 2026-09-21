@@ -23,6 +23,13 @@
    projects/chirality-piping ':!projects/chirality-piping/execution'`); any
    product change marks affected rows `STALE_INPUT`.
 
-Current phase: R0 closing (R0 PR review and backcheck), then R1 inventory.
+6. R1 regenerators: `tools/build_r1_indexes.py`, `tools/merge_inventories.py`
+   (`IMPLEMENTATION_SURFACES.csv`), `tools/build_path_hints.py`
+   (`ROUTING_PATH_HINTS.json`), `tools/route_capabilities.py` (`ROUTING/`,
+   `ROUTING_SAMPLE/`). Workers and managers never read `ROUTING_SAMPLE/`.
+7. R2 waves follow `WAVE_PLAN.md` and the briefs `R2-MANAGER_brief.md`,
+   `R2-WORKER_brief.md`, `R2-VERIFIER_brief.md` in the orchestration record.
+
+Current phase: R1 complete; R0/R1 PR in review. Next: merge, then R2 wave 1.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
