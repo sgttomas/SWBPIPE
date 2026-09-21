@@ -1,0 +1,9 @@
+# B4 vertical correction — bounded records backcheck
+
+ROOT HELP_HUMAN → retained /root/b3b_c3_ci_review, independent TASK Type2, gpt-6-astra/xhigh, Codex harness-native; no descendants. Read-only under unrestricted host. Resolve roots as instructed. Use the previously supplied Root/Piping/TASK/loop and review-skill basis; check actual consulted identity and retain new hashes.
+
+Review the complete 12-path ROOT records delta 4537ab1bb33c1fe4b773169af76619db45728110..53b0dd68756512a48a9361f2e2e5ee5371a48240. Check owner quotation fidelity and supersession, bounded source/native claims, B5 return/brief custody and scope, graph/coordination consistency, and the engineering authority for the vertical repair. The original manual-scroll closure is deliberately preserved and explicitly superseded by the correction/axis records. Native containment remains open. B5 is preparation, not activated writes; C4 and CLI activation remain pending.
+
+Inspect referenced canonical committed source/evidence only as needed. B4 source/evidence c8f8e503383e15b42b171c4957c6f458d3697150 is in the shell lane; the vertical diagnosis/repair remains dirty there under the manager. You may read the specifically cited sealed diagnosis/proposal bytes for hash/claim checks, but do not review unfrozen implementation or modify its scope. The short Model drawer remains unchanged as a disclosed later B4 gap; no claim of full B4 completion is made.
+
+No files, Git mutations, tests/builds, UI, ports, provider calls or delegation. Return actionable findings first, otherwise a precise bounded PASS, complete path coverage and evidence limitations. Preserve earlier returns; ROOT retains your new return verbatim and owns corrections. This review covers record truthfulness, not the unfinished repair or later candidate gates.
