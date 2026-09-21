@@ -1,0 +1,1 @@
+src/features/model-tree/ModelTree.tsx(1010,132): error TS2367: This comparison appears to be unintentional because the types '"supports" | "pipes" | "load_cases" | "combinations" | "components" | "nodes" | "materials"' and '"sections"' have no overlap.

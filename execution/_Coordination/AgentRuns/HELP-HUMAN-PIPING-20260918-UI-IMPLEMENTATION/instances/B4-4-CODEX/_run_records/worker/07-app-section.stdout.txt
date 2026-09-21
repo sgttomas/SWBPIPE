@@ -1,0 +1,11 @@
+
+ RUN  v4.1.10 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop
+
+ ❯ src/App.test.tsx (218 tests | 1 failed | 217 skipped) 184ms
+     × limits section type choices to pipe 183ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 217 skipped (218)
+   Start at  05:32:39
+   Duration  2.23s (transform 1.33s, setup 65ms, import 1.57s, tests 184ms, environment 276ms)
+

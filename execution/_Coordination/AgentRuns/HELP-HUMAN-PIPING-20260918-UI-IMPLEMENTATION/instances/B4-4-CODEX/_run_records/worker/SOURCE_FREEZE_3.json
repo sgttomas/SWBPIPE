@@ -1,0 +1,9 @@
+{
+  "state": "frozen",
+  "basis": "54176d28c5a5a25f4fe61ff8debc66d9d7b0f332",
+  "browser_before_sha256": "632e5ba3e9763a34f1062295a97a0201546207eddf0e1e335727a6db5e6bbf23",
+  "paths": {
+    "projects/chirality-piping/apps/desktop/e2e/b4-sections.spec.ts": "11978e77be10f0901f1b39f4c6c5676bd97795628e5208d8e926f6359ea542d7",
+    "projects/chirality-piping/core/model_operations/operation_applier/src/atomic_batch.rs": "dae2f22f1a24e04bd5fae2ea95b7d67f8640eaef085e91f51c07c0b859ce85d5"
+  }
+}

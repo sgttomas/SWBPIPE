@@ -1,0 +1,21 @@
+
+Running 16 tests using 1 worker
+
+  ✓   1 [chromium-desktop] › e2e/b4-sections.spec.ts:17:1 › B4 Sections mixed-unit direct editing preserves no-op, rejection, shared-pipe rejection and history (2.3s)
+  ✓   2 [chromium-desktop] › e2e/b4-sections.spec.ts:36:1 › B4 Sections enum explicit completion, passive cancellation and raw review retention (3.1s)
+  ✓   3 [chromium-desktop] › e2e/b4-sections.spec.ts:95:1 › B4 Sections Apply Tab accepts the next actual key during unrelated quantity reconversion (1.6s)
+  ✓   4 [chromium-desktop] › e2e/b4-sections.spec.ts:121:1 › B4 Sections moved review row preserves text Undo, input ownership and virtual hidden lifetimes (2.8s)
+  ✓   5 [chromium-desktop] › e2e/b4-table-editing.spec.ts:362:1 › B4 Materials preserve mixed-unit editing, delayed review sort, history and saved ownership (4.6s)
+  ✓   6 [chromium-desktop] › e2e/b4-table-editing.spec.ts:453:1 › B4 Materials stable editor owns character starts, virtual scrolling, filtering and resize (2.4s)
+  ✓   7 [chromium-desktop] › e2e/b4-table-editing.spec.ts:506:1 › B4 Materials Apply Tab keeps the first Shear character while another quantity reconverts (1.6s)
+  ✓   8 [chromium-desktop] › e2e/b4-table-editing.spec.ts:553:1 › B4 diagnostic Node sorted review preserves text Undo after an active row crosses downward (2.0s)
+  ✓   9 [chromium-compact] › e2e/b4-sections.spec.ts:17:1 › B4 Sections mixed-unit direct editing preserves no-op, rejection, shared-pipe rejection and history (1.9s)
+  ✓  10 [chromium-compact] › e2e/b4-sections.spec.ts:36:1 › B4 Sections enum explicit completion, passive cancellation and raw review retention (3.0s)
+  ✓  11 [chromium-compact] › e2e/b4-sections.spec.ts:95:1 › B4 Sections Apply Tab accepts the next actual key during unrelated quantity reconversion (1.6s)
+  ✓  12 [chromium-compact] › e2e/b4-sections.spec.ts:121:1 › B4 Sections moved review row preserves text Undo, input ownership and virtual hidden lifetimes (2.8s)
+  ✓  13 [chromium-compact] › e2e/b4-table-editing.spec.ts:362:1 › B4 Materials preserve mixed-unit editing, delayed review sort, history and saved ownership (4.7s)
+  ✓  14 [chromium-compact] › e2e/b4-table-editing.spec.ts:453:1 › B4 Materials stable editor owns character starts, virtual scrolling, filtering and resize (2.3s)
+  ✓  15 [chromium-compact] › e2e/b4-table-editing.spec.ts:506:1 › B4 Materials Apply Tab keeps the first Shear character while another quantity reconverts (1.7s)
+  ✓  16 [chromium-compact] › e2e/b4-table-editing.spec.ts:553:1 › B4 diagnostic Node sorted review preserves text Undo after an active row crosses downward (2.0s)
+
+  16 passed (42.3s)

@@ -1,0 +1,20 @@
+
+running 1 test
+test atomic_batch::tests::section_geometry_batch_validates_each_intermediate_state_and_never_publishes_failure ... FAILED
+
+failures:
+
+---- atomic_batch::tests::section_geometry_batch_validates_each_intermediate_state_and_never_publishes_failure stdout ----
+
+thread 'atomic_batch::tests::section_geometry_batch_validates_each_intermediate_state_and_never_publishes_failure' (70193193) panicked at src/atomic_batch.rs:539:9:
+assertion `left == right` failed
+  left: Number(60.0)
+ right: 60
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    atomic_batch::tests::section_geometry_batch_validates_each_intermediate_state_and_never_publishes_failure
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 137 filtered out; finished in 0.01s
+

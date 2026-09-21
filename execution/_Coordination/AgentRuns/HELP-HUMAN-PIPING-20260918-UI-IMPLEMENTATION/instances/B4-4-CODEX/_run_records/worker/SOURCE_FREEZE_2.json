@@ -1,0 +1,8 @@
+{
+  "state": "frozen",
+  "basis": "54176d28c5a5a25f4fe61ff8debc66d9d7b0f332",
+  "only_change": "exact expected JSON numeric representation 60.0 and 20.0",
+  "paths": {
+    "projects/chirality-piping/core/model_operations/operation_applier/src/atomic_batch.rs": "dae2f22f1a24e04bd5fae2ea95b7d67f8640eaef085e91f51c07c0b859ce85d5"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "base": "3687e4450a3e2cfa37616b9b1e7ee7b28075e1fe",
+  "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-4-CODEX/_run_records/PORTAL_STYLE_ADDENDUM.md",
+  "briefSha256": "29dfb30a3afe2416a88fed5fd829ba262b75612ac385782a2ac65579bc7375fc",
+  "paths": {
+    "projects/chirality-piping/apps/desktop/src/styles.css": "773f7c36104e6e82bb77b799b4060393dc69dab6d3770200d0bb2d9cacdfbf19",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/useEnumEditor.tsx": "909cff6062a45b10ac642ecded0273cd6ed7adf499087cbd84539955d0640865",
+    "projects/chirality-piping/apps/desktop/e2e/b4-sections.spec.ts": "11978e77be10f0901f1b39f4c6c5676bd97795628e5208d8e926f6359ea542d7"
+  }
+}
