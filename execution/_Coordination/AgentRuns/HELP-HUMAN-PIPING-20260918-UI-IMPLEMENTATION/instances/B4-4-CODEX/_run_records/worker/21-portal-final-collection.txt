@@ -1,0 +1,18 @@
+Listing tests:
+  [chromium-desktop] › b4-sections.spec.ts:17:1 › B4 Sections mixed-unit direct editing preserves no-op, rejection, shared-pipe rejection and history
+  [chromium-desktop] › b4-sections.spec.ts:36:1 › B4 Sections enum explicit completion, passive cancellation and raw review retention
+  [chromium-desktop] › b4-sections.spec.ts:95:1 › B4 Sections Apply Tab accepts the next actual key during unrelated quantity reconversion
+  [chromium-desktop] › b4-sections.spec.ts:121:1 › B4 Sections moved review row preserves text Undo, input ownership and virtual hidden lifetimes
+  [chromium-desktop] › b4-table-editing.spec.ts:362:1 › B4 Materials preserve mixed-unit editing, delayed review sort, history and saved ownership
+  [chromium-desktop] › b4-table-editing.spec.ts:453:1 › B4 Materials stable editor owns character starts, virtual scrolling, filtering and resize
+  [chromium-desktop] › b4-table-editing.spec.ts:506:1 › B4 Materials Apply Tab keeps the first Shear character while another quantity reconverts
+  [chromium-desktop] › b4-table-editing.spec.ts:553:1 › B4 diagnostic Node sorted review preserves text Undo after an active row crosses downward
+  [chromium-compact] › b4-sections.spec.ts:17:1 › B4 Sections mixed-unit direct editing preserves no-op, rejection, shared-pipe rejection and history
+  [chromium-compact] › b4-sections.spec.ts:36:1 › B4 Sections enum explicit completion, passive cancellation and raw review retention
+  [chromium-compact] › b4-sections.spec.ts:95:1 › B4 Sections Apply Tab accepts the next actual key during unrelated quantity reconversion
+  [chromium-compact] › b4-sections.spec.ts:121:1 › B4 Sections moved review row preserves text Undo, input ownership and virtual hidden lifetimes
+  [chromium-compact] › b4-table-editing.spec.ts:362:1 › B4 Materials preserve mixed-unit editing, delayed review sort, history and saved ownership
+  [chromium-compact] › b4-table-editing.spec.ts:453:1 › B4 Materials stable editor owns character starts, virtual scrolling, filtering and resize
+  [chromium-compact] › b4-table-editing.spec.ts:506:1 › B4 Materials Apply Tab keeps the first Shear character while another quantity reconverts
+  [chromium-compact] › b4-table-editing.spec.ts:553:1 › B4 diagnostic Node sorted review preserves text Undo after an active row crosses downward
+Total: 16 tests in 2 files

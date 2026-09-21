@@ -1,0 +1,3 @@
+Listing tests:
+  [chromium-desktop] › b4-sections.spec.ts:36:1 › B4 Sections enum explicit completion, passive cancellation and raw review retention
+Total: 1 test in 1 file

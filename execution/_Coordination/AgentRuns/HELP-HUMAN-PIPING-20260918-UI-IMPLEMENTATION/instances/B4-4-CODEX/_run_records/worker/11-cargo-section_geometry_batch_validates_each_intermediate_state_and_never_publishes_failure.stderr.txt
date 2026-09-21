@@ -1,0 +1,4 @@
+   Compiling open_pipe_stress_operation_applier v0.1.0 (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/core/model_operations/operation_applier)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.73s
+     Running unittests src/lib.rs (projects/chirality-piping/core/model_operations/operation_applier/target/debug/deps/open_pipe_stress_operation_applier-9e6ae2a19b7943e1)
+error: test failed, to rerun pass `--lib`

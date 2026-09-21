@@ -1,0 +1,37 @@
+[
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/workspace/CompactSelect.tsx",
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3",
+    "sha256": "a0c160c24da5b472c7e60c028308d4db1bdfc9675b0157e99a12be693f1767a2"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/workspace/VirtualTargetPicker.tsx",
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3",
+    "sha256": "5511fa36d899477c0652578528d9d66b85274a3806c3437dcc99705bb222d108"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/playwright.config.ts",
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3",
+    "sha256": "d861a8567ce54c803e2bef914a5b9965906f90e0eda58ab4d907160d10eed31a"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3",
+    "sha256": "ee15a0d7eb5b87926ba3a8179c73de6b6f9d0ce5fdea06622e21ace9f55a0e29"
+  },
+  {
+    "path": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3",
+    "sha256": "22062ea42fd135a9dbefa0f7e09cf3a2feccc5193ff6028818fd1c6221a3f355"
+  },
+  {
+    "path": "projects/chirality-piping/core/model_operations/operation_applier/src/section_bindings.rs",
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3",
+    "sha256": "424cba3f1e6292d75233bd403b60c922e2e56365c7c7b15b463c6efe58d9fd72"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-4-CODEX/_run_records/ROOT_FOCUSED_RESOURCE_GRANT.md",
+    "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3",
+    "sha256": "6d4175771bd3a8d40899f096ff46f3f59597c767ca04f75e47cb016ee2a70d4b"
+  }
+]
