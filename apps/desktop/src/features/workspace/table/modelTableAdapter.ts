@@ -76,7 +76,7 @@ export function buildGridOperationIntent({
       schema_validation: "not_run",
       constraint_validation: "not_run",
       unit_validation:
-        column.dimension === "dimensionless" ? "not_required_dimensionless" : "model_metadata_unit_dimension_declared",
+        column.dimension === "dimensionless" ? "not_required_dimensionless" : column.objectType === "Material" ? "not_run" : "model_metadata_unit_dimension_declared",
       diff_preview_status: "not_generated",
       application_status: "not_applied"
     },
@@ -127,4 +127,18 @@ export function nodeTableColumns(unit: string, review = false): TableColumn[] {
   });
   return [textColumn("label", "Label"), ...nodeCoordinateColumns(unit).map((column) => review
     ? { ...column, validate: undefined, equivalent: undefined } : column), textColumn("provenance", "Provenance")];
+}
+
+/** Materials edit existing quantities in their actual sibling unit. */
+export function materialTableColumns(review = false): TableColumn[] {
+  const text = (key: string, label: string): TableColumn => ({ key, label, unit: "", kind: "text",
+    validate: review ? undefined : (value) => value.trim() ? undefined : "Enter text or explicitly enter TBD.",
+    equivalent: review ? undefined : (before, after) => before === after.trim()
+  });
+  return [text("label", "Label"), ...["elastic", "shear", "thermal"].map((key): TableColumn => ({
+    key, label: key === "elastic" ? "Elastic" : key === "shear" ? "Shear" : "Thermal", unit: "per-row entered unit", kind: "quantity",
+    projectedSort: true, minWidth: 180,
+    validate: review ? undefined : (value) => coordinateError(value) ?? (key !== "thermal" && Number(value) <= 0 ? "Enter a finite number greater than zero in the entered unit." : undefined),
+    equivalent: review ? undefined : (before, after) => Number(before) === Number(after)
+  })), text("provenance", "Provenance")];
 }

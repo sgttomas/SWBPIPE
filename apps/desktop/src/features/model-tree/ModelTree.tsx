@@ -7,7 +7,8 @@ import { entityKey, type EntityKey, type OrderedSelectionState, type SelectionMo
 import { modelIndexFor, type ModelIndex } from "../workspace/modelIndex";
 import { VirtualList } from "../workspace/VirtualList";
 import { EngineeringTable, useTableBodyHeight, type TableApplyResult } from "../workspace/table/EngineeringTable";
-import { buildGridOperationIntent, nodeTableColumns, type GridColumn, type GridRow } from "../workspace/table/modelTableAdapter";
+import { buildGridOperationIntent, materialTableColumns, nodeTableColumns, type GridColumn, type GridRow } from "../workspace/table/modelTableAdapter";
+import { quantityCellKey, useQuantitySortProjection } from "../workspace/table/quantitySortProjection";
 import { capturedCellIsCurrent, type CapturedCell, type TableRow } from "../workspace/table/tableState";
 
 type Props = {
@@ -705,9 +706,14 @@ function EntityGrid({
 }) {
   const [queuedMessage, setQueuedMessage] = useState("");
   const [reviewOpen, setReviewOpen] = useState(false);
+  const [materialReviewOpen, setMaterialReviewOpen] = useState(false);
+  const [materialDraftRetained, setMaterialDraftRetained] = useState(false);
   const [directDraftRetained, setDirectDraftRetained] = useState(false);
   const [reviewReset, setReviewReset] = useState(0);
-  const reviewVisible = entityType !== "nodes" || reviewOpen;
+  const [materialReviewReset, setMaterialReviewReset] = useState(0);
+  const commonFamily = entityType === "nodes" || entityType === "materials";
+  const currentReviewOpen = entityType === "materials" ? materialReviewOpen : reviewOpen;
+  const reviewVisible = !commonFamily || currentReviewOpen;
   const directVisible = entityType === "nodes" && !reviewOpen;
   const reviewRegionId = useId();
   const bulkBody = useTableBodyHeight(bounded, reviewVisible);
@@ -725,6 +731,7 @@ function EntityGrid({
   })), [tableRows, nodeRows, nodeGridColumns, drafts, projectSessionGeneration]);
   const tableGeneration = JSON.stringify([model.project.id, projectSessionGeneration]);
   const operationSequence = useRef(0);
+  const retainedMaterialDrafts = changedGridCells({ columns: gridColumns(model, "materials"), drafts, rows: gridRows(model, "materials"), projectSessionGeneration }).length;
   const retainedNodeDrafts = changedGridCells({ columns: gridColumns(model, "nodes"), drafts, rows: nodeRows, projectSessionGeneration }).length;
   async function applyCoordinate(captured: CapturedCell, value: string): Promise<TableApplyResult> {
     if (!onApplyCellIntent) return { applied: false, messages: ["The operation route is unavailable."] };
@@ -788,7 +795,8 @@ function EntityGrid({
         })
       );
     });
-    setReviewReset((value) => value + 1);
+    if (entityType === "materials") setMaterialReviewReset((value) => value + 1);
+    else setReviewReset((value) => value + 1);
     setQueuedMessage(
       `Queued ${changedCells.length} review intent${changedCells.length === 1 ? "" : "s"} from Grid mode.`
     );
@@ -821,7 +829,14 @@ function EntityGrid({
           onSelect={(key) => { const row = nodeRows.find((candidate) => entityKey(candidate) === key); if (row) onSelect({ type: row.type, id: row.id }); }}
           onApply={applyCoordinate} />
       </div>
-      <div className={`entity-grid-review${entityType !== "nodes" ? " other-family" : ""}`} id={reviewRegionId} hidden={!reviewVisible} inert={!reviewVisible}>
+      {! (entityType === "materials" && !materialReviewOpen) && materialDraftRetained ? <p className="retained-direct-draft" role="status">Direct material edit retained. Return to material fields to correct or cancel it.</p> : null}
+      <div className="direct-coordinate-workarea" hidden={entityType !== "materials" || materialReviewOpen} inert={entityType !== "materials" || materialReviewOpen}>
+        <MaterialTable model={model} drafts={drafts} generation={tableGeneration} projectSessionGeneration={projectSessionGeneration}
+          active={entityType === "materials" && !materialReviewOpen} bounded={bounded} density={density} filter={filterText} selection={selection}
+          onSelect={onSelect} onApplyCellIntent={onApplyCellIntent} operationBusy={operationBusy} onDraftStateChange={setMaterialDraftRetained}
+          updateCell={updateCell} resetEditsKey={materialReviewReset} />
+      </div>
+      <div className={`entity-grid-review${!commonFamily ? " other-family" : ""}`} id={reviewRegionId} hidden={!reviewVisible} inert={!reviewVisible}>
         <div className="entity-grid-review-content">
       <div className="entity-grid-summary">
         <span data-testid="entity-grid-summary">
@@ -841,7 +856,12 @@ function EntityGrid({
           }}
           onKeepDraft={() => ({ retained: true, messages: ["Draft retained; model unchanged."] })} />
       </div>
-      {entityType !== "nodes" ? <div className="entity-grid-scroll" role="region" aria-label="Editable model entity table">
+      <div className="node-review-workarea" hidden={entityType !== "materials"} inert={entityType !== "materials"}>
+        <MaterialTable model={model} drafts={drafts} generation={tableGeneration} projectSessionGeneration={projectSessionGeneration} review
+          active={reviewVisible && entityType === "materials"} bounded={bounded} density={density} filter={filterText} selection={selection}
+          onSelect={onSelect} updateCell={updateCell} resetEditsKey={materialReviewReset} />
+      </div>
+      {!commonFamily ? <div className="entity-grid-scroll" role="region" aria-label="Editable model entity table">
         {virtualGrid ? (
           <div className="entity-grid-virtual-table" role="table" aria-label={`${entityType} editable grid`} data-testid={`entity-grid-table-${entityType}`}>
             <div className="entity-grid-virtual-row header" role="row" style={{ gridTemplateColumns: `minmax(100px, 1fr) repeat(${columns.length}, minmax(120px, 1fr))` }}>
@@ -939,7 +959,7 @@ function EntityGrid({
         ) : null}
       </div>
       : null}
-      {entityType !== "nodes" && virtualGrid && bulkBody.allocationConflict ? <p role="alert">No space is available for review rows. Expand the table view to continue.</p> : null}
+      {!commonFamily && virtualGrid && bulkBody.allocationConflict ? <p role="alert">No space is available for review rows. Expand the table view to continue.</p> : null}
       <div className="entity-grid-actions">
         <button
           data-testid="queue-entity-grid-intents"
@@ -952,8 +972,8 @@ function EntityGrid({
         </button>
         <button
           data-testid="clear-entity-grid-drafts"
-          disabled={changedCells.length === 0}
-          onClick={() => { setReviewReset((value) => value + 1); setDrafts({}); }}
+          disabled={entityType === "materials" ? Object.keys(drafts).length === 0 : changedCells.length === 0}
+          onClick={() => { setReviewReset((value) => value + 1); setMaterialReviewReset((value) => value + 1); setDrafts({}); }}
           type="button"
         >
           <X size={14} aria-hidden="true" />
@@ -961,7 +981,7 @@ function EntityGrid({
         </button>
       </div>
       <p className="muted entity-grid-boundary" data-testid="entity-grid-boundary">
-        Grid mode fans each changed cell into a structured review intent; storage remains local. {entityType === "nodes" ? "Blank or whitespace text becomes TBD when queued; keeping a draft does not change the model." : ""}
+        Grid mode fans each changed cell into a structured review intent; storage remains local. {commonFamily ? "Blank or whitespace text becomes TBD when queued; keeping a draft does not change the model." : ""}
       </p>
       {queuedMessage ? (
         <p className="entity-grid-queued" data-testid="entity-grid-queued-message">
@@ -970,12 +990,76 @@ function EntityGrid({
       ) : null}
         </div>
       </div>
-      <button className="entity-grid-review-toggle" hidden={entityType !== "nodes"} data-testid="node-grid-review-disclosure"
-        type="button" aria-expanded={reviewVisible} aria-controls={reviewRegionId} onClick={() => setReviewOpen((value) => !value)}>
-        {reviewOpen ? "Return to node fields" : "Review multiple changes"}{!reviewOpen && retainedNodeDrafts > 0 ? ` · ${retainedNodeDrafts} retained draft${retainedNodeDrafts === 1 ? "" : "s"}` : ""}
+      <button className="entity-grid-review-toggle" hidden={!commonFamily} data-testid={entityType === "materials" ? "material-grid-review-disclosure" : "node-grid-review-disclosure"}
+        type="button" aria-expanded={reviewVisible} aria-controls={reviewRegionId} onClick={() => entityType === "materials" ? setMaterialReviewOpen((value) => !value) : setReviewOpen((value) => !value)}>
+        {currentReviewOpen ? `Return to ${entityType === "materials" ? "material" : "node"} fields` : "Review multiple changes"}{!currentReviewOpen && (entityType === "materials" ? retainedMaterialDrafts : retainedNodeDrafts) > 0 ? ` · ${entityType === "materials" ? retainedMaterialDrafts : retainedNodeDrafts} retained draft${(entityType === "materials" ? retainedMaterialDrafts : retainedNodeDrafts) === 1 ? "" : "s"}` : ""}
       </button>
     </section>
   );
+}
+
+
+function actualMaterialQuantity(row: GridRow, fieldPath: string): { value: unknown; unit: string } {
+  const raw = (row.raw as Record<string, unknown>)[fieldPath.split(".")[0]];
+  const quantity = raw && typeof raw === "object" ? raw as Record<string, unknown> : {};
+  return { value: quantity.value, unit: typeof quantity.unit === "string" ? quantity.unit : "" };
+}
+
+/** The two mounted policies retain independent editor state; both use the same
+ * rendering/interaction implementation and the existing operation route. */
+function MaterialTable({ model, drafts, generation, projectSessionGeneration, review = false, active, bounded, density, filter, selection,
+  onSelect, onApplyCellIntent, operationBusy, onDraftStateChange, updateCell, resetEditsKey
+}: {
+  model: PreviewModel; drafts: Record<string, string>; generation: string; projectSessionGeneration: number; review?: boolean;
+  active: boolean; bounded: boolean; density: "comfortable" | "compact"; filter: string; selection: EntityRef;
+  onSelect: (selection: EntityRef) => void; onApplyCellIntent?: (intent: EditorOperationIntent) => Promise<TableApplyResult>;
+  operationBusy?: boolean; onDraftStateChange?: (retained: boolean) => void;
+  updateCell: (row: GridRow, column: GridColumn, value: string) => void; resetEditsKey: number;
+}) {
+  const sourceRows = useMemo(() => gridRows(model, "materials"), [model]);
+  const grid = useMemo(() => gridColumns(model, "materials"), [model]);
+  const columns = useMemo(() => materialTableColumns(review), [review]);
+  const quantities = useMemo(() => grid.filter((column) => column.quantity), [grid]);
+  const rows: TableRow[] = useMemo(() => sourceRows.map((row) => ({ key: entityKey(row), label: row.id, searchText: row.searchText,
+    cells: Object.fromEntries(grid.map((column) => {
+      const quantity = column.quantity ? actualMaterialQuantity(row, column.fieldPath) : null;
+      const unavailable = quantity && (typeof quantity.value !== "number" || !Number.isFinite(quantity.value) || !quantity.unit.trim());
+      const draft = review ? drafts[draftKey(row, column, projectSessionGeneration)] : undefined;
+      return [column.key, { value: draft ?? column.value(row), unit: column.unit(row),
+        showUnit: Boolean(quantity),
+        sortBasis: quantity ? JSON.stringify([typeof quantity.value, String(quantity.value), quantity.unit, draft ?? null]) : undefined,
+        convertible: quantity ? draft !== undefined || (typeof quantity.value === "number" && Number.isFinite(quantity.value)) : undefined,
+        readonly: gridCellReadonly(column, row) || (!review && Boolean(unavailable)),
+        unavailable: !review && unavailable ? "Direct editing requires an existing finite quantity and its actual compatible unit." : undefined,
+        readout: column.quantity ? <QuantityReadout quantity={{ value: numericGridValue(column.value(row)), unit: column.unit(row), dimension_id: column.dimension }} /> : undefined }];
+    }))
+  })), [sourceRows, grid, review, drafts, projectSessionGeneration]);
+  const projection = useQuantitySortProjection(rows, quantities, generation, review ? "materials:review" : "materials:direct");
+  const projectedRows = useMemo(() => rows.map((row) => ({ ...row, cells: Object.fromEntries(Object.entries(row.cells).map(([key, cell]) => {
+    if (!quantities.some((column) => column.key === key)) return [key, cell];
+    const value = projection.get(quantityCellKey(row.key, key));
+    return [key, { ...cell, sortValue: value, readonly: cell.readonly || (!review && value === undefined),
+      unavailable: cell.unavailable ?? (!review && value === undefined ? "Direct editing unavailable while this quantity or its actual unit cannot be converted." : undefined) }];
+  })) })), [rows, quantities, projection, review]);
+  async function apply(captured: CapturedCell, value: string): Promise<TableApplyResult> {
+    if (!onApplyCellIntent) return { applied: false, messages: ["The operation route is unavailable."] };
+    if (!capturedCellIsCurrent(captured, projectedRows, generation)) return { applied: false, messages: ["The cell or project changed. Cancel and edit the current value."] };
+    const row = sourceRows.find((candidate) => entityKey(candidate) === captured.rowKey);
+    const column = grid.find((candidate) => candidate.key === captured.columnKey);
+    if (!row || !column || projectedRows.find((candidate) => candidate.key === captured.rowKey)?.cells[captured.columnKey].readonly) return { applied: false, messages: ["The target cell is unavailable."] };
+    const intent = buildGridOperationIntent({ row, column: { ...column, unit: () => captured.unit, value: () => captured.before }, model, sequence: 1, value, interaction: "cell" });
+    const identity = crypto.randomUUID(); intent.operation_id = `op:table-cell-${identity}`; intent.change.change_id = `change:table-cell-${identity}`;
+    return onApplyCellIntent(intent);
+  }
+  const common = { label: review ? "Material review drafts" : "Material fields", rowHeader: "Material", testIdPrefix: "material-", persistentEditor: true, rows: projectedRows, columns,
+    generation, active, bounded, density, filter, selectedKey: entityKey(selection), onDraftStateChange,
+    onSelect: (key: EntityKey) => { const row = sourceRows.find((candidate) => entityKey(candidate) === key); if (row) onSelect({ type: row.type, id: row.id }); } };
+  return review ? <EngineeringTable {...common} policy="review" resetEditsKey={resetEditsKey}
+    onDraftChange={(captured, text) => {
+      const row = sourceRows.find((candidate) => entityKey(candidate) === captured.rowKey); const column = grid.find((candidate) => candidate.key === captured.columnKey);
+      if (row && column && !gridCellReadonly(column, row) && captured.generation === generation && captured.unit === column.unit(row)) updateCell(row, column, text);
+    }} onKeepDraft={() => ({ retained: true, messages: ["Draft retained; model unchanged."] })} />
+    : <EngineeringTable {...common} busy={operationBusy} onApply={apply} />;
 }
 
 function gridCellControl(
@@ -1149,15 +1233,15 @@ function gridColumns(model: PreviewModel, entityType: GridEntityType): GridColum
   if (entityType === "materials") {
     return [
       scalarGridColumn("label", "Label", "label", "Material", "material label only"),
-      quantityGridColumn("elastic", "Elastic", "elastic_modulus.value", "Material", "stress", "Pa"),
-      quantityGridColumn("shear", "Shear", "shear_modulus.value", "Material", "stress", "Pa"),
+      quantityGridColumn("elastic", "Elastic", "elastic_modulus.value", "Material", "stress", ""),
+      quantityGridColumn("shear", "Shear", "shear_modulus.value", "Material", "stress", ""),
       quantityGridColumn(
         "thermal",
         "Thermal",
         "thermal_expansion_coefficient.value",
         "Material",
         "thermal_expansion_coefficient",
-        "1/degC"
+        ""
       ),
       scalarGridColumn("provenance", "Provenance", "provenance", "Material", "public/private source note")
     ];
@@ -1492,7 +1576,7 @@ function quantityGridColumn(
     sourceNote: "unit metadata required; entered unit captured explicitly",
     unitEditable: false,
     quantity: true,
-    unit: (gridRow) => quantityUnitValue(gridRow.raw, fieldPath, fallbackUnit),
+    unit: (gridRow) => objectType === "Material" ? actualMaterialQuantity(gridRow, fieldPath).unit : quantityUnitValue(gridRow.raw, fieldPath, fallbackUnit),
     value: (gridRow) => stringValueAtPath(gridRow.raw, fieldPath)
   };
 }
@@ -1511,7 +1595,7 @@ function readonlyGridColumn(
 
 function gridCellReadonly(column: GridColumn, row: GridRow): boolean {
   // Structured provenance must never be flattened into a user-entered string.
-  return Boolean(column.readonly || (column.fieldPath === "provenance" && ((row.type === "section" && typeof (row.raw as { provenance?: unknown }).provenance === "object") || (row.type === "node" && typeof (row.raw as { provenance?: unknown }).provenance !== "string"))));
+  return Boolean(column.readonly || (column.fieldPath === "provenance" && ((row.type === "section" && typeof (row.raw as { provenance?: unknown }).provenance === "object") || ((row.type === "node" || row.type === "material") && typeof (row.raw as { provenance?: unknown }).provenance !== "string"))));
 }
 
 function changedGridCells({

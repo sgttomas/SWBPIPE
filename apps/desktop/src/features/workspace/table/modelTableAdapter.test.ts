@@ -26,3 +26,21 @@ describe("shared table operation adapter", () => {
     expect(JSON.stringify(model)).toBe(original);
   });
 });
+
+describe("Materials existing quantity contract", () => {
+  it.each([
+    ["elastic_modulus.value", "2", true], ["shear_modulus.value", "2", true],
+    ["elastic_modulus.value", "0", false], ["shear_modulus.value", "-1", false],
+    ["thermal_expansion_coefficient.value", "0", true], ["thermal_expansion_coefficient.value", "-0.00001", true],
+    ["elastic_modulus.value", "TBD", false], ["elastic_modulus.value", "", false], ["elastic_modulus.value", "Infinity", false]
+  ] as const)("%s = %s retains unit and receives engine acceptance=%s", async (fieldPath, value, accepted) => {
+    const model = await loadPreviewModel(); const material = model.materials![0];
+    const quantity = material[fieldPath.split(".")[0] as "elastic_modulus" | "shear_modulus" | "thermal_expansion_coefficient"]!;
+    const column: GridColumn = { key: fieldPath, label: fieldPath, fieldPath, objectType: "Material", changeKind: "set_field", dimension: fieldPath.startsWith("thermal") ? "thermal_expansion_coefficient" : "stress", sourceNote: "actual sibling unit", unit: () => quantity.unit, value: () => String(quantity.value) };
+    const intent = buildGridOperationIntent({ column, model, row: { id: material.id, label: material.label, type: "material", searchText: "", raw: material }, sequence: 1, value, interaction: "cell" });
+    const result = await applyModelOperation(model, intent, await computeModelHash(model));
+    expect(result.validation.application_status === "applied_to_session_model").toBe(accepted);
+    expect(intent.change.before).toBe(String(quantity.value)); expect(intent.change.unit).toBe(quantity.unit);
+    if (accepted) expect((result.applied_model!.materials![0] as unknown as Record<string, { value: number; unit: string }>)[fieldPath.split(".")[0]]).toMatchObject({ value: Number(value), unit: quantity.unit });
+  });
+});

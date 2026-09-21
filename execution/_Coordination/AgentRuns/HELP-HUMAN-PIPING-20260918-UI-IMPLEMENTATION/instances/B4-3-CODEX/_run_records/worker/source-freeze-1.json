@@ -1,0 +1,17 @@
+{
+  "base": "c9f19195214b2e097980dde5e0d5fccbfba8e34c",
+  "status": "frozen for final focused verification; any failure repair supersedes this freeze explicitly",
+  "paths": {
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx": "8f23b7b522d1001bd29650a5f3ff469020ddb344624cb77f45595db1924544ac",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx": "f07b4ccfa71a936d15895acacdcd905b0a2853bc68e01999983f74a4c92de41e",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/tableState.ts": "bac7e5c64be5a9db5c6083cda532326f97e87c95611c728a98b1e31142a64368",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/modelTableAdapter.ts": "4361222ca36b83354ac0b019e10c006c7e29db51f3d13bee9f5009c258f2adcc",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/quantitySortProjection.ts": "a848b95a3b42d1ea4d3e2215afcda9ba58db378a392ca5a8caf7e1ec77bc2dc9",
+    "projects/chirality-piping/apps/desktop/src/styles.css": "9bc5d8667540c4c0890452f7045ed43fe74b935e2949748967fc1a7d17d752c0",
+    "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts": "ef8467295cc913edb7b8c9f3d8f663815cc5cd722f8b18a13986451a7f89dcbe",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/MaterialTable.test.tsx": "a41d9f214089f8f1a19324e6dd13bea3503cceb47b93cb24d6134f42e7e35f35",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/quantitySortProjection.test.tsx": "bf16c2b5cd1fd1cf56fc4ff5b1590030e2cb0f9808ee201e5d945bc34287d679",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/modelTableAdapter.test.ts": "ed7fe7c640f5945f5496f213d22e1a5e987a71c955e41ef0f28af1fe37dc6acb",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.test.tsx": "219e982d8fc60511f36de24acdd915e6b7d3b4b7fb734f890780ff9d24d4b6d6"
+  }
+}
