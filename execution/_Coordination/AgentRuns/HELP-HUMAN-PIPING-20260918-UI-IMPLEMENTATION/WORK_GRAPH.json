@@ -2776,7 +2776,8 @@
         "inputsSha256": "26530abf1511eef3abc754dd6e7fd4f6c4923a806886ff6abb2b7c6fac06a1ae",
         "resumeSha256": "3e3e65304edd023e2a3fe9075fd111cb894b4363288107dd3b017c288b1bd820",
         "resources": "exclusive native build/foreground/CUA, no source repair or full sweep",
-        "milestone": "One build exit0; fresh PID54294, binary9d4f950bd8a7857bfe18e39561a5af71cd1d8121be1fbf042290d687ccc78455; known invented27-entity baseline, Sections0, UndoRedooff/noEdited, no Mac lock. Actual interaction underway."
+        "milestone": "One build exit0; fresh PID54294, binary9d4f950bd8a7857bfe18e39561a5af71cd1d8121be1fbf042290d687ccc78455; known invented27-entity baseline, Sections0, UndoRedooff/noEdited, no Mac lock. Actual interaction underway.",
+        "state": "returned; native evidence0d19 and ROOT own-look complete; live app quit and absent"
       },
       "nativeEvidence": "0d19d7e1ce7f8bf6bcbdbc489a8861acf52028a3",
       "nativeManagerManifestSha256": "df447e1ab7ece2eb2673412a0c9397a5fca654415d1f91c475f7f4a9ccee7cc1",
@@ -2791,7 +2792,7 @@
     "B4-4-CI-COVERAGE": {
       "role": "ROOT maintained CI mapping",
       "parent": "ROOT",
-      "state": "three-path mapping at52ff4fac0, 33 policy tests passed on clean early combined216c27af5; independent review pending",
+      "state": "three-path mapping52ff4fac0, 33policy passes on216c27; additive coverage independently reviewed in original14-path source return; final combined/CI gates pending",
       "basis": "fd002217f067020d44deaee22866e14eed81173f",
       "candidate": "216c27af5c0fa25bae4d8670137a5ac5a65a714b",
       "scope": "authoring/layout selection includes b4-sections.spec.ts; no gate/selector-mode/oracle reduction",
@@ -2803,15 +2804,20 @@
       "parent": "ROOT",
       "branch": "codex/swbpipe-b4-sections-integration-20260921",
       "checkout": "wt2",
-      "head": "aaa1172380ce7d941f2b2cae57064f7a7e4c465a",
-      "state": "aaa117 preflight stopped at378pass/1harness failure: two absolute-path plan records. ROOT portable-path repair preserves original supplied bytes; bounded rerun before first full sweep.",
+      "head": "9d55bce37a3e683d6a1e026920855270b8929113",
+      "state": "clean9d55 preflight passed all7stages; registered full sweep running, complete candidate review awaiting sweep",
       "source": "db35d7582e61d69ad415df7cdf4132b91e710dd8",
       "dependsOn": [
         "B4-4-CODEX-MANAGER",
         "B4-4-CI-COVERAGE"
       ],
       "deliverableMapping": "provisional, inherited B4 trace; no DAG/deliverable reconciliation",
-      "portabilityRepair": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_4_PORTABILITY_REPAIR/REPAIR.json"
+      "portabilityRepair": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_4_PORTABILITY_REPAIR/REPAIR.json",
+      "preflight": {
+        "summary": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_4_PREFLIGHT_9D55/SUMMARY.json",
+        "sha256": "678ea73163a96b203f9547f9c0cbc0fb1489799190a9d0f2351296b7b780ddea",
+        "limits": "11affected live baseline passes; original378pass/1failure retained, no fresh379. Collection475/0omitted is not a test pass."
+      }
     },
     "B4-4-SOURCE-REVIEW": {
       "role": "independent TASK Type2",
@@ -3171,7 +3177,7 @@
       "B4-4-CODEX-MANAGER"
     ]
   ],
-  "current_frontier": "Source/native review complete; final preflight found two active-plan portability errors. Repair is records-only, original supplied bytes retained; bounded failed-check rerun precedes the first clean full sweep and actual-head CI. Compact fit prepared, not activated; owner holds unchanged.",
+  "current_frontier": "Clean9d55 preflight passes; first registered full sweep running on immutablewt2. Complete independent candidate review waits final bound evidence. Native/CUA released, no new implementation. Compact drawer fit prepared next; C4/liveCLI and qualification/reconciliation holds unchanged.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -3461,24 +3467,29 @@
     "scope": "No silence-as-approval; unaffected authorized B4 work proceeds"
   },
   "liveContinuationState": {
-    "root": "a40a415baaf1f5c6e7f017a02e994db35bd2854a fast-forward adopted; product now reviewed15186, with this metadata-only frontier correction",
+    "root": "ROOT records branch codex/swbpipe-continuation-20260919; productdb35 independently reviewed with native/own-look complete. Frozen clean validation candidate9d55; current selectors may advance without rewriting historical returns.",
     "originMain": "fd002217f067020d44deaee22866e14eed81173f",
     "integrationBranch": {
-      "branch": "codex/swbpipe-b4-materials-integration-20260921",
-      "head": "6fa70c15c7d8f1bce78b6e7f153b7296503d8bed",
-      "state": "PR833 merged; preserve branch/head"
+      "branch": "codex/swbpipe-b4-sections-integration-20260921",
+      "head": "9d55bce37a3e683d6a1e026920855270b8929113",
+      "state": "clean9d55 preflight passed all7stages; registered full sweep running, complete candidate review awaiting sweep"
     },
-    "shell": "actual Sections branch codex/swbpipe-b4-sections-20260921 inwt3 fromfd002; fresh TASKAstra/low sole source writer; olddd8 Materials branch preserved",
+    "shell": "Sections source db35 and native evidence0d19 frozen inwt3; manager/TASK/native returned and no source writes active. Prior Materialsdd8 branch preserved.",
     "canvas": "fb720420 preserved; C4 preparation returned",
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "isolated226b probe retains two authorized source edits and two untracked dependency entries; preserved, never fan-in",
-    "resources": "native/browser/full-sweep resources released; only next source/units planned after sealed activation; peer coordination retained",
-    "recordStatus": "PR833 all9checks/merge and maincache success recorded; no remaining gate for this merged slice",
-    "observedAt": "2026-09-21T10:29:42.700950+00:00",
+    "resources": "ROOT owns peer-reserved governance preflight and subsequent registered full sweep on5174/5175/sharedlock; nativePID54294 quit and absent, no native/CUA activity.",
+    "recordStatus": "PR833 remains merged/closed. Sections source/backchecks/native complete; failed-plan portability repair recorded, bounded preflight rerun/full sweep/combined review/hostedCI/merge outstanding.",
+    "observedAt": "2026-09-21T14:19:18.467158+00:00",
     "integration": {
       "branch": "codex/swbpipe-b4-sections-integration-20260921",
-      "head": "d8d53f2bca659a26315fbdd7a2f97b8298f4785a",
-      "state": "final native/evidence fan-in next; immutable candidate to be recorded in preflight/sweep metadata"
+      "head": "9d55bce37a3e683d6a1e026920855270b8929113",
+      "state": "clean9d55 preflight passed all7stages; registered full sweep running, complete candidate review awaiting sweep"
+    },
+    "preservedMaterialsIntegration": {
+      "branch": "codex/swbpipe-b4-materials-integration-20260921",
+      "head": "6fa70c15c7d8f1bce78b6e7f153b7296503d8bed",
+      "state": "PR833 merged; preserve branch/head"
     }
   },
   "historicalPauses": [

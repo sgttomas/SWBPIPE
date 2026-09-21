@@ -1,0 +1,59 @@
+[chromium-desktop] › b4-table-editing.spec.ts › B4 Node review retained editor stays contained through hidden families and page resize
+[chromium-desktop] › b4-table-editing.spec.ts › B4 node coordinates apply through one operation with keyboard, history and saved-state ownership
+[chromium-desktop] › b4-table-editing.spec.ts › B4 Both with Inspector keeps pointer horizontal scrolling inside the coordinate table
+[chromium-desktop] › b4-table-editing.spec.ts › B4 Materials preserve mixed-unit editing, delayed review sort, history and saved ownership
+[chromium-desktop] › b4-table-editing.spec.ts › B4 short Grid keeps vertical chrome fixed and retains alternate review drafts
+[chromium-desktop] › b4-table-editing.spec.ts › B4 character-start direct label appends ordinary keys and preserves intentional selection
+[chromium-desktop] › b4-table-editing.spec.ts › B4 virtual Grid confines body scrolling and boundary wheel without moving chrome
+[chromium-desktop] › b4-table-editing.spec.ts › B4 character-start review x appends ordinary keys and preserves intentional selection
+[chromium-desktop] › b4-table-editing.spec.ts › B4 character-start direct x appends ordinary keys and preserves intentional selection
+[chromium-desktop] › b4-table-editing.spec.ts › B4 diagnostic Node sorted review preserves text Undo after an active row crosses downward
+[chromium-desktop] › b4-table-editing.spec.ts › B4 Materials Apply Tab keeps the first Shear character while another quantity reconverts
+[chromium-desktop] › b4-table-editing.spec.ts › B4 Materials stable editor owns character starts, virtual scrolling, filtering and resize
+[chromium-desktop] › b4-table-editing.spec.ts › B4 text fields apply, recover filtered focus, preserve text Undo and retain review drafts through pointer Queue and Clear
+[chromium-desktop] › b4-table-editing.spec.ts › B4 character-start review label appends ordinary keys and preserves intentional selection
+[chromium-desktop] › b4-table-editing.spec.ts › B4 virtualized invalid editor survives scrolling and a filter threshold without changing the model
+[chromium-compact] › r2-smoke.spec.ts › R2 from-blank GUI journey authors the A12 rehearsal script
+[chromium-compact] › r2-smoke.spec.ts › viewport gesture placeholders record unit validation
+[chromium-compact] › r2-smoke.spec.ts › diagnostic detail exposes linked result unit context
+[chromium-compact] › r2-smoke.spec.ts › library manager loads an invented private sample and reports the desktop-only backend seam
+[chromium-compact] › r2-smoke.spec.ts › run-rule-checks panel loads the demo pack, derives bindings, and reports the desktop-only run seam
+[chromium-compact] › r2-smoke.spec.ts › guided workbench shell keeps journey steps, details, and compact status reachable
+[chromium-compact] › r2-smoke.spec.ts › R2 desktop preview smoke covers solve, results, report, and viewport overlay
+[chromium-compact] › r2-smoke.spec.ts › DEC-077 solve temperature queues an explicit unit-bearing operation
+[chromium-compact] › r2-smoke.spec.ts › R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps
+[chromium-compact] › r2-smoke.spec.ts › rule-pack manager drafts privately and reports the desktop-only backend seam
+[chromium-desktop] › c3-viewport-visibility.spec.ts › C3 deletion retains active empty snapshot; new geometry dims; project replacement clears it
+[chromium-desktop] › c3-viewport-visibility.spec.ts › C3 dimmed geometry remains available to hover, click and box selection
+[chromium-desktop] › c3-viewport-visibility.spec.ts › C3 snapshot, Hide precedence, persistent hidden count, theme and Show All preserve model/history
+[chromium-desktop] › c3-viewport-visibility.spec.ts › C3 isolation remains clearable when every drawable entity belongs to the snapshot
+[chromium-desktop] › c3-viewport-visibility.spec.ts › C3 nearer dimmed pipe wins unchanged point ordering and viewport keyboard focus is visible
+[chromium-desktop] › c3-viewport-visibility.spec.ts › C3 visibility leaves Current results current and never revives Historical overlays
+[chromium-desktop] › workspace-layout.spec.ts › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained light 1440
+[chromium-desktop] › gui-workflow-validation.spec.ts › shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home
+[chromium-desktop] › gui-workflow-validation.spec.ts › shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer
+[chromium-desktop] › gui-workflow-validation.spec.ts › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions
+[chromium-compact] › ui-foundation.spec.ts › selection IDs and cardinality keep the viewport rectangle fixed at three workspace widths
+[chromium-desktop] › ui-foundation.spec.ts › task and analysis dock preserve usable canvas light comfortable 1440x920
+[chromium-desktop] › ui-foundation.spec.ts › task and analysis dock preserve usable canvas light compact 1280x800
+[chromium-desktop] › ui-foundation.spec.ts › node visibility owns attached symbols while connected spans remain independent, and isolate is bounded
+[chromium-desktop] › ui-foundation.spec.ts › task and analysis dock preserve usable canvas light compact 1440x920
+[chromium-desktop] › b3a-session-status.spec.ts › canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot
+[chromium-compact] › ui-foundation.spec.ts › standard 10000 camera recipe compares legacy and corrected fit without changing targets
+[chromium-compact] › ui-foundation.spec.ts › [preflight] maintained fixture supports typed selection and a keyboard-authored measurement
+[chromium-desktop] › ui-foundation.spec.ts › virtual multiselect tree exposes full-list semantics while mounting a bounded off-window focus
+[chromium-desktop] › workspace-layout.spec.ts › routing uses the inspector without changing the D2 pane allocation, 1440 x 900, native-runtime class
+[chromium-compact] › ui-foundation.spec.ts › virtual multiselect tree exposes full-list semantics while mounting a bounded off-window focus
+[chromium-desktop] › workspace-layout.spec.ts › routing uses the inspector without changing the D2 pane allocation, 1280 x 800, native-runtime class
+[chromium-desktop] › workspace-layout.spec.ts › browser native-class structural review captures retain pane and drawn-canvas geometry
+[chromium-compact] › workspace-layout.spec.ts › workspace preserves the visible model during discovery, routing, property editing and analysis navigation
+[chromium-compact] › ui-foundation.spec.ts › Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft
+[chromium-compact] › ui-foundation.spec.ts › keyboard splitters stay named and bounded; narrow drawers restore opener focus and hide inactive controls
+[chromium-desktop] › workspace-layout.spec.ts › D-72 canvases and the 48 / 56 / 44 / 24 px regions at 1440 x 900 under the native-runtime class
+[chromium-desktop] › ui-foundation.spec.ts › standard 1000 camera recipe compares legacy and corrected fit without changing targets
+[chromium-compact] › ui-foundation.spec.ts › real box gestures obey the visible Nodes and Pipes filters without replacing orbit gestures
+[chromium-compact] › ui-foundation.spec.ts › typed raw-ID collisions remain distinct through ordered selection and an ABA membership change
+[chromium-desktop] › ui-foundation/fresh-demo-policy.spec.ts › single demonstration retains target failure and invalid/incomplete disposition
+[chromium-desktop] › ui-foundation/fresh-demo-policy.spec.ts › fresh smoke is explicit, keeps both-size controls and never consumes timed entry
+[chromium-desktop] › ui-foundation/fresh-demo-policy.spec.ts › fresh hash and exclusive entry reject policy drift and output replay
+[chromium-desktop] › ui-foundation/fresh-demo-policy.spec.ts › fresh policy requires exact one-run authorization and all prospective bindings

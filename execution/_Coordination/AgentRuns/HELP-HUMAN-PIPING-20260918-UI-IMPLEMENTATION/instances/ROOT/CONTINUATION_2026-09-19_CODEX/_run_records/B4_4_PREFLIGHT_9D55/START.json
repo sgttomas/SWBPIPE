@@ -1,0 +1,99 @@
+{
+  "head": "9d55bce37a3e683d6a1e026920855270b8929113",
+  "base": "fd002217f067020d44deaee22866e14eed81173f",
+  "utc": "2026-09-21T14:18:03.720862+00:00",
+  "clean": true,
+  "boundedRerun": "all live baseline checks after two plan-path repairs; earlier378passing harness tests retain their historical scope, no fresh379-suite claim",
+  "commands": [
+    {
+      "stage": "claims",
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2",
+      "argv": [
+        "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+        "tools/validation/validate_claims_language.py",
+        "--repo-root",
+        "."
+      ]
+    },
+    {
+      "stage": "receipts",
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2",
+      "argv": [
+        "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+        "tools/validation/validate_piping_loop_receipts.py",
+        "--repo-root",
+        "."
+      ]
+    },
+    {
+      "stage": "tranche",
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2",
+      "argv": [
+        "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+        "tools/validation/validate_instruction_tranche_manifest.py",
+        "--base",
+        "fd002217f067020d44deaee22866e14eed81173f",
+        "--head",
+        "9d55bce37a3e683d6a1e026920855270b8929113",
+        "--added-manifests-only"
+      ]
+    },
+    {
+      "stage": "harness-live-baseline",
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2",
+      "argv": [
+        "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tools/practitioner_harness/test_live_baseline.py"
+      ]
+    },
+    {
+      "stage": "harness-self-check",
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2",
+      "argv": [
+        "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+        "tools/practitioner_harness/harness.py",
+        "self-check",
+        "--json-report",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/_harness_generated/piping-b44-9d55.json"
+      ]
+    },
+    {
+      "stage": "ci-plan",
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping",
+      "argv": [
+        "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+        "tools/ci/e2e_plan.py",
+        "plan",
+        "--event",
+        "pull_request",
+        "--base",
+        "fd002217f067020d44deaee22866e14eed81173f",
+        "--head",
+        "9d55bce37a3e683d6a1e026920855270b8929113",
+        "--output",
+        "/tmp/swbpipe-b44-9d55-preflight/ci-plan.json"
+      ]
+    },
+    {
+      "stage": "exact-collection",
+      "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping",
+      "argv": [
+        "sh",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/tools/with_e2e_lock.sh",
+        "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+        "tools/ci/e2e_plan.py",
+        "run",
+        "--plan",
+        "/tmp/swbpipe-b44-9d55-preflight/ci-plan.json",
+        "--stage",
+        "barrier",
+        "--list",
+        "--evidence-dir",
+        "/tmp/swbpipe-b44-9d55-preflight/collection"
+      ]
+    }
+  ]
+}

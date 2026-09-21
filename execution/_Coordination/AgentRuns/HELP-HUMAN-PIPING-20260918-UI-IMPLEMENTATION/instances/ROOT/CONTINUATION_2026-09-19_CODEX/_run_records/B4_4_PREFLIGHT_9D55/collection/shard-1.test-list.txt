@@ -1,0 +1,96 @@
+[chromium-compact] › b4-table-editing.spec.ts › B4 Node review retained editor stays contained through hidden families and page resize
+[chromium-compact] › b4-table-editing.spec.ts › B4 short Grid keeps vertical chrome fixed and retains alternate review drafts
+[chromium-compact] › b4-table-editing.spec.ts › B4 character-start review x appends ordinary keys and preserves intentional selection
+[chromium-compact] › b4-table-editing.spec.ts › B4 Materials stable editor owns character starts, virtual scrolling, filtering and resize
+[chromium-compact] › b4-table-editing.spec.ts › B4 virtualized invalid editor survives scrolling and a filter threshold without changing the model
+[chromium-compact] › b4-table-editing.spec.ts › B4 character-start review label appends ordinary keys and preserves intentional selection
+[chromium-compact] › b4-table-editing.spec.ts › B4 Materials preserve mixed-unit editing, delayed review sort, history and saved ownership
+[chromium-compact] › b4-table-editing.spec.ts › B4 virtual Grid confines body scrolling and boundary wheel without moving chrome
+[chromium-compact] › b4-table-editing.spec.ts › B4 Materials Apply Tab keeps the first Shear character while another quantity reconverts
+[chromium-compact] › b4-table-editing.spec.ts › B4 Both with Inspector keeps pointer horizontal scrolling inside the coordinate table
+[chromium-compact] › b4-table-editing.spec.ts › B4 node coordinates apply through one operation with keyboard, history and saved-state ownership
+[chromium-compact] › b4-table-editing.spec.ts › B4 character-start direct label appends ordinary keys and preserves intentional selection
+[chromium-compact] › b4-table-editing.spec.ts › B4 character-start direct x appends ordinary keys and preserves intentional selection
+[chromium-compact] › b4-table-editing.spec.ts › B4 text fields apply, recover filtered focus, preserve text Undo and retain review drafts through pointer Queue and Clear
+[chromium-compact] › b4-table-editing.spec.ts › B4 diagnostic Node sorted review preserves text Undo after an active row crosses downward
+[chromium-desktop] › r2-smoke.spec.ts › R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps
+[chromium-desktop] › r2-smoke.spec.ts › diagnostic detail exposes linked result unit context
+[chromium-desktop] › r2-smoke.spec.ts › rule-pack manager drafts privately and reports the desktop-only backend seam
+[chromium-desktop] › r2-smoke.spec.ts › guided workbench shell keeps journey steps, details, and compact status reachable
+[chromium-desktop] › r2-smoke.spec.ts › DEC-077 solve temperature queues an explicit unit-bearing operation
+[chromium-desktop] › r2-smoke.spec.ts › R2 from-blank GUI journey authors the A12 rehearsal script
+[chromium-desktop] › r2-smoke.spec.ts › library manager loads an invented private sample and reports the desktop-only backend seam
+[chromium-desktop] › r2-smoke.spec.ts › viewport gesture placeholders record unit validation
+[chromium-desktop] › r2-smoke.spec.ts › R2 desktop preview smoke covers solve, results, report, and viewport overlay
+[chromium-desktop] › r2-smoke.spec.ts › run-rule-checks panel loads the demo pack, derives bindings, and reports the desktop-only run seam
+[chromium-compact] › c3-viewport-visibility.spec.ts › C3 isolation remains clearable when every drawable entity belongs to the snapshot
+[chromium-compact] › c3-viewport-visibility.spec.ts › C3 dimmed geometry remains available to hover, click and box selection
+[chromium-compact] › c3-viewport-visibility.spec.ts › C3 deletion retains active empty snapshot; new geometry dims; project replacement clears it
+[chromium-compact] › c3-viewport-visibility.spec.ts › C3 visibility leaves Current results current and never revives Historical overlays
+[chromium-compact] › c3-viewport-visibility.spec.ts › C3 nearer dimmed pipe wins unchanged point ordering and viewport keyboard focus is visible
+[chromium-compact] › c3-viewport-visibility.spec.ts › C3 snapshot, Hide precedence, persistent hidden count, theme and Show All preserve model/history
+[chromium-compact] › linear-authoring.spec.ts › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review
+[chromium-desktop] › workspace-layout.spec.ts › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained dark 1280
+[chromium-desktop] › ui-foundation.spec.ts › task and analysis dock preserve usable canvas light compact 1024x768
+[chromium-desktop] › ui-foundation.spec.ts › task and analysis dock preserve usable canvas light comfortable 1024x768
+[chromium-desktop] › ui-foundation.spec.ts › task and analysis dock preserve usable canvas light comfortable 1280x800
+[chromium-compact] › ui-foundation.spec.ts › empty ordered selection publishes independently from project inspector
+[chromium-desktop] › ui-foundation.spec.ts › task and analysis dock preserve usable canvas dark comfortable 1440x920
+[chromium-desktop] › ui-foundation.spec.ts › standard 10000 camera recipe compares legacy and corrected fit without changing targets
+[chromium-desktop] › ui-foundation.spec.ts › ordinary typed edit preserves view state and same-ID project replacement clears it
+[chromium-desktop] › ui-foundation.spec.ts › filtered tree collapse controls retain typed selection and frozen draft across search changes
+[chromium-compact] › ui-foundation.spec.ts › ordinary typed edit preserves view state and same-ID project replacement clears it
+[chromium-desktop] › b3b-project-persistence.spec.ts › B3B blank/create/save/open snapshot evidence
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › candidate point feedback requires product-shaped compact heading: wrong-typed-identity
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › assignment epoch history requires genuine eligible advancing frames: pending-at-stop
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › assignment retains original product start and reconciles stopped identity: stopped-model-drift
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › observer setup failure still invokes the original RAF callback exactly once and restore removes listeners
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › extra or unknown observer RAF, product observation RAF, and incomplete restore fail closed
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › candidate diagnostics without same-callback DOM and positive submission cannot emit qualifying feedback
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › source-bound page-edge uncertainty retains possibly intersecting observer work
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › assignment epoch history requires genuine eligible advancing frames: unready-tree
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › real input DOM observer binds stopped publication and pending mutation: pending-mutation
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › missing, malformed, negative and nonfinite observer readings fail structurally
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › clear sentinel retains original WebGL clear work separately from observer cost
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › box feedback checks full membership even when primary is unchanged: complete
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › box feedback checks full membership even when primary is unchanged: same-primary-missing-member
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › candidate point feedback requires product-shaped compact heading: wrong-label
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › invalid samples fail and crossing samples are charged in full
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › assignment epoch history requires genuine eligible advancing frames: same-epoch
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › Box producer phases are reevaluated only on a fresh genuine callback and retain bounded failed facts
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › nonzero canvas origin and prescribed orbit start retain client coordinates
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › assignment epoch history requires genuine eligible advancing frames: two-epochs
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › baseline null outside hit records limitation and continues before label lookup
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › box callback consumes actual unavailable or active union and rejects numerical and ordered-state faults
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › assignment epoch history requires genuine eligible advancing frames: capacity
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › secondary inspector capture uses phase-specific exact independently supplied typed heading
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › instrumented preflight still requires complete causal and pixel evidence above raw overhead references
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › actual elementFromPoint rejects an intercepting overlay
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › assignment epoch history requires genuine eligible advancing frames: wrong-model
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › missing or non-enclosing pointer and action cost records fail
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › assignment epoch history requires genuine eligible advancing frames: no-clear
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › assignment epoch history requires genuine eligible advancing frames: stale-submission
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › real input DOM observer binds stopped publication and pending mutation: complete
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › assignment retains original product start and reconciles stopped identity: complete
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › unrelated RAF cost cannot substitute for missing saved feedback cost
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › zero RAF DOM class requires exact input and mutation records without fabricated callbacks
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › expected RAF and action operation populations cannot disappear
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › candidate point feedback requires product-shaped compact heading: valid
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › overlay target and observer overflow fail closed
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › exact observation coverage accepts extra unrelated callbacks and shared pointer action listener
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › forced derivation failure preserves immutable earlier journals and a terminal failure
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › raw zero costs remain uncertain rather than a true-overhead pass
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › malformed or duplicate expected observation identities and boundaries fail
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › bad or missing observer windows cannot receive structural validity
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › duplicate ambiguous enclosures and illegal reuse across distinct callbacks fail
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › RAF callback percentile cannot be diluted by cheap registrations
+[chromium-desktop] › ui-foundation/causal-method-contract.spec.ts › assignment epoch history requires genuine eligible advancing frames: final-without-frame
+[chromium-desktop] › ui-foundation.spec.ts › keyboard splitters stay named and bounded; narrow drawers restore opener focus and hide inactive controls
+[chromium-compact] › ui-foundation.spec.ts › filtered multi-target picker preserves Space text and scrolls a 99-row subset to End before Enter toggles
+[chromium-desktop] › ui-foundation.spec.ts › [preflight] maintained fixture supports typed selection and a keyboard-authored measurement
+[chromium-compact] › ui-foundation.spec.ts › an unqueued rich Properties draft survives aggregate inspection with mutation controls disabled
+[chromium-desktop] › workspace-layout.spec.ts › workspace preserves the visible model during discovery, routing, property editing and analysis navigation
+[chromium-desktop] › ui-foundation.spec.ts › Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 1k fixture
+[chromium-compact] › ui-foundation.spec.ts › narrow canvas fits visible and selected envelopes in every view preset
+[chromium-compact] › ui-foundation.spec.ts › a first late diagnostics pull is RAF-neutral and projection refreshes after a real camera change
+[chromium-desktop] › ui-foundation.spec.ts › a first late diagnostics pull is RAF-neutral and projection refreshes after a real camera change

@@ -4,12 +4,12 @@ Sole editor: Piping HELP_HUMAN ROOT. Peer **dev - app**, local task `01a07cd1-86
 
 | Scope | Owner and current state |
 |---|---|
-| Piping UI/domain/controller | ROOT with WORKING_ITEMS `/root/b3_manager` Astra/high and fresh TASK `/root/b3_manager/b4_4_sections` Astra/low. Sections and the opt-in typed enum are being implemented in cleanly created wt3 branch `codex/swbpipe-b4-sections-20260921` from merged `fd002217`. TASK is the sole maintained-source writer. The old Materials branch at `dd8be592` is preserved. |
+| Piping UI/domain/controller | ROOT with WORKING_ITEMS `/root/b3_manager` Astra/high and fresh TASK `/root/b3_manager/b4_4_sections` Astra/low. Sections and the opt-in typed enum are source-frozen at db35 with native evidence0d19 in wt3 branch `codex/swbpipe-b4-sections-20260921` from merged `fd002217`. Manager and both TASK instances have returned; no source writes are active. The old Materials branch at `dd8be592` is preserved. |
 | Piping integration and graph | ROOT. PR833 merged `fd002217` from `6fa70c15` after all nine actual-head checks passed; candidate and merge trees match. Materials and the Node sorted-review text-Undo repair passed independent review, affected native/ROOT witnesses and the clean combined sweep. Hosted source: 445 passes, 20 existing skips, 1145 seconds. |
 | CI maintenance | ROOT retains ownership of Piping-specific CI follow-up. Reviewed cache preparation and duration hints merged in PR833; four Piping dependency caches were created on main. Consumer reuse and a timing benefit remain unobserved. ROOT will add the new Sections browser spec to authoring/layout ownership before integration. |
 | Reusable Runtime | Peer. Generic tools PR824 and actual-client probe PR827 are merged. No new Runtime or shared Root product implementation is authorized here. Existing public-export workflow references to omitted Piping were handed to peer as a separate compatibility finding. |
 
-Sections source is frozen at 40e8333d. Focused unit/TypeScript, four exact Rust tests and all 16 browser cases passed at their recorded scopes. Independent source review and both P2 backchecks passed at db35. Popup token scope, actual clipping and truthful Section unit status were repaired with their original failures preserved. Full B4, compact Model/narrow-Both drawer fit and Both+Inspector-open native Provenance exposure remain open. B5 follows B4; C4 label decisions are pending.
+Sections source is frozen at db35. Focused unit/TypeScript, four exact Rust tests and all 16 browser cases passed at their recorded scopes. Independent source review and both P2 backchecks passed at db35. Popup token scope, actual clipping and truthful Section unit status were repaired with their original failures preserved. Full B4, compact Model/narrow-Both drawer fit and Both+Inspector-open native Provenance exposure remain open. B5 follows B4; C4 label decisions are pending.
 
 ## Live control remains pending
 
