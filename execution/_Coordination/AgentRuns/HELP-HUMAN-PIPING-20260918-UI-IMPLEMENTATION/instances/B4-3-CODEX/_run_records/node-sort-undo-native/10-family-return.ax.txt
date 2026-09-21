@@ -1,0 +1,98 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 240-265
+~								174 toggle button Nodes, Value: on
+~								177 toggle button Materials, Value: off
+~							239 text 5  of  5 Nodes 1  changed cells
++							240 container
++								241 table (settable) Node review drafts
++									242 row (selectable)
++										243 cell (settable)
++											244 text Node
++										245 cell (settable)
++											246 button Sort Label
++										247 cell (settable)
++											248 button Sort X
++										249 cell (settable)
++											250 button Sort Y
++										251 cell (settable)
++											252 button Sort Z
++										253 cell (settable)
++											254 button Sort Provenance
++									255 row (selectable)
++										256 cell (selectable, settable) node:N-100
++										257 cell (selectable, settable) node:N-100 Label: Pump nozzle
++										258 cell (selected, settable) node:N-100 X: 1 m
+Quantity readout, Value: 0
+m
++										259 cell (selectable, settable) node:N-100 Y: 0 m
+Quantity readout, Value: 0
+m
++										260 cell (selectable, settable) node:N-100 Z: 0 m
+Quantity readout, Value: 0
+m
++										261 cell (selectable, settable) node:N-100 Provenance: invented_example
++									262 row (selectable)
++										263 cell (selectable, settable) node:N-110
++										264 cell (selectable, settable) node:N-110 Label: Low point elbow
++										265 cell (selectable, settable) node:N-110 X: 3.2 m
+Quantity readout, Value: 3.2
+m
++										266 cell (selectable, settable) node:N-110 Y: 0 m
+Quantity readout, Value: 0
+m
++										267 cell (selectable, settable) node:N-110 Z: 0 m
+Quantity readout, Value: 0
+m
++										268 cell (selectable, settable) node:N-110 Provenance: invented_example
++									269 row (selectable)
++										270 cell (selectable, settable) node:N-120
++										271 cell (selectable, settable) node:N-120 Label: Riser elbow
++										272 cell (selectable, settable) node:N-120 X: 3.2 m
+Quantity readout, Value: 3.2
+m
++										273 cell (selectable, settable) node:N-120 Y: 2.4 m
+Quantity readout, Value: 2.4
+m
++										274 cell (selectable, settable) node:N-120 Z: 0 m
+Quantity readout, Value: 0
+m
++										275 cell (selectable, settable) node:N-120 Provenance: invented_example
++									276 row (selectable)
++										277 cell (selectable, settable) node:N-130
++										278 cell (selectable, settable) node:N-130 Label: Rack turn
++										279 cell (selectable, settable) node:N-130 X: 7.6 m
+Quantity readout, Value: 7.6
+m
++										280 cell (selectable, settable) node:N-130 Y: 2.4 m
+Quantity readout, Value: 2.4
+m
++										281 cell (selectable, settable) node:N-130 Z: 0 m
+Quantity readout, Value: 0
+m
++										282 cell (selectable, settable) node:N-130 Provenance: invented_example
++									283 row (selectable)
++										284 cell (selectable, settable) node:N-140
++										285 cell (selectable, settable) node:N-140 Label: Terminal tie-in
++										286 cell (selectable, settable) node:N-140 X: 7.6 m
+Quantity readout, Value: 7.6
+m
++										287 cell (selectable, settable) node:N-140 Y: 2.4 m
+Quantity readout, Value: 2.4
+m
++										288 cell (selectable, settable) node:N-140 Z: 2.2 m
+Quantity readout, Value: 2.2
+m
++										289 cell (selectable, settable) node:N-140 Provenance: invented_example
++								290 container Node review drafts footer
++									291 text 5
++									292 text  of 
++									293 text 5
++									294 text  rows
++									295 button Sorted by X · Clear
++								296 text Draft retained; model unchanged.
++							297 button Queue changed cells
++							298 button Clear grid edits
++							299 container
++								300 text Grid mode fans each changed cell into a structured review intent; storage remains local.  Blank or whitespace text becomes TBD when queued; keeping a draft does not change the model.
+~							237 button (expanded) Return to node fields, Secondary Actions: Collapse
+The focused UI element is 290 container Node review drafts footer

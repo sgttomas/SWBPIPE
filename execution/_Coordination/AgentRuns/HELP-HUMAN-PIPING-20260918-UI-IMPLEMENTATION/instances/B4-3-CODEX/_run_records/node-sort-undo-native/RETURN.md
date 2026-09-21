@@ -1,0 +1,13 @@
+# Node review sort/text-Undo native return
+
+Scoped PASS. RetainedTASK b4_1_native Astra/low, no descendants. Candidate9d642e9064e852b1f5db177de13337ad797c38a4/product15186ef0973c0ba7f654743ed0f19913b0361c57; completeactivation/revisedplan/backcheck/inputs/currenthashes verified. One uninstrumentedbuildEXIT0 afterownedprocessabsence; freshPID22492 exactwt3bundle; binarySHA256ed24bae3b1c216e27a2a1ebd6a883adf5a852e6f04fc6d6744405307956bd920. Source/dist/build/processbindings retained. No modelApply,Queue,creation,source/config/test/fixture/nativeedit,hooks,store/settings/provider/Git/otherlane/delegation.
+
+Beforeediting verifiedInventedUtilityLoopPreview,27entities,NodesN100XYZ0;N110X3.2Y0Z0;N120X3.2Y2.4Z0;N130X7.6Y2.4Z0;N140X7.6Y2.4Z2.2,inm;soleoriginalMaterialE200e9Pa/G77e9Pa/alpha.000012;emptyhistory/noEdited (01–04). System/Comfortable/Entered unchanged. Table/GridNodesfullwidth,Inspectorclosed,Collapse disabled.
+
+Review→SortXascending. PhysicalN100Xdoubleclick[570,305],pressKey1, pointerKeep (05) raw1/canonicalreadout0 withDraft retained;modelunchanged. Reopenphysicalsamecell,observedselected1 (06),pressKeyRight then9 yields19 andN100movesbelow3.2/7.6rows (07). OneCmdZrestores1andN100first (08),withoutintermediatefocus/fillrescue. Screens07/08showactualdraftandorder;AXduringpersistentoverlayomitsinputnodeafterrowmove,soexactnativecaretindex/DOMidentitynotclaimed. Canonicalreadout0,historybuttonsdisabled/noEditedthroughout.
+
+OrdinaryMaterials click closeseditor/keepsdraft; Nodesreturnshowsraw1/readout0,count1,Draft retained;modelunchanged,footerfocus (09/10). ThisisnaturalKeep-on-blur,notliveeditorsurvival. Reopenbyphysicaldoubleclickshowsselected1 (11). PhysicalCancel[270,635] closeseditorandkeepspreviousretained1 (12);Cleargrideditsclearsownlifteddraftto0/count0 (13). Clearsort,ReturntodirectcanonicalNodes (14). Family/Cancel/Clearcontrolswerereachable; nofocusrepairorinterceptionobserved.
+
+FinalNodesandsoleMaterialrechecked15/16: alloriginalvisiblevalues,27entities,noEdited,UndoRedo bothdisabled,noqueue(didnotinvokeQueue),nodrafts/filter/sort. Completefull-modelhashnotclaimed;no canonicalmutationperformed. CurrentTable/GridNodes,directfields,Reviewcollapsed,Inspectorclosed,projectselectionunchanged,Appearanceclosed,System/Comfortable/Enteredpreserved,windowunresized.
+
+LIVEapp/CUA explicitlyreleasedROOTviamanager PID22492;DO NOTQUITuntilcoordinated. Latestimage14-final-coordinates.png;finalfullAX16-handoff.ax.txt. No new measureddefect. PriorMaterialsnativeproof remains75fa;noBothInspector/compactdrawer/minimum/D72/controlledtiming/usability/engineering/CLI/fullB4/releaseclaim.

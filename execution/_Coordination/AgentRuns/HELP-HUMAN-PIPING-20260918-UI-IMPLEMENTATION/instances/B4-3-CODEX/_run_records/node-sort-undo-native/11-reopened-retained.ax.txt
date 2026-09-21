@@ -1,0 +1,17 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 291-294, 296
+~										258 cell (selected, settable)
++											301 container Quantity readout
++												302 text 0 m
++											303 text field (settable) node:N-100 X [m], Value: 1
++									304 text Editing 
++									305 text X
++									306 text  · 
++									307 text node:N-100
++									308 button Keep draft, Help: Keep draft (Enter)
++									309 button Cancel, Help: Cancel (Escape)
+Selected text: ```
+1
+```
+
+Note: Pay special attention to the content selected by the user. If the user asks a question or refers to the content they are looking at on-screen, they might be referring to the selected content (but they might be referring to something else that's visible, too).

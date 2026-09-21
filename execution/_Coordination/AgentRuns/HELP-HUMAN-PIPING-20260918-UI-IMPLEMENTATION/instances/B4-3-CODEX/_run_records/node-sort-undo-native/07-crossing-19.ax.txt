@@ -1,0 +1,14 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 255-261, 300-302
++									309 row (selectable)
++										310 cell (selectable, settable) node:N-100
++										311 cell (selectable, settable) node:N-100 Label: Pump nozzle
++										312 cell (selected, settable) Quantity readout, Value: 0
+m
++										313 cell (selectable, settable) node:N-100 Y: 0 m
+Quantity readout, Value: 0
+m
++										314 cell (selectable, settable) node:N-100 Z: 0 m
+Quantity readout, Value: 0
+m
++										315 cell (selectable, settable) node:N-100 Provenance: invented_example
