@@ -1,0 +1,7 @@
+# B4.2 review source-unit clarification
+
+ROOT correction within the active B4.2 scope. Original briefs and messages remain historical. ROOT's early inspection message incorrectly asserted: “Existing draftKey includes the column unit.” The manager checked exact merged15e8 ModelTree.tsx and corrected it: the key is `[projectSessionGeneration, row.type, row.id, column.fieldPath]`, with no unit. Queue builds its before-value and unit from the then-current model/column.
+
+Preserve that established lifted-review-draft and Queue-time before/unit policy. Do not make retained drafts newly unit-bound or add implicit conversion. Display-unit preferences remain presentation only and preserve raw text. The review's converted canonical QuantityReadout capability also remains.
+
+The new captured active editor may guard its own source-unit basis: late Keep/Cancel/change callbacks on a stale editor must not overwrite a newer lifted draft or claim successful retention on the obsolete editor basis. Cancel can retire that editor without rewriting/rebasing the lifted text; show clear feedback and the current canonical readout. Test actual canonical source-unit drift separately from display-unit preference changes, and keep the existing current-unit Queue behavior observable. This narrows ROOT's request to new editor lifecycle safety and corrects its erroneous rationale; no change to engine, unit conversion, draft-map identity or general review policy is authorized.

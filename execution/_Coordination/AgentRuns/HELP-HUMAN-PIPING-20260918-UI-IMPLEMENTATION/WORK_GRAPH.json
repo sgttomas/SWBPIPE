@@ -2064,7 +2064,7 @@
       "model": "gpt-6-astra",
       "reasoning": "high",
       "mechanism": "retainedmanager collaboration.followup_task; actual fresh TASK collaboration.spawn_agent under manager",
-      "status": "active: new branch from verified main; fresh Astra/low TASK actually launched",
+      "status": "implementation active; first2-profile text journey running under source lock; broader affected checks/freeze pending",
       "base": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
       "branch": "codex/swbpipe-b4-node-fields-20260920",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_2_MANAGER_BRIEF.md",
@@ -2088,7 +2088,10 @@
       "semanticClarification": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_2_SEMANTIC_CLARIFICATION.md",
       "semanticClarificationSha256": "7fd4ba6f56c1941823f90fbb488159efd2f624d33f53afb2d091d5e8d37a833a",
       "childLaunch": "instances/B4-2-CODEX/_run_records/ACTUAL_LAUNCH.json",
-      "childLaunchSha256": "0618651a462a486914d190681974ac7302ef698c466678afab4b986bc1907a85"
+      "childLaunchSha256": "0618651a462a486914d190681974ac7302ef698c466678afab4b986bc1907a85",
+      "reviewUnitClarification": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_2_REVIEW_UNIT_CLARIFICATION.md",
+      "reviewUnitClarificationSha256": "e0628e173b3dfecc34f3f692823e7dbafaa06d2b5a4296fb4eaa63c6874fca9c",
+      "scopeClarification": "Existing lifted drafts are not unit-keyed; preserve Queue-time before/unit. Narrow new captured-editor stale-callback guard; ROOT erroneous draftKey assertion corrected."
     },
     "B4-2-INTEGRATION": {
       "role": "ROOT integration",
