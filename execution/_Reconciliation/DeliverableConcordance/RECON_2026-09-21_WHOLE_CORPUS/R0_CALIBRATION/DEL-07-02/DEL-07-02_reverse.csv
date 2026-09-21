@@ -1,0 +1,98 @@
+CapabilityID,Answer,ClaimKey,Reason
+CAP-SOLVER-001,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SOLVER-002,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SOLVER-003,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SOLVER-004,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SOLVER-005,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SOLVER-006,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SOLVER-007,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SOLVER-008,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SOLVER-009,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SOLVER-010,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SOLVER-011,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SOLVER-012,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SOLVER-013,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SOLVER-014,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SOLVER-015,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SOLVER-016,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SOLVER-017,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SOLVER-018,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SOLVER-019,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SOLVER-020,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SOLVER-021,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SOLVER-022,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SOLVER-023,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SOLVER-024,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SOLVER-025,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SOLVER-026,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SOLVER-027,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SOLVER-028,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SOLVER-029,NOT_MINE,,Solver engine capability; no DEL-07-02 claim covers mechanics.
+CAP-SEC-001,NOT_MINE,,Core security/privacy control; DEL-07-02 only presents provenance/private status in the UI.
+CAP-SEC-002,NOT_MINE,,Core security/privacy control; DEL-07-02 only presents provenance/private status in the UI.
+CAP-SEC-003,NOT_MINE,,Core security/privacy control; DEL-07-02 only presents provenance/private status in the UI.
+CAP-SEC-004,NOT_MINE,,Core security/privacy control; DEL-07-02 only presents provenance/private status in the UI.
+CAP-SEC-005,NOT_MINE,,Core security/privacy control; DEL-07-02 only presents provenance/private status in the UI.
+CAP-SEC-006,NOT_MINE,,Private-library reference builders are core security metadata; RQ-002 private-library inspector fields are not implemented and would only consume these.
+CAP-SEC-007,NOT_MINE,,"Release classification of private references is a security control, not inspector presentation."
+CAP-SEC-008,NOT_MINE,,Core security/privacy control; DEL-07-02 only presents provenance/private status in the UI.
+CAP-SEC-009,NOT_MINE,,Core security/privacy control; DEL-07-02 only presents provenance/private status in the UI.
+CAP-ADAPT-001,NOT_MINE,,Adapter framework capability; outside the tree/inspector slice.
+CAP-ADAPT-002,NOT_MINE,,Adapter framework capability; outside the tree/inspector slice.
+CAP-ADAPT-003,NOT_MINE,,Adapter framework capability; outside the tree/inspector slice.
+CAP-ADAPT-004,NOT_MINE,,Adapter framework capability; outside the tree/inspector slice.
+CAP-ADAPT-005,NOT_MINE,,Adapter framework capability; outside the tree/inspector slice.
+CAP-ADAPT-006,NOT_MINE,,Adapter framework capability; outside the tree/inspector slice.
+CAP-ADAPT-007,NOT_MINE,,Adapter framework capability; outside the tree/inspector slice.
+CAP-ADAPT-008,NOT_MINE,,Adapter framework capability; outside the tree/inspector slice.
+CAP-TREE-001,CLAIMED_BY,DEL-07-02:SOW#CLM-015/DEL-07-02-RQ-001,Grouped tree over the model index is the RQ-001 navigation surface; entity groups recorded on CLM-004.s01.
+CAP-TREE-002,PARTIAL,DEL-07-02:SOW#CLM-015/DEL-07-02-RQ-001,Filtering is tree navigation but no SOW claim describes filter behavior or filter timing publication.
+CAP-TREE-003,CLAIMED_BY,DEL-07-02:SOW#CLM-015/DEL-07-02-RQ-001,Tree selection with stable identity is RQ-001 and the CLM-018 identity/selection slots; multi/range selection came with D-68.
+CAP-TREE-004,PARTIAL,DEL-07-02:STATUS#remaining/R01,Grid layout is named only in the R01 landed-state narrative ('virtualized model-tree/grid'); no SOW claim covers it.
+CAP-TREE-005,PARTIAL,DEL-07-02:SOW#CLM-015/DEL-07-02-RQ-006,"Grid edits are command-routed per RQ-006, but grid bulk editing is undocumented in the SOW and its 07-02/07-03 ownership is open (CLM-034)."
+CAP-TREE-006,PARTIAL,DEL-07-02:SOW#CLM-015/DEL-07-02-RQ-006,Node table edits route through operations per RQ-006; table editing itself is not a SOW claim (CLM-034 gap).
+CAP-TREE-007,PARTIAL,DEL-07-02:SOW#CLM-015/DEL-07-02-RQ-002,"Material and section fields are RQ-002 inspector fields, but shared table editing overlaps DEL-07-03 editor scope and is undocumented."
+CAP-TREE-008,CLAIMED_BY,DEL-07-02:SOW#CLM-015/DEL-07-02-RQ-002,"Selected-entity property presentation with provenance (RQ-005), required flags (RQ-004) and dual units (RQ-003)."
+CAP-TREE-009,CLAIMED_BY,DEL-07-02:SOW#CLM-015/DEL-07-02-RQ-006,Inspector queue/validate/apply of operation intents is the command-backed edit path of RQ-006.
+CAP-TREE-010,CLAIMED_BY,DEL-07-02:SOW#CLM-015/DEL-07-02-RQ-002,Per-entity editable field inventory is the RQ-002 field-group and editability claim.
+CAP-TREE-011,PARTIAL,DEL-07-02:STATUS#remaining/R05,Landed per-load-case modulus basis and other slots are recorded in R05; the SOW itself does not claim schema-slot entry.
+CAP-TREE-012,PARTIAL,DEL-07-02:SOW#CLM-034,Creation forms live in PropertyInspector under DEL-07-02 briefs but no SOW claim covers them; ownership versus DEL-07-03 flagged on CLM-034.
+CAP-TREE-013,PARTIAL,DEL-07-02:SOW#CLM-015/DEL-07-02-RQ-006,Deletion intents are command-routed per RQ-006; deletion authoring is not otherwise claimed in the SOW.
+CAP-TREE-014,CLAIMED_BY,DEL-07-02:STATUS#remaining/R01,R01 names frozen task targets and retained form drafts as the landed foundation; AC-001 hidden-mutation clause also applies.
+CAP-TREE-015,CLAIMED_BY,DEL-07-02:SOW#CLM-015/DEL-07-02-RQ-003,Unit-catalog dimension validation with visible diagnostics is the RQ-003 dimensional validation hook.
+CAP-TREE-016,PARTIAL,DEL-07-02:STATUS#remaining/R09,"Support configuration hosting is recorded in R09; material temperature, wind exposure and section assignment panels are hosted here but owned elsewhere."
+CAP-WS-001,NOT_MINE,,Workspace shell/session capability owned by the GUI architecture or other deliverables; the tree/inspector only consumes it.
+CAP-WS-002,NOT_MINE,,Workspace shell/session capability owned by the GUI architecture or other deliverables; the tree/inspector only consumes it.
+CAP-WS-003,NOT_MINE,,Workspace shell/session capability owned by the GUI architecture or other deliverables; the tree/inspector only consumes it.
+CAP-WS-004,NOT_MINE,,Workspace shell/session capability owned by the GUI architecture or other deliverables; the tree/inspector only consumes it.
+CAP-WS-005,NOT_MINE,,Stage/view switching including inspector rules is shell layout under DEL-00-05 and the redesign program.
+CAP-WS-006,NOT_MINE,,Workspace shell/session capability owned by the GUI architecture or other deliverables; the tree/inspector only consumes it.
+CAP-WS-007,NOT_MINE,,Workspace shell/session capability owned by the GUI architecture or other deliverables; the tree/inspector only consumes it.
+CAP-WS-008,NOT_MINE,,Workspace shell/session capability owned by the GUI architecture or other deliverables; the tree/inspector only consumes it.
+CAP-WS-009,NOT_MINE,,Workspace shell/session capability owned by the GUI architecture or other deliverables; the tree/inspector only consumes it.
+CAP-WS-010,NOT_MINE,,Workspace shell/session capability owned by the GUI architecture or other deliverables; the tree/inspector only consumes it.
+CAP-WS-011,NOT_MINE,,Workspace shell/session capability owned by the GUI architecture or other deliverables; the tree/inspector only consumes it.
+CAP-WS-012,NOT_MINE,,Session slice structure is GUI state architecture owned by DEL-00-05 (CLM-014).
+CAP-WS-013,NOT_MINE,,Workspace shell/session capability owned by the GUI architecture or other deliverables; the tree/inspector only consumes it.
+CAP-WS-014,NOT_MINE,,Workspace shell/session capability owned by the GUI architecture or other deliverables; the tree/inspector only consumes it.
+CAP-WS-015,NOT_MINE,,Workspace shell/session capability owned by the GUI architecture or other deliverables; the tree/inspector only consumes it.
+CAP-WS-016,NOT_MINE,,Workspace shell/session capability owned by the GUI architecture or other deliverables; the tree/inspector only consumes it.
+CAP-WS-017,NOT_MINE,,Workspace shell/session capability owned by the GUI architecture or other deliverables; the tree/inspector only consumes it.
+CAP-WS-018,NOT_MINE,,Workspace shell/session capability owned by the GUI architecture or other deliverables; the tree/inspector only consumes it.
+CAP-WS-019,NOT_MINE,,Workspace shell/session capability owned by the GUI architecture or other deliverables; the tree/inspector only consumes it.
+CAP-WS-020,NOT_MINE,,Session-level intent queue/apply is the shared operation seam (DEL-00-05/PKG-16); the inspector calls it (RQ-006) but does not own it.
+CAP-WS-021,NOT_MINE,,Workspace shell/session capability owned by the GUI architecture or other deliverables; the tree/inspector only consumes it.
+CAP-WS-022,PARTIAL,DEL-07-02:STATUS#remaining/R01,"R01 lists shared typed selection as landed here, but CLM-014 assigns the selection-model architecture to DEL-00-05; tree range selection is 07-02 behavior."
+CAP-WS-023,PARTIAL,DEL-07-02:SOW#CLM-015/DEL-07-02-RQ-001,"Tree is built from this index (RQ-001), but the index is shared workspace infrastructure also serving viewport and grid."
+CAP-WS-024,NOT_MINE,,Workspace shell/session capability owned by the GUI architecture or other deliverables; the tree/inspector only consumes it.
+CAP-WS-025,NOT_MINE,,Creation-tool arming and toolkit routing belong to the tool palette (DEL-07-09); inspector is only a routing target.
+CAP-WS-026,NOT_MINE,,Workspace shell/session capability owned by the GUI architecture or other deliverables; the tree/inspector only consumes it.
+CAP-WS-027,NOT_MINE,,Workspace shell/session capability owned by the GUI architecture or other deliverables; the tree/inspector only consumes it.
+CAP-WS-028,PARTIAL,DEL-07-02:STATUS#remaining/R01,R01 names UI-only preferences as part of the landed foundation; CLM-033 view-state guidance applies; architecture is DEL-00-05.
+CAP-WS-029,NOT_MINE,,Workspace shell/session capability owned by the GUI architecture or other deliverables; the tree/inspector only consumes it.
+CAP-WS-030,PARTIAL,DEL-07-02:STATUS#remaining/R01,Engineering table underpins the tree grid named in R01; shared component not claimed by the SOW.
+CAP-WS-031,PARTIAL,DEL-07-02:STATUS#remaining/R01,Quantity sort serves the tree grid (R01) and material/section tables; not claimed by the SOW.
+CAP-WS-032,PARTIAL,DEL-07-02:SOW#CLM-015/DEL-07-02-RQ-006,"Converts grid edits into operation intents, the RQ-006 command path for grid edits; shared table adapter."
+CAP-WS-033,NOT_MINE,,Shared select control used across forms; not a tree/inspector claim.
+CAP-WS-034,CLAIMED_BY,DEL-07-02:STATUS#remaining/R01,R01 explicitly names virtualized tree/grid and target pickers as the landed bounded foundation.
+#END,,,96

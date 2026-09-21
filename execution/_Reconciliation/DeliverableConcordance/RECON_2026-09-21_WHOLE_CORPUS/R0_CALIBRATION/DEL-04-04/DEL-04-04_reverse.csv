@@ -1,0 +1,98 @@
+CapabilityID,Answer,ClaimKey,Reason
+CAP-SOLVER-001,NOT_MINE,,"Linear frame, pipe, bend, support, sparse or diagnostic machinery outside the nonlinear support classifier."
+CAP-SOLVER-002,NOT_MINE,,"Linear frame, pipe, bend, support, sparse or diagnostic machinery outside the nonlinear support classifier."
+CAP-SOLVER-003,NOT_MINE,,"Linear frame, pipe, bend, support, sparse or diagnostic machinery outside the nonlinear support classifier."
+CAP-SOLVER-004,NOT_MINE,,"Linear frame, pipe, bend, support, sparse or diagnostic machinery outside the nonlinear support classifier."
+CAP-SOLVER-005,NOT_MINE,,"Linear frame, pipe, bend, support, sparse or diagnostic machinery outside the nonlinear support classifier."
+CAP-SOLVER-006,NOT_MINE,,"Linear frame, pipe, bend, support, sparse or diagnostic machinery outside the nonlinear support classifier."
+CAP-SOLVER-007,NOT_MINE,,"Linear frame, pipe, bend, support, sparse or diagnostic machinery outside the nonlinear support classifier."
+CAP-SOLVER-008,NOT_MINE,,"Linear frame, pipe, bend, support, sparse or diagnostic machinery outside the nonlinear support classifier."
+CAP-SOLVER-009,NOT_MINE,,"Linear frame, pipe, bend, support, sparse or diagnostic machinery outside the nonlinear support classifier."
+CAP-SOLVER-010,NOT_MINE,,"Linear frame, pipe, bend, support, sparse or diagnostic machinery outside the nonlinear support classifier."
+CAP-SOLVER-011,NOT_MINE,,"Linear frame, pipe, bend, support, sparse or diagnostic machinery outside the nonlinear support classifier."
+CAP-SOLVER-012,NOT_MINE,,"Linear frame, pipe, bend, support, sparse or diagnostic machinery outside the nonlinear support classifier."
+CAP-SOLVER-013,NOT_MINE,,"Linear frame, pipe, bend, support, sparse or diagnostic machinery outside the nonlinear support classifier."
+CAP-SOLVER-014,CLAIMED_BY,DEL-04-04:SOW#CLM-010/DEL-04-04-REQ-02,"Core classifier/state oracle for one-way, gap, lift-off and friction; exactly the REQ-02 scope."
+CAP-SOLVER-015,CLAIMED_BY,DEL-04-04:SOW#CLM-010/DEL-04-04-REQ-03,ActiveSetReportRecord is this deliverable's report-facing active-set record (also serves REQ-08).
+CAP-SOLVER-016,PARTIAL,DEL-04-04:SOW#CLM-009,"DEC-044 puts the assembled loop in an integration tranche outside this deliverable, but no deliverable key owns that tranche; DEL-04-04 names it and relies on its tests. Ownership gap for R3."
+CAP-SOLVER-017,PARTIAL,DEL-04-04:SOW#CLM-007,"Bounded mu*N force lives in nonlinear_integration, yet CLM-007/CLM-012 declare the DEC-067 Coulomb basis as part of this slice."
+CAP-SOLVER-018,NOT_MINE,,"Linear solve-path selection (sparse default, dense scrutiny) is governed by DEC-053 and the sparse/frame providers, not the classifier."
+CAP-SOLVER-019,PARTIAL,DEL-04-04:SOW#CLM-010/DEL-04-04-REQ-02,2026-09-13 contact initialisation was anchored to DEL-04-04 (MEMORY) but no key names it; ground springs themselves belong to linear supports.
+CAP-SOLVER-020,CLAIMED_BY,DEL-04-04:SOW#CLM-010/DEL-04-04-REQ-03,"Visible nonconvergence on every capped exit fulfils REQ-03's unresolved non-convergence reporting, though coded in the integration crate."
+CAP-SOLVER-021,NOT_MINE,,"Linear frame, pipe, bend, support, sparse or diagnostic machinery outside the nonlinear support classifier."
+CAP-SOLVER-022,NOT_MINE,,"Linear frame, pipe, bend, support, sparse or diagnostic machinery outside the nonlinear support classifier."
+CAP-SOLVER-023,NOT_MINE,,"Linear frame, pipe, bend, support, sparse or diagnostic machinery outside the nonlinear support classifier."
+CAP-SOLVER-024,NOT_MINE,,"Linear frame, pipe, bend, support, sparse or diagnostic machinery outside the nonlinear support classifier."
+CAP-SOLVER-025,NOT_MINE,,"Linear frame, pipe, bend, support, sparse or diagnostic machinery outside the nonlinear support classifier."
+CAP-SOLVER-026,NOT_MINE,,Generic diagnostics-crate helpers; DEL-04-04 consumes convergence_diagnostic but does not own it.
+CAP-SOLVER-027,NOT_MINE,,Standing TBD diagnostics belong to the diagnostics crate; relevant as context to REQ-09 staleness only.
+CAP-SOLVER-028,NOT_MINE,,"Linear frame, pipe, bend, support, sparse or diagnostic machinery outside the nonlinear support classifier."
+CAP-SOLVER-029,NOT_MINE,,"Linear frame, pipe, bend, support, sparse or diagnostic machinery outside the nonlinear support classifier."
+CAP-SEC-001,NOT_MINE,,Security/privacy control; no nonlinear support claim.
+CAP-SEC-002,NOT_MINE,,Security/privacy control; no nonlinear support claim.
+CAP-SEC-003,NOT_MINE,,Security/privacy control; no nonlinear support claim.
+CAP-SEC-004,NOT_MINE,,Security/privacy control; no nonlinear support claim.
+CAP-SEC-005,NOT_MINE,,Security/privacy control; no nonlinear support claim.
+CAP-SEC-006,NOT_MINE,,Security/privacy control; no nonlinear support claim.
+CAP-SEC-007,NOT_MINE,,Security/privacy control; no nonlinear support claim.
+CAP-SEC-008,NOT_MINE,,Security/privacy control; no nonlinear support claim.
+CAP-SEC-009,NOT_MINE,,Security/privacy control; no nonlinear support claim.
+CAP-ADAPT-001,NOT_MINE,,Adapter/plugin framework; no nonlinear support claim.
+CAP-ADAPT-002,NOT_MINE,,Adapter/plugin framework; no nonlinear support claim.
+CAP-ADAPT-003,NOT_MINE,,Adapter/plugin framework; no nonlinear support claim.
+CAP-ADAPT-004,NOT_MINE,,Adapter/plugin framework; no nonlinear support claim.
+CAP-ADAPT-005,NOT_MINE,,Adapter/plugin framework; no nonlinear support claim.
+CAP-ADAPT-006,NOT_MINE,,Adapter/plugin framework; no nonlinear support claim.
+CAP-ADAPT-007,NOT_MINE,,Adapter/plugin framework; no nonlinear support claim.
+CAP-ADAPT-008,NOT_MINE,,Adapter/plugin framework; no nonlinear support claim.
+CAP-TREE-001,NOT_MINE,,Desktop model tree/inspector UI; no DEL-04-04 claim.
+CAP-TREE-002,NOT_MINE,,Desktop model tree/inspector UI; no DEL-04-04 claim.
+CAP-TREE-003,NOT_MINE,,Desktop model tree/inspector UI; no DEL-04-04 claim.
+CAP-TREE-004,NOT_MINE,,Desktop model tree/inspector UI; no DEL-04-04 claim.
+CAP-TREE-005,NOT_MINE,,Desktop model tree/inspector UI; no DEL-04-04 claim.
+CAP-TREE-006,NOT_MINE,,Desktop model tree/inspector UI; no DEL-04-04 claim.
+CAP-TREE-007,NOT_MINE,,Desktop model tree/inspector UI; no DEL-04-04 claim.
+CAP-TREE-008,NOT_MINE,,Desktop model tree/inspector UI; no DEL-04-04 claim.
+CAP-TREE-009,NOT_MINE,,Desktop model tree/inspector UI; no DEL-04-04 claim.
+CAP-TREE-010,NOT_MINE,,Desktop model tree/inspector UI; no DEL-04-04 claim.
+CAP-TREE-011,NOT_MINE,,Desktop model tree/inspector UI; no DEL-04-04 claim.
+CAP-TREE-012,NOT_MINE,,Desktop model tree/inspector UI; no DEL-04-04 claim.
+CAP-TREE-013,NOT_MINE,,Desktop model tree/inspector UI; no DEL-04-04 claim.
+CAP-TREE-014,NOT_MINE,,Desktop model tree/inspector UI; no DEL-04-04 claim.
+CAP-TREE-015,NOT_MINE,,Desktop model tree/inspector UI; no DEL-04-04 claim.
+CAP-TREE-016,NOT_MINE,,Desktop model tree/inspector UI; no DEL-04-04 claim.
+CAP-WS-001,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-002,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-003,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-004,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-005,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-006,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-007,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-008,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-009,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-010,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-011,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-012,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-013,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-014,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-015,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-016,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-017,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-018,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-019,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-020,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-021,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-022,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-023,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-024,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-025,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-026,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-027,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-028,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-029,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-030,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-031,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-032,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-033,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+CAP-WS-034,NOT_MINE,,Desktop workspace shell/session UI; no DEL-04-04 claim.
+#END,,,96

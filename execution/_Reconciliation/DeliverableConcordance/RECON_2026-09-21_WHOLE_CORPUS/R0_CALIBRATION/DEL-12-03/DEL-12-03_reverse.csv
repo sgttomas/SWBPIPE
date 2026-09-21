@@ -1,0 +1,98 @@
+CapabilityID,Answer,ClaimKey,Reason
+CAP-SOLVER-001,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SOLVER-002,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SOLVER-003,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SOLVER-004,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SOLVER-005,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SOLVER-006,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SOLVER-007,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SOLVER-008,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SOLVER-009,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SOLVER-010,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SOLVER-011,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SOLVER-012,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SOLVER-013,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SOLVER-014,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SOLVER-015,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SOLVER-016,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SOLVER-017,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SOLVER-018,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SOLVER-019,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SOLVER-020,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SOLVER-021,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SOLVER-022,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SOLVER-023,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SOLVER-024,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SOLVER-025,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SOLVER-026,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SOLVER-027,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SOLVER-028,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SOLVER-029,NOT_MINE,,"Mechanics solver capability; no telemetry, opt-in or telemetry-payload behaviour."
+CAP-SEC-001,NOT_MINE,,"PKG-12 sibling privacy control (storage, redaction, secrets/private libraries), not telemetry."
+CAP-SEC-002,NOT_MINE,,"PKG-12 sibling privacy control (storage, redaction, secrets/private libraries), not telemetry."
+CAP-SEC-003,NOT_MINE,,"PKG-12 sibling privacy control (storage, redaction, secrets/private libraries), not telemetry."
+CAP-SEC-004,NOT_MINE,,Export redaction (DEL-12-02 area); policy doc forbids telemetry in reports but this control is not telemetry.
+CAP-SEC-005,NOT_MINE,,"Export route wrapper with local-first evidence; export control, not telemetry."
+CAP-SEC-006,NOT_MINE,,"PKG-12 sibling privacy control (storage, redaction, secrets/private libraries), not telemetry."
+CAP-SEC-007,NOT_MINE,,"PKG-12 sibling privacy control (storage, redaction, secrets/private libraries), not telemetry."
+CAP-SEC-008,CLAIMED_BY,DEL-12-03:SOW#CLM-011/TEL-REQ-001,DEL-12-03 metadata helper resolve_telemetry_config: absent/malformed/incomplete config resolves disabled; also serves TEL-REQ-003/005 and CLM-005.s01-s02.
+CAP-SEC-009,CLAIMED_BY,DEL-12-03:SOW#CLM-011/TEL-REQ-004,"DEL-12-03 guard_telemetry_event rejects unknown, non-allowlisted, payload-shaped and forbidden-field attempts before payload build; also TEL-TEST-003/004."
+CAP-ADAPT-001,PARTIAL,DEL-12-03:SOW#CLM-011/TEL-REQ-009,"Adapter declaration validation blocks any declaration whose telemetry_allowed is not false (ADAPTER_TELEMETRY_MUST_BE_DISABLED); declaration-level no-bypass only, owned elsewhere."
+CAP-ADAPT-002,NOT_MINE,,Adapter framework capability without a telemetry control.
+CAP-ADAPT-003,NOT_MINE,,Adapter framework capability without a telemetry control.
+CAP-ADAPT-004,NOT_MINE,,"Adapter runtime dispatch gate; prevents execution generally, not a telemetry opt-in control."
+CAP-ADAPT-005,NOT_MINE,,Adapter framework capability without a telemetry control.
+CAP-ADAPT-006,PARTIAL,DEL-12-03:SOW#CLM-011/TEL-REQ-009,"Plugin manifest verification requires telemetry_allowed false in the privacy block; declaration-level contribution to plugin no-bypass, primary owner is the adapter/plugin deliverable."
+CAP-ADAPT-007,NOT_MINE,,Adapter framework capability without a telemetry control.
+CAP-ADAPT-008,PARTIAL,DEL-12-03:SOW#CLM-011/TEL-REQ-009,"Pair verification derives a privacy envelope with telemetry disabled by default; declaration-level, runtime routing through the telemetry seam still absent."
+CAP-TREE-001,NOT_MINE,,Model tree / inspector editing UI; no telemetry behaviour.
+CAP-TREE-002,NOT_MINE,,Model tree / inspector editing UI; no telemetry behaviour.
+CAP-TREE-003,NOT_MINE,,Model tree / inspector editing UI; no telemetry behaviour.
+CAP-TREE-004,NOT_MINE,,Model tree / inspector editing UI; no telemetry behaviour.
+CAP-TREE-005,NOT_MINE,,Model tree / inspector editing UI; no telemetry behaviour.
+CAP-TREE-006,NOT_MINE,,Model tree / inspector editing UI; no telemetry behaviour.
+CAP-TREE-007,NOT_MINE,,Model tree / inspector editing UI; no telemetry behaviour.
+CAP-TREE-008,NOT_MINE,,Model tree / inspector editing UI; no telemetry behaviour.
+CAP-TREE-009,NOT_MINE,,Model tree / inspector editing UI; no telemetry behaviour.
+CAP-TREE-010,NOT_MINE,,Model tree / inspector editing UI; no telemetry behaviour.
+CAP-TREE-011,NOT_MINE,,Model tree / inspector editing UI; no telemetry behaviour.
+CAP-TREE-012,NOT_MINE,,Model tree / inspector editing UI; no telemetry behaviour.
+CAP-TREE-013,NOT_MINE,,Model tree / inspector editing UI; no telemetry behaviour.
+CAP-TREE-014,NOT_MINE,,Model tree / inspector editing UI; no telemetry behaviour.
+CAP-TREE-015,NOT_MINE,,Model tree / inspector editing UI; no telemetry behaviour.
+CAP-TREE-016,NOT_MINE,,Model tree / inspector editing UI; no telemetry behaviour.
+CAP-WS-001,NOT_MINE,,"Workspace shell or session capability; no telemetry configuration, guard or payload behaviour."
+CAP-WS-002,NOT_MINE,,"Workspace shell or session capability; no telemetry configuration, guard or payload behaviour."
+CAP-WS-003,NOT_MINE,,"Status chips show solver/rule/human tokens; TEL-REQ-007 concerns telemetry not creating claims, not the status bar."
+CAP-WS-004,NOT_MINE,,"Registered status-token table belongs to claims vocabulary (DEC-102), not telemetry."
+CAP-WS-005,NOT_MINE,,"Workspace shell or session capability; no telemetry configuration, guard or payload behaviour."
+CAP-WS-006,NOT_MINE,,"Workspace shell or session capability; no telemetry configuration, guard or payload behaviour."
+CAP-WS-007,NOT_MINE,,"Workspace shell or session capability; no telemetry configuration, guard or payload behaviour."
+CAP-WS-008,NOT_MINE,,"Workspace shell or session capability; no telemetry configuration, guard or payload behaviour."
+CAP-WS-009,NOT_MINE,,"Workspace shell or session capability; no telemetry configuration, guard or payload behaviour."
+CAP-WS-010,NOT_MINE,,"Workspace shell or session capability; no telemetry configuration, guard or payload behaviour."
+CAP-WS-011,NOT_MINE,,"Hosts the evidence section where the telemetry panel mounts, but the section organiser is not a telemetry capability."
+CAP-WS-012,NOT_MINE,,"Workspace shell or session capability; no telemetry configuration, guard or payload behaviour."
+CAP-WS-013,NOT_MINE,,"Workspace shell or session capability; no telemetry configuration, guard or payload behaviour."
+CAP-WS-014,NOT_MINE,,"Workspace shell or session capability; no telemetry configuration, guard or payload behaviour."
+CAP-WS-015,NOT_MINE,,"Workspace shell or session capability; no telemetry configuration, guard or payload behaviour."
+CAP-WS-016,NOT_MINE,,"Workspace shell or session capability; no telemetry configuration, guard or payload behaviour."
+CAP-WS-017,NOT_MINE,,"Workspace shell or session capability; no telemetry configuration, guard or payload behaviour."
+CAP-WS-018,NOT_MINE,,"Workspace shell or session capability; no telemetry configuration, guard or payload behaviour."
+CAP-WS-019,NOT_MINE,,"Workspace shell or session capability; no telemetry configuration, guard or payload behaviour."
+CAP-WS-020,NOT_MINE,,"Workspace shell or session capability; no telemetry configuration, guard or payload behaviour."
+CAP-WS-021,NOT_MINE,,"Workspace shell or session capability; no telemetry configuration, guard or payload behaviour."
+CAP-WS-022,NOT_MINE,,"Workspace shell or session capability; no telemetry configuration, guard or payload behaviour."
+CAP-WS-023,NOT_MINE,,"Workspace shell or session capability; no telemetry configuration, guard or payload behaviour."
+CAP-WS-024,NOT_MINE,,"Report save with private intent is redaction/export (DEL-12-02 area), not telemetry."
+CAP-WS-025,NOT_MINE,,"Workspace shell or session capability; no telemetry configuration, guard or payload behaviour."
+CAP-WS-026,NOT_MINE,,"Workspace shell or session capability; no telemetry configuration, guard or payload behaviour."
+CAP-WS-027,NOT_MINE,,"Workspace shell or session capability; no telemetry configuration, guard or payload behaviour."
+CAP-WS-028,NOT_MINE,,Local UI preference persistence; not telemetry persistence and holds no private engineering data.
+CAP-WS-029,NOT_MINE,,"Global UI diagnostics snapshot is local in-page inspection, not transmitted telemetry."
+CAP-WS-030,NOT_MINE,,"Workspace shell or session capability; no telemetry configuration, guard or payload behaviour."
+CAP-WS-031,NOT_MINE,,"Workspace shell or session capability; no telemetry configuration, guard or payload behaviour."
+CAP-WS-032,NOT_MINE,,"Workspace shell or session capability; no telemetry configuration, guard or payload behaviour."
+CAP-WS-033,NOT_MINE,,"Workspace shell or session capability; no telemetry configuration, guard or payload behaviour."
+CAP-WS-034,NOT_MINE,,"Workspace shell or session capability; no telemetry configuration, guard or payload behaviour."
+#END,,,96

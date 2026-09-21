@@ -1,0 +1,98 @@
+CapabilityID,Answer,ClaimKey,Reason
+CAP-SOLVER-001,NOT_MINE,,Solver engine/data capability (PKG-04); not palette or vocabulary coverage
+CAP-SOLVER-002,NOT_MINE,,Solver engine/data capability (PKG-04); not palette or vocabulary coverage
+CAP-SOLVER-003,NOT_MINE,,Solver engine/data capability (PKG-04); not palette or vocabulary coverage
+CAP-SOLVER-004,NOT_MINE,,Solver engine/data capability (PKG-04); not palette or vocabulary coverage
+CAP-SOLVER-005,NOT_MINE,,Solver engine/data capability (PKG-04); not palette or vocabulary coverage
+CAP-SOLVER-006,NOT_MINE,,Solver engine/data capability (PKG-04); not palette or vocabulary coverage
+CAP-SOLVER-007,NOT_MINE,,Solver engine/data capability (PKG-04); not palette or vocabulary coverage
+CAP-SOLVER-008,NOT_MINE,,Solver engine/data capability (PKG-04); not palette or vocabulary coverage
+CAP-SOLVER-009,NOT_MINE,,Solver engine/data capability (PKG-04); not palette or vocabulary coverage
+CAP-SOLVER-010,NOT_MINE,,Solver engine/data capability (PKG-04); not palette or vocabulary coverage
+CAP-SOLVER-011,NOT_MINE,,Solver engine/data capability (PKG-04); not palette or vocabulary coverage
+CAP-SOLVER-012,NOT_MINE,,Support-family solver preparation is DEL-04-03 engine work; row 16 only cites it as historical closure evidence
+CAP-SOLVER-013,NOT_MINE,,Solver engine/data capability (PKG-04); not palette or vocabulary coverage
+CAP-SOLVER-014,NOT_MINE,,Nonlinear support solve belongs to the solver; row 13 covers only authoring
+CAP-SOLVER-015,NOT_MINE,,Solver engine/data capability (PKG-04); not palette or vocabulary coverage
+CAP-SOLVER-016,NOT_MINE,,Solver engine/data capability (PKG-04); not palette or vocabulary coverage
+CAP-SOLVER-017,NOT_MINE,,Friction solve belongs to the solver; row 13 covers only authoring
+CAP-SOLVER-018,NOT_MINE,,Solver engine/data capability (PKG-04); not palette or vocabulary coverage
+CAP-SOLVER-019,NOT_MINE,,Solver engine/data capability (PKG-04); not palette or vocabulary coverage
+CAP-SOLVER-020,NOT_MINE,,Solver engine/data capability (PKG-04); not palette or vocabulary coverage
+CAP-SOLVER-021,NOT_MINE,,Solver engine/data capability (PKG-04); not palette or vocabulary coverage
+CAP-SOLVER-022,NOT_MINE,,Solver engine/data capability (PKG-04); not palette or vocabulary coverage
+CAP-SOLVER-023,NOT_MINE,,Solver engine/data capability (PKG-04); not palette or vocabulary coverage
+CAP-SOLVER-024,NOT_MINE,,Solver engine/data capability (PKG-04); not palette or vocabulary coverage
+CAP-SOLVER-025,NOT_MINE,,Solver engine/data capability (PKG-04); not palette or vocabulary coverage
+CAP-SOLVER-026,NOT_MINE,,Solver engine/data capability (PKG-04); not palette or vocabulary coverage
+CAP-SOLVER-027,NOT_MINE,,Solver engine/data capability (PKG-04); not palette or vocabulary coverage
+CAP-SOLVER-028,NOT_MINE,,Solver engine/data capability (PKG-04); not palette or vocabulary coverage
+CAP-SOLVER-029,NOT_MINE,,Solver engine/data capability (PKG-04); not palette or vocabulary coverage
+CAP-SEC-001,NOT_MINE,,Security control (PKG-12 area); no palette or vocabulary claim
+CAP-SEC-002,NOT_MINE,,Security control (PKG-12 area); no palette or vocabulary claim
+CAP-SEC-003,NOT_MINE,,Security control (PKG-12 area); no palette or vocabulary claim
+CAP-SEC-004,NOT_MINE,,Security control (PKG-12 area); no palette or vocabulary claim
+CAP-SEC-005,NOT_MINE,,Security control (PKG-12 area); no palette or vocabulary claim
+CAP-SEC-006,NOT_MINE,,Security control (PKG-12 area); no palette or vocabulary claim
+CAP-SEC-007,NOT_MINE,,Security control (PKG-12 area); no palette or vocabulary claim
+CAP-SEC-008,NOT_MINE,,Security control (PKG-12 area); no palette or vocabulary claim
+CAP-SEC-009,NOT_MINE,,Security control (PKG-12 area); no palette or vocabulary claim
+CAP-ADAPT-001,NOT_MINE,,Adapter framework capability; no palette or vocabulary claim
+CAP-ADAPT-002,NOT_MINE,,Adapter framework capability; no palette or vocabulary claim
+CAP-ADAPT-003,NOT_MINE,,Adapter framework capability; no palette or vocabulary claim
+CAP-ADAPT-004,NOT_MINE,,Adapter framework capability; no palette or vocabulary claim
+CAP-ADAPT-005,NOT_MINE,,Adapter framework capability; no palette or vocabulary claim
+CAP-ADAPT-006,NOT_MINE,,Adapter framework capability; no palette or vocabulary claim
+CAP-ADAPT-007,NOT_MINE,,Adapter framework capability; no palette or vocabulary claim
+CAP-ADAPT-008,NOT_MINE,,Adapter framework capability; no palette or vocabulary claim
+CAP-TREE-001,NOT_MINE,,TREE UI_SURFACE capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-TREE-002,PARTIAL,DEL-07-09:VOCABULARY_COVERAGE/ROW-9,Palette view.select focuses model-tree-filter-input; filtering itself is the tree deliverable surface
+CAP-TREE-003,PARTIAL,DEL-07-09:VOCABULARY_COVERAGE/ROW-9,Tree selection is one of the row-9 selection surfaces the coverage row routes to; tree implementation owned elsewhere
+CAP-TREE-004,NOT_MINE,,TREE UI_SURFACE capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-TREE-005,NOT_MINE,,"Grid cell edits are a DEL-07-02 tree/grid surface, not a palette command"
+CAP-TREE-006,NOT_MINE,,Node table editing is a table surface outside the palette; routes through the engine but is not vocabulary coverage
+CAP-TREE-007,PARTIAL,DEL-07-09:VOCABULARY_COVERAGE/ROW-17,Row 17 records Section scalar edits through the tree grid; material tables and sorting are outside the vocabulary row
+CAP-TREE-008,NOT_MINE,,TREE UI_SURFACE capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-TREE-009,NOT_MINE,,Inspector property edit flow is DEL-07-02; palette only opens it
+CAP-TREE-010,NOT_MINE,,Editable-field table is DEL-07-02/DEL-16-01 inspector contract; not a palette command
+CAP-TREE-011,PARTIAL,DEL-07-09:VOCABULARY_COVERAGE/ROW-7,Row 7 seismic (and row 6 wind scalar) inputs route through editor-intent-field optional slots; other slots are not vocabulary coverage
+CAP-TREE-012,PARTIAL,DEL-07-09:VOCABULARY_COVERAGE/ROW-15,"Create forms are palette targets for rows 2, 3, 15 and 17 (component creation shown); form implementation lands in DEL-07-02/DEL-07-03"
+CAP-TREE-013,PARTIAL,DEL-07-09:VOCABULARY_COVERAGE/ROW-1,Row 1 linkage includes delete_node/delete_pipe_run and edit.remove covers rows 1-2; deletion intents implemented in the inspector deliverable
+CAP-TREE-014,NOT_MINE,,TREE UI_OPERATION capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-TREE-015,NOT_MINE,,TREE DIAGNOSTIC capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-TREE-016,PARTIAL,DEL-07-09:VOCABULARY_COVERAGE/ROW-2,"Inspector hosts the rich support, temperature, wind-exposure and section-assignment forms that palette rows 2, 3, 6, 12, 13 and 17 route to; hosting surface owned by DEL-07-02"
+CAP-WS-001,PARTIAL,DEL-07-09:PALETTE_ORGANIZATION_CONTRACT#organization-and-ownership.s03,"Only the hosted command palette is palette surface; the toolbar band, Undo/Redo buttons, Run and panel toggles belong to shell/workspace deliverables"
+CAP-WS-002,NOT_MINE,,WS UI_SURFACE capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-WS-003,NOT_MINE,,WS UI_SURFACE capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-WS-004,NOT_MINE,,WS DATA_CONTRACT capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-WS-005,NOT_MINE,,WS UI_OPERATION capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-WS-006,NOT_MINE,,WS UI_SURFACE capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-WS-007,NOT_MINE,,Agent strip is shell UI; D58 hold is context only
+CAP-WS-008,NOT_MINE,,WS UI_SURFACE capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-WS-009,PARTIAL,DEL-07-09:PALETTE_ORGANIZATION_CONTRACT,Menu commands are also listed in the palette as non-vocabulary shell commands; this is the undocumented palette addition noted on the SURFACE row; menu definition itself is not mine
+CAP-WS-010,NOT_MINE,,WS INTEGRATION capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-WS-011,NOT_MINE,,WS UI_SURFACE capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-WS-012,NOT_MINE,,WS DATA_CONTRACT capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-WS-013,NOT_MINE,,WS UI_OPERATION capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-WS-014,NOT_MINE,,WS DATA_CONTRACT capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-WS-015,NOT_MINE,,WS UI_OPERATION capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-WS-016,NOT_MINE,,WS UI_OPERATION capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-WS-017,NOT_MINE,,WS DATA_CONTRACT capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-WS-018,NOT_MINE,,WS DIAGNOSTIC capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-WS-019,NOT_MINE,,WS UI_OPERATION capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-WS-020,PARTIAL,DEL-07-09:PALETTE_OPERATION_ROUTING#common-executable-route.s04,"Routing map declares the batch queue/validate/apply route that every palette form uses; implementation lands in PKG-16 and session deliverables, not DEL-07-09"
+CAP-WS-021,PARTIAL,DEL-07-09:VOCABULARY_COVERAGE/ROW-10,Coverage row 10 records session undo/redo and the palette edit.undo/edit.redo route; implementation lands in DEL-00-05/DEL-07-01/DEL-07-02
+CAP-WS-022,PARTIAL,DEL-07-09:VOCABULARY_COVERAGE/ROW-9,"Coverage row 9 records typed selection identity; the selection state machine (box, hide, isolate) goes beyond the row and lands in DEL-16-01/DEL-07-01"
+CAP-WS-023,NOT_MINE,,WS DATA_CONTRACT capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-WS-024,NOT_MINE,,WS UI_OPERATION capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-WS-025,CLAIMED_BY,DEL-07-09:PALETTE_OPERATION_ROUTING#common-executable-route.s01,handleToolkitCommand routes palette commands to panels/inspector tasks and arms creation tools; this is the palette-to-surface route the routing map declares (anchor now workspaceSession.ts)
+CAP-WS-026,NOT_MINE,,Sample proposal loader is not the palette review.agent route (offline intake); agent route is row 11 but this entry is separate
+CAP-WS-027,NOT_MINE,,WS UI_OPERATION capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-WS-028,NOT_MINE,,WS DATA_CONTRACT capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-WS-029,NOT_MINE,,WS DIAGNOSTIC capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-WS-030,NOT_MINE,,WS UI_SURFACE capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-WS-031,NOT_MINE,,"Table sort consumes display conversion but is a table feature, not the row-24 readout preference route"
+CAP-WS-032,NOT_MINE,,WS DATA_CONTRACT capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-WS-033,NOT_MINE,,WS UI_SURFACE capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+CAP-WS-034,NOT_MINE,,WS UI_SURFACE capability owned by a workspace/tree deliverable; no palette organization or vocabulary coverage claim
+#END,,,96
