@@ -1,0 +1,54 @@
+{
+  "01-baseline.ax.txt": {
+    "sha256": "2bab044962f89468c286f9b94266b1bde5632fce774eb60d8164792fa78ca916",
+    "bytes": 6730
+  },
+  "02-review.ax.txt": {
+    "sha256": "e806808fdde8de0b2bf98f469b563b156db5baf0392bfa0d423c91e8be2835e7",
+    "bytes": 4001
+  },
+  "02-review.png": {
+    "sha256": "ad7430914d5107ce53fcfb8a253a36323b45fe1ab570e283d71179c604c8a564",
+    "bytes": 128190
+  },
+  "03-raw-review-draft.ax.txt": {
+    "sha256": "1f4067d7cfe0ffe54ed9175d07a5f8e7250f545cd2efb44d2430003550c032c7",
+    "bytes": 848
+  },
+  "03-raw-review-draft.png": {
+    "sha256": "59a7b5f9ef1f462af341274ba25de7f1da112d5c0aa65f8d5a78d2e82aedfa64",
+    "bytes": 130936
+  },
+  "04-pointer-keep.ax.txt": {
+    "sha256": "bb992da5137af156b5749943ea2d4411c30fa40214def86f354aeca462d779af",
+    "bytes": 552
+  },
+  "05-clear-review.ax.txt": {
+    "sha256": "2e9fb6fb9a8cd0c5ef66a239ee1c7b9ed26766efaa99274d354e8dc4df1f41f3",
+    "bytes": 574
+  },
+  "06-final-baseline.ax.txt": {
+    "sha256": "2bab044962f89468c286f9b94266b1bde5632fce774eb60d8164792fa78ca916",
+    "bytes": 6730
+  },
+  "06-final-baseline.png": {
+    "sha256": "03665cde459dd8556a790edf1a64e9578c0c3538aaf9c54277121a4e5ef555ff",
+    "bytes": 111817
+  },
+  "END.json": {
+    "sha256": "d77c6f14cff548605481d9e0d6cb1b562b57866bb0c9a41c5879fd09490615ff",
+    "bytes": 230
+  },
+  "PLAN.md": {
+    "sha256": "50543872f8fc60732601c3f47cf3f3519a44d872b3ed60817a8846339717d283",
+    "bytes": 1235
+  },
+  "RETURN.md": {
+    "sha256": "6217c6096aa359d85c906eced206146083bd4aace68e3fe4f3fcc8cfb1cb86db",
+    "bytes": 2101
+  },
+  "START.json": {
+    "sha256": "e2c7f8b35a978a49afbee750a5c02fb3a9ed386c3e7a612950ca63926a185953",
+    "bytes": 670
+  }
+}

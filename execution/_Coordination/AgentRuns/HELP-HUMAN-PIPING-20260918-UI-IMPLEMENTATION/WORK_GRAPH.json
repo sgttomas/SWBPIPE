@@ -635,7 +635,7 @@
       "role": "slice",
       "lane": "B-SHELL",
       "title": "the table component through the one operation route",
-      "status": "B4.1 and B4.2 merged; Materials is next bounded family; full B4/fit work remains open",
+      "status": "B4.1/B4.2 merged; Materials source/native checks pass; related Node-review Undo repair and combined integration remain; full B4/fit remains open",
       "dependsOn": [
         "B3B"
       ],
@@ -665,7 +665,7 @@
         },
         {
           "item": "Check Node review text-Undo while a draft changes active sort order; Node still uses inline editor and the Materials probe showed Chromium history loss on actual ancestor movement",
-          "state": "suspected gap only; ROOT activated bounded diagnosis after native release, before final freeze",
+          "state": "confirmed failure repaired and independently source-reviewed; affected native/ROOT own look passed; final combined acceptance gates remain",
           "retireAt": "bounded B4 follow-up before claiming complete common-table/MVP keyboard coverage",
           "basis": "B4-3 architecture/undo-dom probe plus unchanged Node review sorting path; no Node repair authorized by the Materials brief",
           "diagnosticBrief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_NODE_SORT_UNDO_DIAGNOSTIC_BRIEF.md",
@@ -675,7 +675,7 @@
       ],
       "remainderPreparationBrief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_REMAINDER_PREPARATION_BRIEF.md",
       "remainderPreparationBriefSha256": "cf1ea19b9ef79493cb3399785745789d035f8bdc05dd9dd604ffdeae432d235c",
-      "remainderPreparationState": "initial recommendation implemented in B4.2; next separate Materials/Sections assessment returned, unactivated",
+      "remainderPreparationState": "Materials recommendation activated under B4.3; Sections remains preparation for a later bounded brief",
       "remainderPreparationBasis": {
         "source": "ed8cc27fdb37b8df2f20eb5f877aacb61bfd7db1",
         "workerReturnSha256": "f7aa44110af6fbef5564ad98b1cc80b95a892d2b0d888acb52a479663b9e2bca",
@@ -2385,6 +2385,33 @@
         "candidate": "764a75eb271e3b4aa746045c321f84554b64f09a",
         "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_CACHE_P3_BACKCHECK_RETURN.md",
         "returnSha256": "af062577713d20c7c3ba715892677c57f54991d1d437c5402781f3bbfdb131bb"
+      },
+      "state": "cache/P3 and duration-data/docs/tranche independent backchecks PASS; ready for combined candidate gates and actual main-cache observations",
+      "durationRefresh": {
+        "authority": "owner effective-CI direction; ROOT bounded follow-up",
+        "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_DURATION_REFRESH_ADDENDUM.md",
+        "recordSha256": "dd2ba4ebf43a8d966c9a2d20972cacd3eafd806e4ec2ccb6370bc6c09b9fc07d",
+        "hintSha256": "ec333f0b55433efc6f093f7b4635fb7fd8259ca00586fc3fdf6575207bd6b7fa",
+        "method": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_HINT_REFRESH/refresh.py",
+        "methodSha256": "8ffb6050586f39770ca134e0f3162eeb30afc58efbf6bab5a8ea9163568e5ba0",
+        "replay": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_HINT_REFRESH/REPLAY.json",
+        "replaySha256": "5188981dce66c56c9cffb7ada9d04a622271c52252ce678829bb4a0b28a3b8db",
+        "checks": "31 policy tests pass after retaining existing positive weight for one0ms-rounded report; initial2 errors retained; historical455-identity coverage/barrier unchanged",
+        "limits": "historical duration sums under alternate partitioning, not future CI timing; new Materials/Node cases retain30second fallback",
+        "review": {
+          "state": "PASS, no actionable findings",
+          "actualAgent": "/root/ci_cache_review",
+          "role": "independent TASK",
+          "model": "gpt-6-astra",
+          "reasoning": "xhigh",
+          "mechanism": "ROOT retained reviewer followup",
+          "candidate": "cafc84827a71be6172c1811dcae1c2aaa3e65d7c",
+          "launch": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_HINT_REFRESH_REVIEW_LAUNCH.md",
+          "launchSha256": "b9f19203cecb5f1d9ceb3db08ec31bc7fa43c39fad4ccd9f08faeb33da1bfe86",
+          "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_HINT_REFRESH_REVIEW_RETURN.md",
+          "returnSha256": "3e918a6fcc6e22231571981b7b265fa3a42c0b0002ea846738db57405ef82d4c",
+          "provenance": "collection/plan fromd02bb990; durations/source bodies from80770322. Independent review verified only in-body portable Undo key differs, identity/config/grouping compatible; not a fresh8077 collection."
+        }
       }
     },
     "B4-3-CODEX-MANAGER": {
@@ -2393,7 +2420,7 @@
       "actualAgent": "/root/b3_manager",
       "model": "gpt-6-astra",
       "reasoning": "high",
-      "state": "Materials source/native complete at scoped PASS; separate Node diagnosis activated after ROOT own look/verified Quit",
+      "state": "all Materials/Node implementation and scoped native work returned; source and resources handed to ROOT for final integration",
       "basis": "c9f19195214b2e097980dde5e0d5fccbfba8e34c",
       "branch": "codex/swbpipe-b4-materials-20260921",
       "checkout": "existing swbpipe-wt3, prior branch/head preserved",
@@ -2442,7 +2469,7 @@
         "inputs": "instances/B4-3-CODEX/_run_records/NATIVE_INPUTS.json",
         "inputsSha256": "5dc84dd3b9ad4cf5e79a303ede122a5798be04c74991f356381f2c96e2c4045c",
         "evidenceCommit": "53acac28c4e8554c708d860062fe95408e5ee1de",
-        "return": "instances/B4-3-CODEX/NATIVE_RETURN.md",
+        "return": "instances/B4-3-CODEX/_run_records/NATIVE_RETURN.md",
         "returnSha256": "5517d9c74cc0fa1e9b1781394c3d8414bb46b7633a104d8555f8facbd797d65c",
         "managerHandoffSha256": "9e198e0aaa80f1f4b56220756a7b69f91357fb38325c27beb6303a77cf6b3c57",
         "rootReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_ROOT_NATIVE/RETURN.md",
@@ -2476,7 +2503,90 @@
         "state": "PASS; P2 closed; no new actionable findings",
         "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_P2_BACKCHECK_RETURN.md",
         "returnSha256": "c3f1371babff15cf0c14eb7cfde81aad7ace82e0685e6ea3bfeae18e02f0c600"
+      },
+      "nativeEvidenceReview": {
+        "launch": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_NATIVE_REVIEW_LAUNCH.md",
+        "launchSha256": "a85442e7d2e7b226f81be94d61b59652925c523763eabeb01910c8d59a2492be",
+        "candidate": "8883aca03c091b57ee37fe6d3923650ca1755a44",
+        "state": "PASS; scoped native evidence/ROOT claims supported",
+        "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_NATIVE_REVIEW_RETURN.md",
+        "returnSha256": "6e5e341c7a66dc1b31517a4a696e43d128b0231ea346110c9a4c4b3d4ccf701c"
       }
+    },
+    "B4-NODE-SORT-UNDO-DIAG": {
+      "role": "TASK Type2 diagnosis",
+      "parent": "B4-3-CODEX-MANAGER",
+      "actualAgent": "/root/b3_manager/b4_3_materials",
+      "model": "gpt-6-astra",
+      "reasoning": "low",
+      "mechanism": "manager actual retained TASK followup after ROOT native release",
+      "state": "source backcheck PASS; native witness and ROOT own look PASS at recorded scopes; final combined review/sweep/CI remain",
+      "basis": "53acac28c4e8554c708d860062fe95408e5ee1de / production75fa",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_NODE_SORT_UNDO_DIAGNOSTIC_BRIEF.md",
+      "briefSha256": "8866966443b009b1aace77d127eded2088fcd7e2e0a2d33b203b36aa06f4b847",
+      "addendum": "instances/B4-3-CODEX/_run_records/node-sort-undo/TASK_ADDENDUM.md",
+      "addendumSha256": "18389b7f0217f09dc481322d2f34e2359a1232f49eeda77a4eca6d302dbb0b5b",
+      "inputs": "instances/B4-3-CODEX/_run_records/node-sort-undo/INPUTS.json",
+      "inputsSha256": "d2f5bed1f3b4641e10b439d26dbf6fe6b292f081b9cc759b728577099a237ca8",
+      "scope": "diagnostic records and B4 spec test-only; one source desktop profile under shared lock; no product/build/native/full suite",
+      "dependsOn": [
+        "B4-3-REVIEW"
+      ],
+      "repairDisposition": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_NODE_SORT_UNDO_REPAIR_DISPOSITION.md",
+      "repairDispositionSha256": "e118a18dd98e823cb6a14af275d0e7a60c6206cf73f3ef5b988b9d62e7543950",
+      "diagnosticCandidate": "3ba8b70f9cf3b89ac77a77a4a967f372df27865d",
+      "diagnosticReturn": "instances/B4-3-CODEX/_run_records/node-sort-undo/WORKER_RETURN.md",
+      "diagnosticReturnSha256": "66f7120fcd40f29f9bcef376a9cd056605f912ac14f1fe5e745ccdc96400c49a",
+      "preparedNativePlan": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_NODE_REVIEW_NATIVE_PLAN.md",
+      "preparedNativePlanSha256": "6cff53379abcee57fd79ec834a01dc783633793f916d06668dedf8bad9eb21a1",
+      "source": "15186ef0973c0ba7f654743ed0f19913b0361c57",
+      "evidence": "9d642e9064e852b1f5db177de13337ad797c38a4",
+      "repairAddendum": "instances/B4-3-CODEX/_run_records/node-sort-undo-repair/TASK_ADDENDUM.md",
+      "repairAddendumSha256": "71b8d64b6ca65ca801ae5088d95da1d5cd1452da9bca5512ae875cba47b6ef41",
+      "repairInputsSha256": "bcf7eff842c35c349378b9b4aface1315140976f10bf897c4145a1eaa6bad278",
+      "sourceReviewLaunch": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_NODE_REPAIR_REVIEW_LAUNCH.md",
+      "sourceReviewLaunchSha256": "1234425272e75c2880c66ddb3cdf55d21b4663102d42e78ab3a2f291bb281e41",
+      "sourceReviewReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_NODE_REPAIR_REVIEW_RETURN.md",
+      "sourceReviewReturnSha256": "c24e81d2b25976eac6fc2001061feb39a42ded3262c04be9e30ce01a9f04cd02",
+      "native": {
+        "state": "worker native packet and ROOT own look complete; PID22492 quit/process-only absent",
+        "activation": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_NODE_NATIVE_ACTIVATION.md",
+        "activationSha256": "bb470948d3b111e31f22262d0f0bb3540b38bdd791d9d9716ad6822d8be1d273",
+        "addendum": "instances/B4-3-CODEX/_run_records/node-sort-undo-native/TASK_ADDENDUM.md",
+        "addendumSha256": "adbfc43a1ae0822aeebbc6f757d9278bb4b0d182a916e3cceaa548706abad5ef",
+        "inputsSha256": "977060147dd03905a788bb73e81d570d46338b3db7b817d5a393b807ec3e85b7",
+        "scope": "review-only invented baseline; natural blur may Keep/close; no model Apply/store/preferences/creation; live handback before ROOT Quit",
+        "actualAgent": "/root/b3_manager/b4_1_native",
+        "parent": "B4-3-CODEX-MANAGER",
+        "mechanism": "manager retained native TASK followup, not a descendant of the diagnosis TASK",
+        "evidence": "dd8be5928c10000c4f93aaa13c572f576366ddd3",
+        "returnSha256": "e23034bc3bf9dea7391254150dcee0ac81b1c476017afe7f5c1eba5889122296",
+        "manifestSha256": "90df6708a4f7e5feca22dcffee19120cc37ca2db2565d4cfa5571d736152210b",
+        "rootReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_NODE_ROOT_NATIVE/RETURN.md",
+        "rootReturnSha256": "6217c6096aa359d85c906eced206146083bd4aace68e3fe4f3fcc8cfb1cb86db",
+        "rootManifestSha256": "6ca0153857dc9505e824df011eac2086a69d9cb15f286587e10a1f915e2795bc",
+        "limits": "natural family blur Keeps/closes editor; no exact native caret index/full-model hash/result-invalidation/whole-fit claim; review-only model/history remained unedited"
+      }
+    },
+    "B4-3-INTEGRATION": {
+      "role": "ROOT integration",
+      "parent": "ROOT",
+      "state": "clean Node/Materials source and native packet integrated; reviewed final CI/ROOT records ready for merge, then complete candidate gates",
+      "branch": "codex/swbpipe-b4-materials-integration-20260921",
+      "candidate": "8aa29afc2ca56474cebbaa311c1ece9849e5eedf",
+      "desktopTree": "569bb433ce914ef5f96234bc1ddfbb4a82700924",
+      "scope": "reviewed Materials and cache maintenance plus truthful run evidence; Node diagnosis before final freeze",
+      "remaining": [
+        "merge reviewed final CI and ROOT own-look/review records",
+        "cheap full-range preflight and one clean DEC-025 sweep",
+        "complete candidate source/evidence review including Node-native/ROOT packet",
+        "actual-head hosted CI/merge and main cache observation"
+      ],
+      "dependsOn": [
+        "B4-3-CODEX-MANAGER",
+        "B4-3-REVIEW",
+        "CI-CACHE-WARMING"
+      ]
     }
   },
   "edges": [
@@ -2755,9 +2865,25 @@
     [
       "ROOT",
       "B4-3-FAMILY-PREPARATION"
+    ],
+    [
+      "ROOT",
+      "B4-3-CODEX-MANAGER"
+    ],
+    [
+      "ROOT",
+      "B4-3-REVIEW"
+    ],
+    [
+      "ROOT",
+      "B4-3-INTEGRATION"
+    ],
+    [
+      "B4-3-CODEX-MANAGER",
+      "B4-NODE-SORT-UNDO-DIAG"
     ]
   ],
-  "current_frontier": "Materials source/P2/native and ROOT own look pass at recorded scopes; native process released. Bounded Node sorted-review text-Undo diagnosis precedes final freeze. Combine reviewed changes and cache maintenance for one clean final sweep, complete candidate review and actual-head CI/merge. C4/live CLI decisions and qualification holds remain.",
+  "current_frontier": "All maintained component changes reviewed; scoped Materials/Node-native and ROOT observations complete. Compose final clean candidate, run cheap full-range gates and one registered sweep with complete combined review, then actual-head CI/merge and main-cache observation. C4/live CLI decisions and qualification holds remain.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -2958,7 +3084,9 @@
           "B4-2-INTEGRATION",
           "B4-3-FAMILY-PREPARATION",
           "B4-3-CODEX-MANAGER",
-          "B4-3-REVIEW"
+          "B4-3-REVIEW",
+          "B4-NODE-SORT-UNDO-DIAG",
+          "B4-3-INTEGRATION"
         ]
       }
     }
@@ -3043,20 +3171,20 @@
     "scope": "No silence-as-approval; unaffected authorized B4 work proceeds"
   },
   "liveContinuationState": {
-    "root": "132112c1edf99f159a7c150177b137de3d72ed6a plus current backcheck/continuity records",
+    "root": "cafc84827a71be6172c1811dcae1c2aaa3e65d7c plus CI review/continuity checkpoint",
     "originMain": "c9f19195214b2e097980dde5e0d5fccbfba8e34c",
     "integrationBranch": {
       "branch": "codex/swbpipe-b4-materials-integration-20260921",
-      "head": "6b48c8c5b427a7b1bd4731e91d8e15e3711923b8",
-      "state": "clean initial combined source; no final candidate/sweep yet; old Node integration branch preserved"
+      "head": "8aa29afc2ca56474cebbaa311c1ece9849e5eedf",
+      "state": "clean source/native fan-in; final reviewed CI/ROOT records next"
     },
-    "shell": "Materials native evidence53acac, product75fa; separately bounded Node diagnosis activated by ROOT",
+    "shell": "clean native taildd8be592, desktop exactly reviewed15186; manager/source held",
     "canvas": "fb720420 preserved; C4 preparation returned",
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "isolated226b probe retains two authorized source edits and two untracked dependency entries; preserved, never fan-in",
-    "resources": "native16639 quit and verified absent; no5173/5174/5175 listener/shared lock at release. Manager granted one short source browser diagnosis next; peer notified.",
-    "recordStatus": "Materials native/ROOT PASS with exact method/history limitations retained; Node unconfirmed; no full candidate/sweep yet",
-    "observedAt": "2026-09-21T08:32:24.850081+00:00"
+    "resources": "nativePID22492 quit and process-only absent; ports5173/5174/5175/shared lock released. Peer notified. No local heavy run; next full-sweep reservation pending.",
+    "recordStatus": "CI hint review PASS; final candidate composition and complete checks next",
+    "observedAt": "2026-09-21T09:29:01.005295+00:00"
   },
   "historicalPauses": [
     {

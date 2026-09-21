@@ -1,0 +1,10 @@
+{
+  "source": "15186ef0973c0ba7f654743ed0f19913b0361c57",
+  "evidence": "9d642e9064e852b1f5db177de13337ad797c38a4",
+  "desktopTree": "569bb433ce914ef5f96234bc1ddfbb4a82700924",
+  "workerReturnSha256": "7021b155b323b29a4093d1c387e5843d7ffed87896aeaee36cd8db82d508f87c",
+  "manifestSha256": "1f8ee1f3cfa4c21e5b2aac3cba446793ee67bc3864d9207e34b37b89baeb61d1",
+  "managerTailSha256": "4e29bebd724009f1c40bd32e9d82841a89c4443531af3d4e5057805f0a232b2e",
+  "managerObservation": "26 repair payloads/index verified; diagnostic23 payloads/two failed traces retained separately; source immutable and resources released",
+  "rootObservation": "clean exact evidence head and identical source/evidence desktop verified; no native execution"
+}

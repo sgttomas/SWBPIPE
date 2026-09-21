@@ -1,0 +1,18 @@
+{
+  "command": "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3 -m unittest discover -s projects/chirality-piping/tests -p test_ci_e2e_plan.py -v",
+  "first": {
+    "exit": 1,
+    "tests": 31,
+    "errors": 2,
+    "logSha256": "59edde2d25bdb2ce9a390d8ff6c017a6274bdb0e3cbcf2107b1974a0e5a866f6"
+  },
+  "corrected": {
+    "exit": 0,
+    "tests": 31,
+    "seconds": 4.222,
+    "logSha256": "617673c197b3512072f9fa122dc779e8594236a2f998ffed1067dd114009a6a5"
+  },
+  "hintSha256": "ec333f0b55433efc6f093f7b4635fb7fd8259ca00586fc3fdf6575207bd6b7fa",
+  "selectorUnchangedFromMain": true,
+  "qualification": "bounded policy/data checks only; final actual-candidate CI remains"
+}

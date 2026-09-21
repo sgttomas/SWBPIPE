@@ -1,0 +1,9 @@
+{
+  "at": "2026-09-21T09:21:42.394132+00:00",
+  "source": "15186ef0973c0ba7f654743ed0f19913b0361c57",
+  "evidence": "9d642e9064e852b1f5db177de13337ad797c38a4",
+  "pid": 22492,
+  "binary": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop",
+  "binarySha256": "ed24bae3b1c216e27a2a1ebd6a883adf5a852e6f04fc6d6744405307956bd920",
+  "process": "22492     1 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop\n"
+}

@@ -1,0 +1,45 @@
+--- initial/refresh.py
++++ corrected/refresh.py
+@@ -4,6 +4,7 @@
+ import gzip
+ import hashlib
+ import json
++import math
+ from pathlib import Path
+ import re
+ import subprocess
+@@ -80,18 +81,25 @@
+     assert old["unknown_seconds"] == 30
+     new = copy.deepcopy(old)
+     new["seconds"].update(durations)
++    rounded_zero = {key for key, value in durations.items() if value == 0}
++    assert len(rounded_zero) == 1 and all(old["seconds"][key] == .001 for key in rounded_zero)
++    new["seconds"].update({key: old["seconds"][key] for key in rounded_zero})
+     new["seconds"].update({item: .05 for item in skips})
+     new["seconds"] = dict(sorted(new["seconds"].items()))
+     new["basis"] = {
+         "repository": "sgttomas/chirality", "pr": 832, "run": 35567286692,
+         "head": candidate, "log_sha256": sha(raw_log),
+         "collection_sha256": sha(source_bytes),
+-        "meaning": "Observed successful source durations, resolved to canonical collection identities including separately reported tags. Existing skips use a positive scheduling floor, not a measured duration. Scheduling hints only, never acceptance limits or coverage selection; new/unobserved identities retain the conservative fallback.",
++        "meaning": "Observed successful source durations, resolved to canonical collection identities including separately reported tags. Existing skips and one pass rounded to0ms use positive scheduling floors, not measured durations. Scheduling hints only, never acceptance limits or coverage selection; new/unobserved identities retain the conservative fallback.",
+         "passed_duration_count": len(durations), "observed_skip_count": len(skips),
+         "skipped_scheduling_weight_seconds": .05,
++        "rounded_zero_pass_count": len(rounded_zero),
++        "rounded_zero_scheduling_weight_seconds": .001,
+         "prior_duration_basis": old["basis"],
+         "retained_prior_only_entries": len(set(old["seconds"]) - keys),
+     }
++    assert all(type(value) in (int, float) and math.isfinite(value) and value > 0
++               for value in [new["unknown_seconds"], *new["seconds"].values()])
+     body_hashes = {}
+     with tempfile.TemporaryDirectory(prefix="swbpipe-pr832-hints-") as directory:
+         historical = Path(directory)
+@@ -119,6 +127,7 @@
+         "newlyMeasuredKeys": len(set(durations) - set(old["seconds"])),
+         "unchangedFallbackSeconds": 30, "unchangedSkipWeightSeconds": .05,
+         "retainedPriorOnlyKeys": new["basis"]["retained_prior_only_entries"],
++        "roundedZeroPassesUsingExistingPositiveWeight": sorted(rounded_zero),
+         "identicalCoverageAndBarrier": True,
+         "oldBinRecordedDurationSums": observed_sums(before),
+         "newBinRecordedDurationSums": observed_sums(after),

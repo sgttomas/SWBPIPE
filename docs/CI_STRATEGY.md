@@ -50,9 +50,12 @@ or an incomplete appearance matrix. Removed repetitions map to their retained
 same-title desktop counterparts in the implementation evidence.
 
 Full CI starts with accessibility. Four isolated runners then execute exact
-Playwright 1.60 `--test-list` partitions with one worker each. Duration hints come
-from completed PR826 source logs and are checked into `tools/ci/e2e_duration_hints.json`;
-new or untimed tests use a conservative 30-second scheduling weight. These values
+Playwright 1.60 `--test-list` partitions with one worker each. Duration hints use successful PR832 source logs, with earlier provenance retained,
+and are checked into `tools/ci/e2e_duration_hints.json`. Reporter tags are resolved
+through the canonical collected identities. The data includes 435 observed passing
+durations, with positive scheduling floors for 20 existing skips and one passing
+case rounded to zero milliseconds. Those floors are not measured execution times. New or untimed tests use a conservative 30-second
+scheduling weight. These values
 are scheduling hints, not acceptance limits or a speed guarantee. Assignment is
 deterministic, using the lightest estimated bin first. Files/projects remain
 atomic except the independently set-up UI-foundation and workspace-layout cases;

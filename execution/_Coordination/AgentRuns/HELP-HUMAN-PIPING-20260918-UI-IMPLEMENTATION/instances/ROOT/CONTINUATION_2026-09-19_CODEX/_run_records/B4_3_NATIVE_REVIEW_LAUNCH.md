@@ -1,0 +1,26 @@
+# Materials independent native evidence review
+
+ROOT HELP_HUMAN resumes retained independent TASK /root/b4_3_code_review, Codex harness-native Astra/xhigh. Read-only source/record/hash/log/AX/screenshot inspection; no writes, tests/builds, live UI, network, Git mutation or descendants. Retain current applicable Root/project/TASK/software-code-review context from your verified source/backcheck launches. Same-model independent review is not model diversity; host restrictions are instruction-enforced.
+
+Review only the newly frozen Materials native and ROOT own-look evidence for support, identity, method, authority and restoration claims. Product remains exactly75fa863ea5cfee9bfe8f5a6ebf0f31047663e4e5 / desktop treed389887bcbd67f286d65c8d0534161a5aa161df9. Native evidence checkpoint53acac28c4e8554c708d860062fe95408e5ee1de and ROOT own-look checkpointca9416a9e1afe4850cb09ee0ccde29d65a3a28e1 are combined in clean integration8883aca03c091b57ee37fe6d3923650ca1755a44, existingwt2/codex/swbpipe-b4-materials-integration-20260921. Inspect Git identities rather than assuming wt3's later diagnostic working files are frozen source. The source review and P2 closure are already complete; do not repeat unchanged source review without a newly affected consequence.
+
+Validate native source/host/fixture/build/dist/binary bindings and actual fresh PID16639, sealed addendum/input/actual mechanism, 45 native payload/index bindings and ROOT14-payload manifest. Audit raw failed AX/unit-picker attempts and their classification, actual character/caret/textUndo/invalidzero/pointerCancel, positive Elastic viaTab/Shear first keys, mixed Pa/MPa physical sorting, review50000→530000 reordered→oneCmdZ50000, Keep/Clear without model application, invalid editor through Libraries/resize/Close, and synthetic creation followed by model Undo restoration. Browser deferred timing and native natural conversion are distinct.
+
+ROOT own look on the handed-back same binary adds separate key6/3→63, Left/7→673, oneCmdZ63, actual coordinate pointerCancel, then entered210000000000Pa with actual coordinate pointerApply and modelUndo to200000000000Pa. NoEdited/Undooff and unchanged sole Material are observed; own edit replaces prior owned creationRedo and remains redoable. Do not claim the initial empty history was restored. ROOT Quit is followed by process-only absence, no app query. Verify these narrower claims against raw records and distinguish the agent's GUI author_type user from actual human approval.
+
+Limits remain explicit: no native controlled pending interval, exact native caret-index readout, converted display when Entered remains selected, Both+Inspector-open or compact-drawer fit, result-invalidation on this no-run fixture, usability/engineering/product qualification or release. Stale Cell applied feedback after Undo is recorded history of the action, not a claim of current model mutation. No protected assertion/oracle weakening should be inferred from failed driver-method attempts. Do not manufacture a defect from unavailable methods; flag a real contradictory observation or unsupported claim.
+
+Return actionable findings with severity/path/evidence/remedy or scoped PASS, exact reviewed identities/binding counts, actual model/actions and limits. Combined-candidate review/full clean sweep/actual-head CI remain later gates. A separate Node sorted-review diagnosis is active; it does not change this frozen evidence scope or authorize you to repair anything.
+
+Context SHA256:
+```json
+{
+  "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-3-CODEX/_run_records/NATIVE_RETURN.md": "5517d9c74cc0fa1e9b1781394c3d8414bb46b7633a104d8555f8facbd797d65c",
+  "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-3-CODEX/_run_records/NATIVE_MANAGER_HANDOFF.md": "9e198e0aaa80f1f4b56220756a7b69f91357fb38325c27beb6303a77cf6b3c57",
+  "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-3-CODEX/_run_records/NATIVE_INPUTS.json": "5dc84dd3b9ad4cf5e79a303ede122a5798be04c74991f356381f2c96e2c4045c",
+  "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-3-CODEX/_run_records/NATIVE_ADDENDUM.md": "1beaac9a28706741fb0226919b0c04d802f9440f1a8b78e2cbe08673d7d514bc",
+  "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-3-CODEX/_run_records/native/evidence-manifest.json": "ec6886070aa955d9387f11d0493a9dc33a920f6a3d524aa7a0dcae8c8b277598",
+  "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_ROOT_NATIVE/RETURN.md": "e06a5049b68a56c6e064b4855bd887a2e1c32e5b73bd5ff7331d7660c08ac4d8",
+  "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_ROOT_NATIVE/MANIFEST.json": "c8187cc76c653efa9696574ddf9db70c7a1c31f8ea569629b75180c66cad2aed"
+}
+```
