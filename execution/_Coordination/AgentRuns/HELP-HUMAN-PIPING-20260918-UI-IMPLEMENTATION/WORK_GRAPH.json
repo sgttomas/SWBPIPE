@@ -2805,7 +2805,7 @@
       "branch": "codex/swbpipe-b4-sections-integration-20260921",
       "checkout": "wt2",
       "head": "9d55bce37a3e683d6a1e026920855270b8929113",
-      "state": "clean9d55 registered sweep PASS, five surfaces; final complete review and publication tail/CI pending",
+      "state": "full local sweep and complete independent candidate review passed; publication metadata review/actual-head cheap checks and hostedCI remain before merge",
       "source": "db35d7582e61d69ad415df7cdf4132b91e710dd8",
       "dependsOn": [
         "B4-4-CODEX-MANAGER",
@@ -2876,11 +2876,13 @@
       "model": "gpt-6-astra",
       "reasoning": "xhigh",
       "mechanism": "actual retained independent TASK followup",
-      "state": "active complete317-path candidate review; source15paths unchanged from reviewed source/CI",
+      "state": "PASS complete368-path candidate through9cd1; all15maintained paths and canonical evidence checked",
       "basis": "fd002217f067020d44deaee22866e14eed81173f",
-      "candidate": "aaa1172380ce7d941f2b2cae57064f7a7e4c465a",
+      "candidate": "9cd1b05f141336734823f4199487bcdc511612d2",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_4_COMBINED_REVIEW_LAUNCH.md",
-      "briefSha256": "2b3ca45b353ade7aa85f1f7d1d0961c27a617d7440a500e840502c92c01622c3"
+      "briefSha256": "2b3ca45b353ade7aa85f1f7d1d0961c27a617d7440a500e840502c92c01622c3",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_4_COMBINED_REVIEW_RETURN.md",
+      "returnSha256": "79df3c7536531b57d8104f7a5380abc92d560f38faca318e06867ddd78158d06"
     }
   },
   "edges": [
@@ -3185,7 +3187,7 @@
       "B4-4-CODEX-MANAGER"
     ]
   ],
-  "current_frontier": "Clean9d55 full sweep passed all5surfaces; source unchanged, local resources released. Final complete review/publication tail and actual-head hostedCI precede merge. Compact fit prepared next; held decisions/qualification/reconciliation unchanged.",
+  "current_frontier": "Sections complete source/native/sweep/combined review PASS. Freeze publication records, review bounded tail and validate actual head, then draftPR/hostedCI/merge. No new implementation started; compact drawer fit prepared next and owner holds unchanged.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -3487,7 +3489,7 @@
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "isolated226b probe retains two authorized source edits and two untracked dependency entries; preserved, never fan-in",
     "resources": "Native/browser/full-sweep host resources released to peer after successful sweep; no local workload active",
-    "recordStatus": "PR833 closed. Sections source/backchecks/native/preflight/full sweep passed at their recorded scopes; final complete review and actual-head publication CI/merge pending",
+    "recordStatus": "Sections complete local verification and independent review passed; final publication tail/checks and hostedCI/merge pending",
     "observedAt": "2026-09-21T14:19:18.467158+00:00",
     "integration": {
       "branch": "codex/swbpipe-b4-sections-integration-20260921",
