@@ -120,4 +120,20 @@ Agent 0's reading: no test suite is run; the run cites the PR #834 hosted CI
 and the 9d55 local sweep, both bound to the frozen Piping code. Recorded as
 `../../_DECISIONS/D-73_RULING_ADDENDUM_2026-09-21.md`.
 
+## Direction 6 — 2026-09-21T20:27:41.240Z (transcript entry 2384)
+
+SHA-256 `4e85c7551c0e285e8bfc2417c7a5bab486c9830c96e0e86e81d87afcf7dcb24a` (673 bytes):
+
+~~~~
+13 deliverables is fine, I don't remember ruling 12 at any point (what's your reference for that?  I may need to overturn).  Your instructions are 16 max concurrent agents including yourself and all subagents.  And you should try to maintain the max, if a certain set of packages and deliverables has more than what can be done at once and you do need to break up, keep at the max concurrency until all is done.  You shouldn't purposely limit yourself to less, without a valid reason (such as maintaining a slot for reviewing, or other impending task that you need to orchestrate in the right sequence).  But why only 7 right now?  That should be more as far as I can tell.
+~~~~
+
+Agent 0's reading: (1) the 13-deliverable first wave is confirmed (owner item
+1 at the wave 1 checkpoint is closed). The "12" came from the calibration
+review's recommendation (`R0_REVIEW.md` §7), bundled into the R0 amendment-set
+question the owner adopted; the owner did not choose that number separately.
+(2) Standing concurrency rule: keep 16 live agents (Agent 0 and all
+subagents at any depth) whenever work is available; run fewer only for a
+stated reason such as a reserved review slot or a sequencing dependency.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
