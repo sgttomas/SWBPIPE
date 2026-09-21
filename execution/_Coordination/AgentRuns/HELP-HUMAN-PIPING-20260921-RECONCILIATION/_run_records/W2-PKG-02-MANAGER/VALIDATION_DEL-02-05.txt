@@ -1,0 +1,14 @@
+# Validation DEL-02-05 (W2-PKG-02-MANAGER)
+# cmd: PYTHONDONTWRITEBYTECODE=1 python3 RUN/tools/validate_ledger_v2.py --run-dir RUN --repo-root . --deliverable DEL-02-05 --forward projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W2/PKG-02/DEL-02-05/DEL-02-05_forward.csv --reverse projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W2/PKG-02/DEL-02-05/DEL-02-05_reverse.csv --inventory RUN/ROUTING/PKG-02_capabilities.csv --notes-gap
+PASS DEL-02-05: 183 forward rows, 98 required keys, 7 canonical, 0 findings
+# validator_exit=0
+# seal_line: SEALED DEL-02-05 28b9f6f6d12f32ca0927786f1aa186b16c674822e73395657190662eb9029eb1 2026-09-21T23:00:09Z
+# forward_sha256_recomputed=28b9f6f6d12f32ca0927786f1aa186b16c674822e73395657190662eb9029eb1
+# seal_sha256=28b9f6f6d12f32ca0927786f1aa186b16c674822e73395657190662eb9029eb1
+# worker_reported_forward=28b9f6f6d12f32ca0927786f1aa186b16c674822e73395657190662eb9029eb1
+# reverse_sha256_recomputed=3173fc45216d5b2edfef29502e5b6619c5a7154b37d5ce5cfe281ffd27226e32
+# worker_reported_reverse=3173fc45216d5b2edfef29502e5b6619c5a7154b37d5ce5cfe281ffd27226e32
+# seal_match=YES
+# reverse_match=YES
+# forward_end_sentinel: #END,,,,,,,,,,,,,,,,,,,,,,,,,,,,,183,
+# reverse_end_sentinel: #END,,,254

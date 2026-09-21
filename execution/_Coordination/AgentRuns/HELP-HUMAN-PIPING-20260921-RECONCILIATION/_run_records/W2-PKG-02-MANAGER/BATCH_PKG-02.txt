@@ -1,0 +1,11 @@
+# Batch PKG-02 W2 (W2-PKG-02-MANAGER)
+# cmd: PYTHONDONTWRITEBYTECODE=1 python3 RUN/tools/validate_ledger_v2.py --run-dir RUN --repo-root . --batch <5 forward files below>
+#   projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W2/PKG-02/DEL-02-01/DEL-02-01_forward.csv
+#   projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W2/PKG-02/DEL-02-02/DEL-02-02_forward.csv
+#   projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W2/PKG-02/DEL-02-03/DEL-02-03_forward.csv
+#   projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W2/PKG-02/DEL-02-04/DEL-02-04_forward.csv
+#   projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W2/PKG-02/DEL-02-05/DEL-02-05_forward.csv
+# no WAVES/W2/RESOLUTIONS.csv exists; --resolutions not passed
+FINDING projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W2/PKG-02/DEL-02-05/DEL-02-05_forward.csv: DEL-02-05:STATUS.s01: same pattern CP-04/STALE_REVI as 5 other row(s) but {'Disposition': 'STALE_REVIEW_OR_EVIDENCE', 'CauseTag': 'RENAME_OR_IDENTITY', 'AuthorityTier': 'PROJECT_BASELINE', 'DivergenceLayers': 'RECORD'} differs from the majority {'Disposition': 'STALE_REVIEW_OR_EVIDENCE', 'CauseTag': 'RENAME_OR_IDENTITY', 'AuthorityTier': 'LOCAL_DESIGN', 'DivergenceLayers': 'RECORD'} without CANONICAL_DEPARTURE
+FAIL batch of 5 ledgers: 1 consistency findings
+# validator_exit=1
