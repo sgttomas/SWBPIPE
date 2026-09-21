@@ -76,7 +76,7 @@ export function buildGridOperationIntent({
       schema_validation: "not_run",
       constraint_validation: "not_run",
       unit_validation:
-        column.dimension === "dimensionless" ? "not_required_dimensionless" : column.objectType === "Material" ? "not_run" : "model_metadata_unit_dimension_declared",
+        column.dimension === "dimensionless" ? "not_required_dimensionless" : (column.objectType === "Material" || column.objectType === "Section") ? "not_run" : "model_metadata_unit_dimension_declared",
       diff_preview_status: "not_generated",
       application_status: "not_applied"
     },
