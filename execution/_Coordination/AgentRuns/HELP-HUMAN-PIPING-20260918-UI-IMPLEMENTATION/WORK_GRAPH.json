@@ -2571,7 +2571,7 @@
     "B4-3-INTEGRATION": {
       "role": "ROOT integration",
       "parent": "ROOT",
-      "state": "clean3bdf full sweep in source-browser execution; combined source/evidence review clear, historical ZIP omission backcheck CLOSED; awaits final sweep binding",
+      "state": "clean3bdf registered sweep and preflight PASS; combined review source/evidence clear including packaging backcheck, final binding/publication gates next",
       "branch": "codex/swbpipe-b4-materials-integration-20260921",
       "candidate": "3bdf6141aa5efd16c18b61d1cf49045f8ce4faf8",
       "desktopTree": "569bb433ce914ef5f96234bc1ddfbb4a82700924",
@@ -2608,7 +2608,52 @@
         "launch": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_COMBINED_REVIEW_LAUNCH.md",
         "launchSha256": "79127ed8ea780bb40dfcfa77593a27f82db0638d78cbe34114b82a7649d52e7b",
         "state": "source/evidence review clear including Node-native/ROOT; final verdict awaits sweep binding"
+      },
+      "sweep": {
+        "candidate": "3bdf6141aa5efd16c18b61d1cf49045f8ce4faf8",
+        "summary": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_SWEEP_3BDF/SUMMARY.json",
+        "summarySha256": "5135362f45d18bc8975050d3e00ab3a43f3f57df67425889f34ea48862b7c0e4",
+        "status": "all5surfaces PASS; clean unchanged before/after",
+        "wrapperSeconds": 1101.0424986253493,
+        "registeredSeconds": 1096.693,
+        "counts": {
+          "rust": "all registered crate commands exit0; no aggregate count invented",
+          "python": {
+            "passed": 1136,
+            "warnings": 304,
+            "subtestsPassed": 7
+          },
+          "desktop": {
+            "files": 98,
+            "passed": 1598
+          },
+          "sourceBrowser": {
+            "passed": 445,
+            "existingSkipped": 20,
+            "collectedInPreflight": 465
+          },
+          "distBrowser": {
+            "passed": 53
+          },
+          "productionBuild": "PASS"
+        }
       }
+    },
+    "B4-4-SECTIONS-PREPARATION": {
+      "role": "WORKING_ITEMS Type1 read-only preparation",
+      "parent": "ROOT",
+      "actualAgent": "/root/b3_manager",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "mechanism": "ROOT actual retained manager followup; no child",
+      "basis": "3bdf6141 / desktop15186; clean sourcewt3dd8be592",
+      "state": "returned; no implementation activated during current closeout",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_4_SECTIONS_PREPARATION_BRIEF.md",
+      "briefSha256": "35c1943905973ad33d315df68d824da68a3a8a77f7dd2cf1d88cdcfb43b3af57",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_4_SECTIONS_PREPARATION_RETURN.md",
+      "returnSha256": "5041095436e1460396fa2c7dacd0383fd8f1b16f266dcb7dfcf24a3ccc5aa2d2",
+      "rootCheck": "all21consulted hash references match. Recommendation is agent preparation, not owner ruling. Qualified full-height route wording means observed development-tested route only; no formal qualification is established.",
+      "next": "prepare bounded Sections/common enum brief after current merge; preserve sequential coupled-geometry semantics and no automatic Grid atomic-batch/reordering change"
     }
   },
   "edges": [
@@ -2903,9 +2948,13 @@
     [
       "B4-3-CODEX-MANAGER",
       "B4-NODE-SORT-UNDO-DIAG"
+    ],
+    [
+      "ROOT",
+      "B4-4-SECTIONS-PREPARATION"
     ]
   ],
-  "current_frontier": "Complete clean3bdf sweep and combined review; backcheck the evidence-only repair preserving three omitted historical PR832 traces, then publication metadata/actual-head CI/merge. C4/live CLI decisions and qualification holds remain.",
+  "current_frontier": "Clean3bdf sweep/preflight passed, component reviews and ZIP packaging backcheck closed. Bind final combined verdict and metadata tail, publish draftPR, wait all actual-head checks, merge, observe main cache. Sections preparation returned for next bounded activation after merge; C4/live CLI decisions and qualification holds remain.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -3108,7 +3157,8 @@
           "B4-3-CODEX-MANAGER",
           "B4-3-REVIEW",
           "B4-NODE-SORT-UNDO-DIAG",
-          "B4-3-INTEGRATION"
+          "B4-3-INTEGRATION",
+          "B4-4-SECTIONS-PREPARATION"
         ]
       }
     }
@@ -3204,9 +3254,9 @@
     "canvas": "fb720420 preserved; C4 preparation returned",
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "isolated226b probe retains two authorized source edits and two untracked dependency entries; preserved, never fan-in",
-    "resources": "nativePID22492 quit and process-only absent; ports5173/5174/5175/shared lock released. Peer notified. No local heavy run; next full-sweep reservation pending.",
-    "recordStatus": "All source and CI data reviewed; complete candidate/native evidence review and full checks next",
-    "observedAt": "2026-09-21T09:29:01.005295+00:00"
+    "resources": "full sweep ended PASS; source5174/dist5175/Tauri5173 listeners/shared lock absent, both owned native PIDs quit. Peer resource reservation released.",
+    "recordStatus": "full clean sweep all5surfaces PASS; final combined review binding and publication metadata/CI remain",
+    "observedAt": "2026-09-21T10:29:42.700950+00:00"
   },
   "historicalPauses": [
     {

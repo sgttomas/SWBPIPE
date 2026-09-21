@@ -1,0 +1,62 @@
+{
+  "candidate": "3bdf6141aa5efd16c18b61d1cf49045f8ce4faf8",
+  "status": "all5 registered surfaces PASS; clean unchanged candidate before/after",
+  "wrapperWallSeconds": 1101.0424986253493,
+  "registeredDurationSeconds": 1096.693,
+  "observedCountsFromRawLog": {
+    "rust": "all registered crate commands exit0; no aggregate count invented",
+    "python": {
+      "passed": 1136,
+      "warnings": 304,
+      "subtestsPassed": 7
+    },
+    "desktop": {
+      "files": 98,
+      "passed": 1598
+    },
+    "sourceBrowser": {
+      "passed": 445,
+      "existingSkipped": 20,
+      "collectedInPreflight": 465
+    },
+    "distBrowser": {
+      "passed": 53
+    },
+    "productionBuild": "PASS"
+  },
+  "configuredEnvironment": {
+    "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH": "/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+    "PLAYWRIGHT_WORKERS": "1"
+  },
+  "files": {
+    "END.json": {
+      "canonical": "END.json",
+      "rawSha256": "40e92824a6791e8ddb08d69e89c2cbaf8672d6a88746915bd96709975d1c55ec",
+      "rawBytes": 273,
+      "sha256": "40e92824a6791e8ddb08d69e89c2cbaf8672d6a88746915bd96709975d1c55ec",
+      "bytes": 273
+    },
+    "START.json": {
+      "canonical": "START.json",
+      "rawSha256": "2c406e4588b71672c68f3be9033558ffc13761d1d769de56db33f30f0512c400",
+      "rawBytes": 992,
+      "sha256": "2c406e4588b71672c68f3be9033558ffc13761d1d769de56db33f30f0512c400",
+      "bytes": 992
+    },
+    "registered/SWEEP_20260921T095332Z_3bdf6141aa5e.json": {
+      "canonical": "registered/SWEEP_20260921T095332Z_3bdf6141aa5e.json",
+      "rawSha256": "d1353ef04af9d4d67d86cb960fd1a77ed77da1e5af2bfbf05b5c359bf47d695c",
+      "rawBytes": 3838,
+      "sha256": "d1353ef04af9d4d67d86cb960fd1a77ed77da1e5af2bfbf05b5c359bf47d695c",
+      "bytes": 3838
+    },
+    "sweep.log": {
+      "canonical": "sweep.log.gz",
+      "rawSha256": "ee00fe68cc817b8708da48853d429e8767bb6a06ec75de628ebaf7ac92ac2c94",
+      "rawBytes": 1899534,
+      "sha256": "a866a5cf53a848d8c00da061019de805b7045ba0215831b15507492b339c4909",
+      "bytes": 58590
+    }
+  },
+  "limits": "Development checks on the bound host/source; not native exact-fit/usability/performance/engineering qualification or release. Metadata-only trace-retention tail58118 and preflight packet568e are separate from this unchanged product candidate."
+}
