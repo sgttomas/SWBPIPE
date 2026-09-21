@@ -359,10 +359,15 @@ function usePersistentEditorPosition(root: React.RefObject<HTMLDivElement | null
     const measure = () => {
       const anchor = host.querySelector<HTMLElement>(`[data-editor-anchor="${token}"]`);
       const grid = host.querySelector<HTMLElement>('[role="grid"]');
-      if (!anchor || !grid || !active || host.closest("[hidden], [inert]")) {
+      if (!anchor || !grid || !active) {
         setPosition((previous) => previous.clip.visibility === "hidden" ? previous : { clip: { visibility: "hidden" }, box: previous.box }); return;
       }
+      // Inert ancestry already excludes interaction, but still has a live
+      // layout (e.g. a page over the stage). Keep measuring that layout. A
+      // display-hidden surface keeps its last usable placement until revealed.
+      if (host.closest("[hidden]")) return;
       const a = anchor.getBoundingClientRect(), h = host.getBoundingClientRect(), g = grid.getBoundingClientRect();
+      if (a.width <= 0 || a.height <= 0 || h.width <= 0 || h.height <= 0) return;
       const b = host.querySelector<HTMLElement>(".engineering-table-body-slot")!.getBoundingClientRect();
       const top = Math.max(a.top, b.top, g.top), right = Math.min(a.right, b.right, g.left + grid.clientWidth);
       const bottom = Math.min(a.bottom, b.bottom, g.top + grid.clientHeight), left = Math.max(a.left, b.left, g.left);

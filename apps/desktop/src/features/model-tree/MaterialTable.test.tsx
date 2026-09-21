@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ModelTree } from "./ModelTree";
 import { loadPreviewModel } from "../../services/previewService";
 import { DisplayUnitSelector, DisplayUnitsProvider } from "../display-units";
@@ -24,6 +24,10 @@ function order(review = false) { return within(table(review)).getAllByRole("rowh
 function props(model: PreviewModel) { return { model, selection: { type: "material" as const, id: "m-a" }, onSelect: vi.fn(), onQueueIntent: vi.fn(), onApplyCellIntent: vi.fn(async (_intent: EditorOperationIntent) => ({ applied: true, messages: [] })) }; }
 
 describe("Materials through shared direct/review table", () => {
+  // jsdom has no layout. Supply a visible allocation for the persistent editor;
+  // real clipping/alignment/resize is independently exercised in the browser.
+  beforeEach(() => { vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 1000, 400)); });
+  afterEach(() => { vi.restoreAllMocks(); });
   it("sorts equivalent quantities per column, captures exact before/unit, validates E/G and signed alpha, and skips numeric no-ops", async () => {
     const model = await fixture(); const p = props(model); render(<ModelTree {...p} />); open();
     await waitFor(() => expect(screen.getByTestId("table-cell-m-a-elastic").parentElement).toHaveAttribute("aria-readonly", "false"));

@@ -443,6 +443,7 @@ export async function convertDisplayQuantities(items) {
   await expect.poll(() => page.evaluate(() => (window as any).__b4MaterialConversionGate.pending.length)).toBeGreaterThan(0);
   await openWorkspaceSection(page, "project"); await page.getByRole("button", { name: "Open local", exact: true }).click(); await expect(page.getByTestId("local-project-message")).toContainText("Opened local browser-preview project");
   await showModelTree(page); await page.getByTestId("layout-mode-grid").click(); await page.getByTestId("entity-grid-type-materials").click(); await expect(elastic).toHaveText("50"); await expect(page.getByTestId("workspace-undo")).toBeDisabled();
+  if (await page.getByTestId("material-grid-review-disclosure").getAttribute("aria-expanded") === "true") await page.getByTestId("material-grid-review-disclosure").click();
   await direct.getByTestId(`table-cell-${firstId}-label`).dblclick(); const newEditor = direct.getByRole("textbox"); await newEditor.press("R"); await newEditor.press("S");
   await page.evaluate(() => { const gate = (window as any).__b4MaterialConversionGate; gate.hold = false; gate.pending.splice(0).forEach((resolve: () => void) => resolve()); });
   await expect(newEditor).toHaveValue("RS"); await expect(newEditor).toBeFocused(); await direct.getByRole("button", { name: "Cancel", exact: true }).click();
@@ -466,6 +467,19 @@ test("B4 Materials stable editor owns character starts, virtual scrolling, filte
     return { dx: e.x - a.x, dy: e.y - a.y, dw: e.width - a.width, dh: e.height - a.height };
   });
   await expect.poll(aligned).toEqual({ dx: 0, dy: 0, dw: 0, dh: 0 });
+  await openWorkspaceSection(page, "libraries");
+  await page.setViewportSize({ ...originalViewport, height: originalViewport.height + 120 });
+  await page.getByTestId("workspace-dock-close").click();
+  const pageReturn = await table.evaluate((root) => {
+    const input = root.querySelector<HTMLInputElement>("input")!; const anchor = root.querySelector("[data-editor-anchor]")!;
+    return { inputVisibility: getComputedStyle(input).visibility, value: input.value, owner: document.activeElement?.outerHTML.slice(0, 300),
+      input: input.getBoundingClientRect().toJSON(), anchor: anchor.getBoundingClientRect().toJSON(), ancestorInert: Boolean(root.closest("[inert]")) };
+  });
+  await info.attach("material-page-inert-return", { body: JSON.stringify(pageReturn, null, 2), contentType: "application/json" });
+  await expect(editor).toBeVisible(); await expect(editor).toHaveValue("xy");
+  await expect.poll(aligned).toEqual({ dx: 0, dy: 0, dw: 0, dh: 0 });
+  expect(await editor.evaluate((node, original) => node === original, retained)).toBe(true);
+  await expect(editor).not.toBeFocused(); await expect(page.getByTestId("workspace-undo")).toBeDisabled();
   const rows = page.getByTestId("material-engineering-table-rows"); await hoverTableBody(page, rows); await page.mouse.wheel(0, 2200);
   await expect.poll(() => rows.evaluate((element) => element.scrollTop)).toBeGreaterThan(1000);
   expect(await retained!.evaluate((input) => input.isConnected)).toBe(true);
