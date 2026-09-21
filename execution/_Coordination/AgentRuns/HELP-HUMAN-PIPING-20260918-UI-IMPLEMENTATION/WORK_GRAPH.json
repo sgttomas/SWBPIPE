@@ -2690,14 +2690,14 @@
       "model": "gpt-6-astra",
       "reasoning": "high",
       "mechanism": "ROOT actual retained manager followup",
-      "state": "actual fresh implementation TASK launched after live main/wt3 verification; concrete architecture received, focused source/units underway",
+      "state": "source/evidence handed back clean76de106; all focused checks and16browser cases pass; independent source review active, native pending",
       "basis": "fd002217f067020d44deaee22866e14eed81173f",
       "branch": "codex/swbpipe-b4-sections-20260921",
       "checkout": "existingwt3 after clean verification; old Materials branch preserved",
       "scope": "common Sections/opt-in typed enum and bounded tests only",
       "activation": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_4_SECTIONS_ACTIVATION.md",
       "activationSha256": "e6d44615d671bdcff02fb4b2693d5eb6b36ebef1367d1211ca2c760533a7c64f",
-      "resources": "Peer acknowledged exclusive bounded Rust tests, then browser 5174. Four one-worker Rust filters granted; browser execution awaits source/check plan. No native/heavy app build/full sweep.",
+      "resources": "Exact16 browser executions granted under peer reservation/canonical lock5174/pinnedChromium/oneworker. Four bounded Rust checks completed. Native/build/full sweep remain ungranted.",
       "dependsOn": [
         "B4-3-INTEGRATION",
         "B4-4-SECTIONS-PREPARATION"
@@ -2724,10 +2724,29 @@
       "focusedResourceGrantSha256": "6d4175771bd3a8d40899f096ff46f3f59597c767ca04f75e47cb016ee2a70d4b",
       "rootFinding": {
         "path": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_4_ROOT_PORTAL_STYLE_FINDING.md",
-        "state": "routed to manager before browser execution; portal CSS uses shell-only and nonexistent tokens",
+        "state": "Actual single desktop fail-before at2c398 reproduced transparent popup/selected backgrounds and absent border in both themes. Worker preparing minimal root-token CSS repair; broader browser plan remains pending.",
         "source": "54176d28c5a5a25f4fe61ff8debc66d9d7b0f332",
         "limits": "source diagnosis, not an executed browser failure or independent review"
-      }
+      },
+      "usageInterruption": "Both manager and implementation TASK stopped on usage. Owner restored some usage and requested continuation. ROOT inspected actual3687 plus preserved test-only dirty work, verified no running test/native processes, and resumed the retained manager/worker. Peer reaffirmed the same bounded resource reservation.",
+      "source": "40e8333d900c9b9c43b427533deca41e3a34543d",
+      "browser": {
+        "source": "40e8333d900c9b9c43b427533deca41e3a34543d",
+        "state": "16 passed, zero skipped/flaky/unexpected, 42.330389s; source and owned port released",
+        "report": "instances/B4-4-CODEX/_run_records/worker/22-main-browser/report.json",
+        "sha256": "d2786af7b8435e1c6b95b7946ebebcb72a79b9a92cf4207c721194c1aab3be20",
+        "limits": "focused source browser evidence, not native or full-sweep coverage"
+      },
+      "nativePlan": {
+        "path": "instances/B4-4-CODEX/_run_records/MANAGER_NATIVE_PLAN.md",
+        "sha256": "0bd9b8e14135a308e3fcad387be8793cb4c334c903887358600cf4fdba0887b8",
+        "state": "peer acknowledged conditional native/build/CUA reservation; execution awaits independent review and ROOT grant"
+      },
+      "evidenceHead": "76de10606d2fdd4f8e1090883ab5d049567e975f",
+      "handoff": "instances/B4-4-CODEX/_run_records/MANAGER_HANDOFF.md",
+      "handoffSha256": "4e8875a3202c5b86b07206a26291153383ac67359545243909221c171273176c",
+      "manifestSha256": "67829408d489e89b7043836ae2604dc08533b5ea20503c88372c5dfc3450121f",
+      "rootVerification": "All111manifest payload hashes verified from committed blobs; maintained product identical40e833. Historical mutable DIAGNOSIS hash mismatch disclosed; raw failures retained."
     },
     "B4-4-CI-COVERAGE": {
       "role": "ROOT maintained CI mapping",
@@ -2744,14 +2763,28 @@
       "parent": "ROOT",
       "branch": "codex/swbpipe-b4-sections-integration-20260921",
       "checkout": "wt2",
-      "head": "216c27af5c0fa25bae4d8670137a5ac5a65a714b",
+      "head": "71398e3941cfebe4ee1caa4c8006381fbb387d60",
       "state": "early clean source/CI fan-in for verification; browser correction/evidence, independent source review, native and final gates outstanding",
-      "source": "54176d28c5a5a25f4fe61ff8debc66d9d7b0f332",
+      "source": "40e8333d900c9b9c43b427533deca41e3a34543d",
       "dependsOn": [
         "B4-4-CODEX-MANAGER",
         "B4-4-CI-COVERAGE"
       ],
       "deliverableMapping": "provisional, inherited B4 trace; no DAG/deliverable reconciliation"
+    },
+    "B4-4-SOURCE-REVIEW": {
+      "role": "independent TASK Type2",
+      "parent": "ROOT",
+      "actualAgent": "/root/b4_4_source_review",
+      "model": "gpt-6-astra",
+      "reasoning": "xhigh",
+      "mechanism": "actual collaboration.spawn_agent fork_turns none",
+      "state": "active read-only maintained14-path source and supporting evidence review",
+      "basis": "fd002217f067020d44deaee22866e14eed81173f",
+      "candidate": "17472d8ab9dd1abf152105effa13fb2a7ff9e0f6",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_4_SOURCE_REVIEW_LAUNCH.md",
+      "briefSha256": "0bae7405394b484e799038d622fc65aa1966c6b9be36dbe202bc4cabbb199faa",
+      "limits": "No tests/build/UI/writes; browser/native/final combined gates pending; same-model independent review, no diversity claim"
     }
   },
   "edges": [
@@ -3056,7 +3089,7 @@
       "B4-4-CODEX-MANAGER"
     ]
   ],
-  "current_frontier": "PR833 merged and four main dependency caches created. B4.4 Sections/common typed enum is under active Astra/low implementation; early focused tests pass while final source checks remain in progress. Peer reserved bounded Rust and browser resources; four Rust filters granted, browser execution awaits source checkpoint/plan. Independent review, affected native verification and one coherent final validation follow. C4/live CLI decisions and qualification/reconciliation holds remain.",
+  "current_frontier": "B4.4 source/evidence frozen and integrated for review: focused checks and all16browser cases pass. Independent fresh Astra/xhigh source review active; peer reserved affected native/build/CUA conditionally, execution awaits review. One final combined clean sweep and actual-head CI follow. C4/liveCLI and qualification/reconciliation holds remain.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
