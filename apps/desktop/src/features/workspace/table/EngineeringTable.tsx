@@ -1,4 +1,5 @@
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useEnumEditor } from "./useEnumEditor";
 import { VirtualList } from "../VirtualList";
 import type { EntityKey } from "../selectionState";
 import {
@@ -243,22 +244,31 @@ export function EngineeringTable(props: Props) {
     }
   }
   const column = edit ? columns.find((candidate) => candidate.key === edit.captured.columnKey) : undefined;
-  const editor = edit && column ? <input ref={input} id={editorId} data-kind={column.kind} autoFocus aria-label={`${edit.captured.row.label} ${column.label}${column.kind === "text" ? "" : ` [${edit.captured.unit}]`}`} aria-invalid={Boolean(edit.error)} aria-describedby={edit.error ? errorId : undefined} value={edit.text} readOnly={edit.pending} onFocus={(event) => {
+  function changeText(text: string) {
+              const current = editRef.current;
+              if (current && !current.pending && current.captured.token === edit?.captured.token) {
+                setEdit({ ...current, text: text, error: undefined });
+                if (props.policy === "review") {
+                  const live = latest.current.rows.find((row) => row.key === current.captured.rowKey)?.cells[current.captured.columnKey];
+                  if (live && !live.readonly && live.unit === current.captured.unit && latest.current.generation === current.captured.generation) props.onDraftChange(current.captured, text);
+                  else setEdit({ ...current, error: "The editor basis changed. Cancel to return to retained drafts; Queue uses the current model value and unit." });
+                }
+              }
+
+  }
+  const enumeration = useEnumEditor({ input, options: column?.options, token: edit?.captured.token,
+    source: JSON.stringify([generation, edit && rows.find((row) => row.key === edit.captured.rowKey)?.cells[edit.captured.columnKey]?.enumSource]),
+    active: surfaceActive, initialTyped: edit?.initialSelection === "end", text: edit?.text ?? "", pending: Boolean(edit?.pending), onChange: changeText });
+  const editor = edit && column ? <input {...enumeration.attributes} ref={input} id={editorId} data-kind={column.kind} autoFocus aria-label={`${edit.captured.row.label} ${column.label}${column.kind === "text" ? "" : ` [${edit.captured.unit}]`}`} aria-invalid={Boolean(edit.error)} aria-describedby={edit.error ? errorId : undefined} value={edit.text} readOnly={edit.pending} onClick={() => enumeration.show()} onFocus={(event) => {
+              enumeration.show();
               if (initializedInputToken.current === edit.captured.token) return;
               initializedInputToken.current = edit.captured.token;
               if (edit.initialSelection === "all") event.currentTarget.select();
               else event.currentTarget.setSelectionRange(event.currentTarget.value.length, event.currentTarget.value.length);
             }} onChange={(event) => {
-              const current = editRef.current;
-              if (current && !current.pending && current.captured.token === edit.captured.token) {
-                setEdit({ ...current, text: event.target.value, error: undefined });
-                if (props.policy === "review") {
-                  const live = latest.current.rows.find((row) => row.key === current.captured.rowKey)?.cells[current.captured.columnKey];
-                  if (live && !live.readonly && live.unit === current.captured.unit && latest.current.generation === current.captured.generation) props.onDraftChange(current.captured, event.target.value);
-                  else setEdit({ ...current, error: "The editor basis changed. Cancel to return to retained drafts; Queue uses the current model value and unit." });
-                }
-              }
-            }} onKeyDown={(event) => cellKey(event, edit.captured, true)} onBlur={(event) => {
+              changeText(event.target.value); enumeration.typed();
+            }} onKeyDown={(event) => { enumeration.keyDown(event); cellKey(event, edit.captured, true); }} onBlur={(event) => {
+              enumeration.close();
               const destination = event.relatedTarget as HTMLElement | null;
               // Footer controls explicitly own Apply/Cancel. Cell clicks own their next target.
               if (destination && root.current?.contains(destination) && destination.closest("[data-table-action], [data-table-cell]")) return;
@@ -310,6 +320,7 @@ export function EngineeringTable(props: Props) {
     {props.persistentEditor && edit ? <div className="engineering-table-editor-layer" style={editorPosition.clip}>
       <div className="engineering-table-editor-position" style={editorPosition.box}>{editor}</div>
     </div> : null}
+    {enumeration.popup}
     {/* Keep the editor focused until a footer click; no action occurs on pointer-down. */}
     <div className="engineering-table-footer" ref={footer} role="group" aria-label={`${label} footer`} tabIndex={-1}>
       {edit ? <><span>Editing {columns.find((column) => column.key === edit.captured.columnKey)?.label} · {edit.captured.row.label}</span><button type="button" data-table-action="apply" onPointerDown={(event) => event.preventDefault()} disabled={edit.pending || busy} onClick={() => void apply(undefined, true)} title={review ? "Keep draft (Enter)" : "Apply (Enter)"}>{review ? "Keep draft" : "Apply"}</button><button type="button" data-table-action="cancel" onPointerDown={(event) => event.preventDefault()} disabled={edit.pending} onClick={cancel} title="Cancel (Escape)">Cancel</button></> : <span>{matchingRows.length} of {rows.length} rows</span>}

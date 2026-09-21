@@ -506,6 +506,43 @@ mod tests {
         assert_no_nested_engine_claims(outcome);
     }
     #[test]
+    fn section_geometry_batch_validates_each_intermediate_state_and_never_publishes_failure() {
+        let mut model = model();
+        model["sections"] = json!([{"id":"section:coupled","name":"Invented coupled section","section_type":"pipe",
+            "properties":{"outside_diameter":{"value":100,"unit":"mm"},"wall_thickness":{"value":40,"unit":"mm"}},"provenance":"invented"}]);
+        let original = model.clone();
+        let section_edit = |id: &str, path: &str, before: &str, value: i32| {
+            let mut edit = intent(id, "set_field", path, json!({"value":value,"unit":"mm"}), "mm", "length");
+            edit["operation_kind"] = json!("modify");
+            edit["target"] = json!({"object_type":"Section","ref":"section:coupled"});
+            edit["change"]["before"] = json!(before);
+            edit
+        };
+        let od = section_edit("od", "properties.outside_diameter.value", "100", 60);
+        let wall = section_edit("wall", "properties.wall_thickness.value", "40", 20);
+        let wrong_order = json!({"batch_id":"batch:od-first","operations":[od.clone(),wall.clone()]});
+        let failed = apply_operation_batch(&model, &wrong_order, Some(&hash_evidence(&model)));
+        assert_unpublished(&failed);
+        assert_eq!(failed["simulation_disposition"], "rolled_back_no_model_published");
+        assert_eq!(failed["operation_outcomes"].as_array().unwrap().len(), 1);
+        assert_eq!(failed["operation_outcomes"][0]["operation_id"], "op:od");
+        assert_eq!(failed["operation_outcomes"][0]["simulation_status"], "blocked");
+        assert!(failed["operation_outcomes"][0]["diagnostics"].as_array().unwrap().iter()
+            .any(|diagnostic| diagnostic["code"] == "OP-SECTION-GEOMETRY-INVALID"));
+        assert_eq!(model, original);
+        let right_order = json!({"batch_id":"batch:wall-first","operations":[wall,od]});
+        let applied = apply_operation_batch(&model, &right_order, Some(&hash_evidence(&model)));
+        assert_eq!(applied["validation"]["application_status"], "applied_to_session_model", "{applied:#}");
+        assert_eq!(applied["simulation_disposition"], "committed_as_one_batch");
+        assert_eq!(applied["operation_outcomes"].as_array().unwrap().len(), 2);
+        assert!(applied["applied_model_backend_hash"].is_string());
+        assert_eq!(applied["applied_model"]["sections"][0]["properties"]["outside_diameter"]["value"], 60);
+        assert_eq!(applied["applied_model"]["sections"][0]["properties"]["wall_thickness"]["value"], 20);
+        assert_no_nested_engine_claims(&applied);
+        assert_eq!(model, original);
+    }
+
+    #[test]
     fn dependent_create_case_and_load_apply_atomically_and_deterministically() {
         let model = model();
         let original = model.clone();

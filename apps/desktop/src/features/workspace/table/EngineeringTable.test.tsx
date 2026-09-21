@@ -351,3 +351,61 @@ it("does not advertise cached projected sort keys from a removed pinned editor r
   expect(screen.getByRole("status")).toHaveTextContent("sort unavailable"); expect(screen.getByRole("button", { name: "Sort X" }).parentElement).toHaveAttribute("aria-sort", "none");
   expect(screen.getByRole("textbox")).toHaveValue("0");
 });
+
+describe("opt-in typed enum on the common input", () => {
+  const enumColumns = [{ key: "type", label: "Type", kind: "text" as const, unit: "", options: ["pipe"], validate: (value: string) => value.trim() === "pipe" ? undefined : "Choose or enter pipe." }];
+  const enumRows = (source = "unsupported"): TableRow[] => [{ key: entityKey({ type: "section", id: "s" }), label: "s", cells: { type: { value: source, enumSource: source, unit: "" } } }];
+  const base = { label: "Sections", rows: enumRows(), columns: enumColumns, generation: "p:1", density: "comfortable" as const, filter: "", selectedKey: enumRows()[0].key, onSelect: vi.fn() };
+  function begin() { fireEvent.doubleClick(screen.getByTestId("table-cell-s-type")); const input = screen.getByRole("combobox"); fireEvent.click(input); return input; }
+  it.each(["Enter", "Tab"])("completes a nonempty prefix on %s exactly once", async (key) => {
+    const apply = vi.fn(async (_captured: CapturedCell, _text: string) => ({ applied: true, messages: [] })); render(<EngineeringTable {...base} onApply={apply} />);
+    const input = begin(); fireEvent.change(input, { target: { value: "pi" } }); fireEvent.keyDown(input, { key });
+    await waitFor(() => expect(apply).toHaveBeenCalledTimes(1)); expect(apply.mock.calls[0]).toEqual([expect.objectContaining({ before: "unsupported" }), "pipe"]);
+  });
+  it("preserves unsupported source through navigation and first Escape, then cancels on second Escape", () => {
+    const apply = vi.fn(); render(<EngineeringTable {...base} onApply={apply} />); const input = begin();
+    fireEvent.keyDown(input, { key: "ArrowDown" }); expect(input).toHaveValue("unsupported");
+    fireEvent.keyDown(input, { key: "Escape" }); expect(screen.queryByRole("listbox")).toBeNull(); expect(input).toHaveValue("unsupported");
+    fireEvent.keyDown(input, { key: "Escape" }); expect(screen.queryByRole("combobox")).toBeNull(); expect(apply).not.toHaveBeenCalled();
+  });
+  it("does not silently complete a prefix-shaped unsupported source on Enter", () => {
+    const apply = vi.fn(); render(<EngineeringTable {...base} rows={enumRows("p")} onApply={apply} />); const input = begin();
+    fireEvent.keyDown(input, { key: "Enter" }); expect(input).toHaveValue("p"); expect(apply).not.toHaveBeenCalled();
+    expect(screen.getByRole("alert")).toHaveTextContent("Choose or enter pipe");
+  });
+  it("pointer choice only changes buffer; pointer cancellation/drag-away never chooses", async () => {
+    const apply = vi.fn(async (_captured: CapturedCell, _text: string) => ({ applied: true, messages: [] })); render(<EngineeringTable {...base} onApply={apply} />); const input = begin();
+    let option = screen.getByRole("option", { name: "pipe" }); fireEvent.pointerDown(option); expect(input).toHaveValue("unsupported");
+    fireEvent.pointerCancel(option); fireEvent.click(option, { detail: 1 }); expect(input).toHaveValue("unsupported");
+    fireEvent.pointerDown(option); fireEvent.pointerLeave(option); fireEvent.click(option, { detail: 1 }); expect(input).toHaveValue("unsupported");
+    fireEvent.pointerDown(option); fireEvent.click(option, { detail: 1 }); expect(input).toHaveValue("pipe"); expect(input).toHaveFocus(); expect(apply).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Apply" })); await waitFor(() => expect(apply).toHaveBeenCalledTimes(1));
+  });
+  it("does not complete empty input or a prefix on blur; direct invalid text stays while raw review text is kept", async () => {
+    const apply = vi.fn(); const view = render(<EngineeringTable {...base} onApply={apply} />); let input = begin();
+    fireEvent.change(input, { target: { value: "" } }); fireEvent.keyDown(input, { key: "Enter" }); expect(input).toHaveValue(""); expect(screen.getByRole("alert")).toHaveTextContent("Choose or enter pipe");
+    fireEvent.change(input, { target: { value: "pi" } }); fireEvent.blur(input); expect(input).toHaveValue("pi"); expect(apply).not.toHaveBeenCalled(); view.unmount();
+    const keep = vi.fn(() => ({ retained: true, messages: ["Draft retained; model unchanged."] }));
+    render(<EngineeringTable {...base} policy="review" resetEditsKey={0} onDraftChange={vi.fn()} onKeepDraft={keep} />);
+    fireEvent.doubleClick(screen.getByTestId("review-cell-s-type")); input = screen.getByRole("combobox"); fireEvent.change(input, { target: { value: "TBD" } }); fireEvent.click(screen.getByRole("button", { name: "Keep draft" }));
+    expect(keep).toHaveBeenCalledWith(expect.anything(), "TBD");
+  });
+  it("closes the body popup on hidden/inert/detached ancestry and external focus without stealing focus", async () => {
+    const apply = vi.fn(); const view = render(<div data-testid="enum-owner"><button>External enum control</button><EngineeringTable {...base} onApply={apply} /></div>);
+    const input = begin(); const owner = screen.getByTestId("enum-owner");
+    act(() => { owner.hidden = true; }); await waitFor(() => expect(screen.queryByRole("listbox")).toBeNull()); expect(input).toHaveValue("unsupported");
+    act(() => { owner.hidden = false; }); fireEvent.click(input); expect(screen.getByRole("listbox")).toBeInTheDocument();
+    act(() => { owner.setAttribute("inert", ""); }); await waitFor(() => expect(screen.queryByRole("listbox")).toBeNull());
+    act(() => { owner.removeAttribute("inert"); }); fireEvent.click(input);
+    const parent = owner.parentElement!; act(() => owner.remove()); await waitFor(() => expect(screen.queryByRole("listbox")).toBeNull()); act(() => parent.appendChild(owner));
+    act(() => input.focus()); fireEvent.click(input); const external = screen.getByRole("button", { name: "External enum control" }); act(() => external.focus());
+    expect(screen.queryByRole("listbox")).toBeNull(); expect(external).toHaveFocus(); expect(input).toHaveValue("unsupported"); expect(apply).not.toHaveBeenCalled(); view.unmount();
+  });
+  it("closes options on source/catalog/active change without replacing input or changing draft", () => {
+    const apply = vi.fn(); const view = render(<EngineeringTable {...base} onApply={apply} />); const input = begin();
+    fireEvent.change(input, { target: { value: "pi" } }); view.rerender(<EngineeringTable {...base} rows={enumRows("changed")} onApply={apply} />);
+    expect(screen.queryByRole("listbox")).toBeNull(); expect(screen.getByRole("combobox")).toBe(input); expect(input).toHaveValue("pi");
+    fireEvent.click(input); view.rerender(<EngineeringTable {...base} rows={enumRows("changed")} columns={[{ ...enumColumns[0], options: [] }]} onApply={apply} />); expect(screen.queryByRole("listbox")).toBeNull();
+    view.rerender(<EngineeringTable {...base} onApply={apply} />); fireEvent.click(input); view.rerender(<EngineeringTable {...base} active={false} onApply={apply} />); expect(screen.queryByRole("listbox")).toBeNull(); expect(apply).not.toHaveBeenCalled();
+  });
+});

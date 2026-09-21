@@ -15823,14 +15823,21 @@ describe("existing toolkit v2", () => {
     expect(reviewControl("operation-apply-summary")).toHaveTextContent("0 applied");
   });
   it("limits section type choices to pipe", async () => {
+    const geometry = vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 1000, 400));
+    try {
     const model = await loadPreviewModel();
     model.sections = [{ id: "section:invented", name: "Invented", section_type: "pipe", properties: {}, provenance: { source: "invented" } }];
     render(<ModelTree model={model} selection={{ type: "section", id: "section:invented" }} onSelect={vi.fn()} onQueueIntent={vi.fn()} />);
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
-    openNodeGridReview();
-    const table = screen.getByTestId("entity-grid-table-sections");
-    expect(within(table).queryByTestId("entity-grid-input-section:invented-provenance")).not.toBeInTheDocument();
-    for (const input of within(table).getAllByRole("combobox")) expect(within(input).getAllByRole("option").filter((option) => !(option as HTMLOptionElement).disabled).map((option) => option.getAttribute("value"))).toEqual(["pipe"]);
+    fireEvent.click(screen.getByTestId("entity-grid-type-sections"));
+    fireEvent.click(screen.getByTestId("section-grid-review-disclosure"));
+    const table = screen.getByTestId("section-engineering-table-review");
+    expect(within(table).getByTestId("review-cell-section:invented-provenance").parentElement).toHaveAttribute("aria-readonly", "true");
+    fireEvent.doubleClick(within(table).getByTestId("review-cell-section:invented-type"));
+    const input = within(table).getByRole("combobox");
+    fireEvent.click(input);
+    expect(screen.getAllByRole("option").map((option) => option.textContent)).toEqual(["pipe"]);
+    } finally { geometry.mockRestore(); }
   });
   it("continues from the accepted end in new mode and can explicitly switch to another existing endpoint", async () => {
     const model = await loadPreviewModel(); const unchanged = JSON.stringify(model); const queue = vi.fn();
