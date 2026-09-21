@@ -77,6 +77,7 @@ describe("Sections through common table", () => {
     expect(screen.getByTestId("table-cell-s-a-wall").parentElement).toHaveAttribute("aria-readonly", "true");
     fireEvent.click(screen.getByTestId("section-grid-review-disclosure")); fireEvent.change(editor("s-a", "wall", true), { target: { value: "12" } }); fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
     expect(p.onQueueIntent.mock.calls[0][0].change).toMatchObject({ before: "10", unit: "", after: JSON.stringify({ value: 12, unit: "" }) });
+    expect(p.onQueueIntent.mock.calls[0][0].validation.unit_validation).toBe("not_run");
   });
   it("keeps unchanged wall editing eligible while another OD conversion refreshes", async () => {
     const convert = displayQuantityService.convertDisplayQuantities; let hold = false; const pending: Array<() => void> = [];

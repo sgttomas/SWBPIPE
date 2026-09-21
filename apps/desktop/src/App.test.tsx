@@ -15824,6 +15824,8 @@ describe("existing toolkit v2", () => {
   });
   it("limits section type choices to pipe", async () => {
     const geometry = vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 1000, 400));
+    const width = vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(1000);
+    const height = vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(400);
     try {
     const model = await loadPreviewModel();
     model.sections = [{ id: "section:invented", name: "Invented", section_type: "pipe", properties: {}, provenance: { source: "invented" } }];
@@ -15837,7 +15839,7 @@ describe("existing toolkit v2", () => {
     const input = within(table).getByRole("combobox");
     fireEvent.click(input);
     expect(screen.getAllByRole("option").map((option) => option.textContent)).toEqual(["pipe"]);
-    } finally { geometry.mockRestore(); }
+    } finally { geometry.mockRestore(); width.mockRestore(); height.mockRestore(); }
   });
   it("continues from the accepted end in new mode and can explicitly switch to another existing endpoint", async () => {
     const model = await loadPreviewModel(); const unchanged = JSON.stringify(model); const queue = vi.fn();

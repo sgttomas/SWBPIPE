@@ -1,0 +1,6 @@
+{
+  "base": "76de10606d2fdd4f8e1090883ab5d049567e975f",
+  "test_sha256": "f4fbc772a13e3dad67826c8cf92c9497bf35e5b1806d30e603f4f43e0593df6d",
+  "title": "B4 diagnostic clipped Section enum dismisses its detached options after real body scroll",
+  "status": "test-only frozen, awaiting manager checkpoint; production untouched"
+}

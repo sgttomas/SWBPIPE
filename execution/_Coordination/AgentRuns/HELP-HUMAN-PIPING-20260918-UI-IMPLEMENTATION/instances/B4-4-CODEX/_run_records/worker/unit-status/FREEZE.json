@@ -1,0 +1,12 @@
+{
+  "state": "frozen; source handback",
+  "base": "1cef35b6456649cd7e89de2a377e22d4c1205e24",
+  "sources": {
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx": "d44d00f1946679e50b7deedd292870ed18aaa74405931183df463c6400250a14",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/SectionTable.test.tsx": "896b184b5021fc0ff821e2c5a837b77a006a93465a8206bf1fdbe44f5446724c",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/modelTableAdapter.ts": "663f0edf7945edb39e9d2c9cc60c85a75b30f05266c8a8d875135c162394622b",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/useEnumEditor.tsx": "9e409953160722b30dd7c5388723b5406255e722714627f7a5f1a4119e88af4d",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/useEnumEditor.test.tsx": "2becb4acc467d4216a7f3b7e7b99dbee323fbb3b0c7bb335539667857e05ecb0"
+  },
+  "checks": "affected73/4pass; App1pass217skipped; TypeScriptpass; no source writes during checks"
+}

@@ -30,6 +30,17 @@ export function useEnumEditor({ input, options, token, source, active, text, pen
       const style = getComputedStyle(node);
       if (style.display === "none" || style.visibility === "hidden" || style.visibility === "collapse") return true;
     }
+    // The persistent input remains mounted outside the scrolled rows. Its raw
+    // rect survives layer clipping, so the body portal must share that viewport.
+    const host = input.current.closest(".engineering-table");
+    const body = host?.querySelector(".engineering-table-body-slot");
+    const grid = host?.querySelector('[role="grid"]');
+    if (input.current.closest(".engineering-table-editor-layer") && body && grid) {
+      const rect = input.current.getBoundingClientRect(), b = body.getBoundingClientRect(), g = grid.getBoundingClientRect();
+      const right = g.left + grid.clientWidth, bottom = g.top + grid.clientHeight;
+      if (Math.min(rect.right, b.right, right) <= Math.max(rect.left, b.left, g.left) ||
+          Math.min(rect.bottom, b.bottom, bottom) <= Math.max(rect.top, b.top, g.top)) return true;
+    }
     return false;
   }
   function close() { setOpening(null); setSelected(null); pressed.current = null; }
