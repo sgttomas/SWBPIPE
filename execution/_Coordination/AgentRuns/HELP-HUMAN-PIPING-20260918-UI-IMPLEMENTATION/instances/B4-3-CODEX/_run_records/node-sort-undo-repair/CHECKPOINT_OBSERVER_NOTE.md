@@ -1,0 +1,7 @@
+# Final checkpoint and observer comparison
+
+Parent committed the three frozen maintained paths as `15186ef0973c0ba7f654743ed0f19913b0361c57`; TASK performed no Git mutation. Source/test bytes remain held for ROOT backcheck. Committed logs and SOURCE_FREEZE_2 remain unchanged.
+
+The decisive crossing/Undo scenario has no focus/fill rescue after the actual crossing key. Before repair, its observer identified the owning row via the inline input ancestor. After repair, it identifies that same exact Node row by its ID inside the Node-review table because the input is intentionally outside the row. Both observations record the owning row removed1/added1. The current observation separately records input-host removed0/added0 while preserving every key/value/order/same-input/focus/caret/canonical-hash/history oracle. Historical fail-before remains `../node-sort-undo/BROWSER_DIAGNOSIS_2.json` and diagnosis checkpoint3ba8; corrected raw proof is `BROWSER_1.json`.
+
+The separate retained-host test deliberately focuses the existing Cancel footer control without activating it, which is an existing non-committing blur boundary. This is a stress setup to keep a local review editor alive before hiding its family; it is not a claim that an ordinary direct family click always retains the active editor, and it is not a rescue in the decisive Undo test. Subsequent Materials pointer edit/Cancel, family return, virtual/filter boundary and page-inert resize/Close checks prove hidden-layer non-interference and ownership for that retained state.

@@ -1,0 +1,8 @@
+{
+  "recordedAt": "2026-09-21T09:03:25.691384+00:00",
+  "head": "3ba8b70f9cf3b89ac77a77a4a967f372df27865d",
+  "freezeMismatches": [],
+  "sharedLockExists": false,
+  "source5174Listener": "",
+  "maintainedDiff": " .../apps/desktop/e2e/b4-table-editing.spec.ts      | 48 ++++++++++++++++--\n .../desktop/src/features/model-tree/ModelTree.tsx  |  2 +-\n .../features/toolkit/DisplayIntegration.test.tsx   | 58 ++++++++++++++++------\n 3 files changed, 86 insertions(+), 22 deletions(-)\n"
+}

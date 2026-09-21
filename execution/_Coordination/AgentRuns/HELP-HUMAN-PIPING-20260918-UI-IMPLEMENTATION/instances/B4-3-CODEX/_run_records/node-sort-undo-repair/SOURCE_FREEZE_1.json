@@ -1,0 +1,9 @@
+{
+  "base": "3ba8b70f9cf3b89ac77a77a4a967f372df27865d",
+  "productionChange": "one persistentEditor opt-in on Node review consumer only",
+  "paths": {
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx": "62f578a3c7ec2d5d729eae45c4880c2c584c18ef91b72783277f78354103c514",
+    "projects/chirality-piping/apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx": "357c36ee11448be80ab97b334beeee0d0a2f90e8db6e61e344df738aa7653868",
+    "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts": "ee15a0d7eb5b87926ba3a8179c73de6b6f9d0ce5fdea06622e21ace9f55a0e29"
+  }
+}

@@ -1,0 +1,282 @@
+[
+  {
+    "project": "chromium-desktop",
+    "scenario": "B4 diagnostic Node sorted review preserves text Undo after an active row crosses downward",
+    "result": "passed",
+    "observation": {
+      "firstId": "node:UIF-PRECISION-00000",
+      "secondId": "node:UIF-PRECISION-00001",
+      "before": {
+        "value": "1",
+        "sameInput": true,
+        "focused": true,
+        "caret": [
+          1,
+          1
+        ],
+        "rowOrder": [
+          "node:UIF-PRECISION-00000",
+          "node:UIF-PRECISION-00001",
+          "node:UIF-PRECISION-00002",
+          "node:UIF-PRECISION-00003",
+          "node:UIF-PRECISION-00004",
+          "node:UIF-PRECISION-00005",
+          "node:UIF-PRECISION-00006",
+          "node:UIF-PRECISION-00007",
+          "node:UIF-PRECISION-00008",
+          "node:UIF-PRECISION-00009",
+          "node:UIF-PRECISION-00010",
+          "node:UIF-PRECISION-00011",
+          "node:UIF-PRECISION-00012",
+          "node:UIF-PRECISION-00013",
+          "node:UIF-PRECISION-00014",
+          "node:UIF-PRECISION-00015",
+          "node:UIF-PRECISION-00016",
+          "node:UIF-PRECISION-00017",
+          "node:UIF-PRECISION-00018",
+          "node:UIF-PRECISION-00019",
+          "node:UIF-PRECISION-00020"
+        ],
+        "inputY": 350.984375
+      },
+      "afterCrossing": {
+        "value": "19",
+        "sameInput": true,
+        "focused": true,
+        "caret": [
+          2,
+          2
+        ],
+        "rowOrder": [
+          "node:UIF-PRECISION-00001",
+          "node:UIF-PRECISION-00000",
+          "node:UIF-PRECISION-00002",
+          "node:UIF-PRECISION-00003",
+          "node:UIF-PRECISION-00004",
+          "node:UIF-PRECISION-00005",
+          "node:UIF-PRECISION-00006",
+          "node:UIF-PRECISION-00007",
+          "node:UIF-PRECISION-00008",
+          "node:UIF-PRECISION-00009",
+          "node:UIF-PRECISION-00010",
+          "node:UIF-PRECISION-00011",
+          "node:UIF-PRECISION-00012",
+          "node:UIF-PRECISION-00013",
+          "node:UIF-PRECISION-00014",
+          "node:UIF-PRECISION-00015",
+          "node:UIF-PRECISION-00016",
+          "node:UIF-PRECISION-00017",
+          "node:UIF-PRECISION-00018",
+          "node:UIF-PRECISION-00019",
+          "node:UIF-PRECISION-00020"
+        ],
+        "inputY": 386.984375
+      },
+      "afterUndo": {
+        "value": "1",
+        "sameInput": true,
+        "focused": true,
+        "caret": [
+          1,
+          1
+        ],
+        "rowOrder": [
+          "node:UIF-PRECISION-00000",
+          "node:UIF-PRECISION-00001",
+          "node:UIF-PRECISION-00002",
+          "node:UIF-PRECISION-00003",
+          "node:UIF-PRECISION-00004",
+          "node:UIF-PRECISION-00005",
+          "node:UIF-PRECISION-00006",
+          "node:UIF-PRECISION-00007",
+          "node:UIF-PRECISION-00008",
+          "node:UIF-PRECISION-00009",
+          "node:UIF-PRECISION-00010",
+          "node:UIF-PRECISION-00011",
+          "node:UIF-PRECISION-00012",
+          "node:UIF-PRECISION-00013",
+          "node:UIF-PRECISION-00014",
+          "node:UIF-PRECISION-00015",
+          "node:UIF-PRECISION-00016",
+          "node:UIF-PRECISION-00017",
+          "node:UIF-PRECISION-00018",
+          "node:UIF-PRECISION-00019",
+          "node:UIF-PRECISION-00020"
+        ],
+        "inputY": 350.984375
+      },
+      "hostMoves": {
+        "removed": 1,
+        "added": 1,
+        "inputHostRemoved": 0,
+        "inputHostAdded": 0
+      },
+      "canonicalX": "2",
+      "canonicalAfterClear": "2",
+      "hashBefore": "sha256:0abe13b6b72512ef8944aa6711b5cdaf76287c10af4eccea205257c621d5bd0f",
+      "hashAfterStaging": "sha256:0abe13b6b72512ef8944aa6711b5cdaf76287c10af4eccea205257c621d5bd0f",
+      "history": {
+        "undoDisabled": true,
+        "redoDisabled": true,
+        "editedMarkers": 0
+      }
+    }
+  },
+  {
+    "project": "chromium-desktop",
+    "scenario": "B4 Node review retained editor stays contained through hidden families and page resize",
+    "result": "passed",
+    "observation": {
+      "headerFooterHits": [
+        true,
+        true
+      ],
+      "pageReturnAlignment": {
+        "dx": 0,
+        "dy": 0,
+        "dw": 0,
+        "dh": 0
+      }
+    }
+  },
+  {
+    "project": "chromium-compact",
+    "scenario": "B4 diagnostic Node sorted review preserves text Undo after an active row crosses downward",
+    "result": "passed",
+    "observation": {
+      "firstId": "node:UIF-PRECISION-00000",
+      "secondId": "node:UIF-PRECISION-00001",
+      "before": {
+        "value": "1",
+        "sameInput": true,
+        "focused": true,
+        "caret": [
+          1,
+          1
+        ],
+        "rowOrder": [
+          "node:UIF-PRECISION-00000",
+          "node:UIF-PRECISION-00001",
+          "node:UIF-PRECISION-00002",
+          "node:UIF-PRECISION-00003",
+          "node:UIF-PRECISION-00004",
+          "node:UIF-PRECISION-00005",
+          "node:UIF-PRECISION-00006",
+          "node:UIF-PRECISION-00007",
+          "node:UIF-PRECISION-00008",
+          "node:UIF-PRECISION-00009",
+          "node:UIF-PRECISION-00010",
+          "node:UIF-PRECISION-00011",
+          "node:UIF-PRECISION-00012",
+          "node:UIF-PRECISION-00013",
+          "node:UIF-PRECISION-00014",
+          "node:UIF-PRECISION-00015",
+          "node:UIF-PRECISION-00016",
+          "node:UIF-PRECISION-00017",
+          "node:UIF-PRECISION-00018",
+          "node:UIF-PRECISION-00019",
+          "node:UIF-PRECISION-00020"
+        ],
+        "inputY": 350.984375
+      },
+      "afterCrossing": {
+        "value": "19",
+        "sameInput": true,
+        "focused": true,
+        "caret": [
+          2,
+          2
+        ],
+        "rowOrder": [
+          "node:UIF-PRECISION-00001",
+          "node:UIF-PRECISION-00000",
+          "node:UIF-PRECISION-00002",
+          "node:UIF-PRECISION-00003",
+          "node:UIF-PRECISION-00004",
+          "node:UIF-PRECISION-00005",
+          "node:UIF-PRECISION-00006",
+          "node:UIF-PRECISION-00007",
+          "node:UIF-PRECISION-00008",
+          "node:UIF-PRECISION-00009",
+          "node:UIF-PRECISION-00010",
+          "node:UIF-PRECISION-00011",
+          "node:UIF-PRECISION-00012",
+          "node:UIF-PRECISION-00013",
+          "node:UIF-PRECISION-00014",
+          "node:UIF-PRECISION-00015",
+          "node:UIF-PRECISION-00016",
+          "node:UIF-PRECISION-00017",
+          "node:UIF-PRECISION-00018",
+          "node:UIF-PRECISION-00019",
+          "node:UIF-PRECISION-00020"
+        ],
+        "inputY": 386.984375
+      },
+      "afterUndo": {
+        "value": "1",
+        "sameInput": true,
+        "focused": true,
+        "caret": [
+          1,
+          1
+        ],
+        "rowOrder": [
+          "node:UIF-PRECISION-00000",
+          "node:UIF-PRECISION-00001",
+          "node:UIF-PRECISION-00002",
+          "node:UIF-PRECISION-00003",
+          "node:UIF-PRECISION-00004",
+          "node:UIF-PRECISION-00005",
+          "node:UIF-PRECISION-00006",
+          "node:UIF-PRECISION-00007",
+          "node:UIF-PRECISION-00008",
+          "node:UIF-PRECISION-00009",
+          "node:UIF-PRECISION-00010",
+          "node:UIF-PRECISION-00011",
+          "node:UIF-PRECISION-00012",
+          "node:UIF-PRECISION-00013",
+          "node:UIF-PRECISION-00014",
+          "node:UIF-PRECISION-00015",
+          "node:UIF-PRECISION-00016",
+          "node:UIF-PRECISION-00017",
+          "node:UIF-PRECISION-00018",
+          "node:UIF-PRECISION-00019",
+          "node:UIF-PRECISION-00020"
+        ],
+        "inputY": 350.984375
+      },
+      "hostMoves": {
+        "removed": 1,
+        "added": 1,
+        "inputHostRemoved": 0,
+        "inputHostAdded": 0
+      },
+      "canonicalX": "2",
+      "canonicalAfterClear": "2",
+      "hashBefore": "sha256:0abe13b6b72512ef8944aa6711b5cdaf76287c10af4eccea205257c621d5bd0f",
+      "hashAfterStaging": "sha256:0abe13b6b72512ef8944aa6711b5cdaf76287c10af4eccea205257c621d5bd0f",
+      "history": {
+        "undoDisabled": true,
+        "redoDisabled": true,
+        "editedMarkers": 0
+      }
+    }
+  },
+  {
+    "project": "chromium-compact",
+    "scenario": "B4 Node review retained editor stays contained through hidden families and page resize",
+    "result": "passed",
+    "observation": {
+      "headerFooterHits": [
+        true,
+        true
+      ],
+      "pageReturnAlignment": {
+        "dx": 0,
+        "dy": 0,
+        "dw": 0,
+        "dh": 0
+      }
+    }
+  }
+]

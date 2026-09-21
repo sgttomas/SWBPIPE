@@ -1,0 +1,12 @@
+{
+  "sourceCommit": "15186ef0973c0ba7f654743ed0f19913b0361c57",
+  "returnSha256": "7021b155b323b29a4093d1c387e5843d7ffed87896aeaee36cd8db82d508f87c",
+  "manifestSha256": "1f8ee1f3cfa4c21e5b2aac3cba446793ee67bc3864d9207e34b37b89baeb61d1",
+  "verifiedPayloads": 26,
+  "payloadBytes": 443705,
+  "sourceStatus": "all3hashes unchanged; production only Node-review opt-in",
+  "testDifference": "observer binds same exact typed moving row and stationary input host; original failing test bytes retained separately, not claimed identical",
+  "jsdom": "exact scoped review geometry/unique owning-cell assertions, no production condition",
+  "remaining": "independent backcheck and separately granted affected native witness; no fullsweep/CI yet",
+  "resources": "worker released source5174/sharedlock; no nativeactivity"
+}
