@@ -1,0 +1,12 @@
+# Validation DEL-03-03 (W2-PKG-03-MANAGER)
+# cmd: PYTHONDONTWRITEBYTECODE=1 python3 projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/tools/validate_ledger_v2.py --run-dir projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS --repo-root . --deliverable DEL-03-03 --forward projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W2/PKG-03/DEL-03-03/DEL-03-03_forward.csv --reverse projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W2/PKG-03/DEL-03-03/DEL-03-03_reverse.csv --inventory projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/ROUTING/PKG-03_capabilities.csv --notes-gap
+PASS DEL-03-03: 64 forward rows, 53 required keys, 7 canonical, 0 findings
+# validator_exit=0
+# seal_line: SEALED DEL-03-03 111117aad47cb5ea3b091c5da7efa5f1708b410ee21447d84f92966f1443a30b 2026-09-21T22:53:16Z
+# forward_sha256_recomputed=111117aad47cb5ea3b091c5da7efa5f1708b410ee21447d84f92966f1443a30b
+# seal_sha256=111117aad47cb5ea3b091c5da7efa5f1708b410ee21447d84f92966f1443a30b
+# worker_reported_forward=111117aad47cb5ea3b091c5da7efa5f1708b410ee21447d84f92966f1443a30b
+# seal_match=YES
+# reverse_sha256=f86932d2243268e882b21c2bbebc5e271f479819000279178ee3cf449d8fa57f
+# forward_sentinel: #END,,,,,,,,,,,,,,,,,,,,,,,,,,,,,64,
+# reverse_sentinel: #END,,,376

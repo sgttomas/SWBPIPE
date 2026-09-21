@@ -1,0 +1,18 @@
+DONE DEL-03-04 forward=c1e226960816cc40f8d04d2d17353f5c209943dab8983538461f28d7735034b1 reverse=3d0ef8d893869edfd6ab1fe9ade588f20467eb435fc72b6a48bd572916c72ad7 notes=519b2ba59ea84c89e51ea93ed5e38233dfd8ac7cddbe71ed2119ae0ca3b2182f validator=PASS
+DONE DEL-03-05 forward=b231806ae8390d1d39c32bf19705149b387bba9088d01439fb83bb0ee44bc7fa reverse=f1d201198d0bea72c2081e06070e13d12d0a96d959c2a29ddaf810985a18568d notes=bd3e7c42909e63b935241eec9921f5c741766309e260542253eefdb1281a3961 validator=PASS
+DONE DEL-03-06 forward=409adc6dfdb1594fc8c4ebfed2d0f2e3efb60917466181a39070377b008b0ceb reverse=ce4dc036622522bc78a25440d39aa8b185e058c9e63497dd489008eef4357d90 notes=eef33996b40934ef59a954466a22344fdff717ae48f19777c9f7e0fe388ce1c3 validator=PASS
+BATCH PASS 0
+
+- **Disposition counts (214 forward rows):** ALIGNED 115; STALE_REVIEW_OR_EVIDENCE 41; STALE_SETUP_SPECIFICATION 11; NOT_ASSESSED 30; COVERED_BY_CHILDREN 8; PARTIALLY_IMPLEMENTED 5; UNKNOWN 3; DOCUMENTED_UNIMPLEMENTED 1. Reverse, per deliverable across 376 capabilities: PARTIAL 3 each (component schema, component fixtures, component insertion). COVERS is 4 for DEL-03-04, 7 for DEL-03-05 and 4 for DEL-03-06. Everything else is NOT_MINE.
+- **Top cause tags:** DOC_BEHIND_CODE 18, BASIS_POINTER_STALE 16, REPRESENTATION_MIGRATED 7, PARTIAL_SLICE 5. The main finding: all three Scopes of Work describe only the schema, fixture and schema test. They were migrated on 2026-07-14, but the 2026-06-21/22 product work under DEC-045 had already landed (branch, rigid and expansion-joint work in product physics, the operation applier and the desktop app). For DEL-03-06, that work also settled the per-axis stiffness and solver-mapping items the SOW still lists as TBD.
+- **INVARIANT rows:**
+  - DEL-03-04 RQ-002 and DEL-03-05 CLM-013 are UNKNOWN · IP_DATA;RECORD · REVIEW. The protected-content review each one names was not found, which follows the W1 treatment of DEL-07-02 CLM-026.
+  - DEL-03-04 RQ-005 (units, VALIDATION) and RQ-006 (IP_DATA, REVIEW) are PARTIALLY_IMPLEMENTED.
+- **Owner hold / DEC-074 O7:** DEL-03-04 R01, the hold on the PDU-019 formal review, is ALIGNED with OPEN_ACTION pointing to RQ-006. It is flagged AdoptedByReference because the O7 text is unread (DEC-074 O7).
+- **Engineering authority needed:** DEL-03-05 R10 has no COG coordinate convention (DOCUMENTED_UNIMPLEMENTED · NOT_STARTED). DEL-03-05 CLM-004 bans invented weights/COGs, but DEC-045 has since allowed invented public examples: STALE_SETUP_SPECIFICATION · SCOPE_REDIRECTED_BY_RULING, with the IP/data boundary still holding (F8).
+- **Rename residue:** DEL-03-06 SOW SURFACE is CP-04 (CLM-025 still says "OpenPipeStress"). I kept the CP-04 class even though the text dates from 7bee9ae41. Separately, `schemas/component.schema.yaml` carries the former name in its `$id` and `title`; I recorded this in notes only, because no SOW names that identifier. There are no ISSUED rows and no authority-conflict rows.
+- **Custody:** my scratch files in the DEL-03-04 and DEL-03-05 folders disappeared at about 16:57 local time without my action, after both ledgers were sealed. I re-hashed both sealed files and they match their seals. I deleted all remaining `_scratch_*` files. The carry-forward notebook is at `RUN/WAVES/W2/PKG-03/_WORKER_DEL-03-04_NOTES.md`.
+
+Files are in `/Users/ryan/dev/chirality/.claude/worktrees/task-management-gen-pass-518da2/projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W2/PKG-03/`, one folder per deliverable (forward, SEAL, reverse, notes).
+
+Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
