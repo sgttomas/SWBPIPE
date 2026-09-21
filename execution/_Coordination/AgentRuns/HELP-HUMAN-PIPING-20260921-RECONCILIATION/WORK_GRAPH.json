@@ -4,7 +4,7 @@
  "undertaking": "Whole-corpus reconciliation of Piping deliverables against what transpired in the code (root workflow `reconciliation`).",
  "base": "00115c71931bcae79909602d653740d3bb72dfa1",
  "baseNote": "Piping tree object 38cbfc64be7e55126c90b82a266846815aa52efb, identical to the PR #834 merge 620ff6387b211c774c0de7dabec0a170acdf6017.",
- "selectionAuthority": "Owner directions 2026-09-21 (OWNER_DIRECTIONS.md); activation pending D-73.",
+ "selectionAuthority": "D-73 RULED 2026-09-21 (../../_DECISIONS/D-73_RULING_2026-09-21.md; DEC-110): R0-R4 only; takes effect for dispatch once merged to main.",
  "parent": "owner",
  "rootModel": "claude-opus-5, high reasoning (owner direction 1)",
  "modelPolicy": {
@@ -43,7 +43,7 @@
   },
   "ACT": {
    "title": "D-73 activation packet, profile, ruling, review, merge",
-   "status": "packet drafted; awaiting owner ruling",
+   "status": "ruled 2026-09-21; ruling, register flip and DEC-110 recorded; awaiting independent review, checks and merge",
    "dependsOn": [],
    "write": [
     "execution/_Coordination/_DECISIONS/D-73_*",
@@ -101,7 +101,7 @@
   },
   "R5-R6": {
    "title": "Repair tranches and closing backcheck",
-   "status": "not authorized unless D-73 option O-B or a later ruling",
+   "status": "not authorized: D-73 Item 4 O-A; needs a separate owner authorization after R4",
    "dependsOn": [
     "R4"
    ]
@@ -117,10 +117,8 @@
    "ACT-REVIEW"
   ]
  ],
- "current_frontier": "D-73 packet and profile drafted; owner ruling requested. Nothing dispatched.",
- "openWithOwner": [
-  "D-73 ruling, including Item 4 (R0-R4 or R0-R6)"
- ],
+ "current_frontier": "D-73 ruled. Launch the one fresh read-only activation reviewer, then checks, PR, CI and merge. No reconciliation dispatch before merge.",
+ "openWithOwner": [],
  "holdsPreserved": [
   "Piping development pause (owner, 2026-09-21)",
   "PDU-045/PDU-046 usability holds",
@@ -134,5 +132,6 @@
    "all other sessions' worktrees, including the dirty swbpipe-b3b busy probe"
   ]
  },
- "claimFence": "Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081)."
+ "claimFence": "Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).",
+ "surfaceBoundary": "D-73 packet Item 5a-5d"
 }

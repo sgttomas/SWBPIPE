@@ -111,8 +111,15 @@ of act a divergence needs:
 | Root `tools/practitioner_harness/`, `tools/validation/`, root `docs/` governance | Registered checks and governance context | Read-only |
 | Root `.github/workflows/piping-*.yml` and `.github/actions/setup-piping-e2e/` | Hosted check definitions | Read-only |
 | `_DomainEngines/**` | Tier-0 engine surfaces | Read-only; owned by their own loops (F-PIP-4) |
-| Merged pull requests and their descriptions | What was done and why | Read-only references |
-| AgentRuns records, approved plans, owner-direction records | Recorded direction and rationale | Read-only references; see §7 |
+| Merged pull requests, their descriptions and hosted CI run records | What was done, why, and what was checked | Read-only references, read through the GitHub CLI |
+| App-dev packages Piping consumes under D-30 | Consumed runtime and harness contracts | Read-only |
+| AgentRuns records, approved plans, design specifications and frames, owner-direction records | Recorded direction and rationale | Read-only references; see §7 |
+
+Writes outside the repository are limited to a detached scratch checkout in
+the session's scratch directory and the shared user caches (`~/.cargo`,
+`~/.npm`, Playwright browsers) that a fresh install may populate. The
+activation ruling of each run states that run's complete write and
+read-only boundary.
 
 Registered checks are those in `software-workflow.json`. A run executes them
 once for its gate transcript in the scratch checkout, with caches and outputs

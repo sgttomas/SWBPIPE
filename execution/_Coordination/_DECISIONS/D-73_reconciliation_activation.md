@@ -106,9 +106,13 @@ Under either option, structural outcomes (retire, merge, split or create
 deliverables) are handed to scope-change, and implementation defects become
 candidate briefs for separate authorization. Neither is an R5 edit.
 
-### Item 5 — New surfaces
+### Item 5 — Surfaces
 
-Authorize, as ruled program surfaces:
+*(Amended before ruling, at the owner's request, from a list of new surfaces
+only to the complete write and read-only boundary below.)*
+
+**5a. New surfaces**, authorized as ruled program surfaces. They select no
+work and are not status surfaces:
 
 - the project profile `docs/RECONCILIATION_PROFILE.md` (kernel §5's recurring
   process asset for this project);
@@ -120,7 +124,36 @@ Authorize, as ruled program surfaces:
   (run basis, gate transcript, inventories, ledgers, verifications,
   summaries, findings, decision packets), created at R0.
 
-These select no work and are not status surfaces.
+**5b. Existing surfaces the run writes**, each only as stated:
+
+| Surface | Writes |
+|---|---|
+| `execution/_Coordination/_DECISIONS/_REGISTER.md` and `D-73_*` | This ruling; the R4 closure note; a new D-row only when an R4 act needs one |
+| `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 | `DEC-110` for this ruling; codification of the owner's R4 rulings |
+| `loop/LOOP_RECEIPTS.md` | Short versioned receipts at meaningful pauses and at close, as `loop/LOOP_INIT.md` requires |
+| `execution/_Coordination/NOTICE_*.md` | Only when another loop is affected |
+| GitHub pull requests from this run's branches | Activation, R0 and R3/R4 pull requests under the standing Git authorization |
+
+**5c. Writes outside the repository:**
+
+- a detached scratch checkout of the frozen source state in the session's
+  scratch directory, for the gate transcript, builds and tests;
+- shared user caches (`~/.cargo`, `~/.npm`, Playwright browsers) that a fresh
+  install may populate, with network access for package fetches.
+
+**5d. Named read-only surfaces** (no permission may be inferred):
+
+- every deliverable folder, including `_STATUS.md` and `## Remaining`, until
+  a separate R5 authorization;
+- `docs/CHECKING_ENTRY_PROFILES.md` (R3 may propose maturity feedback; any
+  write waits for a later ruling);
+- the Task Management register (R3 may propose dispositions of its rows);
+- the in-tree `validation/evidence/sweeps/` (the fresh sweep writes outside
+  the tree);
+- `execution/_DAG/**`, `execution/_ScopeChange/**`, `docs/_ScopeChange/**`,
+  and all code, tests, schemas and fixtures;
+- other branches and worktrees, in particular
+  `codex/swbpipe-continuation-20260919`.
 
 ### Item 6 — Execution parameters on record
 
@@ -182,4 +215,12 @@ DEC-081).
 
 ## 6. Human ruling and disposition
 
-*(Awaiting ruling.)*
+**RULED 2026-09-21** — owner (Ryan Tufts), in-session decision slate and a
+follow-up. Items 1–3 "Rule as written (Recommended)"; Item 4 "O-A: R0–R4
+(Recommended)"; Item 6 accepted ("The roles and caps, fresh gate at R0, and
+only Agent 0 commits, are all acceptable."); Item 5 amended at the owner's
+request and then accepted ("I accept your recommendation for Item 5").
+Ruling record with verbatim acts and hashes:
+[D-73_RULING_2026-09-21.md](D-73_RULING_2026-09-21.md); codification
+`DEC-110` in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12. This section
+transcribes the owner's act without broadening it.
