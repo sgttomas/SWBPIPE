@@ -42,9 +42,24 @@ double sampling.
 3. batch mode shows no unresolved shared-situation conflict;
 4. every deliverable validates.
 
+**Verifier reruns.** When a verifier returns `RERUN <DEL list>`, Agent 0
+relaunches that package's manager (fresh, same brief) with only the named
+deliverables as its assignments; the manager's workers take the rerun clause
+(old files moved to `superseded_<n>/`, never patched). Agent 0 then launches
+a fresh verifier over only those deliverables, at the same sampling. One
+rerun cycle per deliverable counts towards the gate: the gate is judged on
+the re-verified result. A deliverable still named for rerun after that cycle
+goes to the owner with the verifier's findings; it does not block the rest of
+the package.
+
 When the gate passes, Agent 0 shows the owner the canonical situation table
 with the wave 1 results (R0 ruling item 1) and scales out. When it fails, the
 failure and a proposed remedy go to the owner.
+
+**Owner items at the wave 1 checkpoint.** Presented with the canonical table:
+(1) the 13-deliverable first wave against the ruled 12 (disclosure above),
+for confirmation under the `CONVENTIONS.md` precedence clause; (2) any
+verifier rerun that went to the owner; (3) contested rows.
 
 ## Later waves (after the gate)
 

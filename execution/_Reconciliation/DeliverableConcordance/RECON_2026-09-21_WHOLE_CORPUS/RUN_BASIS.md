@@ -190,3 +190,15 @@ taxonomy per DEC-081).
   `VERIFICATION_INDEX.csv` (cosmetic) is left as is.
 - 2026-09-21 — R2 wave plan and briefs written (`WAVE_PLAN.md`; R2 manager,
   worker and verifier briefs in the orchestration record).
+- 2026-09-21 — R0 PR backcheck 5 findings repaired. B4-3 (residual): worker
+  routing files drop the Area and Kind columns and carry routing-local IDs
+  `RC-<nn>-<NNNN>` in the `CapabilityID` column, because inventory IDs encode
+  the area. `ROUTING_SAMPLE/SAMPLE_MANIFEST.csv` maps them back to inventory
+  IDs, areas and AREA/SAMPLE; R3 resolves reverse answers through it. Workers
+  may never read the manifest, the router, the path hints, the merged
+  inventory or `R1_INVENTORY/`. This is a representation choice for the Part D
+  reverse file, not a rule change. B5-1: verifier-rerun procedure added to
+  `WAVE_PLAN.md`. B5-2: worker rerun clause authorises moving old files into
+  `superseded_<n>/`. B5-3: R0 pilots read their calibration reverse file and
+  reverse repairs only after sealing. B5-4: the 13-deliverable wave is listed
+  for owner confirmation at the wave 1 checkpoint.

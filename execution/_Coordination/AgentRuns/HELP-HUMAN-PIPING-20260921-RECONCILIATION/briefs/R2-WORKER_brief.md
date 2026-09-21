@@ -36,6 +36,10 @@ gate. Accuracy matters more than speed.
 
   You may also write `RUN/WAVES/{WAVE}/{PKG}/_WORKER_<first DEL>_NOTES.md`,
   a carry-forward notebook for your own consistency.
+- **Rerun only:** when your launch message says you are rerunning a defective
+  deliverable, first move that deliverable's existing files unchanged into
+  `RUN/WAVES/{WAVE}/{PKG}/<DEL>/superseded_<n>/` (next unused `n`). Move
+  only; never edit, delete or reuse them.
 - Read code, tests and documents **only from `{FREEZE}`**. Never write there.
 - No builds, installs, test runs or git writes. The only network access
   allowed is read-only `gh pr view` / `gh pr list` / `gh api` for merged pull
@@ -47,9 +51,10 @@ gate. Accuracy matters more than speed.
     `CLAIM_CONCORDANCE.csv`, `IMPLEMENTATION_SURFACES.csv`,
     `UNMAPPED_IMPLEMENTATION.csv`, `CONFLICTS_AND_UNKNOWNS.csv`, `PROPOSED_*`,
     `WAVES/**`, `PACKAGE_SUMMARIES/**`);
-  - `RUN/IMPLEMENTATION_SURFACES.csv`, `RUN/R1_INVENTORY/**` and your routing
-    file (below), **until all your forward ledgers are sealed**;
-  - `RUN/ROUTING_SAMPLE/**` and any other package's routing file, ever.
+  - your routing file (below), **until all your forward ledgers are sealed**;
+  - ever: `RUN/IMPLEMENTATION_SURFACES.csv`, `RUN/R1_INVENTORY/**`,
+    `RUN/ROUTING_SAMPLE/**`, `RUN/ROUTING_PATH_HINTS.json`,
+    `RUN/tools/route_capabilities.py`, and any other package's routing file.
 - Fences:
   - Never present unreviewed equation artifacts from the external
     piping-design corpus as evidence (DEC-043).
@@ -77,9 +82,12 @@ Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
    `RUN/VALIDATION_AND_PROVENANCE_INDEX.csv`, as finding aids.
 
 **Named calibration repairs.** Where one of your deliverables was an R0
-pilot, read its R0 ledger and notes under `RUN/R0_CALIBRATION/<DEL>/`, and the
-named repairs for it in `RUN/R0_CALIBRATION/R0_REVIEW.md` §4. Encode afresh
-under the bound conventions, carrying those repairs. Do not copy rows.
+pilot, read under `RUN/R0_CALIBRATION/<DEL>/` its forward ledger and notes,
+and the forward-ledger repairs named for it in
+`RUN/R0_CALIBRATION/R0_REVIEW.md` §4. Encode afresh under the bound
+conventions, carrying those repairs. Do not copy rows. Read its R0 reverse
+file and any reverse repairs **only after all your forward ledgers are
+sealed** (B1).
 
 ## Method
 
@@ -112,8 +120,8 @@ correct. The verifier and a fresh worker handle corrections.
    `RUN/ROUTING/{PKG}_capabilities.csv`.
 2. For **each** of your deliverables, write `<DEL>_reverse.csv`. It holds one
    row per capability in the routing file, using the B2 answers, and ends
-   with the `#END` sentinel. The file includes capabilities from outside your
-   package's usual areas; judge every row on its evidence alone.
+   with the `#END` sentinel. Use the routing file's `CapabilityID` values
+   as given. Judge every row on its evidence alone.
 3. Validate each with `--forward <file> --reverse <file> --inventory RUN/ROUTING/{PKG}_capabilities.csv`.
 
 **Notes, per deliverable.** Write `<DEL>_notes.md`. It covers:

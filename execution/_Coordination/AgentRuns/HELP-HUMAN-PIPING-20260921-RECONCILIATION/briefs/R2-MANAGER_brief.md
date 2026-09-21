@@ -30,7 +30,8 @@ In this brief, `RUN` means
 - No git writes; only Agent 0 commits.
 - No builds or test runs.
 - Never edit a worker's ledger.
-- Do not read `RUN/ROUTING_SAMPLE/**`; it is for verifiers only.
+- Do not read `RUN/ROUTING_SAMPLE/**`; it is for verifiers only. Never tell
+  a worker anything about how its routing file was composed.
 - Never exceed `{WORKER_BUDGET}` live children. Agent 0 counts your budget
   against the run's cap of 16.
 - Launch only TASK (Type 2) children, and only with the worker brief below.
@@ -76,9 +77,10 @@ Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
    - its files or sentinel are missing.
 
    Rerun a defective deliverable **once** through a fresh worker. Give that
-   worker a new launch message that names the defect and says to write fresh
-   files: move the old files into `superseded_<n>/` inside the same folder,
-   and never patch them. If the rerun is also defective, stop and report that
+   worker a new launch message that names the defect, says it is a rerun, and
+   says to write fresh files after moving the old ones into `superseded_<n>/`
+   inside the same folder (the worker brief's rerun clause); they are never
+   patched. If the rerun is also defective, stop and report that
    deliverable to Agent 0.
 
    Batch-consistency flags are not defects. Record them.

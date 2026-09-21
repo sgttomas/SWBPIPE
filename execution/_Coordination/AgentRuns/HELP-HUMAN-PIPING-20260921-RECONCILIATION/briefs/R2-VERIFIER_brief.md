@@ -51,9 +51,10 @@ doubles the rates marked *.
 - Conformance to `CanonicalSituation` and same-body rows is checked
   mechanically on 100%, using `validate_ledger_v2.py --batch`.
 - The reverse answers are checked on 100% of `CLAIMED_BY`, `PARTIAL`,
-  `UNKEYED` and `CONSTRAINS` rows, plus 10% of `NOT_MINE`. Read
-  `RUN/ROUTING_SAMPLE/SAMPLE_MANIFEST.csv` for which of the package's rows
-  are the cross-area sample (workers do not see it). Check every sampled row
+  `UNKEYED` and `CONSTRAINS` rows, plus 10% of `NOT_MINE`. Worker routing
+  files use routing-local IDs (`RC-<nn>-<NNNN>`); resolve them to inventory
+  IDs, areas and routing (`AREA` or `SAMPLE`) through
+  `RUN/ROUTING_SAMPLE/SAMPLE_MANIFEST.csv`, which workers do not see. Check every sampled row
   whose evidence names a path the package's deliverables declare, and report
   the sampled rows' answer distribution against the area rows'.
 - Select samples deterministically: sort candidate keys by SHA-256 of the key

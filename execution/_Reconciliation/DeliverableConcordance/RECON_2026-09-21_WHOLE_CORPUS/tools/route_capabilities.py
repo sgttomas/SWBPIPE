@@ -15,11 +15,13 @@ deterministic: a capability is sampled when int(sha256(package|capability ID))
 is divisible by 10.
 
 Writes ROUTING/<PKG>_capabilities.csv, each with the inventory header and an
-`#END` sentinel. Worker files do not say which rows are sampled (R0_REVIEW.md
-§6 uses the sample to catch anchored NOT_MINE answers), and their rows are
-ordered by sha256(package|capability ID) so the sample is not recognisable by
-position. The AREA/SAMPLE mapping goes to ROUTING_SAMPLE/SAMPLE_MANIFEST.csv,
-which only verifiers read.
+`#END` sentinel. Worker files must not reveal which rows are sampled
+(R0_REVIEW.md §6 uses the sample to catch anchored NOT_MINE answers), so they
+carry no Area, Kind or Routing column, rows are ordered by
+sha256(package|capability ID), and the CapabilityID column holds a
+routing-local ID `RC-<nn>-<NNNN>` (the inventory ID encodes the area). The
+mapping from routing-local ID to inventory ID, area and AREA/SAMPLE goes to
+ROUTING_SAMPLE/SAMPLE_MANIFEST.csv, which only verifiers and Agent 0 read.
 
 Usage
   route_capabilities.py --run-dir <run> --path-hints ROUTING_PATH_HINTS.json
@@ -55,7 +57,7 @@ AFFINITY = {
     "PKG-16": ["COREB", "WSUI", "VIEW", "FEATC", "DATA", "DOCS"],
     "PKG-17": ["COREC", "FEATC", "FEATB", "DATA", "DOCS"],
 }
-HEADER = ["CapabilityID", "Area", "Kind", "Capability", "EntryPoints", "Tests", "Notes"]
+HEADER = ["CapabilityID", "Capability", "EntryPoints", "Tests", "Notes"]
 
 
 def main(argv):
@@ -86,16 +88,17 @@ def main(argv):
         with open(f"{a.run_dir}/ROUTING/{pkg}_capabilities.csv", "w", newline="", encoding="utf-8") as fh:
             w = csv.writer(fh, lineterminator="\r\n")
             w.writerow(HEADER)
-            for r, _ in chosen:
-                w.writerow([r[h] for h in HEADER])
+            for i, (r, why) in enumerate(chosen, 1):
+                rid = f"RC-{pkg[4:]}-{i:04d}"
+                w.writerow([rid] + [r[h] for h in HEADER[1:]])
+                manifest.append([pkg, rid, r["CapabilityID"], r["Area"], why])
             w.writerow(["#END"] + [""] * (len(HEADER) - 2) + [str(len(chosen))])
-        manifest += [[pkg, r["CapabilityID"], why] for r, why in chosen]
         summary.append((pkg, sorted(areas), len(chosen), sum(1 for _, w in chosen if w == "SAMPLE")))
     with open(f"{a.run_dir}/ROUTING_SAMPLE/SAMPLE_MANIFEST.csv", "w", newline="", encoding="utf-8") as fh:
         w = csv.writer(fh, lineterminator="\r\n")
-        w.writerow(["PackageID", "CapabilityID", "Routing"])
+        w.writerow(["PackageID", "RoutedID", "CapabilityID", "Area", "Routing"])
         w.writerows(manifest)
-        w.writerow(["#END", "", str(len(manifest))])
+        w.writerow(["#END", "", "", "", str(len(manifest))])
     for pkg, areas, n, s in summary:
         print(f"{pkg}: {n} capabilities ({s} sampled) from {','.join(areas)}")
     thin = [ar for ar in {r['Area'] for r in caps} if served[ar] < 2]
