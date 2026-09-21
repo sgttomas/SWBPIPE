@@ -1,0 +1,28 @@
+{
+  "head": "216c27af5c0fa25bae4d8670137a5ac5a65a714b",
+  "cleanBefore": true,
+  "utc": "2026-09-21T11:40:21.339345+00:00",
+  "command": [
+    "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-p",
+    "test_ci_e2e_plan.py",
+    "-v"
+  ],
+  "cwd": "projects/chirality-piping",
+  "elapsedSeconds": 4.09091125,
+  "exit": 0,
+  "inputs": {
+    "projects/chirality-piping/tools/ci/e2e_plan.py": "06156809f7fccab2b476a09d2d36e4544aac091476a2124b7d501ea302234fdd",
+    "projects/chirality-piping/tests/test_ci_e2e_plan.py": "3ea84f4f9038bad25da3993756e2331b1e18997ec60ff96c5ce22f7053cb6a6b",
+    "projects/chirality-piping/docs/CI_STRATEGY.md": "83239ad0a7cd1694c71c15b5aa2f83691dddf626546b8c93b35fa21bbf1f5672",
+    "projects/chirality-piping/apps/desktop/e2e/b4-sections.spec.ts": "632e5ba3e9763a34f1062295a97a0201546207eddf0e1e335727a6db5e6bbf23"
+  },
+  "logSha256": "8fbafcc150f815bbb80a1c92d3343f4a7184dd7e57fdfb553a8ccd29aead6a3e",
+  "headAfter": "216c27af5c0fa25bae4d8670137a5ac5a65a714b",
+  "statusAfter": ""
+}

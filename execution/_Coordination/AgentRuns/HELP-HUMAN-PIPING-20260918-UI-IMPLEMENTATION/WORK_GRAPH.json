@@ -2718,10 +2718,40 @@
       "earlyArchitectureSha256": "35d91bf7de8254099a94544e579d30406efd89107e1b9ffe06bc83b244630439",
       "clarification": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_4_EDITOR_POLICY_CLARIFICATION.md",
       "clarificationSha256": "d6460cc8434742de6e1aa2cf33f5858a1b385ea3bbb814fff4f90bdab46262fe",
-      "interimCheck": "Manager reports 79 focused passes across four files; two TS failures retained during repair. Final source freeze/checks remain pending; no browser/native/build resource use.",
+      "interimCheck": "Manager reports 117 focused unit passes across six files, TypeScript PASS, one targeted App pass/217 filtered; four exact Rust filters each passed one test after a retained JSON number-literal failure. Source freeze54176; test-only Rust/browser setup corrections are being checkpointed, no browser execution yet.",
       "architectureUpdate": "Current helper uses a body portal tied to the stable input. ROOT permits this implementation choice with truthful disclosure and explicit hidden/inert/detached, external-focus, placement and passive-choice coverage; no scope expansion.",
       "focusedResourceGrant": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_4_FOCUSED_RESOURCE_GRANT.md",
-      "focusedResourceGrantSha256": "6d4175771bd3a8d40899f096ff46f3f59597c767ca04f75e47cb016ee2a70d4b"
+      "focusedResourceGrantSha256": "6d4175771bd3a8d40899f096ff46f3f59597c767ca04f75e47cb016ee2a70d4b",
+      "rootFinding": {
+        "path": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_4_ROOT_PORTAL_STYLE_FINDING.md",
+        "state": "routed to manager before browser execution; portal CSS uses shell-only and nonexistent tokens",
+        "source": "54176d28c5a5a25f4fe61ff8debc66d9d7b0f332",
+        "limits": "source diagnosis, not an executed browser failure or independent review"
+      }
+    },
+    "B4-4-CI-COVERAGE": {
+      "role": "ROOT maintained CI mapping",
+      "parent": "ROOT",
+      "state": "three-path mapping at52ff4fac0, 33 policy tests passed on clean early combined216c27af5; independent review pending",
+      "basis": "fd002217f067020d44deaee22866e14eed81173f",
+      "candidate": "216c27af5c0fa25bae4d8670137a5ac5a65a714b",
+      "scope": "authoring/layout selection includes b4-sections.spec.ts; no gate/selector-mode/oracle reduction",
+      "evidence": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_4_CI_POLICY/SUMMARY.json",
+      "evidenceSha256": "03ed00011ac479e95b0b27384c19e321096626c6038d577d4be0944cec3ef4a2"
+    },
+    "B4-4-INTEGRATION": {
+      "role": "ROOT integration",
+      "parent": "ROOT",
+      "branch": "codex/swbpipe-b4-sections-integration-20260921",
+      "checkout": "wt2",
+      "head": "216c27af5c0fa25bae4d8670137a5ac5a65a714b",
+      "state": "early clean source/CI fan-in for verification; browser correction/evidence, independent source review, native and final gates outstanding",
+      "source": "54176d28c5a5a25f4fe61ff8debc66d9d7b0f332",
+      "dependsOn": [
+        "B4-4-CODEX-MANAGER",
+        "B4-4-CI-COVERAGE"
+      ],
+      "deliverableMapping": "provisional, inherited B4 trace; no DAG/deliverable reconciliation"
     }
   },
   "edges": [
@@ -3329,7 +3359,12 @@
     "nativeProbe": "isolated226b probe retains two authorized source edits and two untracked dependency entries; preserved, never fan-in",
     "resources": "native/browser/full-sweep resources released; only next source/units planned after sealed activation; peer coordination retained",
     "recordStatus": "PR833 all9checks/merge and maincache success recorded; no remaining gate for this merged slice",
-    "observedAt": "2026-09-21T10:29:42.700950+00:00"
+    "observedAt": "2026-09-21T10:29:42.700950+00:00",
+    "integration": {
+      "branch": "codex/swbpipe-b4-sections-integration-20260921",
+      "head": "216c27af5c0fa25bae4d8670137a5ac5a65a714b",
+      "state": "early clean Sections source/CI verification candidate; old Materials integration6fa70 branch preserved"
+    }
   },
   "historicalPauses": [
     {
