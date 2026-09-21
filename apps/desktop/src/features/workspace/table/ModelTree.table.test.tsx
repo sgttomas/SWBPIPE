@@ -26,7 +26,7 @@ describe("node table and retained review transitions", () => {
     fireEvent.click(screen.getByTestId("entity-grid-type-pipes")); fireEvent.click(screen.getByTestId("entity-grid-type-nodes"));
     fireEvent.click(screen.getByTestId("layout-mode-tree")); fireEvent.click(screen.getByTestId("layout-mode-grid"));
     expect(summary).toHaveTextContent("1 retained draft"); expect(queue).not.toHaveBeenCalled();
-    fireEvent.click(summary); expect(reviewEditor(`${model.nodes[0].id}-x`)).toHaveValue("2.500");
+    fireEvent.click(summary); expect(reviewValue(`${model.nodes[0].id}-x`)).toBe("2.500");
     fireEvent.click(screen.getByTestId("queue-entity-grid-intents")); expect(queue).toHaveBeenCalledTimes(1);
     expect(queue.mock.calls[0][0].change.after).toBe('{"value":2.5,"unit":"m"}');
   });
@@ -140,7 +140,7 @@ describe("Node scalar direct and review semantics", () => {
     fireEvent.change(screen.getByTestId("model-tree-filter-input"), { target: { value: model.nodes[0].id } });
     fireEvent.click(screen.getByTestId("queue-entity-grid-intents")); expect(queue).toHaveBeenCalledTimes(1);
     fireEvent.change(screen.getByTestId("model-tree-filter-input"), { target: { value: "" } });
-    expect(reviewEditor(`${model.nodes[1].id}-provenance`)).toHaveValue("hidden");
+    expect(reviewValue(`${model.nodes[1].id}-provenance`)).toBe("hidden");
     fireEvent.change(screen.getByTestId("model-tree-filter-input"), { target: { value: model.nodes[0].id } });
     fireEvent.change(reviewEditor(`${model.nodes[0].id}-label`), { target: { value: "clear active" } });
     fireEvent.click(screen.getByTestId("clear-entity-grid-drafts"));
@@ -164,3 +164,22 @@ it("retires a source-unit-stale review editor without overwriting lifted text an
   fireEvent.click(screen.getByTestId("queue-entity-grid-intents")); expect(queue).toHaveBeenCalledTimes(1);
   expect(queue.mock.calls[0][0].change).toMatchObject({ before: "8", unit: "mm", after: '{"value":2.5,"unit":"mm"}' });
 });
+
+// Read only the requested cell's rendered value; assertions never enter or finish editing.
+function reviewValue(cell: string): string {
+  const table = screen.getByTestId("engineering-table-review");
+  const button = Array.from(table.querySelectorAll<HTMLButtonElement>("button[data-testid]"))
+    .find((candidate) => candidate.dataset.testid === `review-cell-${cell}`);
+  if (button) return button.textContent ?? "";
+  const split = cell.lastIndexOf("-"); const row = cell.slice(0, split); const column = cell.slice(split + 1);
+  const field = column.length === 1 ? column.toUpperCase() : column === "label" ? "Label" : column === "provenance" ? "Provenance" : undefined;
+  if (!field) throw new Error(`Unknown review column ${column}`);
+  const label = `${row} ${field}`;
+  const input = Array.from(table.querySelectorAll<HTMLInputElement>("input[aria-label]"))
+    .find((candidate) => {
+      const name = candidate.getAttribute("aria-label") ?? "";
+      return ["x", "y", "z"].includes(column) ? name.startsWith(`${label} [`) && name.endsWith("]") : name === label;
+    });
+  if (!input) throw new Error(`Missing requested review cell ${cell}`);
+  return input.value;
+}

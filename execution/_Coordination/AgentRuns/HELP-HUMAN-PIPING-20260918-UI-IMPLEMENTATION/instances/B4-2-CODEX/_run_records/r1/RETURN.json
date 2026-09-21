@@ -1,0 +1,24 @@
+{
+  "parent": "/root/b3_manager WORKING_ITEMS gpt-6-astra/high",
+  "task": "/root/b3_manager/b4_2_table TASK gpt-6-astra/low",
+  "mechanism": "resumed Codex harness-native TASK; no descendants",
+  "base": "deb50f5db6e3dc4b89e88aaca34449357647cab9",
+  "paths": {
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.test.tsx": "64b2d89f25f4912d63ab5a2d65d068a1c5321755f631001d57eb38969f74c48c",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/ModelTree.table.test.tsx": "e67ad561397a93cb6fad35f6d052dd065a9324d714da7121f27e59ddb4e52524"
+  },
+  "checks": [
+    {
+      "command": "npx vitest run src/features/model-tree/ModelTree.test.tsx src/features/workspace/table/ModelTree.table.test.tsx --maxWorkers=1",
+      "log": "unit.log",
+      "exit": 0,
+      "result": "26 passed, two full affected files"
+    },
+    {
+      "command": "npx tsc --noEmit -p tsconfig.json",
+      "log": "types.log",
+      "exit": 0
+    }
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop"
+}
