@@ -2571,15 +2571,15 @@
     "B4-3-INTEGRATION": {
       "role": "ROOT integration",
       "parent": "ROOT",
-      "state": "clean3bdf registered sweep and preflight PASS; combined review source/evidence clear including packaging backcheck, final binding/publication gates next",
+      "state": "complete combined independent review PASS through164314; full clean3bdf sweep/preflight PASS; publication metadata and actual-head hosted CI next",
       "branch": "codex/swbpipe-b4-materials-integration-20260921",
       "candidate": "3bdf6141aa5efd16c18b61d1cf49045f8ce4faf8",
       "desktopTree": "569bb433ce914ef5f96234bc1ddfbb4a82700924",
       "scope": "reviewed Materials and cache maintenance plus truthful run evidence; Node diagnosis before final freeze",
       "remaining": [
-        "cheap full-range preflight and one clean DEC-025 sweep",
-        "complete candidate source/evidence review including Node-native/ROOT packet",
-        "actual-head hosted CI/merge and main-cache observation"
+        "bounded publication-metadata backcheck and applicable actual-head gates",
+        "draftPR then all actual-head hosted checks before merge",
+        "main-cache creation and later consumer-hit observations"
       ],
       "dependsOn": [
         "B4-3-CODEX-MANAGER",
@@ -2607,7 +2607,11 @@
         "reasoning": "xhigh",
         "launch": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_COMBINED_REVIEW_LAUNCH.md",
         "launchSha256": "79127ed8ea780bb40dfcfa77593a27f82db0638d78cbe34114b82a7649d52e7b",
-        "state": "source/evidence review clear including Node-native/ROOT; final verdict awaits sweep binding"
+        "state": "PASS, all findings closed",
+        "reviewedThrough": "164314e78dec39de990b252d68908b6cd1224c47",
+        "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_COMBINED_REVIEW_RETURN.md",
+        "returnSha256": "17e848a782f0e85a4ebd5723640aed28c4582184086c4b2bf1189825065baf6e",
+        "scope": "complete473-path diff including evidence tails; source unchanged from3bdf/15186"
       },
       "sweep": {
         "candidate": "3bdf6141aa5efd16c18b61d1cf49045f8ce4faf8",
@@ -2954,7 +2958,7 @@
       "B4-4-SECTIONS-PREPARATION"
     ]
   ],
-  "current_frontier": "Clean3bdf sweep/preflight passed, component reviews and ZIP packaging backcheck closed. Bind final combined verdict and metadata tail, publish draftPR, wait all actual-head checks, merge, observe main cache. Sections preparation returned for next bounded activation after merge; C4/live CLI decisions and qualification holds remain.",
+  "current_frontier": "Publish the reviewed Materials/Node-review/CI batch after bounded metadata backcheck; actual-head hosted CI remains the merge gate. Full local sweep and complete combined review pass. Then Sections activation may be prepared under existing B4 authority; C4/live CLI decisions and qualification holds remain.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -3255,7 +3259,7 @@
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "isolated226b probe retains two authorized source edits and two untracked dependency entries; preserved, never fan-in",
     "resources": "full sweep ended PASS; source5174/dist5175/Tauri5173 listeners/shared lock absent, both owned native PIDs quit. Peer resource reservation released.",
-    "recordStatus": "full clean sweep all5surfaces PASS; final combined review binding and publication metadata/CI remain",
+    "recordStatus": "complete combined review PASS through164314, all local required checks PASS; publication metadata/hosted CI remain",
     "observedAt": "2026-09-21T10:29:42.700950+00:00"
   },
   "historicalPauses": [
