@@ -1,0 +1,11 @@
+{
+  "checked_at_utc": "2026-09-21T04:04:53Z",
+  "source_port": 5174,
+  "lsof_exit": 1,
+  "lsof_stdout": "",
+  "lsof_stderr": "",
+  "lock_path": "/Users/ryan/dev/chirality/.git/swbpipe-e2e.lock",
+  "lock_exists": false,
+  "owner": null,
+  "cleanup_actions": "none; read-only ownership check; no foreign process or lock touched"
+}
