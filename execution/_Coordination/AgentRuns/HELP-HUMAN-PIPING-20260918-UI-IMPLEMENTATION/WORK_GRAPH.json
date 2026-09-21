@@ -1907,7 +1907,7 @@
       "role": "ROOT integration",
       "parent": "ROOT",
       "branch": "codex/swbpipe-b4-controls-20260920",
-      "status": "full47ad sweep/source/native/combined review PASS;19path412 publication tail review and five record gates PASS; only review/check receipts appended before PR; actual-head CI/merge then pause",
+      "status": "PR829 draft at8f24; all local/native/source/combined/tail/final-boundary checks pass, actual-head hosted CI running. Merge if all applicable checks succeed, then owner pause.",
       "candidate": "47ad675c9dd013007c587ce6325003c990b2359c",
       "base": "fd195cf4287e84572a12183169478a6f7ddf6a92",
       "sourceCandidate": "ed8cc27fdb37b8df2f20eb5f877aacb61bfd7db1",
@@ -1934,7 +1934,10 @@
       "sweepSummarySha256": "9eceee2c9e500723e96a22db812cab62065fa866cf76aa8a0d90bc672eea2455",
       "publicationRecordBasis": "412bc565c110de96ce62597200e6102a484e292e",
       "publicationChecks": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_PUBLICATION_CHECKS_412/SUMMARY.json",
-      "publicationChecksSha256": "ccc1e9154b1a4c4ef866f30246e89d726d7a0dd32ebb0a35e07ac14646320c35"
+      "publicationChecksSha256": "ccc1e9154b1a4c4ef866f30246e89d726d7a0dd32ebb0a35e07ac14646320c35",
+      "pr": "https://github.com/sgttomas/chirality/pull/829",
+      "hostedHead": "8f24efd6ece5869a538ca20894d1ae78e59df618",
+      "hostedBase": "fd195cf4287e84572a12183169478a6f7ddf6a92"
     },
     "B5-PREPARATION-CODEX": {
       "role": "TASK Type2 read-only preparation",
@@ -2026,6 +2029,20 @@
       "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_PUBLICATION_TAIL_REVIEW_RETURN.md",
       "briefSha256": "36422a3cefe700700b62b9d7442de61692169a7dfbdd3e6943138412560e4f22",
       "returnSha256": "62b0ed89357a25cd22032dbfbf6aa228ff4746304fc00f5106b560d7ce71d5cf"
+    },
+    "B4-FINAL-BOUNDARY-REVIEW": {
+      "role": "TASK Type2 independent final receipt boundary check",
+      "parent": "ROOT",
+      "actualAgent": "/root/b3b_c3_ci_review",
+      "model": "gpt-6-astra",
+      "reasoning": "xhigh",
+      "mechanism": "Codex delegated-harness-native retained independent TASK",
+      "status": "PASS exact6path412..8f24; reviewer idle",
+      "candidate": "8f24efd6ece5869a538ca20894d1ae78e59df618",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_FINAL_BOUNDARY_BACKCHECK_LAUNCH.txt",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_FINAL_BOUNDARY_BACKCHECK_RETURN.md",
+      "briefSha256": "c92cbf0ef55b615b70fb726560ff8b15a0a6bc9b308dcb114f0d87ac71fe2a9e",
+      "returnSha256": "97e95c45568bd3cb9f0ca56fe766afdea31561e3ec391b3737d984c725168875"
     }
   },
   "edges": [
@@ -2280,9 +2297,13 @@
     [
       "ROOT",
       "B4-PUBLICATION-TAIL-REVIEW"
+    ],
+    [
+      "ROOT",
+      "B4-FINAL-BOUNDARY-REVIEW"
     ]
   ],
-  "current_frontier": "Owner graceful pause: current B4.1 publication only. Complete local/native/source/combined/tail reviews and record gates pass; add final review/check receipts, open PR, merge only after all applicable actual-head CI succeeds, then pause. Every implementation/manager worker is idle; no next work starts.",
+  "current_frontier": "PR829 draft at8f24, basefd195; hosted CI running. No new implementation/preparation. Complete current PR only if checks pass, preserve closeout, then pause until explicit owner resume.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -2516,7 +2537,10 @@
     "allowedCloseout": "publication records, final checks/backcheck, current B4.1 PR/actual-head CI and merge if passing, pause handoff",
     "blockedCheckDisposition": "preserve any blocking check and pause with PR open; no new repair tranche",
     "nextWork": "B4.2 and all other new implementation/preparation unlaunched or held; no ownership transfer",
-    "localResources": "full sweep finished; native apps closed and source/dist ports/shared lock released"
+    "localResources": "full sweep finished; native apps closed and source/dist ports/shared lock released",
+    "pr": "https://github.com/sgttomas/chirality/pull/829",
+    "candidate": "8f24efd6ece5869a538ca20894d1ae78e59df618",
+    "ci": "in_progress"
   },
   "historicalOpenWithOwner": {
     "blocking": [
@@ -2547,12 +2571,12 @@
     "scope": "No silence-as-approval; unaffected B4.1 continues"
   },
   "liveContinuationState": {
-    "root": "b13fa91e7351640003f34c796bb81a70bec3b693 plus in-progress sweep/review records",
+    "root": "7ce6c9477405e58defd68d730d91db487dc52fd8 plus PR/CI continuity observations",
     "originMain": "fd195cf4287e84572a12183169478a6f7ddf6a92",
     "integrationBranch": {
       "branch": "codex/swbpipe-b4-controls-20260920",
-      "head": "47ad675c9dd013007c587ce6325003c990b2359c",
-      "state": "ROOT-owned local combined candidate; old PR828 branch127677 preserved"
+      "head": "8f24efd6ece5869a538ca20894d1ae78e59df618",
+      "state": "clean frozen published PR829 candidate"
     },
     "shell": "clean evidencec0, producted8 unchanged; manager read-only remainder preparation",
     "canvas": "fb720420 preserved; C4 preparation returned",
