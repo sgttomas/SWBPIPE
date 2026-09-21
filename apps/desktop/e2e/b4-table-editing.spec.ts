@@ -548,7 +548,8 @@ export async function convertDisplayQuantities(items) {
   await page.getByTestId("workspace-undo").click(); await expect(elastic).toHaveText("200000"); await expect(shear).toHaveText(String(material.shear_modulus.value)); await expect(page.getByTestId("workspace-undo")).toBeDisabled();
 });
 
-// Diagnosis only: no Node production change accompanies this regression probe.
+// Original failing diagnostic bytes are retained at 3ba8b70; this regression
+// keeps the same decisive keys/oracles while observing the stationary host.
 test("B4 diagnostic Node sorted review preserves text Undo after an active row crosses downward", async ({ page, browser }, info) => {
   await attachBrowserIdentity(browser, info);
   const { model } = await readFixture("precision-origin-base.model.json");
@@ -564,15 +565,19 @@ test("B4 diagnostic Node sorted review preserves text Undo after an active row c
   const originalInput = await input.elementHandle();
   // Read-only DOM observation distinguishes actual active-host movement from
   // reorderings that move only its neighbours; no production behavior is hooked.
-  const movement = await input.evaluateHandle((input) => {
-    const wrapper = input.closest("[data-virtual-index]")!; const counts = { removed: 0, added: 0 };
+  const movement = await table.evaluateHandle((root, rowId) => {
+    const rowButton = [...root.querySelectorAll('[role="rowheader"] button')].find((button) => button.textContent === rowId)!;
+    const wrapper = rowButton.closest("[data-virtual-index]")!; const input = root.querySelector("input")!;
+    const counts = { removed: 0, added: 0, inputHostRemoved: 0, inputHostAdded: 0 };
     const observer = new MutationObserver((records) => records.forEach((record) => {
       counts.removed += [...record.removedNodes].filter((node) => node === wrapper).length;
       counts.added += [...record.addedNodes].filter((node) => node === wrapper).length;
+      counts.inputHostRemoved += [...record.removedNodes].filter((node) => node === input || node.contains(input)).length;
+      counts.inputHostAdded += [...record.addedNodes].filter((node) => node === input || node.contains(input)).length;
     }));
-    observer.observe(wrapper.parentElement!, { childList: true });
+    observer.observe(root, { childList: true, subtree: true });
     return { counts, observer };
-  });
+  }, firstId);
   const snapshot = () => table.evaluate((root, original) => {
     const current = root.querySelector<HTMLInputElement>("input");
     return { value: current?.value, sameInput: current === original, focused: document.activeElement === current,
@@ -601,9 +606,42 @@ test("B4 diagnostic Node sorted review preserves text Undo after an active row c
   expect(before.value).toBe("1"); expect(before.caret).toEqual([1, 1]); expect(before.rowOrder.slice(0, 2)).toEqual([firstId, secondId]);
   expect(afterCrossing.value).toBe("19"); expect(afterCrossing.rowOrder.slice(0, 2)).toEqual([secondId, firstId]);
   expect(hostMoves.removed).toBeGreaterThan(0); expect(hostMoves.added).toBeGreaterThan(0);
+  expect(hostMoves.inputHostRemoved).toBe(0); expect(hostMoves.inputHostAdded).toBe(0);
   expect(afterCrossing.sameInput).toBe(true); expect(afterCrossing.focused).toBe(true); expect(afterCrossing.caret).toEqual([2, 2]);
   expect(afterUndo.sameInput).toBe(true); expect(afterUndo.focused).toBe(true);
   expect(canonicalX).toBe("2"); expect(canonicalAfterClear).toBe("2"); expect(hashAfterStaging).toBe(hashBefore);
   expect(history).toEqual({ undoDisabled: true, redoDisabled: true, editedMarkers: 0 });
   expect(afterUndo.value).toBe("1"); expect(afterUndo.caret).toEqual([1, 1]); expect(afterUndo.rowOrder.slice(0, 2)).toEqual([firstId, secondId]);
+});
+
+test("B4 Node review retained editor stays contained through hidden families and page resize", async ({ page, browser }, info) => {
+  await attachBrowserIdentity(browser, info); const model = await gotoRoutedFixture(page, "ui-foundation-1000.model.json");
+  await page.getByTestId("view-switch-table").click(); await ensureTreeExpanded(page); await page.getByTestId("layout-mode-grid").click(); await page.getByTestId("node-grid-review-disclosure").click();
+  const table = page.getByTestId("engineering-table-review"); const first = model.nodes[0];
+  await table.getByTestId(`review-cell-${first.id}-x`).dblclick(); const input = table.getByRole("textbox"); await input.fill("retained Node draft"); const originalInput = await input.elementHandle();
+  // Footer focus is an existing non-committing boundary. Leave the editor open
+  // there before changing family, so the hidden layer is actually retained.
+  await table.getByRole("button", { name: "Cancel", exact: true }).focus();
+  await page.getByTestId("entity-grid-type-materials").click(); await expect(input).toBeHidden();
+  const materialTable = page.getByTestId("material-engineering-table"); const materialCell = materialTable.getByTestId(`table-cell-${model.materials[0].id}-label`); const materialLabel = await materialCell.textContent();
+  await materialCell.dblclick(); const materialInput = materialTable.getByRole("textbox"); await expect(materialInput).toBeFocused(); await page.keyboard.press("Q"); await expect(materialInput).toHaveValue("Q");
+  await materialTable.getByRole("button", { name: "Cancel", exact: true }).click(); await expect(materialCell).toHaveText(materialLabel!); await expect(page.getByTestId("workspace-undo")).toBeDisabled();
+  await page.getByTestId("entity-grid-type-nodes").click(); await expect(page.getByTestId("entity-grid-type-nodes")).toBeFocused(); await expect(input).toBeVisible(); await expect(input).toHaveValue("retained Node draft");
+  const rows = page.getByTestId("engineering-table-review-rows"); await hoverTableBody(page, rows); await page.mouse.wheel(0, 2500);
+  await expect.poll(() => rows.evaluate((body) => body.scrollTop)).toBeGreaterThan(1000);
+  expect(await originalInput!.evaluate((element) => element.isConnected)).toBe(true);
+  const hits = await table.evaluate((root) => [".engineering-table-header", ".engineering-table-footer"].map((selector) => {
+    const element = root.querySelector(selector)!; const r = element.getBoundingClientRect(); const hit = document.elementFromPoint(r.left + 12, r.top + r.height / 2); return Boolean(hit && element.contains(hit));
+  })); expect(hits).toEqual([true, true]);
+  const filter = page.getByTestId("model-tree-filter-input"); await filter.fill(model.nodes.at(-1).id); await expect(rows.locator('[role="row"]')).toHaveCount(2);
+  expect(await input.evaluate((element, original) => element === original, originalInput)).toBe(true); await expect(input).toHaveValue("retained Node draft");
+  const viewport = page.viewportSize()!; await openWorkspaceSection(page, "libraries"); await page.setViewportSize({ ...viewport, height: viewport.height + 80 }); await page.getByTestId("workspace-dock-close").click();
+  await expect(input).toBeVisible(); await expect(input).not.toBeFocused(); await expect(input).toHaveValue("retained Node draft");
+  const alignment = await input.evaluate((element) => {
+    const owner = element.closest(".engineering-table")!.querySelector(`[aria-owns="${element.id}"]`)!; const a = owner.querySelector("[data-editor-anchor]")!.getBoundingClientRect(); const e = element.getBoundingClientRect();
+    return { dx: e.x - a.x, dy: e.y - a.y, dw: e.width - a.width, dh: e.height - a.height };
+  }); expect(alignment).toEqual({ dx: 0, dy: 0, dw: 0, dh: 0 });
+  await filter.fill(""); await page.getByTestId("clear-entity-grid-drafts").click(); await expect(table.getByRole("textbox")).toHaveCount(0); await expect(page.getByTestId("entity-grid-change-count")).toHaveText("0 changed cells");
+  await expect(page.getByTestId(`table-cell-${first.id}-x`)).toHaveText(String(first.position.x)); await expect(page.getByTestId("workspace-undo")).toBeDisabled(); await page.setViewportSize(viewport);
+  await info.attach("node-review-retained-host", { body: JSON.stringify({ headerFooterHits: hits, pageReturnAlignment: alignment }), contentType: "application/json" });
 });
