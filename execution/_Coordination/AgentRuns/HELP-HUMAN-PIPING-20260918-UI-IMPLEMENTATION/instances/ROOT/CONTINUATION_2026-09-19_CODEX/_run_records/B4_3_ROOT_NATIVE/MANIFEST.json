@@ -1,0 +1,58 @@
+{
+  "01-baseline.ax.txt": {
+    "sha256": "4f50bd7190a2e2dd42fc3213de744c604204d36ce0e6c90ab7b3c286f1afacb8",
+    "bytes": 5416
+  },
+  "02-character-start.ax.txt": {
+    "sha256": "f63613b1f9676bc341abba4f2c5ae6fa3727735a5de34274d2b3a141eeadce25",
+    "bytes": 829
+  },
+  "03-caret-insert.ax.txt": {
+    "sha256": "4a259d83f6624f69b222750a516157f4103e9be3b62c6791e423e744b5b875eb",
+    "bytes": 431
+  },
+  "04-text-undo.ax.txt": {
+    "sha256": "9269c386cc9d1e60bd3fce6b21defd3325c7e358f398d46699ac8649650c4831",
+    "bytes": 429
+  },
+  "04-text-undo.png": {
+    "sha256": "f54b4d2ff23677cce7d4db7af0946ae3314e8faf2717c02719e5e684582d54e1",
+    "bytes": 116391
+  },
+  "05-pointer-cancel.ax.txt": {
+    "sha256": "ffefc8c10319d00d1207ea9d8ff41e5fc0fcc2e89989afebb201b1a273560d30",
+    "bytes": 582
+  },
+  "06-positive-draft.ax.txt": {
+    "sha256": "a0cbc96c6dccb65ca1b21e4e791707d6c118bafdfd6fd5c6067c8225d2fba1e3",
+    "bytes": 851
+  },
+  "07-pointer-apply.ax.txt": {
+    "sha256": "f226833926ec3ac0be107110d734d3b449b89d872fce7737a41d83d15c446ace",
+    "bytes": 981
+  },
+  "08-model-restored.ax.txt": {
+    "sha256": "bb468950d726aa710ff30f22bf342c5684e9772e5f31a8941a1988ca8f750fe3",
+    "bytes": 5440
+  },
+  "08-model-restored.png": {
+    "sha256": "9ab79fed5feadbdf58888baa8b659ef72118be435d232dde0ec43326843cef78",
+    "bytes": 113254
+  },
+  "END.json": {
+    "sha256": "1720c7e6286f66b9c90893bf59c64073e26c28b62148175408e6ef193e84bb68",
+    "bytes": 250
+  },
+  "PLAN.md": {
+    "sha256": "9020368b38cb4c9e62b326f4f3c07c09aad36a5715e081e726e3921f3093299c",
+    "bytes": 1791
+  },
+  "RETURN.md": {
+    "sha256": "e06a5049b68a56c6e064b4855bd887a2e1c32e5b73bd5ff7331d7660c08ac4d8",
+    "bytes": 2347
+  },
+  "START.json": {
+    "sha256": "d3208785cd51e85858454ea6a0e1496d2d6489c924acffe4e0bbcee34ab32542",
+    "bytes": 711
+  }
+}

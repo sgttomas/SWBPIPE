@@ -1,0 +1,11 @@
+# ROOT Materials native own look
+
+PASS at product75fa863/evidence2bbb8ce, rebuilt binary9741b2ab157ac44c9815c1bbcd80b298f9d3d578ea3c9971403bd9c0985052d2, handed-back PID16639. Actual ROOT HELP_HUMAN Agent0 used supported CUA native APIs after an acknowledged handback; no source/build changes or competing UI.
+
+Baseline was visibly the sole invented Material, E200000000000Pa/G77000000000Pa/alpha0.000012[1/degC], 27entities, Table/Grid/Materials, Inspector/Review closed, displayEntered, Undo disabled with the worker's creationRedo. From the focused Elastic cell, actual separate keys6 then3 entered63. Left then7 yielded673; one Cmd+Z returned63 with the input focused. Coordinate pointer Cancel at(414,678) restored canonical200000000000 without an edited marker or new undo. This was an actual native character/caret/Undo/Cancel observation, not AX setValue/fill recovery.
+
+Return opened the canonical value; select-all/typeText entered210000000000. Actual coordinate pointer Apply at(355,679) closed the editor and showed canonical210000000000Pa, Edited, Undo enabled, Redo disabled and Cell applied. One model Undo restored the original Material and sole27-entity baseline, removedEdited and disabledUndo. Shear/alpha and Entered display remained unchanged. The new owned edit replaced the worker's creationRedo; final own edit remains redoable. This is canonical model restoration, not restoration of the initial empty history. No draft/filter/sort/queue or stored-project operation was introduced.
+
+Saved AX and screenshot evidence supports these scoped observations. Worker supplied the distinct mixed-unit reorder/textUndo, invalidzero, ApplyTab/Shear, page/resize/Close and fixture creation/restoration witnesses. ROOT did not rerun those or claim native controlled pending conversion, converted display, exact caret indices, Both+Inspector-open pointer exposure, compact drawer fit, solver validation or full B4 acceptance. The test model had no run, so no new result-invalidation native claim is made.
+
+After final observation ROOT issued Cmd+Q once. Process-only ps verified PID16639 absent; named5173/5174/5175 listeners and shared lock absent. No app/AX query occurred after Quit. Native/build/CUA resources are released; Node diagnosis activation is a separate handoff. No owner review, release or product acceptance is implied.
