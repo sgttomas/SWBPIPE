@@ -302,8 +302,18 @@ GAP_WORDING = re.compile(
 # Evidence columns hold path tokens only (Part D), so they are not scanned; path-like tokens are
 # stripped from Notes and RemainingWork before matching.
 GAP_COLUMNS = ("RemainingWork", "Notes")
-PATH_TOKEN = re.compile(r"`[^`]*`|\S*[/\\]\S*|\S+\.(?:py|rs|tsx?|mjs|js|json|ya?ml|md|csv)\b|\S+::\S+")
-ESCAPES = re.compile(r"(?:GAP_WORDING_CHECKED|CANONICAL_DEPARTURE|PRETYPE_OVERRIDE):[^|]*")
+# Only path-shaped tokens are stripped: tokens under a known root, tokens ending in a file
+# extension, `path::symbol` tokens, and backticked spans with no spaces (identifiers or paths).
+PATH_TOKEN = re.compile(
+    r"`[^`\s]+`|"
+    r"(?<![\w/])(?:\{?[A-Z_]+\}?/|\.{0,2}/)?(?:projects|core|apps|docs|tools|schemas|fixtures|tests|validation|"
+    r"examples|governance|provenance|api|execution|workflows|scripts|src|src-tauri|features|_run_records|RUN|FREEZE)"
+    r"/[^\s`;,)]+|"
+    r"(?<![\w/])[\w.\-/]+\.(?:py|rs|tsx?|mjs|js|json|ya?ml|md|csv|toml|txt)\b(?:#L\d+(?:-L?\d+)?)?|"
+    r"(?<![\w/])[\w.\-/]+::[\w.<>\-]+")
+# The GAP_WORDING_CHECKED clause must be the last clause of Notes (CONVENTIONS F4); only it,
+# from the marker to the end of Notes, is excluded from the scan.
+ESCAPES = re.compile(r"GAP_WORDING_CHECKED:.*\Z", re.S)
 
 
 def part_f(a, rows, f):

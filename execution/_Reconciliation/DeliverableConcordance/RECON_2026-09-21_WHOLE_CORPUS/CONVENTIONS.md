@@ -439,7 +439,10 @@ pins, review states and metadata (such as dates) stay
 `--notes-gap`. It lists `ALIGNED` rows whose `RemainingWork` or Notes (path
 tokens removed) contain gap wording. For each listed row the worker either re-disposes
 it (F1) or writes `GAP_WORDING_CHECKED: <why the wording is not an unmet
-element of this claim>` in Notes. Verifiers sample every listed row.
+element of this claim>` as the **last** clause of Notes (at least 25
+characters). Only that clause is excluded from the scan; other markers such
+as `CANONICAL_DEPARTURE:` do not exempt the text after them. Verifiers sample
+every listed row.
 
 **F5. Specific NOT_MINE where paths overlap.** When a capability's
 `EntryPoints` hit a path the deliverable's own forward ledger cites, the

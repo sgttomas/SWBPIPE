@@ -117,9 +117,9 @@ deliverables, so the same situation gets the same treatment.
 2. Run the validator with the Part F checks until it passes, from `{REPO}`:
    `PYTHONDONTWRITEBYTECODE=1 python3 RUN/tools/validate_ledger_v2.py --run-dir RUN --repo-root . --deliverable <DEL> --forward <path> --notes-gap`
    For each F4 finding, either re-dispose the row (F1) or, only when the
-   wording truly is not about an unmet element of this claim, add
-   `GAP_WORDING_CHECKED: <why>` to its Notes. The verifier checks every such
-   row.
+   wording truly is not about an unmet element of this claim, end its Notes
+   with `GAP_WORDING_CHECKED: <why>` (the last clause, at least 25
+   characters). The verifier checks every such row.
 3. **Seal.** Compute the ledger's SHA-256 and write `<DEL>_SEAL.txt` with one
    line: `SEALED <DEL> <sha256> <UTC timestamp>`. Never edit the forward file
    after sealing.
