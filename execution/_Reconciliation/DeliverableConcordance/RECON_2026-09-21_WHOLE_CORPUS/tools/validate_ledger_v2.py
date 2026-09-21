@@ -107,20 +107,28 @@ class Paths:
 
     def resolve(self, token):
         """Return (ok, reason) for an evidence token."""
-        t = re.split(r"::|#L", token, maxsplit=1)[0].strip().rstrip("/")
+        t = re.split(r"::|#L", token, maxsplit=1)[0].strip()
+        is_proj = bool(PROJ_PREFIX.match(t))
+        t = t.rstrip("/")
         if t.startswith("GATE:"):
             rel = t[5:]
             if not rel.startswith("GATE_EVIDENCE/"):
                 return False, "GATE: tokens must point under GATE_EVIDENCE/"
             return os.path.exists(os.path.join(self.run_dir, rel)), "not in the run folder"
-        if PROJ_PREFIX.match(t):
+        if is_proj:
             t = PROJECT + t
         elif not REPO_PREFIX.match(t):
             return False, "not a repository-root, project-root or GATE: token"
+        elif t.startswith("docs/") and self._exists(PROJECT + t):
+            # N4: the same path exists in the project and at the root; require the explicit form
+            return False, f"ambiguous: a project copy exists; cite {PROJECT + t} or keep the root file with a Notes reason 'ROOT_DOC:'"
+        return self._exists(t), "not at the frozen commit"
+
+    def _exists(self, t):
         if t not in self.cache:
             self.cache[t] = subprocess.run(["git", "-C", self.repo, "cat-file", "-e", f"{FREEZE}:{t}"],
                                            capture_output=True).returncode == 0
-        return self.cache[t], "not at the frozen commit"
+        return self.cache[t]
 
 
 def validate_one(a, f):
@@ -199,7 +207,7 @@ def validate_one(a, f):
                 if col == "ContextRefs" and not (tok.startswith("GATE:") or REPO_PREFIX.match(tok) or PROJ_PREFIX.match(tok)):
                     continue  # ContextRefs may also hold PR numbers and other non-path references
                 ok, why = paths.resolve(tok)
-                if not ok:
+                if not ok and not (why.startswith("ambiguous") and "ROOT_DOC:" in r["Notes"]):
                     f.append(f"{tag}: {col} token {tok!r}: {why}")
         ki = keys.get(k)
         if ki:
@@ -210,6 +218,9 @@ def validate_one(a, f):
                 f.append(f"{tag}: pre-typed NON_NORMATIVE; overriding needs 'PRETYPE_OVERRIDE: <reason>' in Notes")
             if ki["DuplicateOf"] and f"DUPLICATE_OF {ki['DuplicateOf']}" not in r["Notes"]:
                 f.append(f"{tag}: duplicate unit; write 'DUPLICATE_OF {ki['DuplicateOf']}' in Notes")
+            tgt = byk.get(ki["DuplicateOf"]) if ki["DuplicateOf"] else None
+            if tgt and any(r[c] != tgt[c] for c in CONSISTENCY_FIELDS):
+                f.append(f"{tag}: DUPLICATE_OF {ki['DuplicateOf']} must take the same disposition, cause, tier and layers (C1)")
         if k in canon:
             cv = canon[k]
             if r["CanonicalSituation"] != cv["CanonicalSituation"]:
@@ -276,15 +287,22 @@ def validate_one(a, f):
 
 
 def batch(a, f):
+    """Cross-ledger consistency. CS rows are checked field-by-field in single mode, so here
+    CS groups are keyed by their mechanical Variant; CP groups compare only rows that took
+    the same disposition (a CP pattern may allow more than one outcome)."""
     keys = {r["ClaimKey"]: r for r in csv.DictReader(open(f"{a.run_dir}/CLAIM_KEYS_V2.csv", newline="", encoding="utf-8"))}
+    variant = {r["ClaimKey"]: r["Variant"] for r in csv.DictReader(open(f"{a.run_dir}/CANONICAL_ASSIGNMENTS.csv", newline="", encoding="utf-8"))}
     groups = collections.defaultdict(list)
     for path in a.batch:
         for r in load(path, FORWARD_FIELDS, "Notes", f):
             ki = keys.get(r["ClaimKey"])
-            if ki and int(ki["SharedTextCount"]) > 1 and ki["UnitKind"] != "SURFACE":
+            if ki and int(ki["SharedTextCount"]) > 1 and ki["UnitKind"] != "SURFACE" and r["ClaimKey"] not in variant:
                 groups[("body", ki["BodySHA256"])].append((path, r))
-            if r["CanonicalSituation"]:
-                groups[("situation", r["CanonicalSituation"])].append((path, r))
+            cs = r["CanonicalSituation"]
+            if cs.startswith("CS-"):
+                groups[("variant", variant.get(r["ClaimKey"], cs))].append((path, r))
+            elif cs.startswith("CP-"):
+                groups[("pattern", f"{cs}/{r['Disposition']}")].append((path, r))
     for (kind, gid), members in groups.items():
         profiles = collections.Counter(tuple(r[c] for c in CONSISTENCY_FIELDS) for _, r in members)
         if len(profiles) < 2:

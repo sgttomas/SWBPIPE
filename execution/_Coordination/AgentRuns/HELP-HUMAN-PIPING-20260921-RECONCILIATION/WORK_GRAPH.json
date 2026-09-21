@@ -31,6 +31,11 @@
    "record": "PLAN.md",
    "sha256": "18d3960ed8078806b60f66bfbf7e623f2f7735d225fa5dc661247ef730d96381",
    "note": "Agent 0 plan, owner-approved 2026-09-21T16:15:18Z"
+  },
+  {
+   "record": "RECON_2026-09-21_WHOLE_CORPUS/R0_CALIBRATION/R0_RULING.md",
+   "sha256": "a922f21f3831bf5f46fbb61a5787e9d37339716bb20667a8848ad5c9e71236f3",
+   "note": "R0 ruling and addendum (owner items)"
   }
  ],
  "nodes": {
@@ -134,7 +139,9 @@
    "briefSha256": "6d642bb757550cfe91d26f53a67612c3c877269fff04ebf8d36801a175402c5d",
    "return": "returns/R0-PR-REVIEW_return.md",
    "returnSha256": "67fb54b0f92a6671e7da2ffe12f08e0e0e0c0071b03db758d24775fc84730ebc",
-   "status": "FINDINGS applied by Agent 0; backcheck pending"
+   "status": "FINDINGS repaired; backcheck 1 FINDINGS (N1-N6) repaired; owner items ruled; backcheck 2 pending",
+   "backcheck1Return": "returns/R0-PR-REVIEW_backcheck1_return.md",
+   "backcheck1ReturnSha256": "f8b92cd69be29dd254265d0173b12e6e269325a0450b2687966db45ae1f5eb61"
   }
  },
  "edges": [

@@ -163,4 +163,14 @@ taxonomy per DEC-081).
   (`GATE_EVIDENCE/B4_4_SWEEP_9D55/START.json`, `registered/SWEEP_*.json` and
   the `.log.gz` files) contain absolute local paths from the host that
   produced them. They are left unedited to preserve blob custody.
+- 2026-09-21 — Owner answered the R0 PR review's owner items (R0 ruling
+  addendum): optional `.rNN` rows confirmed; active code identifiers carrying
+  the former name are rename residue (including the four kept on 2026-09-18);
+  consistency enforcement replaces per-hash canonical rows. Backcheck findings
+  N1–N6 repaired: canonical assignments now 725 (16 Package Reference DRIFT;
+  run-together Scope Detail blocks judged normally).
+- 2026-09-21 — Disclosure: the verbatim review returns under the orchestration
+  record's `returns/` contain absolute scratch paths from the session that
+  produced them (harness REVIEW ABS_PATH_IN_UNCLASSIFIED_SURFACE). They are
+  kept unedited for custody.
 

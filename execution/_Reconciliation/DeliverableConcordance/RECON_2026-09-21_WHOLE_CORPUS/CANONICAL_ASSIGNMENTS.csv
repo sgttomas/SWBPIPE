@@ -540,7 +540,6 @@ DEL-13-01:CONTEXT#architecture-basis-injection,DEL-13-01,CS-04,CS-04,revision pi
 DEL-13-01:CONTEXT#sca-002-control-surface-refresh-note,DEL-13-01,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-13-01:CONTEXT#preparation-notes,DEL-13-01,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-13-02:CONTEXT#scope-coverage,DEL-13-02,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-13-02:CONTEXT#scope-detail,DEL-13-02,CS-06,CS-06-DRIFT,scope-item statements differ from ScopeLedger.csv: SOW-068,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-13-02:CONTEXT#objective-support,DEL-13-02,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-13-02:CONTEXT#context-budget-qa,DEL-13-02,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
 DEL-13-02:CONTEXT#package-reference,DEL-13-02,CS-06,CS-06-OK,"PKG-13 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
@@ -585,7 +584,6 @@ DEL-14-02:CONTEXT#architecture-basis-injection,DEL-14-02,CS-04,CS-04,revision pi
 DEL-14-02:CONTEXT#sca-002-control-surface-refresh-note,DEL-14-02,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-14-02:CONTEXT#preparation-notes,DEL-14-02,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-14-03:CONTEXT#scope-coverage,DEL-14-03,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-14-03:CONTEXT#scope-detail,DEL-14-03,CS-06,CS-06-DRIFT,scope-item statements differ from ScopeLedger.csv: SOW-073,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-14-03:CONTEXT#objective-support,DEL-14-03,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-14-03:CONTEXT#context-budget-qa,DEL-14-03,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
 DEL-14-03:CONTEXT#package-reference,DEL-14-03,CS-06,CS-06-OK,"PKG-14 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
@@ -594,7 +592,6 @@ DEL-14-03:CONTEXT#architecture-basis-injection,DEL-14-03,CS-04,CS-04,revision pi
 DEL-14-03:CONTEXT#sca-002-control-surface-refresh-note,DEL-14-03,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-14-03:CONTEXT#preparation-notes,DEL-14-03,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-14-04:CONTEXT#scope-coverage,DEL-14-04,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-14-04:CONTEXT#scope-detail,DEL-14-04,CS-06,CS-06-DRIFT,scope-item statements differ from ScopeLedger.csv: SOW-073,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-14-04:CONTEXT#objective-support,DEL-14-04,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-14-04:CONTEXT#context-budget-qa,DEL-14-04,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
 DEL-14-04:CONTEXT#package-reference,DEL-14-04,CS-06,CS-06-OK,"PKG-14 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO
@@ -666,7 +663,6 @@ DEL-16-02:CONTEXT#architecture-basis-injection,DEL-16-02,CS-04,CS-04,revision pi
 DEL-16-02:CONTEXT#sca-002-control-surface-refresh-note,DEL-16-02,CS-03,CS-03,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-16-02:CONTEXT#preparation-notes,DEL-16-02,CS-02,CS-02,,HISTORY,ALIGNED,,,,NONE,NO
 DEL-16-03:CONTEXT#scope-coverage,DEL-16-03,CS-06,CS-06-OK,scope items match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
-DEL-16-03:CONTEXT#scope-detail,DEL-16-03,CS-06,CS-06-DRIFT,scope-item statements differ from ScopeLedger.csv: SOW-069,DECLARED_STATE,STALE_REVIEW_OR_EVIDENCE,BASIS_POINTER_STALE,LOCAL_DESIGN,NONE,RECORD,NO
 DEL-16-03:CONTEXT#objective-support,DEL-16-03,CS-06,CS-06-OK,objectives match Deliverables.csv,DECLARED_STATE,ALIGNED,,,,NONE,NO
 DEL-16-03:CONTEXT#context-budget-qa,DEL-16-03,CS-07,CS-07,"setup context-budget metadata, no product claim",NON_NORMATIVE,NOT_ASSESSED,,,,NONE,NO
 DEL-16-03:CONTEXT#package-reference,DEL-16-03,CS-06,CS-06-OK,"PKG-16 matches SOFTWARE_DECOMP rev 0.12 on name, scope, assigned items and exclusions",DECLARED_STATE,ALIGNED,,,,NONE,NO

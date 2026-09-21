@@ -159,7 +159,7 @@ independently. R3 owns the final unmapped set.
   sub-claims (RULED).
   - Table rows without their own identifier are issued as deterministic
     `.rNN` keys with `Required=NO`.
-  - **AGENT, disclosed departure:** a `.rNN` row is needed only when a worker
+  - **AGENT, owner-confirmed departure:** a `.rNN` row is needed only when a worker
     splits the block. Once a block is split, every one of its `.rNN` keys is
     required (all-or-none).
   - A split block may be assessed directly when it has substance of its own.
@@ -358,7 +358,11 @@ SourceStateSHA
   - a path from the repository root (`projects/…`, `execution/…`, `docs/…`,
     `tools/…`, `agents/…`, `workflows/…`, `.github/…`, `_DomainEngines/…`);
   - a path from the project root (`core/…`, `apps/…`), which the validator
-    resolves under `projects/chirality-piping/`;
+    resolves under `projects/chirality-piping/`. Project documents are always
+    cited as `projects/chirality-piping/docs/…`. A bare `docs/…` token means
+    the repository-root document; where a project copy of the same path
+    exists, the validator requires the explicit form, or `ROOT_DOC:` with a
+    reason in Notes;
   - `GATE:GATE_EVIDENCE/<path>`.
 
   Append `::case` or `#Lnn` where useful. Put free text in Notes, never in
@@ -397,12 +401,16 @@ departures, convention friction, and the smallest checks for `UNKNOWN` rows.
 - **Sentinel.** The count goes in `Notes` (forward) or `Reason` (reverse), as
   the candidates had it.
 - **Optional `.rNN` keys.** Rows for them are optional and all-or-none (C1,
-  AGENT). This departs from `R0_REVIEW.md` §5 item 2 as written and is pending
-  owner confirmation. The reason and how to reverse it are in `RUN_STATE.jsonl`
-  under `DISCLOSED_DEPARTURE`.
+  AGENT). This departs from `R0_REVIEW.md` §5 item 2 as written. **Confirmed
+  by the owner** (R0 ruling addendum, item 1). The reason and how to reverse it
+  are in `RUN_STATE.jsonl` under `DISCLOSED_DEPARTURE`.
+- **Rename residue (owner, R0 owner items).** Active code identifiers that
+  carry the former name are residue, including the four kept on 2026-09-18.
+  See `CANONICAL_SITUATIONS.md` CP-04 and `R0_CALIBRATION/R0_RULING.md`
+  (addendum).
 - **Canonical coverage of shared text.** Consistency is enforced for shared
   bodies without a keyed row (`CANONICAL_SITUATIONS.md`, "Shared text without
   a keyed row"). §5 item 5 asked for one canonical row per hash; the reason is
-  recorded there.
+  recorded there. **Confirmed by the owner** (R0 ruling addendum, item 3).
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

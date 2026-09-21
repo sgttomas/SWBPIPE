@@ -173,11 +173,18 @@ def main(argv):
             ok = ids(block, "SOW") == ids(dreg.get(d, {}).get("CoversScopeItems", ""), "SOW")
             sit, check = ("CS-06-OK" if ok else "CS-06-DRIFT"), f"scope items {'match' if ok else 'differ from'} Deliverables.csv"
         elif slug.startswith("scope-detail"):
-            items = re.findall(r"^-\s*(SOW-\d{3}):\s*(.*\S)\s*$", block, re.M)
-            bad = [sid for sid, txt in items if (sreg.get(sid, {}).get("ScopeItemStatement", "").strip() != txt.strip())]
-            ok = bool(items) and not bad
-            sit, check = ("CS-06-OK" if ok else "CS-06-DRIFT"), ("scope-item statements match ScopeLedger.csv" if ok
-                          else f"scope-item statements differ from ScopeLedger.csv: {', '.join(bad) or 'none parsed'}")
+            # split on every "- SOW-NNN:" occurrence, including items run together on one line
+            body = block.split("\n", 1)[1] if "\n" in block else ""
+            parts = re.split(r"(?:^|\s*)-\s*(SOW-\d{3}):\s*", body)
+            items = [(parts[i], parts[i + 1].strip()) for i in range(1, len(parts) - 1, 2)]
+            joined = any(re.search(r"\S-\s*SOW-\d{3}:", ln) for ln in body.split("\n"))
+            bad = [sid for sid, txt in items if sreg.get(sid, {}).get("ScopeItemStatement", "").strip() != txt.strip()]
+            if items and not bad and not joined:
+                sit, check = "CS-06-OK", "scope-item statements match ScopeLedger.csv"
+            elif items and bad:
+                sit, check = "CS-06-DRIFT", f"scope-item statements differ from ScopeLedger.csv: {', '.join(bad)}"
+            else:
+                sit = None  # statements match but items are run together, or nothing parsed: judged normally
         elif slug.startswith("context-budget-qa"):
             sit, check = "CS-07", "setup context-budget metadata, no product claim"
         if sit:
