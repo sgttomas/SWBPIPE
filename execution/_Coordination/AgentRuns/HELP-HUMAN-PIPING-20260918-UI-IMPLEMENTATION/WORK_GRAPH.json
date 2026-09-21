@@ -648,6 +648,12 @@
           "item": "Retire duplicate Node bulk grid after equivalent label/provenance and multi-change review capability reaches common table grammar",
           "retireAt": "later B4 increment before claiming full B4/MVP table completion",
           "evidence": "B4_1_COMPATIBILITY_DISPOSITION.md; independent equivalence review required"
+        },
+        {
+          "item": "Short Model drawer retains whole-pane scrolling; adaptive full-height Both/Table repair does not yet establish stationary chrome in its127px minimum host",
+          "retireAt": "later B4 compact Model-drawer presentation before full B4/MVP table closure",
+          "evidence": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_1_VERTICAL_SCROLL_REPAIR_DISPOSITION.md",
+          "rationale": "Existing drawer measurements: default host227px; minimum127px; expanded439px desktop/319px compact. Preserve accepted pane budgets and all controls; do not create zero-height body. This bounds the increment, not a proof that every compact design is impossible."
         }
       ]
     },
@@ -655,10 +661,12 @@
       "role": "slice",
       "lane": "B-SHELL",
       "title": "the docked inspector's remainder and the slide-over",
-      "status": "planned",
+      "status": "planned; read-only inventory complete, writes await B4 predecessor and shared-writer handback",
       "dependsOn": [
         "B4"
-      ]
+      ],
+      "preparation": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B5_INSPECTOR_PREPARATION_RETURN.md",
+      "preparationSha256": "5d0ea8d573960f408a87b86e3a20504eaa6d6f2146b30038b6706d4e6fc453ae"
     },
     "B6": {
       "role": "slice",
@@ -1645,7 +1653,7 @@
       "model": "gpt-6-astra",
       "reasoning": "high",
       "mechanism": "Codex delegated-harness-native retained manager; new bounded TASK",
-      "status": "6dd actual native Cancel/Apply repaired PASS; narrow pointer fit unresolved after ROOT own look; same writer diagnosing bounded UI containment/scroll issue",
+      "status": "approved vertical repair in progress with the retained manager and worker; focused evidence before independent backcheck and native rebuild",
       "base": "fd195cf4287e84572a12183169478a6f7ddf6a92",
       "branch": "codex/swbpipe-b-shell-20260918",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_1_MANAGER_BRIEF.md",
@@ -1657,11 +1665,11 @@
       "childBriefSha256": "56df2fc1dec4fffac347042287cc90f9b50f548df24fa810d2d456e4fef43578",
       "childInputsSha256": "58a86b65a5d125e481ceb0e46a05090cd2befeaaee25f9bd46f43ef0ef0b8d6a",
       "writeLease": "shell/controller/table; exact sealed brief; no native or external live transport; no shared Root graph writes",
-      "resourceState": "manager owns native identity-bound cleanup then5174/shared-lock bounded browser diagnosis; ROOT released CUA and will not query old app",
+      "resourceState": "bounded5174/browser checks under shared lock; no native/build/full sweep; live31977 retained by ROOT/owner",
       "enforcement": "instruction-asserted; host unrestricted; Type2 no delegation",
       "compatibilityDisposition": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_1_COMPATIBILITY_DISPOSITION.md",
       "compatibilityDispositionSha256": "f317cddf86edc5faf672629f70c0575d26ff77e2b3b494d7e167687e42865827",
-      "sourceCandidate": "6dd0e466f4432f21d3ce6913782b95f9a325f700",
+      "sourceCandidate": "1ad964e30b08bed57bba8f08e3a75e8c883c8b0b",
       "nativeChild": "/root/b3_manager/b4_1_native",
       "nativeModel": "gpt-6-astra",
       "nativeReasoning": "low",
@@ -1692,7 +1700,17 @@
         "outcome": "Cancel/Apply/abandoned-pointer/ordinary-blur and keyboard actions passed at stated scopes; actual pointer horizontal fit not established",
         "rootOwnLook": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_1_ROOT_FIT_OBSERVATION_6DD.md",
         "rootOwnLookSha256": "2af54e986c3dfb71d88a886f0762bda42f84dda8c0c533e3aa3605355709d458"
-      }
+      },
+      "evidenceCheckpoint": "c8f8e503383e15b42b171c4957c6f458d3697150",
+      "managerReturnSha256": "0712071fecbcf6d52ea185253239f95fd98d9fe942d8f28a05003ddcbb54c12f",
+      "managerManifestSha256": "db73c04504c01d56fbeb5acbdc0e17376a4c577e0607bb0d3fa9c9eba02143ac",
+      "ownerScrollCorrection": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_NATIVE_SCROLL_CORRECTION_2026-09-20.md",
+      "ownerScrollAxis": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_NATIVE_SCROLL_AXIS_2026-09-20.md",
+      "ownerScrollAxisSha256": "b9bb903ed29992c09fac30e3f8b763e5d59e1fbb49ca28fd62f13d1142653e73",
+      "verticalRepairDisposition": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_1_VERTICAL_SCROLL_REPAIR_DISPOSITION.md",
+      "verticalRepairDispositionSha256": "b125b5b7b5fefa7011e504c891f440edcd22801f361ccd8778d770de28a072b6",
+      "ownerScrollCorrectionSha256": "acd20574c524233075b2a516c9c2d9126518c0d348fb6be8440a304fd081a3a3",
+      "verticalRepairScope": "ModelTree, EngineeringTable, styles, focused tests; narrow App boundedGrid presentation prop only; existing Model drawer remains unchanged"
     },
     "LIVE-CONTROL-PREPARATION": {
       "role": "ROOT proposed stage with bounded TASK inventory and peer fit review",
@@ -1786,7 +1804,7 @@
       "model": "gpt-6-astra",
       "reasoning": "xhigh",
       "mechanism": "Codex delegated-harness-native fresh context; same-model independence",
-      "status": "complete source coverage through6dd; native behavior remains pending",
+      "status": "complete independent source coverage through1ad; new vertical repair and final candidate remain uncovered",
       "initialCandidate": "87faf4b240d1be8b197843cd869b22408e85be3b",
       "initialVerdict": "Not ready:2newP2 plus known Tab defect",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_1_INDEPENDENT_REVIEW_BRIEF.md",
@@ -1809,6 +1827,14 @@
           "briefSha256": "4790c1f3d7446c2f2f22700754d7f3c45659ac6c9d010c7334a824c37d091419",
           "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_1_NATIVE_CANCEL_BACKCHECK_RETURN.md",
           "returnSha256": "a56afb0cc282c4de4aa424d7d99b02eb24f1120470e23d6b76d5cff4dbe752cc"
+        },
+        {
+          "candidate": "1ad964e30b08bed57bba8f08e3a75e8c883c8b0b",
+          "verdict": "PASS2path horizontal containment backcheck;12unique browser passes; native vertical behavior subsequently reopened by owner correction",
+          "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_1_POINTER_FIT_BACKCHECK_BRIEF.md",
+          "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_1_POINTER_FIT_BACKCHECK_RETURN.md",
+          "briefSha256": "dfdaecb9ce5cfc463851abe2a6068525ba55f8d97edb90710c801c57098437ab",
+          "returnSha256": "4a23a98a5ce9ddf0a5a362066916c8225c5db3fca5ba07db7cd8d3f95ae86590"
         }
       ]
     },
@@ -1816,10 +1842,10 @@
       "role": "ROOT integration",
       "parent": "ROOT",
       "branch": "codex/swbpipe-b4-controls-20260920",
-      "status": "localf4c1773 contains reviewed6dd and CI changes; native Cancel fixed but narrow pointer-fit issue prevents final acceptance/merge",
-      "candidate": "f4c177399cefc6f7f0b5ea71f05223f9a6327c2c",
+      "status": "clean local combined source/evidence0c4f; vertical containment correction blocks final sweep/publication; no overall native fitPASS",
+      "candidate": "0c4f74f512c5e708eaaada6c1ecd608600b71152",
       "base": "fd195cf4287e84572a12183169478a6f7ddf6a92",
-      "sourceCandidate": "6dd0e466f4432f21d3ce6913782b95f9a325f700",
+      "sourceCandidate": "1ad964e30b08bed57bba8f08e3a75e8c883c8b0b",
       "ciMapCommit": "ab3b057e4",
       "ciMap": "Independent exact2file backcheck PASS atab3b057e4f5a5b01fdbfa1b8e50381522cb1b369;31policy cases pass. New B4 spec follows authoring/layout and new shared-table remains full.",
       "dependsOn": [
@@ -1829,6 +1855,22 @@
       "scopeNote": "Internal B4.1 increment, not full B4; remaining table grammar and duplicate-grid retirement remain",
       "ciMapReview": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_B4_CONSUMER_MAP_BACKCHECK_RETURN.md",
       "ciMapReviewSha256": "58e5b650acda19d55f1a7f3e64a6a7f01e3e38a93ceb2333626f56bcac81beab"
+    },
+    "B5-PREPARATION-CODEX": {
+      "role": "TASK Type2 read-only preparation",
+      "parent": "ROOT",
+      "actualAgent": "/root/ci_inventory",
+      "model": "gpt-6-astra",
+      "reasoning": "low",
+      "mechanism": "Codex delegated-harness-native retained TASK; no descendants",
+      "status": "returned; ROOT inspected source-grounded recommendation; no B5 writes activated",
+      "basis": "c8f8e503383e15b42b171c4957c6f458d3697150",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B5_INSPECTOR_PREPARATION_BRIEF.md",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B5_INSPECTOR_PREPARATION_RETURN.md",
+      "recommendation": "First B5 increment: live single-node Identity/Geometry with existing operation route, preserve frozen Task and rich drafts. B4 full predecessor remains; coordinate shared writer handback before B5 writes.",
+      "boundary": "read-only committed source; no tests/build/UI/Git mutations or delegation; unrestricted host, limits instructional",
+      "briefSha256": "1bfa98e5ad409c67d64fb06e973d793b6247f57a88ae19b5d7c37787b9b636ac",
+      "returnSha256": "5d0ea8d573960f408a87b86e3a20504eaa6d6f2146b30038b6706d4e6fc453ae"
     }
   },
   "edges": [
@@ -2059,9 +2101,13 @@
     [
       "ROOT",
       "B4-1-INTEGRATION"
+    ],
+    [
+      "ROOT",
+      "B5-PREPARATION-CODEX"
     ]
   ],
-  "current_frontier": "B4.1 repaired6dd native Cancel/Apply passed; ROOT own look left minimum Both+Inspector pointer reach/containment unresolved. Bounded browser layout diagnosis/repair active; no full sweep or PR yet. CI hints reviewed and new-spec map locally tested. C4 rulings and CLI bounded activation remain pending; baseline comparison remains proposed.",
+  "current_frontier": "B4.1 vertical containment repair active: full-height Both/Table uses allocated row-body height and one visible editing area with drafts retained. Short Model-drawer behavior retained as an explicit later B4 gap. Source review/native proof/final sweep/publication remain pending. C4 and CLI activation still await owner decisions; B5 read-only preparation returned.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -2341,19 +2387,19 @@
     "scope": "No silence-as-approval; unaffected B4.1 continues"
   },
   "liveContinuationState": {
-    "root": "f50435cef3b9f7f6ff2ed4b33b6e6236668155bd",
+    "root": "4537ab1bb33c1fe4b773169af76619db45728110 plus this pending records checkpoint",
     "originMain": "fd195cf4287e84572a12183169478a6f7ddf6a92",
     "integrationBranch": {
       "branch": "codex/swbpipe-b4-controls-20260920",
-      "head": "f4c177399cefc6f7f0b5ea71f05223f9a6327c2c",
+      "head": "0c4f74f512c5e708eaaada6c1ecd608600b71152",
       "state": "ROOT-owned local combined candidate; old PR828 branch127677 preserved"
     },
-    "shell": "wt3 fast-forwarded to fd195; B4.1 active",
+    "shell": "c8f8e503 evidence checkpoint with product1ad; vertical repair dirty under sole manager/child ownership",
     "canvas": "fb720420 preserved; C4 preparation returned",
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "separate two-edit worktree preserved; never fan-in",
-    "resources": "manager owns native identity-bound cleanup then5174/shared-lock bounded browser diagnosis; ROOT released CUA and will not query old app",
-    "recordStatus": "post-merge continuity records await scoped independent review with next coherent batch",
-    "observedAt": "2026-09-20T23:30:31.980753+00:00"
+    "resources": "bounded5174/browser checks under shared lock; no native/build/full sweep; live31977 retained by ROOT/owner",
+    "recordStatus": "ROOT checkpoint binds owner correction/axis, horizontal review and B5 preparation; independent review of new record tail pending",
+    "observedAt": "2026-09-21T01:11:49.821781+00:00"
   }
 }
