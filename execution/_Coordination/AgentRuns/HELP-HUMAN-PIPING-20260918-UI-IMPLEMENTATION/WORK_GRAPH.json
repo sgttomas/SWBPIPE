@@ -598,7 +598,7 @@
     "B3A": {
       "role": "slice",
       "lane": "B-SHELL",
-      "title": "the unsaved-edits mark; the 'Solver \u00b7 Not solved' fallback chip",
+      "title": "the unsaved-edits mark; the 'Solver · Not solved' fallback chip",
       "status": "merged as 88c6c746; all local and hosted checks subsequently passed; technical integration only",
       "dependsOn": [
         "B3"
@@ -2390,7 +2390,7 @@
       "actualAgent": "/root/b3_manager",
       "model": "gpt-6-astra",
       "reasoning": "high",
-      "state": "same Astra/low TASK executing sealedP2 repair; actual Apply+Tab first-key loss and unchanged-editor Apply failure reproduced; sourcebrowser grant remains bounded; native held",
+      "state": "source/P2 reviewed; ROOT granted one fresh bounded native witness, pending actual launch",
       "basis": "c9f19195214b2e097980dde5e0d5fccbfba8e34c",
       "branch": "codex/swbpipe-b4-materials-20260921",
       "checkout": "existing swbpipe-wt3, prior branch/head preserved",
@@ -2409,8 +2409,8 @@
         "launchInputsSha256": "191f7ff6f8f2f0d3a09c9c91c381bfeebe3f3ad1ed3df7df507b0e02cf9e8d54"
       },
       "browserHandoff": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_BROWSER_HANDOFF.md",
-      "sourceCandidate": "6cd07a792a3e1efdd204f75b80f26f0a65e2de2e",
-      "evidenceCandidate": "daf8d966cc46ebb11f92dd8415d1f427fd9b2e71",
+      "sourceCandidate": "75fa863ea5cfee9bfe8f5a6ebf0f31047663e4e5",
+      "evidenceCandidate": "2bbb8ce4f4d9a8230b710d15a278f2176f86d99b",
       "dependsOn": [
         "B4-2-INTEGRATION"
       ],
@@ -2420,13 +2420,17 @@
         "briefSha256": "ad4e687c2e640af0856a228d9f04e4d6ef00a34d350a373f1e6422760bd384f0",
         "inputs": "instances/B4-3-CODEX/_run_records/p2/INPUTS.json",
         "inputsSha256": "68f38af40e415a030f217bde04c8543b1af960cb9274f0a8ae80c9fbebd8ec24",
-        "scope": "existing5 projection/adapter/tests paths; no core/engine/VirtualList extension"
+        "scope": "existing5 projection/adapter/tests paths; no core/engine/VirtualList extension",
+        "source": "75fa863ea5cfee9bfe8f5a6ebf0f31047663e4e5",
+        "evidence": "2bbb8ce4f4d9a8230b710d15a278f2176f86d99b"
       },
       "nativePreparation": {
-        "state": "draft only; final source/backcheck and explicit resource grant required",
+        "state": "ROOT activation sealed; actual manager/native launch to be observed",
         "record": "instances/B4-3-CODEX/_run_records/NATIVE_PLAN_DRAFT.md",
         "sha256": "dc789da88f84713e6a0f4c774aae029c680f06a9217ad94d261776e48014ffb8",
-        "scope": "one uninstrumented build; verified invented baseline; one synthetic Material through existing Inspector create; mixed-unit sort/textUndo, pointer/field/page lifecycle and baseline restoration; no store actions"
+        "scope": "one uninstrumented build; verified invented baseline; one synthetic Material through existing Inspector create; mixed-unit sort/textUndo, pointer/field/page lifecycle and baseline restoration; no store actions",
+        "activation": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_3_NATIVE_ACTIVATION.md",
+        "activationSha256": "4dbb1017d7f2adc8815d3e3e7ecb4246ba542ba8682afb8ea60b6a1ef8c10104"
       }
     },
     "B4-3-REVIEW": {
@@ -2438,13 +2442,23 @@
       "mechanism": "actual collaboration.spawn_agent fork_turns none",
       "source": "6cd07a792a3e1efdd204f75b80f26f0a65e2de2e",
       "evidence": "daf8d966cc46ebb11f92dd8415d1f427fd9b2e71",
-      "state": "oneP2; repair/backcheck required before fan-in/native",
+      "state": "initial source review plus independent P2 backcheck PASS; native/final combined gates remain",
       "launch": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_SOURCE_REVIEW_LAUNCH.md",
       "launchSha256": "6881b98e7afee243acbbf1374900b054a0b0183ec9111d3221c8204083938070",
       "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_INITIAL_SOURCE_REVIEW_RETURN.md",
       "returnSha256": "f04de2848b917dac3cd25fcfa13ffcc2faa389e75b583530966293ce0dec994e",
       "repairDisposition": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_3_P2_REPAIR_DISPOSITION.md",
-      "repairDispositionSha256": "611c121ff6db0676c31241fb38beb42009395c603512f4e8f1c8bc515f41c498"
+      "repairDispositionSha256": "611c121ff6db0676c31241fb38beb42009395c603512f4e8f1c8bc515f41c498",
+      "backcheck": {
+        "mechanism": "ROOT collaboration.followup_task to retained independent reviewer",
+        "source": "75fa863ea5cfee9bfe8f5a6ebf0f31047663e4e5",
+        "evidence": "2bbb8ce4f4d9a8230b710d15a278f2176f86d99b",
+        "launch": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_P2_BACKCHECK_LAUNCH.md",
+        "launchSha256": "de8db6399506d2fd40dbe9c5b4bdbc9f074dba9112579e0f46ef4a2a2646f2a2",
+        "state": "PASS; P2 closed; no new actionable findings",
+        "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_P2_BACKCHECK_RETURN.md",
+        "returnSha256": "c3f1371babff15cf0c14eb7cfde81aad7ace82e0685e6ea3bfeae18e02f0c600"
+      }
     }
   },
   "edges": [
@@ -2725,7 +2739,7 @@
       "B4-3-FAMILY-PREPARATION"
     ]
   ],
-  "current_frontier": "Complete Materials P2 exact-cell eligibility repair and independent backcheck, then reviewed native witness/ROOT own look. Combine reviewed Materials with ready cache maintenance for one final clean sweep/whole candidate review/PR/CI. Node sorted-review Undo follow-up is recorded but unproven; C4/liveCLI decisions and qualification holds remain.",
+  "current_frontier": "Materials source/P2 review PASS; one fresh bounded native build/witness and ROOT own look now authorized. Combine reviewed Materials with reviewed cache maintenance for one clean final sweep, complete candidate review and actual-head CI/merge. Node sorted-review Undo gap remains unproven; C4/live CLI decisions and qualification holds remain.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -3008,23 +3022,23 @@
   "currentOwnerQuestions": {
     "C4": "two label dispositions pending; package instances/ROOT/CONTINUATION_2026-09-19_CODEX/C4_LABEL_DECISION_PACKAGE.md",
     "liveControl": "bounded activation pending for peer-reviewed proposal instances/ROOT/CONTINUATION_2026-09-19_CODEX/LIVE_CONTROL_ACTIVATION_PROPOSAL.md",
-    "scope": "No silence-as-approval; unaffected authorized B4.2 proceeds"
+    "scope": "No silence-as-approval; unaffected authorized B4 work proceeds"
   },
   "liveContinuationState": {
-    "root": "764a75eb271e3b4aa746045c321f84554b64f09a plus current continuity/receipt/backcheck records",
+    "root": "132112c1edf99f159a7c150177b137de3d72ed6a plus current backcheck/continuity records",
     "originMain": "c9f19195214b2e097980dde5e0d5fccbfba8e34c",
     "integrationBranch": {
       "branch": "codex/swbpipe-b4-node-integration-20260920",
       "head": "8077032231ded1cc5d206becd03a18e43e6f3bb2",
       "state": "PR832 merged; branch preserved at8077"
     },
-    "shell": "actual Materials manager/TASK executing on codex/swbpipe-b4-materials-20260921 in existingwt3 from mergedc9f19195; oldc578Node branch preserved",
+    "shell": "Materials source 75fa863ea5cfee9bfe8f5a6ebf0f31047663e4e5 / evidence 2bbb8ce4f4d9a8230b710d15a278f2176f86d99b clean in wt3; worker held pending independent backcheck",
     "canvas": "fb720420 preserved; C4 preparation returned",
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "isolated226b probe retains two authorized source edits and two untracked dependency entries; preserved, never fan-in",
-    "resources": "Materials manager owns source5174/sharedE2E for P2 fail-before/affected proof, one pinned browser; no ROOT heavy/native work",
-    "recordStatus": "Materials whole-source review returned oneP2, now reproduced and under bounded repair; native plan prepared only",
-    "observedAt": "2026-09-21T06:00:47.419265+00:00"
+    "resources": "Piping manager/native TASK granted exclusive native/build/CUA after independent P2 PASS; browser ports/shared lock released. Peer notified; ROOT performs only disjoint records/Git work.",
+    "recordStatus": "Materials P2 closed; fresh native witness activated under sealed ROOT brief. Cache source/P3 review closed; combined final gates ahead.",
+    "observedAt": "2026-09-21T08:14:31.205509+00:00"
   },
   "historicalPauses": [
     {
