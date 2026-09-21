@@ -2064,7 +2064,7 @@
       "model": "gpt-6-astra",
       "reasoning": "high",
       "mechanism": "retainedmanager collaboration.followup_task; actual fresh TASK collaboration.spawn_agent under manager",
-      "status": "initial native evidence/cleanup frozen7b900; existing Astra/low writer executes bounded character-start repair, no rebuild yet",
+      "status": "four-path character correction independently passed; rebuilt native follow-up activation dispatched",
       "base": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
       "branch": "codex/swbpipe-b4-node-fields-20260920",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_2_MANAGER_BRIEF.md",
@@ -2134,21 +2134,31 @@
       "nativeCharacterWorkerAddendum": "instances/B4-2-CODEX/_run_records/native-character-repair/TASK_ADDENDUM.md",
       "nativeCharacterWorkerAddendumSha256": "b44bd50c4c2d1504c76140ac9cc80f16d98669e2fcadfce1aa0dcb4d617b8618",
       "nativeCharacterWorkerInputs": "instances/B4-2-CODEX/_run_records/native-character-repair/INPUTS.json",
-      "nativeCharacterWorkerInputsSha256": "d513d940eeacf7f5444ead8e7e605f834b645d986343ba50396416e75eee5c38"
+      "nativeCharacterWorkerInputsSha256": "d513d940eeacf7f5444ead8e7e605f834b645d986343ba50396416e75eee5c38",
+      "characterSourceCandidate": "a0649cbc9a434a28144d010a3a19d68111ace412",
+      "characterEvidenceCheckpoint": "ad70730a6207dcf7643124aaed160d48cd11eca4",
+      "characterSourceFreeze": "instances/B4-2-CODEX/_run_records/native-character-repair/SOURCE_FREEZE.json",
+      "characterSourceFreezeSha256": "ce0d0b6724bd32f123cd618c96715db2fb3173f2512b90e3a3befeb14eee80d7",
+      "characterReturn": "instances/B4-2-CODEX/_run_records/native-character-repair/RETURN.md",
+      "characterReturnSha256": "3d4af68736d9a203e2ce664032f910407aa8f010d02e67dac18b877943c46faf",
+      "characterManifest": "instances/B4-2-CODEX/_run_records/native-character-repair/ARTIFACT_HASHES.json",
+      "characterManifestSha256": "3d5b0778fd4ee969ba4d1900efeeb2bcfbd83856ea38c7e92895bac57fe476f7",
+      "rebuiltNativeActivation": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_REBUILT_NATIVE_ACTIVATION.txt",
+      "rebuiltNativeActivationSha256": "3e43c5855a4cb1c5b88f28315b3e8e84911bfaa28c3d6f6cfeebc1dffd6d0946"
     },
     "B4-2-INTEGRATION": {
       "role": "ROOT integration",
       "parent": "ROOT",
       "slice": "B4",
       "branch": "codex/swbpipe-b4-node-integration-20260920",
-      "candidate": "e0383b0634682c679beeef85cb00f7824ded4495",
+      "candidate": "89ae58bd8cb855860a5e59900dd1a93782305c69",
       "base": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
-      "status": "clean source/evidence fan-in, R1 closed; bounded native/full-final gates pending",
+      "status": "clean reviewed character correction/evidence fan-in; rebuilt native/full gates pending",
       "dependsOn": [
         "B4-2-CODEX-MANAGER"
       ],
       "scope": "oldPR829 branch preserved; ROOT owns fan-in/finalchecks/PR/CI",
-      "sourceCandidate": "a1833393e597acbe81f943accf64a9548035fe6a"
+      "sourceCandidate": "a0649cbc9a434a28144d010a3a19d68111ace412"
     },
     "PR829-RESUME-RECORDS-REVIEW": {
       "role": "TASK Type2 independent records review",
@@ -2175,7 +2185,7 @@
       "model": "gpt-6-astra",
       "reasoning": "xhigh",
       "mechanism": "actual fresh-context collaboration.spawn_agent; no implementation history/descendants",
-      "status": "complete source review + R1 backcheck PASS through97c; no unresolved finding",
+      "status": "complete source review, R1 and character correction backchecks PASS througha064; native rebuilt witness pending",
       "base": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
       "candidate": "a1833393e597acbe81f943accf64a9548035fe6a",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_2_INDEPENDENT_SOURCE_REVIEW_BRIEF.md",
@@ -2189,7 +2199,11 @@
       "backcheckBrief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_R1_BACKCHECK_LAUNCH.txt",
       "backcheckBriefSha256": "c49fb0016299984f1e17c4b9bbc82af23395b0e18a93b4df3f0579199253195d",
       "backcheckReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_R1_BACKCHECK_RETURN.md",
-      "backcheckReturnSha256": "858501b8e8e0583c8832ad1ce00cb3249e0a7f371749d539b4e9fce67ca25b03"
+      "backcheckReturnSha256": "858501b8e8e0583c8832ad1ce00cb3249e0a7f371749d539b4e9fce67ca25b03",
+      "characterBrief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_CHARACTER_BACKCHECK_LAUNCH.txt",
+      "characterBriefSha256": "0c608f56d66958ca6faafb2870723d16035b7d9b72f58f52b2770db8657967f2",
+      "characterReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_CHARACTER_BACKCHECK_RETURN.md",
+      "characterReturnSha256": "479b015044b971d6194edff87fa692eda918f3369f818f5adfaeaf5939b1b9cd"
     },
     "B4-3-FAMILY-PREPARATION": {
       "role": "WORKING_ITEMS Type1 read-only preparation",
@@ -2486,7 +2500,7 @@
       "B4-3-FAMILY-PREPARATION"
     ]
   ],
-  "current_frontier": "Native97c found a real character-start selection defect after source review/R1 closure. Finish unchanged-binary observations and cleanup, then bounded core focus-selection repair/fail-before proof and independent backcheck before rebuild. Full sweep/CI not started. B4.3 Materials planning returned only; C4/liveCLI pending.",
+  "current_frontier": "B4.2 source review plus R1/character backchecks PASS througha064. Rebuilt native follow-up dispatched under acknowledged slot; initial97c failure preserved. ROOT own look, final clean sweep/CI remain. Materials is next separate prepared increment, not activated.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -2764,10 +2778,10 @@
     "originMain": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
     "integrationBranch": {
       "branch": "codex/swbpipe-b4-node-integration-20260920",
-      "head": "e0383b0634682c679beeef85cb00f7824ded4495",
+      "head": "89ae58bd8cb855860a5e59900dd1a93782305c69",
       "state": "clean B4.2 source fan-in; independent/native/final gates pending"
     },
-    "shell": "7b900 native-evidence checkpoint; same writer active on bounded character-start repair",
+    "shell": "cleanad707/producta064; native follow-up pending actual launch record",
     "canvas": "fb720420 preserved; C4 preparation returned",
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "isolated226b probe retains two authorized source edits and two untracked dependency entries; preserved, never fan-in",
