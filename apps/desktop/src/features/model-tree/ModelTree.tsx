@@ -7,7 +7,7 @@ import { entityKey, type EntityKey, type OrderedSelectionState, type SelectionMo
 import { modelIndexFor, type ModelIndex } from "../workspace/modelIndex";
 import { VirtualList } from "../workspace/VirtualList";
 import { EngineeringTable, useTableBodyHeight, type TableApplyResult } from "../workspace/table/EngineeringTable";
-import { buildGridOperationIntent, nodeCoordinateColumns, type GridColumn, type GridRow } from "../workspace/table/modelTableAdapter";
+import { buildGridOperationIntent, nodeTableColumns, type GridColumn, type GridRow } from "../workspace/table/modelTableAdapter";
 import { capturedCellIsCurrent, type CapturedCell, type TableRow } from "../workspace/table/tableState";
 
 type Props = {
@@ -706,16 +706,23 @@ function EntityGrid({
   const [queuedMessage, setQueuedMessage] = useState("");
   const [reviewOpen, setReviewOpen] = useState(false);
   const [directDraftRetained, setDirectDraftRetained] = useState(false);
+  const [reviewReset, setReviewReset] = useState(0);
   const reviewVisible = entityType !== "nodes" || reviewOpen;
   const directVisible = entityType === "nodes" && !reviewOpen;
   const reviewRegionId = useId();
   const bulkBody = useTableBodyHeight(bounded, reviewVisible);
   const nodeRows = useMemo(() => gridRows(model, "nodes"), [model]);
-  const nodeGridColumns = useMemo(() => gridColumns(model, "nodes").filter((column) => ["x", "y", "z"].includes(column.key)), [model]);
-  const coordinateColumns = useMemo(() => nodeCoordinateColumns(model.project.units.length ?? ""), [model.project.units.length]);
+  const nodeGridColumns = useMemo(() => gridColumns(model, "nodes"), [model]);
+  const coordinateColumns = useMemo(() => nodeTableColumns(model.project.units.length ?? ""), [model.project.units.length]);
+  const reviewColumns = useMemo(() => nodeTableColumns(model.project.units.length ?? "", true), [model.project.units.length]);
   const tableRows: TableRow[] = useMemo(() => nodeRows.map((row) => ({ key: entityKey(row), label: row.id, searchText: row.searchText,
-    cells: Object.fromEntries(nodeGridColumns.map((column) => [column.key, { value: column.value(row), unit: model.project.units.length ?? "" }]))
+    cells: Object.fromEntries(nodeGridColumns.map((column) => [column.key, { value: column.value(row), unit: column.quantity ? model.project.units.length ?? "" : column.unit(row), readonly: gridCellReadonly(column, row) }]))
   })), [nodeRows, nodeGridColumns, model.project.units.length]);
+  const reviewRows: TableRow[] = useMemo(() => tableRows.map((tableRow, index) => ({ ...tableRow,
+    cells: Object.fromEntries(nodeGridColumns.map((column) => [column.key, { ...tableRow.cells[column.key],
+      value: drafts[draftKey(nodeRows[index], column, projectSessionGeneration)] ?? tableRow.cells[column.key].value,
+      readout: column.quantity ? <QuantityReadout quantity={{ value: numericGridValue(column.value(nodeRows[index])), unit: column.unit(nodeRows[index]), dimension_id: column.dimension }} /> : undefined }]))
+  })), [tableRows, nodeRows, nodeGridColumns, drafts, projectSessionGeneration]);
   const tableGeneration = JSON.stringify([model.project.id, projectSessionGeneration]);
   const operationSequence = useRef(0);
   const retainedNodeDrafts = changedGridCells({ columns: gridColumns(model, "nodes"), drafts, rows: nodeRows, projectSessionGeneration }).length;
@@ -725,7 +732,7 @@ function EntityGrid({
     const row = nodeRows.find((candidate) => entityKey(candidate) === captured.rowKey);
     const column = nodeGridColumns.find((candidate) => candidate.key === captured.columnKey);
     if (!row || !column) return { applied: false, messages: ["The target cell is unavailable."] };
-    if (!captured.unit.trim()) return { applied: false, messages: ["The model has no declared length unit. Direct coordinate Apply is unavailable."] };
+    if (column.quantity && !captured.unit.trim()) return { applied: false, messages: ["The model has no declared length unit. Direct coordinate Apply is unavailable."] };
     const capturedColumn = { ...column, unit: () => captured.unit, value: () => captured.before };
     const intent = buildGridOperationIntent({ row, column: capturedColumn, model, sequence: ++operationSequence.current, value, interaction: "cell" });
     // Direct edits need unique outcome identity even after a view/session remount.
@@ -781,6 +788,7 @@ function EntityGrid({
         })
       );
     });
+    setReviewReset((value) => value + 1);
     setQueuedMessage(
       `Queued ${changedCells.length} review intent${changedCells.length === 1 ? "" : "s"} from Grid mode.`
     );
@@ -806,9 +814,9 @@ function EntityGrid({
           </button>
         ))}
       </div>
-      {!directVisible && directDraftRetained ? <p className="retained-direct-draft" role="status" data-testid="retained-direct-draft">Direct coordinate edit retained. Return to node coordinates to correct or cancel it.</p> : null}
+      {!directVisible && directDraftRetained ? <p className="retained-direct-draft" role="status" data-testid="retained-direct-draft">Direct node edit retained. Return to node fields to correct or cancel it.</p> : null}
       <div className="direct-coordinate-workarea" hidden={!directVisible} inert={!directVisible}>
-        <EngineeringTable label="Node coordinates" bounded={bounded} active={directVisible} onDraftStateChange={setDirectDraftRetained} rows={tableRows} columns={coordinateColumns} generation={tableGeneration}
+        <EngineeringTable label="Node fields" bounded={bounded} active={directVisible} onDraftStateChange={setDirectDraftRetained} rows={tableRows} columns={coordinateColumns} generation={tableGeneration}
           filter={filterText} density={density} selectedKey={entityKey(selection)} busy={operationBusy}
           onSelect={(key) => { const row = nodeRows.find((candidate) => entityKey(candidate) === key); if (row) onSelect({ type: row.type, id: row.id }); }}
           onApply={applyCoordinate} />
@@ -822,7 +830,18 @@ function EntityGrid({
         </span>
         <span data-testid="entity-grid-change-count">{changedCells.length} changed cells</span>
       </div>
-      <div className="entity-grid-scroll" role="region" aria-label="Editable model entity table">
+      <div className="node-review-workarea" hidden={entityType !== "nodes"} inert={entityType !== "nodes"}>
+        <EngineeringTable label="Node review drafts" policy="review" resetEditsKey={reviewReset} bounded={bounded} active={reviewVisible && entityType === "nodes"}
+          rows={reviewRows} columns={reviewColumns} generation={tableGeneration} filter={filterText} density={density} selectedKey={entityKey(selection)}
+          onSelect={(key) => { const row = nodeRows.find((candidate) => entityKey(candidate) === key); if (row) onSelect({ type: row.type, id: row.id }); }}
+          onDraftChange={(captured, text) => {
+            const row = nodeRows.find((candidate) => entityKey(candidate) === captured.rowKey);
+            const column = nodeGridColumns.find((candidate) => candidate.key === captured.columnKey);
+            if (row && column && !gridCellReadonly(column, row) && captured.generation === tableGeneration) updateCell(row, column, text);
+          }}
+          onKeepDraft={() => ({ retained: true, messages: ["Draft retained; model unchanged."] })} />
+      </div>
+      {entityType !== "nodes" ? <div className="entity-grid-scroll" role="region" aria-label="Editable model entity table">
         {virtualGrid ? (
           <div className="entity-grid-virtual-table" role="table" aria-label={`${entityType} editable grid`} data-testid={`entity-grid-table-${entityType}`}>
             <div className="entity-grid-virtual-row header" role="row" style={{ gridTemplateColumns: `minmax(100px, 1fr) repeat(${columns.length}, minmax(120px, 1fr))` }}>
@@ -919,7 +938,8 @@ function EntityGrid({
           </p>
         ) : null}
       </div>
-      {virtualGrid && bulkBody.allocationConflict ? <p role="alert">No space is available for review rows. Expand the table view to continue.</p> : null}
+      : null}
+      {entityType !== "nodes" && virtualGrid && bulkBody.allocationConflict ? <p role="alert">No space is available for review rows. Expand the table view to continue.</p> : null}
       <div className="entity-grid-actions">
         <button
           data-testid="queue-entity-grid-intents"
@@ -933,7 +953,7 @@ function EntityGrid({
         <button
           data-testid="clear-entity-grid-drafts"
           disabled={changedCells.length === 0}
-          onClick={() => setDrafts({})}
+          onClick={() => { setReviewReset((value) => value + 1); setDrafts({}); }}
           type="button"
         >
           <X size={14} aria-hidden="true" />
@@ -941,7 +961,7 @@ function EntityGrid({
         </button>
       </div>
       <p className="muted entity-grid-boundary" data-testid="entity-grid-boundary">
-        Grid mode fans each changed cell into a structured review intent; storage remains local.
+        Grid mode fans each changed cell into a structured review intent; storage remains local. {entityType === "nodes" ? "Blank or whitespace text becomes TBD when queued; keeping a draft does not change the model." : ""}
       </p>
       {queuedMessage ? (
         <p className="entity-grid-queued" data-testid="entity-grid-queued-message">
@@ -952,7 +972,7 @@ function EntityGrid({
       </div>
       <button className="entity-grid-review-toggle" hidden={entityType !== "nodes"} data-testid="node-grid-review-disclosure"
         type="button" aria-expanded={reviewVisible} aria-controls={reviewRegionId} onClick={() => setReviewOpen((value) => !value)}>
-        {reviewOpen ? "Return to node coordinates" : "Review multiple changes"}{!reviewOpen && retainedNodeDrafts > 0 ? ` · ${retainedNodeDrafts} retained draft${retainedNodeDrafts === 1 ? "" : "s"}` : ""}
+        {reviewOpen ? "Return to node fields" : "Review multiple changes"}{!reviewOpen && retainedNodeDrafts > 0 ? ` · ${retainedNodeDrafts} retained draft${retainedNodeDrafts === 1 ? "" : "s"}` : ""}
       </button>
     </section>
   );
@@ -1491,7 +1511,7 @@ function readonlyGridColumn(
 
 function gridCellReadonly(column: GridColumn, row: GridRow): boolean {
   // Structured provenance must never be flattened into a user-entered string.
-  return Boolean(column.readonly || (row.type === "section" && column.fieldPath === "provenance" && typeof (row.raw as { provenance?: unknown }).provenance === "object"));
+  return Boolean(column.readonly || (column.fieldPath === "provenance" && ((row.type === "section" && typeof (row.raw as { provenance?: unknown }).provenance === "object") || (row.type === "node" && typeof (row.raw as { provenance?: unknown }).provenance !== "string"))));
 }
 
 function changedGridCells({

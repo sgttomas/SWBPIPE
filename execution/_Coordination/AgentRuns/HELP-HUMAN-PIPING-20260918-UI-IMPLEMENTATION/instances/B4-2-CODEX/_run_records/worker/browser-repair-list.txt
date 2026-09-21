@@ -1,0 +1,12 @@
+Listing tests:
+  [chromium-desktop] › b4-table-editing.spec.ts:80:1 › B4 Both with Inspector keeps pointer horizontal scrolling inside the coordinate table
+  [chromium-desktop] › b4-table-editing.spec.ts:175:1 › B4 short Grid keeps vertical chrome fixed and retains alternate review drafts
+  [chromium-desktop] › b4-table-editing.spec.ts:208:1 › B4 virtual Grid confines body scrolling and boundary wheel without moving chrome
+  [chromium-desktop] › b4-table-editing.spec.ts:260:1 › B4 text fields apply, recover filtered focus, preserve text Undo and retain review drafts through pointer Queue and Clear
+  [chromium-desktop] › ui-foundation.spec.ts:349:1 › Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft
+  [chromium-compact] › b4-table-editing.spec.ts:80:1 › B4 Both with Inspector keeps pointer horizontal scrolling inside the coordinate table
+  [chromium-compact] › b4-table-editing.spec.ts:175:1 › B4 short Grid keeps vertical chrome fixed and retains alternate review drafts
+  [chromium-compact] › b4-table-editing.spec.ts:208:1 › B4 virtual Grid confines body scrolling and boundary wheel without moving chrome
+  [chromium-compact] › b4-table-editing.spec.ts:260:1 › B4 text fields apply, recover filtered focus, preserve text Undo and retain review drafts through pointer Queue and Clear
+  [chromium-compact] › ui-foundation.spec.ts:349:1 › Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft
+Total: 10 tests in 2 files

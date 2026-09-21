@@ -288,3 +288,31 @@ describe("EngineeringTable interaction ownership", () => {
   });
 
 });
+
+it("recovers focus after a later canonical label publication filters the owned row out without selecting a fallback", async () => {
+  const select = vi.fn(); const apply = vi.fn(async () => ({ applied: true, messages: [] }));
+  const row = { key: rows()[0].key, label: "n:0", searchText: "original", cells: { label: { value: "original", unit: "none" } } };
+  const props = { label: "Nodes", rows: [row], columns: [{ key: "label", label: "Label", unit: "", kind: "text" as const }], generation: "p", density: "comfortable" as const, filter: "original", selectedKey: row.key, onSelect: select, onApply: apply };
+  const view = render(<><button>Outside</button><EngineeringTable {...props} /></>);
+  fireEvent.doubleClick(cell(0, "label")); const input = screen.getByRole("textbox", { name: "n:0 Label" });
+  fireEvent.change(input, { target: { value: "renamed" } }); fireEvent.click(screen.getByRole("button", { name: "Apply" }));
+  await waitFor(() => expect(cell(0, "label")).toHaveFocus()); select.mockClear();
+  view.rerender(<><button>Outside</button><EngineeringTable {...props} rows={[{ ...row, searchText: "renamed", cells: { label: { value: "renamed", unit: "none" } } }]} /></>);
+  expect(screen.getByRole("group", { name: "Nodes footer" })).toHaveFocus(); expect(select).not.toHaveBeenCalled();
+});
+
+it("keeps text rejection local and ignores a late text completion after same-ID generation replacement", async () => {
+  let complete!: (result: TableApplyResult) => void;
+  const apply = vi.fn(() => new Promise<TableApplyResult>((resolve) => { complete = resolve; }));
+  const row = { key: rows()[0].key, label: "n:0", cells: { label: { value: "Original", unit: "none" } } };
+  const props = { label: "Nodes", rows: [row], columns: [{ key: "label", label: "Label", unit: "", kind: "text" as const }], generation: "p:1", density: "comfortable" as const, filter: "", selectedKey: row.key, onSelect: vi.fn(), onApply: apply };
+  const view = render(<EngineeringTable {...props} />);
+  fireEvent.doubleClick(cell(0, "label")); fireEvent.change(screen.getByRole("textbox"), { target: { value: "Rejected" } }); fireEvent.click(screen.getByRole("button", { name: "Apply" }));
+  await act(async () => complete({ applied: false, rejected: true, messages: ["TEXT_REJECTED"] }));
+  expect(screen.getByRole("textbox")).toHaveValue("Original"); expect(screen.getByRole("alert")).toHaveTextContent("Engine rejected: TEXT_REJECTED");
+  fireEvent.change(screen.getByRole("textbox"), { target: { value: "Pending" } }); fireEvent.click(screen.getByRole("button", { name: "Apply" }));
+  view.rerender(<EngineeringTable {...props} generation="p:2" />);
+  fireEvent.doubleClick(cell(0, "label")); fireEvent.change(screen.getByRole("textbox"), { target: { value: "New draft" } });
+  await act(async () => complete({ applied: true, messages: ["Old text accepted"] }));
+  expect(screen.getByRole("textbox")).toHaveValue("New draft"); expect(screen.queryByText("Old text accepted")).not.toBeInTheDocument();
+});

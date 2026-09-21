@@ -1,0 +1,20 @@
+Listing tests:
+  [chromium-desktop] › b3a-session-status.spec.ts:5:1 › canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot
+  [chromium-desktop] › b4-table-editing.spec.ts:6:1 › B4 node coordinates apply through one operation with keyboard, history and saved-state ownership
+  [chromium-desktop] › b4-table-editing.spec.ts:50:1 › B4 virtualized invalid editor survives scrolling and a filter threshold without changing the model
+  [chromium-desktop] › b4-table-editing.spec.ts:80:1 › B4 Both with Inspector keeps pointer horizontal scrolling inside the coordinate table
+  [chromium-desktop] › b4-table-editing.spec.ts:175:1 › B4 short Grid keeps vertical chrome fixed and retains alternate review drafts
+  [chromium-desktop] › b4-table-editing.spec.ts:208:1 › B4 virtual Grid confines body scrolling and boundary wheel without moving chrome
+  [chromium-desktop] › b4-table-editing.spec.ts:260:1 › B4 text fields apply, recover filtered focus, preserve text Undo and retain review drafts through pointer Queue and Clear
+  [chromium-desktop] › r2-smoke.spec.ts:148:1 › guided workbench shell keeps journey steps, details, and compact status reachable
+  [chromium-desktop] › ui-foundation.spec.ts:349:1 › Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft
+  [chromium-compact] › b3a-session-status.spec.ts:5:1 › canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot
+  [chromium-compact] › b4-table-editing.spec.ts:6:1 › B4 node coordinates apply through one operation with keyboard, history and saved-state ownership
+  [chromium-compact] › b4-table-editing.spec.ts:50:1 › B4 virtualized invalid editor survives scrolling and a filter threshold without changing the model
+  [chromium-compact] › b4-table-editing.spec.ts:80:1 › B4 Both with Inspector keeps pointer horizontal scrolling inside the coordinate table
+  [chromium-compact] › b4-table-editing.spec.ts:175:1 › B4 short Grid keeps vertical chrome fixed and retains alternate review drafts
+  [chromium-compact] › b4-table-editing.spec.ts:208:1 › B4 virtual Grid confines body scrolling and boundary wheel without moving chrome
+  [chromium-compact] › b4-table-editing.spec.ts:260:1 › B4 text fields apply, recover filtered focus, preserve text Undo and retain review drafts through pointer Queue and Clear
+  [chromium-compact] › r2-smoke.spec.ts:148:1 › guided workbench shell keeps journey steps, details, and compact status reachable
+  [chromium-compact] › ui-foundation.spec.ts:349:1 › Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft
+Total: 18 tests in 4 files

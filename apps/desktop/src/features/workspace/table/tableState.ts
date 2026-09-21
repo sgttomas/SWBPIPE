@@ -1,8 +1,9 @@
+import type { ReactNode } from "react";
 import type { EntityKey } from "../selectionState";
 
-export type TableCell = Readonly<{ value: string; unit: string }>;
+export type TableCell = Readonly<{ value: string; unit: string; readonly?: boolean; readout?: ReactNode }>;
 export type TableRow = Readonly<{ key: EntityKey; label: string; searchText?: string; cells: Readonly<Record<string, TableCell>> }>;
-export type TableColumn = Readonly<{ key: string; label: string; unit: string; validate?: (text: string) => string | undefined; equivalent?: (before: string, after: string) => boolean; compare?: (a: string, b: string) => number }>;
+export type TableColumn = Readonly<{ key: string; label: string; unit: string; kind?: "text" | "quantity"; validate?: (text: string) => string | undefined; equivalent?: (before: string, after: string) => boolean; compare?: (a: string, b: string) => number }>;
 export type CellAddress = Readonly<{ rowKey: EntityKey; columnKey: string }>;
 export type CapturedCell = CellAddress & Readonly<{
   token: number;

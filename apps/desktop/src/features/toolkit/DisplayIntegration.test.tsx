@@ -32,18 +32,21 @@ describe("typed model display integration", () => {
     changeFormControl(screen.getByTestId("editor-intent-field"), { target: { value: "position.x" } });
     fireEvent.click(screen.getByTestId("layout-mode-grid"));
     openNodeGridReview();
-    const draft = screen.getByTestId(`entity-grid-input-${model.nodes[0].id}-x`);
+    const draft = reviewEditor(`${model.nodes[0].id}-x`);
     fireEvent.change(draft, { target: { value: "2.3450" } });
     fireEvent.change(screen.getByLabelText("Display units"), { target: { value: "US" } });
     const position = screen.getByText("Position").parentElement!;
     await waitFor(() => expect(position.querySelector('[data-display-status="converted"]')).not.toBeNull());
     expect(position).toHaveTextContent("in");
     expect(draft).toHaveValue("2.3450");
+    await waitFor(() => expect(draft.parentElement!.querySelector("[data-display-status=converted]")).not.toBeNull());
+    expect(draft.parentElement).toHaveTextContent("in");
     expect(screen.getByTestId("editor-intent-value")).toHaveValue("1");
     expect(JSON.stringify(model)).toBe(exact);
     expect((await computeModelHash(model))?.value).toBe(hash?.value);
     fireEvent.change(screen.getByLabelText("Display units"), { target: { value: "entered" } });
     expect(position).toHaveTextContent("x=1 m");
+    await waitFor(() => expect(draft.parentElement).toHaveTextContent("1 m"));
     expect(draft).toHaveValue("2.3450");
   });
 
@@ -178,4 +181,16 @@ describe("support stiffness dimensional presentation (N7 F2)", () => {
 function openNodeGridReview() {
   const summary = screen.getByTestId("node-grid-review-disclosure");
   if (summary.getAttribute("aria-expanded") !== "true") fireEvent.click(summary);
+}
+
+// The shared review table opens one cell editor at a time; retain any prior raw draft first.
+function reviewEditor(cell: string): HTMLInputElement {
+  const table = screen.getByTestId("engineering-table-review");
+  const existing = table.querySelector<HTMLInputElement>("input");
+  const split = cell.lastIndexOf("-"); const row = cell.slice(0, split); const column = cell.slice(split + 1);
+  if (existing?.getAttribute("aria-label")?.startsWith(`${row} ${column.length === 1 ? column.toUpperCase() : column === "label" ? "Label" : "Provenance"}`)) return existing;
+  const keep = table.querySelector<HTMLButtonElement>('[data-table-action="apply"]');
+  if (keep) fireEvent.click(keep);
+  fireEvent.doubleClick(screen.getByTestId(`review-cell-${cell}`));
+  return table.querySelector<HTMLInputElement>("input")!;
 }

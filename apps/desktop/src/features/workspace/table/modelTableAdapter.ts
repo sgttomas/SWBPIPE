@@ -112,9 +112,19 @@ function safeToken(value: string): string {
 
 /** Entered-coordinate grammar belongs to this adapter, not the interaction core. */
 export function nodeCoordinateColumns(unit: string): TableColumn[] {
-  return ["x", "y", "z"].map((key) => ({ key, label: key.toUpperCase(), unit: unit || "unit missing",
+  return ["x", "y", "z"].map((key) => ({ key, kind: "quantity", label: key.toUpperCase(), unit: unit || "unit missing",
     validate: (text) => unit.trim() ? coordinateError(text) : "The model has no declared length unit. Direct coordinate Apply is unavailable.",
     equivalent: (before, after) => Number(before) === Number(after),
     compare: (a, b) => Number(a) - Number(b)
   }));
+}
+
+/** Text is dimensionless; only the replacement is normalized by the engine. */
+export function nodeTableColumns(unit: string, review = false): TableColumn[] {
+  const textColumn = (key: string, label: string): TableColumn => ({ key, label, unit: "", kind: "text",
+    validate: review ? undefined : (text) => text.trim() ? undefined : "Enter text or explicitly enter TBD.",
+    equivalent: review ? undefined : (before, after) => before === after.trim()
+  });
+  return [textColumn("label", "Label"), ...nodeCoordinateColumns(unit).map((column) => review
+    ? { ...column, validate: undefined, equivalent: undefined } : column), textColumn("provenance", "Provenance")];
 }
