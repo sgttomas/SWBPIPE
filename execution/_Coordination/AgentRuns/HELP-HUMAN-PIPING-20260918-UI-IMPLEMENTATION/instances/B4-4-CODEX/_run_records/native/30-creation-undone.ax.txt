@@ -1,0 +1,10 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 178-179
+~0 standard window Invented Utility Loop Preview — SWBPIPE, Secondary Actions: Raise
+~						181 button (disabled) Undo model edit, Help: Nothing to undo
+~								295 button (disabled) Undo, Help: Undo last local session model edit
+~								297 text 0  undo /  2  redo
+~							298 text Undid op:create-section-section:B4-native-sections in the local session; previous solve results were cleared. Save is still required to persist the current session model.
+~					271 text project: project:invented-loop-01 Entered
+~	162 text Invented Utility Loop Preview — SWBPIPE
+The focused UI element is 273 container Operation Apply section

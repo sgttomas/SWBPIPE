@@ -1,0 +1,38 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview · Edited — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 212-233, 265, 273-299
+~						209 toggle button Model, Value: off
+~						210 toggle button Review changes, Value: on
++					273 container Operation Apply section
++						274 container Editing and review tools
++							275 toggle button Review changes, Value: on
++							276 toggle button Geometry, Value: off
++							277 toggle button Supports, Value: off
++							278 toggle button Self weight, Value: off
++							279 toggle button Agent, Value: off
++							280 toggle button Details, Value: off
++						281 container Batch review
++							282 heading Batch review, Value: 3
++								283 text Batch review
++							284 container
++								285 text 0  queued batches;  0  batches applied this session.
++							286 text Validate to preview all steps on temporary state. Apply commits the entire batch once or leaves the model unchanged. Batch drafts and receipts shown here belong to this session.
++							287 button (disabled) Clear pending changes and batches, Help: No pending batches or requests to clear.
++						288 container Apply structured operations
++							289 text APPLY OPERATIONS
++							290 container
++								291 text 0  queued;  2  applied this session. Applying validates through the structured-operation seam and replaces the session model document; saving the project stores it locally.
++							292 container Operation status
++								293 text Engine  ready 0 unit-bearing queued, 0 dimensionless queued; passed; 2 applied receipts.
++							294 container Session edit history
++								295 button Undo, Help: Undo last local session model edit
++								296 button Redo, Help: Redo last undone local session model edit
++								297 text 1  undo /  1  redo
++							298 text Operation op:table-cell-0662eaae-b2f5-4240-a6fb-67352c55c06d was not applied (blocked); see its diagnostics.
++							299 text Queue a review intent from the property inspector or viewport to validate and apply it here.
++							300 text APPLIED THIS SESSION
++							301 container
++								302 text op:table-cell-0b3e2fd1-57ac-4b88-ad41-7cbd2a074f7e Section section:B4-native-sections ;  properties.outside_diameter.value :  0.1  to {"value":0.11,"unit":"m"} Applied through  tauri_backend_apply . Acceptance basis  user_initiated_apply_in_local_session ; persistence  session_state_only_not_yet_saved ; professional approval not recorded . model_hash= sha256:8f7ed6e9d85a494c2…
++							303 container
++								304 text op:create-section-section:B4-native-sections Section section:B4-native-sections ;  sections :  not_present  to {"id":"section:B4-native-sections","name":"Invented Sections witness","section_type":"pipe","properties":{"outside_diameter":{"value":0.1,"unit":"m"},"wall_thickness":{"value":0.01,"unit":"m"}},"provenance":"invented functional witness"} Applied through  tauri_backend_apply . Acceptance basis  user_initiated_apply_in_local_session ; persistence  session_state_only_not_yet_saved ; professional approval not recorded . model_hash= sha256:4cde70031b4e421ad…
++							305 text Applying a structured operation records a user-initiated local-session acceptance only. Results of earlier solves are cleared because they no longer describe the edited model.
+The focused UI element is 171 HTML content Description: SWBPIPE, URL: tauri://localhost

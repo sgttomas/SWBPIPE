@@ -1,0 +1,25 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 295-349
+~								287 toggle button Nodes, Value: off
+~								291 toggle button Sections, Value: on
++							351 container
++								352 table (settable) Section fields
++									353 row (selectable)
++										354 cell (settable)
++											355 text Section
++										356 cell (settable)
++											357 button Sort Name
++										358 cell (settable)
++											359 button Sort Type
++										360 cell (settable)
++											361 button Sort Outside dia.
++										362 cell (settable)
++											363 button Sort Wall
++										364 cell (settable)
++											365 button Sort Provenance
++								366 container Section fields footer
++									367 text 0
++									368 text  of 
++									369 text 0
++									370 text  rows
+The focused UI element is 171 HTML content Description: SWBPIPE, URL: tauri://localhost

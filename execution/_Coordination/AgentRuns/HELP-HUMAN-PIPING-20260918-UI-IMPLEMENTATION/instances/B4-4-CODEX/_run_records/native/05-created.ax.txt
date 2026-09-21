@@ -1,0 +1,29 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview · Edited — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 331-332, 396-399
+~0 standard window Invented Utility Loop Preview · Edited — SWBPIPE, Secondary Actions: Raise
++						401 container Unsaved model edits
++							402 text  · Edited
+~						10 button Undo model edit, Help: Undo (⌘Z)
+~						39 toggle button Review changes, Value: on
+~								389 text 0  queued;  1  applied this session. Applying validates through the structured-operation seam and replaces the session model document; saving the project stores it locally.
+~								391 text Engine  ready 0 unit-bearing queued, 0 dimensionless queued; passed; 1 applied receipts.
+~								393 button Undo, Help: Undo last local session model edit
+~								395 text 1  undo /  0  redo
++							403 text Applied op:create-section-section:B4-native-sections to the session model; previous solve results were cleared. Run a new solve, then save the project to store the edited model locally.
++							404 text Queue a review intent from the property inspector or viewport to validate and apply it here.
++							405 text APPLIED THIS SESSION
++							406 container
++								407 text op:create-section-section:B4-native-sections Section section:B4-native-sections ;  sections : not_present  to {"id":"section:B4-native-sections","name":"Invented Sections witness","section_type":"pipe","properties":{"outside_diameter":{"value":0.1,"unit":"m"},"wall_thickness":{"value":0.01,"unit":"m"}},"provenance":"invented functional witness"} Applied through  tauri_backend_apply . Acceptance basis  user_initiated_apply_in_local_session ; persistence  session_state_only_not_yet_saved ; professional approval not recorded . model_hash= sha256:4cde70031b4e421ad…
+~						284 text Selected:  section:B4-native-sections
+~						322 heading Invented Sections witness — section:section:B4-native-sections, Value: 2
+~							323 text Invented Sections witness —  section : section:B4-native-sections
++						408 container Remove selected entity
++							409 heading Remove section, Value: 3
++								410 text Remove  section
++							411 container
++								412 text Remove  Invented Sections witness ( section:B4-native-sections ). References from other records can block removal. No connected records will be removed automatically.
++							413 button Queue removal for review
++							414 text The queued change must be validated and explicitly applied in Pending changes.
+~					157 text section: section:B4-native-sections Entered
+~	162 text Invented Utility Loop Preview · Edited — SWBPIPE
+The focused UI element is 371 container Operation Apply section

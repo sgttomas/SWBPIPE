@@ -1,0 +1,13 @@
+{
+  "timeUtc": "2026-09-21T14:00:03.535350+00:00",
+  "mechanism": "collaboration.followup_task",
+  "parent": "/root/b3_manager",
+  "child": "/root/b3_manager/b4_1_native",
+  "role": "TASK",
+  "model": "gpt-6-astra",
+  "effort": "low",
+  "status": "resumed",
+  "briefSha256": "703a2a49af1cb5d60d925a3cd65e4e3a6b054c2a8a520ebbe13d0b31b5155ed1",
+  "inputSha256": "26530abf1511eef3abc754dd6e7fd4f6c4923a806886ff6abb2b7c6fac06a1ae",
+  "resourceGrant": "one native/build/CUA slot; no browser/full sweep"
+}

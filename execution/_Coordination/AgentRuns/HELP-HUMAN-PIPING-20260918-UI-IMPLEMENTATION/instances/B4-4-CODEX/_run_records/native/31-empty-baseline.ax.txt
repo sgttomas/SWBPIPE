@@ -1,0 +1,83 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 275-305
+~						209 toggle button Model, Value: on
+~						210 toggle button Review changes, Value: off
+~					273 container Model tree
+~						274 text MODEL
++						275 container Layout grid mode
++							276 toggle button Tree, Value: off
++							277 toggle button Grid, Value: on
++						278 container Model tree filtering
++							279 container
++								280 text Filter model
++								281 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
++									282 text Name, ID, type, or group
++							283 text 27  of  27  model entities visible
++							284 button (disabled) Clear model tree filter
++						285 container Bulk entity grid
++							286 container Grid entity type
++								287 toggle button Nodes, Value: on
++								288 toggle button Pipes, Value: off
++								289 toggle button Supports, Value: off
++								290 toggle button Materials, Value: off
++								291 toggle button Sections, Value: off
++								292 toggle button Components, Value: off
++								293 toggle button Load Cases, Value: off
++								294 toggle button Combinations, Value: off
++							295 container
++								296 table (settable) Node fields
++									297 row (selectable)
++										298 cell (settable)
++											299 text Node
++										300 cell (settable)
++											301 button Sort Label
++										302 cell (settable)
++											303 button Sort X
++										304 cell (settable)
++											305 button Sort Y
++										306 cell (settable)
++											307 button Sort Z
++										308 cell (settable)
++											309 button Sort Provenance
++									310 row (selectable)
++										311 cell (selectable, settable) node:N-100
++										312 cell (selectable, settable) node:N-100 Label: Pump nozzle
++										313 cell (selectable, settable) node:N-100 X: 0 m
++										314 cell (selectable, settable) node:N-100 Y: 0 m
++										315 cell (selectable, settable) node:N-100 Z: 0 m
++										316 cell (selectable, settable) node:N-100 Provenance: invented_example
++									317 row (selectable)
++										318 cell (selectable, settable) node:N-110
++										319 cell (selectable, settable) node:N-110 Label: Low point elbow
++										320 cell (selectable, settable) node:N-110 X: 3.2 m
++										321 cell (selectable, settable) node:N-110 Y: 0 m
++										322 cell (selectable, settable) node:N-110 Z: 0 m
++										323 cell (selectable, settable) node:N-110 Provenance: invented_example
++									324 row (selectable)
++										325 cell (selectable, settable) node:N-120
++										326 cell (selectable, settable) node:N-120 Label: Riser elbow
++										327 cell (selectable, settable) node:N-120 X: 3.2 m
++										328 cell (selectable, settable) node:N-120 Y: 2.4 m
++										329 cell (selectable, settable) node:N-120 Z: 0 m
++										330 cell (selectable, settable) node:N-120 Provenance: invented_example
++									331 row (selectable)
++										332 cell (selectable, settable) node:N-130
++										333 cell (selectable, settable) node:N-130 Label: Rack turn
++										334 cell (selectable, settable) node:N-130 X: 7.6 m
++										335 cell (selectable, settable) node:N-130 Y: 2.4 m
++										336 cell (selectable, settable) node:N-130 Z: 0 m
++										337 cell (selectable, settable) node:N-130 Provenance: invented_example
++									338 row (selectable)
++										339 cell (selectable, settable) node:N-140
++										340 cell (selectable, settable) node:N-140 Label: Terminal tie-in
++										341 cell (selectable, settable) node:N-140 X: 7.6 m
++										342 cell (selectable, settable) node:N-140 Y: 2.4 m
++										343 cell (selectable, settable) node:N-140 Z: 2.2 m
++										344 cell (selectable, settable) node:N-140 Provenance: invented_example
++								345 container Node fields footer
++									346 text 5
++									347 text  of 
++									348 text 5
++									349 text  rows
++							350 button (collapsed) Review multiple changes, Secondary Actions: Expand
+The focused UI element is 171 HTML content Description: SWBPIPE, URL: tauri://localhost

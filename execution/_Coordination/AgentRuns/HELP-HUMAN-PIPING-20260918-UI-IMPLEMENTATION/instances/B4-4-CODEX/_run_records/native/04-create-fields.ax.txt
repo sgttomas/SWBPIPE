@@ -1,0 +1,10 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~									347 text field (settable) New section ID, Value: section:B4-native-sections
+~									350 text field (settable) New section name, Value: Invented Sections witness
+~									363 text field (settable) New section outside diameter, Value: 0.1
+~									366 text field (settable) New section wall thickness, Value: 0.01
+~									369 text field (settable) New section provenance, Value: invented functional witness
+~								370 button Queue section, Help: Queue section create intent
++								371 container
++									372 text Operation op:create-section-section:B4-native-sections; create; proposed Target Section; section:B4-native-sections Change create_section; Explicit pipe section; sections; before=not_present; after={"id":"section:B4-native-sections","name":"Invented Sections witness","section_type":"pipe","properties":{"outside_diameter":{"value":0.1,"unit":"m"},"wall_thickness":{"value":0.01,"unit":"m"}},"provenance":"invented functional witness"} Unit basis length; unit=m; explicit user-entered pipe section geometry; entered unit preserved Validation not_run; not_run; length=dec018_catalog_dimension_match; not_generated; not_applied Audit boundary Routed through the structured operations only; no direct model mutation; requires your acceptance; does not change the accepted model until applied Professional boundary Requires human review; no compliance claim; no approval claim Rationale explicit user-entered pipe section for project:invented-loop-01; requires service validation before durable model change.
+The focused UI element is 369 text field (settable) New section provenance, Value: invented functional witness
