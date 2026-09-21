@@ -2690,7 +2690,7 @@
       "model": "gpt-6-astra",
       "reasoning": "high",
       "mechanism": "ROOT actual retained manager followup",
-      "state": "ROOT activated one affected native build/witness via retained manager; actual child resumption pending",
+      "state": "actual retained native TASK resumed after cleanb028/productdb35 verification",
       "basis": "fd002217f067020d44deaee22866e14eed81173f",
       "branch": "codex/swbpipe-b4-sections-20260921",
       "checkout": "existingwt3 after clean verification; old Materials branch preserved",
@@ -2762,7 +2762,22 @@
       "repairEvidence": "b028c82ba44d528fc169fec2e1b82e1bc58fa6dd",
       "repairCheck": "73focused unit passes/4files, App1PASS/217filtered, TypeScript PASS and4affected browser passes/13.6s. ROOT verified48new committed evidence bindings. Real vertical scroll and unit-geometry horizontal/partial coverage distinguished.",
       "nativeActivation": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_4_NATIVE_ACTIVATION.md",
-      "nativeActivationSha256": "cdec5820232ea10117b3d6c35ef1d94031f6b77e56423fc21acd447669d2ec6d"
+      "nativeActivationSha256": "cdec5820232ea10117b3d6c35ef1d94031f6b77e56423fc21acd447669d2ec6d",
+      "nativeWorker": {
+        "actualAgent": "/root/b3_manager/b4_1_native",
+        "role": "TASK Type2",
+        "model": "gpt-6-astra",
+        "reasoning": "low",
+        "mechanism": "manager actual retained child followup",
+        "source": "db35d7582e61d69ad415df7cdf4132b91e710dd8",
+        "evidenceHead": "b028c82ba44d528fc169fec2e1b82e1bc58fa6dd",
+        "brief": "instances/B4-4-CODEX/_run_records/NATIVE_TASK_BRIEF.md",
+        "briefSha256": "703a2a49af1cb5d60d925a3cd65e4e3a6b054c2a8a520ebbe13d0b31b5155ed1",
+        "inputsSha256": "26530abf1511eef3abc754dd6e7fd4f6c4923a806886ff6abb2b7c6fac06a1ae",
+        "resumeSha256": "3e3e65304edd023e2a3fe9075fd111cb894b4363288107dd3b017c288b1bd820",
+        "resources": "exclusive native build/foreground/CUA, no source repair or full sweep",
+        "milestone": "One build exit0; fresh PID54294, binary9d4f950bd8a7857bfe18e39561a5af71cd1d8121be1fbf042290d687ccc78455; known invented27-entity baseline, Sections0, UndoRedooff/noEdited, no Mac lock. Actual interaction underway."
+      }
     },
     "B4-4-CI-COVERAGE": {
       "role": "ROOT maintained CI mapping",
@@ -2814,6 +2829,21 @@
         "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_4_P2_BACKCHECK_RETURN.md",
         "returnSha256": "a7650dd16b65f7271d144eef75729d5350575a2ad293cc518088d488e8e0bbeb"
       }
+    },
+    "B4-NEXT-PREPARATION": {
+      "role": "WORKING_ITEMS Type1 read-only preparation",
+      "parent": "ROOT",
+      "actualAgent": "/root/b3_manager",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "mechanism": "ROOT message to active retained manager, no child",
+      "basis": "db35d7582e61d69ad415df7cdf4132b91e710dd8",
+      "state": "returned, ROOT source bindings/actual compact routing checked; recommended compact drawer fit next, then Pipes; no implementation yet",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_NEXT_PREPARATION_BRIEF.md",
+      "briefSha256": "0bce9d60a09fb54ba2cac4e80a64b71ee4bcabd9ed458097be2d9c7626c04699",
+      "scope": "next supported family versus compact table fit; no DAG/deliverable/CLI/C4/B5 expansion",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_NEXT_PREPARATION_RETURN.md",
+      "returnSha256": "c6d8ece0b35b36db2d9fd71a7e35a084bef15df0e3663544883d926f401e26f8"
     }
   },
   "edges": [
