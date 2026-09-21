@@ -1,0 +1,14 @@
+{
+  "at": "2026-09-21T01:54:10.319902+00:00",
+  "mechanism": "collaboration.followup_task",
+  "task": "/root/b3_manager/b4_1_native",
+  "parent": "/root/b3_manager",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra/low retained instance",
+  "source": "ed8cc27fdb37b8df2f20eb5f877aacb61bfd7db1",
+  "addendumSha256": "ca4b48ff3442f1f1cc52a179ca652cbadf7765c02d64e6f80301b5cfa731bfe8",
+  "inputsSha256": "43932e26b5fd07ca59d2190df627fc6fdc278ab570793c2189ee50b7af32b480",
+  "planSha256": "fdfde38bc6c5434d50b41c25c69dee62f0eb18f438e775072970aca5575cd9e9",
+  "grant": "ROOT reviewPASS, peer release, one exclusive uninstrumented native build/witness",
+  "enforcement": "host unrestricted; role/scope/resource instruction-enforced"
+}

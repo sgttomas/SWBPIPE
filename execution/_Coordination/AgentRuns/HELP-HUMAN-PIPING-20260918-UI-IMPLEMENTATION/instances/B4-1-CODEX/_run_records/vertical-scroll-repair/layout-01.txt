@@ -1,0 +1,114 @@
+[
+  {
+    "name": "desktop-grid-body",
+    "input": {
+      "pointer": {
+        "x": 168,
+        "y": 454.1875
+      },
+      "hit": "<button type=\"button\" title=\"node:N-120\">node:N-120</button>",
+      "deltaX": 0,
+      "deltaY": 600,
+      "method": "Playwright page.mouse.wheel; no scroll setter/style injection"
+    },
+    "changed": [],
+    "filterY": [
+      187.796875,
+      187.796875
+    ],
+    "familiesY": [
+      251.1875,
+      251.1875
+    ],
+    "rowgroup": {
+      "clientHeight": 180,
+      "scrollHeight": 180,
+      "contentHeight": 180,
+      "rowCount": 5
+    }
+  },
+  {
+    "name": "desktop-family-controls",
+    "input": {
+      "pointer": {
+        "x": 168,
+        "y": 263.1875
+      },
+      "hit": "<button aria-pressed=\"false\" data-testid=\"entity-grid-type-pipes\" type=\"button\">Pipes</button>",
+      "deltaX": 0,
+      "deltaY": 600,
+      "method": "Playwright page.mouse.wheel; no scroll setter/style injection"
+    },
+    "changed": [],
+    "filterY": [
+      187.796875,
+      187.796875
+    ],
+    "familiesY": [
+      251.1875,
+      251.1875
+    ],
+    "rowgroup": {
+      "clientHeight": 180,
+      "scrollHeight": 180,
+      "contentHeight": 180,
+      "rowCount": 5
+    }
+  },
+  {
+    "name": "compact-grid-body",
+    "input": {
+      "pointer": {
+        "x": 168,
+        "y": 492.1875
+      },
+      "hit": "<button type=\"button\" title=\"node:N-120\">node:N-120</button>",
+      "deltaX": 0,
+      "deltaY": 600,
+      "method": "Playwright page.mouse.wheel; no scroll setter/style injection"
+    },
+    "changed": [],
+    "filterY": [
+      187.796875,
+      187.796875
+    ],
+    "familiesY": [
+      251.1875,
+      251.1875
+    ],
+    "rowgroup": {
+      "clientHeight": 180,
+      "scrollHeight": 180,
+      "contentHeight": 180,
+      "rowCount": 5
+    }
+  },
+  {
+    "name": "compact-family-controls",
+    "input": {
+      "pointer": {
+        "x": 168,
+        "y": 263.1875
+      },
+      "hit": "<button aria-pressed=\"false\" data-testid=\"entity-grid-type-pipes\" type=\"button\">Pipes</button>",
+      "deltaX": 0,
+      "deltaY": 600,
+      "method": "Playwright page.mouse.wheel; no scroll setter/style injection"
+    },
+    "changed": [],
+    "filterY": [
+      187.796875,
+      187.796875
+    ],
+    "familiesY": [
+      251.1875,
+      251.1875
+    ],
+    "rowgroup": {
+      "clientHeight": 180,
+      "scrollHeight": 180,
+      "contentHeight": 180,
+      "rowCount": 5
+    }
+  }
+]

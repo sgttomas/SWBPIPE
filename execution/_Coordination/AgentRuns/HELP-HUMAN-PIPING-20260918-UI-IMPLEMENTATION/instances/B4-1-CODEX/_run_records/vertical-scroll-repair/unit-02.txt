@@ -1,0 +1,1222 @@
+
+ RUN  v4.1.10 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/workspace/table/ModelTree.table.test.tsx (4 tests | 1 failed) 573ms
+     × uses one visible review work area while retaining direct invalid text and bulk drafts 210ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/workspace/table/ModelTree.table.test.tsx > node table and retained review transitions > uses one visible review work area while retaining direct invalid text and bulk drafts
+TestingLibraryElementError: Unable to find an accessible element with the role "textbox" and name "node:N-100 X [m]"
+
+Here are the accessible roles:
+
+  region:
+
+  Name "Layout grid mode":
+  [36m<section[39m
+    [33maria-label[39m=[32m"Layout grid mode"[39m
+    [33mclass[39m=[32m"layout-mode-toggle"[39m
+    [33mdata-testid[39m=[32m"layout-grid-mode-toggle"[39m
+  [36m/>[39m
+
+  Name "Model tree filtering":
+  [36m<section[39m
+    [33maria-label[39m=[32m"Model tree filtering"[39m
+    [33mclass[39m=[32m"model-tree-controls"[39m
+    [33mdata-testid[39m=[32m"model-tree-controls"[39m
+  [36m/>[39m
+
+  Name "Bulk entity grid":
+  [36m<section[39m
+    [33maria-label[39m=[32m"Bulk entity grid"[39m
+    [33mclass[39m=[32m"entity-grid bounded"[39m
+    [33mdata-testid[39m=[32m"entity-grid"[39m
+  [36m/>[39m
+
+  Name "Editable model entity table":
+  [36m<div[39m
+    [33maria-label[39m=[32m"Editable model entity table"[39m
+    [33mclass[39m=[32m"entity-grid-scroll"[39m
+    [33mrole[39m=[32m"region"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  button:
+
+  Name "Tree":
+  [36m<button[39m
+    [33maria-pressed[39m=[32m"false"[39m
+    [33mdata-testid[39m=[32m"layout-mode-tree"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Grid":
+  [36m<button[39m
+    [33maria-pressed[39m=[32m"true"[39m
+    [33mdata-testid[39m=[32m"layout-mode-grid"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Clear model tree filter":
+  [36m<button[39m
+    [33maria-label[39m=[32m"Clear model tree filter"[39m
+    [33mdata-testid[39m=[32m"clear-model-tree-filter"[39m
+    [33mdisabled[39m=[32m""[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Nodes":
+  [36m<button[39m
+    [33maria-pressed[39m=[32m"true"[39m
+    [33mdata-testid[39m=[32m"entity-grid-type-nodes"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Pipes":
+  [36m<button[39m
+    [33maria-pressed[39m=[32m"false"[39m
+    [33mdata-testid[39m=[32m"entity-grid-type-pipes"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Supports":
+  [36m<button[39m
+    [33maria-pressed[39m=[32m"false"[39m
+    [33mdata-testid[39m=[32m"entity-grid-type-supports"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Materials":
+  [36m<button[39m
+    [33maria-pressed[39m=[32m"false"[39m
+    [33mdata-testid[39m=[32m"entity-grid-type-materials"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Sections":
+  [36m<button[39m
+    [33maria-pressed[39m=[32m"false"[39m
+    [33mdata-testid[39m=[32m"entity-grid-type-sections"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Components":
+  [36m<button[39m
+    [33maria-pressed[39m=[32m"false"[39m
+    [33mdata-testid[39m=[32m"entity-grid-type-components"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Load Cases":
+  [36m<button[39m
+    [33maria-pressed[39m=[32m"false"[39m
+    [33mdata-testid[39m=[32m"entity-grid-type-load_cases"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Combinations":
+  [36m<button[39m
+    [33maria-pressed[39m=[32m"false"[39m
+    [33mdata-testid[39m=[32m"entity-grid-type-combinations"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Sort X":
+  [36m<button[39m
+    [33maria-label[39m=[32m"Sort X"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Sort Y":
+  [36m<button[39m
+    [33maria-label[39m=[32m"Sort Y"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Sort Z":
+  [36m<button[39m
+    [33maria-label[39m=[32m"Sort Z"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "node:N-100":
+  [36m<button[39m
+    [33mtitle[39m=[32m"node:N-100"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "node:N-100 Y: 0":
+  [36m<button[39m
+    [33maria-label[39m=[32m"node:N-100 Y: 0 "[39m
+    [33mdata-column-key[39m=[32m"y"[39m
+    [33mdata-row-key[39m=[32m"[\"node\",\"node:N-100\"]"[39m
+    [33mdata-table-cell[39m=[32m"true"[39m
+    [33mdata-testid[39m=[32m"table-cell-node:N-100-y"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "node:N-100 Z: 0":
+  [36m<button[39m
+    [33maria-label[39m=[32m"node:N-100 Z: 0 "[39m
+    [33mdata-column-key[39m=[32m"z"[39m
+    [33mdata-row-key[39m=[32m"[\"node\",\"node:N-100\"]"[39m
+    [33mdata-table-cell[39m=[32m"true"[39m
+    [33mdata-testid[39m=[32m"table-cell-node:N-100-z"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "node:N-110":
+  [36m<button[39m
+    [33mtitle[39m=[32m"node:N-110"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "node:N-110 X: 3.2":
+  [36m<button[39m
+    [33maria-label[39m=[32m"node:N-110 X: 3.2 "[39m
+    [33mdata-column-key[39m=[32m"x"[39m
+    [33mdata-row-key[39m=[32m"[\"node\",\"node:N-110\"]"[39m
+    [33mdata-table-cell[39m=[32m"true"[39m
+    [33mdata-testid[39m=[32m"table-cell-node:N-110-x"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "node:N-110 Y: 0":
+  [36m<button[39m
+    [33maria-label[39m=[32m"node:N-110 Y: 0 "[39m
+    [33mdata-column-key[39m=[32m"y"[39m
+    [33mdata-row-key[39m=[32m"[\"node\",\"node:N-110\"]"[39m
+    [33mdata-table-cell[39m=[32m"true"[39m
+    [33mdata-testid[39m=[32m"table-cell-node:N-110-y"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "node:N-110 Z: 0":
+  [36m<button[39m
+    [33maria-label[39m=[32m"node:N-110 Z: 0 "[39m
+    [33mdata-column-key[39m=[32m"z"[39m
+    [33mdata-row-key[39m=[32m"[\"node\",\"node:N-110\"]"[39m
+    [33mdata-table-cell[39m=[32m"true"[39m
+    [33mdata-testid[39m=[32m"table-cell-node:N-110-z"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "node:N-120":
+  [36m<button[39m
+    [33mtitle[39m=[32m"node:N-120"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "node:N-120 X: 3.2":
+  [36m<button[39m
+    [33maria-label[39m=[32m"node:N-120 X: 3.2 "[39m
+    [33mdata-column-key[39m=[32m"x"[39m
+    [33mdata-row-key[39m=[32m"[\"node\",\"node:N-120\"]"[39m
+    [33mdata-table-cell[39m=[32m"true"[39m
+    [33mdata-testid[39m=[32m"table-cell-node:N-120-x"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "node:N-120 Y: 2.4":
+  [36m<button[39m
+    [33maria-label[39m=[32m"node:N-120 Y: 2.4 "[39m
+    [33mdata-column-key[39m=[32m"y"[39m
+    [33mdata-row-key[39m=[32m"[\"node\",\"node:N-120\"]"[39m
+    [33mdata-table-cell[39m=[32m"true"[39m
+    [33mdata-testid[39m=[32m"table-cell-node:N-120-y"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "node:N-120 Z: 0":
+  [36m<button[39m
+    [33maria-label[39m=[32m"node:N-120 Z: 0 "[39m
+    [33mdata-column-key[39m=[32m"z"[39m
+    [33mdata-row-key[39m=[32m"[\"node\",\"node:N-120\"]"[39m
+    [33mdata-table-cell[39m=[32m"true"[39m
+    [33mdata-testid[39m=[32m"table-cell-node:N-120-z"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "node:N-130":
+  [36m<button[39m
+    [33mtitle[39m=[32m"node:N-130"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "node:N-130 X: 7.6":
+  [36m<button[39m
+    [33maria-label[39m=[32m"node:N-130 X: 7.6 "[39m
+    [33mdata-column-key[39m=[32m"x"[39m
+    [33mdata-row-key[39m=[32m"[\"node\",\"node:N-130\"]"[39m
+    [33mdata-table-cell[39m=[32m"true"[39m
+    [33mdata-testid[39m=[32m"table-cell-node:N-130-x"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "node:N-130 Y: 2.4":
+  [36m<button[39m
+    [33maria-label[39m=[32m"node:N-130 Y: 2.4 "[39m
+    [33mdata-column-key[39m=[32m"y"[39m
+    [33mdata-row-key[39m=[32m"[\"node\",\"node:N-130\"]"[39m
+    [33mdata-table-cell[39m=[32m"true"[39m
+    [33mdata-testid[39m=[32m"table-cell-node:N-130-y"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "node:N-130 Z: 0":
+  [36m<button[39m
+    [33maria-label[39m=[32m"node:N-130 Z: 0 "[39m
+    [33mdata-column-key[39m=[32m"z"[39m
+    [33mdata-row-key[39m=[32m"[\"node\",\"node:N-130\"]"[39m
+    [33mdata-table-cell[39m=[32m"true"[39m
+    [33mdata-testid[39m=[32m"table-cell-node:N-130-z"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "node:N-140":
+  [36m<button[39m
+    [33mtitle[39m=[32m"node:N-140"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "node:N-140 X: 7.6":
+  [36m<button[39m
+    [33maria-label[39m=[32m"node:N-140 X: 7.6 "[39m
+    [33mdata-column-key[39m=[32m"x"[39m
+    [33mdata-row-key[39m=[32m"[\"node\",\"node:N-140\"]"[39m
+    [33mdata-table-cell[39m=[32m"true"[39m
+    [33mdata-testid[39m=[32m"table-cell-node:N-140-x"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "node:N-140 Y: 2.4":
+  [36m<button[39m
+    [33maria-label[39m=[32m"node:N-140 Y: 2.4 "[39m
+    [33mdata-column-key[39m=[32m"y"[39m
+    [33mdata-row-key[39m=[32m"[\"node\",\"node:N-140\"]"[39m
+    [33mdata-table-cell[39m=[32m"true"[39m
+    [33mdata-testid[39m=[32m"table-cell-node:N-140-y"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "node:N-140 Z: 2.2":
+  [36m<button[39m
+    [33maria-label[39m=[32m"node:N-140 Z: 2.2 "[39m
+    [33mdata-column-key[39m=[32m"z"[39m
+    [33mdata-row-key[39m=[32m"[\"node\",\"node:N-140\"]"[39m
+    [33mdata-table-cell[39m=[32m"true"[39m
+    [33mdata-testid[39m=[32m"table-cell-node:N-140-z"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Apply":
+  [36m<button[39m
+    [33mdata-table-action[39m=[32m"apply"[39m
+    [33mtitle[39m=[32m"Apply (Enter)"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Cancel":
+  [36m<button[39m
+    [33mdata-table-action[39m=[32m"cancel"[39m
+    [33mtitle[39m=[32m"Cancel (Escape)"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "node:N-100":
+  [36m<button[39m
+    [33maria-pressed[39m=[32m"true"[39m
+    [33mdata-testid[39m=[32m"entity-grid-row-node-node:N-100"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "node:N-110":
+  [36m<button[39m
+    [33maria-pressed[39m=[32m"false"[39m
+    [33mdata-testid[39m=[32m"entity-grid-row-node-node:N-110"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "node:N-120":
+  [36m<button[39m
+    [33maria-pressed[39m=[32m"false"[39m
+    [33mdata-testid[39m=[32m"entity-grid-row-node-node:N-120"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "node:N-130":
+  [36m<button[39m
+    [33maria-pressed[39m=[32m"false"[39m
+    [33mdata-testid[39m=[32m"entity-grid-row-node-node:N-130"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "node:N-140":
+  [36m<button[39m
+    [33maria-pressed[39m=[32m"false"[39m
+    [33mdata-testid[39m=[32m"entity-grid-row-node-node:N-140"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Queue changed cells":
+  [36m<button[39m
+    [33mdata-testid[39m=[32m"queue-entity-grid-intents"[39m
+    [33mdisabled[39m=[32m""[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Clear grid edits":
+  [36m<button[39m
+    [33mdata-testid[39m=[32m"clear-entity-grid-drafts"[39m
+    [33mdisabled[39m=[32m""[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  searchbox:
+
+  Name "Filter model tree":
+  [36m<input[39m
+    [33maria-label[39m=[32m"Filter model tree"[39m
+    [33mdata-testid[39m=[32m"model-tree-filter-input"[39m
+    [33mplaceholder[39m=[32m"Name, ID, type, or group"[39m
+    [33mtype[39m=[32m"search"[39m
+    [33mvalue[39m=[32m""[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  grid:
+
+  Name "Node coordinates":
+  [36m<div[39m
+    [33maria-colcount[39m=[32m"4"[39m
+    [33maria-label[39m=[32m"Node coordinates"[39m
+    [33maria-rowcount[39m=[32m"6"[39m
+    [33mrole[39m=[32m"grid"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  row:
+
+  Name "Node X [unit missing] Y [unit missing] Z [unit missing]":
+  [36m<div[39m
+    [33mclass[39m=[32m"engineering-table-row engineering-table-header"[39m
+    [33mrole[39m=[32m"row"[39m
+    [33mstyle[39m=[32m"grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"[39m
+  [36m/>[39m
+
+  Name "node:N-100 0 0 0":
+  [36m<div[39m
+    [33maria-rowindex[39m=[32m"2"[39m
+    [33maria-selected[39m=[32m"true"[39m
+    [33mclass[39m=[32m"engineering-table-row selected"[39m
+    [33mrole[39m=[32m"row"[39m
+    [33mstyle[39m=[32m"grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"[39m
+  [36m/>[39m
+
+  Name "node:N-110 3.2 0 0":
+  [36m<div[39m
+    [33maria-rowindex[39m=[32m"3"[39m
+    [33maria-selected[39m=[32m"false"[39m
+    [33mclass[39m=[32m"engineering-table-row stripe"[39m
+    [33mrole[39m=[32m"row"[39m
+    [33mstyle[39m=[32m"grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"[39m
+  [36m/>[39m
+
+  Name "node:N-120 3.2 2.4 0":
+  [36m<div[39m
+    [33maria-rowindex[39m=[32m"4"[39m
+    [33maria-selected[39m=[32m"false"[39m
+    [33mclass[39m=[32m"engineering-table-row"[39m
+    [33mrole[39m=[32m"row"[39m
+    [33mstyle[39m=[32m"grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"[39m
+  [36m/>[39m
+
+  Name "node:N-130 7.6 2.4 0":
+  [36m<div[39m
+    [33maria-rowindex[39m=[32m"5"[39m
+    [33maria-selected[39m=[32m"false"[39m
+    [33mclass[39m=[32m"engineering-table-row stripe"[39m
+    [33mrole[39m=[32m"row"[39m
+    [33mstyle[39m=[32m"grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"[39m
+  [36m/>[39m
+
+  Name "node:N-140 7.6 2.4 2.2":
+  [36m<div[39m
+    [33maria-rowindex[39m=[32m"6"[39m
+    [33maria-selected[39m=[32m"false"[39m
+    [33mclass[39m=[32m"engineering-table-row"[39m
+    [33mrole[39m=[32m"row"[39m
+    [33mstyle[39m=[32m"grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"[39m
+  [36m/>[39m
+
+  Name "ID Label X Y Z Provenance":
+  [36m<tr />[39m
+
+  Name "node:N-100 Pump nozzle 0 Quantity readout 0 Quantity readout 0 Quantity readout invented_example":
+  [36m<tr[39m
+    [33mclass[39m=[32m"active"[39m
+  [36m/>[39m
+
+  Name "node:N-110 Low point elbow 3.2 Quantity readout 0 Quantity readout 0 Quantity readout invented_example":
+  [36m<tr[39m
+    [33mclass[39m=[32m""[39m
+  [36m/>[39m
+
+  Name "node:N-120 Riser elbow 3.2 Quantity readout 2.4 Quantity readout 0 Quantity readout invented_example":
+  [36m<tr[39m
+    [33mclass[39m=[32m""[39m
+  [36m/>[39m
+
+  Name "node:N-130 Rack turn 7.6 Quantity readout 2.4 Quantity readout 0 Quantity readout invented_example":
+  [36m<tr[39m
+    [33mclass[39m=[32m""[39m
+  [36m/>[39m
+
+  Name "node:N-140 Terminal tie-in 7.6 Quantity readout 2.4 Quantity readout 2.2 Quantity readout invented_example":
+  [36m<tr[39m
+    [33mclass[39m=[32m""[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  columnheader:
+
+  Name "Node":
+  [36m<div[39m
+    [33mrole[39m=[32m"columnheader"[39m
+  [36m/>[39m
+
+  Name "X [unit missing]":
+  [36m<div[39m
+    [33maria-sort[39m=[32m"none"[39m
+    [33mrole[39m=[32m"columnheader"[39m
+  [36m/>[39m
+
+  Name "Y [unit missing]":
+  [36m<div[39m
+    [33maria-sort[39m=[32m"none"[39m
+    [33mrole[39m=[32m"columnheader"[39m
+  [36m/>[39m
+
+  Name "Z [unit missing]":
+  [36m<div[39m
+    [33maria-sort[39m=[32m"none"[39m
+    [33mrole[39m=[32m"columnheader"[39m
+  [36m/>[39m
+
+  Name "ID":
+  [36m<th[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  Name "Label":
+  [36m<th[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  Name "X":
+  [36m<th[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  Name "Y":
+  [36m<th[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  Name "Z":
+  [36m<th[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  Name "Provenance":
+  [36m<th[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  rowgroup:
+
+  Name "":
+  [36m<div[39m
+    [33mdata-testid[39m=[32m"engineering-table-rows"[39m
+    [33mrole[39m=[32m"rowgroup"[39m
+    [33mstyle[39m=[32m"height: 180px; overflow-y: hidden;"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<thead />[39m
+
+  Name "":
+  [36m<tbody />[39m
+
+  --------------------------------------------------
+  rowheader:
+
+  Name "node:N-100":
+  [36m<div[39m
+    [33mrole[39m=[32m"rowheader"[39m
+  [36m/>[39m
+
+  Name "node:N-110":
+  [36m<div[39m
+    [33mrole[39m=[32m"rowheader"[39m
+  [36m/>[39m
+
+  Name "node:N-120":
+  [36m<div[39m
+    [33mrole[39m=[32m"rowheader"[39m
+  [36m/>[39m
+
+  Name "node:N-130":
+  [36m<div[39m
+    [33mrole[39m=[32m"rowheader"[39m
+  [36m/>[39m
+
+  Name "node:N-140":
+  [36m<div[39m
+    [33mrole[39m=[32m"rowheader"[39m
+  [36m/>[39m
+
+  Name "node:N-100":
+  [36m<th[39m
+    [33mscope[39m=[32m"row"[39m
+  [36m/>[39m
+
+  Name "node:N-110":
+  [36m<th[39m
+    [33mscope[39m=[32m"row"[39m
+  [36m/>[39m
+
+  Name "node:N-120":
+  [36m<th[39m
+    [33mscope[39m=[32m"row"[39m
+  [36m/>[39m
+
+  Name "node:N-130":
+  [36m<th[39m
+    [33mscope[39m=[32m"row"[39m
+  [36m/>[39m
+
+  Name "node:N-140":
+  [36m<th[39m
+    [33mscope[39m=[32m"row"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  gridcell:
+
+  Name "0":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"true"[39m
+    [33mclass[39m=[32m"engineering-table-cell editing"[39m
+    [33mrole[39m=[32m"gridcell"[39m
+  [36m/>[39m
+
+  Name "0":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"false"[39m
+    [33mclass[39m=[32m"engineering-table-cell"[39m
+    [33mrole[39m=[32m"gridcell"[39m
+  [36m/>[39m
+
+  Name "0":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"false"[39m
+    [33mclass[39m=[32m"engineering-table-cell"[39m
+    [33mrole[39m=[32m"gridcell"[39m
+  [36m/>[39m
+
+  Name "3.2":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"false"[39m
+    [33mclass[39m=[32m"engineering-table-cell"[39m
+    [33mrole[39m=[32m"gridcell"[39m
+  [36m/>[39m
+
+  Name "0":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"false"[39m
+    [33mclass[39m=[32m"engineering-table-cell"[39m
+    [33mrole[39m=[32m"gridcell"[39m
+  [36m/>[39m
+
+  Name "0":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"false"[39m
+    [33mclass[39m=[32m"engineering-table-cell"[39m
+    [33mrole[39m=[32m"gridcell"[39m
+  [36m/>[39m
+
+  Name "3.2":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"false"[39m
+    [33mclass[39m=[32m"engineering-table-cell"[39m
+    [33mrole[39m=[32m"gridcell"[39m
+  [36m/>[39m
+
+  Name "2.4":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"false"[39m
+    [33mclass[39m=[32m"engineering-table-cell"[39m
+    [33mrole[39m=[32m"gridcell"[39m
+  [36m/>[39m
+
+  Name "0":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"false"[39m
+    [33mclass[39m=[32m"engineering-table-cell"[39m
+    [33mrole[39m=[32m"gridcell"[39m
+  [36m/>[39m
+
+  Name "7.6":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"false"[39m
+    [33mclass[39m=[32m"engineering-table-cell"[39m
+    [33mrole[39m=[32m"gridcell"[39m
+  [36m/>[39m
+
+  Name "2.4":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"false"[39m
+    [33mclass[39m=[32m"engineering-table-cell"[39m
+    [33mrole[39m=[32m"gridcell"[39m
+  [36m/>[39m
+
+  Name "0":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"false"[39m
+    [33mclass[39m=[32m"engineering-table-cell"[39m
+    [33mrole[39m=[32m"gridcell"[39m
+  [36m/>[39m
+
+  Name "7.6":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"false"[39m
+    [33mclass[39m=[32m"engineering-table-cell"[39m
+    [33mrole[39m=[32m"gridcell"[39m
+  [36m/>[39m
+
+  Name "2.4":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"false"[39m
+    [33mclass[39m=[32m"engineering-table-cell"[39m
+    [33mrole[39m=[32m"gridcell"[39m
+  [36m/>[39m
+
+  Name "2.2":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"false"[39m
+    [33mclass[39m=[32m"engineering-table-cell"[39m
+    [33mrole[39m=[32m"gridcell"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  textbox:
+
+  Name "node:N-100 X []":
+  [36m<input[39m
+    [33maria-invalid[39m=[32m"false"[39m
+    [33maria-label[39m=[32m"node:N-100 X []"[39m
+    [33mvalue[39m=[32m"0"[39m
+  [36m/>[39m
+
+  Name "node:N-100 Label":
+  [36m<input[39m
+    [33maria-label[39m=[32m"node:N-100 Label"[39m
+    [33mdata-testid[39m=[32m"entity-grid-input-node:N-100-label"[39m
+    [33mvalue[39m=[32m"Pump nozzle"[39m
+  [36m/>[39m
+
+  Name "node:N-100 X":
+  [36m<input[39m
+    [33maria-label[39m=[32m"node:N-100 X"[39m
+    [33mdata-testid[39m=[32m"entity-grid-input-node:N-100-x"[39m
+    [33mvalue[39m=[32m"0"[39m
+  [36m/>[39m
+
+  Name "node:N-100 Y":
+  [36m<input[39m
+    [33maria-label[39m=[32m"node:N-100 Y"[39m
+    [33mdata-testid[39m=[32m"entity-grid-input-node:N-100-y"[39m
+    [33mvalue[39m=[32m"0"[39m
+  [36m/>[39m
+
+  Name "node:N-100 Z":
+  [36m<input[39m
+    [33maria-label[39m=[32m"node:N-100 Z"[39m
+    [33mdata-testid[39m=[32m"entity-grid-input-node:N-100-z"[39m
+    [33mvalue[39m=[32m"0"[39m
+  [36m/>[39m
+
+  Name "node:N-100 Provenance":
+  [36m<input[39m
+    [33maria-label[39m=[32m"node:N-100 Provenance"[39m
+    [33mdata-testid[39m=[32m"entity-grid-input-node:N-100-provenance"[39m
+    [33mvalue[39m=[32m"invented_example"[39m
+  [36m/>[39m
+
+  Name "node:N-110 Label":
+  [36m<input[39m
+    [33maria-label[39m=[32m"node:N-110 Label"[39m
+    [33mdata-testid[39m=[32m"entity-grid-input-node:N-110-label"[39m
+    [33mvalue[39m=[32m"Low point elbow"[39m
+  [36m/>[39m
+
+  Name "node:N-110 X":
+  [36m<input[39m
+    [33maria-label[39m=[32m"node:N-110 X"[39m
+    [33mdata-testid[39m=[32m"entity-grid-input-node:N-110-x"[39m
+    [33mvalue[39m=[32m"3.2"[39m
+  [36m/>[39m
+
+  Name "node:N-110 Y":
+  [36m<input[39m
+    [33maria-label[39m=[32m"node:N-110 Y"[39m
+    [33mdata-testid[39m=[32m"entity-grid-input-node:N-110-y"[39m
+    [33mvalue[39m=[32m"0"[39m
+  [36m/>[39m
+
+  Name "node:N-110 Z":
+  [36m<input[39m
+    [33maria-label[39m=[32m"node:N-110 Z"[39m
+    [33mdata-testid[39m=[32m"entity-grid-input-node:N-110-z"[39m
+    [33mvalue[39m=[32m"0"[39m
+  [36m/>[39m
+
+  Name "node:N-110 Provenance":
+  [36m<input[39m
+    [33maria-label[39m=[32m"node:N-110 Provenance"[39m
+    [33mdata-testid[39m=[32m"entity-grid-input-node:N-110-provenance"[39m
+    [33mvalue[39m=[32m"invented_example"[39m
+  [36m/>[39m
+
+  Name "node:N-120 Label":
+  [36m<input[39m
+    [33maria-label[39m=[32m"node:N-120 Label"[39m
+    [33mdata-testid[39m=[32m"entity-grid-input-node:N-120-label"[39m
+    [33mvalue[39m=[32m"Riser elbow"[39m
+  [36m/>[39m
+
+  Name "node:N-120 X":
+  [36m<input[39m
+    [33maria-label[39m=[32m"node:N-120 X"[39m
+    [33mdata-testid[39m=[32m"entity-grid-input-node:N-120-x"[39m
+    [33mvalue[39m=[32m"3.2"[39m
+  [36m/>[39m
+
+  Name "node:N-120 Y":
+  [36m<input[39m
+    [33maria-label[39m=[32m"node:N-120 Y"[39m
+    [33mdata-testid[39m=[32m"entity-grid-input-node:N-120-y"[39m
+    [33mvalue[39m=[32m"2.4"[39m
+  [36m/>[39m
+
+  Name "node:N-120 Z":
+  [36m<input[39m
+    [33maria-label[39m=[32m"node:N-120 Z"[39m
+    [33mdata-testid[39m=[32m"entity-grid-input-node:N-120-z"[39m
+    [33mvalue[39m=[32m"0"[39m
+  [36m/>[39m
+
+  Name "node:N-120 Provenance":
+  [36m<input[39m
+    [33maria-label[39m=[32m"node:N-120 Provenance"[39m
+    [33mdata-testid[39m=[32m"entity-grid-input-node:N-120-provenance"[39m
+    [33mvalue[39m=[32m"invented_example"[39m
+  [36m/>[39m
+
+  Name "node:N-130 Label":
+  [36m<input[39m
+    [33maria-label[39m=[32m"node:N-130 Label"[39m
+    [33mdata-testid[39m=[32m"entity-grid-input-node:N-130-label"[39m
+    [33mvalue[39m=[32m"Rack turn"[39m
+  [36m/>[39m
+
+  Name "node:N-130 X":
+  [36m<input[39m
+    [33maria-label[39m=[32m"node:N-130 X"[39m
+    [33mdata-testid[39m=[32m"entity-grid-input-node:N-130-x"[39m
+    [33mvalue[39m=[32m"7.6"[39m
+  [36m/>[39m
+
+  Name "node:N-130 Y":
+  [36m<input[39m
+    [33maria-label[39m=[32m"node:N-130 Y"[39m
+    [33mdata-testid[39m=[32m"entity-grid-input-node:N-130-y"[39m
+    [33mvalue[39m=[32m"2.4"[39m
+  [36m/>[39m
+
+  Name "node:N-130 Z":
+  [36m<input[39m
+    [33maria-label[39m=[32m"node:N-130 Z"[39m
+    [33mdata-testid[39m=[32m"entity-grid-input-node:N-130-z"[39m
+    [33mvalue[39m=[32m"0"[39m
+  [36m/>[39m
+
+  Name "node:N-130 Provenance":
+  [36m<input[39m
+    [33maria-label[39m=[32m"node:N-130 Provenance"[39m
+    [33mdata-testid[39m=[32m"entity-grid-input-node:N-130-provenance"[39m
+    [33mvalue[39m=[32m"invented_example"[39m
+  [36m/>[39m
+
+  Name "node:N-140 Label":
+  [36m<input[39m
+    [33maria-label[39m=[32m"node:N-140 Label"[39m
+    [33mdata-testid[39m=[32m"entity-grid-input-node:N-140-label"[39m
+    [33mvalue[39m=[32m"Terminal tie-in"[39m
+  [36m/>[39m
+
+  Name "node:N-140 X":
+  [36m<input[39m
+    [33maria-label[39m=[32m"node:N-140 X"[39m
+    [33mdata-testid[39m=[32m"entity-grid-input-node:N-140-x"[39m
+    [33mvalue[39m=[32m"7.6"[39m
+  [36m/>[39m
+
+  Name "node:N-140 Y":
+  [36m<input[39m
+    [33maria-label[39m=[32m"node:N-140 Y"[39m
+    [33mdata-testid[39m=[32m"entity-grid-input-node:N-140-y"[39m
+    [33mvalue[39m=[32m"2.4"[39m
+  [36m/>[39m
+
+  Name "node:N-140 Z":
+  [36m<input[39m
+    [33maria-label[39m=[32m"node:N-140 Z"[39m
+    [33mdata-testid[39m=[32m"entity-grid-input-node:N-140-z"[39m
+    [33mvalue[39m=[32m"2.2"[39m
+  [36m/>[39m
+
+  Name "node:N-140 Provenance":
+  [36m<input[39m
+    [33maria-label[39m=[32m"node:N-140 Provenance"[39m
+    [33mdata-testid[39m=[32m"entity-grid-input-node:N-140-provenance"[39m
+    [33mvalue[39m=[32m"invented_example"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  group:
+
+  Name "Node coordinates footer":
+  [36m<div[39m
+    [33maria-label[39m=[32m"Node coordinates footer"[39m
+    [33mclass[39m=[32m"engineering-table-footer"[39m
+    [33mrole[39m=[32m"group"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<details[39m
+    [33mclass[39m=[32m"entity-grid-review"[39m
+    [33mstyle[39m=[32m"--review-summary-height: 0px;"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  table:
+
+  Name "":
+  [36m<table[39m
+    [33mdata-testid[39m=[32m"entity-grid-table-nodes"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  cell:
+
+  Name "Pump nozzle":
+  [36m<td />[39m
+
+  Name "0 Quantity readout":
+  [36m<td />[39m
+
+  Name "0 Quantity readout":
+  [36m<td />[39m
+
+  Name "0 Quantity readout":
+  [36m<td />[39m
+
+  Name "invented_example":
+  [36m<td />[39m
+
+  Name "Low point elbow":
+  [36m<td />[39m
+
+  Name "3.2 Quantity readout":
+  [36m<td />[39m
+
+  Name "0 Quantity readout":
+  [36m<td />[39m
+
+  Name "0 Quantity readout":
+  [36m<td />[39m
+
+  Name "invented_example":
+  [36m<td />[39m
+
+  Name "Riser elbow":
+  [36m<td />[39m
+
+  Name "3.2 Quantity readout":
+  [36m<td />[39m
+
+  Name "2.4 Quantity readout":
+  [36m<td />[39m
+
+  Name "0 Quantity readout":
+  [36m<td />[39m
+
+  Name "invented_example":
+  [36m<td />[39m
+
+  Name "Rack turn":
+  [36m<td />[39m
+
+  Name "7.6 Quantity readout":
+  [36m<td />[39m
+
+  Name "2.4 Quantity readout":
+  [36m<td />[39m
+
+  Name "0 Quantity readout":
+  [36m<td />[39m
+
+  Name "invented_example":
+  [36m<td />[39m
+
+  Name "Terminal tie-in":
+  [36m<td />[39m
+
+  Name "7.6 Quantity readout":
+  [36m<td />[39m
+
+  Name "2.4 Quantity readout":
+  [36m<td />[39m
+
+  Name "2.2 Quantity readout":
+  [36m<td />[39m
+
+  Name "invented_example":
+  [36m<td />[39m
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"muted entity-grid-boundary"[39m
+    [33mdata-testid[39m=[32m"entity-grid-boundary"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33maria-label[39m=[32m"Model tree"[39m
+      [33mclass[39m=[32m"panel model-tree"[39m
+      [33mdata-bounded-grid[39m=[32m"true"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"panel-title"[39m
+      [36m>[39m
+        [0mModel[0m
+      [36m</div>[39m
+      [36m<section[39m
+        [33maria-label[39m=[32m"Layout grid mode"[39m
+        [33mclass[39m=[32m"layout-mode-toggle"[39m
+        [33mdata-testid[39m=[32m"layout-grid-mode-toggle"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33maria-pressed[39m=[32m"false"[39m
+          [33mdata-testid[39m=[32m"layout-mode-tree"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-list-tree"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"14"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"14"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M21 12h-8"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M21 6H8"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M21 18h-8"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M3 6v4c0 1.1.9 2 2 2h3"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M3 10v6c0 1.1.9 2 2 2h3"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+          [0mTree[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33maria-pressed[39m=[32m"true"[39m
+          [33mdata-testid[39m=[32m"layout-mode-grid"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-table2"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"14"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"14"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+          [0mGrid[0m
+        [36m</button>[39m
+      [36m</section>[39m
+      [36m<section[39m
+        [33maria-label[39m=[32m"Model tree filtering"[39m
+        [33mclass[39m=[32m"model-tree-controls"[39m
+        [33mdata-testid[39m=[32m"model-tree-controls"[39m
+      [36m>[39m
+        [36m<label>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-search"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"14"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"14"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<circle[39m
+              [33mcx[39m=[32m"11"[39m
+              [33mcy[39m=[32m"11"[39m
+              [33mr[39m=[32m"8"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m21 21-4.3-4.3"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+          [36m<span>[39m
+            [0mFilter model[0m
+          [36m</span>[39m
+          [36m<input[39m
+            [33maria-label[39m=[32m"Filter model tree"[39m
+            [33mdata-testid[39m=[32m"model-tree-filter-input"[39m
+            [33mplaceholder[39m=[32m"Name, ID, type, or group"[39m
+            [33mtype[39m=[32m"search"[39m
+            [33mvalue[39m=[32m""[39m
+          [36m/>[39m
+        [36m</label>[39m
+        [36m<span[39m
+          [33mdata-testid[39m=[32m"model-tree-filter-summary"[39m
+        [36m>[39m
+          [0m27[0m
+          [0m of [0m
+          [0m27[0m
+          [0m model entities visible[0m
+        [36m</span>[39m
+        [36m<button[39m
+          [33maria-label[39m=[32m"Clear model tree filter"[39m
+          [33mdata-testid[39m=[32m"clear-model-tree-filter"[39m
+          [33mdisabled[39m=[32m""[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-x"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"14"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"14"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M18 6 6 18"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m6 6 12 12"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+        [36m</button>[39m
+      [36m</section>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"model-grid-frame"[39m
+      [36m>[39m
+        [36m<section[39m
+          [33maria-label[39m=[32m"Bulk entity grid"[39m
+          [33mclass[39m=[32m"entity-grid bounded"[39m
+          [33mdata-testid[39m=[32m"entity-grid"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33maria-label[39m=[32m"Grid entity type"[39m
+            [33mclass[39m=[32m"entity-grid-tabs"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-pressed[39m=[32m"true"[39m
+              [33mdata-testid[39m=[32m"entity-grid-type-nodes"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mNodes[0m
+            [36m</button>[39m
+            [36m<button[39m
+        ...
+ ❯ Object.getElementError ../../node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/features/workspace/table/ModelTree.table.test.tsx:47:27
+     45|     render(<ModelTree boundedGrid model={model} selection={{ type: "no…
+     46|     fireEvent.click(screen.getByTestId("layout-mode-grid")); fireEvent…
+     47|     const editor = screen.getByRole("textbox", { name: `${model.nodes[…
+       |                           ^
+     48|     const summary = screen.getByTestId("node-grid-review-disclosure");…
+     49|     await waitFor(() => expect(screen.getByTestId("engineering-table")…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  1 failed | 55 passed (56)
+   Start at  19:04:07
+   Duration  4.38s (transform 301ms, setup 189ms, import 497ms, tests 2.37s, environment 922ms)
+

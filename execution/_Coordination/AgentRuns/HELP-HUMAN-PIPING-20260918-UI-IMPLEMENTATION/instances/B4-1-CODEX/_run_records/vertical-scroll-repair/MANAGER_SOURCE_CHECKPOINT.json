@@ -1,0 +1,22 @@
+{
+  "head": "ed8cc27fdb37b8df2f20eb5f877aacb61bfd7db1",
+  "base": "c8f8e503383e15b42b171c4957c6f458d3697150",
+  "freezeSha256": "f2c9969e3d74598add1dcb5278dd6aed3a9ade6493bc348051f90ea928fa9d43",
+  "paths": [
+    "projects/chirality-piping/apps/desktop/e2e/b3a-session-status.spec.ts",
+    "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+    "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+    "projects/chirality-piping/apps/desktop/src/App.projectHandlers.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/App.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/ModelTree.table.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/styles.css"
+  ],
+  "state": "maintained source frozen; evidence packaging and independent/native checks pending"
+}

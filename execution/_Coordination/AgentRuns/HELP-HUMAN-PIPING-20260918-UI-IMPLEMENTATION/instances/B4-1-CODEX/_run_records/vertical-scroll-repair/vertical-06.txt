@@ -1,0 +1,19 @@
+[2m[WebServer] [22m(node:40252) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 1 worker
+
+(node:40254) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:40254) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium-desktop] › e2e/b4-table-editing.spec.ts:175:1 › B4 short Grid keeps vertical chrome fixed and retains alternate review drafts (2.7s)
+  ✓  2 [chromium-desktop] › e2e/b4-table-editing.spec.ts:208:1 › B4 virtual Grid confines body scrolling and boundary wheel without moving chrome (4.0s)
+(node:40273) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:40273) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 [chromium-compact] › e2e/b4-table-editing.spec.ts:175:1 › B4 short Grid keeps vertical chrome fixed and retains alternate review drafts (2.5s)
+  ✓  4 [chromium-compact] › e2e/b4-table-editing.spec.ts:208:1 › B4 virtual Grid confines body scrolling and boundary wheel without moving chrome (3.7s)
+
+  4 passed (15.1s)

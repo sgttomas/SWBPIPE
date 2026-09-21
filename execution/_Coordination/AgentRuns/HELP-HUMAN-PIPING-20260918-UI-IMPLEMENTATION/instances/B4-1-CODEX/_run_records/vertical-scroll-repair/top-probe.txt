@@ -1,0 +1,132 @@
+[
+  {
+    "mode": "baseline",
+    "steps": [
+      {
+        "delta": 700,
+        "state": {
+          "top": 700,
+          "height": 450,
+          "max": 35586
+        }
+      },
+      {
+        "delta": 1000000,
+        "state": {
+          "top": 35586,
+          "height": 450,
+          "max": 35586
+        }
+      },
+      {
+        "delta": 600,
+        "state": {
+          "top": 35586,
+          "height": 450,
+          "max": 35586
+        }
+      },
+      {
+        "delta": -1000000,
+        "state": {
+          "top": 0,
+          "height": 450,
+          "max": 35586
+        }
+      },
+      {
+        "delta": -600,
+        "state": {
+          "top": 0,
+          "height": 450,
+          "max": 35586
+        }
+      }
+    ],
+    "events": [
+      {
+        "time": 1555.5,
+        "top": 700,
+        "height": 450,
+        "max": 35586
+      },
+      {
+        "time": 1922,
+        "top": 35586,
+        "height": 450,
+        "max": 35586
+      },
+      {
+        "time": 2641,
+        "top": 0,
+        "height": 450,
+        "max": 35586
+      }
+    ]
+  },
+  {
+    "mode": "no-anchor",
+    "steps": [
+      {
+        "delta": 700,
+        "state": {
+          "top": 700,
+          "height": 450,
+          "max": 35586
+        }
+      },
+      {
+        "delta": 1000000,
+        "state": {
+          "top": 35586,
+          "height": 450,
+          "max": 35586
+        }
+      },
+      {
+        "delta": 600,
+        "state": {
+          "top": 35586,
+          "height": 450,
+          "max": 35586
+        }
+      },
+      {
+        "delta": -1000000,
+        "state": {
+          "top": 0,
+          "height": 450,
+          "max": 35586
+        }
+      },
+      {
+        "delta": -600,
+        "state": {
+          "top": 0,
+          "height": 450,
+          "max": 35586
+        }
+      }
+    ],
+    "events": [
+      {
+        "time": 728.9000000953674,
+        "top": 700,
+        "height": 450,
+        "max": 35586
+      },
+      {
+        "time": 1079.4000000953674,
+        "top": 35586,
+        "height": 450,
+        "max": 35586
+      },
+      {
+        "time": 1804.4000000953674,
+        "top": 0,
+        "height": 450,
+        "max": 35586
+      }
+    ]
+  }
+]

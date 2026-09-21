@@ -1,0 +1,8 @@
+{
+  "at": "2026-09-21T00:43:17.281339+00:00",
+  "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_NATIVE_SCROLL_AXIS_2026-09-20.md",
+  "runRelative": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_NATIVE_SCROLL_AXIS_2026-09-20.md",
+  "sha256": "b9bb903ed29992c09fac30e3f8b763e5d59e1fbb49ca28fd62f13d1142653e73",
+  "ownerExactReply": "Vertically (up/down)",
+  "interpretation": "Supersedes pending-axis only; confirms reported vertical containment issue. Prior correction and original observation remain preserved; no native fit PASS."
+}
