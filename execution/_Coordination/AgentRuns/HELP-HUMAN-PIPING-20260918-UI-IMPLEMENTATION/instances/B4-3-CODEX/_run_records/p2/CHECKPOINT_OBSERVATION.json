@@ -1,0 +1,8 @@
+{
+  "recordedAt": "2026-09-21T08:01:00.081892+00:00",
+  "head": "75fa863ea5cfee9bfe8f5a6ebf0f31047663e4e5",
+  "parentReportedCheckpoint": "75fa863ea5cfee9bfe8f5a6ebf0f31047663e4e5",
+  "sourceFreeze": "SOURCE_FREEZE_1.json",
+  "sourceStatus": "immutable; parent sent ROOT for retained independent backcheck",
+  "gitMutation": "parent only; no TASK Git mutation"
+}
