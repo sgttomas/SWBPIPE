@@ -1,0 +1,43 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview · Edited — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 274-299
+~							273 text 1  of  1 Sections 0  changed cells
++							274 container
++								275 table (settable) Section review drafts
++									276 row (selectable)
++										277 cell (settable)
++											278 text Section
++										279 cell (settable)
++											280 button Sort Name
++										281 cell (settable)
++											282 button Sort Type
++										283 cell (settable)
++											284 button Sort Outside dia.
++										285 cell (settable)
++											286 button Sort Wall
++										287 cell (settable)
++											288 button Sort Provenance
++									289 row (selected)
++										290 cell (selectable, settable) section:B4-native-sections
++										291 cell (selectable, settable) section:B4-native-sections Name: Invented Sections witness
++										292 cell (selected, settable) section:B4-native-sections Type: TBD
++										293 cell (selectable, settable) section:B4-native-sections Outside dia.: 0.1 m
+Quantity readout, Value: m
+0.1
+m
++										294 cell (selectable, settable) section:B4-native-sections Wall: 0.01 m
+Quantity readout, Value: m
+0.01
+m
++										295 cell (selectable, settable) section:B4-native-sections Provenance: invented functional witness
++								296 container Section review drafts footer
++									297 text 1
++									298 text  of 
++									299 text 1
++									300 text  rows
++								301 text Draft retained; model unchanged.
++							302 button (disabled) Queue changed cells
++							303 button Clear grid edits
++							304 container
++								305 text Grid mode fans each changed cell into a structured review intent; storage remains local.  Blank or whitespace text becomes TBD when queued; keeping a draft does not change the model.
+~							265 button (expanded) Return to section fields, Secondary Actions: Collapse
+The focused UI element is 171 HTML content Description: SWBPIPE, URL: tauri://localhost

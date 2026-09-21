@@ -1,0 +1,6 @@
+b028c82ba44d528fc169fec2e1b82e1bc58fa6dd
+?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-4-CODEX/_run_records/NATIVE_ACTUAL_RESUME.json
+?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-4-CODEX/_run_records/NATIVE_INPUTS.json
+?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-4-CODEX/_run_records/NATIVE_TASK_BRIEF.md
+?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-4-CODEX/_run_records/ROOT_NATIVE_ACTIVATION.md
+?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-4-CODEX/_run_records/native/

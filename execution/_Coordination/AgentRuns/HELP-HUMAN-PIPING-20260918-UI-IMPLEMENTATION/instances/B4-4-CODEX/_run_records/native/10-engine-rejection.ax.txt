@@ -1,0 +1,7 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview · Edited — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~					18 button (collapsed) Issues, 6, Help: Issues, Secondary Actions: Expand
+~						35 button (collapsed) Issues, 6, Help: Issues, Secondary Actions: Expand
+~											456 text field (settable) section:B4-native-sections Wall [m], Value: 0.01
++								463 text Engine rejected: OP-SECTION-GEOMETRY-INVALID: Section `section:B4-native-sections` requires type pipe and accepted length quantities with 0 < wall < outside diameter / 2.
+~					156 button (collapsed) 6 Issues, Secondary Actions: Expand
+The focused UI element is 456 text field (settable) section:B4-native-sections Wall [m], Value: 0.01

@@ -1,0 +1,20 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview · Edited — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 453-454
+~										443 cell (selected, settable)
++											453 combo box (collapsed, settable) section:B4-native-sections Type, Value: pipe, Secondary Actions: Expand
++												454 text (settable) pipe
+~										445 cell (selectable, settable) section:B4-native-sections Wall: 0.01 m
+Quantity readout, Value: m
+0.01
+m
+~									455 text Editing 
+~									456 text Type
++									457 text  · 
++									458 text section:B4-native-sections
++									459 button Apply, Help: Apply (Enter)
++									460 button Cancel, Help: Cancel (Escape)
+Selected text: ```
+pipe
+```
+
+Note: Pay special attention to the content selected by the user. If the user asks a question or refers to the content they are looking at on-screen, they might be referring to the selected content (but they might be referring to something else that's visible, too).
