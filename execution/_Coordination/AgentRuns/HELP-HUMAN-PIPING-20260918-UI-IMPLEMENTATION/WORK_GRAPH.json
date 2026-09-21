@@ -635,7 +635,7 @@
       "role": "slice",
       "lane": "B-SHELL",
       "title": "the table component through the one operation route",
-      "status": "B4.1 merged; bounded B4.2 Node scalar/common review rendering activated after owner resume",
+      "status": "B4.1 merged; B4.2 Node fields/common review renderer reviewed and native-tested at bounded scopes, final publication gates pending",
       "dependsOn": [
         "B3B"
       ],
@@ -647,18 +647,26 @@
         {
           "item": "Retire duplicate Node bulk grid after equivalent label/provenance and multi-change review capability reaches common table grammar",
           "retireAt": "later B4 increment before claiming full B4/MVP table completion",
-          "evidence": "B4_1_COMPATIBILITY_DISPOSITION.md; independent equivalence review required"
+          "evidence": "B4_1_COMPATIBILITY_DISPOSITION.md; independent equivalence review required",
+          "state": "implemented and independently reviewed in producta064; publication pending",
+          "retirementEvidence": "instances/B4-2-CODEX/RETURN.md and B4-2-REVIEW node; common core renders both Node policies, other families still legacy"
         },
         {
           "item": "Short collapsible drawers (Model and narrow Both) retain whole-pane scrolling; adaptive full-height Both/Table repair does not establish stationary chrome at their127px minimum host",
           "retireAt": "later B4 compact Model-drawer presentation before full B4/MVP table closure",
           "evidence": "instances/B4-1-CODEX/_run_records/vertical-scroll-repair/MANAGER_COMPACT_SCOPE.md",
           "rationale": "Existing drawer measurements: default host227px; minimum127px; expanded439px desktop/319px compact. Preserve accepted pane budgets and all controls; do not create zero-height body. This bounds the increment, not a proof that every compact design is impossible."
+        },
+        {
+          "item": "Both+Inspector-open Provenance native pointer exposure remains unverified where no scrollbar thumb was observable; native Table and Both/Inspector-closed routes pass",
+          "retireAt": "full B4/closing fit verification; current internal increment keeps the stated evidence limitation",
+          "evidence": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_ROOT_NATIVE_FINAL/RETURN.md",
+          "state": "verification limit; no product defect inferred from unavailable method"
         }
       ],
       "remainderPreparationBrief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_REMAINDER_PREPARATION_BRIEF.md",
       "remainderPreparationBriefSha256": "cf1ea19b9ef79493cb3399785745789d035f8bdc05dd9dd604ffdeae432d235c",
-      "remainderPreparationState": "returned and clarified; B4.2 implementation NOT launched; owner pause now holds further work",
+      "remainderPreparationState": "initial recommendation implemented in B4.2; next separate Materials/Sections assessment returned, unactivated",
       "remainderPreparationBasis": {
         "source": "ed8cc27fdb37b8df2f20eb5f877aacb61bfd7db1",
         "workerReturnSha256": "f7aa44110af6fbef5564ad98b1cc80b95a892d2b0d888acb52a479663b9e2bca",
@@ -2064,7 +2072,7 @@
       "model": "gpt-6-astra",
       "reasoning": "high",
       "mechanism": "retainedmanager collaboration.followup_task; actual fresh TASK collaboration.spawn_agent under manager",
-      "status": "four-path character correction independently passed; rebuilt native follow-up activation dispatched",
+      "status": "final source/native evidence handed back cleanc578; rebuilt native scopedPASS and ROOT own lookPASS; all app processes closed, manager/workers idle",
       "base": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
       "branch": "codex/swbpipe-b4-node-fields-20260920",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_2_MANAGER_BRIEF.md",
@@ -2144,16 +2152,39 @@
       "characterManifest": "instances/B4-2-CODEX/_run_records/native-character-repair/ARTIFACT_HASHES.json",
       "characterManifestSha256": "3d5b0778fd4ee969ba4d1900efeeb2bcfbd83856ea38c7e92895bac57fe476f7",
       "rebuiltNativeActivation": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_REBUILT_NATIVE_ACTIVATION.txt",
-      "rebuiltNativeActivationSha256": "3e43c5855a4cb1c5b88f28315b3e8e84911bfaa28c3d6f6cfeebc1dffd6d0946"
+      "rebuiltNativeActivationSha256": "3e43c5855a4cb1c5b88f28315b3e8e84911bfaa28c3d6f6cfeebc1dffd6d0946",
+      "nativeFinalAddendum": "instances/B4-2-CODEX/_run_records/NATIVE_FINAL_ADDENDUM.md",
+      "nativeFinalAddendumSha256": "a1fd84206d57396ae7b2dadaba3ba9d1f055ee7761351429134a61b487c09a5b",
+      "nativeFinalInputsSha256": "6bfe8f2347f45c84d3ed289a3658f410c2c0429b8c0831b67a5311f2baca9e68",
+      "finalEvidenceCheckpoint": "c578d194248a359b21f9e3e2dfc42509ad8c11af",
+      "managerReturn": "instances/B4-2-CODEX/RETURN.md",
+      "managerReturnSha256": "0ccc1e1ce6cd758458aad10e42e47ff7eb81a797f909d2c46a1c1f39cbd6cccf",
+      "nativeFinalInputs": "instances/B4-2-CODEX/_run_records/NATIVE_FINAL_INPUTS.json",
+      "nativeFinal": {
+        "candidate": "ad70730a6207dcf7643124aaed160d48cd11eca4",
+        "product": "a0649cbc9a434a28144d010a3a19d68111ace412",
+        "pid": 82749,
+        "binarySha256": "fd1e227b6f2df603779ff054e77930edec0a590e7020d22d58cb03459aab1896",
+        "return": "instances/B4-2-CODEX/_run_records/NATIVE_FINAL_RETURN.md",
+        "returnSha256": "a84a89b25992101e5cf031fc104bb736a8601c7d942b5d884ece55a4a4c08e9c",
+        "manifest": "instances/B4-2-CODEX/_run_records/native-final/evidence-manifest.json",
+        "manifestSha256": "aebcaed7ef94983eb64c4f3ece1217ec280ba924bfca41b1a24b3d3a750b0612",
+        "verdict": "bounded character/caret/Undo/Cancel/Apply/Keep/Queue/Clear PASS; Table Provenance pointer Apply/Cancel/UndoRedo observed; Both+Inspector exposure explicitly unverified",
+        "rootOwnLook": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_ROOT_NATIVE_FINAL/RETURN.md",
+        "rootOwnLookManifest": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_ROOT_NATIVE_FINAL/MANIFEST.json",
+        "cleanup": "ROOT restored baseline via3Undo, tested/canceled own drafts, CmdQ, process-only ps82749 exit1/empty, no postQuitAX",
+        "rootOwnLookSha256": "9f969c00ce1ab6aced9a49b6dc1dfb73d368cc51740833e5eff348b83d994d04",
+        "rootOwnLookManifestSha256": "279398923c3b415f209c30ec4ac2d0acb01e3777c5b24b871444295fd72ce6b9"
+      }
     },
     "B4-2-INTEGRATION": {
       "role": "ROOT integration",
       "parent": "ROOT",
       "slice": "B4",
       "branch": "codex/swbpipe-b4-node-integration-20260920",
-      "candidate": "89ae58bd8cb855860a5e59900dd1a93782305c69",
+      "candidate": "d68a65fbba6052550f6654de1aeaec2be26e517b",
       "base": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
-      "status": "clean reviewed character correction/evidence fan-in; rebuilt native/full gates pending",
+      "status": "clean final lane evidence/source assembled; add ROOT own look and finish clean sweep/combined review/CI",
       "dependsOn": [
         "B4-2-CODEX-MANAGER"
       ],
@@ -2500,7 +2531,7 @@
       "B4-3-FAMILY-PREPARATION"
     ]
   ],
-  "current_frontier": "B4.2 source review plus R1/character backchecks PASS througha064. Rebuilt native follow-up dispatched under acknowledged slot; initial97c failure preserved. ROOT own look, final clean sweep/CI remain. Materials is next separate prepared increment, not activated.",
+  "current_frontier": "B4.2 source/repair reviews and rebuilt native+ROOT own look pass at stated scopes; canonical model restored and native82749 closed. Assemble clean final candidate for one complete sweep/combined evidence review/actual-head CI. Both+Inspector exposure limit and other B4 gaps remain. Materials next separately prepared, not activated.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -2691,6 +2722,16 @@
         ],
         "status": "provisional",
         "basis": "historical filing; retained without reconciliation"
+      },
+      "B4": {
+        "ids": [],
+        "status": "provisional_unresolved",
+        "basis": "Authorized table-component scope in ORCHESTRATION_PLAN.md/briefs/B-SHELL_shell_lane.md; trace to existing DAG-010 through phaseTrace.pointer. Exact deliverable mapping remains uncertain and is reserved for owner-steered reconciliation.",
+        "scopeNodes": [
+          "B4-1-INTEGRATION",
+          "B4-2-INTEGRATION",
+          "B4-3-FAMILY-PREPARATION"
+        ]
       }
     }
   },
@@ -2722,7 +2763,7 @@
     },
     "currentContract": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/PIPING_LIVE_CONTROL_CONTRACT_DRAFT.md",
     "peerFitReview": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/RUNTIME_ACTIVATION_REVIEW_CUSTODY.json",
-    "nativeHandoff": "Peer acknowledged conditional Piping native/CUA/build slot after B4.2 R1 closure; defers competing activity until release. Not yet executing."
+    "nativeHandoff": "Piping released native/CUA/build; peer acknowledged no competing workload. Source/dist5174/5175/sharedE2E reserved for upcoming full sweep."
   },
   "pause": {
     "ownerText": "with the impending PR, use this as an opportunity to gracefully pause your work until I say resume.",
@@ -2774,20 +2815,20 @@
     "scope": "No silence-as-approval; unaffected authorized B4.2 proceeds"
   },
   "liveContinuationState": {
-    "root": "7b619b3099cc48c71cae47cf0e751ab65f8e1d39 plus resume/launch record",
+    "root": "7f048f5976c88c9a1f39eadb9f83489c29cc6111 plus final native own-look record",
     "originMain": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
     "integrationBranch": {
       "branch": "codex/swbpipe-b4-node-integration-20260920",
-      "head": "89ae58bd8cb855860a5e59900dd1a93782305c69",
+      "head": "d68a65fbba6052550f6654de1aeaec2be26e517b",
       "state": "clean B4.2 source fan-in; independent/native/final gates pending"
     },
-    "shell": "cleanad707/producta064; native follow-up pending actual launch record",
+    "shell": "clean c578/producta064; all manager/worker execution returned",
     "canvas": "fb720420 preserved; C4 preparation returned",
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "isolated226b probe retains two authorized source edits and two untracked dependency entries; preserved, never fan-in",
-    "resources": "oldnative78436 closed; source5174/shared lock for affected repair checks; Piping retains acknowledged upcoming native/build slot, no full sweep",
-    "recordStatus": "prior postmerge pause tail and new resume/launch records await combined review at next checkpoint",
-    "observedAt": "2026-09-21T04:06:53.197212+00:00"
+    "resources": "no Piping native process; upcoming full sweep reserves5174/5175/shared lock, peer acknowledged",
+    "recordStatus": "current complete-candidate evidence review/final gates pending",
+    "observedAt": "2026-09-21T05:02:51.647842+00:00"
   },
   "historicalPauses": [
     {

@@ -4,8 +4,8 @@ Current after the owner's explicit resume following PR829. Sole editor: Piping H
 
 | Scope | Current owner/state |
 |---|---|
-| Piping UI/domain/controller | Existing shell manager Astra/high and one Astra/low worker; B4.2 Node Label/string Provenance plus common direct/review table rendering is source-frozena183 on codex/swbpipe-b4-node-fields-20260920. No controller/native/CLI changes in this increment. |
-| Piping integration, graph and this note | ROOT. Main15e8b7a72 is merged PR829; B4.1 passed local/native/independent/actual-head CI checks at their recorded scopes. Current clean integration433d251e on codex/swbpipe-b4-node-integration-20260920 includes the new source; fresh independent review/native/final gates remain. Old branches and postmerge records are preserved. |
+| Piping UI/domain/controller | Existing shell manager Astra/high and one Astra/low worker; B4.2 Node Label/string Provenance plus common direct/review table rendering is source-frozena064 with clean final evidencec578 on codex/swbpipe-b4-node-fields-20260920. No controller/native/CLI changes in this increment. |
+| Piping integration, graph and this note | ROOT. Main15e8b7a72 is merged PR829; B4.1 passed local/native/independent/actual-head CI checks at their recorded scopes. Current integrationd68a65fb includes reviewed source and lane evidence. Source/R1/typing-repair backchecks and rebuilt native/ROOT own look pass at their recorded scopes; final sweep/combined review/CI remain. Old branches and postmerge records are preserved. |
 | Runtime | Peer owns reusable Runtime. Generic tools PR824 and actual-client probe PR827 are merged. No Runtime/shared Root product changes currently needed for the proposed Piping CLI tranche. |
 
 B4.2 scope and checks are in B4_2_MANAGER_BRIEF.md. Main/source and clean shell/integration/canvas branches were revalidated on resume. Parked design-system and isolated busy-probe state remain preserved. Full B4, the compact collapsible-drawer gap and other deferred table work remain open. B5 follows B4. C4 label dispositions remain pending. PR829 closeout is in _run_records/PR829_CI; its full hosted workflow took1001seconds with425source passes/20existing skips. No release, usability/performance qualification or deliverable/DAG reconciliation follows.
@@ -20,6 +20,8 @@ After activation and interface freeze, Piping owns native CLI/transport and live
 
 ## Resources
 
-Peer acknowledged resume and reports no builds/tests/browser/native/CUA/oMLX workload. Piping uses source5174 and dist5175 under the shared swbpipe-e2e.lock. ROOT5183/5184, canvas5185/5186 and Tauri5173 remain named resources. Native/CUA is currently unclaimed; arrange an acknowledged handoff before any witness. One foreground native slot, no overlapping servers/builds/tests that invalidate evidence, and no competing work during later authorized D72 timing. Native tests use invented fixtures and only explicitly owned disposable state; preserve other project rows/preferences.
+Peer acknowledged resume and reports no builds/tests/browser/native/CUA/oMLX workload. Piping uses source5174 and dist5175 under the shared swbpipe-e2e.lock. ROOT5183/5184, canvas5185/5186 and Tauri5173 remain named resources. Native/CUA/build is released after verified process82749 cleanup; peer acknowledged. Source/dist5174/5175/sharedE2E are reserved for the upcoming final sweep. One foreground native slot, no overlapping servers/builds/tests that invalidate evidence, and no competing work during later authorized D72 timing. Native tests use invented fixtures and only explicitly owned disposable state; preserve other project rows/preferences.
 
 No ownership transfer or pending product decision is implied by silence. Substantive scope/design disagreements return to the owner. Standard F-PIP-2/DEC-081 claim fence applies.
+
+Current native limit: Both+Inspector-open Provenance exposure remains unverified where a scrollbar thumb was not observable. Actual Table and Both/Inspector-closed pointer paths were verified; earlier failures and this limit remain explicit. B4.3 Materials preparation is retained only; no implementation or integration scope extension.

@@ -1,0 +1,11 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 114-117
+~										87 cell (selected, settable)
++											205 text field (settable) node:N-110 Label, Value: q
++									206 text Editing 
++									207 text Label
++									208 text  · 
++									209 text node:N-110
++									210 button Apply, Help: Apply (Enter)
++									211 button Cancel, Help: Cancel (Escape)
+The focused UI element is 205 text field (settable) node:N-110 Label, Value: q

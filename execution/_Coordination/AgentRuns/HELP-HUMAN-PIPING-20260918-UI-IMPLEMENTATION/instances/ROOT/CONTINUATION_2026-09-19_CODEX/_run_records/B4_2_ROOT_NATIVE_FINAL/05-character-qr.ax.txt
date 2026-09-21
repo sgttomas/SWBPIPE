@@ -1,0 +1,200 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 1-113, 118-153, 157-190, 202-211
++	202 container
++		203 scroll area
++			204 HTML content Description: SWBPIPE, URL: tauri://localhost
++				205 container
++					206 container Toolbar
++						207 heading SWBPIPE, Value: 1
++							208 text SWBPIPE
++						209 container Invented Utility Loop Preview
++							210 text Invented Utility Loop Preview
++						211 container Editing tools
++							212 button (disabled) Undo model edit, Help: Nothing to undo
++							213 button Redo model edit, Help: Redo (⇧⌘Z)
++							214 toggle button Select, Help: Select (⎋), Value: on
++						215 container View
++							216 toggle button Table, Help: Table view (⌘1), Value: off
++							217 toggle button Model, Help: Model view (⌘2), Value: off
++							218 toggle button Both, Help: Both view (⌘3), Value: on
++						219 button Run
++						220 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
++						221 container Panels
++							222 button (collapsed) Inspector, Help: Inspector (⌘I), Secondary Actions: Expand
++							223 button (disabled) Agent, Help: Agent: not available yet
++						224 pop up button Display units, Value: Entered, Help: Display units. Readouts use the selected units where conversion is available. Unavailable quantities retain entered values. Editing uses entered units.
++						225 summary Appearance, Value: off
++						226 container Human toolkit
++							227 button (collapsed) Find modeling commands, Help: Search or command (⌘K), Secondary Actions: Expand
++					228 container Stages
++						229 content list
++							230 toggle button Model, Value: on
++							231 toggle button Loads, Value: off
++							232 toggle button (disabled) Results, Help: No run yet, Value: off
++							233 toggle button (disabled) Review, Help: No run yet, Value: off
++						234 content list
++							235 button (collapsed) Libraries, Secondary Actions: Expand
++							236 button (collapsed) Rules, Secondary Actions: Expand
++							237 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
++					238 container Modeling workspace
++						239 container Tables
++							240 toggle button Model, Value: on
++							241 toggle button Review changes, Value: off
++							242 button (disabled, expanded) Collapse table drawer, Help: Both view keeps the tables open, Secondary Actions: Collapse
++						243 container Model tree
++							244 text MODEL
++							245 container Layout grid mode
++								246 toggle button Tree, Value: off
++								247 toggle button Grid, Value: on
++							248 container Model tree filtering
++								249 container
++									250 text Filter model
++									251 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
++										252 text Name, ID, type, or group
++								253 text 27  of  27  model entities visible
++								254 button (disabled) Clear model tree filter
++							255 container Bulk entity grid
++								256 container Grid entity type
++									257 toggle button Nodes, Value: on
++									258 toggle button Pipes, Value: off
++									259 toggle button Supports, Value: off
++									260 toggle button Materials, Value: off
++									261 toggle button Sections, Value: off
++									262 toggle button Components, Value: off
++									263 toggle button Load Cases, Value: off
++									264 toggle button Combinations, Value: off
++								265 container
++									266 table (settable) Node fields
++										267 row (selectable)
++											268 cell (settable)
++												269 text Node
++											270 cell (settable)
++												271 button Sort Label
++											272 cell (settable)
++												273 button Sort X
++											274 cell (settable)
++												275 button Sort Y
++											276 cell (settable)
++												277 button Sort Z
++											278 cell (settable)
++												279 button Sort Provenance
++										280 row (selectable)
++											281 cell (selectable, settable) node:N-100
++											282 cell (selectable, settable) node:N-100 Label: Pump nozzle
++											283 cell (selectable, settable) node:N-100 X: 0 m
++											284 cell (selectable, settable) node:N-100 Y: 0 m
++											285 cell (selectable, settable) node:N-100 Z: 0 m
++											286 cell (selectable, settable) node:N-100 Provenance: invented_example
++										287 row (selected)
++											288 cell (selectable, settable) node:N-110
++											289 cell (selected, settable)
++												290 text field (settable) node:N-110 Label, Value: qr
++											291 cell (selectable, settable) node:N-110 X: 3.2 m
++											292 cell (selectable, settable) node:N-110 Y: 0 m
++											293 cell (selectable, settable) node:N-110 Z: 0 m
++											294 cell (selectable, settable) node:N-110 Provenance: invented_example
++										295 row (selectable)
++											296 cell (selectable, settable) node:N-120
++											297 cell (selectable, settable) node:N-120 Label: Riser elbow
++											298 cell (selectable, settable) node:N-120 X: 3.2 m
++											299 cell (selectable, settable) node:N-120 Y: 2.4 m
++											300 cell (selectable, settable) node:N-120 Z: 0 m
++											301 cell (selectable, settable) node:N-120 Provenance: invented_example
++										302 row (selectable)
++											303 cell (selectable, settable) node:N-130
++											304 cell (selectable, settable) node:N-130 Label: Rack turn
++											305 cell (selectable, settable) node:N-130 X: 7.6 m
++											306 cell (selectable, settable) node:N-130 Y: 2.4 m
++											307 cell (selectable, settable) node:N-130 Z: 0 m
++											308 cell (selectable, settable) node:N-130 Provenance: invented_example
++										309 row (selectable)
++											310 cell (selectable, settable) node:N-140
++											311 cell (selectable, settable) node:N-140 Label: Terminal tie-in
++											312 cell (selectable, settable) node:N-140 X: 7.6 m
++											313 cell (selectable, settable) node:N-140 Y: 2.4 m
++											314 cell (selectable, settable) node:N-140 Z: 2.2 m
++											315 cell (selectable, settable) node:N-140 Provenance: invented_example
++									316 container Node fields footer
++										317 text Editing 
++										318 text Label
++										319 text  · 
++										320 text node:N-110
++										321 button Apply, Help: Apply (Enter)
++										322 button Cancel, Help: Cancel (Escape)
++								323 button (collapsed) Review multiple changes, Secondary Actions: Expand
++						324 splitter Resize table and canvas, Value: 55
++						325 container Viewport controls
++							326 text 3D Centerline
++							327 container (collapsed) Viewport deformation overlay status, Secondary Actions: Expand
++								328 summary Deformation · unavailable, Value: off
++									329 text Deformation · unavailable
++							330 container Viewport display toggles
++								331 toggle button Labels, Help: Show or hide entity labels, Value: on
++								332 toggle button Loads, Help: Show or hide load arrows, Value: on
++								333 toggle button Grid, Help: Show or hide the ground grid, Value: on
++							334 container Viewport selection tools
++								335 toggle button Box Select, Value: off
++								336 container
++									337 text Selection filter
++									338 pop up button Selection filter, Value: All
++								339 button Hide, Help: Hide selected geometry (H). Hidden geometry is removed from canvas picking.
++								340 button Isolate, Help: Isolate selected geometry (I): dim other shown geometry to 20%. Dimmed geometry remains selectable; Hide wins.
++								341 button (disabled) Show All, Help: All eligible entities are already shown.
++								342 text Isolate captures the selected geometry. Other shown geometry is dimmed to 20% and remains available to click, hover and box selection; nearer dimmed geometry can be picked before farther undimmed geometry. Selection does not change the snapshot. Hide takes precedence. Show All clears both. I and H apply while focus is in the viewport.
++								343 button Fit Model
++								344 button Fit Visible
++								345 button Fit Selection, Help: Fit currently visible selected geometry.
++							346 container Viewport geometry
++								347 toggle button Schematic, Value: on
++								348 toggle button Actual OD, Value: off
++								349 toggle button Measure, Value: off
++						350 container Viewport status
++							351 text Selected:  node:N-110
++							352 container Schematic centerline geometry
++								353 text Schematic centerline geometry
++							354 container View command status, Help: No view command dispatched.
++								355 text No view command dispatched.
++						356 container
++							357 container Three.js pipe centerline viewport, Help: Click a part to select it; drag to orbit, scroll to zoom
++							358 container Viewport entity selection
++								359 toggle button Select Low point elbow in viewport, Help: Low point elbow (node:N-110), Value: on
++								360 toggle button Select Vertical riser in viewport, Help: Vertical riser (pipe:P-110), Value: off
++								361 toggle button Select Invented branch connection marker in viewport, Help: Invented branch connection marker (component:C-120), Value: off
++								362 toggle button Select Riser elbow in viewport, Help: Riser elbow (node:N-120), Value: off
++								363 toggle button Select Rack span in viewport, Help: Rack span (pipe:P-120), Value: off
++								364 toggle button Select Pump discharge run in viewport, Help: Pump discharge run (pipe:P-100), Value: off
++								365 toggle button Select Tie-in rise in viewport, Help: Tie-in rise (pipe:P-130), Value: off
++								366 toggle button Select Invented semi-rigid valve marker in viewport, Help: Invented semi-rigid valve marker (component:C-130), Value: off
++								367 toggle button Select Pump nozzle in viewport, Help: Pump nozzle (node:N-100), Value: off
++								368 toggle button Select Rack turn in viewport, Help: Rack turn (node:N-130), Value: off
++								369 toggle button Select Terminal tie-in in viewport, Help: Terminal tie-in (node:N-140), Value: off
++								370 toggle button Select Preview sliding-friction rack shoe in viewport, Help: Preview sliding-friction rack shoe (support:NL-130-FRIC), Value: off
++								371 toggle button Select Preview one-way terminal stop in viewport, Help: Preview one-way terminal stop (support:NL-140), Value: off
++								372 toggle button Select Anchor at pump nozzle in viewport, Help: Anchor at pump nozzle (support:S-100), Value: off
++							373 image Orientation gizmo showing X, Y, Z axes
++							374 container View controls
++								375 toggle button Front, Value: off
++								376 toggle button Top, Value: off
++								377 toggle button Isometric, Value: on
++							378 text 1 m
++						379 container Command and selection bar
++							380 container Object creation tools
++								381 toggle button Node, Help: Arm node creation, Value: off
++								382 toggle button Pipe, Help: Arm pipe-run creation, Value: off
++								383 toggle button Support, Help: Arm support creation in the Inspector, Value: off
++								384 toggle button Component, Help: Arm component-symbol insertion, Value: off
++								385 toggle button Load, Help: Arm load creation in the Load Cases panel, Value: off
++							386 text Select
++							387 summary Selection & navigation, Value: off
++								388 text Selection & navigation
++					389 container Agent
++						390 button (disabled) Agent, Help: Agent: not available yet
++					391 container Workspace status
++						392 container Analysis statuses
++						393 button (collapsed) 5 Issues, Secondary Actions: Expand
++						394 text node: node:N-110 Entered
++						395 button (collapsed) About SWBPIPE…, Secondary Actions: Expand
++		396 list
++			397 text Qr
++		398 button close
+The focused UI element is 290 text field (settable) node:N-110 Label, Value: qr
