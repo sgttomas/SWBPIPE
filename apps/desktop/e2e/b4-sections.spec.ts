@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { attachBrowserIdentity, currentModelHashThroughVisibleExport, gotoModel, readFixture } from "./ui-foundation-workflows";
+import { attachBrowserIdentity, currentModelHashThroughVisibleExport, gotoModel, readFixture, setAppearance } from "./ui-foundation-workflows";
 import { ensureTreeExpanded } from "./workspace-driver";
 
 async function inventedSections(count = 2) {
@@ -36,6 +36,43 @@ test("B4 Sections mixed-unit direct editing preserves no-op, rejection, shared-p
 test("B4 Sections enum explicit completion, passive cancellation and raw review retention", async ({ page, browser }, info) => {
   await attachBrowserIdentity(browser, info); const model = await inventedSections(); model.sections[0].section_type = "p";
   await openSections(page, model); const table = page.getByTestId("section-engineering-table"); const type = table.getByTestId("table-cell-section:B4-0-type");
+  const portalStyles = [];
+  for (const theme of ["light", "dark"] as const) {
+    await setAppearance(page, theme, "comfortable");
+    await type.dblclick(); const themedInput = table.getByRole("combobox"); await themedInput.click(); await themedInput.press("ArrowDown");
+    const popup = page.getByRole("listbox", { name: "Supported values" }); const selected = popup.getByRole("option", { name: "pipe", exact: true });
+    await expect(popup).toBeVisible(); await expect(selected).toBeVisible(); await expect(selected).toHaveAttribute("aria-selected", "true");
+    const observed = await popup.evaluate((element) => {
+      const style = getComputedStyle(element), option = element.querySelector('[role="option"]')!, optionStyle = getComputedStyle(option);
+      const tokens = getComputedStyle(document.documentElement);
+      const rgb = (token: string) => {
+        const hex = tokens.getPropertyValue(token).trim();
+        if (!/^#[0-9a-f]{6}$/i.test(hex)) throw new Error(`Expected an opaque root color token for ${token}: ${hex}`);
+        return `rgb(${[1, 3, 5].map((offset) => parseInt(hex.slice(offset, offset + 2), 16)).join(", ")})`;
+      };
+      const rect = option.getBoundingClientRect();
+      return { background: style.backgroundColor, text: style.color, border: style.borderTopColor,
+        borderStyle: style.borderTopStyle, borderWidth: style.borderTopWidth, optionBackground: optionStyle.backgroundColor, optionText: optionStyle.color,
+        hit: option.contains(document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2)),
+        rootSurface: rgb("--surface-panel"), rootText: rgb("--text-primary"), rootBorder: rgb("--border-hairline"), rootSelection: rgb("--selection-band") };
+    });
+    portalStyles.push({ theme, ...observed });
+    await info.attach(`section-enum-${theme}-computed-style`, { body: JSON.stringify(observed, null, 2), contentType: "application/json" });
+    await page.screenshot({ path: info.outputPath(`section-enum-${theme}-selected.png`) });
+    await themedInput.press("Escape"); await expect(themedInput).toHaveValue("p"); await themedInput.press("Escape"); await expect(type).toHaveText("p");
+  }
+  await setAppearance(page, "light", "comfortable");
+  // Inspect both actual themes before asserting, retaining both witnesses even
+  // when the first comparison fails. Equality to opaque resolved tokens also
+  // rejects transparent/unset portal declarations and an invisible selection.
+  for (const style of portalStyles) {
+    expect(style.background, `${style.theme} opaque popup surface`).toBe(style.rootSurface);
+    expect(style.text, `${style.theme} popup text`).toBe(style.rootText);
+    expect(style.border, `${style.theme} popup border`).toBe(style.rootBorder);
+    expect(style.borderStyle).toBe("solid"); expect(style.borderWidth).toBe("1px");
+    expect(style.optionBackground, `${style.theme} visible selected option`).toBe(style.rootSelection);
+    expect(style.optionBackground).not.toBe(style.background); expect(style.optionText).toBe(style.rootText); expect(style.hit).toBe(true);
+  }
   await type.dblclick(); const input = table.getByRole("combobox"); await input.click(); await expect(page.getByRole("listbox", { name: "Supported values" })).toBeVisible();
   await page.keyboard.press("Enter"); await expect(input).toHaveValue("p"); await expect(input).toHaveAttribute("aria-invalid", "true"); await expect(page.getByTestId("workspace-undo")).toBeDisabled();
   await input.click(); await page.keyboard.press("ArrowDown"); await page.keyboard.press("Escape"); await expect(input).toHaveValue("p"); await expect(page.getByRole("listbox", { name: "Supported values" })).toHaveCount(0);
