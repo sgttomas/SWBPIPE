@@ -119,8 +119,8 @@ class Paths:
             t = PROJECT + t
         elif not REPO_PREFIX.match(t):
             return False, "not a repository-root, project-root or GATE: token"
-        elif t.startswith("docs/") and self._exists(PROJECT + t):
-            # N4: the same path exists in the project and at the root; require the explicit form
+        elif not t.startswith("projects/") and self._exists(PROJECT + t):
+            # the same path exists in the project and at the root; require the explicit form
             return False, f"ambiguous: a project copy exists; cite {PROJECT + t} or keep the root file with a Notes reason 'ROOT_DOC:'"
         return self._exists(t), "not at the frozen commit"
 

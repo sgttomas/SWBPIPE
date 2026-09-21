@@ -95,7 +95,7 @@
   },
   "R1": {
    "title": "Read-only inventories incl. owner-free reverse capability inventory",
-   "status": "planned",
+   "status": "active: 12 area inventories dispatched; mechanical indexes and authority map built",
    "dependsOn": [
     "R0 conventions ruled"
    ]
@@ -139,9 +139,11 @@
    "briefSha256": "6d642bb757550cfe91d26f53a67612c3c877269fff04ebf8d36801a175402c5d",
    "return": "returns/R0-PR-REVIEW_return.md",
    "returnSha256": "67fb54b0f92a6671e7da2ffe12f08e0e0e0c0071b03db758d24775fc84730ebc",
-   "status": "FINDINGS repaired; backcheck 1 FINDINGS (N1-N6) repaired; owner items ruled; backcheck 2 pending",
+   "status": "backcheck 2 FINDINGS (B2-1..3) repaired; backcheck 3 pending",
    "backcheck1Return": "returns/R0-PR-REVIEW_backcheck1_return.md",
-   "backcheck1ReturnSha256": "f8b92cd69be29dd254265d0173b12e6e269325a0450b2687966db45ae1f5eb61"
+   "backcheck1ReturnSha256": "f8b92cd69be29dd254265d0173b12e6e269325a0450b2687966db45ae1f5eb61",
+   "backcheck2Return": "returns/R0-PR-REVIEW_backcheck2_return.md",
+   "backcheck2ReturnSha256": "7d6e6e1ac6bde46a3f314532fce5b3a7daeaced71fc9b1e48ae843d8620b4773"
   }
  },
  "edges": [

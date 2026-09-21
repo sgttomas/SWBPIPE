@@ -359,10 +359,10 @@ SourceStateSHA
     `tools/…`, `agents/…`, `workflows/…`, `.github/…`, `_DomainEngines/…`);
   - a path from the project root (`core/…`, `apps/…`), which the validator
     resolves under `projects/chirality-piping/`. Project documents are always
-    cited as `projects/chirality-piping/docs/…`. A bare `docs/…` token means
-    the repository-root document; where a project copy of the same path
-    exists, the validator requires the explicit form, or `ROOT_DOC:` with a
-    reason in Notes;
+    cited as `projects/chirality-piping/…`. A bare repository-root token
+    (for example `docs/…`, `tools/…`, `execution/…`) means the root file.
+    Where a project copy of the same path also exists, the validator requires
+    the explicit form, or `ROOT_DOC:` with a reason in Notes;
   - `GATE:GATE_EVIDENCE/<path>`.
 
   Append `::case` or `#Lnn` where useful. Put free text in Notes, never in
@@ -404,8 +404,9 @@ departures, convention friction, and the smallest checks for `UNKNOWN` rows.
   AGENT). This departs from `R0_REVIEW.md` §5 item 2 as written. **Confirmed
   by the owner** (R0 ruling addendum, item 1). The reason and how to reverse it
   are in `RUN_STATE.jsonl` under `DISCLOSED_DEPARTURE`.
-- **Rename residue (owner, R0 owner items).** Active code identifiers that
-  carry the former name are residue, including the four kept on 2026-09-18.
+- **Rename residue (owner, R0 ruling addendum item 2).** Active code
+  identifiers that carry the former name are residue. (AGENT reading, open to
+  the owner's correction:) this includes the four kept on 2026-09-18.
   See `CANONICAL_SITUATIONS.md` CP-04 and `R0_CALIBRATION/R0_RULING.md`
   (addendum).
 - **Canonical coverage of shared text.** Consistency is enforced for shared
