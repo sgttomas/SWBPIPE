@@ -1,0 +1,51 @@
+{
+  "candidate": "8077032231ded1cc5d206becd03a18e43e6f3bb2",
+  "result": "2 passed, both configured profiles; no skips/retries/unexpected failures",
+  "commandsAndEnvironment": "affected/START.json.gz",
+  "sourceIdentity": "SOURCE_IDENTITY.json",
+  "sourceIdentitySha256": "1dd100e21dc0f657dbe03f67c73413f9cffe85040f209e912024b1f1197c3220",
+  "earlierSelectionError": "collection-miss/NOTE.md; zero tests executed before corrected unique collection",
+  "files": {
+    "/tmp/pr832-undo-rerun-2/END.json": {
+      "canonical": "affected/END.json.gz",
+      "rawSha256": "ce61efa008f10cfc8574f1410b465400367f94dc7aa2e0e2873e00e64bcfbff9",
+      "rawBytes": 297,
+      "sha256": "679d1051de9b9c2c6e973816479102ce6cb835206b6c4be36655cd9c8e69db1a"
+    },
+    "/tmp/pr832-undo-rerun-2/stderr.log": {
+      "canonical": "affected/stderr.log.gz",
+      "rawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rawBytes": 0,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "/tmp/pr832-undo-rerun-2/report.json": {
+      "canonical": "affected/report.json.gz",
+      "rawSha256": "76b57cedea198d5f669ad48b04f1bc265525e456ca246ebb40fc8af0e38f1dc5",
+      "rawBytes": 7483,
+      "sha256": "df7bc15e6eb7bbdde588da850f8efdcbe0544aa23f195726305ce374456b5452"
+    },
+    "/tmp/pr832-undo-rerun-2/START.json": {
+      "canonical": "affected/START.json.gz",
+      "rawSha256": "7b29be7bb6c8e9004d51765ba3c54866049a05d1254220b77732430c3f987a57",
+      "rawBytes": 1761,
+      "sha256": "81b06adae59ab4868934524da0af4a33c8dc7c390e4afc017e7bb9d4347010a0"
+    },
+    "/tmp/pr832-undo-rerun-2/collection.json": {
+      "canonical": "affected/collection.json.gz",
+      "rawSha256": "401f69c02c260b31ae6996dbc8a87f808c5a21b5863c44183ddda18b8a95d759",
+      "rawBytes": 3774,
+      "sha256": "6534004e623beed7d2b14e45b6028e21449ae42919ede436f95364445a3bd5c7"
+    },
+    "/tmp/pr832-undo-rerun-2/test-results/b4-table-editing-B4-text-f-fecd6-ugh-pointer-Queue-and-Clear-chromium-desktop/trace.zip": {
+      "canonical": "affected/b4-table-editing-B4-text-f-fecd6-ugh-pointer-Queue-and-Clear-chromium-desktop/trace.zip",
+      "sha256": "a9f3d47265bd39fa0721b0861c8a3319087ffb556f7beb86fb376bf9af6762e6",
+      "bytes": 3232061
+    },
+    "/tmp/pr832-undo-rerun-2/test-results/b4-table-editing-B4-text-f-fecd6-ugh-pointer-Queue-and-Clear-chromium-compact/trace.zip": {
+      "canonical": "affected/b4-table-editing-B4-text-f-fecd6-ugh-pointer-Queue-and-Clear-chromium-compact/trace.zip",
+      "sha256": "20b23d75d2672c7cab8c0fef9fdf6cafb2f4f74f30dac45d14f51b234fbe85ef",
+      "bytes": 3460096
+    }
+  },
+  "limits": "Affected local observations only. Complete clean sweep remains explicitly bound to d3db83; repaired full Linux CI not yet run. Product/native inputs unchanged."
+}

@@ -1,0 +1,7 @@
+# CI cache discovery — read-only
+
+Observed during PR832. GitHub Actions cache API and the completed barrier job/log are retained here. The earlier query before this barrier completed returned11 pinned-CLI caches, all scoped to refs/pull/*/merge and none to main; the retained later query may additionally include PR832's new cache. The fixed candidate setup action uses the same pinned key and action paths. This is startup-cost investigation, not a test failure, protected-test waiver or permission-setting change.
+
+Primary technical basis, retrieved 2026-09-21 UTC: https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching#restrictions-for-accessing-a-cache . GitHub documents that a pull-request-created cache belongs to its merge ref and is unavailable to other PRs. A PR can restore caches from its base/default branch. A trusted push or manual run on main can therefore prepare reusable caches through the existing setup action. Actual saved cache scope/hits and resulting timing must be observed after any later implementation; no saving is claimed yet.
+
+Proposed follow-up: narrowly triggered setup-only cache warming on trusted main after dependency/bootstrap inputs change (including initial workflow creation), with manual main-only repair path; preserve existing source CI, gates, keys/pins and full validation. No workflow_run/pull_request_target privilege expansion or copying untrusted PR artifacts into main cache. One ROOT writer and peer acknowledgement precede shared-root writes. Keep this follow-up out of frozen PR832.

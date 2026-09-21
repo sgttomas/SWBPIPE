@@ -1,0 +1,15 @@
+{
+  "candidate": "8077032231ded1cc5d206becd03a18e43e6f3bb2",
+  "base": "d02bb99092bf39e7e6d1554a68e77f94f349ab36",
+  "actualWriter": "HELP_HUMAN /root, GPT-6 Astra high-or-greater, direct integration repair; no new child",
+  "changedMaintainedPaths": [
+    "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts"
+  ],
+  "scope": "single text-Undo driver shortcut only",
+  "bindings": {
+    "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts": "4d10d41b4fa2af44e8ac2c0d40fe88086a3b6042a6e5685b5ea57fec4c469dc5",
+    "projects/chirality-piping/node_modules/playwright-core/types/types.d.ts": "e5b810845dedef5aa0d682efa61be20dcb2e28c27a64ff5cc4cfc122f3f3980f",
+    "projects/chirality-piping/node_modules/playwright-core/lib/coreBundle.js": "f74353fcb8e406756a70a6af0dfc4a5069acd577e35ec9d923ccf36ac009c2f5",
+    "projects/chirality-piping/node_modules/playwright-core/package.json": "6f7b58cc55449321279f11ca97d4e451c391738b77db32cdbcedf02851e3f097"
+  }
+}

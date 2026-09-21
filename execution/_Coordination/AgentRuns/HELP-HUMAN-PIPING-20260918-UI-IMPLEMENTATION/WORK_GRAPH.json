@@ -2184,7 +2184,7 @@
       "branch": "codex/swbpipe-b4-node-integration-20260920",
       "candidate": "d3db83b494cd00e9f8978a99f02a83bf626bd1fb",
       "base": "86e49b3a285f6022a8a56b3721612c7b5a7d8752",
-      "status": "PR832 draft open at frozen d02bb9; all local/source/native/combined/final-record reviews pass at stated scopes; actual-head hosted CI pending",
+      "status": "one-line test repair independently PASS at8077; same-host sweep applicability checked; corrected full actual-head Linux CI pending",
       "dependsOn": [
         "B4-2-CODEX-MANAGER"
       ],
@@ -2221,11 +2221,13 @@
       "publication": {
         "pr": 832,
         "url": "https://github.com/sgttomas/chirality/pull/832",
-        "head": "d02bb99092bf39e7e6d1554a68e77f94f349ab36",
-        "tree": "14c67c143ca8d38394ad5b7c9dd964f3dd8440f4",
-        "state": "draft open; actual-head hosted checks starting; no merge issued",
+        "head": "8077032231ded1cc5d206becd03a18e43e6f3bb2",
+        "tree": "7c136c19617267c05fb17d8bad0f8a9fb90b837c",
+        "state": "draft open, repaired code pushed once; corrected Linux workflow pending",
         "base": "86e49b3a285f6022a8a56b3721612c7b5a7d8752",
-        "observationsPolicy": "Keep PR head fixed; final record checks/review and CI observations live on ROOT record branch and PR record, without bookkeeping synchronizations restarting CI."
+        "observationsPolicy": "Keep PR head fixed; final record checks/review and CI observations live on ROOT record branch and PR record, without bookkeeping synchronizations restarting CI.",
+        "correctedRunId": 35567286692,
+        "correctedHarnessRunId": 35567286700
       },
       "publicationReview": {
         "state": "PASS complete34-path metadata tail and separately sealed actual-head gate observations",
@@ -2240,6 +2242,22 @@
         "returnSha256": "b265c427ca91865f016ef8b25a3899fa1a3b177706e9453c3f63e3b27efd6872",
         "gateSummary": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_PUBLICATION_CHECKS/SUMMARY.json",
         "gateSummarySha256": "35bee08e6c0fca5196bf9cd188ddc0472650e78f91e896a71bb3e7d55890ae3b"
+      },
+      "ciFailure": {
+        "runId": 35565467253,
+        "attempt": 1,
+        "jobId": 106227494409,
+        "head": "d02bb99092bf39e7e6d1554a68e77f94f349ab36",
+        "diagnosis": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR832_CI_FAILURE/DIAGNOSIS.md",
+        "failure": "native input Undo test hardcodes Meta on Linux",
+        "scope": "one test-driver key expression; expected assertions and all product bytes unchanged",
+        "repairCandidate": "8077032231ded1cc5d206becd03a18e43e6f3bb2",
+        "affectedLocal": "2 cases pass; one per configured profile; prior zero-collection error retained",
+        "repairReview": {
+          "state": "PASS one-path repair and explicit local-equivalence reassessment; no fresh8077 sweep claim",
+          "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR832_UNDO_REPAIR_REVIEW_RETURN.md",
+          "sha256": "3019c46a71e782feac7d75ad38d2c62087d449bba912a68b03791bb35150c448"
+        }
       }
     },
     "PR829-RESUME-RECORDS-REVIEW": {
@@ -2600,7 +2618,7 @@
       "B4-3-FAMILY-PREPARATION"
     ]
   ],
-  "current_frontier": "Await all applicable actual-head CI for draftPR832/d02bb9, then ordinary ready/merge under standing authority. No local source/test/native workload. Materials prepared and clarified, unactivated until explicit ROOT handoff after this publication. C4/CLI/fit/qualification limits remain.",
+  "current_frontier": "Await corrected full actual-head Linux CI for draftPR832/8077, then normal merge if all applicable checks pass. Product unchanged by CI repair. Independent same-host effective-key reassessment carries original clean d3db83 sweep plus affected2pass, never a new full-sweep claim. Materials/cache follow-up remain prepared, unactivated.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -2888,16 +2906,16 @@
     "originMain": "86e49b3a285f6022a8a56b3721612c7b5a7d8752",
     "integrationBranch": {
       "branch": "codex/swbpipe-b4-node-integration-20260920",
-      "head": "d02bb99092bf39e7e6d1554a68e77f94f349ab36",
-      "state": "PR832 draft open at frozen d02bb9; all local/source/native/combined/final-record reviews pass at stated scopes; actual-head hosted CI pending"
+      "head": "8077032231ded1cc5d206becd03a18e43e6f3bb2",
+      "state": "one-line test repair independently PASS at8077; same-host sweep applicability checked; corrected full actual-head Linux CI pending"
     },
     "shell": "clean c578/producta064; all manager/worker execution returned",
     "canvas": "fb720420 preserved; C4 preparation returned",
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "isolated226b probe retains two authorized source edits and two untracked dependency entries; preserved, never fan-in",
-    "resources": "sweep ended; process-only checks found no Piping native/test/build processes or5173/5174/5175 listeners; shared E2E lock absent; resources released",
-    "recordStatus": "publication backcheck PASS; postcandidate observation tail retained outside fixed PRhead",
-    "observedAt": "2026-09-21T05:42:59.893794+00:00"
+    "resources": "affected two-profile browser run complete; process/ports5173/5174/5175 clear and sharedE2E lock absent; source resources released, peer notified",
+    "recordStatus": "independent one-line repair review PASS; corrected actual-head hosted run35567286692 pending",
+    "observedAt": "2026-09-21T06:00:47.419265+00:00"
   },
   "historicalPauses": [
     {
