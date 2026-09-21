@@ -1,0 +1,26 @@
+{
+  "base": "7b900eaad764603a3c58dd643ebaa34ea569a1d9",
+  "product": "a1833393e597acbe81f943accf64a9548035fe6a",
+  "parent": "/root/b3_manager WORKING_ITEMS gpt-6-astra/high",
+  "retainedTask": "/root/b3_manager/b4_2_table TASK gpt-6-astra/low",
+  "bindings": [
+    {
+      "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_2_NATIVE_CHARACTER_REPAIR_DISPOSITION.md",
+      "sha256": "6aa3d0af59934119154d9b3eb37b587098d22fecc013886f83400133b373b21d"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-2-CODEX/_run_records/native/18-character-q.ax.txt",
+      "sha256": "8b121868dcc8aa7b0607d5ed111618a5d09723ae8a0656492e9f07778b96ca88"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-2-CODEX/_run_records/native/19-character-r.ax.txt",
+      "sha256": "8d880e2f6ae397e8730b51f67391390c34c6ae8ea83a74906807d954d5c130f6"
+    },
+    {
+      "origin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-2-CODEX/_run_records/native-character-repair/pre-repair-cleanup/after.json",
+      "sha256": "5905d5b893d7ef65c93cb85fa3eca35e8d0366d39399fbb59a0f7ef14bc92024"
+    }
+  ],
+  "priorOwnedProcess": "78436 absent, no matching process; native/CUA released",
+  "authority": "ROOT6aa3d0af scope; source5174/shared lock focused browser only"
+}

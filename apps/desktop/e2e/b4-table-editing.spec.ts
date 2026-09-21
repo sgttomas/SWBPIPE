@@ -317,3 +317,42 @@ async function hoverTableBody(page: import("@playwright/test").Page, rows: impor
   });
   await page.mouse.move(point.x, point.y);
 }
+
+for (const policy of ["direct", "review"] as const) {
+  for (const field of ["label", "x"] as const) {
+    test(`B4 character-start ${policy} ${field} appends ordinary keys and preserves intentional selection`, async ({ page, browser }, info) => {
+      await attachBrowserIdentity(browser, info); await page.goto("/"); await expect(page.getByTestId("workspace-toolbar")).toBeVisible();
+      await page.getByTestId("view-switch-table").click(); await ensureTreeExpanded(page); await page.getByTestId("layout-mode-grid").click();
+      if (policy === "review") await page.getByTestId("node-grid-review-disclosure").click();
+      const table = page.getByTestId(policy === "review" ? "engineering-table-review" : "engineering-table");
+      const cell = table.getByTestId(`${policy === "review" ? "review" : "table"}-cell-node:N-100-${field}`);
+      const original = await cell.textContent(); const first = field === "label" ? "q" : "1"; const second = field === "label" ? "r" : "2";
+      const editor = table.getByRole("textbox");
+      await cell.focus(); await page.keyboard.press(first); await page.keyboard.press(second);
+      // Separate physical key events expose the selection defect; fill() would hide it.
+      await expect(editor).toHaveValue(first + second);
+      expect(await editor.evaluate((input: HTMLInputElement) => [input.selectionStart, input.selectionEnd])).toEqual([2, 2]);
+      await editor.press("ArrowLeft");
+      await table.getByRole("button", { name: policy === "review" ? "Keep draft" : "Apply", exact: true }).focus();
+      await editor.focus();
+      expect(await editor.evaluate((input: HTMLInputElement) => [input.selectionStart, input.selectionEnd])).toEqual([1, 1]);
+      await editor.press(field === "label" ? "s" : "3");
+      await expect(editor).toHaveValue(first + (field === "label" ? "s" : "3") + second);
+      await table.getByRole("button", { name: "Cancel", exact: true }).click(); await expect(cell).toHaveText(original!); await expect(page.getByTestId("workspace-undo")).toBeDisabled();
+      await cell.focus(); await page.keyboard.press(first); await page.keyboard.press(second); await expect(editor).toHaveValue(first + second);
+      await table.getByRole("button", { name: policy === "review" ? "Keep draft" : "Apply", exact: true }).click(); await expect(cell).toHaveText(first + second);
+      if (policy === "review") {
+        await expect(table.getByRole("status")).toHaveText("Draft retained; model unchanged."); await expect(page.getByTestId("workspace-undo")).toBeDisabled();
+      } else {
+        await expect(page.getByTestId("workspace-undo")).toBeEnabled(); await page.getByTestId("workspace-undo").click(); await expect(cell).toHaveText(original!);
+        await expect(page.getByTestId("workspace-undo")).toBeDisabled(); await page.getByTestId("workspace-redo").click(); await expect(cell).toHaveText(first + second);
+      }
+      await cell.focus(); await page.keyboard.press("Enter");
+      expect(await editor.evaluate((input: HTMLInputElement) => [input.selectionStart, input.selectionEnd])).toEqual([0, 2]);
+      await editor.press(field === "label" ? "t" : "4"); await expect(editor).toHaveValue(field === "label" ? "t" : "4");
+      await table.getByRole("button", { name: "Cancel", exact: true }).click(); await expect(cell).toHaveText(first + second);
+      await cell.dblclick(); expect(await editor.evaluate((input: HTMLInputElement) => [input.selectionStart, input.selectionEnd])).toEqual([0, 2]);
+      await table.getByRole("button", { name: "Cancel", exact: true }).click(); await expect(cell).toHaveText(first + second);
+    });
+  }
+}

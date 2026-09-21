@@ -12,7 +12,7 @@ export type CapturedCell = CellAddress & Readonly<{
   generation: string;
   row: TableRow;
 }>;
-export type TableEdit = Readonly<{ captured: CapturedCell; text: string; pending: boolean; error?: string }>;
+export type TableEdit = Readonly<{ captured: CapturedCell; initialSelection: "all" | "end"; text: string; pending: boolean; error?: string }>;
 export type TableSort = Readonly<{ columnKey: string; direction: "ascending" | "descending" }> | null;
 
 export function sameCell(a: CellAddress | null, b: CellAddress | null): boolean {

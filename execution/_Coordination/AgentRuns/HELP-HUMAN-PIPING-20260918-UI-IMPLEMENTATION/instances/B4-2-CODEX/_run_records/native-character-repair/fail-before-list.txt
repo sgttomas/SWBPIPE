@@ -1,0 +1,3 @@
+Listing tests:
+  [chromium-desktop] › b4-table-editing.spec.ts:323:5 › B4 character-start direct label appends ordinary keys and preserves intentional selection
+Total: 1 test in 1 file

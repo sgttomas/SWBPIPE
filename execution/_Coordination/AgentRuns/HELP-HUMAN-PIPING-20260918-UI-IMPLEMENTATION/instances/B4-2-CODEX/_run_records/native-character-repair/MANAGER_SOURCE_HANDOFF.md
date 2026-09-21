@@ -1,0 +1,9 @@
+# Character-start correction source handoff
+
+Base7b900eaad764603a3c58dd643ebaa34ea569a1d9 retains native97c/producta183 failure and exact process cleanup. Retained TASK /root/b3_manager/b4_2_table actual Astra/low implemented ROOT6aa3 initial-selection scope. Manager Astra/high verified exact4-path diff and frozen hashes, plus diff --check. No other maintained byte changed.
+
+Causal proof: native individual q selected then r replacement reproduced in actual Chromium separate q/r events on unchanged production, expected qr/observed r. fail-before.log and FAIL_BEFORE_SOURCE.json bind that reproduction; one exact case collected/executed. No OS capitalization claim. Fix captures TableEdit.initialSelection all/end at start, and initializes focus once per edit token. Printable character places caret after replacement; Enter/double-click selects existing content. Later focus preserves caret. No timers/global listener/model/controller/native/VirtualList or unit-policy change.
+
+Focused core51 tests/four files PASS; TypeScript exit0. pass-after.log10/10 PASS in two configured profiles: direct/review ×Label/X real character starts, Enter/double-click selection, caret movement/refocus insertion, pointer Cancel, direct Apply and history, Keep draft without model change; existing connected text Undo/Queue/Clear/SaveOpen journey included. No fill shortcut masks the reproduced initial selection. Exact raw output/exit records retained. Full worker commands/trace manifest follow as evidence-only packaging.
+
+Frozen source is ready for independent affected backcheck. Existing native97c observations remain tied to their original binary; neither repaired native character entry nor Both+Inspector pointer exposure is yet verified. No native rebuild or full sweep authorized here. All prior evidence/initial reviews/R1 remain unchanged.

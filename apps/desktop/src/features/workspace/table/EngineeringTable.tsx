@@ -46,6 +46,7 @@ export function EngineeringTable(props: Props) {
   const footer = useRef<HTMLDivElement>(null);
   const editRef = useRef<TableEdit | null>(null);
   const sequence = useRef(0);
+  const initializedInputToken = useRef<number | null>(null);
   const pointerFocus = useRef<CellAddress | null>(null);
   const latest = useRef(props);
   latest.current = props;
@@ -128,7 +129,7 @@ export function EngineeringTable(props: Props) {
     focusRequest.current = null;
     focusCell(address, false); setFeedback("");
     const captured = { ...address, token: ++sequence.current, before: cell.value, unit: cell.unit, generation, row };
-    setEdit({ captured, text: replacement ?? cell.value, pending: false });
+    setEdit({ captured, initialSelection: replacement === undefined ? "all" : "end", text: replacement ?? cell.value, pending: false });
     if (props.policy === "review" && replacement !== undefined) props.onDraftChange(captured, replacement);
   }
   function cancel() {
@@ -244,7 +245,12 @@ export function EngineeringTable(props: Props) {
         {columns.map((column) => {
           const address = { rowKey: row.key, columnKey: column.key }; const editing = sameCell(edit?.captured ?? null, address);
           return <div key={column.key} role="gridcell" aria-selected={sameCell(focused, address)} aria-readonly={Boolean(row.cells[column.key].readonly)} data-kind={column.kind} className={`engineering-table-cell${row.cells[column.key].readout ? " has-readout" : ""}${editing ? " editing" : ""}${editing && edit?.error ? " invalid" : ""}`}>
-            {editing && edit ? <input ref={input} autoFocus aria-label={`${row.label} ${column.label}${column.kind === "text" ? "" : ` [${edit.captured.unit}]`}`} aria-invalid={Boolean(edit.error)} aria-describedby={edit.error ? errorId : undefined} value={edit.text} readOnly={edit.pending} onFocus={(event) => event.currentTarget.select()} onChange={(event) => {
+            {editing && edit ? <input ref={input} autoFocus aria-label={`${row.label} ${column.label}${column.kind === "text" ? "" : ` [${edit.captured.unit}]`}`} aria-invalid={Boolean(edit.error)} aria-describedby={edit.error ? errorId : undefined} value={edit.text} readOnly={edit.pending} onFocus={(event) => {
+              if (initializedInputToken.current === edit.captured.token) return;
+              initializedInputToken.current = edit.captured.token;
+              if (edit.initialSelection === "all") event.currentTarget.select();
+              else event.currentTarget.setSelectionRange(event.currentTarget.value.length, event.currentTarget.value.length);
+            }} onChange={(event) => {
               const current = editRef.current;
               if (current && !current.pending && current.captured.token === edit.captured.token) {
                 setEdit({ ...current, text: event.target.value, error: undefined });

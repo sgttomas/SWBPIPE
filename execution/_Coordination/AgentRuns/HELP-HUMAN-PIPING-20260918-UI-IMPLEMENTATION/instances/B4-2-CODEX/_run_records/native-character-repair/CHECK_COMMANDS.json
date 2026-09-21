@@ -1,0 +1,32 @@
+{
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop",
+  "output": "stdout/stderr redirected verbatim to named canonical logs",
+  "commands": [
+    {
+      "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH='/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing' PLAYWRIGHT_WORKERS=1 sh ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/tools/with_e2e_lock.sh npx playwright test e2e/b4-table-editing.spec.ts --project chromium-desktop --grep 'B4 character-start direct label' --output=../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-2-CODEX/_run_records/native-character-repair/fail-before",
+      "source": "FAIL_BEFORE_SOURCE.json",
+      "log": "fail-before.log",
+      "exit": 1,
+      "result": "expected qr; observed r after separate q and r key events"
+    },
+    {
+      "command": "npx vitest run src/features/workspace/table --maxWorkers=1",
+      "source": "SOURCE_FREEZE.json",
+      "log": "unit.log",
+      "exit": 0,
+      "result": "51 passed in 4 files"
+    },
+    {
+      "command": "npx tsc --noEmit -p tsconfig.json",
+      "log": "types-frozen.log",
+      "exit": 0
+    },
+    {
+      "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH='/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing' PLAYWRIGHT_WORKERS=1 sh ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/tools/with_e2e_lock.sh npx playwright test e2e/b4-table-editing.spec.ts --grep 'B4 character-start|B4 text fields' --output=../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-2-CODEX/_run_records/native-character-repair/pass-after",
+      "source": "SOURCE_FREEZE.json",
+      "log": "pass-after.log",
+      "exit": 0,
+      "result": "10 passed; both configured profiles"
+    }
+  ]
+}

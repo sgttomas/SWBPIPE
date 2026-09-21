@@ -1,0 +1,3 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~											260 text field (settable) node:N-100 Label, Value: Native Label
+The focused UI element is 260 text field (settable) node:N-100 Label, Value: Native Label

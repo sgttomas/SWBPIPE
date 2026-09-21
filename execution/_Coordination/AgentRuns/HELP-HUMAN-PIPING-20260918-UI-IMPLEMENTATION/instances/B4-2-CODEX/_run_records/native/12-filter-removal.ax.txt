@@ -1,0 +1,13 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview · Edited — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 198-204, 292, 296-298
+~							51 text 0  of  27  model entities visible
++									292 text 0
+~									293 text  of 
+~									294 text 5
+~									295 text  rows
++								296 text Cell applied.
+~							132 toggle button Select Renamed native in viewport, Help: Renamed native (node:N-100), Value: on
+~						241 heading Renamed native — node: node:N-100, Value: 2
+~							242 text Renamed native —  node :  node:N-100
+~								280 text Operation op:delete-node-node:N-100; delete; proposed Target Node; node:N-100 Change delete_node; Explicit node deletion; nodes; before=Renamed native; x=0; y=0; z=0; after=not_present Unit basis dimensionless; unit=none; explicit user-entered node deletion; endpoint and load reference integrity required Validation not_run; not_run; not_required_dimensionless; not_generated; not_applied Audit boundary Routed through the structured operations only; no direct model mutation; requires your acceptance; does not change the accepted model until applied Professional boundary Requires human review; no compliance claim; no approval claim Rationale explicit user-entered node deletion for project:invented-loop-01; requires reference validation before durable model change.
+The focused UI element is 233 container Node fields footer
