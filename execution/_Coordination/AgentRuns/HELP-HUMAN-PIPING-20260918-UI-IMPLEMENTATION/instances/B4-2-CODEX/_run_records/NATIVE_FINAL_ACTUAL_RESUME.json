@@ -1,0 +1,13 @@
+{
+  "mechanism": "collaboration.followup_task",
+  "parent": "/root/b3_manager WORKING_ITEMS gpt-6-astra/high",
+  "target": "/root/b3_manager/b4_1_native TASK gpt-6-astra/low",
+  "candidate": "ad70730a6207dcf7643124aaed160d48cd11eca4",
+  "productSource": "a0649cbc9a434a28144d010a3a19d68111ace412",
+  "addendumSha256": "a1fd84206d57396ae7b2dadaba3ba9d1f055ee7761351429134a61b487c09a5b",
+  "inputsSha256": "6bfe8f2347f45c84d3ed289a3658f410c2c0429b8c0831b67a5311f2baca9e68",
+  "result": "tool returned canonical retained task; resumed for rebuilt native follow-up",
+  "resource": "sole native/CUA/build slot granted by ROOT after peer acknowledgment",
+  "descendants": "prohibited",
+  "sourceWrites": "prohibited"
+}
