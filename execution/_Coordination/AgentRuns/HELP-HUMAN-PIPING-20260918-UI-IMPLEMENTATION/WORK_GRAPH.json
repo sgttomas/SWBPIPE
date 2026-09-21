@@ -2063,8 +2063,8 @@
       "actualAgent": "/root/b3_manager",
       "model": "gpt-6-astra",
       "reasoning": "high",
-      "mechanism": "retained Codex delegated-harness-native manager; bounded Astra/low TASK to be sealed/launched by manager",
-      "status": "actual retained-manager followup dispatched; branch/child launch verification pending",
+      "mechanism": "retainedmanager collaboration.followup_task; actual fresh TASK collaboration.spawn_agent under manager",
+      "status": "active: new branch from verified main; fresh Astra/low TASK actually launched",
       "base": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
       "branch": "codex/swbpipe-b4-node-fields-20260920",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_2_MANAGER_BRIEF.md",
@@ -2077,7 +2077,49 @@
       "slice": "B4",
       "dependsOn": [
         "B4-1-INTEGRATION"
-      ]
+      ],
+      "child": "/root/b3_manager/b4_2_table",
+      "childModel": "gpt-6-astra",
+      "childReasoning": "low",
+      "childBrief": "instances/B4-2-CODEX/TASK_BRIEF.md",
+      "childBriefSha256": "965a3dfa57ac60c4ee608bb81018a36a838717d6961d7a1d4ecc2148ec9fb51c",
+      "childInputs": "instances/B4-2-CODEX/_run_records/LAUNCH_INPUTS.json",
+      "childInputsSha256": "bda93ff14eb3771e261be5028ee6d975103c5d3ff539f08588528fe79c892ce0",
+      "semanticClarification": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_2_SEMANTIC_CLARIFICATION.md",
+      "semanticClarificationSha256": "7fd4ba6f56c1941823f90fbb488159efd2f624d33f53afb2d091d5e8d37a833a",
+      "childLaunch": "instances/B4-2-CODEX/_run_records/ACTUAL_LAUNCH.json",
+      "childLaunchSha256": "0618651a462a486914d190681974ac7302ef698c466678afab4b986bc1907a85"
+    },
+    "B4-2-INTEGRATION": {
+      "role": "ROOT integration",
+      "parent": "ROOT",
+      "slice": "B4",
+      "branch": "codex/swbpipe-b4-node-integration-20260920",
+      "candidate": "cd8a459427cde1a150bfc12ba933515086051e41",
+      "base": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
+      "status": "clean preparation candidate; no B4.2 product yet",
+      "dependsOn": [
+        "B4-2-CODEX-MANAGER"
+      ],
+      "scope": "oldPR829 branch preserved; ROOT owns fan-in/finalchecks/PR/CI"
+    },
+    "PR829-RESUME-RECORDS-REVIEW": {
+      "role": "TASK Type2 independent records review",
+      "parent": "ROOT",
+      "actualAgent": "/root/b3b_c3_ci_review",
+      "model": "gpt-6-astra",
+      "reasoning": "xhigh",
+      "mechanism": "actual collaboration.followup_task",
+      "status": "PASS22paths with sealed addendum resolving initialP3 Queue/Clear ambiguity; product not inspected",
+      "base": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
+      "candidate": "cd8a459427cde1a150bfc12ba933515086051e41",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR829_RESUME_RECORDS_REVIEW_LAUNCH.txt",
+      "briefSha256": "c7e69368c6d656282c2d00a368adc9daa55d5c6442ed425a918009d46f1fe5b6",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR829_RESUME_RECORDS_REVIEW_RETURN.md",
+      "returnSha256": "b20aec45e76e624408c4cc0b5f4142c7548d87907940e2a0acde055a64bf4df5",
+      "finding": "P3 initialbrief Queue/clear phrase ambiguous; additive clarification preserves visibleQueue versus explicitClear-all",
+      "backcheck": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_2_SEMANTIC_CLARIFICATION.md",
+      "backcheckSha256": "7fd4ba6f56c1941823f90fbb488159efd2f624d33f53afb2d091d5e8d37a833a"
     }
   },
   "edges": [
@@ -2340,6 +2382,14 @@
     [
       "ROOT",
       "B4-2-CODEX-MANAGER"
+    ],
+    [
+      "ROOT",
+      "B4-2-INTEGRATION"
+    ],
+    [
+      "ROOT",
+      "PR829-RESUME-RECORDS-REVIEW"
     ]
   ],
   "current_frontier": "Explicit owner resume received. Main15e8/mergedPR829 and clean lanes revalidated. Activate bounded B4.2 Node scalar fields/common review rendering with retained Astra/high manager and one Astra/low worker; C4/liveCLI decisions still pending. No new phase/DAG work.",
@@ -2619,17 +2669,17 @@
     "root": "7b619b3099cc48c71cae47cf0e751ab65f8e1d39 plus resume/launch record",
     "originMain": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
     "integrationBranch": {
-      "branch": "codex/swbpipe-b4-controls-20260920",
-      "head": "8f24efd6ece5869a538ca20894d1ae78e59df618",
-      "state": "clean merged PR829 branch retained"
+      "branch": "codex/swbpipe-b4-node-integration-20260920",
+      "head": "cd8a459427cde1a150bfc12ba933515086051e41",
+      "state": "clean, ROOT-owned next integration; oldPR8298f24 branch preserved"
     },
-    "shell": "clean c0; new B4.2 branch from verified main to be created by manager",
+    "shell": "codex/swbpipe-b4-node-fields-20260920 at main15e8, actual fresh worker b4_2_table active; old shellc0 preserved",
     "canvas": "fb720420 preserved; C4 preparation returned",
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "isolated226b probe retains two authorized source edits and two untracked dependency entries; preserved, never fan-in",
     "resources": "no local listener or shared lock; peer no conflict, source5174/shared lock assigned to manager",
     "recordStatus": "prior postmerge pause tail and new resume/launch records await combined review at next checkpoint",
-    "observedAt": "2026-09-21T03:36:35.586000+00:00"
+    "observedAt": "2026-09-21T03:40:35.247074+00:00"
   },
   "historicalPauses": [
     {
