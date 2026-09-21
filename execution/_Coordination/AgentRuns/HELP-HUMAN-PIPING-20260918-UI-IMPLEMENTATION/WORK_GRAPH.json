@@ -2346,7 +2346,7 @@
     "CI-CACHE-WARMING": {
       "role": "ROOT bounded CI maintenance",
       "parent": "ROOT",
-      "status": "independent source review found onlyP3 test isolation; corrected with31policy passes and negative control; bounded backcheck pending",
+      "status": "source review complete; P3 CLOSED by independent bounded backcheck; ready for later coherent fan-in, final combined/CI and actual main-cache observations still required",
       "owner": "HELP_HUMAN /root, GPT-6 Astra high-or-greater, direct executor",
       "basis": "9bff54a7e836b187576059b8dd57491028fdb437",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_CACHE_FOLLOWUP.md",
@@ -2371,6 +2371,11 @@
         "candidate": "18abc04ae793648ef3f571f3b7fc8d9cc60b57ea",
         "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_CACHE_REVIEW_RETURN.md",
         "returnSha256": "499479e64cad68bfc5a0dc8268880e64f7b2df02d4724009600b3ff17a698ea4"
+      },
+      "backcheck": {
+        "candidate": "764a75eb271e3b4aa746045c321f84554b64f09a",
+        "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_CACHE_P3_BACKCHECK_RETURN.md",
+        "returnSha256": "af062577713d20c7c3ba715892677c57f54991d1d437c5402781f3bbfdb131bb"
       }
     },
     "B4-3-CODEX-MANAGER": {
@@ -2379,7 +2384,7 @@
       "actualAgent": "/root/b3_manager",
       "model": "gpt-6-astra",
       "reasoning": "high",
-      "state": "actual manager/one fresh TASK executing; source mainc9f19195, no native activation",
+      "state": "manager and one TASK implementing; focused units/TS passed at reported working scopes; source5174 focused browser handoff granted, no native activation",
       "basis": "c9f19195214b2e097980dde5e0d5fccbfba8e34c",
       "branch": "codex/swbpipe-b4-materials-20260921",
       "checkout": "existing swbpipe-wt3, prior branch/head preserved",
@@ -2396,7 +2401,8 @@
         "briefSha256": "8976eefebd04818fd86fcbeddae46283f0e3c36dd6987e7838355600419c3df0",
         "launchInputs": "instances/B4-3-CODEX/_run_records/LAUNCH_INPUTS.json",
         "launchInputsSha256": "191f7ff6f8f2f0d3a09c9c91c381bfeebe3f3ad1ed3df7df507b0e02cf9e8d54"
-      }
+      },
+      "browserHandoff": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_BROWSER_HANDOFF.md"
     }
   },
   "edges": [
@@ -2961,7 +2967,7 @@
     "scope": "No silence-as-approval; unaffected authorized B4.2 proceeds"
   },
   "liveContinuationState": {
-    "root": "d02bb99092bf39e7e6d1554a68e77f94f349ab36 plus publication observation tail on ROOT branch",
+    "root": "764a75eb271e3b4aa746045c321f84554b64f09a plus current continuity/receipt/backcheck records",
     "originMain": "c9f19195214b2e097980dde5e0d5fccbfba8e34c",
     "integrationBranch": {
       "branch": "codex/swbpipe-b4-node-integration-20260920",
@@ -2972,8 +2978,8 @@
     "canvas": "fb720420 preserved; C4 preparation returned",
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "isolated226b probe retains two authorized source edits and two untracked dependency entries; preserved, never fan-in",
-    "resources": "affected two-profile browser run complete; process/ports5173/5174/5175 clear and sharedE2E lock absent; source resources released, peer notified",
-    "recordStatus": "independent one-line repair review PASS; corrected actual-head hosted run35567286692 pending",
+    "resources": "Materials manager owns source5174/sharedE2E for focused browser only; no ROOT heavy test/build/native work; native remains held",
+    "recordStatus": "PR832 closeout and Materials/cache continuation records will receive combined review with next coherent integration",
     "observedAt": "2026-09-21T06:00:47.419265+00:00"
   },
   "historicalPauses": [

@@ -1,0 +1,9 @@
+# Cache-workflow P3 bounded backcheck
+
+ROOT -> same independent TASK /root/ci_cache_review, Astra/xhigh. Read-only; no writes/tests/builds/UI/network/mutations/descendants. ROOT is the source author. Review your P3 correction at frozen764a75eb271e3b4aa746045c321f84554b64f09a versus18abc04ae793648ef3f571f3b7fc8d9cc60b57ea. Exactly one maintained path changes: projects/chirality-piping/tests/test_ci_e2e_plan.py, capturing previous HEAD before each write and passing it to plan. Original full expectations remain. Workflow/selector/setup and all other maintained cache paths are byte-identical.
+
+Inspect canonical _run_records/CI_CACHE_CHECKS/p3/{DISPOSITION.md,negative-control.json,before-negative-control.log,after-negative-control.log,policy.log,policy-command.json}. The negative control modifies only the imported classifier in memory so the new cache workflow alone is wrongly unrelated. Old cumulative test passes and misses it; repaired per-change test detects it. All31 normal policy tests pass. Distinguish expected fault-detection failure from a normal suite failure. Current repaired test SHA f506ceb8e49a3c37fa8fdc18fa9a84445c57d8c84d25e52f52d04eaaa0caf1f1.
+
+This candidate also contains ROOT PR832 closeout and Materials activation records; those are outside your P3 correction verdict and remain subject to later combined record review. PR832 already mergedc9f19195 after its own all8 actual-head checks. It carries no new cache workflow. Your cache review does not reopen or approve that different PR. Materials is independently active inwt3; you hold no resources.
+
+Return precise findings or P3 CLOSED/affected one-path PASS, checked identities/evidence and remaining hosted/main-cache witnesses. Do not claim full-root record coverage from this bounded backcheck or waive final integration checks.
