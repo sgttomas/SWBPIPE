@@ -1,4 +1,4 @@
-import { useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { VirtualList } from "../VirtualList";
 import type { EntityKey } from "../selectionState";
 import {
@@ -9,6 +9,9 @@ import {
 export type TableApplyResult = Readonly<{ applied: boolean; rejected?: boolean; messages: readonly string[] }>;
 type Props = Readonly<{
   label: string;
+  bounded?: boolean;
+  active?: boolean;
+  onDraftStateChange?: (retained: boolean) => void;
   rows: readonly TableRow[];
   columns: readonly TableColumn[];
   generation: string;
@@ -22,9 +25,11 @@ type Props = Readonly<{
 
 /** Owns interaction drafts only. Canonical values and operation acceptance belong to the caller. */
 export function EngineeringTable(props: Props) {
-  const { label, rows, columns, generation, filter, density, selectedKey, busy = false, onSelect, onApply } = props;
+  const { label, rows, columns, generation, filter, density, selectedKey, busy = false, bounded = false, active: surfaceActive = true, onDraftStateChange, onSelect, onApply } = props;
+  const body = useTableBodyHeight(bounded, surfaceActive);
   const [focused, setFocused] = useState<CellAddress | null>(null);
   const [edit, setEditState] = useState<TableEdit | null>(null);
+  useEffect(() => { onDraftStateChange?.(Boolean(edit)); }, [Boolean(edit), onDraftStateChange]);
   const [sort, setSort] = useState<TableSort>(null);
   const [feedback, setFeedback] = useState("");
   const [reveal, setReveal] = useState(0);
@@ -182,7 +187,7 @@ export function EngineeringTable(props: Props) {
     }
   }
   const template = `minmax(130px, 1.4fr) repeat(${columns.length}, minmax(90px, 1fr))`;
-  return <div className="engineering-table" ref={root} tabIndex={-1} data-testid="engineering-table">
+  return <div className={`engineering-table${bounded ? " bounded" : ""}`} ref={root} tabIndex={-1} data-testid="engineering-table">
     <div role="grid" aria-label={label} aria-rowcount={viewRows.length + 1} aria-colcount={columns.length + 1}>
       <div role="row" className="engineering-table-row engineering-table-header" style={{ gridTemplateColumns: template }}>
         <div role="columnheader">Node</div>
@@ -190,7 +195,8 @@ export function EngineeringTable(props: Props) {
           <button type="button" aria-label={`Sort ${column.label}`} onClick={() => setSort((current) => current?.columnKey !== column.key ? { columnKey: column.key, direction: "ascending" } : current.direction === "ascending" ? { ...current, direction: "descending" } : null)}>{column.label} [{column.unit}] <span aria-hidden="true">{sort?.columnKey === column.key ? sort.direction === "ascending" ? "↑" : "↓" : "↕"}</span></button>
         </div>)}
       </div>
-      <VirtualList items={viewRows} itemKey={(row) => row.key} activeIndex={activeIndex} pinIndex={activeIndex} revealActiveRequest={reveal} height={360} rowHeight={density === "compact" ? 30 : 36} role="rowgroup" testId="engineering-table-rows" renderItem={(row, index) => <div role="row" aria-rowindex={index + 2} aria-selected={selectedKey === row.key} className={`engineering-table-row${index % 2 ? " stripe" : ""}${selectedKey === row.key ? " selected" : ""}`} style={{ gridTemplateColumns: template }}>
+      <div className="engineering-table-body-slot" ref={body.ref}>
+      <VirtualList items={viewRows} itemKey={(row) => row.key} activeIndex={activeIndex} pinIndex={activeIndex} revealActiveRequest={reveal} height={bounded ? Math.min(body.height, viewRows.length * (density === "compact" ? 30 : 36)) : 360} rowHeight={density === "compact" ? 30 : 36} role="rowgroup" testId="engineering-table-rows" renderItem={(row, index) => <div role="row" aria-rowindex={index + 2} aria-selected={selectedKey === row.key} className={`engineering-table-row${index % 2 ? " stripe" : ""}${selectedKey === row.key ? " selected" : ""}`} style={{ gridTemplateColumns: template }}>
         <div role="rowheader"><button type="button" disabled={!rows.some((canonical) => canonical.key === row.key)} onClick={() => onSelect(row.key)} title={row.label}>{row.label}{!rows.some((canonical) => canonical.key === row.key) ? " (removed edit)" : ""}</button></div>
         {columns.map((column) => {
           const address = { rowKey: row.key, columnKey: column.key }; const editing = sameCell(edit?.captured ?? null, address);
@@ -213,6 +219,7 @@ export function EngineeringTable(props: Props) {
           </div>;
         })}
       </div>} />
+      </div>
     </div>
     {/* Keep the editor focused until a footer click; no action occurs on pointer-down. */}
     <div className="engineering-table-footer" ref={footer} role="group" aria-label={`${label} footer`} tabIndex={-1}>
@@ -221,7 +228,31 @@ export function EngineeringTable(props: Props) {
       {edit && !rows.some((row) => row.key === edit.captured.rowKey) ? <span role="alert">The edited row was removed. This retained draft cannot be applied; Cancel to return to the current model.</span>
         : edit && !matchingRows.some((row) => row.key === edit.captured.rowKey) ? <span>Editing row retained outside the filter.</span> : null}
     </div>
+    {body.allocationConflict ? <p role="alert" className="engineering-table-message">No space is available for table rows. Expand the table view to continue.</p> : null}
     {edit?.error ? <p id={errorId} role="alert" className="engineering-table-message">{edit.error}</p> : null}
     {feedback ? <p role="status" className="engineering-table-message">{feedback}</p> : null}
   </div>;
+}
+
+/** Observe a finite allocated slot, never the intrinsic list content. Hidden
+ * retained surfaces keep their last positive viewport until they are revealed. */
+export function useTableBodyHeight(bounded: boolean, active: boolean) {
+  const [element, setElement] = useState<HTMLDivElement | null>(null);
+  const [height, setHeight] = useState(bounded ? 0 : 360);
+  const [measured, setMeasured] = useState(false);
+  useLayoutEffect(() => {
+    if (!bounded || !active || !element) return;
+    const measure = () => {
+      if (!element.isConnected || element.closest("[hidden]") || element.clientWidth === 0) return;
+      const available = element.clientHeight;
+      setMeasured(true);
+      setHeight((previous) => previous === available ? previous : available);
+    };
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [bounded, active, element]);
+  return { ref: setElement, height, allocationConflict: bounded && active && measured && height === 0 };
 }

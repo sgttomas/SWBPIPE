@@ -1,17 +1,18 @@
 import { QuantityReadout } from "../display-units";
 import { Anchor, Box, CircleDot, GitBranch, ListTree, Search, SquareStack, Table2, Waypoints, X, Zap } from "lucide-react";
 import type React from "react";
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import type { EditorOperationIntent, EditorOperationObjectType, EntityRef, PreviewModel } from "../../types";
 import { entityKey, type EntityKey, type OrderedSelectionState, type SelectionModifiers } from "../workspace/selectionState";
 import { modelIndexFor, type ModelIndex } from "../workspace/modelIndex";
 import { VirtualList } from "../workspace/VirtualList";
-import { EngineeringTable, type TableApplyResult } from "../workspace/table/EngineeringTable";
+import { EngineeringTable, useTableBodyHeight, type TableApplyResult } from "../workspace/table/EngineeringTable";
 import { buildGridOperationIntent, nodeCoordinateColumns, type GridColumn, type GridRow } from "../workspace/table/modelTableAdapter";
 import { capturedCellIsCurrent, type CapturedCell, type TableRow } from "../workspace/table/tableState";
 
 type Props = {
   model: PreviewModel;
+  boundedGrid?: boolean;
   selection: EntityRef;
   selectionState?: OrderedSelectionState;
   density?: "comfortable" | "compact";
@@ -52,7 +53,7 @@ const GRID_ENTITY_TYPES: ReadonlyArray<{ id: GridEntityType; label: string }> = 
   { id: "combinations", label: "Combinations" }
 ];
 
-export function ModelTree({ model, modelIndex, selection, selectionState, density = "comfortable", hiddenKeys = new Set(), projectSessionGeneration = 0, onSelect, onFocusChange = () => {}, onFilterPublication = () => {}, onQueueIntent, onApplyCellIntent, operationBusy }: Props) {
+export function ModelTree({ boundedGrid = false, model, modelIndex, selection, selectionState, density = "comfortable", hiddenKeys = new Set(), projectSessionGeneration = 0, onSelect, onFocusChange = () => {}, onFilterPublication = () => {}, onQueueIntent, onApplyCellIntent, operationBusy }: Props) {
   const [filterText, setFilterText] = useState("");
   const [layoutMode, setLayoutMode] = useState<LayoutMode>("tree");
   const [gridOpened, setGridOpened] = useState(false);
@@ -122,7 +123,7 @@ export function ModelTree({ model, modelIndex, selection, selectionState, densit
   }, [filterText, filteredTree.count, onFilterPublication]);
 
   return (
-    <div className="panel model-tree" aria-label="Model tree">
+    <div className="panel model-tree" data-bounded-grid={boundedGrid && layoutMode === "grid"} aria-label="Model tree">
       <div className="panel-title">Model</div>
       <section className="layout-mode-toggle" aria-label="Layout grid mode" data-testid="layout-grid-mode-toggle">
         <button
@@ -155,8 +156,9 @@ export function ModelTree({ model, modelIndex, selection, selectionState, densit
           setFilterText(value);
         }}
       />
-      {gridOpened ? <div hidden={layoutMode !== "grid"} inert={layoutMode !== "grid"}>
+      {gridOpened ? <div className="model-grid-frame" hidden={layoutMode !== "grid"} inert={layoutMode !== "grid"}>
         <EntityGrid
+          bounded={boundedGrid}
           density={density}
           drafts={gridDrafts}
           entityType={gridEntityType}
@@ -667,6 +669,7 @@ function treeRowDomId(row: FlatTreeRow): string {
 }
 
 function EntityGrid({
+  bounded,
   density,
   drafts,
   entityType,
@@ -683,6 +686,7 @@ function EntityGrid({
   setFocusedGridKey,
   projectSessionGeneration
 }: {
+  bounded: boolean;
   density: "comfortable" | "compact";
   drafts: Record<string, string>;
   entityType: GridEntityType;
@@ -701,6 +705,11 @@ function EntityGrid({
 }) {
   const [queuedMessage, setQueuedMessage] = useState("");
   const [reviewOpen, setReviewOpen] = useState(false);
+  const [directDraftRetained, setDirectDraftRetained] = useState(false);
+  const reviewVisible = entityType !== "nodes" || reviewOpen;
+  const directVisible = entityType === "nodes" && !reviewOpen;
+  const reviewRegionId = useId();
+  const bulkBody = useTableBodyHeight(bounded, reviewVisible);
   const nodeRows = useMemo(() => gridRows(model, "nodes"), [model]);
   const nodeGridColumns = useMemo(() => gridColumns(model, "nodes").filter((column) => ["x", "y", "z"].includes(column.key)), [model]);
   const coordinateColumns = useMemo(() => nodeCoordinateColumns(model.project.units.length ?? ""), [model.project.units.length]);
@@ -783,7 +792,7 @@ function EntityGrid({
   }
 
   return (
-    <section className="entity-grid" aria-label="Bulk entity grid" data-testid="entity-grid">
+    <section className={`entity-grid${bounded ? " bounded" : ""}`} aria-label="Bulk entity grid" data-testid="entity-grid">
       <div className="entity-grid-tabs" aria-label="Grid entity type">
         {GRID_ENTITY_TYPES.map((item) => (
           <button
@@ -797,16 +806,15 @@ function EntityGrid({
           </button>
         ))}
       </div>
-      <div hidden={entityType !== "nodes"} inert={entityType !== "nodes"}>
-        <EngineeringTable label="Node coordinates" rows={tableRows} columns={coordinateColumns} generation={tableGeneration}
+      {!directVisible && directDraftRetained ? <p className="retained-direct-draft" role="status" data-testid="retained-direct-draft">Direct coordinate edit retained. Return to node coordinates to correct or cancel it.</p> : null}
+      <div className="direct-coordinate-workarea" hidden={!directVisible} inert={!directVisible}>
+        <EngineeringTable label="Node coordinates" bounded={bounded} active={directVisible} onDraftStateChange={setDirectDraftRetained} rows={tableRows} columns={coordinateColumns} generation={tableGeneration}
           filter={filterText} density={density} selectedKey={entityKey(selection)} busy={operationBusy}
           onSelect={(key) => { const row = nodeRows.find((candidate) => entityKey(candidate) === key); if (row) onSelect({ type: row.type, id: row.id }); }}
           onApply={applyCoordinate} />
       </div>
-      <details className={`entity-grid-review${entityType !== "nodes" ? " other-family" : ""}`} open={entityType !== "nodes" || reviewOpen}
-        onToggle={(event) => { if (entityType === "nodes") setReviewOpen(event.currentTarget.open); }}>
-        <summary hidden={entityType !== "nodes"} data-testid="node-grid-review-disclosure">Review multiple changes{!reviewOpen && retainedNodeDrafts > 0 ? ` · ${retainedNodeDrafts} retained draft${retainedNodeDrafts === 1 ? "" : "s"}` : ""}</summary>
-        <div inert={entityType === "nodes" && !reviewOpen}>
+      <div className={`entity-grid-review${entityType !== "nodes" ? " other-family" : ""}`} id={reviewRegionId} hidden={!reviewVisible} inert={!reviewVisible}>
+        <div className="entity-grid-review-content">
       <div className="entity-grid-summary">
         <span data-testid="entity-grid-summary">
           {visibleRows.length} of {rows.length}{" "}
@@ -821,8 +829,9 @@ function EntityGrid({
               <strong role="columnheader">ID</strong>
               {columns.map((column) => <strong role="columnheader" key={column.key}>{column.label}</strong>)}
             </div>
+            <div className="bulk-grid-body-slot" ref={bulkBody.ref}>
             <VirtualList
-              height={360}
+              height={bounded ? Math.min(bulkBody.height, visibleRows.length * (density === "compact" ? 36 : 42)) : 360}
               itemKey={(row) => `${row.type}:${row.id}`}
               items={visibleRows}
               pinIndex={focusedGridIndex === -1 ? null : focusedGridIndex}
@@ -846,6 +855,7 @@ function EntityGrid({
               rowHeight={density === "compact" ? 36 : 42}
               testId="entity-grid-virtual-rows"
             />
+            </div>
           </div>
         ) : (
         <table data-testid={`entity-grid-table-${entityType}`}>
@@ -909,6 +919,7 @@ function EntityGrid({
           </p>
         ) : null}
       </div>
+      {virtualGrid && bulkBody.allocationConflict ? <p role="alert">No space is available for review rows. Expand the table view to continue.</p> : null}
       <div className="entity-grid-actions">
         <button
           data-testid="queue-entity-grid-intents"
@@ -938,7 +949,11 @@ function EntityGrid({
         </p>
       ) : null}
         </div>
-      </details>
+      </div>
+      <button className="entity-grid-review-toggle" hidden={entityType !== "nodes"} data-testid="node-grid-review-disclosure"
+        type="button" aria-expanded={reviewVisible} aria-controls={reviewRegionId} onClick={() => setReviewOpen((value) => !value)}>
+        {reviewOpen ? "Return to node coordinates" : "Review multiple changes"}{!reviewOpen && retainedNodeDrafts > 0 ? ` · ${retainedNodeDrafts} retained draft${retainedNodeDrafts === 1 ? "" : "s"}` : ""}
+      </button>
     </section>
   );
 }

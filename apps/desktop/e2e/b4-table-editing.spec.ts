@@ -119,3 +119,140 @@ test("B4 Both with Inspector keeps pointer horizontal scrolling inside the coord
   await expect(grid).toBeVisible();
   await page.screenshot({ path: info.outputPath("b4-inspector-pointer-fit.png") });
 });
+
+async function gridChromeBounds(page: import("@playwright/test").Page, review = false) {
+  return page.evaluate((review) => {
+    const bounds: Record<string, { x: number; y: number; width: number; height: number }> = {};
+    const selectors = { pane: ".shell-table-pane", host: ".shell-tree-host", title: ".model-tree > .panel-title", mode: ".layout-mode-toggle", filter: ".model-tree-controls", families: ".entity-grid-tabs", header: review ? ".entity-grid-summary" : ".engineering-table-header", footer: review ? ".entity-grid-actions" : ".engineering-table-footer", viewportHost: '[data-testid="viewport-canvas"]', drawnCanvas: '[data-testid="viewport-canvas"] canvas' };
+    for (const [key, selector] of Object.entries(selectors)) {
+      const rect = document.querySelector(selector)!.getBoundingClientRect(); bounds[key] = { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
+    }
+    return bounds;
+  }, review);
+}
+
+async function openBoundedGrid(page: import("@playwright/test").Page) {
+  await page.getByTestId("view-switch-both").click();
+  if (await page.getByTestId("toggle-inspector").getAttribute("aria-expanded") !== "true") await page.getByTestId("toggle-inspector").click();
+  await ensureTreeExpanded(page); await page.getByTestId("layout-mode-grid").click();
+}
+
+// Wheel input returns before browser delivery. Observe that local event and two
+// paints so an unchanged-boundary assertion cannot pass before the input occurs.
+async function tableWheel(page: import("@playwright/test").Page, deltaY: number, info: import("@playwright/test").TestInfo, moves = false, scroller = "engineering-table-rows") {
+  const observed = await page.locator(".model-tree").evaluateHandle((root, { moves, scroller }) => {
+    const rows = root.querySelector<HTMLElement>(`[data-testid="${scroller}"]`)!;
+    const state: { complete: boolean; ended: boolean; supported: boolean; result?: unknown; cleanup?: () => void } = { complete: false, ended: false, supported: "onscrollend" in rows };
+    const sample = () => {
+      const slot = root.querySelector<HTMLElement>(scroller === "engineering-table-rows" ? ".engineering-table-body-slot" : ".bulk-grid-body-slot")!;
+      return { top: rows.scrollTop, clientHeight: rows.clientHeight, scrollHeight: rows.scrollHeight, slotHeight: slot.clientHeight,
+        filterY: root.querySelector(".model-tree-controls")!.getBoundingClientRect().y,
+        familyY: root.querySelector(".entity-grid-tabs")!.getBoundingClientRect().y,
+        footerY: root.querySelector(scroller === "engineering-table-rows" ? ".engineering-table-footer" : ".entity-grid-actions")!.getBoundingClientRect().y };
+    };
+    const ended = () => { state.ended = true; };
+    if (moves) rows.addEventListener("scrollend", ended, { once: true });
+    state.cleanup = () => rows.removeEventListener("scrollend", ended);
+    root.addEventListener("wheel", (event) => {
+      const target = (event.target as Element).outerHTML.slice(0, 400);
+      requestAnimationFrame(() => { const first = sample(); requestAnimationFrame(() => {
+        state.result = { deltaX: (event as WheelEvent).deltaX, deltaY: (event as WheelEvent).deltaY, target, frames: [first, sample()] }; state.complete = true;
+      }); });
+    }, { once: true, passive: true, capture: true });
+    return state;
+  }, { moves, scroller });
+  try {
+    if (moves) expect(await observed.evaluate((state) => state.supported)).toBe(true);
+    await page.mouse.wheel(0, deltaY);
+    await expect.poll(() => observed.evaluate((state) => state.complete)).toBe(true);
+    if (moves) await expect.poll(() => observed.evaluate((state) => state.ended), { message: "scrolling gesture completed" }).toBe(true);
+    const result = await observed.evaluate((state) => ({ receipt: state.result, scrollEnded: state.ended }));
+    await info.attach(`wheel-${deltaY}-${Date.now()}`, { body: JSON.stringify(result), contentType: "application/json" });
+    return result;
+  } finally { await observed.evaluate((state) => state.cleanup?.()); await observed.dispose(); }
+}
+
+test("B4 short Grid keeps vertical chrome fixed and retains alternate review drafts", async ({ page, browser }, info) => {
+  await attachBrowserIdentity(browser, info); await page.goto("/"); await expect(page.getByTestId("workspace-toolbar")).toBeVisible(); await openBoundedGrid(page);
+  const table = page.getByTestId("engineering-table"); const rows = page.getByTestId("engineering-table-rows");
+  const wheelEvidence: unknown[] = [];
+  const before = await gridChromeBounds(page);
+  await rows.hover(); wheelEvidence.push(await tableWheel(page, 600, info));
+  await expect.poll(() => gridChromeBounds(page)).toEqual(before);
+  await page.locator(".entity-grid-tabs").hover(); wheelEvidence.push(await tableWheel(page, 600, info));
+  await expect.poll(() => gridChromeBounds(page)).toEqual(before);
+  expect(await rows.evaluate((node) => ({ client: node.clientHeight, scroll: node.scrollHeight, top: node.scrollTop }))).toEqual({ client: 180, scroll: 180, top: 0 });
+  const cell = page.getByTestId("table-cell-node:N-100-x"); await cell.dblclick(); const editor = table.getByRole("textbox", { name: "node:N-100 X [m]" }); await editor.fill("invalid retained"); await editor.press("Enter");
+  await expect(editor).toHaveAttribute("aria-invalid", "true");
+  expect(await page.locator(".engineering-table-body-slot").evaluate((node) => node.clientHeight)).toBeGreaterThan(0);
+  const errorState = await gridChromeBounds(page); await rows.hover(); wheelEvidence.push(await tableWheel(page, 600, info)); await expect.poll(() => gridChromeBounds(page)).toEqual(errorState);
+  const toggle = page.getByTestId("node-grid-review-disclosure"); await toggle.click(); await expect(table).toBeHidden(); await expect(page.getByTestId("retained-direct-draft")).toBeVisible();
+  await expect(toggle).toContainText("Return to node coordinates"); const bulk = page.getByTestId("entity-grid-input-node:N-100-y"); await bulk.fill("0.5");
+  const reviewState = await gridChromeBounds(page, true); await page.locator(".entity-grid-scroll").hover(); wheelEvidence.push(await tableWheel(page, 600, info)); await expect.poll(() => gridChromeBounds(page, true)).toEqual(reviewState);
+  await page.getByTestId("entity-grid-type-pipes").click(); await expect(page.getByTestId("entity-grid-table-pipes")).toBeVisible();
+  await page.getByTestId("entity-grid-type-nodes").click(); await expect(bulk).toHaveValue("0.5"); await toggle.click(); await expect(table).toBeVisible(); await expect(editor).toHaveValue("invalid retained");
+  await expect(toggle).toContainText("1 retained draft"); await table.getByRole("button", { name: "Cancel", exact: true }).click(); await expect(cell).toHaveText("0");
+  await toggle.click(); await page.getByTestId("clear-entity-grid-drafts").click(); await toggle.click(); await expect(page.getByTestId("workspace-undo")).toBeDisabled();
+  const controlledId = await toggle.getAttribute("aria-controls"); expect(controlledId).toBeTruthy();
+  const controlled = page.locator(`[id="${controlledId}"]`); await expect(controlled).toBeHidden();
+  await page.getByTestId("table-cell-node:N-140-z").dblclick(); await page.keyboard.press("Tab");
+  await expect(table.getByRole("group", { name: "Node coordinates footer" })).toBeFocused();
+  await page.keyboard.press("Tab"); await expect(toggle).toBeFocused();
+  await page.keyboard.press("Enter"); await expect(toggle).toHaveAttribute("aria-expanded", "true"); await expect(controlled).toBeVisible(); await expect(table).toBeHidden();
+  await page.keyboard.press("Space"); await expect(toggle).toHaveAttribute("aria-expanded", "false"); await expect(controlled).toBeHidden(); await expect(table).toBeVisible();
+  await expect(toggle).toHaveAttribute("aria-controls", controlledId!); await expect(page.getByTestId("workspace-undo")).toBeDisabled();
+  await info.attach("vertical-fixed-rectangles", { body: JSON.stringify({ before, errorState, reviewState, wheelEvidence }, null, 2), contentType: "application/json" });
+  await page.screenshot({ path: info.outputPath("b4-short-fixed-chrome.png") });
+});
+
+test("B4 virtual Grid confines body scrolling and boundary wheel without moving chrome", async ({ page, browser }, info) => {
+  await attachBrowserIdentity(browser, info); const model = await gotoRoutedFixture(page, "ui-foundation-1000.model.json"); await openBoundedGrid(page);
+  const wheelEvidence: unknown[] = [];
+  const before = await gridChromeBounds(page); const rows = page.getByTestId("engineering-table-rows");
+  const scrollState = () => rows.evaluate((node) => ({ top: node.scrollTop, maximum: node.scrollHeight - node.clientHeight, height: node.clientHeight }));
+  expect((await scrollState()).height).toBeGreaterThan(0);
+  await rows.hover(); wheelEvidence.push(await tableWheel(page, 700, info, true)); await expect.poll(async () => (await scrollState()).top).toBeGreaterThan(0); await expect.poll(() => gridChromeBounds(page)).toEqual(before);
+  wheelEvidence.push(await tableWheel(page, 1000000, info, true)); await expect.poll(async () => { const state = await scrollState(); return state.maximum - state.top; }).toBe(0);
+  wheelEvidence.push(await tableWheel(page, 600, info)); await expect.poll(() => gridChromeBounds(page)).toEqual(before);
+  wheelEvidence.push(await tableWheel(page, -1000000, info, true));
+  // CDP's large reversal can end a few pixels above the boundary. One further
+  // real wheel input establishes top; the following separate input tests chaining.
+  if ((await scrollState()).top > 0) wheelEvidence.push(await tableWheel(page, -600, info, true));
+  await expect.poll(async () => (await scrollState()).top).toBe(0);
+  wheelEvidence.push(await tableWheel(page, -600, info)); await expect.poll(() => gridChromeBounds(page)).toEqual(before);
+  await page.locator(".entity-grid-tabs").hover(); wheelEvidence.push(await tableWheel(page, 600, info)); await expect.poll(() => gridChromeBounds(page)).toEqual(before);
+  const filter = page.getByTestId("model-tree-filter-input"); await filter.fill(model.nodes.at(-1).id);
+  await expect(rows.locator('[role="row"]')).toHaveCount(1); const filtered = await gridChromeBounds(page); await rows.hover(); wheelEvidence.push(await tableWheel(page, 600, info)); await expect.poll(() => gridChromeBounds(page)).toEqual(filtered);
+  await filter.fill(""); const restored = await gridChromeBounds(page); await rows.hover(); wheelEvidence.push(await tableWheel(page, 700, info, true)); await expect.poll(async () => (await scrollState()).top).toBeGreaterThan(0); await expect.poll(() => gridChromeBounds(page)).toEqual(restored);
+  // Swap the mounted virtual body through a small family, changing available
+  // width while it is absent, then verify the new element owns its observation.
+  const review = page.getByTestId("node-grid-review-disclosure"); await review.click();
+  const bulkRows = page.getByTestId("entity-grid-virtual-rows"); await expect(bulkRows).toBeVisible();
+  await page.getByTestId("entity-grid-type-sections").click(); await expect(bulkRows).toHaveCount(0);
+  await page.getByTestId("toggle-inspector").click(); await page.getByTestId("entity-grid-type-nodes").click(); await expect(bulkRows).toBeVisible();
+  await expect.poll(() => bulkRows.evaluate((node) => node.clientHeight - node.parentElement!.clientHeight)).toBe(0);
+  const bulkChrome = await gridChromeBounds(page, true); await bulkRows.hover(); wheelEvidence.push(await tableWheel(page, 700, info, true, "entity-grid-virtual-rows"));
+  await expect.poll(() => bulkRows.evaluate((node) => node.scrollTop)).toBeGreaterThan(0); await expect.poll(() => gridChromeBounds(page, true)).toEqual(bulkChrome);
+  await review.click(); await expect(rows).toBeVisible(); await expect.poll(() => rows.evaluate((node) => node.clientHeight - node.parentElement!.clientHeight)).toBe(0);
+  // A page makes the still-laid-out stage inert. Positive resize observations
+  // must remain current even before interaction is restored.
+  const retainedCell = page.getByTestId(`table-cell-${model.nodes[0].id}-x`); await retainedCell.dblclick();
+  const retainedEditor = page.getByTestId("engineering-table").getByRole("textbox", { name: `${model.nodes[0].id} X [${model.project.units.length}]` });
+  await retainedEditor.fill("retained page draft"); await retainedEditor.press("Enter"); await expect(retainedEditor).toHaveAttribute("aria-invalid", "true");
+  const originalViewport = page.viewportSize()!;
+  const selectionBeforePage = await page.getByTestId("command-selection-readout").textContent();
+  await openWorkspaceSection(page, "libraries");
+  await page.setViewportSize({ width: originalViewport.width, height: originalViewport.height + 120 });
+  await expect.poll(() => rows.evaluate((node) => node.clientHeight - node.parentElement!.clientHeight)).toBe(0);
+  await page.getByTestId("workspace-dock-close").click(); await expect(rows).toBeVisible();
+  await expect.poll(() => rows.evaluate((node) => node.clientHeight - node.parentElement!.clientHeight)).toBe(0);
+  expect(await page.evaluate(() => document.activeElement !== document.body)).toBe(true);
+  expect(await page.getByTestId("command-selection-readout").textContent()).toBe(selectionBeforePage);
+  await expect(retainedEditor).toHaveValue("retained page draft"); await expect(retainedEditor).toHaveAttribute("aria-invalid", "true");
+  await page.setViewportSize(originalViewport); await expect.poll(() => rows.evaluate((node) => node.clientHeight - node.parentElement!.clientHeight)).toBe(0);
+  await expect(retainedEditor).toHaveValue("retained page draft");
+  await page.getByTestId("engineering-table").getByRole("button", { name: "Cancel", exact: true }).click(); await expect(retainedCell).toHaveText(String(model.nodes[0].position.x));
+  await expect(page.getByTestId("workspace-undo")).toBeDisabled();
+  await info.attach("vertical-wheel-steps", { body: JSON.stringify({ before, filtered, restored, bulkChrome, wheelEvidence }, null, 2), contentType: "application/json" });
+  await page.screenshot({ path: info.outputPath("b4-virtual-fixed-chrome.png") });
+});

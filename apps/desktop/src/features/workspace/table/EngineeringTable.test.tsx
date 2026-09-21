@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { entityKey } from "../selectionState";
-import { EngineeringTable, type TableApplyResult } from "./EngineeringTable";
+import { EngineeringTable, useTableBodyHeight, type TableApplyResult } from "./EngineeringTable";
 import { nodeCoordinateColumns } from "./modelTableAdapter";
 import type { CapturedCell, TableRow } from "./tableState";
 
@@ -231,6 +231,60 @@ describe("EngineeringTable interaction ownership", () => {
     fireEvent.click(button, { detail: 0 });
     await waitFor(() => expect(cell()).toHaveTextContent(name === "Apply" ? "2.5" : "0"));
     expect(apply).toHaveBeenCalledTimes(name === "Apply" ? 1 : 0);
+  });
+
+  it("measures only a finite visible body slot and retains its last positive height while hidden", () => {
+    const callbacks: Array<() => void> = [];
+    const original = globalThis.ResizeObserver;
+    globalThis.ResizeObserver = class { constructor(callback: () => void) { callbacks.push(callback); } observe() {} disconnect() {} unobserve() {} } as unknown as typeof ResizeObserver;
+    function Slot({ active }: { active: boolean }) { const slot = useTableBodyHeight(true, active); return <div hidden={!active}><div ref={slot.ref} data-testid="allocated-slot" /><output>{slot.height}</output></div>; }
+    try {
+      const view = render(<Slot active />); const slot = screen.getByTestId("allocated-slot"); let available = 120;
+      Object.defineProperty(slot, "clientHeight", { get: () => available });
+      Object.defineProperty(slot, "clientWidth", { get: () => 240 });
+      act(() => callbacks.at(-1)!()); expect(screen.getByText("120")).toBeInTheDocument();
+      view.rerender(<Slot active={false} />); available = 0; act(() => callbacks.at(-1)!()); expect(screen.getByText("120")).toBeInTheDocument();
+      available = 74; view.rerender(<Slot active />); expect(screen.getByText("74")).toBeInTheDocument();
+      available = 52; act(() => callbacks.at(-1)!()); expect(screen.getByText("52")).toBeInTheDocument();
+    } finally { globalThis.ResizeObserver = original; }
+  });
+
+  it("rebinds allocation observation when a retained review swaps small and virtual body elements", () => {
+    const callbacks: Array<() => void> = []; const original = globalThis.ResizeObserver;
+    globalThis.ResizeObserver = class { constructor(callback: () => void) { callbacks.push(callback); } observe() {} disconnect() {} unobserve() {} } as unknown as typeof ResizeObserver;
+    const heights = vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockImplementation(function (this: HTMLElement) { return Number(this.dataset.height ?? 0); });
+    const widths = vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(240);
+    function Slot({ show, height }: { show: boolean; height: number }) { const body = useTableBodyHeight(true, true); return <><output>{body.height}</output>{show ? <div ref={body.ref} data-height={height} /> : null}</>; }
+    try {
+      const view = render(<Slot show={false} height={123} />); view.rerender(<Slot show height={123} />); expect(screen.getByText("123")).toBeInTheDocument();
+      const old = callbacks.at(-1)!; view.rerender(<Slot show={false} height={123} />); view.rerender(<Slot show height={87} />); expect(screen.getByText("87")).toBeInTheDocument();
+      act(() => old()); expect(screen.getByText("87")).toBeInTheDocument();
+      view.rerender(<Slot show height={0} />); act(() => callbacks.at(-1)!()); expect(screen.getByText("0")).toBeInTheDocument();
+    } finally { heights.mockRestore(); widths.mockRestore(); globalThis.ResizeObserver = original; }
+  });
+
+  it("records positive size changes under an inert page and reveals with the current height", () => {
+    const callbacks: Array<() => void> = []; const original = globalThis.ResizeObserver;
+    globalThis.ResizeObserver = class { constructor(callback: () => void) { callbacks.push(callback); } observe() {} disconnect() {} unobserve() {} } as unknown as typeof ResizeObserver;
+    const heights = vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockImplementation(function (this: HTMLElement) { return Number(this.dataset.height ?? 0); });
+    const widths = vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(240);
+    function Slot({ inactive, height }: { inactive: boolean; height: number }) { const body = useTableBodyHeight(true, true); return <div inert={inactive}><output>{body.height}</output><div ref={body.ref} data-height={height} /></div>; }
+    try {
+      const view = render(<Slot inactive={false} height={120} />); expect(screen.getByText("120")).toBeInTheDocument();
+      view.rerender(<Slot inactive height={73} />); act(() => callbacks.at(-1)!()); expect(screen.getByText("73")).toBeInTheDocument();
+      view.rerender(<Slot inactive={false} height={73} />); expect(screen.getByText("73")).toBeInTheDocument();
+    } finally { heights.mockRestore(); widths.mockRestore(); globalThis.ResizeObserver = original; }
+  });
+
+  it("reports a visible zero-height allocation instead of hiding a stale viewport behind overflow", () => {
+    const heights = vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(0);
+    const widths = vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(240);
+    try {
+      const initial = rows(); const apply = vi.fn();
+      render(<EngineeringTable bounded label="Coordinates" rows={initial} columns={columns} generation="p:1" density="comfortable" filter="" selectedKey={initial[0].key} onSelect={vi.fn()} onApply={apply} />);
+      expect(screen.getByRole("alert")).toHaveTextContent("No space is available for table rows");
+      expect(screen.getByTestId("engineering-table-rows")).toHaveStyle({ height: "0px" }); expect(apply).not.toHaveBeenCalled();
+    } finally { heights.mockRestore(); widths.mockRestore(); }
   });
 
 });

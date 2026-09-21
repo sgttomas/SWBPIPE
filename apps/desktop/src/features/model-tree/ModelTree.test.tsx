@@ -564,5 +564,5 @@ describe("legacy indexed tree search vocabulary", () => {
 // Existing review journeys explicitly enter the retained multi-change workflow.
 function openNodeGridReview() {
   const summary = screen.getByTestId("node-grid-review-disclosure");
-  if (!(summary.parentElement as HTMLDetailsElement).open) fireEvent.click(summary);
+  if (summary.getAttribute("aria-expanded") !== "true") fireEvent.click(summary);
 }

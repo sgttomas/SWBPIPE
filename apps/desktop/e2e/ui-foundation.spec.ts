@@ -2300,7 +2300,7 @@ for (const surface of ["palette", "drawer"] as const) test(`workspace Escape eve
 // Preserve this journey's reviewed multi-cell operation setup.
 async function openNodeGridReview(page: import("@playwright/test").Page) {
   const summary = page.getByTestId("node-grid-review-disclosure");
-  if (!(await summary.evaluate((element) => element.parentElement?.hasAttribute("open")))) {
+  if (await summary.getAttribute("aria-expanded") !== "true") {
     await activateWithKeyboard(page, summary);
   }
 }
