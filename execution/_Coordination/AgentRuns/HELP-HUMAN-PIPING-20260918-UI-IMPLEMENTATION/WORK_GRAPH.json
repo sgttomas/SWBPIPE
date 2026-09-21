@@ -2064,7 +2064,7 @@
       "model": "gpt-6-astra",
       "reasoning": "high",
       "mechanism": "retainedmanager collaboration.followup_task; actual fresh TASK collaboration.spawn_agent under manager",
-      "status": "R1 closed; bounded native activation dispatched, actual native launch awaiting manager record",
+      "status": "four-path character correction independently passed; rebuilt native follow-up activation dispatched",
       "base": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
       "branch": "codex/swbpipe-b4-node-fields-20260920",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_2_MANAGER_BRIEF.md",
@@ -2108,21 +2108,57 @@
       "nativeActivation": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_NATIVE_ACTIVATION.txt",
       "nativeActivationSha256": "71544fcd568d8d4cdb5f37fcefec051cf657770b253670b69dea098d3f046a1b",
       "nativePlan": "instances/B4-2-CODEX/_run_records/MANAGER_NATIVE_PLAN.md",
-      "nativePlanSha256": "275c282069a8932a60ca82edc04f954016ffb8b2098b29a5f6177d56a3d7465c"
+      "nativePlanSha256": "275c282069a8932a60ca82edc04f954016ffb8b2098b29a5f6177d56a3d7465c",
+      "nativeChild": "/root/b3_manager/b4_1_native",
+      "nativeModel": "gpt-6-astra",
+      "nativeReasoning": "low",
+      "nativeAddendum": "instances/B4-2-CODEX/_run_records/NATIVE_ADDENDUM.md",
+      "nativeAddendumSha256": "6699145004244d0cd3c4caf46235f99dee81a64e8937328882538dd9abf03b20",
+      "nativeInputs": "instances/B4-2-CODEX/_run_records/NATIVE_INPUTS.json",
+      "nativeInputsSha256": "cbe2a50efacdb0a43a99e4b811ba40e774009419a194cbf37d565c0213c4a449",
+      "nativeObserved": {
+        "pid": 78436,
+        "source": "97c03e3b26db1d49cc1f36ce627d19db8a56541c",
+        "binarySha256": "83271f4c8f8935d5656f14ac95a06975f13c6ac4f9fd7b5be479f4dcecd43714",
+        "failure": "printable q starts editor with q selected; next r replaces it, observedR; no separate capitalization diagnosis",
+        "qEvidence": "instances/B4-2-CODEX/_run_records/native/18-character-q.ax.txt",
+        "qEvidenceSha256": "8b121868dcc8aa7b0607d5ed111618a5d09723ae8a0656492e9f07778b96ca88",
+        "rEvidence": "instances/B4-2-CODEX/_run_records/native/19-character-r.ax.txt",
+        "rEvidenceSha256": "8d880e2f6ae397e8730b51f67391390c34c6ae8ea83a74906807d954d5c130f6",
+        "limitation": "Provenance pointer actions may use Table view; Both+Inspector hidden-scrollbar route remains unobserved at this binary",
+        "cleanup": "manager confirms CmdQ and process-only absence of exact78436 and matching owned app; no postQuitAX; initial packet unchanged"
+      },
+      "nativeCharacterDisposition": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_2_NATIVE_CHARACTER_REPAIR_DISPOSITION.md",
+      "nativeCharacterDispositionSha256": "6aa3d0af59934119154d9b3eb37b587098d22fecc013886f83400133b373b21d",
+      "nativeEvidenceCheckpoint": "7b900eaad764603a3c58dd643ebaa34ea569a1d9",
+      "nativeCharacterWorkerAddendum": "instances/B4-2-CODEX/_run_records/native-character-repair/TASK_ADDENDUM.md",
+      "nativeCharacterWorkerAddendumSha256": "b44bd50c4c2d1504c76140ac9cc80f16d98669e2fcadfce1aa0dcb4d617b8618",
+      "nativeCharacterWorkerInputs": "instances/B4-2-CODEX/_run_records/native-character-repair/INPUTS.json",
+      "nativeCharacterWorkerInputsSha256": "d513d940eeacf7f5444ead8e7e605f834b645d986343ba50396416e75eee5c38",
+      "characterSourceCandidate": "a0649cbc9a434a28144d010a3a19d68111ace412",
+      "characterEvidenceCheckpoint": "ad70730a6207dcf7643124aaed160d48cd11eca4",
+      "characterSourceFreeze": "instances/B4-2-CODEX/_run_records/native-character-repair/SOURCE_FREEZE.json",
+      "characterSourceFreezeSha256": "ce0d0b6724bd32f123cd618c96715db2fb3173f2512b90e3a3befeb14eee80d7",
+      "characterReturn": "instances/B4-2-CODEX/_run_records/native-character-repair/RETURN.md",
+      "characterReturnSha256": "3d4af68736d9a203e2ce664032f910407aa8f010d02e67dac18b877943c46faf",
+      "characterManifest": "instances/B4-2-CODEX/_run_records/native-character-repair/ARTIFACT_HASHES.json",
+      "characterManifestSha256": "3d5b0778fd4ee969ba4d1900efeeb2bcfbd83856ea38c7e92895bac57fe476f7",
+      "rebuiltNativeActivation": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_REBUILT_NATIVE_ACTIVATION.txt",
+      "rebuiltNativeActivationSha256": "3e43c5855a4cb1c5b88f28315b3e8e84911bfaa28c3d6f6cfeebc1dffd6d0946"
     },
     "B4-2-INTEGRATION": {
       "role": "ROOT integration",
       "parent": "ROOT",
       "slice": "B4",
       "branch": "codex/swbpipe-b4-node-integration-20260920",
-      "candidate": "e0383b0634682c679beeef85cb00f7824ded4495",
+      "candidate": "89ae58bd8cb855860a5e59900dd1a93782305c69",
       "base": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
-      "status": "clean source/evidence fan-in, R1 closed; bounded native/full-final gates pending",
+      "status": "clean reviewed character correction/evidence fan-in; rebuilt native/full gates pending",
       "dependsOn": [
         "B4-2-CODEX-MANAGER"
       ],
       "scope": "oldPR829 branch preserved; ROOT owns fan-in/finalchecks/PR/CI",
-      "sourceCandidate": "a1833393e597acbe81f943accf64a9548035fe6a"
+      "sourceCandidate": "a0649cbc9a434a28144d010a3a19d68111ace412"
     },
     "PR829-RESUME-RECORDS-REVIEW": {
       "role": "TASK Type2 independent records review",
@@ -2149,7 +2185,7 @@
       "model": "gpt-6-astra",
       "reasoning": "xhigh",
       "mechanism": "actual fresh-context collaboration.spawn_agent; no implementation history/descendants",
-      "status": "complete source review + R1 backcheck PASS through97c; no unresolved finding",
+      "status": "complete source review, R1 and character correction backchecks PASS througha064; native rebuilt witness pending",
       "base": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
       "candidate": "a1833393e597acbe81f943accf64a9548035fe6a",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_2_INDEPENDENT_SOURCE_REVIEW_BRIEF.md",
@@ -2163,7 +2199,27 @@
       "backcheckBrief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_R1_BACKCHECK_LAUNCH.txt",
       "backcheckBriefSha256": "c49fb0016299984f1e17c4b9bbc82af23395b0e18a93b4df3f0579199253195d",
       "backcheckReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_R1_BACKCHECK_RETURN.md",
-      "backcheckReturnSha256": "858501b8e8e0583c8832ad1ce00cb3249e0a7f371749d539b4e9fce67ca25b03"
+      "backcheckReturnSha256": "858501b8e8e0583c8832ad1ce00cb3249e0a7f371749d539b4e9fce67ca25b03",
+      "characterBrief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_CHARACTER_BACKCHECK_LAUNCH.txt",
+      "characterBriefSha256": "0c608f56d66958ca6faafb2870723d16035b7d9b72f58f52b2770db8657967f2",
+      "characterReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_CHARACTER_BACKCHECK_RETURN.md",
+      "characterReturnSha256": "479b015044b971d6194edff87fa692eda918f3369f818f5adfaeaf5939b1b9cd"
+    },
+    "B4-3-FAMILY-PREPARATION": {
+      "role": "WORKING_ITEMS Type1 read-only preparation",
+      "parent": "ROOT",
+      "actualAgent": "/root/b3_manager",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "mechanism": "actual collaboration.send_message while native TASK executes independently; no preparation child",
+      "status": "returned; separate Materials increment recommended, then Sections; no implementation activated",
+      "basis": "97c03e3b26db1d49cc1f36ce627d19db8a56541c/producta183",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_3_FAMILY_PREPARATION_BRIEF.md",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_FAMILY_PREPARATION_RETURN.md",
+      "scope": "read-only no writes/tests/UI/resources; native supervision separately authorized",
+      "recommendation": "Mixed per-row quantity units need truthful presentation and qualified conversion-backed sort; no Node numeric validator/fallback reuse. Materials first; Sections coupled geometry/type/provenance later.",
+      "briefSha256": "243353df03eae09b813f9c76e7ad8f826a2962376351a1cf6c2fe90dc71d64e6",
+      "returnSha256": "301cd8d0ed6dfec1007479be379bcda61d450db8a1afdbbfb09c667683c44783"
     }
   },
   "edges": [
@@ -2438,9 +2494,13 @@
     [
       "ROOT",
       "B4-2-REVIEW"
+    ],
+    [
+      "ROOT",
+      "B4-3-FAMILY-PREPARATION"
     ]
   ],
-  "current_frontier": "B4.2 complete source review and R1 backcheck pass at97c/producta183. One native build/witness activated after peer resource acknowledgment; actual launch record pending. Final native/ROOT own look, clean sweep and hosted CI remain. C4/liveCLI decisions unchanged.",
+  "current_frontier": "B4.2 source review plus R1/character backchecks PASS througha064. Rebuilt native follow-up dispatched under acknowledged slot; initial97c failure preserved. ROOT own look, final clean sweep/CI remain. Materials is next separate prepared increment, not activated.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -2718,14 +2778,14 @@
     "originMain": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
     "integrationBranch": {
       "branch": "codex/swbpipe-b4-node-integration-20260920",
-      "head": "e0383b0634682c679beeef85cb00f7824ded4495",
+      "head": "89ae58bd8cb855860a5e59900dd1a93782305c69",
       "state": "clean B4.2 source fan-in; independent/native/final gates pending"
     },
-    "shell": "a183 source freeze on new Node-fields branch; evidence-only packaging, native not launched",
+    "shell": "cleanad707/producta064; native follow-up pending actual launch record",
     "canvas": "fb720420 preserved; C4 preparation returned",
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "isolated226b probe retains two authorized source edits and two untracked dependency entries; preserved, never fan-in",
-    "resources": "Piping owns acknowledged native/CUA/build slot for bounded witness; no competing browser/full sweep",
+    "resources": "oldnative78436 closed; source5174/shared lock for affected repair checks; Piping retains acknowledged upcoming native/build slot, no full sweep",
     "recordStatus": "prior postmerge pause tail and new resume/launch records await combined review at next checkpoint",
     "observedAt": "2026-09-21T04:06:53.197212+00:00"
   },
