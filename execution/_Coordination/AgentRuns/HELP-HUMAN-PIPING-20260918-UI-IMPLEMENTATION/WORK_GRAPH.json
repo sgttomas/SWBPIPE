@@ -635,7 +635,7 @@
       "role": "slice",
       "lane": "B-SHELL",
       "title": "the table component through the one operation route",
-      "status": "B4.1/B4.2 merged; Materials source/native checks pass; related Node-review Undo repair and combined integration remain; full B4/fit remains open",
+      "status": "B4.1/B4.2 merged; Materials and related Node-review repair have scoped source/native passes and await combined publication gates; full B4/fit remains open",
       "dependsOn": [
         "B3B"
       ],
@@ -670,7 +670,7 @@
           "basis": "B4-3 architecture/undo-dom probe plus unchanged Node review sorting path; no Node repair authorized by the Materials brief",
           "diagnosticBrief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_NODE_SORT_UNDO_DIAGNOSTIC_BRIEF.md",
           "diagnosticBriefSha256": "8866966443b009b1aace77d127eded2088fcd7e2e0a2d33b203b36aa06f4b847",
-          "next": "one source-profile actual-key reproduction; no production repair granted; manager seals TASK launch/input"
+          "next": "Close the reviewed correction through the combined PR; do not infer full B4/MVP keyboard or fit completion."
         }
       ],
       "remainderPreparationBrief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_REMAINDER_PREPARATION_BRIEF.md",
@@ -2571,16 +2571,15 @@
     "B4-3-INTEGRATION": {
       "role": "ROOT integration",
       "parent": "ROOT",
-      "state": "clean Node/Materials source and native packet integrated; reviewed final CI/ROOT records ready for merge, then complete candidate gates",
+      "state": "all reviewed source/CI/native/ROOT records combined; this metadata freeze corrects current graph only; final gates not yet run",
       "branch": "codex/swbpipe-b4-materials-integration-20260921",
-      "candidate": "8aa29afc2ca56474cebbaa311c1ece9849e5eedf",
+      "candidate": "a40a415baaf1f5c6e7f017a02e994db35bd2854a",
       "desktopTree": "569bb433ce914ef5f96234bc1ddfbb4a82700924",
       "scope": "reviewed Materials and cache maintenance plus truthful run evidence; Node diagnosis before final freeze",
       "remaining": [
-        "merge reviewed final CI and ROOT own-look/review records",
         "cheap full-range preflight and one clean DEC-025 sweep",
         "complete candidate source/evidence review including Node-native/ROOT packet",
-        "actual-head hosted CI/merge and main cache observation"
+        "actual-head hosted CI/merge and main-cache observation"
       ],
       "dependsOn": [
         "B4-3-CODEX-MANAGER",
@@ -3171,19 +3170,19 @@
     "scope": "No silence-as-approval; unaffected authorized B4 work proceeds"
   },
   "liveContinuationState": {
-    "root": "cafc84827a71be6172c1811dcae1c2aaa3e65d7c plus CI review/continuity checkpoint",
+    "root": "a40a415baaf1f5c6e7f017a02e994db35bd2854a fast-forward adopted; product now reviewed15186, with this metadata-only frontier correction",
     "originMain": "c9f19195214b2e097980dde5e0d5fccbfba8e34c",
     "integrationBranch": {
       "branch": "codex/swbpipe-b4-materials-integration-20260921",
-      "head": "8aa29afc2ca56474cebbaa311c1ece9849e5eedf",
-      "state": "clean source/native fan-in; final reviewed CI/ROOT records next"
+      "head": "a40a415baaf1f5c6e7f017a02e994db35bd2854a",
+      "state": "clean composed source; final metadata freeze and gates next"
     },
     "shell": "clean native taildd8be592, desktop exactly reviewed15186; manager/source held",
     "canvas": "fb720420 preserved; C4 preparation returned",
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "isolated226b probe retains two authorized source edits and two untracked dependency entries; preserved, never fan-in",
     "resources": "nativePID22492 quit and process-only absent; ports5173/5174/5175/shared lock released. Peer notified. No local heavy run; next full-sweep reservation pending.",
-    "recordStatus": "CI hint review PASS; final candidate composition and complete checks next",
+    "recordStatus": "All source and CI data reviewed; complete candidate/native evidence review and full checks next",
     "observedAt": "2026-09-21T09:29:01.005295+00:00"
   },
   "historicalPauses": [
