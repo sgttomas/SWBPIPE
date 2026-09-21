@@ -2571,7 +2571,7 @@
     "B4-3-INTEGRATION": {
       "role": "ROOT integration",
       "parent": "ROOT",
-      "state": "complete combined independent review PASS through164314; full clean3bdf sweep/preflight PASS; publication metadata and actual-head hosted CI next",
+      "state": "PR833 draft open at frozen6fa70; all local/source/native/complete/publication reviews pass, actual-head hosted CI pending",
       "branch": "codex/swbpipe-b4-materials-integration-20260921",
       "candidate": "3bdf6141aa5efd16c18b61d1cf49045f8ce4faf8",
       "desktopTree": "569bb433ce914ef5f96234bc1ddfbb4a82700924",
@@ -2641,6 +2641,18 @@
           },
           "productionBuild": "PASS"
         }
+      },
+      "publication": {
+        "pr": "https://github.com/sgttomas/chirality/pull/833",
+        "head": "6fa70c15c7d8f1bce78b6e7f153b7296503d8bed",
+        "state": "draft open; wait every applicable hosted check, including additional Harness pre-merge",
+        "reviewLaunch": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_PUBLICATION_REVIEW_LAUNCH.md",
+        "reviewLaunchSha256": "46dd502437c04217f7200aff0c9885425c5bca04e62dc401093ef35887d1062b",
+        "reviewReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_PUBLICATION_REVIEW_RETURN.md",
+        "reviewReturnSha256": "f95ee3d7f52dd16acfcc0f51e131c97c94bec38f47ae59ace090a91c80052be1",
+        "checks": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_PUBLICATION_CHECKS/SUMMARY.json",
+        "checksSha256": "7ea5e7a13b74fda1dd85afb31ba035d3342b868616c51b599ab72431af7429d5",
+        "sourceParity": "all maintained inputs identical to clean3bdf; later records only"
       }
     },
     "B4-4-SECTIONS-PREPARATION": {
@@ -2958,7 +2970,7 @@
       "B4-4-SECTIONS-PREPARATION"
     ]
   ],
-  "current_frontier": "Publish the reviewed Materials/Node-review/CI batch after bounded metadata backcheck; actual-head hosted CI remains the merge gate. Full local sweep and complete combined review pass. Then Sections activation may be prepared under existing B4 authority; C4/live CLI decisions and qualification holds remain.",
+  "current_frontier": "Wait all actual-head PR833 checks at6fa70, then merge under standing authority and observe main cache. ROOT continuity records stay off PR head to avoid CI restarts. Sections is prepared for next bounded activation after merge; C4/live CLI decisions and qualification holds remain.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -3259,7 +3271,7 @@
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "isolated226b probe retains two authorized source edits and two untracked dependency entries; preserved, never fan-in",
     "resources": "full sweep ended PASS; source5174/dist5175/Tauri5173 listeners/shared lock absent, both owned native PIDs quit. Peer resource reservation released.",
-    "recordStatus": "complete combined review PASS through164314, all local required checks PASS; publication metadata/hosted CI remain",
+    "recordStatus": "PR833 draft open; all local/review gates pass; hosted actual-head CI pending",
     "observedAt": "2026-09-21T10:29:42.700950+00:00"
   },
   "historicalPauses": [

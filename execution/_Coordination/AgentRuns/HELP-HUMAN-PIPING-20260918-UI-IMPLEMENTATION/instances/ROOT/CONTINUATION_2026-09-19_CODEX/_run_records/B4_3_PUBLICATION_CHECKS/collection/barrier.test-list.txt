@@ -1,0 +1,30 @@
+[chromium-desktop] › b3-accessibility.spec.ts › disabled rail and Agent reasons escape clipping under keyboard focus
+[chromium-desktop] › b3-accessibility.spec.ts › covered pages exclude retained stage controls from Tab and accessibility
+[chromium-desktop] › b3-accessibility.spec.ts › Both inspector Escape closes from property tab and input to opener
+[chromium-desktop] › b3-accessibility.spec.ts › Model inspector stays docked on Escape
+[chromium-desktop] › b3-accessibility.spec.ts › toolkit child consumes first Escape before inspector close
+[chromium-desktop] › b3-accessibility.spec.ts › portalled routing Escape closes explicitly and supersedes automatic restore
+[chromium-desktop] › b3-accessibility.spec.ts › keyboard page Close restores visible focus and retained state: libraries
+[chromium-desktop] › b3-accessibility.spec.ts › keyboard page Close restores visible focus and retained state: project
+[chromium-desktop] › b3-accessibility.spec.ts › keyboard page Close restores visible focus and retained state: solve
+[chromium-desktop] › b3-accessibility.spec.ts › compact routing selector owns popup Escape before configured shell consumers
+[chromium-desktop] › b3-accessibility.spec.ts › compact routing selector owns popup Escape before narrow shell consumers
+[chromium-desktop] › b3-accessibility.spec.ts › support family popup dismissal does not invent a missing engineering choice
+[chromium-desktop] › b3-accessibility.spec.ts › Agent reason preserves hover and lets focused page Close receive the pointer
+[chromium-desktop] › b3-accessibility.spec.ts › disabled reasons own only visible unconsumed Escape and reset on reentry
+[chromium-desktop] › b3-accessibility.spec.ts › simultaneous hovered and focused reasons dismiss before the page
+[chromium-compact] › b3-accessibility.spec.ts › disabled rail and Agent reasons escape clipping under keyboard focus
+[chromium-compact] › b3-accessibility.spec.ts › covered pages exclude retained stage controls from Tab and accessibility
+[chromium-compact] › b3-accessibility.spec.ts › Both inspector Escape closes from property tab and input to opener
+[chromium-compact] › b3-accessibility.spec.ts › Model inspector stays docked on Escape
+[chromium-compact] › b3-accessibility.spec.ts › toolkit child consumes first Escape before inspector close
+[chromium-compact] › b3-accessibility.spec.ts › portalled routing Escape closes explicitly and supersedes automatic restore
+[chromium-compact] › b3-accessibility.spec.ts › keyboard page Close restores visible focus and retained state: libraries
+[chromium-compact] › b3-accessibility.spec.ts › keyboard page Close restores visible focus and retained state: project
+[chromium-compact] › b3-accessibility.spec.ts › keyboard page Close restores visible focus and retained state: solve
+[chromium-compact] › b3-accessibility.spec.ts › compact routing selector owns popup Escape before configured shell consumers
+[chromium-compact] › b3-accessibility.spec.ts › compact routing selector owns popup Escape before narrow shell consumers
+[chromium-compact] › b3-accessibility.spec.ts › support family popup dismissal does not invent a missing engineering choice
+[chromium-compact] › b3-accessibility.spec.ts › Agent reason preserves hover and lets focused page Close receive the pointer
+[chromium-compact] › b3-accessibility.spec.ts › disabled reasons own only visible unconsumed Escape and reset on reentry
+[chromium-compact] › b3-accessibility.spec.ts › simultaneous hovered and focused reasons dismiss before the page

@@ -1,0 +1,73 @@
+[
+  {
+    "name": "claims",
+    "command": [
+      "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+      "tools/validation/validate_claims_language.py",
+      "--repo-root",
+      "."
+    ],
+    "exit": 0,
+    "logSha256": "5b069d7f793582aac6bfb7934beaf92d113984f1da5da8b7690bcaa8cffdea3f"
+  },
+  {
+    "name": "receipts",
+    "command": [
+      "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+      "tools/validation/validate_piping_loop_receipts.py",
+      "--repo-root",
+      "."
+    ],
+    "exit": 0,
+    "logSha256": "163deff7fcef7146b54dc4bd3c591dbd2a0f6fa0565932b793e64774d359a966"
+  },
+  {
+    "name": "tranche",
+    "command": [
+      "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+      "tools/validation/validate_instruction_tranche_manifest.py",
+      "--base",
+      "c9f19195214b2e097980dde5e0d5fccbfba8e34c",
+      "--head",
+      "6fa70c15c7d8f1bce78b6e7f153b7296503d8bed",
+      "--added-manifests-only"
+    ],
+    "exit": 0,
+    "logSha256": "a85d2ecc346c2ab30c242376537fc2d1117ee69285370082379a3a27c4f48930"
+  },
+  {
+    "name": "ci-plan",
+    "command": [
+      "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+      "tools/ci/e2e_plan.py",
+      "plan",
+      "--event",
+      "pull_request",
+      "--base",
+      "c9f19195214b2e097980dde5e0d5fccbfba8e34c",
+      "--head",
+      "6fa70c15c7d8f1bce78b6e7f153b7296503d8bed",
+      "--output",
+      "/tmp/swbpipe-b4-6fa-publication/ci-plan.json"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "exact-collection",
+    "command": [
+      "sh",
+      "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/tools/with_e2e_lock.sh",
+      "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+      "tools/ci/e2e_plan.py",
+      "run",
+      "--plan",
+      "/tmp/swbpipe-b4-6fa-publication/ci-plan.json",
+      "--stage",
+      "barrier",
+      "--list",
+      "--evidence-dir",
+      "/tmp/swbpipe-b4-6fa-publication/collection"
+    ],
+    "exit": 0
+  }
+]
