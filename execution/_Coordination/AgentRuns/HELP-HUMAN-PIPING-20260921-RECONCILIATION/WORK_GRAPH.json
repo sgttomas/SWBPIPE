@@ -55,7 +55,7 @@
   },
   "ACT-REVIEW": {
    "title": "Fresh read-only review of the complete activation diff",
-   "status": "returned VERDICT: FINDINGS (1 BLOCKING, 7 MINOR); all eight applied by Agent 0; backcheck pending",
+   "status": "review FINDINGS (1 BLOCKING, 7 MINOR) applied at dcbfda55b; backcheck 1 closed all but one new ACTIONABLE N-1, applied; backcheck 2 pending",
    "role": "TASK (review, read-only)",
    "model": "claude-opus-5",
    "reasoning": "high",
@@ -71,7 +71,9 @@
    "mechanism": "harness-native Agent tool, subagent_type general-purpose, foreground, parent ROOT (D-GOV-35)",
    "modelRequested": "opus (claude-opus-5)",
    "reasoningRequested": "high (inherited from session; the host takes no per-call reasoning setting)",
-   "enforcement": "read-only and non-delegation are instruction-asserted, not host-enforced; reviewer reported working tree unchanged"
+   "enforcement": "read-only and non-delegation are instruction-asserted, not host-enforced; reviewer reported working tree unchanged",
+   "backcheck1Return": "returns/ACT-REVIEW_backcheck1_return.md",
+   "backcheck1ReturnSha256": "313ff544a1e54a143302680e43f56003d2f9d23f21c86efede3be7ae5044a7e9"
   },
   "R0": {
    "title": "Freeze basis, run tooling, gate transcript, 8-deliverable calibration, candidate conventions",
