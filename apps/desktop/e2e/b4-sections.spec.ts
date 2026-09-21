@@ -100,8 +100,11 @@ test("B4 Sections moved review row preserves text Undo, input ownership and virt
   await page.keyboard.press("ControlOrMeta+z"); await expect(input).toHaveValue("1"); await expect(table.getByRole("rowheader").first()).toHaveText("section:B4-0");
   const moved = await movement.evaluate((state) => { state.observer.disconnect(); return state.counts; }); expect(moved.rowRemoved).toBeGreaterThan(0); expect(moved.inputRemoved).toBe(0);
   await input.fill("invalid"); const rows = page.getByTestId("section-engineering-table-review-rows"); await rows.hover(); await page.mouse.wheel(0, 2500); await expect(input).toHaveValue("invalid");
-  const filter = page.getByTestId("model-tree-filter-input"); await filter.fill("section:B4-139"); await expect(input).toHaveValue("invalid"); await expect(filter).toBeFocused();
-  await page.getByTestId("entity-grid-type-nodes").click(); await page.getByTestId("entity-grid-type-sections").click(); await expect(input).toHaveValue("invalid");
+  const filter = page.getByTestId("model-tree-filter-input"); await filter.fill("section:B4-139");
+  // Natural review blur Keeps the raw draft and closes the live editor. The
+  // filter owns focus; clearing it reveals the retained cell without reopening.
+  await expect(input).toHaveCount(0); await expect(filter).toBeFocused(); await filter.fill(""); await expect(cell).toHaveText("invalid");
+  await page.getByTestId("entity-grid-type-nodes").click(); await page.getByTestId("entity-grid-type-sections").click(); await expect(cell).toHaveText("invalid");
   await page.getByTestId("clear-entity-grid-drafts").click(); await filter.fill(""); await expect(cell).toHaveText("2"); expect(await currentModelHashThroughVisibleExport(page)).toBe(hashBefore);
   await expect(page.getByTestId("workspace-undo")).toBeDisabled(); await movement.dispose();
 });
