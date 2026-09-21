@@ -1,0 +1,7 @@
+# B4 early gates and resource handoff — records backcheck
+
+ROOT HELP_HUMAN → retained independent TASK /root/b3b_c3_ci_review, gpt-6-astra/xhigh, Codex harness-native; no descendants. Same read-only role/instruction/skill basis as your prior records review. Review complete12-path ROOT delta53b0dd68756512a48a9361f2e2e5ee5371a48240..08326b77d2a710689216d83b832eab6bb1409f28. No edits, tests/builds, UI, ports, network or Git mutations.
+
+Check faithful retention of your preceding return, early-check input/candidate/result/hash bindings, cleanup claims limited to ROOT's supplied transcript observation, correct resource handoff and graph currency, and the explicitly unlaunched B4 remainder preparation. The four early gates apply to55ea/product1ad, not the later vertical repair. Retain baseline findings rather than imply a universally clean harness. Owner/peer messages are supplied chat evidence, not independently authenticated transport. Check new graph path/hash references against canonical bytes, including the retained drawer measurement/disposition in wt3. No new implementation authority or B5/CLI activation follows.
+
+Return findings or a precise complete-delta PASS, actual consulted hashes and limits. Unfinished vertical source review, native rebuild/witness, final clean sweep and later records are outside this assignment. ROOT will retain your return verbatim and make corrections.

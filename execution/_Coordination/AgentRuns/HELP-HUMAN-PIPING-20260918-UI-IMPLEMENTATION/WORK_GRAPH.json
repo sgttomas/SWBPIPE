@@ -1656,7 +1656,7 @@
       "model": "gpt-6-astra",
       "reasoning": "high",
       "mechanism": "Codex delegated-harness-native retained manager; new bounded TASK",
-      "status": "approved vertical repair in progress with the retained manager and worker; focused evidence before independent backcheck and native rebuild",
+      "status": "sourceed8 independently reviewed; retained native TASK resumed actual bounded build/witness after sealed handoff; evidence packaging active",
       "base": "fd195cf4287e84572a12183169478a6f7ddf6a92",
       "branch": "codex/swbpipe-b-shell-20260918",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_1_MANAGER_BRIEF.md",
@@ -1668,11 +1668,11 @@
       "childBriefSha256": "56df2fc1dec4fffac347042287cc90f9b50f548df24fa810d2d456e4fef43578",
       "childInputsSha256": "58a86b65a5d125e481ceb0e46a05090cd2befeaaee25f9bd46f43ef0ef0b8d6a",
       "writeLease": "shell/controller/table; exact sealed brief; no native or external live transport; no shared Root graph writes",
-      "resourceState": "bounded5174/browser checks under shared lock; no native/build/full sweep; old31977 quit after ROOT clean-state check and native slot released",
+      "resourceState": "Piping native/CUA slot acknowledged by dev - app; one rebuilt ed8 witness authorized, no full sweep; source held",
       "enforcement": "instruction-asserted; host unrestricted; Type2 no delegation",
       "compatibilityDisposition": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_1_COMPATIBILITY_DISPOSITION.md",
       "compatibilityDispositionSha256": "f317cddf86edc5faf672629f70c0575d26ff77e2b3b494d7e167687e42865827",
-      "sourceCandidate": "1ad964e30b08bed57bba8f08e3a75e8c883c8b0b",
+      "sourceCandidate": "ed8cc27fdb37b8df2f20eb5f877aacb61bfd7db1",
       "nativeChild": "/root/b3_manager/b4_1_native",
       "nativeModel": "gpt-6-astra",
       "nativeReasoning": "low",
@@ -1719,7 +1719,25 @@
       "drawerMeasurement": "instances/B4-1-CODEX/_run_records/vertical-scroll-repair/drawer-before/measurements.json",
       "drawerMeasurementSha256": "4cf4149b4702b9f0d1eebd6fe41e4d19f106a90c01c123268fbaf3ca18aab1ed",
       "drawerDisposition": "instances/B4-1-CODEX/_run_records/vertical-scroll-repair/MANAGER_COMPACT_SCOPE.md",
-      "drawerDispositionSha256": "8bb081a66efb826154b29cdff63cb14a6e158888ed7fcb1128cd348752ef4f14"
+      "drawerDispositionSha256": "8bb081a66efb826154b29cdff63cb14a6e158888ed7fcb1128cd348752ef4f14",
+      "verticalSourceFreeze": "instances/B4-1-CODEX/_run_records/vertical-scroll-repair/SOURCE_FREEZE.json",
+      "verticalSourceFreezeSha256": "f2c9969e3d74598add1dcb5278dd6aed3a9ade6493bc348051f90ea928fa9d43",
+      "nativeFit1ad": {
+        "source": "1ad964e30b08bed57bba8f08e3a75e8c883c8b0b",
+        "pid": 31977,
+        "binarySha256": "ea99cc46b4e8d5c58a668cd288a923ef36cecc609130cad61c4feda196113168",
+        "return": "instances/B4-1-CODEX/NATIVE_FIT_RETURN.md",
+        "returnSha256": "3d9a07471123897ae9bd31060cf8d1f71c3d9d1c56cc33c3f3412f3f792c804b",
+        "state": "old app quit after clean-state check; prior pointer-scroll method limits retained; owner vertical correction supersedes initial full-fit closure; new ed8 native witness pending"
+      },
+      "nativeVerticalPlan": "instances/B4-1-CODEX/_run_records/vertical-scroll-repair/MANAGER_NATIVE_PLAN.md",
+      "nativeVerticalPlanSha256": "fdfde38bc6c5434d50b41c25c69dee62f0eb18f438e775072970aca5575cd9e9",
+      "nativeVerticalAddendum": "instances/B4-1-CODEX/_run_records/vertical-scroll-repair/NATIVE_ADDENDUM.md",
+      "nativeVerticalAddendumSha256": "ca4b48ff3442f1f1cc52a179ca652cbadf7765c02d64e6f80301b5cfa731bfe8",
+      "nativeVerticalInputs": "instances/B4-1-CODEX/_run_records/vertical-scroll-repair/NATIVE_INPUTS.json",
+      "nativeVerticalInputsSha256": "43932e26b5fd07ca59d2190df627fc6fdc278ab570793c2189ee50b7af32b480",
+      "nativeVerticalLaunch": "instances/B4-1-CODEX/_run_records/vertical-scroll-repair/NATIVE_LAUNCH.json",
+      "nativeVerticalLaunchSha256": "4517888d6b0cf7d7ee585c11f89ed81fd8695c1b7b9832f1d83c9132af87cf3d"
     },
     "LIVE-CONTROL-PREPARATION": {
       "role": "ROOT proposed stage with bounded TASK inventory and peer fit review",
@@ -1813,7 +1831,7 @@
       "model": "gpt-6-astra",
       "reasoning": "xhigh",
       "mechanism": "Codex delegated-harness-native fresh context; same-model independence",
-      "status": "complete independent source coverage through1ad; new vertical repair and final candidate remain uncovered",
+      "status": "PASS complete14-path vertical source backcheck c8..ed8; source coverage current throughed8; native/final gates pending",
       "initialCandidate": "87faf4b240d1be8b197843cd869b22408e85be3b",
       "initialVerdict": "Not ready:2newP2 plus known Tab defect",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_1_INDEPENDENT_REVIEW_BRIEF.md",
@@ -1844,17 +1862,28 @@
           "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_1_POINTER_FIT_BACKCHECK_RETURN.md",
           "briefSha256": "dfdaecb9ce5cfc463851abe2a6068525ba55f8d97edb90710c801c57098437ab",
           "returnSha256": "4a23a98a5ce9ddf0a5a362066916c8225c5db3fca5ba07db7cd8d3f95ae86590"
+        },
+        {
+          "candidate": "ed8cc27fdb37b8df2f20eb5f877aacb61bfd7db1",
+          "verdict": "PASS complete14paths;153focused+17selectedApp,16unique browser passes and2 repeated strengthened resize checks; native/final gates excluded",
+          "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_1_VERTICAL_SOURCE_BACKCHECK_BRIEF.md",
+          "briefSha256": "cb7df6c061182da06af9964937e9fd39f2fac8cabc7c07bad62b7a34bc3bda6d",
+          "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_1_VERTICAL_SOURCE_BACKCHECK_RETURN.md",
+          "returnSha256": "31bbbb3c75c19a4999593fb7db4121c2ed4f0c8b31ed6b613f72b128f402ccda"
         }
-      ]
+      ],
+      "activeBrief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_1_VERTICAL_SOURCE_BACKCHECK_BRIEF.md",
+      "activeBriefSha256": "cb7df6c061182da06af9964937e9fd39f2fac8cabc7c07bad62b7a34bc3bda6d",
+      "activeCandidate": "ed8cc27fdb37b8df2f20eb5f877aacb61bfd7db1"
     },
     "B4-1-INTEGRATION": {
       "role": "ROOT integration",
       "parent": "ROOT",
       "branch": "codex/swbpipe-b4-controls-20260920",
-      "status": "clean local product1ad with owner correction/B5 preparation records55ea; vertical repair still blocks final source/native gates and publication",
-      "candidate": "55ea7bc9fab1a3f1786b4014f04e2077c668adf5",
+      "status": "clean local combined repaired source da504; independent backcheck and rebuilt native witness precede final sweep/publication",
+      "candidate": "da504e5a9a1a386494df80e965abda88b4020312",
       "base": "fd195cf4287e84572a12183169478a6f7ddf6a92",
-      "sourceCandidate": "1ad964e30b08bed57bba8f08e3a75e8c883c8b0b",
+      "sourceCandidate": "ed8cc27fdb37b8df2f20eb5f877aacb61bfd7db1",
       "ciMapCommit": "ab3b057e4",
       "ciMap": "Independent exact2file backcheck PASS atab3b057e4f5a5b01fdbfa1b8e50381522cb1b369;31policy cases pass. New B4 spec follows authoring/layout and new shared-table remains full.",
       "dependsOn": [
@@ -1865,7 +1894,10 @@
       "ciMapReview": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_B4_CONSUMER_MAP_BACKCHECK_RETURN.md",
       "ciMapReviewSha256": "58e5b650acda19d55f1a7f3e64a6a7f01e3e38a93ceb2333626f56bcac81beab",
       "earlyRepositoryChecks": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_EARLY_REPOSITORY_CHECKS_55EA/SUMMARY.json",
-      "earlyRepositoryChecksSha256": "394ac52a2947690722f7e3a21fb3931c9941784c9d7a96ee2df770816df85c99"
+      "earlyRepositoryChecksSha256": "394ac52a2947690722f7e3a21fb3931c9941784c9d7a96ee2df770816df85c99",
+      "collection": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_COLLECTION_DA504/SUMMARY.json",
+      "collectionSha256": "a5b198115f94d101fdc85ab4683bedbeceded75b5f83c269c5bf7bb7794c545f",
+      "collectionScope": "445 identities in full mode, zero omitted/duplicate,30barrier+108/58/63/186 shards; collection-only, no test execution"
     },
     "B5-PREPARATION-CODEX": {
       "role": "TASK Type2 read-only preparation",
@@ -1896,6 +1928,20 @@
       "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_VERTICAL_RECORDS_BACKCHECK_RETURN.md",
       "briefSha256": "6e60be559f2b89f6c3b45e916a609db647f6ada8a0829e47775d45a0c4b15e69",
       "returnSha256": "a5fedcaed29129046c393aac195d566b95bbcb6da61f48b5e5c0c3a4c8364245"
+    },
+    "B4-EARLY-RECORDS-REVIEW": {
+      "role": "TASK Type2 independent records review",
+      "parent": "ROOT",
+      "actualAgent": "/root/b3b_c3_ci_review",
+      "model": "gpt-6-astra",
+      "reasoning": "xhigh",
+      "mechanism": "Codex delegated-harness-native retained independent TASK",
+      "status": "PASS complete12path early-records delta53b0..08326; later source/native/publication excluded",
+      "candidate": "08326b77d2a710689216d83b832eab6bb1409f28",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_EARLY_RECORDS_REVIEW_BRIEF.md",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_EARLY_RECORDS_REVIEW_RETURN.md",
+      "briefSha256": "131ed05f0166f2b1f0f77786428bd4f34bb3a93b5564cc37188b29e96e43b028",
+      "returnSha256": "81a173683ba18fd54736130db9d3a64e5ac5fa8cf9b059e366421230e1e6ea33"
     }
   },
   "edges": [
@@ -2134,9 +2180,13 @@
     [
       "ROOT",
       "B4-VERTICAL-RECORDS-REVIEW"
+    ],
+    [
+      "ROOT",
+      "B4-EARLY-RECORDS-REVIEW"
     ]
   ],
-  "current_frontier": "B4.1 vertical containment repair active: full-height Both/Table uses allocated row-body height and one visible editing area with drafts retained. Short Model-drawer behavior retained as an explicit later B4 gap. Source review/native proof/final sweep/publication remain pending. C4 and CLI activation still await owner decisions; B5 read-only preparation returned.",
+  "current_frontier": "B4.1 repaired sourceed8 independently reviewed and integratedda504;445-test collection has exact full partition coverage. Peer acknowledged Piping native/CUA slot; one rebuilt qualified vertical witness authorized. Final clean sweep/combined review/CI remain pending. C4 and liveCLI decisions remain pending; B4 remainder preparation unlaunched.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -2358,7 +2408,7 @@
     },
     "currentContract": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/PIPING_LIVE_CONTROL_CONTRACT_DRAFT.md",
     "peerFitReview": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/RUNTIME_ACTIVATION_REVIEW_CUSTODY.json",
-    "nativeHandoff": "ROOT released old native31977 after clean-state check and process-only absence. Peer dev - app acknowledged release and is not claiming the native/CUA slot; future claims require acknowledgment."
+    "nativeHandoff": "dev - app acknowledged Piping claim for rebuilted8 witness and reports no conflicting native/CUA/build/test activity; it defers until ROOT release notice."
   },
   "pause": {
     "ownerText": "Pause your work",
@@ -2417,19 +2467,19 @@
     "scope": "No silence-as-approval; unaffected B4.1 continues"
   },
   "liveContinuationState": {
-    "root": "53b0dd68756512a48a9361f2e2e5ee5371a48240",
+    "root": "08326b77d2a710689216d83b832eab6bb1409f28 plus this source-freeze/review tail",
     "originMain": "fd195cf4287e84572a12183169478a6f7ddf6a92",
     "integrationBranch": {
       "branch": "codex/swbpipe-b4-controls-20260920",
-      "head": "55ea7bc9fab1a3f1786b4014f04e2077c668adf5",
+      "head": "da504e5a9a1a386494df80e965abda88b4020312",
       "state": "ROOT-owned local combined candidate; old PR828 branch127677 preserved"
     },
-    "shell": "c8f8e503 evidence checkpoint with product1ad; vertical repair dirty under sole manager/child ownership",
+    "shell": "ed8 source freeze; evidence-only packaging, maintained bytes held",
     "canvas": "fb720420 preserved; C4 preparation returned",
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "separate two-edit worktree preserved; never fan-in",
-    "resources": "bounded5174/browser checks under shared lock; no native/build/full sweep; old31977 quit after ROOT clean-state check and native slot released",
+    "resources": "Piping native/CUA slot acknowledged by dev - app; one rebuilt ed8 witness authorized, no full sweep; source held",
     "recordStatus": "ROOT checkpoint binds owner correction/axis, horizontal review and B5 preparation; independent review of new record tail pending",
-    "observedAt": "2026-09-21T01:11:49.821781+00:00"
+    "observedAt": "2026-09-21T01:47:31.689752+00:00"
   }
 }
