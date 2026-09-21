@@ -56,7 +56,9 @@ doubles the rates marked *.
   IDs, areas and routing (`AREA` or `SAMPLE`) through
   `RUN/ROUTING_SAMPLE/SAMPLE_MANIFEST.csv`, which workers do not see. Check every sampled row
   whose evidence names a path the package's deliverables declare, and report
-  the sampled rows' answer distribution against the area rows'.
+  the sampled rows' answer distribution against the area rows'. About half
+  the sampled rows are recognisable from their `EntryPoints` paths (inherent:
+  workers need the paths); weigh the comparison with that in mind.
 - Select samples deterministically: sort candidate keys by SHA-256 of the key
   and take the lowest fraction. Report the selection.
 

@@ -202,3 +202,8 @@ taxonomy per DEC-081).
   `superseded_<n>/`. B5-3: R0 pilots read their calibration reverse file and
   reverse repairs only after sealing. B5-4: the 13-deliverable wave is listed
   for owner confirmation at the wave 1 checkpoint.
+- 2026-09-21 — R0 PR review closed: backcheck 6 PASS. Disclosed residual: 276
+  of the 521 cross-area sampled rows cite a module path prefix that no area
+  row of the same package uses, so they are recognisable from `EntryPoints`.
+  This is inherent (workers need the paths to answer); the verifier brief now
+  says to weigh the sampled-versus-area comparison accordingly.
