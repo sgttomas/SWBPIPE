@@ -662,6 +662,12 @@
           "retireAt": "full B4/closing fit verification; current internal increment keeps the stated evidence limitation",
           "evidence": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_ROOT_NATIVE_FINAL/RETURN.md",
           "state": "verification limit; no product defect inferred from unavailable method"
+        },
+        {
+          "item": "Check Node review text-Undo while a draft changes active sort order; Node still uses inline editor and the Materials probe showed Chromium history loss on actual ancestor movement",
+          "state": "suspected analogous gap only; no Node reproduction or defect verdict yet",
+          "retireAt": "bounded B4 follow-up before claiming complete common-table/MVP keyboard coverage",
+          "basis": "B4-3 architecture/undo-dom probe plus unchanged Node review sorting path; no Node repair authorized by the Materials brief"
         }
       ],
       "remainderPreparationBrief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_REMAINDER_PREPARATION_BRIEF.md",
@@ -2384,7 +2390,7 @@
       "actualAgent": "/root/b3_manager",
       "model": "gpt-6-astra",
       "reasoning": "high",
-      "state": "manager and one TASK implementing; focused units/TS passed at reported working scopes; source5174 focused browser handoff granted, no native activation",
+      "state": "same Astra/low TASK executing sealedP2 repair; actual Apply+Tab first-key loss and unchanged-editor Apply failure reproduced; sourcebrowser grant remains bounded; native held",
       "basis": "c9f19195214b2e097980dde5e0d5fccbfba8e34c",
       "branch": "codex/swbpipe-b4-materials-20260921",
       "checkout": "existing swbpipe-wt3, prior branch/head preserved",
@@ -2402,7 +2408,43 @@
         "launchInputs": "instances/B4-3-CODEX/_run_records/LAUNCH_INPUTS.json",
         "launchInputsSha256": "191f7ff6f8f2f0d3a09c9c91c381bfeebe3f3ad1ed3df7df507b0e02cf9e8d54"
       },
-      "browserHandoff": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_BROWSER_HANDOFF.md"
+      "browserHandoff": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_BROWSER_HANDOFF.md",
+      "sourceCandidate": "6cd07a792a3e1efdd204f75b80f26f0a65e2de2e",
+      "evidenceCandidate": "daf8d966cc46ebb11f92dd8415d1f427fd9b2e71",
+      "dependsOn": [
+        "B4-2-INTEGRATION"
+      ],
+      "p2ActualLaunch": {
+        "mechanism": "manager retained TASK followup under sealed p2 addendum",
+        "brief": "instances/B4-3-CODEX/_run_records/p2/TASK_ADDENDUM.md",
+        "briefSha256": "ad4e687c2e640af0856a228d9f04e4d6ef00a34d350a373f1e6422760bd384f0",
+        "inputs": "instances/B4-3-CODEX/_run_records/p2/INPUTS.json",
+        "inputsSha256": "68f38af40e415a030f217bde04c8543b1af960cb9274f0a8ae80c9fbebd8ec24",
+        "scope": "existing5 projection/adapter/tests paths; no core/engine/VirtualList extension"
+      },
+      "nativePreparation": {
+        "state": "draft only; final source/backcheck and explicit resource grant required",
+        "record": "instances/B4-3-CODEX/_run_records/NATIVE_PLAN_DRAFT.md",
+        "sha256": "dc789da88f84713e6a0f4c774aae029c680f06a9217ad94d261776e48014ffb8",
+        "scope": "one uninstrumented build; verified invented baseline; one synthetic Material through existing Inspector create; mixed-unit sort/textUndo, pointer/field/page lifecycle and baseline restoration; no store actions"
+      }
+    },
+    "B4-3-REVIEW": {
+      "role": "fresh independent TASK Type2",
+      "parent": "ROOT",
+      "actualAgent": "/root/b4_3_code_review",
+      "model": "gpt-6-astra",
+      "reasoning": "xhigh",
+      "mechanism": "actual collaboration.spawn_agent fork_turns none",
+      "source": "6cd07a792a3e1efdd204f75b80f26f0a65e2de2e",
+      "evidence": "daf8d966cc46ebb11f92dd8415d1f427fd9b2e71",
+      "state": "oneP2; repair/backcheck required before fan-in/native",
+      "launch": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_SOURCE_REVIEW_LAUNCH.md",
+      "launchSha256": "6881b98e7afee243acbbf1374900b054a0b0183ec9111d3221c8204083938070",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_INITIAL_SOURCE_REVIEW_RETURN.md",
+      "returnSha256": "f04de2848b917dac3cd25fcfa13ffcc2faa389e75b583530966293ce0dec994e",
+      "repairDisposition": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_3_P2_REPAIR_DISPOSITION.md",
+      "repairDispositionSha256": "611c121ff6db0676c31241fb38beb42009395c603512f4e8f1c8bc515f41c498"
     }
   },
   "edges": [
@@ -2683,7 +2725,7 @@
       "B4-3-FAMILY-PREPARATION"
     ]
   ],
-  "current_frontier": "PR832 merged; Materials manager and one Astra/low TASK executing bounded family implementation. ROOT completes independent cache-test isolation backcheck and postmerge continuity. No active local browser/native workload; C4/CLI and remaining fit/qualification decisions stay pending.",
+  "current_frontier": "Complete Materials P2 exact-cell eligibility repair and independent backcheck, then reviewed native witness/ROOT own look. Combine reviewed Materials with ready cache maintenance for one final clean sweep/whole candidate review/PR/CI. Node sorted-review Undo follow-up is recorded but unproven; C4/liveCLI decisions and qualification holds remain.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -2882,7 +2924,9 @@
         "scopeNodes": [
           "B4-1-INTEGRATION",
           "B4-2-INTEGRATION",
-          "B4-3-FAMILY-PREPARATION"
+          "B4-3-FAMILY-PREPARATION",
+          "B4-3-CODEX-MANAGER",
+          "B4-3-REVIEW"
         ]
       }
     }
@@ -2978,8 +3022,8 @@
     "canvas": "fb720420 preserved; C4 preparation returned",
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "isolated226b probe retains two authorized source edits and two untracked dependency entries; preserved, never fan-in",
-    "resources": "Materials manager owns source5174/sharedE2E for focused browser only; no ROOT heavy test/build/native work; native remains held",
-    "recordStatus": "PR832 closeout and Materials/cache continuation records will receive combined review with next coherent integration",
+    "resources": "Materials manager owns source5174/sharedE2E for P2 fail-before/affected proof, one pinned browser; no ROOT heavy/native work",
+    "recordStatus": "Materials whole-source review returned oneP2, now reproduced and under bounded repair; native plan prepared only",
     "observedAt": "2026-09-21T06:00:47.419265+00:00"
   },
   "historicalPauses": [
