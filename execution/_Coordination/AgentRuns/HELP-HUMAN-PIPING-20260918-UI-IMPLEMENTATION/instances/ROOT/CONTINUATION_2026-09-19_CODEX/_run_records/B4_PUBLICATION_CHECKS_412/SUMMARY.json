@@ -1,0 +1,89 @@
+{
+  "candidate": "412bc565c110de96ce62597200e6102a484e292e",
+  "base": "fd195cf4287e84572a12183169478a6f7ddf6a92",
+  "kind": "publication-record gates after a metadata-only tail; complete product sweep remains bound to47ad with unchanged product/CI inputs",
+  "checks": [
+    {
+      "name": "claims",
+      "args": [
+        "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+        "tools/validation/validate_claims_language.py",
+        "--repo-root",
+        "."
+      ],
+      "candidate": "412bc565c110de96ce62597200e6102a484e292e",
+      "exit": 0,
+      "seconds": 0.8508272171020508,
+      "logSha256": "148f3902df670a9ccff6805628cbea07990ef5cf95f0f1a892096c26812ed7fd",
+      "byteIdenticalCanonicalOutputReused": true,
+      "canonicalStdout": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_EARLY_REPOSITORY_CHECKS_55EA/claims.log"
+    },
+    {
+      "name": "g4",
+      "args": [
+        "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+        "tools/validation/validate_instruction_tranche_manifest.py",
+        "--base",
+        "fd195cf4287e84572a12183169478a6f7ddf6a92",
+        "--head",
+        "412bc565c110de96ce62597200e6102a484e292e",
+        "--added-manifests-only"
+      ],
+      "candidate": "412bc565c110de96ce62597200e6102a484e292e",
+      "exit": 0,
+      "seconds": 0.4292888641357422,
+      "logSha256": "6815a402b1401bb072b262e7e42aa88601eb93a0cc7da3d7c91a72ebe14c9682",
+      "byteIdenticalCanonicalOutputReused": false,
+      "canonicalStdout": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_PUBLICATION_CHECKS_412/g4.log"
+    },
+    {
+      "name": "harness-pytest",
+      "args": [
+        "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tools/practitioner_harness"
+      ],
+      "candidate": "412bc565c110de96ce62597200e6102a484e292e",
+      "exit": 0,
+      "seconds": 61.617027044296265,
+      "logSha256": "d6592aef7f7b12310af03645998b65893d5ac822354a09ab81f24895b0303b74",
+      "byteIdenticalCanonicalOutputReused": false,
+      "canonicalStdout": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_PUBLICATION_CHECKS_412/harness-pytest.log"
+    },
+    {
+      "name": "receipts",
+      "args": [
+        "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+        "tools/validation/validate_piping_loop_receipts.py",
+        "--repo-root",
+        "."
+      ],
+      "candidate": "412bc565c110de96ce62597200e6102a484e292e",
+      "exit": 0,
+      "seconds": 2.248305082321167,
+      "logSha256": "163deff7fcef7146b54dc4bd3c591dbd2a0f6fa0565932b793e64774d359a966",
+      "byteIdenticalCanonicalOutputReused": true,
+      "canonicalStdout": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_EARLY_REPOSITORY_CHECKS_55EA/receipts.log"
+    },
+    {
+      "name": "self-check",
+      "args": [
+        "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+        "tools/practitioner_harness/harness.py",
+        "self-check",
+        "--json-report",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/_harness_generated/b4-publication-412.json"
+      ],
+      "candidate": "412bc565c110de96ce62597200e6102a484e292e",
+      "exit": 0,
+      "seconds": 30.282445907592773,
+      "logSha256": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e",
+      "byteIdenticalCanonicalOutputReused": true,
+      "canonicalStdout": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_EARLY_REPOSITORY_CHECKS_55EA/self-check.log"
+    }
+  ],
+  "summary": "All5 pass.379harness tests;claims353;Receipt156 valid;G4 no instruction-surface change;self-check0BLOCK with existing4REVIEW112WARN14INFO1NA. Hosted CI remains pending.",
+  "custody": "Each command was freshly executed. Byte-identical stdout reuses one canonical prior log; other stdout is retained here."
+}
