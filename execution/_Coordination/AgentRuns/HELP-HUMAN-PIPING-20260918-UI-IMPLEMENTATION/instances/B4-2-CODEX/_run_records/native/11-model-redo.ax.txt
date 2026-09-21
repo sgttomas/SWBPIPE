@@ -1,0 +1,13 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview · Edited — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~0 standard window Invented Utility Loop Preview · Edited — SWBPIPE, Secondary Actions: Raise
++						288 container Unsaved model edits
++							289 text  · Edited
+~						10 button Undo model edit, Help: Undo (⌘Z)
+~						11 button (disabled) Redo model edit, Help: Nothing to redo
+~										200 cell (selected, settable) node:N-100 Label: Native unique 42
+~							132 toggle button Select Native unique 42 in viewport, Help: Native unique 42 (node:N-100), Value: on
+~						241 heading Native unique 42 — node: node:N-100, Value: 2
+~							242 text Native unique 42 —  node :  node:N-100
+~								280 text Operation op:delete-node-node:N-100; delete; proposed Target Node; node:N-100 Change delete_node; Explicit node deletion; nodes; before=Native unique 42; x=0; y=0; z=0; after=not_present Unit basis dimensionless; unit=none; explicit user-entered node deletion; endpoint and load reference integrity required Validation not_run; not_run; not_required_dimensionless; not_generated; not_applied Audit boundary Routed through the structured operations only; no direct model mutation; requires your acceptance; does not change the accepted model until applied Professional boundary Requires human review; no compliance claim; no approval claim Rationale explicit user-entered node deletion for project:invented-loop-01; requires reference validation before durable model change.
+~	164 text Invented Utility Loop Preview · Edited — SWBPIPE
+The focused UI element is 290 button node:N-100 Label: Native unique 42

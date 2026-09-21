@@ -1,0 +1,61 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview · Edited — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 347-348
+~								298 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
++									353 text Name, ID, type, or group
+~							301 text 27  of  27  model entities visible
+~							302 button (disabled) Clear model tree filter
+~							313 text 5  of  5 Nodes 0  changed cells
++									354 row (selectable)
++										355 cell (selectable, settable) node:N-110
++										356 cell (selectable, settable) node:N-110 Label: Low point elbow
++										357 cell (selectable, settable) node:N-110 X: 3.2 m
+Quantity readout, Value: 3.2
+m
++										358 cell (selectable, settable) node:N-110 Y: 0 m
+Quantity readout, Value: 0
+m
++										359 cell (selectable, settable) node:N-110 Z: 0 m
+Quantity readout, Value: 0
+m
++										360 cell (selectable, settable) node:N-110 Provenance: invented_example
++									361 row (selectable)
++										362 cell (selectable, settable) node:N-120
++										363 cell (selectable, settable) node:N-120 Label: Riser elbow
++										364 cell (selectable, settable) node:N-120 X: 3.2 m
+Quantity readout, Value: 3.2
+m
++										365 cell (selectable, settable) node:N-120 Y: 2.4 m
+Quantity readout, Value: 2.4
+m
++										366 cell (selectable, settable) node:N-120 Z: 0 m
+Quantity readout, Value: 0
+m
++										367 cell (selectable, settable) node:N-120 Provenance: invented_example
++									368 row (selectable)
++										369 cell (selectable, settable) node:N-130
++										370 cell (selectable, settable) node:N-130 Label: Rack turn
++										371 cell (selectable, settable) node:N-130 X: 7.6 m
+Quantity readout, Value: 7.6
+m
++										372 cell (selectable, settable) node:N-130 Y: 2.4 m
+Quantity readout, Value: 2.4
+m
++										373 cell (selectable, settable) node:N-130 Z: 0 m
+Quantity readout, Value: 0
+m
++										374 cell (selectable, settable) node:N-130 Provenance: invented_example
++									375 row (selectable)
++										376 cell (selectable, settable) node:N-140
++										377 cell (selectable, settable) node:N-140 Label: Terminal tie-in
++										378 cell (selectable, settable) node:N-140 X: 7.6 m
+Quantity readout, Value: 7.6
+m
++										379 cell (selectable, settable) node:N-140 Y: 2.4 m
+Quantity readout, Value: 2.4
+m
++										380 cell (selectable, settable) node:N-140 Z: 2.2 m
+Quantity readout, Value: 2.2
+m
++										381 cell (selectable, settable) node:N-140 Provenance: invented_example
+~									349 text 5
+The focused UI element is 2 HTML content Description: SWBPIPE, URL: tauri://localhost
