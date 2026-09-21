@@ -1,0 +1,30 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~						221 button (expanded) Inspector, Help: Inspector (⌘I), Secondary Actions: Collapse
++					392 button Close inspector, Help: Close (⎋)
++					393 container Property inspector
++						394 heading Low point elbow — node: node:N-110, Value: 2
++							395 text Low point elbow —  node :  node:N-110
++						396 tab group (selectable) Inspector views
++							397 tab (selected) Properties
++							398 tab (selectable) Task
++						399 summary All properties, Value: off
++							400 text All properties
++						401 summary Sources and units, Value: off
++							402 text Sources and units
++						403 summary New support configuration, Value: off
++							404 text New support configuration
++						405 summary New section, Value: off
++							406 text New section
++						407 summary New material, Value: off
++							408 text New material
++						409 summary New support, Value: off
++							410 text New support
++						411 summary New component, Value: off
++							412 text New component
++						413 container Delete node intent
++							414 heading Delete node, Value: 3
++								415 text Delete node
++							416 button Queue delete node, Help: Queue node delete intent
++							417 container
++								418 text Operation op:delete-node-node:N-110; delete; proposed Target Node; node:N-110 Change delete_node; Explicit node deletion; nodes; before=Low point elbow; x=3.2; y=0; z=0; after=not_present Unit basis dimensionless; unit=none; explicit user-entered node deletion; endpoint and load reference integrity required Validation not_run; not_run; not_required_dimensionless; not_generated; not_applied Audit boundary Routed through the structured operations only; no direct model mutation; requires your acceptance; does not change the accepted model until applied Professional boundary Requires human review; no compliance claim; no approval claim Rationale explicit user-entered node deletion for project:invented-loop-01; requires reference validation before durable model change.
+The focused UI element is 203 HTML content Description: SWBPIPE, URL: tauri://localhost

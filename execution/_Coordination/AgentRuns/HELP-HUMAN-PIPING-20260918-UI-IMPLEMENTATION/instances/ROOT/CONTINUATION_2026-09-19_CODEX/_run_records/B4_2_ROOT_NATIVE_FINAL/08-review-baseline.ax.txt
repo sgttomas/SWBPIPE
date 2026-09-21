@@ -1,0 +1,95 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 264-318
++							392 text 5  of  5 Nodes 0  changed cells
++							393 container
++								394 table (settable) Node review drafts
++									395 row (selectable)
++										396 cell (settable)
++											397 text Node
++										398 cell (settable)
++											399 button Sort Label
++										400 cell (settable)
++											401 button Sort X
++										402 cell (settable)
++											403 button Sort Y
++										404 cell (settable)
++											405 button Sort Z
++										406 cell (settable)
++											407 button Sort Provenance
++									408 row (selectable)
++										409 cell (selectable, settable) node:N-100
++										410 cell (selected, settable) node:N-100 Label: Pump nozzle
++										411 cell (selectable, settable) node:N-100 X: 0 m
+Quantity readout, Value: 0
+m
++										412 cell (selectable, settable) node:N-100 Y: 0 m
+Quantity readout, Value: 0
+m
++										413 cell (selectable, settable) node:N-100 Z: 0 m
+Quantity readout, Value: 0
+m
++										414 cell (selectable, settable) node:N-100 Provenance: invented_example
++									415 row (selected)
++										416 cell (selectable, settable) node:N-110
++										417 cell (selectable, settable) node:N-110 Label: Low point elbow
++										418 cell (selectable, settable) node:N-110 X: 3.2 m
+Quantity readout, Value: 3.2
+m
++										419 cell (selectable, settable) node:N-110 Y: 0 m
+Quantity readout, Value: 0
+m
++										420 cell (selectable, settable) node:N-110 Z: 0 m
+Quantity readout, Value: 0
+m
++										421 cell (selectable, settable) node:N-110 Provenance: invented_example
++									422 row (selectable)
++										423 cell (selectable, settable) node:N-120
++										424 cell (selectable, settable) node:N-120 Label: Riser elbow
++										425 cell (selectable, settable) node:N-120 X: 3.2 m
+Quantity readout, Value: 3.2
+m
++										426 cell (selectable, settable) node:N-120 Y: 2.4 m
+Quantity readout, Value: 2.4
+m
++										427 cell (selectable, settable) node:N-120 Z: 0 m
+Quantity readout, Value: 0
+m
++										428 cell (selectable, settable) node:N-120 Provenance: invented_example
++									429 row (selectable)
++										430 cell (selectable, settable) node:N-130
++										431 cell (selectable, settable) node:N-130 Label: Rack turn
++										432 cell (selectable, settable) node:N-130 X: 7.6 m
+Quantity readout, Value: 7.6
+m
++										433 cell (selectable, settable) node:N-130 Y: 2.4 m
+Quantity readout, Value: 2.4
+m
++										434 cell (selectable, settable) node:N-130 Z: 0 m
+Quantity readout, Value: 0
+m
++										435 cell (selectable, settable) node:N-130 Provenance: invented_example
++									436 row (selectable)
++										437 cell (selectable, settable) node:N-140
++										438 cell (selectable, settable) node:N-140 Label: Terminal tie-in
++										439 cell (selectable, settable) node:N-140 X: 7.6 m
+Quantity readout, Value: 7.6
+m
++										440 cell (selectable, settable) node:N-140 Y: 2.4 m
+Quantity readout, Value: 2.4
+m
++										441 cell (selectable, settable) node:N-140 Z: 2.2 m
+Quantity readout, Value: 2.2
+m
++										442 cell (selectable, settable) node:N-140 Provenance: invented_example
++								443 container Node review drafts footer
++									444 text 5
++									445 text  of 
++									446 text 5
++									447 text  rows
++							448 button (disabled) Queue changed cells
++							449 button (disabled) Clear grid edits
++							450 container
++								451 text Grid mode fans each changed cell into a structured review intent; storage remains local.  Blank or whitespace text becomes TBD when queued; keeping a draft does not change the model.
++							452 text Queued 1 review intent from Grid mode.
+~							319 button (expanded) Return to node fields, Secondary Actions: Collapse
+The focused UI element is 203 HTML content Description: SWBPIPE, URL: tauri://localhost
