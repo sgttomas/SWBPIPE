@@ -1,0 +1,9 @@
+# B4.1 worker freeze04 addendum
+
+ROOT independent review supplied two bounded defects. Four new fail-before cases are retained in selection-roving-repro-01.txt; SELECTION_ROVING_DIAGNOSIS.md gives causal chains and repair boundary. Pending Apply navigation now captures an observed selectedKey revision, so newer C selection and A→C→A supersede it even when DOM focus stays in A. The entire deferred focus/selection action is gated. A derived visible live roving fallback makes remaining coordinates keyboard reachable after filtering/deleting remembered focus, without moving DOM focus or calling onSelect. Pinned invalid editing is unchanged; actual keyboard entry publishes the new row through existing focus behavior.
+
+Only EngineeringTable.tsx and its focused test changed for product repair. The already scoped e2e/b4-table-editing.spec.ts gained the manager-authorized real-Tab reentry step in its existing large-fixture journey: after Cancel, filter to last row, activate row-header button, Tab into visible X. All original scroll/invalid/hash and last-cell no-op editing boundary/non-body assertions remain unchanged; no new test count, helper/instrument/VirtualList/native/global-handler changes.
+
+Affected checks: `npx vitest run src/features/workspace/table/EngineeringTable.test.tsx --maxWorkers=1`: 23 passed (selection-roving-repair-01.txt). `npx tsc --noEmit`: exit0 (typescript-freeze04.txt). `git diff --check`: pass. No browser/native/build/full-suite/Git mutation by worker.
+
+Source refrozen/released: SOURCE_FREEZE_04.json SHA256 5d0719aae57de2cc332434d768b4567e86608bc597b792c51f964b9169d8cf7d. Exactly three files differ from freeze03; all remaining frozen files match. Freeze03/Tab diagnosis/returns remain immutable intermediate evidence. Manager owns four-case combined browser rerun, affected legacy journeys, independent backcheck and native verification. Prior scope/claims limitations remain unchanged.

@@ -1,0 +1,9 @@
+
+ RUN  v4.1.10 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  23 passed (23)
+   Start at  16:54:47
+   Duration  971ms (transform 75ms, setup 84ms, import 86ms, tests 451ms, environment 268ms)
+

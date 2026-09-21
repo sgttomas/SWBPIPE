@@ -1,0 +1,94 @@
+{
+  "frozenAt": "2026-09-20T23:09:05.272888+00:00",
+  "base": "840a21647983948c2f9930dd2fc56afb9e5d3eff",
+  "actor": "/root/b3_manager/b4_1_table",
+  "state": "source freeze05; measured-native Cancel repair; manager browser and rebuilt-native verification pending",
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/b3a-session-status.spec.ts",
+      "sha256": "881877f806d6e8094d6f778256e719094f433acd7d4f5b0e27c80b0a287e43f3"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+      "sha256": "79e2b3d26a0f2602c488005f8f802adba119c69a0706383f2c1bf22d03103dbf"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+      "sha256": "4d5fa689fc34963ee051617c36e40e45c33165da786a93305d75774a725dc7d1"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+      "sha256": "626e790f992c28d398833d48abdf987c36823ae8d0547bb2cc233a4ecec465b6"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.projectHandlers.test.tsx",
+      "sha256": "2d33ef9c5f614c3181e9d8b6984ca517bfbf41b50bb86739b56806c586d8dc94"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tableOperations.test.tsx",
+      "sha256": "de0f6ef29173b2aba5c157e48d2e69f06ea3b9411e7642037a811b53cb4678f5"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "sha256": "438c66d73f60e55e812c7a1f91e04677a9c39d39f0fd71eb63aa26035ffbdfda"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "sha256": "c3b783b943a6795cd77d88cccdce16b7cb1daf9bec230ab8de0e6210a11c5f5b"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.test.tsx",
+      "sha256": "d2baa497bc13c77fd475af371b18684fde7680d6c492802c1462545b0bdc0386"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+      "sha256": "a4d06f38404676335f7a6f87eaf8e064c5b31a20bff59adc94dfd94bfc759f3c"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx",
+      "sha256": "2edfbe8f1a5ab0e45cd0d8a6daa02e3f0c09b8446b8948cfbc471a0304c509c3"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.test.tsx",
+      "sha256": "d7da0a9d408a8f7cf91f6740b73072c864ed1da9068defee3c60c3bc45ce5734"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx",
+      "sha256": "09dcd1f71d331b057589a0b88ea156ce017c887dce49f54f99c9261c94a7faf7"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/ModelTree.table.test.tsx",
+      "sha256": "c7d0780e571e0d7b6088e1c5922bfa6a54d65241c981ed4afc5842e9b10dcaa6"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/modelTableAdapter.test.ts",
+      "sha256": "bc0c087525efde817c87544a1aa004210fee696a0eec2244d3b7305645b0a23e"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/modelTableAdapter.ts",
+      "sha256": "cf0473c0cc4c201e63df4f754e38749b43860a5643c15b08eb26db81e9d04ce9"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/tableState.test.ts",
+      "sha256": "63a5ee5b6e9f763f7669e30493f5357273be22cd7108c44db519d62985d078df"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/tableState.ts",
+      "sha256": "ea98c7a719082509ac0732cf89b84bfea33fb7063fc2080ee27913bd240de87a"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+      "sha256": "fe0f9eea5a991d965dc097553e73e8c4c23c7968ed1743a8709af94f02dab20d"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/styles.css",
+      "sha256": "92243e2e8b8ce21f6c9f58fc5a481b0fff01ec8cf17d53780d05896cdd45eb5c"
+    }
+  ],
+  "supersedes": "SOURCE_FREEZE_04.json/source840a (retained intermediate)",
+  "changedSinceFreeze04": [
+    "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx"
+  ]
+}

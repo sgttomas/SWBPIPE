@@ -1,0 +1,19 @@
+{
+  "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_1_COMPATIBILITY_DISPOSITION.md",
+  "sha256": "f317cddf86edc5faf672629f70c0575d26ff77e2b3b494d7e167687e42865827",
+  "authority": "ROOT engineering disposition inside B4.1, not new owner ruling",
+  "decision": "Primary Node coordinates table plus collapsed Review multiple changes retaining existing lifted bulk drafts/label/provenance/Queue route. Inactive mounted surfaces hidden/inert. Shared intent builder.",
+  "retirement": "Later B4 migrates label/provenance/multi-change review into common table/review grammar; remove duplicate grid after equivalent behavioral coverage and independent review, before full table/MVP completion.",
+  "legacySetupPaths": [
+    "src/features/model-tree/ModelTree.test.tsx",
+    "src/features/toolkit/DisplayIntegration.test.tsx",
+    "src/App.test.tsx",
+    "src/App.projectHandlers.test.tsx",
+    "e2e/ui-foundation.spec.ts",
+    "e2e/r2-smoke.spec.ts",
+    "e2e/b3a-session-status.spec.ts"
+  ],
+  "untouchedPipeConsumer": "e2e/ui-foundation-dist.spec.ts",
+  "correction": "Legacy draftKey binds generation/type/id/field; typed operation before is captured when queued. New direct-edit core freezes before/unit/generation at edit start. Original preparation remains unchanged.",
+  "observerBoundary": "Internal owned engine outcome after existing guards, not external publication acknowledgement."
+}

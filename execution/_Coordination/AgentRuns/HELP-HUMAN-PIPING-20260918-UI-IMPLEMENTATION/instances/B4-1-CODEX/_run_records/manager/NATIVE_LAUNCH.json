@@ -1,0 +1,16 @@
+{
+  "at": "2026-09-20T23:00:50.837418+00:00",
+  "mechanism": "collaboration.spawn_agent",
+  "actualTask": "/root/b3_manager/b4_1_native",
+  "parent": "/root/b3_manager",
+  "role": "TASK Type2",
+  "requestedModel": "gpt-6-astra",
+  "requestedReasoning": "low",
+  "forkTurns": "none",
+  "descendants": "prohibited",
+  "source": "840a21647983948c2f9930dd2fc56afb9e5d3eff",
+  "briefSha256": "ceda51d41a8efc48c2096c4e5094cc7293a57dfd46679b5b71985951b5044413",
+  "inputsSha256": "aec14f6cccde4511a2c08acf5cb6929b4a58e57b5ddd9b2132fe3d78261609e3",
+  "grant": "ROOT exclusive native/build/CUA, one uninstrumented build; native source/config writes excluded; live app handback for ROOT own look",
+  "enforcement": "host unrestricted; role/scope/resource restrictions instruction-enforced"
+}

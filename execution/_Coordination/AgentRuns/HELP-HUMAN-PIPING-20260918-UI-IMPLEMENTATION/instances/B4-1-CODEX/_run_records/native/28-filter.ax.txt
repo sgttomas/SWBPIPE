@@ -1,0 +1,9 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview · Edited — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 53, 87-101, 206-210
+~								52 search text field (settable) Filter model tree, Value: N-100, Placeholder: Name, ID, type, or group
++									234 text (settable) N-100
++									235 button cancel
+~							54 text 3  of  27  model entities visible
+~							55 button Clear model tree filter
+~									230 text 1
+The focused UI element is 52 search text field (settable) Filter model tree, Value: N-100, Placeholder: Name, ID, type, or group

@@ -1,0 +1,17 @@
+[2m[WebServer] [22m(node:30373) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:30375) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30375) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium-desktop] › e2e/b4-table-editing.spec.ts:80:1 › B4 Both with Inspector keeps pointer horizontal scrolling inside the coordinate table (1.8s)
+(node:30390) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30390) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [chromium-compact] › e2e/b4-table-editing.spec.ts:80:1 › B4 Both with Inspector keeps pointer horizontal scrolling inside the coordinate table (1.4s)
+
+  2 passed (5.2s)

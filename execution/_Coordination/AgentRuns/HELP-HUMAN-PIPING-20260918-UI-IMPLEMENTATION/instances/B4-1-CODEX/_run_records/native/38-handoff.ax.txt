@@ -1,0 +1,193 @@
+Window: "Invented Utility Loop Preview · Edited — SWBPIPE", App: SWBPIPE.
+0 standard window Invented Utility Loop Preview · Edited — SWBPIPE, Secondary Actions: Raise
+	1 scroll area
+		2 HTML content Description: SWBPIPE, URL: tauri://localhost
+			3 container
+				4 container Toolbar
+					5 heading SWBPIPE, Value: 1
+						6 text SWBPIPE
+					7 container Invented Utility Loop Preview
+						8 text Invented Utility Loop Preview
+						9 container Unsaved model edits
+							10 text  · Edited
+					11 container Editing tools
+						12 button Undo model edit, Help: Undo (⌘Z)
+						13 button (disabled) Redo model edit, Help: Nothing to redo
+						14 toggle button Description: Select (⎋), Value: on
+					15 container View
+						16 toggle button Table, Help: Table view (⌘1), Value: off
+						17 toggle button Model, Help: Model view (⌘2), Value: off
+						18 toggle button Both, Help: Both view (⌘3), Value: on
+					19 button Run
+					20 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
+					21 container Panels
+						22 button (collapsed) Inspector, Help: Inspector (⌘I), Secondary Actions: Expand
+						23 button (disabled) Agent, Help: Agent: not available yet
+					24 pop up button Display units, Value: Entered, Help: Display units. Readouts use the selected units where conversion is available. Unavailable quantities retain entered values. Editing uses entered units.
+					25 summary Appearance, Value: off
+					26 container Human toolkit
+						27 button (collapsed) Find modeling commands, Help: Search or command (⌘K), Secondary Actions: Expand
+				28 container Stages
+					29 content list
+						30 toggle button Model, Value: on
+						31 toggle button Loads, Value: off
+						32 toggle button (disabled) Results, Help: No run yet, Value: off
+						33 toggle button (disabled) Review, Help: No run yet, Value: off
+					34 content list
+						35 button (collapsed) Libraries, Secondary Actions: Expand
+						36 button (collapsed) Rules, Secondary Actions: Expand
+						37 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
+				38 container Modeling workspace
+					39 container Tables
+						40 toggle button Model, Value: on
+						41 toggle button Review changes, Value: off
+						42 button (disabled, expanded) Collapse table drawer, Help: Both view keeps the tables open, Secondary Actions: Collapse
+					43 container Model tree
+						44 text MODEL
+						45 container Layout grid mode
+							46 toggle button Tree, Value: off
+							47 toggle button Grid, Value: on
+						48 container Model tree filtering
+							49 container
+								50 text Filter model
+								51 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
+									52 text Name, ID, type, or group
+							53 text 27  of  27  model entities visible
+							54 button (disabled) Clear model tree filter
+						55 container Bulk entity grid
+							56 container Grid entity type
+								57 toggle button Nodes, Value: on
+								58 toggle button Pipes, Value: off
+								59 toggle button Supports, Value: off
+								60 toggle button Materials, Value: off
+								61 toggle button Sections, Value: off
+								62 toggle button Components, Value: off
+								63 toggle button Load Cases, Value: off
+								64 toggle button Combinations, Value: off
+							65 container
+								66 table (settable) Node coordinates
+									67 row (selectable)
+										68 cell (settable)
+											69 text Node
+										70 cell (settable)
+											71 button Sort X
+										72 cell (settable)
+											73 button Sort Y
+										74 cell (settable)
+											75 button Sort Z
+									76 row (selected)
+										77 cell (selectable, settable) node:N-100
+										78 cell (selected, settable) node:N-100 X: 0 m
+										79 cell (selectable, settable) node:N-100 Y: 0 m
+										80 cell (selectable, settable) node:N-100 Z: 0 m
+									81 row (selectable)
+										82 cell (selectable, settable) node:N-120
+										83 cell (selectable, settable) node:N-120 X: 3.2 m
+										84 cell (selectable, settable) node:N-120 Y: 2.4 m
+										85 cell (selectable, settable) node:N-120 Z: 0 m
+									86 row (selectable)
+										87 cell (selectable, settable) node:N-110
+										88 cell (selectable, settable) node:N-110 X: 6.2 m
+										89 cell (selectable, settable) node:N-110 Y: 0 m
+										90 cell (selectable, settable) node:N-110 Z: 0 m
+									91 row (selectable)
+										92 cell (selectable, settable) node:N-130
+										93 cell (selectable, settable) node:N-130 X: 7.6 m
+										94 cell (selectable, settable) node:N-130 Y: 2.4 m
+										95 cell (selectable, settable) node:N-130 Z: 0 m
+									96 row (selectable)
+										97 cell (selectable, settable) node:N-140
+										98 cell (selectable, settable) node:N-140 X: 7.6 m
+										99 cell (selectable, settable) node:N-140 Y: 2.4 m
+										100 cell (selectable, settable) node:N-140 Z: 2.2 m
+								101 container Node coordinates footer
+									102 text 5
+									103 text  of 
+									104 text 5
+									105 text  rows
+									106 button Sorted by X · Clear
+							107 summary Review multiple changes, Value: off
+								108 text Review multiple changes
+					109 splitter Resize table and canvas, Value: 55
+					110 container Viewport controls
+						111 text 3D Centerline
+						112 container (collapsed) Viewport deformation overlay status, Secondary Actions: Expand
+							113 summary Deformation · unavailable, Value: off
+								114 text Deformation · unavailable
+						115 container Viewport display toggles
+							116 toggle button Labels, Help: Show or hide entity labels, Value: on
+							117 toggle button Loads, Help: Show or hide load arrows, Value: on
+							118 toggle button Grid, Help: Show or hide the ground grid, Value: on
+						119 container Viewport selection tools
+							120 toggle button Box Select, Value: off
+							121 container
+								122 text Selection filter
+								123 pop up button Selection filter, Value: All
+							124 button Hide, Help: Hide selected geometry (H). Hidden geometry is removed from canvas picking.
+							125 button Isolate, Help: Isolate selected geometry (I): dim other shown geometry to 20%. Dimmed geometry remains selectable; Hide wins.
+							126 button (disabled) Show All, Help: All eligible entities are already shown.
+							127 text Isolate captures the selected geometry. Other shown geometry is dimmed to 20% and remains available to click, hover and box selection; nearer dimmed geometry can be picked before farther undimmed geometry. Selection does not change the snapshot. Hide takes precedence. Show All clears both. I and H apply while focus is in the viewport.
+							128 button Fit Model
+							129 button Fit Visible
+							130 button Fit Selection, Help: Fit currently visible selected geometry.
+						131 container Viewport geometry
+							132 toggle button Schematic, Value: on
+							133 toggle button Actual OD, Value: off
+							134 toggle button Measure, Value: off
+					135 container Viewport status
+						136 text Selected:  node:N-100
+						137 container Schematic centerline geometry
+							138 text Schematic centerline geometry
+						139 container View command status, Help: No view command dispatched.
+							140 text No view command dispatched.
+					141 container
+						142 container Three.js pipe centerline viewport, Help: Click a part to select it; drag to orbit, scroll to zoom
+						143 container Viewport entity selection
+							144 toggle button Select Pump nozzle in viewport, Help: Pump nozzle (node:N-100), Value: on
+							145 toggle button Select Vertical riser in viewport, Help: Vertical riser (pipe:P-110), Value: off
+							146 toggle button Select Invented branch connection marker in viewport, Help: Invented branch connection marker (component:C-120), Value: off
+							147 toggle button Select Riser elbow in viewport, Help: Riser elbow (node:N-120), Value: off
+							148 toggle button Select Rack span in viewport, Help: Rack span (pipe:P-120), Value: off
+							149 toggle button Select Invented elbow marker in viewport, Help: Invented elbow marker (component:C-110), Value: off
+							150 toggle button Select Low point elbow in viewport, Help: Low point elbow (node:N-110), Value: off
+							151 toggle button Select Invented semi-rigid valve marker in viewport, Help: Invented semi-rigid valve marker (component:C-130), Value: off
+							152 toggle button Select Rack turn in viewport, Help: Rack turn (node:N-130), Value: off
+							153 toggle button Select Preview sliding-friction rack shoe in viewport, Help: Preview sliding-friction rack shoe (support:NL-130-FRIC), Value: off
+							154 toggle button Select Preview one-way terminal stop in viewport, Help: Preview one-way terminal stop (support:NL-140), Value: off
+							155 toggle button Select Anchor at pump nozzle in viewport, Help: Anchor at pump nozzle (support:S-100), Value: off
+						156 image Orientation gizmo showing X, Y, Z axes
+						157 container View controls
+							158 toggle button Front, Value: off
+							159 toggle button Top, Value: off
+							160 toggle button Isometric, Value: on
+						161 text 1 m
+					162 container Command and selection bar
+						163 container Object creation tools
+							164 toggle button Node, Help: Arm node creation, Value: off
+							165 toggle button Pipe, Help: Arm pipe-run creation, Value: off
+							166 toggle button Support, Help: Arm support creation in the Inspector, Value: off
+							167 toggle button Component, Help: Arm component-symbol insertion, Value: off
+							168 toggle button Load, Help: Arm load creation in the Load Cases panel, Value: off
+						169 text Select
+						170 summary Selection & navigation, Value: off
+							171 text Selection & navigation
+				172 container Agent
+					173 button (disabled) Agent, Help: Agent: not available yet
+				174 container Workspace status
+					175 container Analysis statuses
+					176 button (collapsed) 5 Issues, Secondary Actions: Expand
+					177 text node: node:N-100 Entered
+					178 button (collapsed) About SWBPIPE…, Secondary Actions: Expand
+	179 close button
+	180 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	181 minimize button
+	182 text Invented Utility Loop Preview · Edited — SWBPIPE
+183 menu bar
+	184 SWBPIPE
+	185 File
+	186 Edit
+	187 View
+	188 Insert
+	189 Analyze
+
+The focused UI element is 2 HTML content Description: SWBPIPE, URL: tauri://localhost

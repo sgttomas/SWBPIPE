@@ -1,0 +1,466 @@
+{
+  "source": "840a21647983948c2f9930dd2fc56afb9e5d3eff",
+  "state": "source browser complete; native/independent review pending",
+  "files": [
+    {
+      "path": "WORKER_BRIEF.md",
+      "bytes": 9829,
+      "sha256": "56df2fc1dec4fffac347042287cc90f9b50f548df24fa810d2d456e4fef43578"
+    },
+    {
+      "path": "WORKER_RETURN.md",
+      "bytes": 3657,
+      "sha256": "c22d5577a2e6c510be7913368a625047f4ae64d461642022d2fdeca854471682"
+    },
+    {
+      "path": "_run_records/COMPATIBILITY_INPUT.json",
+      "bytes": 1582,
+      "sha256": "b2f0d4b187058c9c70a178e19ce5cb2c80617b00a55d5541dd1246ffcfa8cb49"
+    },
+    {
+      "path": "_run_records/LAUNCH_INPUTS.json",
+      "bytes": 6014,
+      "sha256": "58a86b65a5d125e481ceb0e46a05090cd2befeaaee25f9bd46f43ef0ef0b8d6a"
+    },
+    {
+      "path": "_run_records/LAUNCH.json",
+      "bytes": 687,
+      "sha256": "9bf627e1110198f4559f5df23db90b64b70232069138dfd1f1040a3de0bc0653"
+    },
+    {
+      "path": "_run_records/manager/run_source.py",
+      "bytes": 2381,
+      "sha256": "9cbd5be73ced0c24e69dcaec7a82505e3159dccb58eacfc46c6306744858a7de"
+    },
+    {
+      "path": "_run_records/manager/SOURCE_CHECKPOINT_01.json",
+      "bytes": 2025,
+      "sha256": "47301f56c5a1813a437d22308fd719de5b73903a3a8308bb138a5ff060409fb9"
+    },
+    {
+      "path": "_run_records/manager/SOURCE_CHECKPOINT_02.json",
+      "bytes": 545,
+      "sha256": "6694fcee863b6846a5819486f78711f00f71ae6499f086cd76ca081ba3d375bf"
+    },
+    {
+      "path": "_run_records/manager/FINDINGS.md",
+      "bytes": 1758,
+      "sha256": "ee4424946dfbd07de4e3cd80634426aaddfe8fe9aedb8232b90c8d03ec227fee"
+    },
+    {
+      "path": "_run_records/manager/NATIVE_PLAN.md",
+      "bytes": 2160,
+      "sha256": "4c7ca9195145a6decfae956f7314c237ffd4cc8b3b0d75a2bcee5008fc2df88b"
+    },
+    {
+      "path": "_run_records/browser/legacy-02/stdout.txt",
+      "bytes": 1851,
+      "sha256": "2b77fbe3da5f51528b621f1796cecb32d5ca042981c710d94233980536b18c9c"
+    },
+    {
+      "path": "_run_records/browser/legacy-02/RESULT.json",
+      "bytes": 1445,
+      "sha256": "8a640f0f88a9f40077ae15764e053cb85b5497429e9b0fe7d059d6430ea0fc1c"
+    },
+    {
+      "path": "_run_records/browser/legacy-02/CLEANUP.json",
+      "bytes": 68,
+      "sha256": "70d40094676f59ff9321aa2fd178d77511c8c0307c98b6cfbbd8c4637e824f93"
+    },
+    {
+      "path": "_run_records/browser/legacy-02/RUN.json",
+      "bytes": 1308,
+      "sha256": "de3f03a092f7a690af4924291c34d2040dc4685a67601570259333df97dd15ac"
+    },
+    {
+      "path": "_run_records/browser/legacy-02/artifacts/.last-run.json",
+      "bytes": 45,
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+    },
+    {
+      "path": "_run_records/browser/legacy-02/artifacts/b3a-session-status-canonic-90fdb-lows-the-persisted-snapshot-chromium-compact/reopened-clean.png",
+      "bytes": 140189,
+      "sha256": "a242c4ff7272e655ee14f314f4f58b997591b323218f7162e4c15e5a3baf323f"
+    },
+    {
+      "path": "_run_records/browser/legacy-02/artifacts/b3a-session-status-canonic-90fdb-lows-the-persisted-snapshot-chromium-desktop/reopened-clean.png",
+      "bytes": 165415,
+      "sha256": "5345f2d74675197d0f104a2ada0a445832d5966072ac26709f65de5a452c9031"
+    },
+    {
+      "path": "_run_records/browser/new-01/stdout.txt",
+      "bytes": 8575,
+      "sha256": "0b9868c37673faa17e5f48dafe956d9494d3bd95a43d8de7c2383e35db1660cd"
+    },
+    {
+      "path": "_run_records/browser/new-01/RESULT.json",
+      "bytes": 1108,
+      "sha256": "b38890c8fdfce6ac3e69281be6d057d4a152170efd43412489f77962f588ea6c"
+    },
+    {
+      "path": "_run_records/browser/new-01/CLEANUP.json",
+      "bytes": 199,
+      "sha256": "dad022e9bc39c44ba4a73040836d0e49c7400b860ead5e9ca992027c4a1704a8"
+    },
+    {
+      "path": "_run_records/browser/new-01/RUN.json",
+      "bytes": 972,
+      "sha256": "33dd149f904d50946b705c83a3b7209a3a85f9cb82da0dc982a5fda80092b96f"
+    },
+    {
+      "path": "_run_records/browser/new-01/artifacts/.last-run.json",
+      "bytes": 145,
+      "sha256": "d2b2529c203b536eb586eeac26d085e7bc34de249d3e694459fcbd02d6efc976"
+    },
+    {
+      "path": "_run_records/browser/new-01/artifacts/b4-table-editing-B4-node-c-26fd1-y-and-saved-state-ownership-chromium-compact/trace.zip",
+      "bytes": 2190067,
+      "sha256": "a921368ebff96df9e58d20d61871c5d32340d4152daa35cee60724359ffba802"
+    },
+    {
+      "path": "_run_records/browser/new-01/artifacts/b4-table-editing-B4-node-c-26fd1-y-and-saved-state-ownership-chromium-compact/error-context.md",
+      "bytes": 7919,
+      "sha256": "d4d2c1a43c69c07eb285366bc736e7596a3f701acd66c3fe1c09a19bea95e577"
+    },
+    {
+      "path": "_run_records/browser/new-01/artifacts/b4-table-editing-B4-virtua-adfb0--without-changing-the-model-chromium-desktop/b4-virtual-editor-cancelled.png",
+      "bytes": 206208,
+      "sha256": "23c9d1756b466aab7806bc77cc21b078b2af82dbe27bd20f1b540610309b157f"
+    },
+    {
+      "path": "_run_records/browser/new-01/artifacts/b4-table-editing-B4-virtua-adfb0--without-changing-the-model-chromium-compact/b4-virtual-editor-cancelled.png",
+      "bytes": 181912,
+      "sha256": "3d6c738c105b4a5b83a9a3f184129ba710011720f260268a95e2ff920ed606e5"
+    },
+    {
+      "path": "_run_records/browser/new-01/artifacts/b4-table-editing-B4-node-c-26fd1-y-and-saved-state-ownership-chromium-desktop/trace.zip",
+      "bytes": 2127423,
+      "sha256": "3a4491b1ea3a1ee4b3139ec32c89dc927920196002244e9a8ffb2e711a086692"
+    },
+    {
+      "path": "_run_records/browser/new-01/artifacts/b4-table-editing-B4-node-c-26fd1-y-and-saved-state-ownership-chromium-desktop/error-context.md",
+      "bytes": 7919,
+      "sha256": "d4d2c1a43c69c07eb285366bc736e7596a3f701acd66c3fe1c09a19bea95e577"
+    },
+    {
+      "path": "_run_records/browser/legacy-01/stdout.txt",
+      "bytes": 372,
+      "sha256": "c5bd35f054b7662215cfaf0cbe818206f2bacafff90515eb31fec8a4e0b1068e"
+    },
+    {
+      "path": "_run_records/browser/legacy-01/RESULT.json",
+      "bytes": 1443,
+      "sha256": "1c76b71668c89d3904caba5da483f45731bed0daae295366ac2b658c7b28865b"
+    },
+    {
+      "path": "_run_records/browser/legacy-01/CLEANUP.json",
+      "bytes": 68,
+      "sha256": "70d40094676f59ff9321aa2fd178d77511c8c0307c98b6cfbbd8c4637e824f93"
+    },
+    {
+      "path": "_run_records/browser/legacy-01/RUN.json",
+      "bytes": 1307,
+      "sha256": "566ffe4fbe01b2758ea80054ef3bee3aa14eb76bcca97a443bd038efc65f1919"
+    },
+    {
+      "path": "_run_records/browser/legacy-01/artifacts/.last-run.json",
+      "bytes": 45,
+      "sha256": "e22df5d0991eb28c09093b1e678b3fa8cd1fab48185d38e67cf79fb6e63ad5ea"
+    },
+    {
+      "path": "_run_records/browser/new-02/stdout.txt",
+      "bytes": 1613,
+      "sha256": "66d636f00baa884e199dbc439a331933b1c37223ed068734e0ee91165e55ccc0"
+    },
+    {
+      "path": "_run_records/browser/new-02/RESULT.json",
+      "bytes": 1108,
+      "sha256": "c6ead0d60cae393be433e8285e3bd690b1667feff74887364e484c6b6c67fcb4"
+    },
+    {
+      "path": "_run_records/browser/new-02/CLEANUP.json",
+      "bytes": 68,
+      "sha256": "70d40094676f59ff9321aa2fd178d77511c8c0307c98b6cfbbd8c4637e824f93"
+    },
+    {
+      "path": "_run_records/browser/new-02/RUN.json",
+      "bytes": 972,
+      "sha256": "61f5a55f9874f12bcf0e173389662268be3fba303e6e3e4bcaf2156c0cefe22f"
+    },
+    {
+      "path": "_run_records/browser/new-02/artifacts/.last-run.json",
+      "bytes": 45,
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+    },
+    {
+      "path": "_run_records/browser/new-02/artifacts/b4-table-editing-B4-node-c-26fd1-y-and-saved-state-ownership-chromium-compact/b4-reopened-coordinate.png",
+      "bytes": 140205,
+      "sha256": "61109c798cbc6866c2eed35c9fd45ccfb77cfa7b2aa614490cadc04518a4b232"
+    },
+    {
+      "path": "_run_records/browser/new-02/artifacts/b4-table-editing-B4-virtua-adfb0--without-changing-the-model-chromium-desktop/b4-virtual-editor-cancelled.png",
+      "bytes": 177259,
+      "sha256": "57361d31932f401147174023c6e89abf881cf11a9be45164d4a1bbb0f78e5cff"
+    },
+    {
+      "path": "_run_records/browser/new-02/artifacts/b4-table-editing-B4-virtua-adfb0--without-changing-the-model-chromium-compact/b4-virtual-editor-cancelled.png",
+      "bytes": 152201,
+      "sha256": "1fb671dd2fbc15608849a9b9663e18b8a977458dc7739f66bb99e239c578fa87"
+    },
+    {
+      "path": "_run_records/browser/new-02/artifacts/b4-table-editing-B4-node-c-26fd1-y-and-saved-state-ownership-chromium-desktop/b4-reopened-coordinate.png",
+      "bytes": 155455,
+      "sha256": "87bd37e19a0f65dae596756887f98aa09188340cfa2fb20d1c1db001b5f93bf1"
+    },
+    {
+      "path": "_run_records/worker/GENERATION_FEEDBACK_DIAGNOSIS.md",
+      "bytes": 995,
+      "sha256": "b42ec3bff16fd54721814c2957eea35ffc29e6fdb88f5f467acc2ec20dd90063"
+    },
+    {
+      "path": "_run_records/worker/app-consumer-test-01.txt",
+      "bytes": 37759,
+      "sha256": "7927fc1874416e5c31ca5f8467add5298ca9ed0d205fc276788742ff39370557"
+    },
+    {
+      "path": "_run_records/worker/SOURCE_FREEZE_03.json",
+      "bytes": 4365,
+      "sha256": "a6ae14369cbc0db00dc32192138b523c97ed65751777be7264e192ae183b041b"
+    },
+    {
+      "path": "_run_records/worker/selection-roving-repair-01.txt",
+      "bytes": 282,
+      "sha256": "dfe58510920c1c266f28647439eea7cf0295b41ae442b195f1b0986676c1970c"
+    },
+    {
+      "path": "_run_records/worker/focused-test-03.txt",
+      "bytes": 4031,
+      "sha256": "62087e2e4048e73dd2e99a238d223a128fda3cecba2b952301abb2fff5f11c0c"
+    },
+    {
+      "path": "_run_records/worker/WORKER_RETURN_FREEZE02.md",
+      "bytes": 1387,
+      "sha256": "1b6cfaf0182852acf32017f1f2cc7187adc6ec45c4a45987a8cd2eedc37c7f79"
+    },
+    {
+      "path": "_run_records/worker/focus-repair-test-01.txt",
+      "bytes": 282,
+      "sha256": "d0fc4c16f024f7d9d288e9364e3e3dfaa03cb4e444e4834e78017b540d801c94"
+    },
+    {
+      "path": "_run_records/worker/focused-final-01.txt",
+      "bytes": 153875,
+      "sha256": "d14ec0e451f7ae24d0075629cf6656fee1de74266818d84582c7b85214a5666d"
+    },
+    {
+      "path": "_run_records/worker/focused-test-06.txt",
+      "bytes": 5141,
+      "sha256": "2e94f45cf39a181f1e288d0d19739ba3e3ac9d942005fbf83ca6897357df9d3f"
+    },
+    {
+      "path": "_run_records/worker/SOURCE_FREEZE_02.json",
+      "bytes": 4354,
+      "sha256": "401dac8dc77feb3148c9cc4646bdb244e2fb29ea5ba5ba5db1d97f6715b63cc6"
+    },
+    {
+      "path": "_run_records/worker/WORKER_RETURN_FREEZE03.md",
+      "bytes": 1750,
+      "sha256": "753f848c22fcec36a2816bef65744ac5805a46a796bb081d71ff4b3346d1db01"
+    },
+    {
+      "path": "_run_records/worker/TAB_BOUNDARY_DIAGNOSIS.md",
+      "bytes": 2021,
+      "sha256": "244d5c42ee7ab0977de4a9f10ccb3ce9ba3950b0e0eaf0ad5a67f4def9ee8c52"
+    },
+    {
+      "path": "_run_records/worker/focused-test-04.txt",
+      "bytes": 13267,
+      "sha256": "a4933050d4eb0cbe787b808e63e449508ef4b13782688ef027e9fe1ba80367eb"
+    },
+    {
+      "path": "_run_records/worker/SELECTION_ROVING_DIAGNOSIS.md",
+      "bytes": 1694,
+      "sha256": "a357727b1e79ea05f81b266a5a1e2b3f1b3fd51582574417a18e9a193d83f2a5"
+    },
+    {
+      "path": "_run_records/worker/tab-boundary-repair-01.txt",
+      "bytes": 282,
+      "sha256": "91d7debb73e2bf17fd50a1f66e2a53457b8ff73c6cf1e8e5d9abf82f1aa3aa21"
+    },
+    {
+      "path": "_run_records/worker/focused-test-05.txt",
+      "bytes": 150127,
+      "sha256": "c71f8b4bec41351d30a63cb53c6ac284d328e377c659ea9a8a5338fecf5f285b"
+    },
+    {
+      "path": "_run_records/worker/core-test-02.txt",
+      "bytes": 282,
+      "sha256": "0630feeacc8a59a6dbfef0a8ac55df42d5286fbb407b1d544959a5b7cbf3d624"
+    },
+    {
+      "path": "_run_records/worker/app-consumer-final-command.json",
+      "bytes": 1322,
+      "sha256": "6a6957fe7dd7c6b5d43292e46f7d1a9b38d27fad3722ba2fd984ef8d572495b5"
+    },
+    {
+      "path": "_run_records/worker/typescript-freeze04.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/worker/core-test-01.txt",
+      "bytes": 280,
+      "sha256": "5bc38cf29dcaa8ecf7b5ab3527bed38099ef88e8db3f995fa23cdd7f4de923c1"
+    },
+    {
+      "path": "_run_records/worker/app-consumer-final-01.txt",
+      "bytes": 60235,
+      "sha256": "ce3055b734a8700c9012abee1efd79d476959c9f4626a952fc1d9a01984ecdf7"
+    },
+    {
+      "path": "_run_records/worker/app-consumer-command.json",
+      "bytes": 1196,
+      "sha256": "ba98c6d9b9701ccec3b0442c85c942e3bf2002d4f564a4e2758525ac5498614f"
+    },
+    {
+      "path": "_run_records/worker/ownership-repro-01.txt",
+      "bytes": 26698,
+      "sha256": "c45cd416e54a0fe68bd8b03ce466ea49cd7395ebf89951d8a6885842faba0f83"
+    },
+    {
+      "path": "_run_records/worker/typescript-freeze03.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/worker/FOCUS_DEFECT_DIAGNOSIS.md",
+      "bytes": 1297,
+      "sha256": "76a9e16c6168d98c0d33da5525efbc9383db5f4f7651bc3e507443b35eccc11f"
+    },
+    {
+      "path": "_run_records/worker/typescript-freeze02.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/worker/selection-roving-repro-01.txt",
+      "bytes": 2994,
+      "sha256": "8e76f0af9516bd1222f27a05470b4b75c2f1ac3f1c1e0c77768d5c6307732a06"
+    },
+    {
+      "path": "_run_records/worker/SOURCE_FREEZE_04.json",
+      "bytes": 4440,
+      "sha256": "5d0719aae57de2cc332434d768b4567e86608bc597b792c51f964b9169d8cf7d"
+    },
+    {
+      "path": "_run_records/worker/typescript-01.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/worker/controller-test-01.txt",
+      "bytes": 282,
+      "sha256": "5b39d1880c7b85ca154937ee9c6e916edf5ac6a5a50e1633850a14a22ed660d7"
+    },
+    {
+      "path": "_run_records/worker/ownership-repair-01.txt",
+      "bytes": 282,
+      "sha256": "cd02e595b0a1e977be51e2ab7aa7ec4f08f3f56756e43c0485983b28c789d098"
+    },
+    {
+      "path": "_run_records/worker/typescript-02.txt",
+      "bytes": 105,
+      "sha256": "6cb7bcabdf0c5d62a6ab252a25d089b9e0535eaf4231a9ce70bea6c15e409814"
+    },
+    {
+      "path": "_run_records/worker/typescript-03.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/worker/typescript-final-01.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/worker/typescript-04.txt",
+      "bytes": 539,
+      "sha256": "c5e351d06e655c46dacd96fc5f383f52cd0734c6d9df12c9b6ee7cfa1c9c8077"
+    },
+    {
+      "path": "_run_records/worker/node-version.txt",
+      "bytes": 9,
+      "sha256": "8f9258d5e9da5443c42966a661aee09292b49d1c64e718dcc5f72976500bac48"
+    },
+    {
+      "path": "_run_records/worker/typescript-05.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/worker/generation-feedback-repro-01.txt",
+      "bytes": 1513,
+      "sha256": "38052cf6ac3acaefa05ed11c7a3a6fd903e05b9a826773bb75687955391eb90d"
+    },
+    {
+      "path": "_run_records/worker/app-consumer-parameterized-test-01.txt",
+      "bytes": 22774,
+      "sha256": "bb08887145e78d43dd72554f81dacbfc307a3dceff65d0fa0d828f06204d46e6"
+    },
+    {
+      "path": "_run_records/worker/DESIGN_AND_IMPACT.md",
+      "bytes": 7059,
+      "sha256": "932e164191aa7d2f2bf215176d2456caa317698fbb89a71aea9cf5a917e5c5c8"
+    },
+    {
+      "path": "_run_records/worker/adapter-test-01.txt",
+      "bytes": 279,
+      "sha256": "f0feb0eae379a1e18e5b80fd879c91c592bb9fec994dac813388f6332e28ee92"
+    },
+    {
+      "path": "_run_records/worker/generation-feedback-repair-01.txt",
+      "bytes": 282,
+      "sha256": "f00da2359ba3642e25c2b4379708f7fd5bffe64d52df436bb49704e946477244"
+    },
+    {
+      "path": "_run_records/worker/OWNERSHIP_DEFECT_DIAGNOSIS.md",
+      "bytes": 1362,
+      "sha256": "107966f603a5e29a106b178e5bfdedaa8ab2ed6438691718c20781b5e91edd8a"
+    },
+    {
+      "path": "_run_records/worker/SOURCE_FREEZE_01.json",
+      "bytes": 4041,
+      "sha256": "2d729d921cd8b4a4482b844553674ce83a924731142ae491d933516806f1c4cc"
+    },
+    {
+      "path": "_run_records/worker/WORKER_RETURN_FREEZE04.md",
+      "bytes": 1937,
+      "sha256": "f3c76f086930d20ed83e7d0c42c2837127cf5b85c98c3179b18598bbd7462e2b"
+    },
+    {
+      "path": "_run_records/worker/app-consumer-tests.json",
+      "bytes": 926,
+      "sha256": "d0d5c4dfb413b60d56e54cbef6786e304395469e0332b34c15fa7aa8c0a26c27"
+    },
+    {
+      "path": "_run_records/worker/transitions-test-01.txt",
+      "bytes": 282,
+      "sha256": "865d0f6235f6564396e1a39134dc471fe6972ba4d55d2dc9926facb973447f33"
+    },
+    {
+      "path": "_run_records/worker/INPUT_VERIFICATION.json",
+      "bytes": 6999,
+      "sha256": "058bb904fd447fcef335d7e361c070f1e8bd470e0d4cfdae590b8a4198787127"
+    },
+    {
+      "path": "_run_records/worker/tab-boundary-repro-01.txt",
+      "bytes": 79827,
+      "sha256": "f884705fa06174825711448450bf32e61533066268c4f628df9c0dac5b3fe7be"
+    },
+    {
+      "path": "_run_records/worker/CHECKS.md",
+      "bytes": 2914,
+      "sha256": "fa39ea99b9140014e5707f22e78e384bb95718b4e1e1ff8c9157d9a6390f4ebe"
+    }
+  ]
+}

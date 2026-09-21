@@ -1,0 +1,28 @@
+{
+  "commit": "87faf4b240d1be8b197843cd869b22408e85be3b",
+  "sourceFreeze": "worker/SOURCE_FREEZE_02.json",
+  "sha256": "401dac8dc77feb3148c9cc4646bdb244e2fb29ea5ba5ba5db1d97f6715b63cc6",
+  "scope": [
+    "projects/chirality-piping/apps/desktop/e2e/b3a-session-status.spec.ts",
+    "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+    "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+    "projects/chirality-piping/apps/desktop/src/App.projectHandlers.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/App.tableOperations.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/App.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/ModelTree.table.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/modelTableAdapter.test.ts",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/modelTableAdapter.ts",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/tableState.test.ts",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/tableState.ts",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+    "projects/chirality-piping/apps/desktop/src/styles.css"
+  ],
+  "verification": "147 earlier focused cases; affected 14 core rerun after one-line generation feedback repair; TypeScript pass; browser/native pending"
+}

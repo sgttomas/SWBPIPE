@@ -1,0 +1,728 @@
+
+ RUN  v4.1.10 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/workspace/table/EngineeringTable.test.tsx (13 tests | 2 failed | 11 skipped) 122ms
+     × keeps invalid A when B receives a click then Enter or a printable character 100ms
+     × does not publish deferred navigation selection after external focus and selection win 21ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > keeps invalid A when B receives a click then Enter or a printable character
+TestingLibraryElementError: Unable to find an accessible element with the role "textbox" and name "n:0 X [m]"
+
+Here are the accessible roles:
+
+  textbox:
+
+  Name "Filter":
+  [36m<input[39m
+    [33maria-label[39m=[32m"Filter"[39m
+    [33mvalue[39m=[32m""[39m
+  [36m/>[39m
+
+  Name "n:1 X [m]":
+  [36m<input[39m
+    [33maria-invalid[39m=[32m"false"[39m
+    [33maria-label[39m=[32m"n:1 X [m]"[39m
+    [33mvalue[39m=[32m"1"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  button:
+
+  Name "Outside":
+  [36m<button />[39m
+
+  Name "Sort X":
+  [36m<button[39m
+    [33maria-label[39m=[32m"Sort X"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Sort Y":
+  [36m<button[39m
+    [33maria-label[39m=[32m"Sort Y"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Sort Z":
+  [36m<button[39m
+    [33maria-label[39m=[32m"Sort Z"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "n:0":
+  [36m<button[39m
+    [33mtitle[39m=[32m"n:0"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "n:0 X: 0 m":
+  [36m<button[39m
+    [33maria-label[39m=[32m"n:0 X: 0 m"[39m
+    [33mdata-column-key[39m=[32m"x"[39m
+    [33mdata-row-key[39m=[32m"[\"node\",\"n:0\"]"[39m
+    [33mdata-table-cell[39m=[32m"true"[39m
+    [33mdata-testid[39m=[32m"table-cell-n:0-x"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "n:0 Y: 0 m":
+  [36m<button[39m
+    [33maria-label[39m=[32m"n:0 Y: 0 m"[39m
+    [33mdata-column-key[39m=[32m"y"[39m
+    [33mdata-row-key[39m=[32m"[\"node\",\"n:0\"]"[39m
+    [33mdata-table-cell[39m=[32m"true"[39m
+    [33mdata-testid[39m=[32m"table-cell-n:0-y"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "n:0 Z: 0 m":
+  [36m<button[39m
+    [33maria-label[39m=[32m"n:0 Z: 0 m"[39m
+    [33mdata-column-key[39m=[32m"z"[39m
+    [33mdata-row-key[39m=[32m"[\"node\",\"n:0\"]"[39m
+    [33mdata-table-cell[39m=[32m"true"[39m
+    [33mdata-testid[39m=[32m"table-cell-n:0-z"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "n:1":
+  [36m<button[39m
+    [33mtitle[39m=[32m"n:1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "n:1 Y: 0 m":
+  [36m<button[39m
+    [33maria-label[39m=[32m"n:1 Y: 0 m"[39m
+    [33mdata-column-key[39m=[32m"y"[39m
+    [33mdata-row-key[39m=[32m"[\"node\",\"n:1\"]"[39m
+    [33mdata-table-cell[39m=[32m"true"[39m
+    [33mdata-testid[39m=[32m"table-cell-n:1-y"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "n:1 Z: 0 m":
+  [36m<button[39m
+    [33maria-label[39m=[32m"n:1 Z: 0 m"[39m
+    [33mdata-column-key[39m=[32m"z"[39m
+    [33mdata-row-key[39m=[32m"[\"node\",\"n:1\"]"[39m
+    [33mdata-table-cell[39m=[32m"true"[39m
+    [33mdata-testid[39m=[32m"table-cell-n:1-z"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "n:2":
+  [36m<button[39m
+    [33mtitle[39m=[32m"n:2"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "n:2 X: 2 m":
+  [36m<button[39m
+    [33maria-label[39m=[32m"n:2 X: 2 m"[39m
+    [33mdata-column-key[39m=[32m"x"[39m
+    [33mdata-row-key[39m=[32m"[\"node\",\"n:2\"]"[39m
+    [33mdata-table-cell[39m=[32m"true"[39m
+    [33mdata-testid[39m=[32m"table-cell-n:2-x"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "n:2 Y: 0 m":
+  [36m<button[39m
+    [33maria-label[39m=[32m"n:2 Y: 0 m"[39m
+    [33mdata-column-key[39m=[32m"y"[39m
+    [33mdata-row-key[39m=[32m"[\"node\",\"n:2\"]"[39m
+    [33mdata-table-cell[39m=[32m"true"[39m
+    [33mdata-testid[39m=[32m"table-cell-n:2-y"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "n:2 Z: 0 m":
+  [36m<button[39m
+    [33maria-label[39m=[32m"n:2 Z: 0 m"[39m
+    [33mdata-column-key[39m=[32m"z"[39m
+    [33mdata-row-key[39m=[32m"[\"node\",\"n:2\"]"[39m
+    [33mdata-table-cell[39m=[32m"true"[39m
+    [33mdata-testid[39m=[32m"table-cell-n:2-z"[39m
+    [33mtabindex[39m=[32m"-1"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Apply":
+  [36m<button[39m
+    [33mdata-table-action[39m=[32m"apply"[39m
+    [33mtitle[39m=[32m"Apply (Enter)"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Cancel":
+  [36m<button[39m
+    [33mdata-table-action[39m=[32m"cancel"[39m
+    [33mtitle[39m=[32m"Cancel (Escape)"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  grid:
+
+  Name "Node coordinates":
+  [36m<div[39m
+    [33maria-colcount[39m=[32m"4"[39m
+    [33maria-label[39m=[32m"Node coordinates"[39m
+    [33maria-rowcount[39m=[32m"4"[39m
+    [33mrole[39m=[32m"grid"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  row:
+
+  Name "Node X [m] Y [m] Z [m]":
+  [36m<div[39m
+    [33mclass[39m=[32m"engineering-table-row engineering-table-header"[39m
+    [33mrole[39m=[32m"row"[39m
+    [33mstyle[39m=[32m"grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"[39m
+  [36m/>[39m
+
+  Name "n:0 0 0 0":
+  [36m<div[39m
+    [33maria-rowindex[39m=[32m"2"[39m
+    [33maria-selected[39m=[32m"true"[39m
+    [33mclass[39m=[32m"engineering-table-row selected"[39m
+    [33mrole[39m=[32m"row"[39m
+    [33mstyle[39m=[32m"grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"[39m
+  [36m/>[39m
+
+  Name "n:1 1 0 0":
+  [36m<div[39m
+    [33maria-rowindex[39m=[32m"3"[39m
+    [33maria-selected[39m=[32m"false"[39m
+    [33mclass[39m=[32m"engineering-table-row"[39m
+    [33mrole[39m=[32m"row"[39m
+    [33mstyle[39m=[32m"grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"[39m
+  [36m/>[39m
+
+  Name "n:2 2 0 0":
+  [36m<div[39m
+    [33maria-rowindex[39m=[32m"4"[39m
+    [33maria-selected[39m=[32m"false"[39m
+    [33mclass[39m=[32m"engineering-table-row"[39m
+    [33mrole[39m=[32m"row"[39m
+    [33mstyle[39m=[32m"grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  columnheader:
+
+  Name "Node":
+  [36m<div[39m
+    [33mrole[39m=[32m"columnheader"[39m
+  [36m/>[39m
+
+  Name "X [m]":
+  [36m<div[39m
+    [33maria-sort[39m=[32m"none"[39m
+    [33mrole[39m=[32m"columnheader"[39m
+  [36m/>[39m
+
+  Name "Y [m]":
+  [36m<div[39m
+    [33maria-sort[39m=[32m"none"[39m
+    [33mrole[39m=[32m"columnheader"[39m
+  [36m/>[39m
+
+  Name "Z [m]":
+  [36m<div[39m
+    [33maria-sort[39m=[32m"none"[39m
+    [33mrole[39m=[32m"columnheader"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  rowgroup:
+
+  Name "":
+  [36m<div[39m
+    [33mdata-testid[39m=[32m"engineering-table-rows"[39m
+    [33mrole[39m=[32m"rowgroup"[39m
+    [33mstyle[39m=[32m"height: 360px; overflow-y: hidden;"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  rowheader:
+
+  Name "n:0":
+  [36m<div[39m
+    [33mrole[39m=[32m"rowheader"[39m
+  [36m/>[39m
+
+  Name "n:1":
+  [36m<div[39m
+    [33mrole[39m=[32m"rowheader"[39m
+  [36m/>[39m
+
+  Name "n:2":
+  [36m<div[39m
+    [33mrole[39m=[32m"rowheader"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  gridcell:
+
+  Name "0":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"false"[39m
+    [33mclass[39m=[32m"engineering-table-cell"[39m
+    [33mrole[39m=[32m"gridcell"[39m
+  [36m/>[39m
+
+  Name "0":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"false"[39m
+    [33mclass[39m=[32m"engineering-table-cell"[39m
+    [33mrole[39m=[32m"gridcell"[39m
+  [36m/>[39m
+
+  Name "0":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"false"[39m
+    [33mclass[39m=[32m"engineering-table-cell"[39m
+    [33mrole[39m=[32m"gridcell"[39m
+  [36m/>[39m
+
+  Name "1":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"true"[39m
+    [33mclass[39m=[32m"engineering-table-cell editing"[39m
+    [33mrole[39m=[32m"gridcell"[39m
+  [36m/>[39m
+
+  Name "0":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"false"[39m
+    [33mclass[39m=[32m"engineering-table-cell"[39m
+    [33mrole[39m=[32m"gridcell"[39m
+  [36m/>[39m
+
+  Name "0":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"false"[39m
+    [33mclass[39m=[32m"engineering-table-cell"[39m
+    [33mrole[39m=[32m"gridcell"[39m
+  [36m/>[39m
+
+  Name "2":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"false"[39m
+    [33mclass[39m=[32m"engineering-table-cell"[39m
+    [33mrole[39m=[32m"gridcell"[39m
+  [36m/>[39m
+
+  Name "0":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"false"[39m
+    [33mclass[39m=[32m"engineering-table-cell"[39m
+    [33mrole[39m=[32m"gridcell"[39m
+  [36m/>[39m
+
+  Name "0":
+  [36m<div[39m
+    [33maria-selected[39m=[32m"false"[39m
+    [33mclass[39m=[32m"engineering-table-cell"[39m
+    [33mrole[39m=[32m"gridcell"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<input[39m
+      [33maria-label[39m=[32m"Filter"[39m
+      [33mvalue[39m=[32m""[39m
+    [36m/>[39m
+    [36m<button>[39m
+      [0mOutside[0m
+    [36m</button>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"engineering-table"[39m
+      [33mdata-testid[39m=[32m"engineering-table"[39m
+      [33mtabindex[39m=[32m"-1"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33maria-colcount[39m=[32m"4"[39m
+        [33maria-label[39m=[32m"Node coordinates"[39m
+        [33maria-rowcount[39m=[32m"4"[39m
+        [33mrole[39m=[32m"grid"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"engineering-table-row engineering-table-header"[39m
+          [33mrole[39m=[32m"row"[39m
+          [33mstyle[39m=[32m"grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mrole[39m=[32m"columnheader"[39m
+          [36m>[39m
+            [0mNode[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33maria-sort[39m=[32m"none"[39m
+            [33mrole[39m=[32m"columnheader"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Sort X"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mX[0m
+              [0m [[0m
+              [0mm[0m
+              [0m] [0m
+              [36m<span[39m
+                [33maria-hidden[39m=[32m"true"[39m
+              [36m>[39m
+                [0m↕[0m
+              [36m</span>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33maria-sort[39m=[32m"none"[39m
+            [33mrole[39m=[32m"columnheader"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Sort Y"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mY[0m
+              [0m [[0m
+              [0mm[0m
+              [0m] [0m
+              [36m<span[39m
+                [33maria-hidden[39m=[32m"true"[39m
+              [36m>[39m
+                [0m↕[0m
+              [36m</span>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33maria-sort[39m=[32m"none"[39m
+            [33mrole[39m=[32m"columnheader"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Sort Z"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mZ[0m
+              [0m [[0m
+              [0mm[0m
+              [0m] [0m
+              [36m<span[39m
+                [33maria-hidden[39m=[32m"true"[39m
+              [36m>[39m
+                [0m↕[0m
+              [36m</span>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mdata-testid[39m=[32m"engineering-table-rows"[39m
+          [33mrole[39m=[32m"rowgroup"[39m
+          [33mstyle[39m=[32m"height: 360px; overflow-y: hidden;"[39m
+        [36m>[39m
+          [36m<div>[39m
+            [36m<div[39m
+              [33mdata-virtual-index[39m=[32m"0"[39m
+              [33mstyle[39m=[32m"box-sizing: border-box; height: 36px; overflow: hidden;"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33maria-rowindex[39m=[32m"2"[39m
+                [33maria-selected[39m=[32m"true"[39m
+                [33mclass[39m=[32m"engineering-table-row selected"[39m
+                [33mrole[39m=[32m"row"[39m
+                [33mstyle[39m=[32m"grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mrole[39m=[32m"rowheader"[39m
+                [36m>[39m
+                  [36m<button[39m
+                    [33mtitle[39m=[32m"n:0"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [0mn:0[0m
+                  [36m</button>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33maria-selected[39m=[32m"false"[39m
+                  [33mclass[39m=[32m"engineering-table-cell"[39m
+                  [33mrole[39m=[32m"gridcell"[39m
+                [36m>[39m
+                  [36m<button[39m
+                    [33maria-label[39m=[32m"n:0 X: 0 m"[39m
+                    [33mdata-column-key[39m=[32m"x"[39m
+                    [33mdata-row-key[39m=[32m"[\"node\",\"n:0\"]"[39m
+                    [33mdata-table-cell[39m=[32m"true"[39m
+                    [33mdata-testid[39m=[32m"table-cell-n:0-x"[39m
+                    [33mtabindex[39m=[32m"-1"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [0m0[0m
+                  [36m</button>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33maria-selected[39m=[32m"false"[39m
+                  [33mclass[39m=[32m"engineering-table-cell"[39m
+                  [33mrole[39m=[32m"gridcell"[39m
+                [36m>[39m
+                  [36m<button[39m
+                    [33maria-label[39m=[32m"n:0 Y: 0 m"[39m
+                    [33mdata-column-key[39m=[32m"y"[39m
+                    [33mdata-row-key[39m=[32m"[\"node\",\"n:0\"]"[39m
+                    [33mdata-table-cell[39m=[32m"true"[39m
+                    [33mdata-testid[39m=[32m"table-cell-n:0-y"[39m
+                    [33mtabindex[39m=[32m"-1"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [0m0[0m
+                  [36m</button>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33maria-selected[39m=[32m"false"[39m
+                  [33mclass[39m=[32m"engineering-table-cell"[39m
+                  [33mrole[39m=[32m"gridcell"[39m
+                [36m>[39m
+                  [36m<button[39m
+                    [33maria-label[39m=[32m"n:0 Z: 0 m"[39m
+                    [33mdata-column-key[39m=[32m"z"[39m
+                    [33mdata-row-key[39m=[32m"[\"node\",\"n:0\"]"[39m
+                    [33mdata-table-cell[39m=[32m"true"[39m
+                    [33mdata-testid[39m=[32m"table-cell-n:0-z"[39m
+                    [33mtabindex[39m=[32m"-1"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [0m0[0m
+                  [36m</button>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mdata-virtual-index[39m=[32m"1"[39m
+              [33mstyle[39m=[32m"box-sizing: border-box; height: 36px; overflow: hidden;"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33maria-rowindex[39m=[32m"3"[39m
+                [33maria-selected[39m=[32m"false"[39m
+                [33mclass[39m=[32m"engineering-table-row"[39m
+                [33mrole[39m=[32m"row"[39m
+                [33mstyle[39m=[32m"grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mrole[39m=[32m"rowheader"[39m
+                [36m>[39m
+                  [36m<button[39m
+                    [33mtitle[39m=[32m"n:1"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [0mn:1[0m
+                  [36m</button>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33maria-selected[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"engineering-table-cell editing"[39m
+                  [33mrole[39m=[32m"gridcell"[39m
+                [36m>[39m
+                  [36m<input[39m
+                    [33maria-invalid[39m=[32m"false"[39m
+                    [33maria-label[39m=[32m"n:1 X [m]"[39m
+                    [33mvalue[39m=[32m"1"[39m
+                  [36m/>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33maria-selected[39m=[32m"false"[39m
+                  [33mclass[39m=[32m"engineering-table-cell"[39m
+                  [33mrole[39m=[32m"gridcell"[39m
+                [36m>[39m
+                  [36m<button[39m
+                    [33maria-label[39m=[32m"n:1 Y: 0 m"[39m
+                    [33mdata-column-key[39m=[32m"y"[39m
+                    [33mdata-row-key[39m=[32m"[\"node\",\"n:1\"]"[39m
+                    [33mdata-table-cell[39m=[32m"true"[39m
+                    [33mdata-testid[39m=[32m"table-cell-n:1-y"[39m
+                    [33mtabindex[39m=[32m"-1"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [0m0[0m
+                  [36m</button>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33maria-selected[39m=[32m"false"[39m
+                  [33mclass[39m=[32m"engineering-table-cell"[39m
+                  [33mrole[39m=[32m"gridcell"[39m
+                [36m>[39m
+                  [36m<button[39m
+                    [33maria-label[39m=[32m"n:1 Z: 0 m"[39m
+                    [33mdata-column-key[39m=[32m"z"[39m
+                    [33mdata-row-key[39m=[32m"[\"node\",\"n:1\"]"[39m
+                    [33mdata-table-cell[39m=[32m"true"[39m
+                    [33mdata-testid[39m=[32m"table-cell-n:1-z"[39m
+                    [33mtabindex[39m=[32m"-1"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [0m0[0m
+                  [36m</button>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mdata-virtual-index[39m=[32m"2"[39m
+              [33mstyle[39m=[32m"box-sizing: border-box; height: 36px; overflow: hidden;"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33maria-rowindex[39m=[32m"4"[39m
+                [33maria-selected[39m=[32m"false"[39m
+                [33mclass[39m=[32m"engineering-table-row"[39m
+                [33mrole[39m=[32m"row"[39m
+                [33mstyle[39m=[32m"grid-template-columns: minmax(130px, 1.4fr) repeat(3, minmax(90px, 1fr));"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mrole[39m=[32m"rowheader"[39m
+                [36m>[39m
+                  [36m<button[39m
+                    [33mtitle[39m=[32m"n:2"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [0mn:2[0m
+                  [36m</button>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33maria-selected[39m=[32m"false"[39m
+                  [33mclass[39m=[32m"engineering-table-cell"[39m
+                  [33mrole[39m=[32m"gridcell"[39m
+                [36m>[39m
+                  [36m<button[39m
+                    [33maria-label[39m=[32m"n:2 X: 2 m"[39m
+                    [33mdata-column-key[39m=[32m"x"[39m
+                    [33mdata-row-key[39m=[32m"[\"node\",\"n:2\"]"[39m
+                    [33mdata-table-cell[39m=[32m"true"[39m
+                    [33mdata-testid[39m=[32m"table-cell-n:2-x"[39m
+                    [33mtabindex[39m=[32m"-1"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [0m2[0m
+                  [36m</button>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33maria-selected[39m=[32m"false"[39m
+                  [33mclass[39m=[32m"engineering-table-cell"[39m
+                  [33mrole[39m=[32m"gridcell"[39m
+                [36m>[39m
+                  [36m<button[39m
+                    [33maria-label[39m=[32m"n:2 Y: 0 m"[39m
+                    [33mdata-column-key[39m=[32m"y"[39m
+                    [33mdata-row-key[39m=[32m"[\"node\",\"n:2\"]"[39m
+                    [33mdata-table-cell[39m=[32m"true"[39m
+                    [33mdata-testid[39m=[32m"table-cell-n:2-y"[39m
+                    [33mtabindex[39m=[32m"-1"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [0m0[0m
+                  [36m</button>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33maria-selected[39m=[32m"false"[39m
+                  [33mclass[39m=[32m"engineering-table-cell"[39m
+                  [33mrole[39m=[32m"gridcell"[39m
+                [36m>[39m
+                  [36m<button[39m
+                    [33maria-label[39m=[32m"n:2 Z: 0 m"[39m
+                    [33mdata-column-key[39m=[32m"z"[39m
+                    [33mdata-row-key[39m=[32m"[\"node\",\"n:2\"]"[39m
+                    [33mdata-table-cell[39m=[32m"true"[39m
+                    [33mdata-testid[39m=[32m"table-cell-n:2-z"[39m
+                    [33mtabindex[39m=[32m"-1"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [0m0[0m
+                  [36m</button>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"engineering-table-footer"[39m
+      [36m>[39m
+        [36m<span>[39m
+          [0mEditing [0m
+          [0mX[0m
+          [0m · [0m
+          [0mn:1[0m
+        [36m</span>[39m
+        [36m<button[39m
+          [33mdata-table-action[39m=[32m"apply"[39m
+          [33mtitle[39m=[32m"Apply (Enter)"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0mApply[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33mdata-table-action[39m=[32m"cancel"[39m
+          [33mtitle[39m=[32m"Cancel (Escape)"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0mCancel[0m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError ../../node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/features/workspace/table/EngineeringTable.test.tsx:121:19
+    119|     render(<Harness />); const input = edit(); fireEvent.change(input,…
+    120|     fireEvent.click(cell(1)); fireEvent.keyDown(cell(1), { key: "Enter…
+    121|     expect(screen.getByRole("textbox", { name: "n:0 X [m]" })).toHaveV…
+       |                   ^
+    122|     fireEvent.keyDown(cell(1), { key: "8" }); expect(screen.getByRole(…
+    123|     expect(screen.queryByRole("textbox", { name: "n:1 X [m]" })).not.t…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > does not publish deferred navigation selection after external focus and selection win
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      "["node","n:1"]",
+    ]
+
+
+Number of calls: 1
+
+ ❯ src/features/workspace/table/EngineeringTable.test.tsx:134:55
+    132|     const outside = screen.getByRole("button", { name: "External C" })…
+    133|     await act(async () => complete({ applied: true, messages: [] }));
+    134|     expect(outside).toHaveFocus(); expect(select).not.toHaveBeenCalled…
+       |                                                       ^
+    135|   });
+    136|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 11 skipped (13)
+   Start at  16:36:53
+   Duration  511ms (transform 68ms, setup 62ms, import 69ms, tests 122ms, environment 177ms)
+

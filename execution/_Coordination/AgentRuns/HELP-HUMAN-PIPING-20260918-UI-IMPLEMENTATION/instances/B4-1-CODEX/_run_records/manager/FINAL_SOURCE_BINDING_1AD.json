@@ -1,0 +1,8 @@
+{
+  "at": "2026-09-21T00:04:33.791184+00:00",
+  "source": "1ad964e30b08bed57bba8f08e3a75e8c883c8b0b",
+  "freeze07Sha256": "bdcbafa9eafe7479d5ea507994ff87d18b6e0b17c2c8f3ddcc622c682346de43",
+  "all20MaintainedHashesMatch": true,
+  "maintainedWorkingTreeAndIndexClean": true,
+  "nativePointerGate": "qualified/pending ROOT method/own-look; no fit PASS"
+}

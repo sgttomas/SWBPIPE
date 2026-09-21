@@ -1,0 +1,6 @@
+{
+  "fixture": "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fixtures/ui-foundation-1000.model.json",
+  "sha256": "40f3d66e4f69fde028d8105e3bfd0f6148217343ebd3a72f71c71bf9c75e8a70",
+  "actualNodeCount": 1001,
+  "clarification": "Historical planning shorthand said 1000-node fixture. The unchanged file named ui-foundation-1000.model.json actually contains1001 nodes; screenshots and tests use actual contents. No fixture or oracle change."
+}

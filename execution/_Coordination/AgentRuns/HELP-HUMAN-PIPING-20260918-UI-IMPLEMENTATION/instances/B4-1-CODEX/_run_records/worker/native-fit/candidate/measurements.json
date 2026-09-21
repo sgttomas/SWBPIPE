@@ -1,0 +1,755 @@
+{
+  "temporaryStyles": ".entity-grid{grid-template-columns:minmax(0,1fr)}.engineering-table [role=\"rowgroup\"]{min-width:420px}",
+  "executable": "/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+  "version": "148.0.7778.96",
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
+  "before": {
+    "ancestors": [
+      {
+        "tag": "DIV",
+        "cls": "",
+        "role": "grid",
+        "clientWidth": 324,
+        "scrollWidth": 420,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 68,
+          "y": 369.1875,
+          "width": 324,
+          "height": 393
+        },
+        "display": "block",
+        "minWidth": "0px",
+        "width": "324px",
+        "overflowX": "auto",
+        "columns": "none"
+      },
+      {
+        "tag": "DIV",
+        "cls": "engineering-table",
+        "role": null,
+        "clientWidth": 324,
+        "scrollWidth": 324,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 68,
+          "y": 369.1875,
+          "width": 324,
+          "height": 425
+        },
+        "display": "block",
+        "minWidth": "0px",
+        "width": "324px",
+        "overflowX": "visible",
+        "columns": "none"
+      },
+      {
+        "tag": "DIV",
+        "cls": "",
+        "role": null,
+        "clientWidth": 324,
+        "scrollWidth": 324,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 68,
+          "y": 369.1875,
+          "width": 324,
+          "height": 425
+        },
+        "display": "block",
+        "minWidth": "auto",
+        "width": "324px",
+        "overflowX": "visible",
+        "columns": "none"
+      },
+      {
+        "tag": "SECTION",
+        "cls": "entity-grid",
+        "role": null,
+        "clientWidth": 324,
+        "scrollWidth": 324,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 68,
+          "y": 251.1875,
+          "width": 324,
+          "height": 580.796875
+        },
+        "display": "grid",
+        "minWidth": "0px",
+        "width": "324px",
+        "overflowX": "visible",
+        "columns": "324px"
+      },
+      {
+        "tag": "DIV",
+        "cls": "",
+        "role": null,
+        "clientWidth": 324,
+        "scrollWidth": 324,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 68,
+          "y": 251.1875,
+          "width": 324,
+          "height": 580.796875
+        },
+        "display": "block",
+        "minWidth": "auto",
+        "width": "324px",
+        "overflowX": "visible",
+        "columns": "none"
+      },
+      {
+        "tag": "DIV",
+        "cls": "panel model-tree",
+        "role": null,
+        "clientWidth": 348,
+        "scrollWidth": 348,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 56,
+          "y": 109,
+          "width": 348,
+          "height": 734.984375
+        },
+        "display": "flex",
+        "minWidth": "0px",
+        "width": "348px",
+        "overflowX": "auto",
+        "columns": "none"
+      },
+      {
+        "tag": "DIV",
+        "cls": "shell-tree-host",
+        "role": null,
+        "clientWidth": 348,
+        "scrollWidth": 348,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 56,
+          "y": 109,
+          "width": 348,
+          "height": 667
+        },
+        "display": "block",
+        "minWidth": "auto",
+        "width": "348px",
+        "overflowX": "auto",
+        "columns": "none"
+      },
+      {
+        "tag": "DIV",
+        "cls": "shell-table-body",
+        "role": null,
+        "clientWidth": 348,
+        "scrollWidth": 348,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 56,
+          "y": 109,
+          "width": 348,
+          "height": 667
+        },
+        "display": "flex",
+        "minWidth": "auto",
+        "width": "348px",
+        "overflowX": "visible",
+        "columns": "none"
+      },
+      {
+        "tag": "DIV",
+        "cls": "workspace-pane workspace-pane-tree shell-table-pane",
+        "role": null,
+        "clientWidth": 348,
+        "scrollWidth": 348,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 56,
+          "y": 81,
+          "width": 349,
+          "height": 695
+        },
+        "display": "flex",
+        "minWidth": "0px",
+        "width": "349px",
+        "overflowX": "hidden",
+        "columns": "none"
+      },
+      {
+        "tag": "SECTION",
+        "cls": "modeling-workspace shell-surfaces",
+        "role": null,
+        "clientWidth": 1180,
+        "scrollWidth": 1180,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 56,
+          "y": 81,
+          "width": 1180,
+          "height": 695
+        },
+        "display": "grid",
+        "minWidth": "0px",
+        "width": "1180px",
+        "overflowX": "visible",
+        "columns": "349px 531px 300px"
+      },
+      {
+        "tag": "DIV",
+        "cls": "workspace shell-surfaces-frame",
+        "role": null,
+        "clientWidth": 1180,
+        "scrollWidth": 1180,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 56,
+          "y": 81,
+          "width": 1180,
+          "height": 695
+        },
+        "display": "block",
+        "minWidth": "0px",
+        "width": "1180px",
+        "overflowX": "hidden",
+        "columns": "none"
+      },
+      {
+        "tag": "DIV",
+        "cls": "shell-body",
+        "role": null,
+        "clientWidth": 1280,
+        "scrollWidth": 1280,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 0,
+          "y": 81,
+          "width": 1280,
+          "height": 695
+        },
+        "display": "grid",
+        "minWidth": "auto",
+        "width": "1280px",
+        "overflowX": "visible",
+        "columns": "56px 1180px 44px"
+      },
+      {
+        "tag": "MAIN",
+        "cls": "app-shell",
+        "role": null,
+        "clientWidth": 1280,
+        "scrollWidth": 1280,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "display": "flex",
+        "minWidth": "0px",
+        "width": "1280px",
+        "overflowX": "hidden",
+        "columns": "none"
+      },
+      {
+        "tag": "DIV",
+        "cls": "",
+        "role": null,
+        "clientWidth": 1280,
+        "scrollWidth": 1280,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "display": "block",
+        "minWidth": "0px",
+        "width": "1280px",
+        "overflowX": "visible",
+        "columns": "none"
+      },
+      {
+        "tag": "BODY",
+        "cls": "",
+        "role": null,
+        "clientWidth": 1280,
+        "scrollWidth": 1280,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "display": "block",
+        "minWidth": "760px",
+        "width": "1280px",
+        "overflowX": "visible",
+        "columns": "none"
+      },
+      {
+        "tag": "HTML",
+        "cls": "",
+        "role": null,
+        "clientWidth": 1280,
+        "scrollWidth": 1280,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "display": "block",
+        "minWidth": "0px",
+        "width": "1280px",
+        "overflowX": "visible",
+        "columns": "none"
+      }
+    ],
+    "named": {
+      "header": {
+        "clientWidth": 420,
+        "scrollWidth": 420,
+        "scrollLeft": 0,
+        "x": 68,
+        "y": 369.1875,
+        "width": 420,
+        "height": 33
+      },
+      "rows": {
+        "clientWidth": 420,
+        "scrollWidth": 420,
+        "scrollLeft": 0,
+        "x": 68,
+        "y": 402.1875,
+        "width": 420,
+        "height": 360
+      },
+      "row": {
+        "clientWidth": 420,
+        "scrollWidth": 420,
+        "scrollLeft": 0,
+        "x": 68,
+        "y": 402.1875,
+        "width": 420,
+        "height": 36
+      },
+      "filter": {
+        "clientWidth": 192,
+        "scrollWidth": 192,
+        "scrollLeft": 0,
+        "x": 157.953125,
+        "y": 187.796875,
+        "width": 194.046875,
+        "height": 32
+      },
+      "tabs": {
+        "clientWidth": 324,
+        "scrollWidth": 324,
+        "scrollLeft": 0,
+        "x": 68,
+        "y": 251.1875,
+        "width": 324,
+        "height": 110
+      },
+      "footer": {
+        "clientWidth": 324,
+        "scrollWidth": 324,
+        "scrollLeft": 0,
+        "x": 68,
+        "y": 762.1875,
+        "width": 324,
+        "height": 32
+      },
+      "z": {
+        "clientWidth": 94,
+        "scrollWidth": 94,
+        "scrollLeft": 0,
+        "x": 392.53125,
+        "y": 402.1875,
+        "width": 94.453125,
+        "height": 35
+      }
+    }
+  },
+  "after": {
+    "ancestors": [
+      {
+        "tag": "DIV",
+        "cls": "",
+        "role": "grid",
+        "clientWidth": 324,
+        "scrollWidth": 420,
+        "scrollLeft": 96,
+        "rect": {
+          "x": 68,
+          "y": 369.1875,
+          "width": 324,
+          "height": 393
+        },
+        "display": "block",
+        "minWidth": "0px",
+        "width": "324px",
+        "overflowX": "auto",
+        "columns": "none"
+      },
+      {
+        "tag": "DIV",
+        "cls": "engineering-table",
+        "role": null,
+        "clientWidth": 324,
+        "scrollWidth": 324,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 68,
+          "y": 369.1875,
+          "width": 324,
+          "height": 425
+        },
+        "display": "block",
+        "minWidth": "0px",
+        "width": "324px",
+        "overflowX": "visible",
+        "columns": "none"
+      },
+      {
+        "tag": "DIV",
+        "cls": "",
+        "role": null,
+        "clientWidth": 324,
+        "scrollWidth": 324,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 68,
+          "y": 369.1875,
+          "width": 324,
+          "height": 425
+        },
+        "display": "block",
+        "minWidth": "auto",
+        "width": "324px",
+        "overflowX": "visible",
+        "columns": "none"
+      },
+      {
+        "tag": "SECTION",
+        "cls": "entity-grid",
+        "role": null,
+        "clientWidth": 324,
+        "scrollWidth": 324,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 68,
+          "y": 251.1875,
+          "width": 324,
+          "height": 580.796875
+        },
+        "display": "grid",
+        "minWidth": "0px",
+        "width": "324px",
+        "overflowX": "visible",
+        "columns": "324px"
+      },
+      {
+        "tag": "DIV",
+        "cls": "",
+        "role": null,
+        "clientWidth": 324,
+        "scrollWidth": 324,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 68,
+          "y": 251.1875,
+          "width": 324,
+          "height": 580.796875
+        },
+        "display": "block",
+        "minWidth": "auto",
+        "width": "324px",
+        "overflowX": "visible",
+        "columns": "none"
+      },
+      {
+        "tag": "DIV",
+        "cls": "panel model-tree",
+        "role": null,
+        "clientWidth": 348,
+        "scrollWidth": 348,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 56,
+          "y": 109,
+          "width": 348,
+          "height": 734.984375
+        },
+        "display": "flex",
+        "minWidth": "0px",
+        "width": "348px",
+        "overflowX": "auto",
+        "columns": "none"
+      },
+      {
+        "tag": "DIV",
+        "cls": "shell-tree-host",
+        "role": null,
+        "clientWidth": 348,
+        "scrollWidth": 348,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 56,
+          "y": 109,
+          "width": 348,
+          "height": 667
+        },
+        "display": "block",
+        "minWidth": "auto",
+        "width": "348px",
+        "overflowX": "auto",
+        "columns": "none"
+      },
+      {
+        "tag": "DIV",
+        "cls": "shell-table-body",
+        "role": null,
+        "clientWidth": 348,
+        "scrollWidth": 348,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 56,
+          "y": 109,
+          "width": 348,
+          "height": 667
+        },
+        "display": "flex",
+        "minWidth": "auto",
+        "width": "348px",
+        "overflowX": "visible",
+        "columns": "none"
+      },
+      {
+        "tag": "DIV",
+        "cls": "workspace-pane workspace-pane-tree shell-table-pane",
+        "role": null,
+        "clientWidth": 348,
+        "scrollWidth": 348,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 56,
+          "y": 81,
+          "width": 349,
+          "height": 695
+        },
+        "display": "flex",
+        "minWidth": "0px",
+        "width": "349px",
+        "overflowX": "hidden",
+        "columns": "none"
+      },
+      {
+        "tag": "SECTION",
+        "cls": "modeling-workspace shell-surfaces",
+        "role": null,
+        "clientWidth": 1180,
+        "scrollWidth": 1180,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 56,
+          "y": 81,
+          "width": 1180,
+          "height": 695
+        },
+        "display": "grid",
+        "minWidth": "0px",
+        "width": "1180px",
+        "overflowX": "visible",
+        "columns": "349px 531px 300px"
+      },
+      {
+        "tag": "DIV",
+        "cls": "workspace shell-surfaces-frame",
+        "role": null,
+        "clientWidth": 1180,
+        "scrollWidth": 1180,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 56,
+          "y": 81,
+          "width": 1180,
+          "height": 695
+        },
+        "display": "block",
+        "minWidth": "0px",
+        "width": "1180px",
+        "overflowX": "hidden",
+        "columns": "none"
+      },
+      {
+        "tag": "DIV",
+        "cls": "shell-body",
+        "role": null,
+        "clientWidth": 1280,
+        "scrollWidth": 1280,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 0,
+          "y": 81,
+          "width": 1280,
+          "height": 695
+        },
+        "display": "grid",
+        "minWidth": "auto",
+        "width": "1280px",
+        "overflowX": "visible",
+        "columns": "56px 1180px 44px"
+      },
+      {
+        "tag": "MAIN",
+        "cls": "app-shell",
+        "role": null,
+        "clientWidth": 1280,
+        "scrollWidth": 1280,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "display": "flex",
+        "minWidth": "0px",
+        "width": "1280px",
+        "overflowX": "hidden",
+        "columns": "none"
+      },
+      {
+        "tag": "DIV",
+        "cls": "",
+        "role": null,
+        "clientWidth": 1280,
+        "scrollWidth": 1280,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "display": "block",
+        "minWidth": "0px",
+        "width": "1280px",
+        "overflowX": "visible",
+        "columns": "none"
+      },
+      {
+        "tag": "BODY",
+        "cls": "",
+        "role": null,
+        "clientWidth": 1280,
+        "scrollWidth": 1280,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "display": "block",
+        "minWidth": "760px",
+        "width": "1280px",
+        "overflowX": "visible",
+        "columns": "none"
+      },
+      {
+        "tag": "HTML",
+        "cls": "",
+        "role": null,
+        "clientWidth": 1280,
+        "scrollWidth": 1280,
+        "scrollLeft": 0,
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 800
+        },
+        "display": "block",
+        "minWidth": "0px",
+        "width": "1280px",
+        "overflowX": "visible",
+        "columns": "none"
+      }
+    ],
+    "named": {
+      "header": {
+        "clientWidth": 420,
+        "scrollWidth": 420,
+        "scrollLeft": 0,
+        "x": -28,
+        "y": 369.1875,
+        "width": 420,
+        "height": 33
+      },
+      "rows": {
+        "clientWidth": 420,
+        "scrollWidth": 420,
+        "scrollLeft": 0,
+        "x": -28,
+        "y": 402.1875,
+        "width": 420,
+        "height": 360
+      },
+      "row": {
+        "clientWidth": 420,
+        "scrollWidth": 420,
+        "scrollLeft": 0,
+        "x": -28,
+        "y": 402.1875,
+        "width": 420,
+        "height": 36
+      },
+      "filter": {
+        "clientWidth": 192,
+        "scrollWidth": 192,
+        "scrollLeft": 0,
+        "x": 157.953125,
+        "y": 187.796875,
+        "width": 194.046875,
+        "height": 32
+      },
+      "tabs": {
+        "clientWidth": 324,
+        "scrollWidth": 324,
+        "scrollLeft": 0,
+        "x": 68,
+        "y": 251.1875,
+        "width": 324,
+        "height": 110
+      },
+      "footer": {
+        "clientWidth": 324,
+        "scrollWidth": 324,
+        "scrollLeft": 0,
+        "x": 68,
+        "y": 762.1875,
+        "width": 324,
+        "height": 32
+      },
+      "z": {
+        "clientWidth": 94,
+        "scrollWidth": 94,
+        "scrollLeft": 0,
+        "x": 296.53125,
+        "y": 402.1875,
+        "width": 94.453125,
+        "height": 35
+      }
+    }
+  }
+}

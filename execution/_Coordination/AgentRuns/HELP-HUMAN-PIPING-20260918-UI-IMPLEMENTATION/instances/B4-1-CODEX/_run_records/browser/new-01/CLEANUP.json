@@ -1,0 +1,7 @@
+{
+  "checkedAt": 1789944529.2872,
+  "listenersExit": 1,
+  "listeners": "",
+  "lockPresent": false,
+  "processNote": "Playwright runner exited; no listening source/dist test server or shared lock."
+}
