@@ -138,3 +138,15 @@ taxonomy per DEC-081).
 
 - 2026-09-21 — R0 opened. Evidence checkout created; gate evidence copied and
   verified; claim keys issued.
+- 2026-09-21 — R0 calibration complete: 8 ledgers and the pilot inventory
+  returned and verified; fresh review verdict READY WITH NAMED AMENDMENTS.
+- 2026-09-21 — Owner ruled R0 (`R0_CALIBRATION/R0_RULING.md`): amendment set
+  adopted; A3a adopted; DEC-101 does not reach deliverable SOWs (rename residue
+  is a finding); ISSUED overtaken-by-ruling text is one lifecycle-reassessment
+  group. Bound conventions `CONVENTIONS.md`; claim keys re-issued by extractor
+  v2 as `CLAIM_KEYS_V2.csv` (12,854 units, 7,257 required); canonical table
+  `CANONICAL_SITUATIONS.md` with 811 mechanical assignments; `EVIDENCE_MAP.csv`
+  (72 parity records, 5 matching the frozen SOW); validator v2.
+- 2026-09-21 — Disclosed Agent 0 departure: `.rNN` table-row keys are optional
+  (all-or-none per block) rather than mandatory rows; see `RUN_STATE.jsonl`
+  `DISCLOSED_DEPARTURE` for reason and reversal.

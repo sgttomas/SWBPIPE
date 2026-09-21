@@ -81,11 +81,12 @@
   },
   "R0": {
    "title": "Freeze basis, run tooling, gate transcript, 8-deliverable calibration, candidate conventions",
-   "status": "active: evidence checkout, gate evidence, claim keys, candidate conventions, validator, briefs ready; dispatching 8 calibration workers + 1 pilot inventory",
+   "status": "calibration complete; owner ruled R0; bound conventions, extractor v2, canonical table, evidence map, validator v2 built; R0 PR review pending",
    "dependsOn": [
     "ACT merged to main"
    ],
-   "evidence": "execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/"
+   "evidence": "execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/",
+   "ruling": "RECON_2026-09-21_WHOLE_CORPUS/R0_CALIBRATION/R0_RULING.md"
   },
   "R1": {
    "title": "Read-only inventories incl. owner-free reverse capability inventory",
@@ -133,7 +134,7 @@
    "ACT-REVIEW"
   ]
  ],
- "current_frontier": "R0 calibration dispatch.",
+ "current_frontier": "R0 PR: independent review, checks, merge. Then R1 whole inventory.",
  "openWithOwner": [],
  "holdsPreserved": [
   "Piping development pause (owner, 2026-09-21)",
