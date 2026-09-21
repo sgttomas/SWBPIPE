@@ -635,7 +635,7 @@
       "role": "slice",
       "lane": "B-SHELL",
       "title": "the table component through the one operation route",
-      "status": "B4.1/B4.2 merged; Materials and related Node-review repair have scoped source/native passes and await combined publication gates; full B4/fit remains open",
+      "status": "B4.1/B4.2/Materials and related Node-review correction merged; Sections prepared next; remaining families and B4 fit/control scope open",
       "dependsOn": [
         "B3B"
       ],
@@ -665,7 +665,7 @@
         },
         {
           "item": "Check Node review text-Undo while a draft changes active sort order; Node still uses inline editor and the Materials probe showed Chromium history loss on actual ancestor movement",
-          "state": "confirmed failure repaired and independently source-reviewed; affected native/ROOT own look passed; final combined acceptance gates remain",
+          "state": "closed for demonstrated Node-review case in PR833; no universal Node-direct or full B4 keyboard/fit claim",
           "retireAt": "bounded B4 follow-up before claiming complete common-table/MVP keyboard coverage",
           "basis": "B4-3 architecture/undo-dom probe plus unchanged Node review sorting path; no Node repair authorized by the Materials brief",
           "diagnosticBrief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_NODE_SORT_UNDO_DIAGNOSTIC_BRIEF.md",
@@ -2386,7 +2386,7 @@
         "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_CACHE_P3_BACKCHECK_RETURN.md",
         "returnSha256": "af062577713d20c7c3ba715892677c57f54991d1d437c5402781f3bbfdb131bb"
       },
-      "state": "cache/P3 and duration-data/docs/tranche independent backchecks PASS; ready for combined candidate gates and actual main-cache observations",
+      "state": "merged in PR833; guarded main job35592484895 SUCCESS created4Piping caches; later consumer hits/timing benefit remain unobserved",
       "durationRefresh": {
         "authority": "owner effective-CI direction; ROOT bounded follow-up",
         "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_DURATION_REFRESH_ADDENDUM.md",
@@ -2412,6 +2412,14 @@
           "returnSha256": "3e918a6fcc6e22231571981b7b265fa3a42c0b0002ea846738db57405ef82d4c",
           "provenance": "collection/plan fromd02bb990; durations/source bodies from80770322. Independent review verified only in-body portable Undo key differs, identity/config/grouping compatible; not a fresh8077 collection."
         }
+      },
+      "mainWitness": {
+        "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_CACHE_MAIN_WITNESS/SUMMARY.json",
+        "sha256": "121056432101a9939bc771eabcc52113f8a29cd6b55f14c0fb53a526e38c59b7",
+        "run": "35592484895",
+        "main": "fd002217f067020d44deaee22866e14eed81173f",
+        "newPipingCaches": 4,
+        "preexistingOtherMainCaches": 1
       }
     },
     "B4-3-CODEX-MANAGER": {
@@ -2571,15 +2579,13 @@
     "B4-3-INTEGRATION": {
       "role": "ROOT integration",
       "parent": "ROOT",
-      "state": "PR833 draft open at frozen6fa70; all local/source/native/complete/publication reviews pass, actual-head hosted CI pending",
+      "state": "MERGED PR833 after all9 actual-head checks SUCCESS; candidate/merge trees identical",
       "branch": "codex/swbpipe-b4-materials-integration-20260921",
       "candidate": "3bdf6141aa5efd16c18b61d1cf49045f8ce4faf8",
       "desktopTree": "569bb433ce914ef5f96234bc1ddfbb4a82700924",
       "scope": "reviewed Materials and cache maintenance plus truthful run evidence; Node diagnosis before final freeze",
       "remaining": [
-        "bounded publication-metadata backcheck and applicable actual-head gates",
-        "draftPR then all actual-head hosted checks before merge",
-        "main-cache creation and later consumer-hit observations"
+        "later PR consumer cache-hit/timing observation; no extra test run just to claim benefit"
       ],
       "dependsOn": [
         "B4-3-CODEX-MANAGER",
@@ -2645,14 +2651,20 @@
       "publication": {
         "pr": "https://github.com/sgttomas/chirality/pull/833",
         "head": "6fa70c15c7d8f1bce78b6e7f153b7296503d8bed",
-        "state": "draft open; wait every applicable hosted check, including additional Harness pre-merge",
+        "state": "merged after all9SUCCESS",
         "reviewLaunch": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_PUBLICATION_REVIEW_LAUNCH.md",
         "reviewLaunchSha256": "46dd502437c04217f7200aff0c9885425c5bca04e62dc401093ef35887d1062b",
         "reviewReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_PUBLICATION_REVIEW_RETURN.md",
         "reviewReturnSha256": "f95ee3d7f52dd16acfcc0f51e131c97c94bec38f47ae59ace090a91c80052be1",
         "checks": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_PUBLICATION_CHECKS/SUMMARY.json",
         "checksSha256": "7ea5e7a13b74fda1dd85afb31ba035d3342b868616c51b599ab72431af7429d5",
-        "sourceParity": "all maintained inputs identical to clean3bdf; later records only"
+        "sourceParity": "all maintained inputs identical to clean3bdf; later records only",
+        "merge": "fd002217f067020d44deaee22866e14eed81173f",
+        "observation": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR833_CI/MERGE_OBSERVATION.json",
+        "observationSha256": "08d96cad656792971c1f456c740bf7862ae77f2596e6b7c8d8fb7be017884b3c",
+        "hostedSummary": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR833_CI/HOSTED_SUMMARY.json",
+        "sourceCounts": "445passes/20unchanged skips",
+        "workflowSeconds": 1145
       }
     },
     "B4-4-SECTIONS-PREPARATION": {
@@ -2663,13 +2675,33 @@
       "reasoning": "high",
       "mechanism": "ROOT actual retained manager followup; no child",
       "basis": "3bdf6141 / desktop15186; clean sourcewt3dd8be592",
-      "state": "returned; no implementation activated during current closeout",
+      "state": "returned and adopted as bounded activation after PR833; no owner ruling/qualification inferred",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_4_SECTIONS_PREPARATION_BRIEF.md",
       "briefSha256": "35c1943905973ad33d315df68d824da68a3a8a77f7dd2cf1d88cdcfb43b3af57",
       "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_4_SECTIONS_PREPARATION_RETURN.md",
       "returnSha256": "5041095436e1460396fa2c7dacd0383fd8f1b16f266dcb7dfcf24a3ccc5aa2d2",
       "rootCheck": "all21consulted hash references match. Recommendation is agent preparation, not owner ruling. Qualified full-height route wording means observed development-tested route only; no formal qualification is established.",
       "next": "prepare bounded Sections/common enum brief after current merge; preserve sequential coupled-geometry semantics and no automatic Grid atomic-batch/reordering change"
+    },
+    "B4-4-CODEX-MANAGER": {
+      "role": "WORKING_ITEMS Type1",
+      "parent": "ROOT",
+      "actualAgent": "/root/b3_manager",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "mechanism": "ROOT actual retained manager followup",
+      "state": "activation granted; manager to verify/create branch and seal fresh TASK launch",
+      "basis": "fd002217f067020d44deaee22866e14eed81173f",
+      "branch": "codex/swbpipe-b4-sections-20260921",
+      "checkout": "existingwt3 after clean verification; old Materials branch preserved",
+      "scope": "common Sections/opt-in typed enum and bounded tests only",
+      "activation": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_4_SECTIONS_ACTIVATION.md",
+      "activationSha256": "e6d44615d671bdcff02fb4b2693d5eb6b36ebef1367d1211ca2c760533a7c64f",
+      "resources": "source/nonbrowser focused unit/TS granted; browser/heavy/native/full sweep need coordinated handoff",
+      "dependsOn": [
+        "B4-3-INTEGRATION",
+        "B4-4-SECTIONS-PREPARATION"
+      ]
     }
   },
   "edges": [
@@ -2968,9 +3000,13 @@
     [
       "ROOT",
       "B4-4-SECTIONS-PREPARATION"
+    ],
+    [
+      "ROOT",
+      "B4-4-CODEX-MANAGER"
     ]
   ],
-  "current_frontier": "Wait all actual-head PR833 checks at6fa70, then merge under standing authority and observe main cache. ROOT continuity records stay off PR head to avoid CI restarts. Sections is prepared for next bounded activation after merge; C4/live CLI decisions and qualification holds remain.",
+  "current_frontier": "PR833 merged, main dependency caches created. Sections/common typed-enum source increment activated under existing B4 strategy; await actual worker/input and early architecture/source return. Coordinate browser/native, independent review and one coherent final validation. C4/live CLI owner decisions and all qualification/reconciliation holds remain.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -3174,7 +3210,8 @@
           "B4-3-REVIEW",
           "B4-NODE-SORT-UNDO-DIAG",
           "B4-3-INTEGRATION",
-          "B4-4-SECTIONS-PREPARATION"
+          "B4-4-SECTIONS-PREPARATION",
+          "B4-4-CODEX-MANAGER"
         ]
       }
     }
@@ -3260,18 +3297,18 @@
   },
   "liveContinuationState": {
     "root": "a40a415baaf1f5c6e7f017a02e994db35bd2854a fast-forward adopted; product now reviewed15186, with this metadata-only frontier correction",
-    "originMain": "c9f19195214b2e097980dde5e0d5fccbfba8e34c",
+    "originMain": "fd002217f067020d44deaee22866e14eed81173f",
     "integrationBranch": {
       "branch": "codex/swbpipe-b4-materials-integration-20260921",
-      "head": "a40a415baaf1f5c6e7f017a02e994db35bd2854a",
-      "state": "clean composed source; final metadata freeze and gates next"
+      "head": "6fa70c15c7d8f1bce78b6e7f153b7296503d8bed",
+      "state": "PR833 merged; preserve branch/head"
     },
-    "shell": "clean native taildd8be592, desktop exactly reviewed15186; manager/source held",
+    "shell": "Sections manager activated from mergedfd002217; branch/worker launch verification pending; old Materialsdd8be592 preserved",
     "canvas": "fb720420 preserved; C4 preparation returned",
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "isolated226b probe retains two authorized source edits and two untracked dependency entries; preserved, never fan-in",
-    "resources": "full sweep ended PASS; source5174/dist5175/Tauri5173 listeners/shared lock absent, both owned native PIDs quit. Peer resource reservation released.",
-    "recordStatus": "PR833 draft open; all local/review gates pass; hosted actual-head CI pending",
+    "resources": "native/browser/full-sweep resources released; only next source/units planned after sealed activation; peer coordination retained",
+    "recordStatus": "PR833 all9checks/merge and maincache success recorded; no remaining gate for this merged slice",
     "observedAt": "2026-09-21T10:29:42.700950+00:00"
   },
   "historicalPauses": [
