@@ -43,9 +43,13 @@ Across the wave the rate is 5 of 259, or 1.9%. Wave 1 was 4.4%.
    - the corpus-wide split of the "PKG-00 at SEMANTIC_READY"
      architecture-basis sub-claims. That split is invisible to batch mode,
      because minted `.sNN` sub-claims have no body hash. Its disposition is
-     resolved by rule: under the F3 exception a readiness state stays
-     `STALE_REVIEW_OR_EVIDENCE`. The rows are recorded as `RESOLVED_BY_RULE`,
-     23 in W2 and 9 in W1.
+     resolved by an **Agent 0 reading** of the F3 exception, not a ruling:
+     a readiness state is treated as a review state and stays
+     `STALE_REVIEW_OR_EVIDENCE`. Three verifiers recommended this reading
+     (PKG-03 W1, PKG-04 W-1, the DEL-03-07 rerun), and it overrides 11
+     sealed rows that applied F3's origin test literally. The rows are
+     recorded as `AGENT_READING`, 23 in W2 and 9 in W1, and the reading goes
+     to the owner with the canonical table for confirmation.
    - The cause of that split (`RECORD_DRIFT` against
      `SCOPE_REDIRECTED_BY_RULING`) is left as one contested cluster, SR-1,
      for a single R3 resolution.
@@ -69,11 +73,13 @@ Across the wave the rate is 5 of 259, or 1.9%. Wave 1 was 4.4%.
 
 The validator was changed after the W2 verifiers finished, and before any
 further dispatch:
-- **CP-04 variants.** Batch mode compares CP-04 rows only within the same
-  variant (tier and baseline class), because `CANONICAL_SITUATIONS.md`
-  defines three variants. This removes five false flags.
-- **Resolved pairs.** A row recorded as `RESOLVED_PAIR` in the wave's
-  resolutions is exempt from batch comparison.
+- **CP-04 variants.** Batch mode compares CP-04 rows within the three
+  variants `CANONICAL_SITUATIONS.md` defines (by tier and baseline class). Any
+  other pair falls into the default group and is compared there. This removes
+  five false flags.
+- **Resolved pairs.** A row recorded as `RESOLVED_PAIR`, with a verifier
+  report as its source, is exempt from body and pattern comparison.
+- **Separators.** Spaces around a `;` in evidence columns are rejected (Part D).
 - **Paths with spaces.** Evidence tokens may contain spaces when they
   resolve to a path at the freeze, because deliverable folder names contain
   spaces. Before this change, workers could cite deliverable-local evidence

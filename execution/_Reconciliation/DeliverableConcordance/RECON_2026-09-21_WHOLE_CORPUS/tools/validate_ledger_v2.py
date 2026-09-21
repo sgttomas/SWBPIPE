@@ -17,9 +17,10 @@ Batch consistency mode (checks rows across several validated forward ledgers):
   the departing row's Notes carry `CANONICAL_DEPARTURE:` with a reason.
   `--resolutions <RESOLUTIONS.csv>` (CONVENTIONS F6) substitutes Agent 0's
   recorded resolution values for the listed keys before comparing, and exempts
-  rows recorded as RESOLVED_PAIR (a verifier judged the pair not a conflict).
-  CP-04 rows are compared only within the same variant (tier and baseline
-  class), as CANONICAL_SITUATIONS.md defines three CP-04 variants.
+  rows recorded as RESOLVED_PAIR with a verifier report as Source, in body and
+  pattern groups only. CP-04 rows are compared within the three variants
+  CANONICAL_SITUATIONS.md defines; any other tier/baseline pair is compared in
+  the default group.
 Evidence tokens may contain spaces only when they resolve to a path at the
 freeze (deliverable folders have spaces in their names).
 
@@ -216,6 +217,8 @@ def validate_one(a, f):
             # Spaces are allowed only inside a token that resolves to a path at the freeze
             # (deliverable folders such as "PKG-00_Software Architecture Runway" contain spaces);
             # free text still fails because it does not resolve.
+            if col in EVIDENCE_COLS and any(t != t.strip() for t in r[col].split(";")):
+                f.append(f"{tag}: {col} has spaces around a ';' separator (Part D: no spaces)")
             for tok in (t.strip() for t in r[col].split(";")):
                 if tok in ("", "NONE_FOUND", "NOT_APPLICABLE"):
                     continue
@@ -349,6 +352,11 @@ def part_f(a, rows, f):
     return listed
 
 
+CP04_VARIANTS = {("LOCAL_DESIGN", "NONE"): "default",
+                 ("PROJECT_BASELINE", "FROZEN_CONTRACT"): "frozen-contract",
+                 ("PROJECT_BASELINE", "NONE"): "identity-rename"}
+
+
 def load_resolutions(path):
     if not path:
         return {}
@@ -382,7 +390,12 @@ def batch(a, f):
             elif cs.startswith("CP-"):
                 # CP-04 defines variants with their own tier and baseline class (CANONICAL_SITUATIONS.md):
                 # compare only rows of the same variant.
-                sub = f"/{r['AuthorityTier']}/{r['BaselineClass']}" if cs == "CP-04" else ""
+                sub = ""
+                if cs == "CP-04":
+                    pair = (r["AuthorityTier"], r["BaselineClass"])
+                    # only the three variants CANONICAL_SITUATIONS.md defines; any other pair falls into
+                    # the default group, where it is compared (and flagged) as usual
+                    sub = "/" + CP04_VARIANTS.get(pair, "default")
                 groups[("pattern", f"{cs}/{r['Disposition']}{sub}")].append((path, r))
     for (kind, gid), members in groups.items():
         profiles = collections.Counter(tuple(r[c] for c in CONSISTENCY_FIELDS) for _, r in members)
@@ -391,7 +404,9 @@ def batch(a, f):
         majority = profiles.most_common(1)[0][0]
         for path, r in members:
             prof = tuple(r[c] for c in CONSISTENCY_FIELDS)
-            if r["ClaimKey"] in res and res[r["ClaimKey"]]["Class"] == "RESOLVED_PAIR":
+            rr = res.get(r["ClaimKey"])
+            if (rr and rr["Class"] == "RESOLVED_PAIR" and "_VERIFICATION.md" in rr["Source"]
+                    and kind in ("pattern", "body")):
                 continue  # a verifier judged this pair not a conflict; Agent 0 recorded it (F6)
             if prof != majority and not re.search(r"CANONICAL_DEPARTURE:\s*\S.{9,}", r["Notes"]):
                 f.append(f"{path}: {r['ClaimKey']}: same {kind} {gid[:16]} as {len(members) - 1} other row(s) "
