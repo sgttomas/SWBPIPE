@@ -1,0 +1,43 @@
+{
+  "candidate": "339be6c9ee6616dfd60952957ee193f897bd05aa",
+  "runId": 35614512716,
+  "jobId": 106381959898,
+  "job": "Accessibility barrier and selected coverage",
+  "outcome": "successful job restored all four expected primary dependency keys; no new dependency cache saved",
+  "restoredKeys": [
+    "node-cache-Linux-x64-npm-3f079e5b9c1656dd33060e3e260efb947b678574d15ac514783aee67ea23a336",
+    "Linux-wasm-bindgen-cli-0.2.123",
+    "Linux-rust-1.97.1-32f6d9d299e4a9e31ee8c644478f7cec98c94f355b5451c0d7fffc5eff01eaae",
+    "Linux-playwright-1.60.0"
+  ],
+  "matchingMainCacheRecords": [
+    {
+      "id": 7928962309,
+      "key": "node-cache-Linux-x64-npm-3f079e5b9c1656dd33060e3e260efb947b678574d15ac514783aee67ea23a336",
+      "ref": "refs/heads/main",
+      "created_at": "2026-09-21T11:12:43.237364Z"
+    },
+    {
+      "id": 7928961613,
+      "key": "Linux-wasm-bindgen-cli-0.2.123",
+      "ref": "refs/heads/main",
+      "created_at": "2026-09-21T11:12:41.026986Z"
+    },
+    {
+      "id": 7928960476,
+      "key": "Linux-rust-1.97.1-32f6d9d299e4a9e31ee8c644478f7cec98c94f355b5451c0d7fffc5eff01eaae",
+      "ref": "refs/heads/main",
+      "created_at": "2026-09-21T11:12:39.887615Z"
+    },
+    {
+      "id": 7928958820,
+      "key": "Linux-playwright-1.60.0",
+      "ref": "refs/heads/main",
+      "created_at": "2026-09-21T11:12:37.233148Z"
+    }
+  ],
+  "rawLogSha256": "21399cd316541b15546c089faa88f16cfd46d7eb31c52966f734bfd13be27e99",
+  "rawLogBytes": 118875,
+  "storedLogSha256": "04964712b155e20a9408134653c57a1dbbd200b55ad5a92b8572ed9f228dac40",
+  "limits": "Job log establishes restored keys, not a cache-ID attribution. Matching seeded-main cache metadata retained separately. Overall workflow duration/remaining job results pending."
+}

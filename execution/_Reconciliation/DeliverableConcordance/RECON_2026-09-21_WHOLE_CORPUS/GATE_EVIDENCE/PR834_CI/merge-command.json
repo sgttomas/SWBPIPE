@@ -1,0 +1,17 @@
+{
+  "command": [
+    "gh",
+    "pr",
+    "merge",
+    "834",
+    "--repo",
+    "sgttomas/chirality",
+    "--merge",
+    "--match-head-commit",
+    "339be6c9ee6616dfd60952957ee193f897bd05aa"
+  ],
+  "utc": "2026-09-21T15:06:55.047392+00:00",
+  "exit": 0,
+  "stdout": "",
+  "stderr": ""
+}

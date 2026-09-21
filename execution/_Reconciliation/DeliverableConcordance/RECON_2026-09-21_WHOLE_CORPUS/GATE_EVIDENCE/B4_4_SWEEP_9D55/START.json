@@ -1,0 +1,49 @@
+{
+  "head": "9d55bce37a3e683d6a1e026920855270b8929113",
+  "tree": "2e0743377a6ba7d0d5c12a94061aebadadd828ef",
+  "clean": true,
+  "utc": "2026-09-21T14:19:54.470681+00:00",
+  "command": [
+    "sh",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/tools/with_e2e_lock.sh",
+    "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+    "tools/release/run_evidence_sweep.py",
+    "--execute",
+    "--require-capability",
+    "host",
+    "--output-dir",
+    "/tmp/swbpipe-b44-9d55-sweep/registered"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping",
+  "environment": {
+    "PATH": "/Users/ryan/.local/share/mise/installs/python/3.13/bin:/Users/ryan/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Users/ryan/.codex/tmp/arg0/codex-arg0lNVZeI:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/ryan/.local/share/mise/installs/node/24/bin:/Users/ryan/.local/share/mise/installs/python/3.13/bin:/Users/ryan/.cargo/bin:/Users/ryan/.local/bin:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "PLAYWRIGHT_WORKERS": "1",
+    "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH": "/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing"
+  },
+  "versions": {
+    "python": {
+      "exit": 0,
+      "output": "Python 3.13.14\n"
+    },
+    "node": {
+      "exit": 0,
+      "output": "v24.18.0\n"
+    },
+    "npm": {
+      "exit": 0,
+      "output": "11.16.0\n"
+    },
+    "cargo": {
+      "exit": 0,
+      "output": "cargo 1.97.1 (c980f4866 2026-06-30)\n"
+    },
+    "rustc": {
+      "exit": 0,
+      "output": "rustc 1.97.1 (8bab26f4f 2026-07-14)\n"
+    },
+    "os": {
+      "exit": 0,
+      "output": "ProductName:\t\tmacOS\nProductVersion:\t\t26.6.2\nBuildVersion:\t\t25G83\n"
+    }
+  }
+}

@@ -20,7 +20,7 @@
  "ownerDirections": [
   {
    "record": "OWNER_DIRECTIONS.md",
-   "sha256": "037387060e0f8b0092d8b6b3cee9baf4991e67113c0dc63c93882afd76590b6b",
+   "sha256": "574f98b336848f474744805135e0754bf97d9b59f388a4acba1cb45be9cb072d",
    "custody": "stored-transcript extraction, not transport bytes"
   },
   {
@@ -43,7 +43,7 @@
   },
   "ACT": {
    "title": "D-73 activation packet, profile, ruling, review, merge",
-   "status": "ruled; reviewed PASS; checks pass; PR and merge pending",
+   "status": "merged: PR #837 at e631e078643f317c4ed5d8c3284f13d3db8eecd7 (trees identical to reviewed head); addendum on gate evidence pending with R0 PR",
    "dependsOn": [],
    "write": [
     "execution/_Coordination/_DECISIONS/D-73_*",
@@ -81,10 +81,11 @@
   },
   "R0": {
    "title": "Freeze basis, run tooling, gate transcript, 8-deliverable calibration, candidate conventions",
-   "status": "planned",
+   "status": "active: evidence checkout, gate evidence, claim keys, candidate conventions, validator, briefs ready; dispatching 8 calibration workers + 1 pilot inventory",
    "dependsOn": [
     "ACT merged to main"
-   ]
+   ],
+   "evidence": "execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/"
   },
   "R1": {
    "title": "Read-only inventories incl. owner-free reverse capability inventory",
@@ -132,7 +133,7 @@
    "ACT-REVIEW"
   ]
  ],
- "current_frontier": "Activation PR: open, CI, merge. Then R0 from merged main.",
+ "current_frontier": "R0 calibration dispatch.",
  "openWithOwner": [],
  "holdsPreserved": [
   "Piping development pause (owner, 2026-09-21)",

@@ -1,0 +1,75 @@
+{
+  "candidate": "9d55bce37a3e683d6a1e026920855270b8929113",
+  "status": "PASS, five registered surfaces; unchanged clean source",
+  "wrapperWallSeconds": 1190.997144833,
+  "registeredDurationSeconds": 1186.488,
+  "observedCountsFromRawLog": {
+    "pythonPassed": 1138,
+    "pythonWarnings": 304,
+    "pythonSubtestsPassed": 7,
+    "desktopFilesPassed": 100,
+    "desktopTestsPassed": 1621,
+    "sourceBrowserPassed": 455,
+    "sourceBrowserExistingSkipped": 20,
+    "distBrowserPassed": 53,
+    "rust": "all registered cargo commands exit0",
+    "productionBuild": "exit0"
+  },
+  "existingSkipComparison": {
+    "basis": "3bdf6141aa5efd16c18b61d1cf49045f8ce4faf8",
+    "identical": true,
+    "identities": [
+      "[chromium-compact] \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a captured scrollable inspector dimensions remain observations while true layout drift rejects",
+      "[chromium-compact] \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a continuation launcher consumes failed/interrupted slots and executes later sizes only after independent gates",
+      "[chromium-compact] \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a explicit internal120 transition changes only authorized profile bindings and retains legacy60 gates",
+      "[chromium-compact] \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a frozen actual product/profile inputs validate read-only when explicitly supplied",
+      "[chromium-compact] \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a owner one-success transition preserves history and bounded dispatch: empty-exit0,valid",
+      "[chromium-compact] \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a owner one-success transition preserves history and bounded dispatch: interrupted,valid",
+      "[chromium-compact] \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a owner one-success transition preserves history and bounded dispatch: invalid,invalid,invalid,invalid,invalid",
+      "[chromium-compact] \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a owner one-success transition preserves history and bounded dispatch: invalid,valid",
+      "[chromium-compact] \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a owner one-success transition preserves history and bounded dispatch: stale-success",
+      "[chromium-compact] \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a owner one-success transition preserves history and bounded dispatch: target-miss",
+      "[chromium-desktop] \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a captured scrollable inspector dimensions remain observations while true layout drift rejects",
+      "[chromium-desktop] \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a continuation launcher consumes failed/interrupted slots and executes later sizes only after independent gates",
+      "[chromium-desktop] \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a explicit internal120 transition changes only authorized profile bindings and retains legacy60 gates",
+      "[chromium-desktop] \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a frozen actual product/profile inputs validate read-only when explicitly supplied",
+      "[chromium-desktop] \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a owner one-success transition preserves history and bounded dispatch: empty-exit0,valid",
+      "[chromium-desktop] \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a owner one-success transition preserves history and bounded dispatch: interrupted,valid",
+      "[chromium-desktop] \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a owner one-success transition preserves history and bounded dispatch: invalid,invalid,invalid,invalid,invalid",
+      "[chromium-desktop] \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a owner one-success transition preserves history and bounded dispatch: invalid,valid",
+      "[chromium-desktop] \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a owner one-success transition preserves history and bounded dispatch: stale-success",
+      "[chromium-desktop] \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a owner one-success transition preserves history and bounded dispatch: target-miss"
+    ]
+  },
+  "files": {
+    "END.json": {
+      "canonical": "END.json",
+      "rawSha256": "f497c9a51e6ea30c8ffd757370be12096a5d5c07886d4a7df8c885db287f78ca",
+      "rawBytes": 266,
+      "sha256": "f497c9a51e6ea30c8ffd757370be12096a5d5c07886d4a7df8c885db287f78ca",
+      "bytes": 266
+    },
+    "START.json": {
+      "canonical": "START.json",
+      "rawSha256": "35cc7ff08363926e39f830b35f6116445944b9a2344aecb1d02bbc4de3a275cc",
+      "rawBytes": 2390,
+      "sha256": "35cc7ff08363926e39f830b35f6116445944b9a2344aecb1d02bbc4de3a275cc",
+      "bytes": 2390
+    },
+    "registered/SWEEP_20260921T141956Z_9d55bce37a3e.json": {
+      "canonical": "registered/SWEEP_20260921T141956Z_9d55bce37a3e.json",
+      "rawSha256": "dc2eced164015ca74a73c0022b2190fdbacdc87bf8173cc6b57d15068bab4c52",
+      "rawBytes": 3838,
+      "sha256": "dc2eced164015ca74a73c0022b2190fdbacdc87bf8173cc6b57d15068bab4c52",
+      "bytes": 3838
+    },
+    "sweep.log": {
+      "canonical": "sweep.log.gz",
+      "rawSha256": "75959e71712a5fde3dd21ccdf0c3d646f0d25f65099dfe0cd3b93b53398932c1",
+      "rawBytes": 1901489,
+      "sha256": "c7165a5d56d55317abff50d2e4e012de78c2fe72b7072ecedd7c4b148a391479",
+      "bytes": 59039
+    }
+  },
+  "limits": "Development evidence on clean9d55, not qualification/release. Later record-only commits require independent carryforward review and actual-head CI."
+}

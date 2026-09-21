@@ -1,0 +1,13 @@
+{
+  "pr": "https://github.com/sgttomas/chirality/pull/834",
+  "head": "339be6c9ee6616dfd60952957ee193f897bd05aa",
+  "merge": "620ff6387b211c774c0de7dabec0a170acdf6017",
+  "mergedAt": "2026-09-21T15:06:54Z",
+  "allChecksPassedBeforeMerge": true,
+  "checkCountBeforeMerge": 8,
+  "candidateTree": "6ae8e1458870a0364be3db3594c45c49dae65181",
+  "mergeTree": "6ae8e1458870a0364be3db3594c45c49dae65181",
+  "treesIdentical": true,
+  "mechanism": "gh pr merge --merge --match-head-commit, no admin/bypass or branch deletion",
+  "ownerPause": "effective after this merge; graceful evidence/receipt closeout only"
+}

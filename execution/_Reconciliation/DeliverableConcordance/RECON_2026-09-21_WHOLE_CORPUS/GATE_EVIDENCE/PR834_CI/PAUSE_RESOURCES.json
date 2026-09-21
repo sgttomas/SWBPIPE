@@ -1,0 +1,20 @@
+{
+  "utc": "2026-09-21T15:11:59.615019+00:00",
+  "command": [
+    "lsof",
+    "-nP",
+    "-iTCP:5173",
+    "-iTCP:5174",
+    "-iTCP:5175",
+    "-iTCP:5183",
+    "-iTCP:5184",
+    "-iTCP:5185",
+    "-iTCP:5186",
+    "-sTCP:LISTEN"
+  ],
+  "exit": 1,
+  "stdout": "",
+  "stderr": "",
+  "meaning": "no listeners on named shared Piping ports; nativePID54294 previously verified absent",
+  "workers": "manager/implementation/native/independent reviewer returned; no new instance"
+}

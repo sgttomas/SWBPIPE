@@ -102,4 +102,22 @@ with per-phase allocations. The owner then approved the plan
 (2026-09-21T16:15:18.321Z, transcript entry 446). The approved plan is kept
 beside this record as `PLAN.md`.
 
+## Direction 5 — 2026-09-21T17:24:42.046Z and 17:25:45.749Z (entries 904, 925)
+
+SHA-256 `1baa99b73b9c267c9ff176607b387c2ca7fc9fd967d38b0bedc1645c5b88e245` (88 bytes):
+
+~~~~
+why are you doing a full 60 minutes CI run for what was essentially a plan being merged?
+~~~~
+
+SHA-256 `41221e64eb4870ff9e3b47a6fcefc426daf471745b9dcf69fad03dee8233d8ab` (140 bytes):
+
+~~~~
+I think you can just site the existing sweep and CI records you've just obtained.  What value is there in running even a trimmed test suite?
+~~~~
+
+Agent 0's reading: no test suite is run; the run cites the PR #834 hosted CI
+and the 9d55 local sweep, both bound to the frozen Piping code. Recorded as
+`../../_DECISIONS/D-73_RULING_ADDENDUM_2026-09-21.md`.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

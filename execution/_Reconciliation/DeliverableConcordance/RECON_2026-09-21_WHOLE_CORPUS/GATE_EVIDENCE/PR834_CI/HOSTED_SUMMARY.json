@@ -1,0 +1,65 @@
+{
+  "candidate": "339be6c9ee6616dfd60952957ee193f897bd05aa",
+  "workflowRun": 35614512716,
+  "status": "success",
+  "createdAt": "2026-09-21T14:47:22Z",
+  "lastJobCompletedAt": "2026-09-21T15:04:46Z",
+  "observedWallSeconds": 1044.0,
+  "rawLogSha256": "36bbcdce39a23f41c71d144f56c404a1e1ca1baad769c374d3ed7e51b48ee567",
+  "rawLogBytes": 1273645,
+  "restoredExpectedPrimaryCaches": 4,
+  "timingLimit": "One observed run; different test inventory and runner/checkout variability mean no causal speedup claim. Last shard checkout took240seconds.",
+  "jobs": [
+    {
+      "name": "Select source coverage",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-09-21T14:47:27Z",
+      "completedAt": "2026-09-21T14:48:11Z"
+    },
+    {
+      "name": "Accessibility barrier and selected coverage",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-09-21T14:48:13Z",
+      "completedAt": "2026-09-21T14:51:21Z"
+    },
+    {
+      "name": "Source remainder (1/4)",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-09-21T14:51:24Z",
+      "completedAt": "2026-09-21T15:00:51Z"
+    },
+    {
+      "name": "Source remainder (4/4)",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-09-21T14:51:24Z",
+      "completedAt": "2026-09-21T14:58:01Z"
+    },
+    {
+      "name": "Source remainder (2/4)",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-09-21T14:51:24Z",
+      "completedAt": "2026-09-21T14:59:52Z"
+    },
+    {
+      "name": "Source remainder (3/4)",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-09-21T14:51:24Z",
+      "completedAt": "2026-09-21T15:03:41Z"
+    },
+    {
+      "name": "Desktop E2E (source mode)",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-09-21T15:03:43Z",
+      "completedAt": "2026-09-21T15:04:46Z"
+    }
+  ],
+  "sourceBrowserPassed": 455,
+  "sourceBrowserExistingSkipped": 20
+}
