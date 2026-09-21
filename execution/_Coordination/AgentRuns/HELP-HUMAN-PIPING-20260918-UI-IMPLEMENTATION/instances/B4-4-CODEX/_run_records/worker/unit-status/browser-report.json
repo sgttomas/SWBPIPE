@@ -1,0 +1,290 @@
+{
+  "config": {
+    "configFile": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/playwright.config.ts",
+    "rootDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-4-CODEX/_run_records/worker/unit-status/browser-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-4-CODEX/_run_records/worker/unit-status/browser-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-compact",
+        "name": "chromium-compact",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev -- --port 5174",
+      "reuseExistingServer": true,
+      "timeout": 30000,
+      "url": "http://127.0.0.1:5174"
+    }
+  },
+  "suites": [
+    {
+      "title": "b4-sections.spec.ts",
+      "file": "b4-sections.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "B4 Sections enum explicit completion, passive cancellation and raw review retention",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3840,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-21T13:53:42.019Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser-identity",
+                      "contentType": "application/json",
+                      "body": "ewogICJjZHBWZXJzaW9uIjogewogICAgInByb3RvY29sVmVyc2lvbiI6ICIxLjMiLAogICAgInByb2R1Y3QiOiAiQ2hyb21lLzE0OC4wLjc3NzguOTYiLAogICAgInJldmlzaW9uIjogIkA4NjI1ZTA2NmZlYmM3MjFlMDE1ZWE5OTg0MmRhMTI5MDFlYjdlZDczIiwKICAgICJ1c2VyQWdlbnQiOiAiTW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTVfNykgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgSGVhZGxlc3NDaHJvbWUvMTQ4LjAuMC4wIFNhZmFyaS81MzcuMzYiLAogICAgImpzVmVyc2lvbiI6ICIxNC44LjE3OC4xNCIKICB9LAogICJwbGF5d3JpZ2h0QnJvd3NlclZlcnNpb24iOiAiMTQ4LjAuNzc3OC45NiIsCiAgImV4ZWN1dGFibGVQYXRoIjogIi9Vc2Vycy9yeWFuL0xpYnJhcnkvQ2FjaGVzL21zLXBsYXl3cmlnaHQvY2hyb21pdW0tMTIyMy9jaHJvbWUtbWFjLWFybTY0L0dvb2dsZSBDaHJvbWUgZm9yIFRlc3RpbmcuYXBwL0NvbnRlbnRzL01hY09TL0dvb2dsZSBDaHJvbWUgZm9yIFRlc3RpbmciLAogICJleGVjdXRhYmxlU2hhMjU2IjogIjI0NDdjN2JkZWE4ZThhZDM4YjUyNTk0ZjFiYTUzZTE4ODIxYzA1NDQ1ZThhMDdhZDFjZjNiMGYyMzkzMWQ4OWQiCn0="
+                    },
+                    {
+                      "name": "section-enum-light-computed-style",
+                      "contentType": "application/json",
+                      "body": "ewogICJiYWNrZ3JvdW5kIjogInJnYigyNTUsIDI1NSwgMjU1KSIsCiAgInRleHQiOiAicmdiKDM0LCAzOSwgNDQpIiwKICAiYm9yZGVyIjogInJnYigyMTMsIDIxNiwgMjE5KSIsCiAgImJvcmRlclN0eWxlIjogInNvbGlkIiwKICAiYm9yZGVyV2lkdGgiOiAiMXB4IiwKICAib3B0aW9uQmFja2dyb3VuZCI6ICJyZ2IoMjI2LCAyMzgsIDI1NCkiLAogICJvcHRpb25UZXh0IjogInJnYigzNCwgMzksIDQ0KSIsCiAgImhpdCI6IHRydWUsCiAgInJvb3RTdXJmYWNlIjogInJnYigyNTUsIDI1NSwgMjU1KSIsCiAgInJvb3RUZXh0IjogInJnYigzNCwgMzksIDQ0KSIsCiAgInJvb3RCb3JkZXIiOiAicmdiKDIxMywgMjE2LCAyMTkpIiwKICAicm9vdFNlbGVjdGlvbiI6ICJyZ2IoMjI2LCAyMzgsIDI1NCkiCn0="
+                    },
+                    {
+                      "name": "section-enum-dark-computed-style",
+                      "contentType": "application/json",
+                      "body": "ewogICJiYWNrZ3JvdW5kIjogInJnYigzNywgNDAsIDQ0KSIsCiAgInRleHQiOiAicmdiKDIyOSwgMjMyLCAyMzYpIiwKICAiYm9yZGVyIjogInJnYig1NywgNjIsIDY2KSIsCiAgImJvcmRlclN0eWxlIjogInNvbGlkIiwKICAiYm9yZGVyV2lkdGgiOiAiMXB4IiwKICAib3B0aW9uQmFja2dyb3VuZCI6ICJyZ2IoMzQsIDYyLCA5NykiLAogICJvcHRpb25UZXh0IjogInJnYigyMjksIDIzMiwgMjM2KSIsCiAgImhpdCI6IHRydWUsCiAgInJvb3RTdXJmYWNlIjogInJnYigzNywgNDAsIDQ0KSIsCiAgInJvb3RUZXh0IjogInJnYigyMjksIDIzMiwgMjM2KSIsCiAgInJvb3RCb3JkZXIiOiAicmdiKDU3LCA2MiwgNjYpIiwKICAicm9vdFNlbGVjdGlvbiI6ICJyZ2IoMzQsIDYyLCA5NykiCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "53c0d84efc0f4ae20b8c-d72fee417620b1319a8e",
+          "file": "b4-sections.spec.ts",
+          "line": 36,
+          "column": 1
+        },
+        {
+          "title": "B4 diagnostic clipped Section enum dismisses its detached options after real body scroll",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2162,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-21T13:53:46.573Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser-identity",
+                      "contentType": "application/json",
+                      "body": "ewogICJjZHBWZXJzaW9uIjogewogICAgInByb3RvY29sVmVyc2lvbiI6ICIxLjMiLAogICAgInByb2R1Y3QiOiAiQ2hyb21lLzE0OC4wLjc3NzguOTYiLAogICAgInJldmlzaW9uIjogIkA4NjI1ZTA2NmZlYmM3MjFlMDE1ZWE5OTg0MmRhMTI5MDFlYjdlZDczIiwKICAgICJ1c2VyQWdlbnQiOiAiTW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTVfNykgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgSGVhZGxlc3NDaHJvbWUvMTQ4LjAuMC4wIFNhZmFyaS81MzcuMzYiLAogICAgImpzVmVyc2lvbiI6ICIxNC44LjE3OC4xNCIKICB9LAogICJwbGF5d3JpZ2h0QnJvd3NlclZlcnNpb24iOiAiMTQ4LjAuNzc3OC45NiIsCiAgImV4ZWN1dGFibGVQYXRoIjogIi9Vc2Vycy9yeWFuL0xpYnJhcnkvQ2FjaGVzL21zLXBsYXl3cmlnaHQvY2hyb21pdW0tMTIyMy9jaHJvbWUtbWFjLWFybTY0L0dvb2dsZSBDaHJvbWUgZm9yIFRlc3RpbmcuYXBwL0NvbnRlbnRzL01hY09TL0dvb2dsZSBDaHJvbWUgZm9yIFRlc3RpbmciLAogICJleGVjdXRhYmxlU2hhMjU2IjogIjI0NDdjN2JkZWE4ZThhZDM4YjUyNTk0ZjFiYTUzZTE4ODIxYzA1NDQ1ZThhMDdhZDFjZjNiMGYyMzkzMWQ4OWQiCn0="
+                    },
+                    {
+                      "name": "clipped-enum-observation",
+                      "contentType": "application/json",
+                      "body": "ewogICJiZWZvcmUiOiB7CiAgICAic2Nyb2xsVG9wIjogMCwKICAgICJlZGl0b3IiOiB7CiAgICAgICJ4IjogNTM3Ljg5MDYyNSwKICAgICAgInkiOiAzMzkuMzc1LAogICAgICAid2lkdGgiOiAyNDIuMDQ2ODc1LAogICAgICAiaGVpZ2h0IjogMzUsCiAgICAgICJ0b3AiOiAzMzkuMzc1LAogICAgICAiYm90dG9tIjogMzc0LjM3NQogICAgfSwKICAgICJhbmNob3IiOiB7CiAgICAgICJ4IjogNTM3Ljg5MDYyNSwKICAgICAgInkiOiAzMzkuMzc1LAogICAgICAid2lkdGgiOiAyNDIuMDQ2ODc1LAogICAgICAiaGVpZ2h0IjogMzUsCiAgICAgICJ0b3AiOiAzMzkuMzc1LAogICAgICAiYm90dG9tIjogMzc0LjM3NQogICAgfSwKICAgICJib2R5U2xvdCI6IHsKICAgICAgIngiOiA2OCwKICAgICAgInkiOiAzMzkuMzc1LAogICAgICAid2lkdGgiOiAxMzE2LAogICAgICAiaGVpZ2h0IjogNDYzLjYyNSwKICAgICAgInRvcCI6IDMzOS4zNzUsCiAgICAgICJib3R0b20iOiA4MDMKICAgIH0sCiAgICAiZ3JpZCI6IHsKICAgICAgIngiOiA2OCwKICAgICAgInkiOiAyOTMuMTg3NSwKICAgICAgIndpZHRoIjogMTMxNiwKICAgICAgImhlaWdodCI6IDUwOS44MTI1LAogICAgICAidG9wIjogMjkzLjE4NzUsCiAgICAgICJib3R0b20iOiA4MDMKICAgIH0sCiAgICAicm93IjogewogICAgICAieCI6IDY4LAogICAgICAieSI6IDMzOS4zNzUsCiAgICAgICJ3aWR0aCI6IDEzMTYsCiAgICAgICJoZWlnaHQiOiAzNiwKICAgICAgInRvcCI6IDMzOS4zNzUsCiAgICAgICJib3R0b20iOiAzNzUuMzc1CiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJ4IjogNjgsCiAgICAgICJ5IjogMzM5LjM3NSwKICAgICAgIndpZHRoIjogMTMxNiwKICAgICAgImhlaWdodCI6IDQ2NCwKICAgICAgInRvcCI6IDMzOS4zNzUsCiAgICAgICJib3R0b20iOiA4MDMuMzc1CiAgICB9LAogICAgInBvcHVwIjogewogICAgICAieCI6IDUzNy44OTA2MjUsCiAgICAgICJ5IjogMzc0LjM3NSwKICAgICAgIndpZHRoIjogMjQyLjA0Njg3NSwKICAgICAgImhlaWdodCI6IDMyLAogICAgICAidG9wIjogMzc0LjM3NSwKICAgICAgImJvdHRvbSI6IDQwNi4zNzUKICAgIH0sCiAgICAib3B0aW9uIjogewogICAgICAieCI6IDUzOC44OTA2MjUsCiAgICAgICJ5IjogMzc1LjM3NSwKICAgICAgIndpZHRoIjogMjQwLjA0Njg3NSwKICAgICAgImhlaWdodCI6IDMwLAogICAgICAidG9wIjogMzc1LjM3NSwKICAgICAgImJvdHRvbSI6IDQwNS4zNzUKICAgIH0sCiAgICAiY2xpcFBhdGgiOiAiaW5zZXQoNDYuMTg3NXB4IDYwNC4wNjJweCA0NjkuNjI1cHggNDY5Ljg5MXB4KSIsCiAgICAiZWRpdG9yQm9keUludGVyc2VjdGlvbiI6IDM1LAogICAgInBvcHVwVmlzaWJpbGl0eSI6ICJ2aXNpYmxlIiwKICAgICJvcHRpb25IaXQiOiB0cnVlLAogICAgImRyYWZ0IjogInBpIiwKICAgICJmb2N1c2VkRWRpdG9yIjogdHJ1ZSwKICAgICJhY3RpdmVUYWciOiAiSU5QVVQiLAogICAgInVuZG9EaXNhYmxlZCI6IHRydWUsCiAgICAiZWRpdGVkTWFya2VycyI6IDAKICB9LAogICJhZnRlciI6IHsKICAgICJzY3JvbGxUb3AiOiA5MCwKICAgICJlZGl0b3IiOiB7CiAgICAgICJ4IjogNTM3Ljg5MDYyNSwKICAgICAgInkiOiAyNDkuMzc1LAogICAgICAid2lkdGgiOiAyNDIuMDQ2ODc1LAogICAgICAiaGVpZ2h0IjogMzUsCiAgICAgICJ0b3AiOiAyNDkuMzc1LAogICAgICAiYm90dG9tIjogMjg0LjM3NQogICAgfSwKICAgICJhbmNob3IiOiB7CiAgICAgICJ4IjogNTM3Ljg5MDYyNSwKICAgICAgInkiOiAyNDkuMzc1LAogICAgICAid2lkdGgiOiAyNDIuMDQ2ODc1LAogICAgICAiaGVpZ2h0IjogMzUsCiAgICAgICJ0b3AiOiAyNDkuMzc1LAogICAgICAiYm90dG9tIjogMjg0LjM3NQogICAgfSwKICAgICJib2R5U2xvdCI6IHsKICAgICAgIngiOiA2OCwKICAgICAgInkiOiAzMzkuMzc1LAogICAgICAid2lkdGgiOiAxMzE2LAogICAgICAiaGVpZ2h0IjogNDYzLjYyNSwKICAgICAgInRvcCI6IDMzOS4zNzUsCiAgICAgICJib3R0b20iOiA4MDMKICAgIH0sCiAgICAiZ3JpZCI6IHsKICAgICAgIngiOiA2OCwKICAgICAgInkiOiAyOTMuMTg3NSwKICAgICAgIndpZHRoIjogMTMxNiwKICAgICAgImhlaWdodCI6IDUwOS44MTI1LAogICAgICAidG9wIjogMjkzLjE4NzUsCiAgICAgICJib3R0b20iOiA4MDMKICAgIH0sCiAgICAicm93IjogewogICAgICAieCI6IDY4LAogICAgICAieSI6IDI0OS4zNzUsCiAgICAgICJ3aWR0aCI6IDEzMTYsCiAgICAgICJoZWlnaHQiOiAzNiwKICAgICAgInRvcCI6IDI0OS4zNzUsCiAgICAgICJib3R0b20iOiAyODUuMzc1CiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJ4IjogNjgsCiAgICAgICJ5IjogMzM5LjM3NSwKICAgICAgIndpZHRoIjogMTMxNiwKICAgICAgImhlaWdodCI6IDQ2NCwKICAgICAgInRvcCI6IDMzOS4zNzUsCiAgICAgICJib3R0b20iOiA4MDMuMzc1CiAgICB9LAogICAgInBvcHVwIjogbnVsbCwKICAgICJvcHRpb24iOiBudWxsLAogICAgImNsaXBQYXRoIjogImluc2V0KDQ2LjE4NzVweCA2MDQuMDYycHggNTU5LjYyNXB4IDQ2OS44OTFweCkiLAogICAgImVkaXRvckJvZHlJbnRlcnNlY3Rpb24iOiAwLAogICAgInBvcHVwVmlzaWJpbGl0eSI6IG51bGwsCiAgICAib3B0aW9uSGl0IjogZmFsc2UsCiAgICAiZHJhZnQiOiAicGkiLAogICAgImZvY3VzZWRFZGl0b3IiOiB0cnVlLAogICAgImFjdGl2ZVRhZyI6ICJJTlBVVCIsCiAgICAidW5kb0Rpc2FibGVkIjogdHJ1ZSwKICAgICJlZGl0ZWRNYXJrZXJzIjogMAogIH0KfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "53c0d84efc0f4ae20b8c-24e1c8d301b031e6ab4d",
+          "file": "b4-sections.spec.ts",
+          "line": 149,
+          "column": 1
+        },
+        {
+          "title": "B4 Sections enum explicit completion, passive cancellation and raw review retention",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3309,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-21T13:53:49.087Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser-identity",
+                      "contentType": "application/json",
+                      "body": "ewogICJjZHBWZXJzaW9uIjogewogICAgInByb3RvY29sVmVyc2lvbiI6ICIxLjMiLAogICAgInByb2R1Y3QiOiAiQ2hyb21lLzE0OC4wLjc3NzguOTYiLAogICAgInJldmlzaW9uIjogIkA4NjI1ZTA2NmZlYmM3MjFlMDE1ZWE5OTg0MmRhMTI5MDFlYjdlZDczIiwKICAgICJ1c2VyQWdlbnQiOiAiTW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTVfNykgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgSGVhZGxlc3NDaHJvbWUvMTQ4LjAuMC4wIFNhZmFyaS81MzcuMzYiLAogICAgImpzVmVyc2lvbiI6ICIxNC44LjE3OC4xNCIKICB9LAogICJwbGF5d3JpZ2h0QnJvd3NlclZlcnNpb24iOiAiMTQ4LjAuNzc3OC45NiIsCiAgImV4ZWN1dGFibGVQYXRoIjogIi9Vc2Vycy9yeWFuL0xpYnJhcnkvQ2FjaGVzL21zLXBsYXl3cmlnaHQvY2hyb21pdW0tMTIyMy9jaHJvbWUtbWFjLWFybTY0L0dvb2dsZSBDaHJvbWUgZm9yIFRlc3RpbmcuYXBwL0NvbnRlbnRzL01hY09TL0dvb2dsZSBDaHJvbWUgZm9yIFRlc3RpbmciLAogICJleGVjdXRhYmxlU2hhMjU2IjogIjI0NDdjN2JkZWE4ZThhZDM4YjUyNTk0ZjFiYTUzZTE4ODIxYzA1NDQ1ZThhMDdhZDFjZjNiMGYyMzkzMWQ4OWQiCn0="
+                    },
+                    {
+                      "name": "section-enum-light-computed-style",
+                      "contentType": "application/json",
+                      "body": "ewogICJiYWNrZ3JvdW5kIjogInJnYigyNTUsIDI1NSwgMjU1KSIsCiAgInRleHQiOiAicmdiKDM0LCAzOSwgNDQpIiwKICAiYm9yZGVyIjogInJnYigyMTMsIDIxNiwgMjE5KSIsCiAgImJvcmRlclN0eWxlIjogInNvbGlkIiwKICAiYm9yZGVyV2lkdGgiOiAiMXB4IiwKICAib3B0aW9uQmFja2dyb3VuZCI6ICJyZ2IoMjI2LCAyMzgsIDI1NCkiLAogICJvcHRpb25UZXh0IjogInJnYigzNCwgMzksIDQ0KSIsCiAgImhpdCI6IHRydWUsCiAgInJvb3RTdXJmYWNlIjogInJnYigyNTUsIDI1NSwgMjU1KSIsCiAgInJvb3RUZXh0IjogInJnYigzNCwgMzksIDQ0KSIsCiAgInJvb3RCb3JkZXIiOiAicmdiKDIxMywgMjE2LCAyMTkpIiwKICAicm9vdFNlbGVjdGlvbiI6ICJyZ2IoMjI2LCAyMzgsIDI1NCkiCn0="
+                    },
+                    {
+                      "name": "section-enum-dark-computed-style",
+                      "contentType": "application/json",
+                      "body": "ewogICJiYWNrZ3JvdW5kIjogInJnYigzNywgNDAsIDQ0KSIsCiAgInRleHQiOiAicmdiKDIyOSwgMjMyLCAyMzYpIiwKICAiYm9yZGVyIjogInJnYig1NywgNjIsIDY2KSIsCiAgImJvcmRlclN0eWxlIjogInNvbGlkIiwKICAiYm9yZGVyV2lkdGgiOiAiMXB4IiwKICAib3B0aW9uQmFja2dyb3VuZCI6ICJyZ2IoMzQsIDYyLCA5NykiLAogICJvcHRpb25UZXh0IjogInJnYigyMjksIDIzMiwgMjM2KSIsCiAgImhpdCI6IHRydWUsCiAgInJvb3RTdXJmYWNlIjogInJnYigzNywgNDAsIDQ0KSIsCiAgInJvb3RUZXh0IjogInJnYigyMjksIDIzMiwgMjM2KSIsCiAgInJvb3RCb3JkZXIiOiAicmdiKDU3LCA2MiwgNjYpIiwKICAicm9vdFNlbGVjdGlvbiI6ICJyZ2IoMzQsIDYyLCA5NykiCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "53c0d84efc0f4ae20b8c-a9924d7fcd982969eb0a",
+          "file": "b4-sections.spec.ts",
+          "line": 36,
+          "column": 1
+        },
+        {
+          "title": "B4 diagnostic clipped Section enum dismisses its detached options after real body scroll",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2161,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-21T13:53:52.661Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser-identity",
+                      "contentType": "application/json",
+                      "body": "ewogICJjZHBWZXJzaW9uIjogewogICAgInByb3RvY29sVmVyc2lvbiI6ICIxLjMiLAogICAgInByb2R1Y3QiOiAiQ2hyb21lLzE0OC4wLjc3NzguOTYiLAogICAgInJldmlzaW9uIjogIkA4NjI1ZTA2NmZlYmM3MjFlMDE1ZWE5OTg0MmRhMTI5MDFlYjdlZDczIiwKICAgICJ1c2VyQWdlbnQiOiAiTW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTVfNykgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgSGVhZGxlc3NDaHJvbWUvMTQ4LjAuMC4wIFNhZmFyaS81MzcuMzYiLAogICAgImpzVmVyc2lvbiI6ICIxNC44LjE3OC4xNCIKICB9LAogICJwbGF5d3JpZ2h0QnJvd3NlclZlcnNpb24iOiAiMTQ4LjAuNzc3OC45NiIsCiAgImV4ZWN1dGFibGVQYXRoIjogIi9Vc2Vycy9yeWFuL0xpYnJhcnkvQ2FjaGVzL21zLXBsYXl3cmlnaHQvY2hyb21pdW0tMTIyMy9jaHJvbWUtbWFjLWFybTY0L0dvb2dsZSBDaHJvbWUgZm9yIFRlc3RpbmcuYXBwL0NvbnRlbnRzL01hY09TL0dvb2dsZSBDaHJvbWUgZm9yIFRlc3RpbmciLAogICJleGVjdXRhYmxlU2hhMjU2IjogIjI0NDdjN2JkZWE4ZThhZDM4YjUyNTk0ZjFiYTUzZTE4ODIxYzA1NDQ1ZThhMDdhZDFjZjNiMGYyMzkzMWQ4OWQiCn0="
+                    },
+                    {
+                      "name": "clipped-enum-observation",
+                      "contentType": "application/json",
+                      "body": "ewogICJiZWZvcmUiOiB7CiAgICAic2Nyb2xsVG9wIjogMCwKICAgICJlZGl0b3IiOiB7CiAgICAgICJ4IjogNDU5LjI1LAogICAgICAieSI6IDMzOS4zNzUsCiAgICAgICJ3aWR0aCI6IDIwMS4zNzUsCiAgICAgICJoZWlnaHQiOiAzNSwKICAgICAgInRvcCI6IDMzOS4zNzUsCiAgICAgICJib3R0b20iOiAzNzQuMzc1CiAgICB9LAogICAgImFuY2hvciI6IHsKICAgICAgIngiOiA0NTkuMjUsCiAgICAgICJ5IjogMzM5LjM3NSwKICAgICAgIndpZHRoIjogMjAxLjM3NSwKICAgICAgImhlaWdodCI6IDM1LAogICAgICAidG9wIjogMzM5LjM3NSwKICAgICAgImJvdHRvbSI6IDM3NC4zNzUKICAgIH0sCiAgICAiYm9keVNsb3QiOiB7CiAgICAgICJ4IjogNjgsCiAgICAgICJ5IjogMzM5LjM3NSwKICAgICAgIndpZHRoIjogMTE1NiwKICAgICAgImhlaWdodCI6IDM0My42MjUsCiAgICAgICJ0b3AiOiAzMzkuMzc1LAogICAgICAiYm90dG9tIjogNjgzCiAgICB9LAogICAgImdyaWQiOiB7CiAgICAgICJ4IjogNjgsCiAgICAgICJ5IjogMjkzLjE4NzUsCiAgICAgICJ3aWR0aCI6IDExNTYsCiAgICAgICJoZWlnaHQiOiAzODkuODEyNSwKICAgICAgInRvcCI6IDI5My4xODc1LAogICAgICAiYm90dG9tIjogNjgzCiAgICB9LAogICAgInJvdyI6IHsKICAgICAgIngiOiA2OCwKICAgICAgInkiOiAzMzkuMzc1LAogICAgICAid2lkdGgiOiAxMTU2LAogICAgICAiaGVpZ2h0IjogMzYsCiAgICAgICJ0b3AiOiAzMzkuMzc1LAogICAgICAiYm90dG9tIjogMzc1LjM3NQogICAgfSwKICAgICJib2R5IjogewogICAgICAieCI6IDY4LAogICAgICAieSI6IDMzOS4zNzUsCiAgICAgICJ3aWR0aCI6IDExNTYsCiAgICAgICJoZWlnaHQiOiAzNDQsCiAgICAgICJ0b3AiOiAzMzkuMzc1LAogICAgICAiYm90dG9tIjogNjgzLjM3NQogICAgfSwKICAgICJwb3B1cCI6IHsKICAgICAgIngiOiA0NTkuMjUsCiAgICAgICJ5IjogMzc0LjM3NSwKICAgICAgIndpZHRoIjogMjAxLjM3NSwKICAgICAgImhlaWdodCI6IDMyLAogICAgICAidG9wIjogMzc0LjM3NSwKICAgICAgImJvdHRvbSI6IDQwNi4zNzUKICAgIH0sCiAgICAib3B0aW9uIjogewogICAgICAieCI6IDQ2MC4yNSwKICAgICAgInkiOiAzNzUuMzc1LAogICAgICAid2lkdGgiOiAxOTkuMzc1LAogICAgICAiaGVpZ2h0IjogMzAsCiAgICAgICJ0b3AiOiAzNzUuMzc1LAogICAgICAiYm90dG9tIjogNDA1LjM3NQogICAgfSwKICAgICJjbGlwUGF0aCI6ICJpbnNldCg0Ni4xODc1cHggNTYzLjM3NXB4IDM0OS42MjVweCAzOTEuMjVweCkiLAogICAgImVkaXRvckJvZHlJbnRlcnNlY3Rpb24iOiAzNSwKICAgICJwb3B1cFZpc2liaWxpdHkiOiAidmlzaWJsZSIsCiAgICAib3B0aW9uSGl0IjogdHJ1ZSwKICAgICJkcmFmdCI6ICJwaSIsCiAgICAiZm9jdXNlZEVkaXRvciI6IHRydWUsCiAgICAiYWN0aXZlVGFnIjogIklOUFVUIiwKICAgICJ1bmRvRGlzYWJsZWQiOiB0cnVlLAogICAgImVkaXRlZE1hcmtlcnMiOiAwCiAgfSwKICAiYWZ0ZXIiOiB7CiAgICAic2Nyb2xsVG9wIjogOTAsCiAgICAiZWRpdG9yIjogewogICAgICAieCI6IDQ1OS4yNSwKICAgICAgInkiOiAyNDkuMzc1LAogICAgICAid2lkdGgiOiAyMDEuMzc1LAogICAgICAiaGVpZ2h0IjogMzUsCiAgICAgICJ0b3AiOiAyNDkuMzc1LAogICAgICAiYm90dG9tIjogMjg0LjM3NQogICAgfSwKICAgICJhbmNob3IiOiB7CiAgICAgICJ4IjogNDU5LjI1LAogICAgICAieSI6IDI0OS4zNzUsCiAgICAgICJ3aWR0aCI6IDIwMS4zNzUsCiAgICAgICJoZWlnaHQiOiAzNSwKICAgICAgInRvcCI6IDI0OS4zNzUsCiAgICAgICJib3R0b20iOiAyODQuMzc1CiAgICB9LAogICAgImJvZHlTbG90IjogewogICAgICAieCI6IDY4LAogICAgICAieSI6IDMzOS4zNzUsCiAgICAgICJ3aWR0aCI6IDExNTYsCiAgICAgICJoZWlnaHQiOiAzNDMuNjI1LAogICAgICAidG9wIjogMzM5LjM3NSwKICAgICAgImJvdHRvbSI6IDY4MwogICAgfSwKICAgICJncmlkIjogewogICAgICAieCI6IDY4LAogICAgICAieSI6IDI5My4xODc1LAogICAgICAid2lkdGgiOiAxMTU2LAogICAgICAiaGVpZ2h0IjogMzg5LjgxMjUsCiAgICAgICJ0b3AiOiAyOTMuMTg3NSwKICAgICAgImJvdHRvbSI6IDY4MwogICAgfSwKICAgICJyb3ciOiB7CiAgICAgICJ4IjogNjgsCiAgICAgICJ5IjogMjQ5LjM3NSwKICAgICAgIndpZHRoIjogMTE1NiwKICAgICAgImhlaWdodCI6IDM2LAogICAgICAidG9wIjogMjQ5LjM3NSwKICAgICAgImJvdHRvbSI6IDI4NS4zNzUKICAgIH0sCiAgICAiYm9keSI6IHsKICAgICAgIngiOiA2OCwKICAgICAgInkiOiAzMzkuMzc1LAogICAgICAid2lkdGgiOiAxMTU2LAogICAgICAiaGVpZ2h0IjogMzQ0LAogICAgICAidG9wIjogMzM5LjM3NSwKICAgICAgImJvdHRvbSI6IDY4My4zNzUKICAgIH0sCiAgICAicG9wdXAiOiBudWxsLAogICAgIm9wdGlvbiI6IG51bGwsCiAgICAiY2xpcFBhdGgiOiAiaW5zZXQoNDYuMTg3NXB4IDU2My4zNzVweCA0MzkuNjI1cHggMzkxLjI1cHgpIiwKICAgICJlZGl0b3JCb2R5SW50ZXJzZWN0aW9uIjogMCwKICAgICJwb3B1cFZpc2liaWxpdHkiOiBudWxsLAogICAgIm9wdGlvbkhpdCI6IGZhbHNlLAogICAgImRyYWZ0IjogInBpIiwKICAgICJmb2N1c2VkRWRpdG9yIjogdHJ1ZSwKICAgICJhY3RpdmVUYWciOiAiSU5QVVQiLAogICAgInVuZG9EaXNhYmxlZCI6IHRydWUsCiAgICAiZWRpdGVkTWFya2VycyI6IDAKICB9Cn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "53c0d84efc0f4ae20b8c-b6a5e1f783e44b006d91",
+          "file": "b4-sections.spec.ts",
+          "line": 149,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-21T13:53:41.324Z",
+    "duration": 13587.76,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

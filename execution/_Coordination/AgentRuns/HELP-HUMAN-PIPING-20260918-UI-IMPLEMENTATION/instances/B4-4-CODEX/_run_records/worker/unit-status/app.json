@@ -1,0 +1,1 @@
+{"command": ["npx", "vitest", "run", "src/App.test.tsx", "-t", "limits section type choices to pipe", "--maxWorkers=1"], "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop", "exit_code": 0}

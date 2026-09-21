@@ -1,0 +1,6 @@
+Listing tests:
+  [chromium-desktop] › b4-sections.spec.ts:36:1 › B4 Sections enum explicit completion, passive cancellation and raw review retention
+  [chromium-desktop] › b4-sections.spec.ts:149:1 › B4 diagnostic clipped Section enum dismisses its detached options after real body scroll
+  [chromium-compact] › b4-sections.spec.ts:36:1 › B4 Sections enum explicit completion, passive cancellation and raw review retention
+  [chromium-compact] › b4-sections.spec.ts:149:1 › B4 diagnostic clipped Section enum dismisses its detached options after real body scroll
+Total: 4 tests in 1 file

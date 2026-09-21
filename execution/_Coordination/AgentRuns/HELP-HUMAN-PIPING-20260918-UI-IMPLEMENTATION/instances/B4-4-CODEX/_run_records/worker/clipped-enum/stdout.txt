@@ -1,0 +1,36 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 [chromium-desktop] › e2e/b4-sections.spec.ts:149:1 › B4 diagnostic clipped Section enum dismisses its detached options after real body scroll (2.9s)
+
+
+  1) [chromium-desktop] › e2e/b4-sections.spec.ts:149:1 › B4 diagnostic clipped Section enum dismisses its detached options after real body scroll 
+
+    Error: options must not remain hitable when their editor is fully clipped
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mfalse[39m
+    Received: [31mtrue[39m
+
+      181 |   expect(hashAfter).toBe(hashBefore); expect(before.draft).toBe("pi"); expect(after.draft).toBe("pi");
+      182 |   expect(after.focusedEditor).toBe(true); expect(after.undoDisabled).toBe(true); expect(after.editedMarkers).toBe(0);
+    > 183 |   expect(after.editorBodyIntersection).toBe(0); expect(after.optionHit, "options must not remain hitable when their editor is fully clipped").toBe(false);
+          |                                                                                                                                               ^
+      184 |   expect(after.popup, "fully clipped editor dismisses the detached options").toBeNull();
+      185 | });
+      186 |
+        at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-sections.spec.ts:183:143
+
+    Error Context: ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-4-CODEX/_run_records/worker/clipped-enum/artifacts/b4-sections-B4-diagnostic--cdda0-ions-after-real-body-scroll-chromium-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-4-CODEX/_run_records/worker/clipped-enum/artifacts/b4-sections-B4-diagnostic--cdda0-ions-after-real-body-scroll-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-4-CODEX/_run_records/worker/clipped-enum/artifacts/b4-sections-B4-diagnostic--cdda0-ions-after-real-body-scroll-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium-desktop] › e2e/b4-sections.spec.ts:149:1 › B4 diagnostic clipped Section enum dismisses its detached options after real body scroll 

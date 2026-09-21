@@ -1,0 +1,154 @@
+{
+  "before": {
+    "scrollTop": 0,
+    "editor": {
+      "x": 537.890625,
+      "y": 339.375,
+      "width": 242.046875,
+      "height": 35,
+      "top": 339.375,
+      "bottom": 374.375
+    },
+    "anchor": {
+      "x": 537.890625,
+      "y": 339.375,
+      "width": 242.046875,
+      "height": 35,
+      "top": 339.375,
+      "bottom": 374.375
+    },
+    "bodySlot": {
+      "x": 68,
+      "y": 339.375,
+      "width": 1316,
+      "height": 463.625,
+      "top": 339.375,
+      "bottom": 803
+    },
+    "grid": {
+      "x": 68,
+      "y": 293.1875,
+      "width": 1316,
+      "height": 509.8125,
+      "top": 293.1875,
+      "bottom": 803
+    },
+    "row": {
+      "x": 68,
+      "y": 339.375,
+      "width": 1316,
+      "height": 36,
+      "top": 339.375,
+      "bottom": 375.375
+    },
+    "body": {
+      "x": 68,
+      "y": 339.375,
+      "width": 1316,
+      "height": 464,
+      "top": 339.375,
+      "bottom": 803.375
+    },
+    "popup": {
+      "x": 537.890625,
+      "y": 374.375,
+      "width": 242.046875,
+      "height": 32,
+      "top": 374.375,
+      "bottom": 406.375
+    },
+    "option": {
+      "x": 538.890625,
+      "y": 375.375,
+      "width": 240.046875,
+      "height": 30,
+      "top": 375.375,
+      "bottom": 405.375
+    },
+    "clipPath": "inset(46.1875px 604.062px 469.625px 469.891px)",
+    "editorBodyIntersection": 35,
+    "popupVisibility": "visible",
+    "optionHit": true,
+    "draft": "pi",
+    "focusedEditor": true,
+    "activeTag": "INPUT",
+    "undoDisabled": true,
+    "editedMarkers": 0
+  },
+  "after": {
+    "scrollTop": 90,
+    "editor": {
+      "x": 537.890625,
+      "y": 249.375,
+      "width": 242.046875,
+      "height": 35,
+      "top": 249.375,
+      "bottom": 284.375
+    },
+    "anchor": {
+      "x": 537.890625,
+      "y": 249.375,
+      "width": 242.046875,
+      "height": 35,
+      "top": 249.375,
+      "bottom": 284.375
+    },
+    "bodySlot": {
+      "x": 68,
+      "y": 339.375,
+      "width": 1316,
+      "height": 463.625,
+      "top": 339.375,
+      "bottom": 803
+    },
+    "grid": {
+      "x": 68,
+      "y": 293.1875,
+      "width": 1316,
+      "height": 509.8125,
+      "top": 293.1875,
+      "bottom": 803
+    },
+    "row": {
+      "x": 68,
+      "y": 249.375,
+      "width": 1316,
+      "height": 36,
+      "top": 249.375,
+      "bottom": 285.375
+    },
+    "body": {
+      "x": 68,
+      "y": 339.375,
+      "width": 1316,
+      "height": 464,
+      "top": 339.375,
+      "bottom": 803.375
+    },
+    "popup": {
+      "x": 537.890625,
+      "y": 284.375,
+      "width": 242.046875,
+      "height": 32,
+      "top": 284.375,
+      "bottom": 316.375
+    },
+    "option": {
+      "x": 538.890625,
+      "y": 285.375,
+      "width": 240.046875,
+      "height": 30,
+      "top": 285.375,
+      "bottom": 315.375
+    },
+    "clipPath": "inset(46.1875px 604.062px 559.625px 469.891px)",
+    "editorBodyIntersection": 0,
+    "popupVisibility": "visible",
+    "optionHit": true,
+    "draft": "pi",
+    "focusedEditor": true,
+    "activeTag": "INPUT",
+    "undoDisabled": true,
+    "editedMarkers": 0
+  }
+}
