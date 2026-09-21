@@ -237,3 +237,11 @@ taxonomy per DEC-081).
   under F8. Six verifier observations are added as CONTESTED or OBSERVED
   rows (38 in total). Briefs say 2–4 deliverables per group, and a rerun
   manager waits for a free slot.
+- 2026-09-22 — Gate wave 2 (PKG-00 to PKG-04, 31 deliverables) met the gate
+  (`WAVES/W2/W2_GATE_ASSESSMENT.md`). The pooled firm false-alignment rate
+  was 1.9% (wave 1: 4.4%). DEL-03-07 was rerun once at a verifier's request
+  and re-verified. Resolutions are recorded in `WAVES/W2/RESOLUTIONS.csv`
+  (122 rows) and in 9 new `RESOLVED_BY_RULE` rows in the W1 file. Validator
+  changes (tooling only): CP-04 rows are compared within their variant,
+  recorded `RESOLVED_PAIR` rows are exempt from batch comparison, and
+  evidence tokens may contain spaces when they resolve at the freeze.
