@@ -1,0 +1,92 @@
+{
+  "kind": "candidate-bound preflight before the full sweep",
+  "candidate": "47ad675c9dd013007c587ce6325003c990b2359c",
+  "productSource": "ed8cc27fdb37b8df2f20eb5f877aacb61bfd7db1",
+  "base": "fd195cf4287e84572a12183169478a6f7ddf6a92",
+  "cleanAtStart": true,
+  "cwdOrigin": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2",
+  "checks": [
+    {
+      "name": "claims",
+      "args": [
+        "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+        "tools/validation/validate_claims_language.py",
+        "--repo-root",
+        "."
+      ],
+      "candidate": "47ad675c9dd013007c587ce6325003c990b2359c",
+      "exit": 0,
+      "seconds": 0.7960281372070312,
+      "logSha256": "148f3902df670a9ccff6805628cbea07990ef5cf95f0f1a892096c26812ed7fd",
+      "canonicalStdout": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_EARLY_REPOSITORY_CHECKS_55EA/claims.log",
+      "byteIdenticalCanonicalOutputReused": true
+    },
+    {
+      "name": "g4",
+      "args": [
+        "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+        "tools/validation/validate_instruction_tranche_manifest.py",
+        "--base",
+        "fd195cf4287e84572a12183169478a6f7ddf6a92",
+        "--head",
+        "47ad675c9dd013007c587ce6325003c990b2359c",
+        "--added-manifests-only"
+      ],
+      "candidate": "47ad675c9dd013007c587ce6325003c990b2359c",
+      "exit": 0,
+      "seconds": 0.3853330612182617,
+      "logSha256": "ae389112430d68c91960a809071eec59796f04ddda26854260581534b57b7458",
+      "canonicalStdout": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_PREFLIGHT_47AD/g4.log",
+      "byteIdenticalCanonicalOutputReused": false
+    },
+    {
+      "name": "harness-pytest",
+      "args": [
+        "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tools/practitioner_harness"
+      ],
+      "candidate": "47ad675c9dd013007c587ce6325003c990b2359c",
+      "exit": 0,
+      "seconds": 58.50153994560242,
+      "logSha256": "dcbaa2938fdedad770955051c2b69581a4ca04dcb2e9d58668eeee9cf4bade12",
+      "canonicalStdout": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_PREFLIGHT_47AD/harness-pytest.log",
+      "byteIdenticalCanonicalOutputReused": false
+    },
+    {
+      "name": "receipts",
+      "args": [
+        "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+        "tools/validation/validate_piping_loop_receipts.py",
+        "--repo-root",
+        "."
+      ],
+      "candidate": "47ad675c9dd013007c587ce6325003c990b2359c",
+      "exit": 0,
+      "seconds": 2.197131872177124,
+      "logSha256": "163deff7fcef7146b54dc4bd3c591dbd2a0f6fa0565932b793e64774d359a966",
+      "canonicalStdout": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_EARLY_REPOSITORY_CHECKS_55EA/receipts.log",
+      "byteIdenticalCanonicalOutputReused": true
+    },
+    {
+      "name": "self-check",
+      "args": [
+        "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+        "tools/practitioner_harness/harness.py",
+        "self-check",
+        "--json-report",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/_harness_generated/b4-preflight-47ad.json"
+      ],
+      "candidate": "47ad675c9dd013007c587ce6325003c990b2359c",
+      "exit": 0,
+      "seconds": 29.976407766342163,
+      "logSha256": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e",
+      "canonicalStdout": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_EARLY_REPOSITORY_CHECKS_55EA/self-check.log",
+      "byteIdenticalCanonicalOutputReused": true
+    }
+  ],
+  "summary": "All5 checks pass: claims353 surfaces,receipt contract valid,G4 zero instruction-surface changes,harness379pass,self-check0BLOCK with unchanged4REVIEW112WARN14INFO1NA baseline. This is not the complete product sweep or actual-head CI.",
+  "custody": "Freshly executed stdout is retained once: three outputs are byte-identical to existing canonical55ea logs and are linked with hashes; G4 and harness outputs are retained here."
+}

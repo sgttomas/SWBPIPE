@@ -2,7 +2,9 @@
 
 Run `HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION`, ROOT (HELP_HUMAN, Agent 0). Working surface; superseded lines are struck, not deleted.
 
-**Start here (2026-09-19):** `instances/ROOT/SESSION_HANDOFF_2026-09-19.md` is the state of the run for whoever continues it, under the plan's amendment 1 (the control layer first). This file stays the dated log.
+~~**Start here (2026-09-19):** `instances/ROOT/SESSION_HANDOFF_2026-09-19.md` is the state of the run for whoever continues it, under the plan's amendment 1 (the control layer first). This file stays the dated log.~~
+
+**Current entry (2026-09-20, owner graceful pause at B4.1 PR):** `instances/ROOT/CONTINUATION_2026-09-19_CODEX/PAUSE_HANDOFF_2026-09-20.md` and `WORK_GRAPH.json`. Finish only current PR closeout, then wait for explicit resume. Earlier dated entries below remain historical.
 
 ## Where the run stands
 
@@ -215,3 +217,5 @@ The peer-reviewed CLI activation now includes single and atomic multi-operation 
 Initial87faf source review found two P2 focus/selection defects alongside the observed final-editor Tab failure. All three were repaired and independently backchecked at840a; new4 and legacy6 browser cases passed. Actual native WebKit then showed physical Cancel applying valid drafts three times. This failed840a record remains immutable. Minimal own-footer pointer-down default prevention and stronger valid-Cancel tests are source-reviewed at6dd;31core tests/TS and affected4browser cases pass. The old native process was quit and verified absent. One repaired uninstrumented6dd native build/witness now owns the shared foreground/CUA slot; physical Cancel and previously unobserved horizontal reachability/fit remain decisive before merge. ROOT own look and final combined gates are outstanding.
 
 Local integration branch codex/swbpipe-b4-controls-20260920 in wt2 isf4c1773; it includes6dd and the reviewed duration hints. The new B4 spec is also mapped to authoring/layout CI,31policy cases pass; that mapping and final combined records need independent coverage. No PR/full sweep has been started for these helper checkpoints. All original failures and reviews remain distinct. C4 rulings and bounded CLI activation are still pending; source-control progress does not infer either.
+
+- 2026-09-20, B4.1 verified at clean47ad: source/native/combined reviews and full local sweep passed. Owner requests graceful pause at the impending PR. Final metadata/hosted CI/merge only remain; no next implementation starts. Canonical pause direction, evidence and resume frontier are in continuation `OWNER_GRACEFUL_PAUSE_2026-09-20.md` and `PAUSE_HANDOFF_2026-09-20.md`; the work graph records final PR disposition.

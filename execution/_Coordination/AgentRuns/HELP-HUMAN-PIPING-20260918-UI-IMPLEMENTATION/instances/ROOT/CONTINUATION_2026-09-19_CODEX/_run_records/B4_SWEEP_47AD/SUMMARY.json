@@ -1,0 +1,51 @@
+{
+  "candidate": "47ad675c9dd013007c587ce6325003c990b2359c",
+  "productSource": "ed8cc27fdb37b8df2f20eb5f877aacb61bfd7db1",
+  "cleanBeforeAndAfter": true,
+  "overallStatus": "pass",
+  "registeredDurationSeconds": 1069.324,
+  "wrapperWallSeconds": 1072.9595999717712,
+  "checks": {
+    "rust": "all registered/discovered crate commands pass",
+    "python": {
+      "passed": 1136,
+      "warnings": 304,
+      "subtestsPassed": 7
+    },
+    "desktopUnit": {
+      "filesPassed": 96,
+      "testsPassed": 1536
+    },
+    "sourceBrowser": {
+      "passed": 425,
+      "existingSkipped": 20,
+      "collected": 445
+    },
+    "distBrowser": {
+      "passed": 53
+    },
+    "productionBuild": "pass"
+  },
+  "rawLogSha256": "5081461269236dc35193c1ec5f917ce6d4cc910cad4e3d71d766299b1e295020",
+  "rawLogBytes": 1896100,
+  "result": "SWEEP_20260921T021659Z_47ad675c9dd0.json",
+  "limits": "Commit-bound development evidence;20 existing source skips remain explicit. No D72/usability/engineering/release/live-agent acceptance. Actual-head hosted CI remains pending.",
+  "files": {
+    "END.json": {
+      "sha256": "05b4fd9250c2c6c1d20c244e0d93d7e7167d28f47df067bcec4f71a3f7f8957a",
+      "bytes": 264
+    },
+    "START.json": {
+      "sha256": "5e4514e47e8f06240ead49ade9ffb1f79cddd89e5e89875c1f4ac313a2f94243",
+      "bytes": 967
+    },
+    "SWEEP_20260921T021659Z_47ad675c9dd0.json": {
+      "sha256": "0e01ba40cbf16419bd76a98da45f02507195e20a912cd19a3e11dab85a1a391d",
+      "bytes": 3827
+    },
+    "sweep.log.gz": {
+      "sha256": "cdd83ae351dcb46fce8ca48b498516566c56542484205a7af70a5965b461efd2",
+      "bytes": 57856
+    }
+  }
+}

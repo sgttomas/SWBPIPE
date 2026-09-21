@@ -8,7 +8,7 @@
     "ROOT": {
       "role": "HELP_HUMAN Type 0",
       "model": "GPT-6 Astra",
-      "status": "active: B4 coordination, next-control/MVP decisions, shared evidence and integration; bounded live-control activation proposal awaiting owner",
+      "status": "owner-directed graceful pause at current B4.1 PR: final publication checks/CI/merge if passing and handoff only",
       "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/DECISION_AND_STRATEGY.md"
     },
     "A1-LINT": {
@@ -79,7 +79,7 @@
     "B-SHELL": {
       "role": "WORKING_ITEMS Type 1 lane manager",
       "model": "current WORKING_ITEMS gpt-6-astra/high; historical Fable allocation preserved separately",
-      "status": "B3/B3A/B3B merged; retained Astra/high manager and Astra/low TASK implement bounded B4.1 vertical repair in wt3. B5 writes remain planned.",
+      "status": "B4.1 source/evidence handed back and verified; read-only remainder preparation returned; manager/workers idle for owner pause",
       "briefSha256": "00c98ec0f77363d3bf498c4729185b4761f77e7178853277996352b4b59c4b75",
       "brief": "briefs/B-SHELL_shell_lane.md",
       "returnSha256": null,
@@ -635,7 +635,7 @@
       "role": "slice",
       "lane": "B-SHELL",
       "title": "the table component through the one operation route",
-      "status": "active internal B4.1 Node table/core increment; later families/joined rows/CSV/Checked remain",
+      "status": "internal B4.1 locally verified, publication closeout only; full B4 remainder held for owner resume",
       "dependsOn": [
         "B3B"
       ],
@@ -658,7 +658,7 @@
       ],
       "remainderPreparationBrief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_REMAINDER_PREPARATION_BRIEF.md",
       "remainderPreparationBriefSha256": "cf1ea19b9ef79493cb3399785745789d035f8bdc05dd9dd604ffdeae432d235c",
-      "remainderPreparationState": "active read-only manager preparation after clean evidencec0 handback; no new worker or implementation",
+      "remainderPreparationState": "returned and clarified; B4.2 implementation NOT launched; owner pause now holds further work",
       "remainderPreparationBasis": {
         "source": "ed8cc27fdb37b8df2f20eb5f877aacb61bfd7db1",
         "workerReturnSha256": "f7aa44110af6fbef5564ad98b1cc80b95a892d2b0d888acb52a479663b9e2bca",
@@ -1907,8 +1907,8 @@
       "role": "ROOT integration",
       "parent": "ROOT",
       "branch": "codex/swbpipe-b4-controls-20260920",
-      "status": "clean combined ed8 source and c0 native/evidence; ROOT own-look tail being added; final clean sweep, combined review and actual-head CI pending",
-      "candidate": "c623022a8e8ea2aae66568a4b36bbe17f0134ced",
+      "status": "clean47ad complete host sweep and combined integration/evidence review PASS; owner requests pause after current PR closure; final metadata/CI/merge only",
+      "candidate": "47ad675c9dd013007c587ce6325003c990b2359c",
       "base": "fd195cf4287e84572a12183169478a6f7ddf6a92",
       "sourceCandidate": "ed8cc27fdb37b8df2f20eb5f877aacb61bfd7db1",
       "ciMapCommit": "ab3b057e4",
@@ -1924,7 +1924,14 @@
       "earlyRepositoryChecksSha256": "394ac52a2947690722f7e3a21fb3931c9941784c9d7a96ee2df770816df85c99",
       "collection": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_COLLECTION_DA504/SUMMARY.json",
       "collectionSha256": "a5b198115f94d101fdc85ab4683bedbeceded75b5f83c269c5bf7bb7794c545f",
-      "collectionScope": "445 identities in full mode, zero omitted/duplicate,30barrier+108/58/63/186 shards; collection-only, no test execution"
+      "collectionScope": "445 identities in full mode, zero omitted/duplicate,30barrier+108/58/63/186 shards; collection-only, no test execution",
+      "preflight": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_PREFLIGHT_47AD/SUMMARY.json",
+      "preflightSha256": "d31ae6bbbd35e8337c88f87a4bd5e9833b92d03c7f74293afdcee84f8560c3c9",
+      "sweepStart": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_SWEEP_47AD/START.json",
+      "sweepStartSha256": "5e4514e47e8f06240ead49ade9ffb1f79cddd89e5e89875c1f4ac313a2f94243",
+      "sweepStatus": "PASS at clean unchanged47ad; five registered surfaces pass",
+      "sweepSummary": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_SWEEP_47AD/SUMMARY.json",
+      "sweepSummarySha256": "9eceee2c9e500723e96a22db812cab62065fa866cf76aa8a0d90bc672eea2455"
     },
     "B5-PREPARATION-CODEX": {
       "role": "TASK Type2 read-only preparation",
@@ -1969,6 +1976,39 @@
       "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_EARLY_RECORDS_REVIEW_RETURN.md",
       "briefSha256": "131ed05f0166f2b1f0f77786428bd4f34bb3a93b5564cc37188b29e96e43b028",
       "returnSha256": "81a173683ba18fd54736130db9d3a64e5ac5fa8cf9b059e366421230e1e6ea33"
+    },
+    "B4-COMBINED-CANDIDATE-REVIEW": {
+      "role": "TASK Type2 independent combined integration/evidence review",
+      "parent": "ROOT",
+      "actualAgent": "/root/b3b_c3_ci_review",
+      "model": "gpt-6-astra",
+      "reasoning": "xhigh",
+      "mechanism": "Codex delegated-harness-native retained independent TASK",
+      "status": "PASS640path candidate integration/evidence; full sweep/final tail/actual-head CI pending",
+      "candidate": "47ad675c9dd013007c587ce6325003c990b2359c",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_COMBINED_CANDIDATE_REVIEW_BRIEF.md",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_COMBINED_CANDIDATE_REVIEW_RETURN.md",
+      "briefSha256": "fb79d3b434a30895b42d6fd0b584451188737f351e9df35250c772179faae49c",
+      "returnSha256": "d5605dbbde6f5b00abf190d7f057a001d42c8d14e0b238d1c11a58394570b4a0"
+    },
+    "B4-REMAINDER-PREPARATION": {
+      "role": "WORKING_ITEMS Type1 read-only preparation",
+      "parent": "ROOT",
+      "actualAgent": "/root/b3_manager",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "mechanism": "collaboration.send_message while active, then bounded followup_task clarification; no child launched",
+      "status": "returned; manager idle under owner pause; implementation unlaunched",
+      "basis": "ed8cc27fdb37b8df2f20eb5f877aacb61bfd7db1 / clean c0a3314e2b141d8f93b90364250d2bffa89433f7",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_REMAINDER_PREPARATION_BRIEF.md",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_REMAINDER_PREPARATION_RETURN.md",
+      "clarificationLaunch": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_REMAINDER_CLARIFICATION_LAUNCH.txt",
+      "clarificationReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_REMAINDER_CLARIFICATION_RETURN.md",
+      "recommendation": "Next B4.2: Node Label/string Provenance plus shared direct/review renderer; preserve legacy Queue before-value/visible-only and blank-toTBD behavior visibly, separate Keep draft from model Apply; no next activation before resume.",
+      "briefSha256": "cf1ea19b9ef79493cb3399785745789d035f8bdc05dd9dd604ffdeae432d235c",
+      "returnSha256": "065aeb1bc0bcb74752612fbc7f27913aa7f7ae104a75071867822dc2ddbde4ef",
+      "clarificationLaunchSha256": "a3782470d39e671b9517007032fdb3993f1cc5cc4073429b1c3e0bfdd87cbfeb",
+      "clarificationReturnSha256": "765e619dc83014bd8d451188c787d8152b01ed116e873a76e003492d5a89e8e2"
     }
   },
   "edges": [
@@ -2211,9 +2251,17 @@
     [
       "ROOT",
       "B4-EARLY-RECORDS-REVIEW"
+    ],
+    [
+      "ROOT",
+      "B4-COMBINED-CANDIDATE-REVIEW"
+    ],
+    [
+      "ROOT",
+      "B4-REMAINDER-PREPARATION"
     ]
   ],
-  "current_frontier": "B4.1 sourceed8 independently reviewed; bounded native vertical witness and ROOT own look passed, including a new native scrollbar-pointerZ/Cancel observation. All native processes closed. Assemble final clean sweep candidate; final combined review/CI remain. B4 remainder preparation active read-only; C4/liveCLI decisions pending; no full B4 closure.",
+  "current_frontier": "Owner-directed graceful pause after impending B4.1 PR. Complete clean47ad local sweep PASS (Rust;Python1136;desktop1536;source425pass20existing skips;dist53;build), native/source/combined reviews PASS. Only final records/backcheck/actual-head CI and merge if passing remain. No B4.2 or other new work; pause until explicit resume.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -2438,32 +2486,16 @@
     "nativeHandoff": "ROOT released native/CUA after restored-model cleanup/ps43662 absence; peer acknowledged release/no claim and source/dist/E2E reservation, with no competing heavy work."
   },
   "pause": {
-    "ownerText": "Pause your work",
+    "ownerText": "with the impending PR, use this as an opportunity to gracefully pause your work until I say resume.",
     "source": "active chat; supplied text, not transport bytes",
-    "recordedAt": "2026-09-20T07:42:01.208428+00:00",
-    "state": "resumed by explicit owner direction",
-    "previousFrontier": "B3 local work and independent review complete; clean9cf sweep PASS. ROOT completing closeout records/harness validation, actual PR CI and merge. B3A/B3B remain next authorized UI work; Runtime adoption/command adapter remains separately owner-steered. No deliverable reconciliation/DAG rebuild.",
-    "candidate": "002dff0f244976f98b36517d920b3761f6f88704",
-    "pr": "https://github.com/sgttomas/chirality/pull/825",
-    "ciAtPause": {
-      "harness": "PASS",
-      "desktopSource": "IN_PROGRESS"
-    },
-    "agents": "all bounded assignments returned; no new agents launched",
-    "resources": "no local app/test/server process; local CI watcher stopped; hosted CI left running",
-    "resume": "Wait for explicit owner resume. Repair manager brief14b3fe08 is prepared and unlaunched. No product or CI workflow edits, new agents, reruns or merge have occurred.",
-    "mergeExceptionOwnerText": "Merge the PR and then I'll tell you when you resume.",
-    "ciFinal": {
-      "harness": "PASS",
-      "desktopSource": "FAILURE",
-      "passed": 408,
-      "skipped": 20,
-      "failed": 2,
-      "evidence": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR825_CI_FAILURE/MANIFEST.json"
-    },
-    "boundedException": "Owner asks one-time reduced CI to complete PR825; ROOT applies to bounded tooltip/Close repair and necessary CI routing only, then pause. OWNER_CI_REPAIR_DIRECTION.md.",
-    "latestOwnerText": "that's great, but I still need you to pause work for a moment.  Then I will tell you to resume.",
-    "resumeRecord": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_RESUME_2026-09-20.md"
+    "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_GRACEFUL_PAUSE_2026-09-20.md",
+    "recordSha256": "86a9634e9913c8599ab34e4c5dcb8bf3889ef95c59aef411b51c9d0172cfe8f8",
+    "recordedAt": "2026-09-21T02:43:07.088986+00:00",
+    "state": "graceful current-PR closeout only, then paused until explicit resume",
+    "allowedCloseout": "publication records, final checks/backcheck, current B4.1 PR/actual-head CI and merge if passing, pause handoff",
+    "blockedCheckDisposition": "preserve any blocking check and pause with PR open; no new repair tranche",
+    "nextWork": "B4.2 and all other new implementation/preparation unlaunched or held; no ownership transfer",
+    "localResources": "full sweep finished; native apps closed and source/dist ports/shared lock released"
   },
   "historicalOpenWithOwner": {
     "blocking": [
@@ -2494,19 +2526,49 @@
     "scope": "No silence-as-approval; unaffected B4.1 continues"
   },
   "liveContinuationState": {
-    "root": "c390e67e1f764cc1b07a21795d4a6e56c1efbdfd plus native own-look tail",
+    "root": "b13fa91e7351640003f34c796bb81a70bec3b693 plus in-progress sweep/review records",
     "originMain": "fd195cf4287e84572a12183169478a6f7ddf6a92",
     "integrationBranch": {
       "branch": "codex/swbpipe-b4-controls-20260920",
-      "head": "c623022a8e8ea2aae66568a4b36bbe17f0134ced",
+      "head": "47ad675c9dd013007c587ce6325003c990b2359c",
       "state": "ROOT-owned local combined candidate; old PR828 branch127677 preserved"
     },
     "shell": "clean evidencec0, producted8 unchanged; manager read-only remainder preparation",
     "canvas": "fb720420 preserved; C4 preparation returned",
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "separate two-edit worktree preserved; never fan-in",
-    "resources": "all Piping native processes closed and native/CUA released/acknowledged; source/dist5174/5175/shared E2E lock reserved for clean sweep; manager read-only preparation only",
-    "recordStatus": "source and prior records reviewed at stated scopes; new native/publication tail awaits combined backcheck",
-    "observedAt": "2026-09-21T02:11:42.840274+00:00"
-  }
+    "resources": "no Piping native/browser/test/server process or port/lock claim; local sweep complete; no new worker",
+    "recordStatus": "publication/pause tail awaiting scoped checks and independent backcheck",
+    "observedAt": "2026-09-21T02:43:07.089363+00:00"
+  },
+  "historicalPauses": [
+    {
+      "ownerText": "Pause your work",
+      "source": "active chat; supplied text, not transport bytes",
+      "recordedAt": "2026-09-20T07:42:01.208428+00:00",
+      "state": "resumed by explicit owner direction",
+      "previousFrontier": "B3 local work and independent review complete; clean9cf sweep PASS. ROOT completing closeout records/harness validation, actual PR CI and merge. B3A/B3B remain next authorized UI work; Runtime adoption/command adapter remains separately owner-steered. No deliverable reconciliation/DAG rebuild.",
+      "candidate": "002dff0f244976f98b36517d920b3761f6f88704",
+      "pr": "https://github.com/sgttomas/chirality/pull/825",
+      "ciAtPause": {
+        "harness": "PASS",
+        "desktopSource": "IN_PROGRESS"
+      },
+      "agents": "all bounded assignments returned; no new agents launched",
+      "resources": "no local app/test/server process; local CI watcher stopped; hosted CI left running",
+      "resume": "Wait for explicit owner resume. Repair manager brief14b3fe08 is prepared and unlaunched. No product or CI workflow edits, new agents, reruns or merge have occurred.",
+      "mergeExceptionOwnerText": "Merge the PR and then I'll tell you when you resume.",
+      "ciFinal": {
+        "harness": "PASS",
+        "desktopSource": "FAILURE",
+        "passed": 408,
+        "skipped": 20,
+        "failed": 2,
+        "evidence": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR825_CI_FAILURE/MANIFEST.json"
+      },
+      "boundedException": "Owner asks one-time reduced CI to complete PR825; ROOT applies to bounded tooltip/Close repair and necessary CI routing only, then pause. OWNER_CI_REPAIR_DIRECTION.md.",
+      "latestOwnerText": "that's great, but I still need you to pause work for a moment.  Then I will tell you to resume.",
+      "resumeRecord": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_RESUME_2026-09-20.md"
+    }
+  ]
 }
