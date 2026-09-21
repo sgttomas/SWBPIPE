@@ -1,0 +1,21 @@
+{
+  "base": "deb50f5db6e3dc4b89e88aaca34449357647cab9",
+  "parent": "/root/b3_manager WORKING_ITEMS gpt-6-astra/high",
+  "retainedTask": "/root/b3_manager/b4_2_table TASK gpt-6-astra/low",
+  "bindings": [
+    {
+      "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_2_R1_REPAIR_DISPOSITION.md",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_2_R1_REPAIR_DISPOSITION.md",
+      "sha256": "4b2bf22a84c0ac6ae5175ac493896e4daa090d609a8eeff62df4c28bc31ec5ce"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_INITIAL_SOURCE_REVIEW_RETURN.md",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_INITIAL_SOURCE_REVIEW_RETURN.md",
+      "sha256": "a830d1b1ec6ddb81f3fdce865f1769a6b51816091014cada20ff98c9199dbb34"
+    }
+  ],
+  "testInputs": {
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.test.tsx": "7926460336148278d32c4559cf2ea263d7c9df055025d4f4b8bbda06fb6c14fa",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/ModelTree.table.test.tsx": "d44cc848474a5b3620c75bf9663b004f10286268f741cd0e51b90358b3ebe611"
+  }
+}
