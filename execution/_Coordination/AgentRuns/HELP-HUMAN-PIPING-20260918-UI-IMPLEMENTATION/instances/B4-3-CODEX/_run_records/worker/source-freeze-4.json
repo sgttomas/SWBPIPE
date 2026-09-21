@@ -1,0 +1,18 @@
+{
+  "base": "c9f19195214b2e097980dde5e0d5fccbfba8e34c",
+  "status": "freeze4: authorized inert/zero-layout geometry guard repair; original initial-focus hidden/inert ownership guard unchanged; unit setup supplies jsdom visible allocation",
+  "paths": {
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx": "8f23b7b522d1001bd29650a5f3ff469020ddb344624cb77f45595db1924544ac",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx": "341184fe52c4a7880c41e0140842c4aa840a92cca7251da7a412e6368dad082e",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/tableState.ts": "bac7e5c64be5a9db5c6083cda532326f97e87c95611c728a98b1e31142a64368",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/modelTableAdapter.ts": "4361222ca36b83354ac0b019e10c006c7e29db51f3d13bee9f5009c258f2adcc",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/quantitySortProjection.ts": "a848b95a3b42d1ea4d3e2215afcda9ba58db378a392ca5a8caf7e1ec77bc2dc9",
+    "projects/chirality-piping/apps/desktop/src/styles.css": "9bc5d8667540c4c0890452f7045ed43fe74b935e2949748967fc1a7d17d752c0",
+    "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts": "9121515749f45c636d2fe590e4a37b68488559831baead45745e19d70e570e23",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/MaterialTable.test.tsx": "187d923c2bbe77c4b24fbb6a92d7f00a642c082d106e4e9e7c2f56f0c5a88530",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/quantitySortProjection.test.tsx": "bf16c2b5cd1fd1cf56fc4ff5b1590030e2cb0f9808ee201e5d945bc34287d679",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/modelTableAdapter.test.ts": "ed7fe7c640f5945f5496f213d22e1a5e987a71c955e41ef0f28af1fe37dc6acb",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.test.tsx": "219e982d8fc60511f36de24acdd915e6b7d3b4b7fb734f890780ff9d24d4b6d6"
+  },
+  "priorCheckpoint": "ec352dc3948d0759da24b8d8453833bee154ac5d"
+}

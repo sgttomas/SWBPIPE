@@ -340,3 +340,14 @@ it.each(["direct", "review"] as const)("initializes %s numeric/text selection on
     view.unmount();
   }
 });
+
+it("does not advertise cached projected sort keys from a removed pinned editor row", () => {
+  const source = rows(2).map((row, index) => ({ ...row, cells: { x: { value: String(index), unit: "Pa", sortValue: index } } }));
+  const projected = [{ key: "x", label: "X", unit: "per row", kind: "quantity" as const, projectedSort: true }];
+  const props = { label: "Projection", rows: source, columns: projected, generation: "p", density: "comfortable" as const, filter: "", selectedKey: source[0].key, onSelect: vi.fn(), onApply: vi.fn() };
+  const view = render(<EngineeringTable {...props} />); fireEvent.click(screen.getByRole("button", { name: "Sort X" }));
+  fireEvent.doubleClick(screen.getByTestId("table-cell-n:0-x"));
+  view.rerender(<EngineeringTable {...props} rows={source.slice(1)} />);
+  expect(screen.getByRole("status")).toHaveTextContent("sort unavailable"); expect(screen.getByRole("button", { name: "Sort X" }).parentElement).toHaveAttribute("aria-sort", "none");
+  expect(screen.getByRole("textbox")).toHaveValue("0");
+});

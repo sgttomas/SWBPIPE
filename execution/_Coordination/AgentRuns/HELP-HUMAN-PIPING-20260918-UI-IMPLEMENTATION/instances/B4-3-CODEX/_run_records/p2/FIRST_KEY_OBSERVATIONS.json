@@ -1,0 +1,33 @@
+[
+  {
+    "source": "browser-fail-before-2.json",
+    "project": "chromium-desktop",
+    "result": "failed",
+    "observation": {
+      "editorValue": null,
+      "activeTag": "BUTTON",
+      "activeColumn": "shear",
+      "shearReadonly": "true"
+    }
+  },
+  {
+    "source": "browser-final.json",
+    "project": "chromium-desktop",
+    "result": "passed",
+    "observation": {
+      "editorValue": "8",
+      "activeTag": "INPUT",
+      "shearReadonly": "false"
+    }
+  },
+  {
+    "source": "browser-final.json",
+    "project": "chromium-compact",
+    "result": "passed",
+    "observation": {
+      "editorValue": "8",
+      "activeTag": "INPUT",
+      "shearReadonly": "false"
+    }
+  }
+]

@@ -1,0 +1,18 @@
+{
+  "version": "148.0.7778.96",
+  "platform": "darwin",
+  "results": [
+    {
+      "move": false,
+      "before": "530",
+      "after": "50",
+      "same": true
+    },
+    {
+      "move": true,
+      "before": "530",
+      "after": "530",
+      "same": true
+    }
+  ]
+}

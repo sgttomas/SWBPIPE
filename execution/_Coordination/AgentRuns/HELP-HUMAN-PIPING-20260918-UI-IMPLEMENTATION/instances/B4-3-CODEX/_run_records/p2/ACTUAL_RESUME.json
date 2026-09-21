@@ -1,0 +1,11 @@
+{
+  "mechanism": "collaboration.followup_task",
+  "parent": "/root/b3_manager WORKING_ITEMS gpt-6-astra/high",
+  "target": "/root/b3_manager/b4_3_materials TASK gpt-6-astra/low",
+  "addendumSha256": "ad4e687c2e640af0856a228d9f04e4d6ef00a34d350a373f1e6422760bd384f0",
+  "inputsSha256": "68f38af40e415a030f217bde04c8543b1af960cb9274f0a8ae80c9fbebd8ec24",
+  "result": "retained TASK resumed",
+  "browserGrant": "ROOT verified no5174/5175listeners/lock and granted focused one-worker pinnedChromium shared-lock runs",
+  "native": "not granted",
+  "descendants": "prohibited"
+}

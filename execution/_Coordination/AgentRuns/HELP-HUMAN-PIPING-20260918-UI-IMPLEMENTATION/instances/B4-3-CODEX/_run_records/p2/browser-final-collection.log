@@ -1,0 +1,6 @@
+Listing tests:
+  [chromium-desktop] › b4-table-editing.spec.ts:362:1 › B4 Materials preserve mixed-unit editing, delayed review sort, history and saved ownership
+  [chromium-desktop] › b4-table-editing.spec.ts:506:1 › B4 Materials Apply Tab keeps the first Shear character while another quantity reconverts
+  [chromium-compact] › b4-table-editing.spec.ts:362:1 › B4 Materials preserve mixed-unit editing, delayed review sort, history and saved ownership
+  [chromium-compact] › b4-table-editing.spec.ts:506:1 › B4 Materials Apply Tab keeps the first Shear character while another quantity reconverts
+Total: 4 tests in 1 file

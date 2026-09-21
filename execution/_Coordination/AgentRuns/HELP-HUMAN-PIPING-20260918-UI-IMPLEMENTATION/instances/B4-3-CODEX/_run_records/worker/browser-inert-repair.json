@@ -1,0 +1,200 @@
+{
+  "config": {
+    "configFile": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/playwright.config.ts",
+    "rootDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-3-CODEX/_run_records/worker/browser-inert-repair",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-3-CODEX/_run_records/worker/browser-inert-repair",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-compact",
+        "name": "chromium-compact",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev -- --port 5174",
+      "reuseExistingServer": true,
+      "timeout": 30000,
+      "url": "http://127.0.0.1:5174"
+    }
+  },
+  "suites": [
+    {
+      "title": "b4-table-editing.spec.ts",
+      "file": "b4-table-editing.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "B4 Materials stable editor owns character starts, virtual scrolling, filtering and resize",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2846,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-21T07:21:40.822Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser-identity",
+                      "contentType": "application/json",
+                      "body": "ewogICJjZHBWZXJzaW9uIjogewogICAgInByb3RvY29sVmVyc2lvbiI6ICIxLjMiLAogICAgInByb2R1Y3QiOiAiQ2hyb21lLzE0OC4wLjc3NzguOTYiLAogICAgInJldmlzaW9uIjogIkA4NjI1ZTA2NmZlYmM3MjFlMDE1ZWE5OTg0MmRhMTI5MDFlYjdlZDczIiwKICAgICJ1c2VyQWdlbnQiOiAiTW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTVfNykgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgSGVhZGxlc3NDaHJvbWUvMTQ4LjAuMC4wIFNhZmFyaS81MzcuMzYiLAogICAgImpzVmVyc2lvbiI6ICIxNC44LjE3OC4xNCIKICB9LAogICJwbGF5d3JpZ2h0QnJvd3NlclZlcnNpb24iOiAiMTQ4LjAuNzc3OC45NiIsCiAgImV4ZWN1dGFibGVQYXRoIjogIi9Vc2Vycy9yeWFuL0xpYnJhcnkvQ2FjaGVzL21zLXBsYXl3cmlnaHQvY2hyb21pdW0tMTIyMy9jaHJvbWUtbWFjLWFybTY0L0dvb2dsZSBDaHJvbWUgZm9yIFRlc3RpbmcuYXBwL0NvbnRlbnRzL01hY09TL0dvb2dsZSBDaHJvbWUgZm9yIFRlc3RpbmciLAogICJleGVjdXRhYmxlU2hhMjU2IjogIjI0NDdjN2JkZWE4ZThhZDM4YjUyNTk0ZjFiYTUzZTE4ODIxYzA1NDQ1ZThhMDdhZDFjZjNiMGYyMzkzMWQ4OWQiCn0="
+                    },
+                    {
+                      "name": "material-page-inert-return",
+                      "contentType": "application/json",
+                      "body": "ewogICJpbnB1dFZpc2liaWxpdHkiOiAidmlzaWJsZSIsCiAgInZhbHVlIjogInh5IiwKICAib3duZXIiOiAiPGJ1dHRvbiB0eXBlPVwiYnV0dG9uXCIgY2xhc3M9XCJzaGVsbC1yYWlsLWl0ZW1cIiBkYXRhLXRlc3RpZD1cInJhaWwtc3RhZ2UtbW9kZWxcIiBhcmlhLWN1cnJlbnQ9XCJwYWdlXCIgYXJpYS1wcmVzc2VkPVwidHJ1ZVwiIHRpdGxlPVwiTW9kZWxcIj48c3ZnIHhtbG5zPVwiaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmdcIiB3aWR0aD1cIjIwXCIgaGVpZ2h0PVwiMjBcIiB2aWV3Qm94PVwiMCAwIDI0IDI0XCIgZmlsbD1cIm5vbmVcIiBzdHJva2U9XCJjdXJyZW50Q29sb3JcIiBzdHJva2Utd2lkdGg9XCIyXCIgc3Ryb2tlLWxpbmVjYXA9XCJyb3VuZFwiIHN0cm9rZS1saW5laiIsCiAgImlucHV0IjogewogICAgIngiOiA1NzkuNDUzMTI1LAogICAgInkiOiAzMzkuMzc1LAogICAgIndpZHRoIjogNjkuNTc4MTI1LAogICAgImhlaWdodCI6IDM1LAogICAgInRvcCI6IDMzOS4zNzUsCiAgICAicmlnaHQiOiA2NDkuMDMxMjUsCiAgICAiYm90dG9tIjogMzc0LjM3NSwKICAgICJsZWZ0IjogNTc5LjQ1MzEyNQogIH0sCiAgImFuY2hvciI6IHsKICAgICJ4IjogNTc5LjQ1MzEyNSwKICAgICJ5IjogMzM5LjM3NSwKICAgICJ3aWR0aCI6IDY5LjU3ODEyNSwKICAgICJoZWlnaHQiOiAzNSwKICAgICJ0b3AiOiAzMzkuMzc1LAogICAgInJpZ2h0IjogNjQ5LjAzMTI1LAogICAgImJvdHRvbSI6IDM3NC4zNzUsCiAgICAibGVmdCI6IDU3OS40NTMxMjUKICB9LAogICJhbmNlc3RvckluZXJ0IjogZmFsc2UKfQ=="
+                    },
+                    {
+                      "name": "material-editor-clipping",
+                      "contentType": "application/json",
+                      "body": "eyJoZWFkZXJGb290ZXJIaXRPd25lcnNoaXAiOlt0cnVlLHRydWVdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6f49393ff246acadcad3-cea3bf036e2324c23258",
+          "file": "b4-table-editing.spec.ts",
+          "line": 453,
+          "column": 1
+        },
+        {
+          "title": "B4 Materials stable editor owns character starts, virtual scrolling, filtering and resize",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-compact",
+              "projectName": "chromium-compact",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2415,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-21T07:21:44.618Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser-identity",
+                      "contentType": "application/json",
+                      "body": "ewogICJjZHBWZXJzaW9uIjogewogICAgInByb3RvY29sVmVyc2lvbiI6ICIxLjMiLAogICAgInByb2R1Y3QiOiAiQ2hyb21lLzE0OC4wLjc3NzguOTYiLAogICAgInJldmlzaW9uIjogIkA4NjI1ZTA2NmZlYmM3MjFlMDE1ZWE5OTg0MmRhMTI5MDFlYjdlZDczIiwKICAgICJ1c2VyQWdlbnQiOiAiTW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTVfNykgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgSGVhZGxlc3NDaHJvbWUvMTQ4LjAuMC4wIFNhZmFyaS81MzcuMzYiLAogICAgImpzVmVyc2lvbiI6ICIxNC44LjE3OC4xNCIKICB9LAogICJwbGF5d3JpZ2h0QnJvd3NlclZlcnNpb24iOiAiMTQ4LjAuNzc3OC45NiIsCiAgImV4ZWN1dGFibGVQYXRoIjogIi9Vc2Vycy9yeWFuL0xpYnJhcnkvQ2FjaGVzL21zLXBsYXl3cmlnaHQvY2hyb21pdW0tMTIyMy9jaHJvbWUtbWFjLWFybTY0L0dvb2dsZSBDaHJvbWUgZm9yIFRlc3RpbmcuYXBwL0NvbnRlbnRzL01hY09TL0dvb2dsZSBDaHJvbWUgZm9yIFRlc3RpbmciLAogICJleGVjdXRhYmxlU2hhMjU2IjogIjI0NDdjN2JkZWE4ZThhZDM4YjUyNTk0ZjFiYTUzZTE4ODIxYzA1NDQ1ZThhMDdhZDFjZjNiMGYyMzkzMWQ4OWQiCn0="
+                    },
+                    {
+                      "name": "material-page-inert-return",
+                      "contentType": "application/json",
+                      "body": "ewogICJpbnB1dFZpc2liaWxpdHkiOiAidmlzaWJsZSIsCiAgInZhbHVlIjogInh5IiwKICAib3duZXIiOiAiPGJ1dHRvbiB0eXBlPVwiYnV0dG9uXCIgY2xhc3M9XCJzaGVsbC1yYWlsLWl0ZW1cIiBkYXRhLXRlc3RpZD1cInJhaWwtc3RhZ2UtbW9kZWxcIiBhcmlhLWN1cnJlbnQ9XCJwYWdlXCIgYXJpYS1wcmVzc2VkPVwidHJ1ZVwiIHRpdGxlPVwiTW9kZWxcIj48c3ZnIHhtbG5zPVwiaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmdcIiB3aWR0aD1cIjIwXCIgaGVpZ2h0PVwiMjBcIiB2aWV3Qm94PVwiMCAwIDI0IDI0XCIgZmlsbD1cIm5vbmVcIiBzdHJva2U9XCJjdXJyZW50Q29sb3JcIiBzdHJva2Utd2lkdGg9XCIyXCIgc3Ryb2tlLWxpbmVjYXA9XCJyb3VuZFwiIHN0cm9rZS1saW5laiIsCiAgImlucHV0IjogewogICAgIngiOiA0NzQsCiAgICAieSI6IDMzOS4zNzUsCiAgICAid2lkdGgiOiA2OS41NzgxMjUsCiAgICAiaGVpZ2h0IjogMzUsCiAgICAidG9wIjogMzM5LjM3NSwKICAgICJyaWdodCI6IDU0My41NzgxMjUsCiAgICAiYm90dG9tIjogMzc0LjM3NSwKICAgICJsZWZ0IjogNDc0CiAgfSwKICAiYW5jaG9yIjogewogICAgIngiOiA0NzQsCiAgICAieSI6IDMzOS4zNzUsCiAgICAid2lkdGgiOiA2OS41NzgxMjUsCiAgICAiaGVpZ2h0IjogMzUsCiAgICAidG9wIjogMzM5LjM3NSwKICAgICJyaWdodCI6IDU0My41NzgxMjUsCiAgICAiYm90dG9tIjogMzc0LjM3NSwKICAgICJsZWZ0IjogNDc0CiAgfSwKICAiYW5jZXN0b3JJbmVydCI6IGZhbHNlCn0="
+                    },
+                    {
+                      "name": "material-editor-clipping",
+                      "contentType": "application/json",
+                      "body": "eyJoZWFkZXJGb290ZXJIaXRPd25lcnNoaXAiOlt0cnVlLHRydWVdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6f49393ff246acadcad3-3b73d327a88028ae0697",
+          "file": "b4-table-editing.spec.ts",
+          "line": 453,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-21T07:21:40.125Z",
+    "duration": 7252.889,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

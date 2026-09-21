@@ -1,0 +1,19 @@
+{
+  "workdir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop",
+  "freeze": "SOURCE_FREEZE_1.json",
+  "browserExecutable": "/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+  "browserVersion": "148.0.7778.96",
+  "workerCount": 1,
+  "lock": "../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/tools/with_e2e_lock.sh",
+  "typecheck": "npx tsc --noEmit -p tsconfig.json",
+  "unitBefore": "npx vitest run src/features/model-tree/MaterialTable.test.tsx -t \"keeps an unchanged open Shear editor eligible while Elastic reconversion is pending\" --maxWorkers=1",
+  "unitAfter": "npx vitest run src/features/model-tree/MaterialTable.test.tsx src/features/workspace/table/quantitySortProjection.test.tsx src/features/workspace/table/modelTableAdapter.test.ts --maxWorkers=1",
+  "browserBefore": "npx playwright test e2e/b4-table-editing.spec.ts --grep \"B4 Materials Apply Tab keeps the first Shear character while another quantity reconverts\" --project=chromium-desktop --reporter=list,json --output=<new p2 evidence directory>",
+  "browserAfter": "npx playwright test e2e/b4-table-editing.spec.ts --grep \"B4 Materials Apply Tab keeps the first Shear character while another quantity reconverts|B4 Materials preserve mixed-unit editing, delayed review sort, history and saved ownership\" --reporter=list,json --output=<new p2 evidence directory>",
+  "browserEnvironment": [
+    "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=<pinned executable>",
+    "PLAYWRIGHT_WORKERS=1",
+    "PLAYWRIGHT_JSON_OUTPUT_NAME=<new p2 JSON report>"
+  ],
+  "scopeNote": "Wrap browser commands with canonical lock; no build. Collections use same titles with --list."
+}

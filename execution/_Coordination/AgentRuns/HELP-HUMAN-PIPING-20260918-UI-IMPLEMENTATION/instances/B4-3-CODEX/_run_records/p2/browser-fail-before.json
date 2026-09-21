@@ -1,0 +1,174 @@
+{
+  "config": {
+    "configFile": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/playwright.config.ts",
+    "rootDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-3-CODEX/_run_records/p2/browser-fail-before",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-3-CODEX/_run_records/p2/browser-fail-before",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-compact",
+        "name": "chromium-compact",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev -- --port 5174",
+      "reuseExistingServer": true,
+      "timeout": 30000,
+      "url": "http://127.0.0.1:5174"
+    }
+  },
+  "suites": [
+    {
+      "title": "b4-table-editing.spec.ts",
+      "file": "b4-table-editing.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "B4 Materials Apply Tab keeps the first Shear character while another quantity reconverts",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1860,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('material-engineering-table').getByRole('status')\nExpected substring: \u001b[32m\"sort unavailable\"\u001b[39m\nError: strict mode violation: getByTestId('material-engineering-table').getByRole('status') resolved to 2 elements:\n    1) <span role=\"status\">Quantity sort unavailable; showing input order wh…</span> aka getByText('Quantity sort unavailable;')\n    2) <p role=\"status\" class=\"engineering-table-message\">Cell applied.</p> aka getByText('Cell applied.')\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('material-engineering-table').getByRole('status')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('material-engineering-table').getByRole('status')\nExpected substring: \u001b[32m\"sort unavailable\"\u001b[39m\nError: strict mode violation: getByTestId('material-engineering-table').getByRole('status') resolved to 2 elements:\n    1) <span role=\"status\">Quantity sort unavailable; showing input order wh…</span> aka getByText('Quantity sort unavailable;')\n    2) <p role=\"status\" class=\"engineering-table-message\">Cell applied.</p> aka getByText('Cell applied.')\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('material-engineering-table').getByRole('status')\u001b[22m\n\n    at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts:531:43",
+                    "location": {
+                      "file": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+                      "column": 43,
+                      "line": 531
+                    },
+                    "snippet": "  529 |   await page.keyboard.press(\"Tab\"); await expect(elastic).toHaveText(\"210000\"); await expect(shear).toBeFocused();\n  530 |   await expect.poll(() => page.evaluate(() => (window as any).__b4MaterialP2Gate.pending.length)).toBeGreaterThan(0);\n> 531 |   await expect(table.getByRole(\"status\")).toContainText(\"sort unavailable\"); await expect(table.getByRole(\"rowheader\").first()).toHaveText(firstId);\n      |                                           ^\n  532 |   await expect(page.getByTestId(\"workspace-undo\")).toBeEnabled();\n  533 |   // No locator focus/fill repair: this is the first actual key after Apply+Tab.\n  534 |   await page.keyboard.press(\"8\");"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+                        "column": 43,
+                        "line": 531
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('material-engineering-table').getByRole('status')\nExpected substring: \u001b[32m\"sort unavailable\"\u001b[39m\nError: strict mode violation: getByTestId('material-engineering-table').getByRole('status') resolved to 2 elements:\n    1) <span role=\"status\">Quantity sort unavailable; showing input order wh…</span> aka getByText('Quantity sort unavailable;')\n    2) <p role=\"status\" class=\"engineering-table-message\">Cell applied.</p> aka getByText('Cell applied.')\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('material-engineering-table').getByRole('status')\u001b[22m\n\n\n  529 |   await page.keyboard.press(\"Tab\"); await expect(elastic).toHaveText(\"210000\"); await expect(shear).toBeFocused();\n  530 |   await expect.poll(() => page.evaluate(() => (window as any).__b4MaterialP2Gate.pending.length)).toBeGreaterThan(0);\n> 531 |   await expect(table.getByRole(\"status\")).toContainText(\"sort unavailable\"); await expect(table.getByRole(\"rowheader\").first()).toHaveText(firstId);\n      |                                           ^\n  532 |   await expect(page.getByTestId(\"workspace-undo\")).toBeEnabled();\n  533 |   // No locator focus/fill repair: this is the first actual key after Apply+Tab.\n  534 |   await page.keyboard.press(\"8\");\n    at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts:531:43"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-21T07:48:46.952Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser-identity",
+                      "contentType": "application/json",
+                      "body": "ewogICJjZHBWZXJzaW9uIjogewogICAgInByb3RvY29sVmVyc2lvbiI6ICIxLjMiLAogICAgInByb2R1Y3QiOiAiQ2hyb21lLzE0OC4wLjc3NzguOTYiLAogICAgInJldmlzaW9uIjogIkA4NjI1ZTA2NmZlYmM3MjFlMDE1ZWE5OTg0MmRhMTI5MDFlYjdlZDczIiwKICAgICJ1c2VyQWdlbnQiOiAiTW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTVfNykgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgSGVhZGxlc3NDaHJvbWUvMTQ4LjAuMC4wIFNhZmFyaS81MzcuMzYiLAogICAgImpzVmVyc2lvbiI6ICIxNC44LjE3OC4xNCIKICB9LAogICJwbGF5d3JpZ2h0QnJvd3NlclZlcnNpb24iOiAiMTQ4LjAuNzc3OC45NiIsCiAgImV4ZWN1dGFibGVQYXRoIjogIi9Vc2Vycy9yeWFuL0xpYnJhcnkvQ2FjaGVzL21zLXBsYXl3cmlnaHQvY2hyb21pdW0tMTIyMy9jaHJvbWUtbWFjLWFybTY0L0dvb2dsZSBDaHJvbWUgZm9yIFRlc3RpbmcuYXBwL0NvbnRlbnRzL01hY09TL0dvb2dsZSBDaHJvbWUgZm9yIFRlc3RpbmciLAogICJleGVjdXRhYmxlU2hhMjU2IjogIjI0NDdjN2JkZWE4ZThhZDM4YjUyNTk0ZjFiYTUzZTE4ODIxYzA1NDQ1ZThhMDdhZDFjZjNiMGYyMzkzMWQ4OWQiCn0="
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-3-CODEX/_run_records/p2/browser-fail-before/b4-table-editing-B4-Materi-05f30-another-quantity-reconverts-chromium-desktop/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-3-CODEX/_run_records/p2/browser-fail-before/b4-table-editing-B4-Materi-05f30-another-quantity-reconverts-chromium-desktop/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+                    "column": 43,
+                    "line": 531
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "6f49393ff246acadcad3-c9621dfb135f955c3ac6",
+          "file": "b4-table-editing.spec.ts",
+          "line": 506,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-21T07:48:46.258Z",
+    "duration": 3361.6389999999997,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

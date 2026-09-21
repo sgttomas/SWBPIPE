@@ -1,0 +1,31 @@
+
+ RUN  v4.1.10 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop
+
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at getContext (file:///Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/three/build/three.module.js:15443:18)
+    at new WebGLRenderer (file:///Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/three/build/three.module.js:15472:11)
+    at new ViewportResource (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts:509:21)
+    at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx:909:18
+    at Object.react_stack_bottom_frame (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29) undefined
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at getContext (file:///Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/three/build/three.module.js:15443:18)
+    at new WebGLRenderer (file:///Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/three/build/three.module.js:15476:11)
+    at new ViewportResource (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts:509:21)
+    at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx:909:18
+    at Object.react_stack_bottom_frame (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29) undefined
+
+ Test Files  7 passed (7)
+      Tests  141 passed (141)
+   Start at  01:10:42
+   Duration  6.00s (transform 429ms, setup 226ms, import 783ms, tests 3.28s, environment 1.20s)
+

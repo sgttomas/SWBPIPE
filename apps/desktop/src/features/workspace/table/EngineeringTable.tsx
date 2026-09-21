@@ -10,6 +10,9 @@ export type TableApplyResult = Readonly<{ applied: boolean; rejected?: boolean; 
 export type TableDraftResult = Readonly<{ retained: boolean; messages: readonly string[] }>;
 type Props = Readonly<{
   label: string;
+  rowHeader?: string;
+  testIdPrefix?: string;
+  persistentEditor?: boolean;
   bounded?: boolean;
   active?: boolean;
   onDraftStateChange?: (retained: boolean) => void;
@@ -41,6 +44,7 @@ export function EngineeringTable(props: Props) {
   const [feedback, setFeedback] = useState("");
   const [reveal, setReveal] = useState(0);
   const errorId = useId();
+  const editorId = useId();
   const root = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLInputElement>(null);
   const footer = useRef<HTMLDivElement>(null);
@@ -56,17 +60,18 @@ export function EngineeringTable(props: Props) {
     selectionOwnership.current = { key: selectedKey, revision: selectionOwnership.current.revision + 1 };
   }
   const focusRequest = useRef<CellAddress | null>(null);
+  const editorFocusRequest = useRef<{ token: number; generation: string; owner: Element | null; selectionRevision: number } | null>(null);
   const ownedCellElement = useRef<{ element: HTMLElement; selectionRevision: number } | null>(null);
   // A completed label edit can disappear on a later canonical publication.
   // Recover only focus lost through removal, never an intentional external move.
   useLayoutEffect(() => {
     const owned = ownedCellElement.current; const element = owned?.element;
-    if (element && owned?.selectionRevision === selectionOwnership.current.revision && !element.isConnected && document.activeElement === document.body && surfaceActive && !root.current?.closest("[hidden], [inert]")) footer.current?.focus();
+    if (!editorFocusRequest.current && element && owned?.selectionRevision === selectionOwnership.current.revision && !element.isConnected && document.activeElement === document.body && surfaceActive && !root.current?.closest("[hidden], [inert]")) footer.current?.focus();
   }, [rows, filter, surfaceActive]);
   useEffect(() => {
     const track = (event: FocusEvent) => {
       const element = event.target as HTMLElement;
-      ownedCellElement.current = root.current?.contains(element) && element.matches("[data-table-cell], .engineering-table-cell input") ? { element, selectionRevision: selectionOwnership.current.revision } : null;
+      ownedCellElement.current = root.current?.contains(element) && element.matches("[data-table-cell], .engineering-table-cell input, .engineering-table-editor-layer input") ? { element, selectionRevision: selectionOwnership.current.revision } : null;
     };
     document.addEventListener("focusin", track);
     return () => document.removeEventListener("focusin", track);
@@ -74,17 +79,24 @@ export function EngineeringTable(props: Props) {
   function setEdit(value: TableEdit | null) { editRef.current = value; setEditState(value); }
 
   const matchingRows = useMemo(() => rows.filter((row) => !filter.trim() || (row.searchText ?? `${row.label} ${row.key}`).toLowerCase().includes(filter.trim().toLowerCase())), [rows, filter]);
-  const viewRows = useMemo(() => {
+  const comparisonRows = useMemo(() => {
     const result = [...matchingRows];
     // Keep the captured row available until Apply or Cancel, including invalid text.
     if (edit && !result.some((row) => row.key === edit.captured.rowKey)) result.push(rows.find((row) => row.key === edit.captured.rowKey) ?? edit.captured.row);
-    if (sort) result.sort((a, b) => {
+    return result;
+  }, [matchingRows, rows, edit]);
+  const sortUnavailable = Boolean(sort && columns.find((column) => column.key === sort.columnKey)?.projectedSort &&
+    comparisonRows.some((row) => !rows.some((live) => live.key === row.key) || !Number.isFinite(row.cells[sort.columnKey]?.sortValue)));
+  const viewRows = useMemo(() => {
+    const result = [...comparisonRows];
+    if (sort && !sortUnavailable) result.sort((a, b) => {
       const av = a.cells[sort.columnKey]?.value ?? ""; const bv = b.cells[sort.columnKey]?.value ?? "";
-      const difference = columns.find((column) => column.key === sort.columnKey)?.compare?.(av, bv) ?? av.localeCompare(bv);
+      const column = columns.find((column) => column.key === sort.columnKey);
+      const difference = column?.projectedSort ? a.cells[sort.columnKey].sortValue! - b.cells[sort.columnKey].sortValue! : column?.compare?.(av, bv) ?? av.localeCompare(bv);
       return difference * (sort.direction === "ascending" ? 1 : -1);
     });
     return result;
-  }, [matchingRows, rows, edit, sort, columns]);
+  }, [comparisonRows, sort, columns, sortUnavailable]);
   // A remembered cell may be filtered out or removed. Keep a live keyboard
   // entry without moving DOM focus or publishing a new model selection.
   const rovingFocus = focused && viewRows.some((row) => row.key === focused.rowKey && rows.some((live) => live.key === row.key) && row.cells[focused.columnKey])
@@ -129,6 +141,7 @@ export function EngineeringTable(props: Props) {
     focusRequest.current = null;
     focusCell(address, false); setFeedback("");
     const captured = { ...address, token: ++sequence.current, before: cell.value, unit: cell.unit, generation, row };
+    if (props.persistentEditor) editorFocusRequest.current = { token: captured.token, generation, owner: document.activeElement, selectionRevision: selectionOwnership.current.revision };
     setEdit({ captured, initialSelection: replacement === undefined ? "all" : "end", text: replacement ?? cell.value, pending: false });
     if (props.policy === "review" && replacement !== undefined) props.onDraftChange(captured, replacement);
   }
@@ -229,23 +242,8 @@ export function EngineeringTable(props: Props) {
       event.preventDefault(); event.stopPropagation(); startEdit(address, event.key === "Enter" ? undefined : event.key);
     }
   }
-  const template = `minmax(130px, 1.4fr) ${columns.map((column) => column.kind === "text" ? "minmax(150px, 1.5fr)" : review ? "minmax(160px, 1fr)" : "minmax(90px, 1fr)").join(" ")}`;
-  const tableWidth = 130 + columns.reduce((sum, column) => sum + (column.kind === "text" ? 150 : review ? 160 : 90), 0);
-  return <div className={`engineering-table${bounded ? " bounded" : ""}`} ref={root} style={{ "--table-min-width": `${tableWidth}px` } as React.CSSProperties} tabIndex={-1} data-testid={review ? "engineering-table-review" : "engineering-table"}>
-    <div role="grid" aria-label={label} aria-rowcount={viewRows.length + 1} aria-colcount={columns.length + 1}>
-      <div role="row" className="engineering-table-row engineering-table-header" style={{ gridTemplateColumns: template }}>
-        <div role="columnheader">Node</div>
-        {columns.map((column) => <div key={column.key} role="columnheader" aria-sort={sort?.columnKey === column.key ? sort.direction : "none"}>
-          <button type="button" aria-label={`Sort ${column.label}`} onClick={() => setSort((current) => current?.columnKey !== column.key ? { columnKey: column.key, direction: "ascending" } : current.direction === "ascending" ? { ...current, direction: "descending" } : null)}>{column.label}{column.kind === "text" ? "" : ` [${column.unit}]`} <span aria-hidden="true">{sort?.columnKey === column.key ? sort.direction === "ascending" ? "↑" : "↓" : "↕"}</span></button>
-        </div>)}
-      </div>
-      <div className="engineering-table-body-slot" ref={body.ref}>
-      <VirtualList items={viewRows} itemKey={(row) => row.key} activeIndex={activeIndex} pinIndex={activeIndex} revealActiveRequest={reveal} height={bounded ? Math.min(body.height, viewRows.length * (density === "compact" ? 30 : 36)) : 360} rowHeight={density === "compact" ? 30 : 36} role="rowgroup" testId={review ? "engineering-table-review-rows" : "engineering-table-rows"} renderItem={(row, index) => <div role="row" aria-rowindex={index + 2} aria-selected={selectedKey === row.key} className={`engineering-table-row${index % 2 ? " stripe" : ""}${selectedKey === row.key ? " selected" : ""}`} style={{ gridTemplateColumns: template }}>
-        <div role="rowheader"><button type="button" disabled={!rows.some((canonical) => canonical.key === row.key)} onClick={() => onSelect(row.key)} title={row.label}>{row.label}{!rows.some((canonical) => canonical.key === row.key) ? " (removed edit)" : ""}</button></div>
-        {columns.map((column) => {
-          const address = { rowKey: row.key, columnKey: column.key }; const editing = sameCell(edit?.captured ?? null, address);
-          return <div key={column.key} role="gridcell" aria-selected={sameCell(focused, address)} aria-readonly={Boolean(row.cells[column.key].readonly)} data-kind={column.kind} className={`engineering-table-cell${row.cells[column.key].readout ? " has-readout" : ""}${editing ? " editing" : ""}${editing && edit?.error ? " invalid" : ""}`}>
-            {editing && edit ? <input ref={input} autoFocus aria-label={`${row.label} ${column.label}${column.kind === "text" ? "" : ` [${edit.captured.unit}]`}`} aria-invalid={Boolean(edit.error)} aria-describedby={edit.error ? errorId : undefined} value={edit.text} readOnly={edit.pending} onFocus={(event) => {
+  const column = edit ? columns.find((candidate) => candidate.key === edit.captured.columnKey) : undefined;
+  const editor = edit && column ? <input ref={input} id={editorId} data-kind={column.kind} autoFocus aria-label={`${edit.captured.row.label} ${column.label}${column.kind === "text" ? "" : ` [${edit.captured.unit}]`}`} aria-invalid={Boolean(edit.error)} aria-describedby={edit.error ? errorId : undefined} value={edit.text} readOnly={edit.pending} onFocus={(event) => {
               if (initializedInputToken.current === edit.captured.token) return;
               initializedInputToken.current = edit.captured.token;
               if (edit.initialSelection === "all") event.currentTarget.select();
@@ -260,28 +258,63 @@ export function EngineeringTable(props: Props) {
                   else setEdit({ ...current, error: "The editor basis changed. Cancel to return to retained drafts; Queue uses the current model value and unit." });
                 }
               }
-            }} onKeyDown={(event) => cellKey(event, address, true)} onBlur={(event) => {
+            }} onKeyDown={(event) => cellKey(event, edit.captured, true)} onBlur={(event) => {
               const destination = event.relatedTarget as HTMLElement | null;
               // Footer controls explicitly own Apply/Cancel. Cell clicks own their next target.
               if (destination && root.current?.contains(destination) && destination.closest("[data-table-action], [data-table-cell]")) return;
               void apply();
-            }} /> : <button type="button" disabled={!rows.some((canonical) => canonical.key === row.key)} data-table-cell="true" data-row-key={row.key} data-column-key={column.key} data-testid={`${review ? "review" : "table"}-cell-${row.label}-${column.key}`} aria-label={`${row.label} ${column.label}: ${row.cells[column.key].value}${column.kind === "text" ? "" : ` ${row.cells[column.key].unit}`}`} tabIndex={sameCell(rovingFocus, address) ? 0 : -1} onPointerDown={() => { pointerFocus.current = address; }} onFocus={() => {
+            }} /> : null;
+  const editorPosition = usePersistentEditorPosition(root, Boolean(props.persistentEditor && edit), edit?.captured.token, viewRows, surfaceActive);
+  useLayoutEffect(() => {
+    const request = editorFocusRequest.current;
+    if (!request) return;
+    if (request.token !== edit?.captured.token || request.generation !== generation || !surfaceActive || selectionOwnership.current.revision !== request.selectionRevision || root.current?.closest("[hidden], [inert]")) { editorFocusRequest.current = null; return; }
+    if (initializedInputToken.current === request.token) { editorFocusRequest.current = null; return; }
+    if (editorPosition.clip.visibility === "hidden") return;
+    // Only recover focus removed with the initiating cell. A different live
+    // focus owner, selection, project, or hidden surface cancels this request.
+    const owner = document.activeElement;
+    if (owner === request.owner || (owner === document.body && !request.owner?.isConnected)) input.current?.focus();
+    editorFocusRequest.current = null;
+  }, [editorPosition, edit, generation, surfaceActive]);
+  const template = `minmax(130px, 1.4fr) ${columns.map((column) => column.minWidth ? `minmax(${column.minWidth}px, 1fr)` : column.kind === "text" ? "minmax(150px, 1.5fr)" : review ? "minmax(160px, 1fr)" : "minmax(90px, 1fr)").join(" ")}`;
+  const tableWidth = 130 + columns.reduce((sum, column) => sum + (column.minWidth ?? (column.kind === "text" ? 150 : review ? 160 : 90)), 0);
+  return <div className={`engineering-table${bounded ? " bounded" : ""}`} ref={root} style={{ "--table-min-width": `${tableWidth}px` } as React.CSSProperties} tabIndex={-1} data-testid={`${props.testIdPrefix ?? ""}${review ? "engineering-table-review" : "engineering-table"}`}>
+    <div role="grid" aria-label={label} aria-rowcount={viewRows.length + 1} aria-colcount={columns.length + 1}>
+      <div role="row" className="engineering-table-row engineering-table-header" style={{ gridTemplateColumns: template }}>
+        <div role="columnheader">{props.rowHeader ?? "Node"}</div>
+        {columns.map((column) => <div key={column.key} role="columnheader" aria-sort={sort?.columnKey === column.key && !sortUnavailable ? sort.direction : "none"}>
+          <button type="button" aria-label={`Sort ${column.label}`} onClick={() => setSort((current) => current?.columnKey !== column.key ? { columnKey: column.key, direction: "ascending" } : current.direction === "ascending" ? { ...current, direction: "descending" } : null)}>{column.label}{column.kind === "text" ? "" : ` [${column.unit}]`} <span aria-hidden="true">{sort?.columnKey === column.key ? sort.direction === "ascending" ? "↑" : "↓" : "↕"}</span></button>
+        </div>)}
+      </div>
+      <div className="engineering-table-body-slot" ref={body.ref}>
+      <VirtualList items={viewRows} itemKey={(row) => row.key} activeIndex={activeIndex} pinIndex={activeIndex} revealActiveRequest={reveal} height={bounded ? Math.min(body.height, viewRows.length * (density === "compact" ? 30 : 36)) : 360} rowHeight={density === "compact" ? 30 : 36} role="rowgroup" testId={`${props.testIdPrefix ?? ""}${review ? "engineering-table-review-rows" : "engineering-table-rows"}`} renderItem={(row, index) => <div role="row" aria-rowindex={index + 2} aria-selected={selectedKey === row.key} className={`engineering-table-row${index % 2 ? " stripe" : ""}${selectedKey === row.key ? " selected" : ""}`} style={{ gridTemplateColumns: template }}>
+        <div role="rowheader"><button type="button" disabled={!rows.some((canonical) => canonical.key === row.key)} onClick={() => onSelect(row.key)} title={row.label}>{row.label}{!rows.some((canonical) => canonical.key === row.key) ? " (removed edit)" : ""}</button></div>
+        {columns.map((column) => {
+          const address = { rowKey: row.key, columnKey: column.key }; const editing = sameCell(edit?.captured ?? null, address);
+          return <div key={column.key} role="gridcell" aria-owns={editing && props.persistentEditor ? editorId : undefined} aria-selected={sameCell(focused, address)} title={row.cells[column.key].unavailable} aria-readonly={Boolean(row.cells[column.key].readonly)} data-kind={column.kind} className={`engineering-table-cell${row.cells[column.key].readout ? " has-readout" : ""}${editing ? " editing" : ""}${editing && edit?.error ? " invalid" : ""}`}>
+            {editing && edit ? props.persistentEditor ? <span className="engineering-table-editor-anchor" data-editor-anchor={edit.captured.token} /> : editor : <button type="button" disabled={!rows.some((canonical) => canonical.key === row.key)} data-table-cell="true" data-row-key={row.key} data-column-key={column.key} data-testid={`${review ? "review" : "table"}-cell-${row.label}-${column.key}`} aria-label={`${row.label} ${column.label}: ${row.cells[column.key].value}${column.kind === "text" ? "" : ` ${row.cells[column.key].unit}`}`} tabIndex={sameCell(rovingFocus, address) ? 0 : -1} onPointerDown={() => { pointerFocus.current = address; }} onFocus={() => {
               if (!sameCell(pointerFocus.current, address) && !editRef.current && !sameCell(focused, address)) focusCell(address, false);
             }} onBlur={() => { if (sameCell(pointerFocus.current, address)) pointerFocus.current = null; }} onClick={() => {
               pointerFocus.current = null;
               if (editRef.current) { void apply(address, true); return; }
               if (sameCell(focused, address)) startEdit(address); else focusCell(address);
             }} onDoubleClick={() => { if (!editRef.current) startEdit(address); }} onKeyDown={(event) => cellKey(event, address, false)}>{row.cells[column.key].value}</button>}
+            {row.cells[column.key].showUnit ? <span className="engineering-table-unit" title={editing && edit ? edit.captured.unit : row.cells[column.key].unit}>{(editing && edit ? edit.captured.unit : row.cells[column.key].unit) || "unit missing"}</span> : null}
             {row.cells[column.key].readout ? <small aria-label="Quantity readout">{row.cells[column.key].readout}</small> : null}
           </div>;
         })}
       </div>} />
       </div>
     </div>
+    {props.persistentEditor && edit ? <div className="engineering-table-editor-layer" style={editorPosition.clip}>
+      <div className="engineering-table-editor-position" style={editorPosition.box}>{editor}</div>
+    </div> : null}
     {/* Keep the editor focused until a footer click; no action occurs on pointer-down. */}
     <div className="engineering-table-footer" ref={footer} role="group" aria-label={`${label} footer`} tabIndex={-1}>
       {edit ? <><span>Editing {columns.find((column) => column.key === edit.captured.columnKey)?.label} · {edit.captured.row.label}</span><button type="button" data-table-action="apply" onPointerDown={(event) => event.preventDefault()} disabled={edit.pending || busy} onClick={() => void apply(undefined, true)} title={review ? "Keep draft (Enter)" : "Apply (Enter)"}>{review ? "Keep draft" : "Apply"}</button><button type="button" data-table-action="cancel" onPointerDown={(event) => event.preventDefault()} disabled={edit.pending} onClick={cancel} title="Cancel (Escape)">Cancel</button></> : <span>{matchingRows.length} of {rows.length} rows</span>}
-      {sort ? <button type="button" onClick={() => setSort(null)}>Sorted by {columns.find((column) => column.key === sort.columnKey)?.label} · Clear</button> : null}
+      {sortUnavailable ? <span role="status">Quantity sort unavailable; showing input order while values or units cannot be converted.</span> : null}
+      {sort ? <button type="button" onClick={() => setSort(null)}>{sortUnavailable ? "Requested sort" : "Sorted"} by {columns.find((column) => column.key === sort.columnKey)?.label} · Clear</button> : null}
       {edit && !rows.some((row) => row.key === edit.captured.rowKey) ? <span role="alert">The edited row was removed. This retained draft cannot be applied; Cancel to return to the current model.</span>
         : edit && !matchingRows.some((row) => row.key === edit.captured.rowKey) ? <span>Editing row retained outside the filter.</span> : null}
     </div>
@@ -312,4 +345,42 @@ export function useTableBodyHeight(bounded: boolean, active: boolean) {
     return () => observer.disconnect();
   }, [bounded, active, element]);
   return { ref: setElement, height, allocationConflict: bounded && active && measured && height === 0 };
+}
+
+/** Chromium drops native text-Undo when an input's ancestor is moved, even if
+ * React restores focus to the same node. Projected families keep the editor in
+ * one DOM position and only move its visual box as the keyed rows reorder. */
+function usePersistentEditorPosition(root: React.RefObject<HTMLDivElement | null>, enabled: boolean, token: number | undefined, rows: readonly TableRow[], active: boolean) {
+  const [position, setPosition] = useState<{ clip: React.CSSProperties; box: React.CSSProperties }>({ clip: { visibility: "hidden" }, box: {} });
+  useLayoutEffect(() => {
+    if (!enabled) return;
+    const host = root.current;
+    if (!host) return;
+    const measure = () => {
+      const anchor = host.querySelector<HTMLElement>(`[data-editor-anchor="${token}"]`);
+      const grid = host.querySelector<HTMLElement>('[role="grid"]');
+      if (!anchor || !grid || !active) {
+        setPosition((previous) => previous.clip.visibility === "hidden" ? previous : { clip: { visibility: "hidden" }, box: previous.box }); return;
+      }
+      // Inert ancestry already excludes interaction, but still has a live
+      // layout (e.g. a page over the stage). Keep measuring that layout. A
+      // display-hidden surface keeps its last usable placement until revealed.
+      if (host.closest("[hidden]")) return;
+      const a = anchor.getBoundingClientRect(), h = host.getBoundingClientRect(), g = grid.getBoundingClientRect();
+      if (a.width <= 0 || a.height <= 0 || h.width <= 0 || h.height <= 0) return;
+      const b = host.querySelector<HTMLElement>(".engineering-table-body-slot")!.getBoundingClientRect();
+      const top = Math.max(a.top, b.top, g.top), right = Math.min(a.right, b.right, g.left + grid.clientWidth);
+      const bottom = Math.min(a.bottom, b.bottom, g.top + grid.clientHeight), left = Math.max(a.left, b.left, g.left);
+      const next = { clip: { clipPath: `inset(${Math.max(0, top - h.top)}px ${Math.max(0, h.right - right)}px ${Math.max(0, h.bottom - bottom)}px ${Math.max(0, left - h.left)}px)` },
+        box: { left: a.left - h.left, top: a.top - h.top, width: a.width, height: a.height } };
+      setPosition((previous) => JSON.stringify(previous) === JSON.stringify(next) ? previous : next);
+    };
+    measure();
+    host.addEventListener("scroll", measure, true);
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
+    observer?.observe(host);
+    const anchor = host.querySelector<HTMLElement>(`[data-editor-anchor="${token}"]`); if (anchor) observer?.observe(anchor);
+    return () => { host.removeEventListener("scroll", measure, true); observer?.disconnect(); };
+  }, [root, enabled, token, rows, active]);
+  return position;
 }

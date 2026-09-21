@@ -1,0 +1,12 @@
+{
+  "sourceCommit": "75fa863ea5cfee9bfe8f5a6ebf0f31047663e4e5",
+  "returnSha256": "b0a3159165ca79289b3eef910700b216798ca884042aa813032be84ecd8a47c3",
+  "manifestSha256": "fab2eee717a0dc778f616125fe3a33edfeaa6287d5d4d51aea556533d9e76b7a",
+  "verifiedPayloads": 42,
+  "payloadBytes": 2262845,
+  "traceCount": 2,
+  "staging": "ordinary exact-path force-add only manifest-bound ignored traces; no history/ignore changes",
+  "sourceStatus": "all5 frozen maintained hashes match; no additional source change",
+  "remaining": "independent P2 backcheck/native grant, final ROOT integration gates",
+  "nativePlan": "NATIVE_PLAN_DRAFT.md is preparation only; ROOT optional invented mixed-unit recipe and baseline restoration, no native execution"
+}
