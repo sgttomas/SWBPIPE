@@ -2690,7 +2690,7 @@
       "model": "gpt-6-astra",
       "reasoning": "high",
       "mechanism": "ROOT actual retained manager followup",
-      "state": "source/evidence handed back clean76de106; all focused checks and16browser cases pass; independent source review active, native pending",
+      "state": "both P2 repairs/evidence handed back; source db35, backcheck pending",
       "basis": "fd002217f067020d44deaee22866e14eed81173f",
       "branch": "codex/swbpipe-b4-sections-20260921",
       "checkout": "existingwt3 after clean verification; old Materials branch preserved",
@@ -2757,7 +2757,10 @@
         "briefSha256": "18710b896a6fdcbfdc7f9f9c640b6dd39ef035552d60ab3b830a7f4393dadb15",
         "inputsSha256": "80e1e3308d8cccabcd2dfaa8338d83cd7cee5d07b0a85bd6587911e17300ba37",
         "state": "actual one desktop failure on1cef35/unchanged40e833; geometry/hitability/hash/history retained, passive clip repair now granted"
-      }
+      },
+      "repairSource": "db35d7582e61d69ad415df7cdf4132b91e710dd8",
+      "repairEvidence": "b028c82ba44d528fc169fec2e1b82e1bc58fa6dd",
+      "repairCheck": "73focused unit passes/4files, App1PASS/217filtered, TypeScript PASS and4affected browser passes/13.6s. ROOT verified48new committed evidence bindings. Real vertical scroll and unit-geometry horizontal/partial coverage distinguished."
     },
     "B4-4-CI-COVERAGE": {
       "role": "ROOT maintained CI mapping",
@@ -2774,9 +2777,9 @@
       "parent": "ROOT",
       "branch": "codex/swbpipe-b4-sections-integration-20260921",
       "checkout": "wt2",
-      "head": "71398e3941cfebe4ee1caa4c8006381fbb387d60",
+      "head": "d8d53f2bca659a26315fbdd7a2f97b8298f4785a",
       "state": "early clean source/CI fan-in for verification; browser correction/evidence, independent source review, native and final gates outstanding",
-      "source": "40e8333d900c9b9c43b427533deca41e3a34543d",
+      "source": "db35d7582e61d69ad415df7cdf4132b91e710dd8",
       "dependsOn": [
         "B4-4-CODEX-MANAGER",
         "B4-4-CI-COVERAGE"
@@ -2799,7 +2802,14 @@
       "repairDisposition": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_4_REVIEW_REPAIR_DISPOSITION.md",
       "repairDispositionSha256": "7ada4ff31acb600fda73d4d2d4e3b025e069746d12386c6018f1bf70f83dbcf4",
       "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_4_SOURCE_REVIEW_RETURN.md",
-      "returnSha256": "7a6319dba54889bcc73bfd582e9af536111583dbc2c1425ec4262901cd5a7b3b"
+      "returnSha256": "7a6319dba54889bcc73bfd582e9af536111583dbc2c1425ec4262901cd5a7b3b",
+      "backcheck": {
+        "state": "active retained independent TASK followup, six-path repair",
+        "basis": "76de10606d2fdd4f8e1090883ab5d049567e975f",
+        "candidate": "db35d7582e61d69ad415df7cdf4132b91e710dd8",
+        "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_4_P2_BACKCHECK_LAUNCH.md",
+        "briefSha256": "72fef4026a2d5fec411af7b15b3c97475b015e14a3ca1455a1b7f749b4bb6402"
+      }
     }
   },
   "edges": [
