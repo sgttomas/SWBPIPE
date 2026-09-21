@@ -1,0 +1,12 @@
+# Validation DEL-07-01 (W1-PKG-07-MANAGER)
+# cmd: PYTHONDONTWRITEBYTECODE=1 python3 RUN/tools/validate_ledger_v2.py --run-dir RUN --repo-root . --deliverable DEL-07-01 --forward projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W1/PKG-07/DEL-07-01/DEL-07-01_forward.csv --reverse projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W1/PKG-07/DEL-07-01/DEL-07-01_reverse.csv --inventory RUN/ROUTING/PKG-07_capabilities.csv
+PASS DEL-07-01: 152 forward rows, 83 required keys, 7 canonical, 0 findings
+# validator_exit=0
+# seal_line: SEALED DEL-07-01 60a41ea639af65acfac4b5373ec000efc7ae19e9a647c9a19164077af26c90c9 2026-09-21T20:50:32Z
+# forward_sha256_recomputed=60a41ea639af65acfac4b5373ec000efc7ae19e9a647c9a19164077af26c90c9
+# seal_sha256=60a41ea639af65acfac4b5373ec000efc7ae19e9a647c9a19164077af26c90c9
+# worker_reported_forward=60a41ea639af65acfac4b5373ec000efc7ae19e9a647c9a19164077af26c90c9
+# seal_match=YES
+# reverse_sha256=1c7a2c405b777ad9880a01631e3dbc79e571ef7c5c86808be6458609c9ebb718
+# forward_sentinel: #END,,,,,,,,,,,,,,,,,,,,,,,,,,,,,152,
+# reverse_sentinel: #END,,,487

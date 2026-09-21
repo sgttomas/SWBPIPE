@@ -17,8 +17,10 @@ How recurring situations are judged, so the three ledgers treat them alike:
    PROJECT_BASELINE · NONE · RECORD · OWNER). The code holds transient state in
    bespoke React context and session modules, `package.json` adds no library,
    and DEL-00-05 still records the choice as OPEN, routed to a human ruling.
-   Setup-era verification steps that only check the documents say TBD are
-   setup residue instead (STALE_SETUP_SPECIFICATION).
+   Rows that only oblige the documents to keep the TBD (DEL-07-01 REQ-03,
+   VER-07) are judged on the documents: they comply, so ALIGNED, with a
+   pointer to the CP-10 rows. Dependency versions are left to implementation
+   by DEC-012, so a "versions TBD" row is setup residue, not CP-10.
 3. **D-41 PDU-055 declarations** (rev 0.8, DAG-007): CP-03 in
    `CanonicalSituation`, CP-02 fields. The delegation to Remaining is not
    relied on (A4). Blanket supersession does not change sibling rows.

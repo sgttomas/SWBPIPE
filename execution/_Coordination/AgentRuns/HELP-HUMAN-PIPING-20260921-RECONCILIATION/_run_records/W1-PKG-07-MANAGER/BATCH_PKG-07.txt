@@ -1,0 +1,14 @@
+# Batch PKG-07 W1 (W1-PKG-07-MANAGER)
+# cmd: PYTHONDONTWRITEBYTECODE=1 python3 RUN/tools/validate_ledger_v2.py --run-dir RUN --repo-root . --batch <9 forward files below>
+#   projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W1/PKG-07/DEL-07-01/DEL-07-01_forward.csv
+#   projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W1/PKG-07/DEL-07-02/DEL-07-02_forward.csv
+#   projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W1/PKG-07/DEL-07-03/DEL-07-03_forward.csv
+#   projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W1/PKG-07/DEL-07-04/DEL-07-04_forward.csv
+#   projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W1/PKG-07/DEL-07-05/DEL-07-05_forward.csv
+#   projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W1/PKG-07/DEL-07-06/DEL-07-06_forward.csv
+#   projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W1/PKG-07/DEL-07-07/DEL-07-07_forward.csv
+#   projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W1/PKG-07/DEL-07-08/DEL-07-08_forward.csv
+#   projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W1/PKG-07/DEL-07-09/DEL-07-09_forward.csv
+FINDING projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W1/PKG-07/DEL-07-06/DEL-07-06_forward.csv: DEL-07-06:STATUS#remaining/R04: same body 1840ad3a9137b5ee as 3 other row(s) but {'Disposition': 'ALIGNED', 'CauseTag': '', 'AuthorityTier': '', 'DivergenceLayers': 'NONE'} differs from the majority {'Disposition': 'UNKNOWN', 'CauseTag': 'EVIDENCE_NOT_LOCATED', 'AuthorityTier': 'LOCAL_DESIGN', 'DivergenceLayers': 'RECORD'} without CANONICAL_DEPARTURE
+FAIL batch of 9 ledgers: 1 consistency findings
+# batch_exit=1

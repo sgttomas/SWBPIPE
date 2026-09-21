@@ -1,0 +1,489 @@
+CapabilityID,Answer,ClaimKey,Reason
+RC-07-0001,NOT_MINE,,Desktop feature 'workspace' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0002,NOT_MINE,,Fixture or example data for another area; not DEL-07-01's.
+RC-07-0003,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0004,NOT_MINE,,Desktop build or configuration; not a DEL-07-01 surface.
+RC-07-0005,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0006,NOT_MINE,,Desktop feature 'diagnostics' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0007,NOT_MINE,,Workspace shell composition in App.tsx; not a DEL-07-01 surface.
+RC-07-0008,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0009,NOT_MINE,,Operation layer behaviour (PKG-16); DEL-07-01 does not own it.
+RC-07-0010,NOT_MINE,,Desktop feature 'headless-runner' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0011,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0012,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0013,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0014,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0015,NOT_MINE,,Desktop feature 'workspace' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0016,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0017,NOT_MINE,,Desktop build or configuration; not a DEL-07-01 surface.
+RC-07-0018,NOT_MINE,,Operation layer behaviour (PKG-16); DEL-07-01 does not own it.
+RC-07-0019,NOT_MINE,,"Repository tooling, CI or build provenance; not a DEL-07-01 surface."
+RC-07-0020,NOT_MINE,,Desktop feature 'material-temperature' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0021,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0022,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0023,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0024,NOT_MINE,,Desktop feature 'workspace' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0025,NOT_MINE,,Fixture or example data for another area; not DEL-07-01's.
+RC-07-0026,CLAIMED_BY,DEL-07-01:SOW#CLM-006.r01;DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-05,Render-origin rebasing and exclusion of unrepresentable geometry are viewport rendering internals over unit-aware coordinates.
+RC-07-0027,NOT_MINE,,Fixture or example data for another area; not DEL-07-01's.
+RC-07-0028,NOT_MINE,,Desktop feature 'workspace' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0029,NOT_MINE,,Desktop service layer shared across features; not a DEL-07-01 surface.
+RC-07-0030,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0031,NOT_MINE,,Browser test or benchmark infrastructure for other surfaces; not DEL-07-01's.
+RC-07-0032,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0033,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0034,NOT_MINE,,Desktop feature 'model-tree' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0035,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0036,NOT_MINE,,Fixture or example data for another area; not DEL-07-01's.
+RC-07-0037,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0038,NOT_MINE,,Desktop feature 'rule-packs' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0039,UNKEYED,DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-09,Independent point and box hit oracles for viewport selection benchmarking; no key covers it (nearest REQ-09).
+RC-07-0040,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0041,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0042,NOT_MINE,,Desktop feature 'workspace' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0043,NOT_MINE,,Operation layer behaviour (PKG-16); DEL-07-01 does not own it.
+RC-07-0044,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0045,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0046,NOT_MINE,,"Repository tooling, CI or build provenance; not a DEL-07-01 surface."
+RC-07-0047,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0048,NOT_MINE,,Fixture or example data for another area; not DEL-07-01's.
+RC-07-0049,NOT_MINE,,Workspace shell composition in App.tsx; not a DEL-07-01 surface.
+RC-07-0050,NOT_MINE,,Desktop feature 'redaction-controls' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0051,NOT_MINE,,Desktop feature 'library' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0052,NOT_MINE,,Validation or benchmark asset for engine areas; not DEL-07-01's.
+RC-07-0053,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0054,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0055,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0056,NOT_MINE,,Fixture or example data for another area; not DEL-07-01's.
+RC-07-0057,NOT_MINE,,Desktop build or configuration; not a DEL-07-01 surface.
+RC-07-0058,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0059,NOT_MINE,,Fixture or example data for another area; not DEL-07-01's.
+RC-07-0060,NOT_MINE,,Desktop feature 'adapter-framework' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0061,NOT_MINE,,Operation layer behaviour (PKG-16); DEL-07-01 does not own it.
+RC-07-0062,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0063,NOT_MINE,,Workspace shell composition in App.tsx; not a DEL-07-01 surface.
+RC-07-0064,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0065,UNKEYED,DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-09,"UI performance benchmark of canvas selection and orbit; STATUS R03 records the D-70 attempts, but no SOW key covers performance (nearest REQ-09)."
+RC-07-0066,NOT_MINE,,Desktop feature 'offline-proposal-intake' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0067,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0068,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0069,NOT_MINE,,"Repository tooling, CI or build provenance; not a DEL-07-01 surface."
+RC-07-0070,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0071,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0072,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0073,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0074,UNKEYED,DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-01,Boundary draft validation behind the boundary panel; same annex row 21 landing and key gap.
+RC-07-0075,NOT_MINE,,Desktop feature 'stress-neutral' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0076,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0077,NOT_MINE,,Desktop feature 'model-workspace' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0078,NOT_MINE,,Desktop feature 'model-tree' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0079,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0080,NOT_MINE,,Desktop feature 'model-tree' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0081,NOT_MINE,,Desktop feature 'rule-packs' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0082,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0083,NOT_MINE,,Fixture or example data for another area; not DEL-07-01's.
+RC-07-0084,CLAIMED_BY,DEL-07-01:SOW#CLM-006.r01,WebGL renderer lifecycle and resource ledger belong to viewport rendering on the Three.js baseline.
+RC-07-0085,NOT_MINE,,Desktop feature 'design-workspace' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0086,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0087,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0088,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0089,UNKEYED,DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-09,Documentation of the UI foundation benchmark and observer contract; no key covers it.
+RC-07-0090,NOT_MINE,,Desktop feature 'run-audit' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0091,NOT_MINE,,Desktop feature 'export-adapter-sdk' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0092,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0093,NOT_MINE,,"Repository tooling, CI or build provenance; not a DEL-07-01 surface."
+RC-07-0094,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0095,NOT_MINE,,Fixture or example data for another area; not DEL-07-01's.
+RC-07-0096,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0097,NOT_MINE,,"Repository tooling, CI or build provenance; not a DEL-07-01 surface."
+RC-07-0098,NOT_MINE,,Desktop feature 'support-configuration' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0099,NOT_MINE,,"Repository tooling, CI or build provenance; not a DEL-07-01 surface."
+RC-07-0100,NOT_MINE,,Desktop feature 'toolkit' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0101,NOT_MINE,,Fixture or example data for another area; not DEL-07-01's.
+RC-07-0102,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0103,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0104,NOT_MINE,,"Repository tooling, CI or build provenance; not a DEL-07-01 surface."
+RC-07-0105,NOT_MINE,,Desktop feature 'results' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0106,CLAIMED_BY,DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-04;DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-05,"Viewport-queued editor intents with unit validation are the command-routed, unit-aware mutation path of REQ-04/REQ-05."
+RC-07-0107,NOT_MINE,,Desktop feature 'report-lint' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0108,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0109,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0110,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0111,NOT_MINE,,Fixture or example data for another area; not DEL-07-01's.
+RC-07-0112,NOT_MINE,,Desktop feature 'rich-authoring' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0113,CLAIMED_BY,DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-01;DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-02;DEL-07-01:SOW#CLM-006.r01,"The interactive 3D centerline view with instanced nodes, pipes, supports and component symbols is REQ-01/REQ-02 and the CLM-006 rendering row."
+RC-07-0114,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0115,NOT_MINE,,Desktop feature 'report' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0116,NOT_MINE,,Desktop feature 'project-validation' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0117,PARTIAL,DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-09,Linear-authoring journey exercises viewport authoring among other end-to-end flows.
+RC-07-0118,NOT_MINE,,Validation or benchmark asset for engine areas; not DEL-07-01's.
+RC-07-0119,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0120,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0121,NOT_MINE,,Desktop feature 'result-export' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0122,UNKEYED,DEL-07-01:SOW#CLM-014,Viewport-editor session fixture for the DEL-07-01 contract; no issued key names it.
+RC-07-0123,NOT_MINE,,Fixture or example data for another area; not DEL-07-01's.
+RC-07-0124,NOT_MINE,,Desktop service layer shared across features; not a DEL-07-01 surface.
+RC-07-0125,NOT_MINE,,"Repository tooling, CI or build provenance; not a DEL-07-01 surface."
+RC-07-0126,NOT_MINE,,Validation or benchmark asset for engine areas; not DEL-07-01's.
+RC-07-0127,NOT_MINE,,Desktop feature 'knowledge' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0128,NOT_MINE,,Validation or benchmark asset for engine areas; not DEL-07-01's.
+RC-07-0129,NOT_MINE,,Desktop feature 'external-prover' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0130,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0131,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0132,NOT_MINE,,Operation layer behaviour (PKG-16); DEL-07-01 does not own it.
+RC-07-0133,NOT_MINE,,Validation or benchmark asset for engine areas; not DEL-07-01's.
+RC-07-0134,NOT_MINE,,"Repository tooling, CI or build provenance; not a DEL-07-01 surface."
+RC-07-0135,NOT_MINE,,Operation layer behaviour (PKG-16); DEL-07-01 does not own it.
+RC-07-0136,NOT_MINE,,Desktop service layer shared across features; not a DEL-07-01 surface.
+RC-07-0137,NOT_MINE,,Desktop feature 'review-geometry' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0138,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0139,CLAIMED_BY,DEL-07-01:SOW#CLM-006.r03;DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-04,Box selection with stale-gesture discard is viewport selection over stable identities with transient state.
+RC-07-0140,NOT_MINE,,Fixture or example data for another area; not DEL-07-01's.
+RC-07-0141,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0142,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0143,NOT_MINE,,Desktop feature 'workspace' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0144,UNKEYED,DEL-07-01:SOW#CLM-014,schemas/viewport_editor.schema.yaml is DEL-07-01's contract artifact (MEMORY 2026-05-02) but no issued key names it (nearest CLM-014 documentation).
+RC-07-0145,NOT_MINE,,Operation layer behaviour (PKG-16); DEL-07-01 does not own it.
+RC-07-0146,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0147,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0148,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0149,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0150,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0151,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0152,NOT_MINE,,Desktop feature 'wind-exposure' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0153,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0154,CLAIMED_BY,DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-09,End-to-end viewport hide/isolate/dim checks are REQ-09 viewport tests.
+RC-07-0155,NOT_MINE,,Validation or benchmark asset for engine areas; not DEL-07-01's.
+RC-07-0156,UNKEYED,DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-09,"UI diagnostics snapshot (renderer info, owned resources, assignment timing) instruments the viewport for benchmarking; no key covers it."
+RC-07-0157,CLAIMED_BY,DEL-07-01:SOW#CLM-006.r03,Canvas click and label picking over the model index is viewport selection with stable identity.
+RC-07-0158,NOT_MINE,,Desktop feature 'workspace' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0159,NOT_MINE,,Desktop feature 'rule-packs' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0160,CLAIMED_BY,DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-04;DEL-07-01:SOW#CLM-021,"Camera presets, view cube, orbit and fit are viewport camera behaviour, transient per REQ-04 and named in the CLM-021 procedure."
+RC-07-0161,NOT_MINE,,Desktop feature 'workspace' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0162,NOT_MINE,,Desktop feature 'missing-data' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0163,NOT_MINE,,Validation or benchmark asset for engine areas; not DEL-07-01's.
+RC-07-0164,NOT_MINE,,Desktop feature 'workspace' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0165,CLAIMED_BY,DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-04,"Hide, isolate and show-all are transient viewport visibility state (REQ-04)."
+RC-07-0166,NOT_MINE,,Desktop feature 'workspace' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0167,NOT_MINE,,"Repository tooling, CI or build provenance; not a DEL-07-01 surface."
+RC-07-0168,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0169,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0170,NOT_MINE,,Operation layer behaviour (PKG-16); DEL-07-01 does not own it.
+RC-07-0171,NOT_MINE,,Desktop feature 'workspace' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0172,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0173,PARTIAL,DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-09,Layout and ui-foundation e2e specs check canvas regressions alongside tree and properties.
+RC-07-0174,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0175,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0176,NOT_MINE,,Desktop feature 'workspace' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0177,CLAIMED_BY,DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-02,"Labels, grid and authored-load display toggles are REQ-02 visual categories."
+RC-07-0178,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0179,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0180,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0181,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0182,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0183,NOT_MINE,,Desktop feature 'comparison' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0184,NOT_MINE,,Desktop feature 'accessibility-baseline' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0185,NOT_MINE,,Desktop service layer shared across features; not a DEL-07-01 surface.
+RC-07-0186,NOT_MINE,,Workspace shell composition in App.tsx; not a DEL-07-01 surface.
+RC-07-0187,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0188,NOT_MINE,,Desktop feature 'workspace' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0189,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0190,NOT_MINE,,Operation layer behaviour (PKG-16); DEL-07-01 does not own it.
+RC-07-0191,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0192,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0193,NOT_MINE,,Validation or benchmark asset for engine areas; not DEL-07-01's.
+RC-07-0194,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0195,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0196,NOT_MINE,,Desktop feature 'security-threat-model' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0197,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0198,NOT_MINE,,Desktop feature 'workspace' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0199,CLAIMED_BY,DEL-07-01:SOW#CLM-006.r01,Pipe figure shading is viewport rendering.
+RC-07-0200,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0201,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0202,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0203,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0204,NOT_MINE,,"Repository tooling, CI or build provenance; not a DEL-07-01 surface."
+RC-07-0205,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0206,NOT_MINE,,Operation layer behaviour (PKG-16); DEL-07-01 does not own it.
+RC-07-0207,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0208,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0209,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0210,NOT_MINE,,Desktop feature 'results' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0211,NOT_MINE,,Desktop feature 'workspace' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0212,NOT_MINE,,Desktop feature 'rule-packs' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0213,NOT_MINE,,Desktop feature 'report' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0214,NOT_MINE,,Desktop feature 'display-units' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0215,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0216,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0217,NOT_MINE,,Desktop feature 'solve' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0218,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0219,NOT_MINE,,Desktop feature 'secret-private-library' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0220,NOT_MINE,,Desktop feature 'workspace' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0221,NOT_MINE,,Fixture or example data for another area; not DEL-07-01's.
+RC-07-0222,NOT_MINE,,Operation layer behaviour (PKG-16); DEL-07-01 does not own it.
+RC-07-0223,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0224,UNKEYED,DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-01,"Batch-form helpers behind the geometry tools (annex rows 19/20, DEL-07-01); no key covers them."
+RC-07-0225,NOT_MINE,,Desktop feature 'toolkit' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0226,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0227,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0228,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0229,NOT_MINE,,"Repository tooling, CI or build provenance; not a DEL-07-01 surface."
+RC-07-0230,NOT_MINE,,"Repository tooling, CI or build provenance; not a DEL-07-01 surface."
+RC-07-0231,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0232,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0233,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0234,NOT_MINE,,Operation layer behaviour (PKG-16); DEL-07-01 does not own it.
+RC-07-0235,UNKEYED,DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-01,Authored-coordinate measurement is a landed viewport capability (STATUS R02) with no SOW key (nearest REQ-01).
+RC-07-0236,NOT_MINE,,Desktop feature 'agent-proposals' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0237,NOT_MINE,,Fixture or example data for another area; not DEL-07-01's.
+RC-07-0238,UNKEYED,DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-09,"Generated 1,000/10,000-pipe canvas workloads for the performance benchmark; no key covers it."
+RC-07-0239,PARTIAL,DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-04;DEL-07-01:SOW#CLM-006.r03,"Box, hide/isolate and focus selection behaviour serve the viewport; the selection-state architecture is DEL-00-05's."
+RC-07-0240,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0241,NOT_MINE,,Desktop feature 'self-weight-authoring' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0242,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0243,NOT_MINE,,Fixture or example data for another area; not DEL-07-01's.
+RC-07-0244,NOT_MINE,,Desktop feature 'rule-packs' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0245,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0246,NOT_MINE,,Desktop feature 'workspace' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0247,CLAIMED_BY,DEL-07-01:SOW#CLM-006.r03,Selection and hover halos are the viewport presentation of stable selection.
+RC-07-0248,NOT_MINE,,"Repository tooling, CI or build provenance; not a DEL-07-01 surface."
+RC-07-0249,NOT_MINE,,Desktop feature 'pcf-export' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0250,NOT_MINE,,Desktop build or configuration; not a DEL-07-01 surface.
+RC-07-0251,CLAIMED_BY,DEL-07-01:SOW#CLM-005.r03,"Viewport status for context loss, excluded or invalid geometry and conversion is the CLM-005 explicit-state handling."
+RC-07-0252,NOT_MINE,,Desktop feature 'export-review' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0253,NOT_MINE,,Desktop feature 'handoff' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0254,NOT_MINE,,Fixture or example data for another area; not DEL-07-01's.
+RC-07-0255,NOT_MINE,,Desktop feature 'load-cases' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0256,NOT_MINE,,Desktop feature 'report' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0257,UNKEYED,DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-01,Annex row 21 puts boundary-condition GUI in DEL-07-01/DEL-07-02; no DEL-07-01 key covers it (nearest REQ-01).
+RC-07-0258,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0259,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0260,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0261,NOT_MINE,,Validation or benchmark asset for engine areas; not DEL-07-01's.
+RC-07-0262,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0263,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0264,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0265,NOT_MINE,,Validation or benchmark asset for engine areas; not DEL-07-01's.
+RC-07-0266,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0267,NOT_MINE,,Desktop service layer shared across features; not a DEL-07-01 surface.
+RC-07-0268,NOT_MINE,,"Repository tooling, CI or build provenance; not a DEL-07-01 surface."
+RC-07-0269,NOT_MINE,,Validation or benchmark asset for engine areas; not DEL-07-01's.
+RC-07-0270,NOT_MINE,,"Repository tooling, CI or build provenance; not a DEL-07-01 surface."
+RC-07-0271,NOT_MINE,,Desktop feature 'result-export' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0272,NOT_MINE,,Fixture or example data for another area; not DEL-07-01's.
+RC-07-0273,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0274,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0275,NOT_MINE,,Operation layer behaviour (PKG-16); DEL-07-01 does not own it.
+RC-07-0276,CLAIMED_BY,DEL-07-01:SOW#CLM-006.r02;DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-01,Straight route drafting on construction planes is viewport centerline editing (REQ-01).
+RC-07-0277,NOT_MINE,,"Repository tooling, CI or build provenance; not a DEL-07-01 surface."
+RC-07-0278,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0279,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0280,NOT_MINE,,Workspace shell composition in App.tsx; not a DEL-07-01 surface.
+RC-07-0281,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0282,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0283,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0284,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0285,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0286,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0287,NOT_MINE,,Desktop feature 'redaction-controls' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0288,NOT_MINE,,Desktop feature 'display-units' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0289,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0290,NOT_MINE,,Desktop feature 'caepipe-external' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0291,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0292,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0293,NOT_MINE,,Desktop feature 'workspace' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0294,NOT_MINE,,"Repository tooling, CI or build provenance; not a DEL-07-01 surface."
+RC-07-0295,NOT_MINE,,Operation layer behaviour (PKG-16); DEL-07-01 does not own it.
+RC-07-0296,NOT_MINE,,Desktop feature 'rule-check' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0297,NOT_MINE,,Desktop service layer shared across features; not a DEL-07-01 surface.
+RC-07-0298,NOT_MINE,,Browser test or benchmark infrastructure for other surfaces; not DEL-07-01's.
+RC-07-0299,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0300,PARTIAL,DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-09,"Viewport colour-literal and stylesheet tests are viewport-source tests, beyond the REQ-09 list."
+RC-07-0301,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0302,NOT_MINE,,Fixture or example data for another area; not DEL-07-01's.
+RC-07-0303,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0304,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0305,NOT_MINE,,Desktop build or configuration; not a DEL-07-01 surface.
+RC-07-0306,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0307,NOT_MINE,,Desktop service layer shared across features; not a DEL-07-01 surface.
+RC-07-0308,NOT_MINE,,Desktop feature 'load-cases' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0309,NOT_MINE,,Desktop feature 'rule-check' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0310,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0311,PARTIAL,DEL-07-01:SOW#CLM-006.r03,The model index supplies 3D bounds and spatial chunks for viewport picking; shared with the tree.
+RC-07-0312,NOT_MINE,,Fixture or example data for another area; not DEL-07-01's.
+RC-07-0313,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0314,NOT_MINE,,Desktop feature 'design-workspace' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0315,NOT_MINE,,Desktop feature 'operations' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0316,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0317,CLAIMED_BY,DEL-07-01:SOW#CLM-006.r01;DEL-07-01:SOW#CLM-005.r04,Canvas colour roles from design tokens are viewport rendering; the neutral figure keeps rule-check status out of colour (CLM-005.r04).
+RC-07-0318,NOT_MINE,,"Repository tooling, CI or build provenance; not a DEL-07-01 surface."
+RC-07-0319,NOT_MINE,,Desktop feature 'report' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0320,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0321,NOT_MINE,,Operation layer behaviour (PKG-16); DEL-07-01 does not own it.
+RC-07-0322,UNKEYED,DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-09,Causal frame-presentation measurement for canvas performance; no SOW key covers performance (nearest REQ-09).
+RC-07-0323,NOT_MINE,,"Repository tooling, CI or build provenance; not a DEL-07-01 surface."
+RC-07-0324,NOT_MINE,,Desktop build or configuration; not a DEL-07-01 surface.
+RC-07-0325,NOT_MINE,,Desktop feature 'result-export' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0326,NOT_MINE,,Operation layer behaviour (PKG-16); DEL-07-01 does not own it.
+RC-07-0327,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0328,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0329,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0330,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0331,NOT_MINE,,"Repository tooling, CI or build provenance; not a DEL-07-01 surface."
+RC-07-0332,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0333,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0334,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0335,NOT_MINE,,Desktop feature 'rule-packs' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0336,CLAIMED_BY,DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-04,Dimmed presentation for isolate is transient viewport visibility rendering.
+RC-07-0337,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0338,NOT_MINE,,Desktop feature 'library' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0339,NOT_MINE,,Desktop feature 'project-storage' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0340,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0341,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0342,NOT_MINE,,Workspace shell composition in App.tsx; not a DEL-07-01 surface.
+RC-07-0343,NOT_MINE,,Browser test or benchmark infrastructure for other surfaces; not DEL-07-01's.
+RC-07-0344,NOT_MINE,,Desktop feature 'diff-preview' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0345,NOT_MINE,,Desktop build or configuration; not a DEL-07-01 surface.
+RC-07-0346,PARTIAL,DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-01,"Component-symbol creation is used by the viewport insertion tool (REQ-01, annex row 15); the same builder serves inspector creation forms."
+RC-07-0347,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0348,NOT_MINE,,Operation layer behaviour (PKG-16); DEL-07-01 does not own it.
+RC-07-0349,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0350,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0351,NOT_MINE,,Desktop service layer shared across features; not a DEL-07-01 surface.
+RC-07-0352,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0353,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0354,NOT_MINE,,Workspace shell composition in App.tsx; not a DEL-07-01 surface.
+RC-07-0355,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0356,NOT_MINE,,Validation or benchmark asset for engine areas; not DEL-07-01's.
+RC-07-0357,NOT_MINE,,Desktop feature 'offline-proposal-intake' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0358,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0359,NOT_MINE,,Fixture or example data for another area; not DEL-07-01's.
+RC-07-0360,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0361,NOT_MINE,,Operation layer behaviour (PKG-16); DEL-07-01 does not own it.
+RC-07-0362,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0363,NOT_MINE,,Desktop feature 'workspace' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0364,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0365,CLAIMED_BY,DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-02,Deformed-shape overlay is a REQ-02 visual category in the viewport.
+RC-07-0366,NOT_MINE,,Desktop feature 'toolkit' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0367,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0368,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0369,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0370,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0371,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0372,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0373,NOT_MINE,,Operation layer behaviour (PKG-16); DEL-07-01 does not own it.
+RC-07-0374,PARTIAL,DEL-07-01:SOW#CLM-006.r06,Session undo/redo is the CLM-006 undo row; its architecture is DEL-00-05's (annex row 10).
+RC-07-0375,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0376,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0377,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0378,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0379,NOT_MINE,,Desktop feature 'report' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0380,NOT_MINE,,Desktop feature 'results' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0381,NOT_MINE,,Workspace shell composition in App.tsx; not a DEL-07-01 surface.
+RC-07-0382,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0383,NOT_MINE,,Validation or benchmark asset for engine areas; not DEL-07-01's.
+RC-07-0384,NOT_MINE,,Workspace shell composition in App.tsx; not a DEL-07-01 surface.
+RC-07-0385,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0386,UNKEYED,DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-01,Annex rows 19 and 20 land split/copy/rotate/mirror GUI in DEL-07-01 viewport tools; no DEL-07-01 key covers them (nearest REQ-01).
+RC-07-0387,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0388,NOT_MINE,,"Repository tooling, CI or build provenance; not a DEL-07-01 surface."
+RC-07-0389,NOT_MINE,,Desktop feature 'display-units' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0390,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0391,NOT_MINE,,Desktop feature 'operations' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0392,CLAIMED_BY,DEL-07-01:SOW#CLM-006.r01,Schematic versus ActualOD pipe display is viewport rendering (recorded as landed in STATUS R02).
+RC-07-0393,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0394,NOT_MINE,,"Repository tooling, CI or build provenance; not a DEL-07-01 surface."
+RC-07-0395,NOT_MINE,,Desktop feature 'redaction-controls' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0396,NOT_MINE,,Desktop feature 'load-cases' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0397,NOT_MINE,,Desktop feature 'caepipe-mbf' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0398,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0399,NOT_MINE,,Desktop feature 'workspace' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0400,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0401,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0402,UNKEYED,DEL-07-01:SOW#CLM-014,The viewport_editor crate is DEL-07-01's command-intent support module; no issued key names it.
+RC-07-0403,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0404,NOT_MINE,,Fixture or example data for another area; not DEL-07-01's.
+RC-07-0405,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0406,NOT_MINE,,Validation or benchmark asset for engine areas; not DEL-07-01's.
+RC-07-0407,NOT_MINE,,Desktop service layer shared across features; not a DEL-07-01 surface.
+RC-07-0408,NOT_MINE,,Desktop build or configuration; not a DEL-07-01 surface.
+RC-07-0409,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0410,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0411,NOT_MINE,,Desktop feature 'rule-check' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0412,NOT_MINE,,Validation or benchmark asset for engine areas; not DEL-07-01's.
+RC-07-0413,NOT_MINE,,"Repository tooling, CI or build provenance; not a DEL-07-01 surface."
+RC-07-0414,NOT_MINE,,Desktop feature 'toolkit' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0415,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0416,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0417,NOT_MINE,,Desktop feature 'results' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0418,NOT_MINE,,Desktop feature 'workspace' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0419,NOT_MINE,,"Repository tooling, CI or build provenance; not a DEL-07-01 surface."
+RC-07-0420,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0421,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0422,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0423,NOT_MINE,,Desktop feature 'toolkit' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0424,NOT_MINE,,"Repository tooling, CI or build provenance; not a DEL-07-01 surface."
+RC-07-0425,CLAIMED_BY,DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-02,Authored force and moment arrows are the REQ-02 load vectors.
+RC-07-0426,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0427,NOT_MINE,,Desktop feature 'redaction-controls' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0428,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0429,NOT_MINE,,Desktop feature 'report' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0430,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0431,NOT_MINE,,Desktop feature 'report' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0432,NOT_MINE,,Desktop service layer shared across features; not a DEL-07-01 surface.
+RC-07-0433,NOT_MINE,,Desktop service layer shared across features; not a DEL-07-01 surface.
+RC-07-0434,NOT_MINE,,Fixture or example data for another area; not DEL-07-01's.
+RC-07-0435,NOT_MINE,,Desktop service layer shared across features; not a DEL-07-01 surface.
+RC-07-0436,NOT_MINE,,Desktop feature 'workspace' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0437,NOT_MINE,,Desktop feature 'workspace' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0438,NOT_MINE,,Desktop feature 'editor-contract' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0439,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0440,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0441,NOT_MINE,,Desktop feature 'local-fea-handoff' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0442,NOT_MINE,,Fixture or example data for another area; not DEL-07-01's.
+RC-07-0443,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0444,CLAIMED_BY,DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-01,"The creation-tool command bar arms node, pipe, support, component and load creation in the viewport (REQ-01)."
+RC-07-0445,NOT_MINE,,"Repository tooling, CI or build provenance; not a DEL-07-01 surface."
+RC-07-0446,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0447,NOT_MINE,,Desktop feature 'results' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0448,NOT_MINE,,Desktop feature 'hanger-selection' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0449,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0450,NOT_MINE,,"Repository tooling, CI or build provenance; not a DEL-07-01 surface."
+RC-07-0451,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0452,NOT_MINE,,Operation layer behaviour (PKG-16); DEL-07-01 does not own it.
+RC-07-0453,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0454,NOT_MINE,,Desktop feature 'load-cases' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0455,NOT_MINE,,Desktop feature 'telemetry' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0456,NOT_MINE,,Operation layer behaviour (PKG-16); DEL-07-01 does not own it.
+RC-07-0457,NOT_MINE,,Desktop feature 'workspace' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0458,NOT_MINE,,Fixture or example data for another area; not DEL-07-01's.
+RC-07-0459,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0460,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0461,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0462,NOT_MINE,,Validation or benchmark asset for engine areas; not DEL-07-01's.
+RC-07-0463,NOT_MINE,,Desktop feature 'results' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0464,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0465,NOT_MINE,,Fixture or example data for another area; not DEL-07-01's.
+RC-07-0466,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0467,NOT_MINE,,Desktop feature 'toolkit' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0468,NOT_MINE,,Native host command or packaging; not a DEL-07-01 surface.
+RC-07-0469,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0470,NOT_MINE,,Operation layer behaviour (PKG-16); DEL-07-01 does not own it.
+RC-07-0471,NOT_MINE,,Desktop feature 'native-package' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0472,CLAIMED_BY,DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-04,"The draft review gate freezes and validates viewport drafts before apply, keeping mutations command-routed (REQ-04)."
+RC-07-0473,NOT_MINE,,Fixture or example data for another area; not DEL-07-01's.
+RC-07-0474,CLAIMED_BY,DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-01;DEL-07-01:SOW#CLM-011/DEL-07-01-REQ-05,Node creation from typed coordinates or a plane click with unit checks is REQ-01/REQ-05.
+RC-07-0475,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0476,NOT_MINE,,Desktop feature 'model-tree' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0477,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0478,NOT_MINE,,Desktop feature 'build-readiness' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0479,NOT_MINE,,Desktop feature 'validation-evidence' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0480,NOT_MINE,,Schema contract owned by another deliverable; not a DEL-07-01 claim.
+RC-07-0481,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0482,NOT_MINE,,Core module owned by another package; not a DEL-07-01 surface.
+RC-07-0483,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0484,NOT_MINE,,Desktop feature 'stress-neutral' is outside DEL-07-01's scope; no DEL-07-01 claim describes it.
+RC-07-0485,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+RC-07-0486,NOT_MINE,,Governance or documentation surface; DEL-07-01 makes no claim over it.
+RC-07-0487,NOT_MINE,,"Mechanics, solver, load or unit engine; outside the GUI deliverable DEL-07-01."
+#END,,,487
