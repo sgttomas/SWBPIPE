@@ -1,0 +1,14 @@
+{
+  "at": "2026-09-21T11:08:40.510127+00:00",
+  "pr": "https://github.com/sgttomas/chirality/pull/833",
+  "head": "6fa70c15c7d8f1bce78b6e7f153b7296503d8bed",
+  "premergeMain": "c9f19195214b2e097980dde5e0d5fccbfba8e34c",
+  "merge": "fd002217f067020d44deaee22866e14eed81173f",
+  "mergedAt": "2026-09-21T11:08:37Z",
+  "allActualHeadChecks": "all9SUCCESS before ready/merge",
+  "candidateTree": "32f959a1a580fd9a497816eb2eb035a105ee3e6c",
+  "mergeTree": "32f959a1a580fd9a497816eb2eb035a105ee3e6c",
+  "treeIdentical": true,
+  "method": "ROOT gh ready, then gh pr merge --merge --match-head-commit; no admin/protection bypass",
+  "scope": "source-control integration only; no owner review/acceptance/release inferred"
+}

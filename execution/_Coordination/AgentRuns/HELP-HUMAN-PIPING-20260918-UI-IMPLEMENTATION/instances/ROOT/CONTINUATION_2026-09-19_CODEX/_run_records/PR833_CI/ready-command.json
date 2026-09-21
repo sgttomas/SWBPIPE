@@ -1,0 +1,13 @@
+{
+  "command": [
+    "gh",
+    "pr",
+    "ready",
+    "833",
+    "--repo",
+    "sgttomas/chirality"
+  ],
+  "exit": 0,
+  "stdout": "",
+  "stderr": "\u2713 Pull request sgttomas/chirality#833 is marked as \"ready for review\"\n"
+}

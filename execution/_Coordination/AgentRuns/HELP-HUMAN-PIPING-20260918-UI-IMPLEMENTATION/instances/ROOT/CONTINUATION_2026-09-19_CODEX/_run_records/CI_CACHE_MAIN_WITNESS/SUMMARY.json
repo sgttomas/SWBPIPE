@@ -1,0 +1,38 @@
+{
+  "at": "2026-09-21T11:14:01.743281+00:00",
+  "run": "35592484895",
+  "head": "fd002217f067020d44deaee22866e14eed81173f",
+  "status": "SUCCESS",
+  "mainCachesObserved": 5,
+  "rawLogSha256": "c771568aa5ba728d0a7ec610e0b2533b444307268c732cf3ae8d0c65b82d8bac",
+  "rawLogBytes": 174071,
+  "scope": "actual guarded main dependency-preparation job and cache creation; no browser test suite ran",
+  "limits": "Later PR consumer hits and timing benefit are not yet observed. PR833 first-run hosted wall time1145s is not a cache-benefit comparison to warm rerun PR832986s.",
+  "pipingCachesCreatedThisRun": [
+    {
+      "id": 7928962309,
+      "key": "node-cache-Linux-x64-npm-3f079e5b9c1656dd33060e3e260efb947b678574d15ac514783aee67ea23a336",
+      "createdAt": "2026-09-21T11:12:43.237364Z",
+      "bytes": 62580881
+    },
+    {
+      "id": 7928961613,
+      "key": "Linux-wasm-bindgen-cli-0.2.123",
+      "createdAt": "2026-09-21T11:12:41.026986Z",
+      "bytes": 2467956
+    },
+    {
+      "id": 7928960476,
+      "key": "Linux-rust-1.97.1-32f6d9d299e4a9e31ee8c644478f7cec98c94f355b5451c0d7fffc5eff01eaae",
+      "createdAt": "2026-09-21T11:12:39.887615Z",
+      "bytes": 57496334
+    },
+    {
+      "id": 7928958820,
+      "key": "Linux-playwright-1.60.0",
+      "createdAt": "2026-09-21T11:12:37.233148Z",
+      "bytes": 271379177
+    }
+  ],
+  "preexistingOtherMainCaches": 1
+}

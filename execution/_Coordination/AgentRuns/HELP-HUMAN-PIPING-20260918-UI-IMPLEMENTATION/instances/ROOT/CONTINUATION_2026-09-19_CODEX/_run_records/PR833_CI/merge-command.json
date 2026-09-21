@@ -1,0 +1,16 @@
+{
+  "command": [
+    "gh",
+    "pr",
+    "merge",
+    "833",
+    "--repo",
+    "sgttomas/chirality",
+    "--merge",
+    "--match-head-commit",
+    "6fa70c15c7d8f1bce78b6e7f153b7296503d8bed"
+  ],
+  "exit": 0,
+  "stdout": "",
+  "stderr": ""
+}

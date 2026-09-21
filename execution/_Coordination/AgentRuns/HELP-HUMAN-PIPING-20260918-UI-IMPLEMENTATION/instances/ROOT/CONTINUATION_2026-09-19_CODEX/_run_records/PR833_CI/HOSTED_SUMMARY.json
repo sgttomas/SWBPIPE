@@ -1,0 +1,66 @@
+{
+  "run": "35590582011",
+  "head": "6fa70c15c7d8f1bce78b6e7f153b7296503d8bed",
+  "conclusion": "success",
+  "createdAt": "2026-09-21T10:47:05Z",
+  "updatedAt": "2026-09-21T11:06:10Z",
+  "workflowWallSeconds": 1145.0,
+  "rawLogSha256": "84a3e5fd8ddb96cfb62f41fc25cfb218b69e01b090dddf3ab1fbf68e3f555311",
+  "rawLogBytes": 1392194,
+  "jobs": [
+    {
+      "name": "Select source coverage",
+      "startedAt": "2026-09-21T10:47:08Z",
+      "completedAt": "2026-09-21T10:48:53Z",
+      "conclusion": "success"
+    },
+    {
+      "name": "Accessibility barrier and selected coverage",
+      "startedAt": "2026-09-21T10:48:56Z",
+      "completedAt": "2026-09-21T10:54:55Z",
+      "conclusion": "success"
+    },
+    {
+      "name": "Source remainder (2/4)",
+      "startedAt": "2026-09-21T10:54:57Z",
+      "completedAt": "2026-09-21T11:02:37Z",
+      "conclusion": "success"
+    },
+    {
+      "name": "Source remainder (4/4)",
+      "startedAt": "2026-09-21T10:54:58Z",
+      "completedAt": "2026-09-21T11:05:09Z",
+      "conclusion": "success"
+    },
+    {
+      "name": "Source remainder (3/4)",
+      "startedAt": "2026-09-21T10:54:57Z",
+      "completedAt": "2026-09-21T11:05:13Z",
+      "conclusion": "success"
+    },
+    {
+      "name": "Source remainder (1/4)",
+      "startedAt": "2026-09-21T10:54:57Z",
+      "completedAt": "2026-09-21T11:02:05Z",
+      "conclusion": "success"
+    },
+    {
+      "name": "Desktop E2E (source mode)",
+      "startedAt": "2026-09-21T11:05:15Z",
+      "completedAt": "2026-09-21T11:06:09Z",
+      "conclusion": "success"
+    }
+  ],
+  "sourceCounts": {
+    "passed": 445,
+    "existingSkipped": 20,
+    "byJobPassCounts": {
+      "barrier": 30,
+      "shard1": 143,
+      "shard2": 81,
+      "shard3": 87,
+      "shard4": 104
+    }
+  },
+  "timingLimit": "First PR833 run includes cold setup; not equivalent to the warm corrected PR832 run. Cache creation observed only after this PR merged; consumer reuse and timing benefit remain unobserved."
+}

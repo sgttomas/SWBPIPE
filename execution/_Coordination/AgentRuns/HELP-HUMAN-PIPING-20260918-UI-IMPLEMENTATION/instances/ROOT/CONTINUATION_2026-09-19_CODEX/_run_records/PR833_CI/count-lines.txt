@@ -1,0 +1,7 @@
+Accessibility barrier and selected coverage	Run accessibility first, then any reduced selection	2026-09-21T10:54:39.5068746Z   30 passed (2.0m)
+Source remainder (2/4)	UNKNOWN STEP	2026-09-21T11:02:33.7388355Z   81 passed (5.5m)
+Source remainder (4/4)	UNKNOWN STEP	2026-09-21T11:05:05.5138755Z   10 skipped
+Source remainder (4/4)	UNKNOWN STEP	2026-09-21T11:05:05.5139130Z   104 passed (7.9m)
+Source remainder (3/4)	UNKNOWN STEP	2026-09-21T11:05:07.8356414Z   10 skipped
+Source remainder (3/4)	UNKNOWN STEP	2026-09-21T11:05:07.8356881Z   87 passed (8.0m)
+Source remainder (1/4)	UNKNOWN STEP	2026-09-21T11:02:01.6760936Z   143 passed (5.1m)
