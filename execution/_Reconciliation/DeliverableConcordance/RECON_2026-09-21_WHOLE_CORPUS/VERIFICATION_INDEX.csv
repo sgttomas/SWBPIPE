@@ -20,10 +20,11 @@ projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.
 projects/chirality-piping/apps/desktop/e2e/ui-foundation/performance-targets.spec.ts,desktop_playwright_e2e,typescript,22,GATE:GATE_EVIDENCE/B4_4_SWEEP_9D55/SUMMARY.json;GATE:GATE_EVIDENCE/PR834_CI/HOSTED_SUMMARY.json
 projects/chirality-piping/apps/desktop/e2e/wasm-engine-dist.spec.ts,desktop_playwright_e2e,typescript,1,GATE:GATE_EVIDENCE/B4_4_SWEEP_9D55/SUMMARY.json;GATE:GATE_EVIDENCE/PR834_CI/HOSTED_SUMMARY.json
 projects/chirality-piping/apps/desktop/e2e/workspace-layout.spec.ts,desktop_playwright_e2e,typescript,8,GATE:GATE_EVIDENCE/B4_4_SWEEP_9D55/SUMMARY.json;GATE:GATE_EVIDENCE/PR834_CI/HOSTED_SUMMARY.json
-projects/chirality-piping/apps/desktop/src-tauri/src/atomic_report_package_save.rs,desktop_vitest,rust,12,GATE:GATE_EVIDENCE/B4_4_SWEEP_9D55/SUMMARY.json
-projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs,desktop_vitest,rust,72,GATE:GATE_EVIDENCE/B4_4_SWEEP_9D55/SUMMARY.json
-projects/chirality-piping/apps/desktop/src-tauri/src/model_document_migration.rs,desktop_vitest,rust,9,GATE:GATE_EVIDENCE/B4_4_SWEEP_9D55/SUMMARY.json
-projects/chirality-piping/apps/desktop/src-tauri/src/native_result_download.rs,desktop_vitest,rust,9,GATE:GATE_EVIDENCE/B4_4_SWEEP_9D55/SUMMARY.json
+projects/chirality-piping/apps/desktop/scripts/build-wasm-engine.test.mjs,desktop_vitest,typescript,1,GATE:GATE_EVIDENCE/B4_4_SWEEP_9D55/SUMMARY.json
+projects/chirality-piping/apps/desktop/src-tauri/src/atomic_report_package_save.rs,cargo_crate_sweep,rust,12,GATE:GATE_EVIDENCE/B4_4_SWEEP_9D55/SUMMARY.json
+projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs,cargo_crate_sweep,rust,72,GATE:GATE_EVIDENCE/B4_4_SWEEP_9D55/SUMMARY.json
+projects/chirality-piping/apps/desktop/src-tauri/src/model_document_migration.rs,cargo_crate_sweep,rust,9,GATE:GATE_EVIDENCE/B4_4_SWEEP_9D55/SUMMARY.json
+projects/chirality-piping/apps/desktop/src-tauri/src/native_result_download.rs,cargo_crate_sweep,rust,9,GATE:GATE_EVIDENCE/B4_4_SWEEP_9D55/SUMMARY.json
 projects/chirality-piping/apps/desktop/src/App.deadControls.test.tsx,desktop_vitest,typescript,2,GATE:GATE_EVIDENCE/B4_4_SWEEP_9D55/SUMMARY.json
 projects/chirality-piping/apps/desktop/src/App.projectHandlers.test.tsx,desktop_vitest,typescript,31,GATE:GATE_EVIDENCE/B4_4_SWEEP_9D55/SUMMARY.json
 projects/chirality-piping/apps/desktop/src/App.shell.test.tsx,desktop_vitest,typescript,36,GATE:GATE_EVIDENCE/B4_4_SWEEP_9D55/SUMMARY.json

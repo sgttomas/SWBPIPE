@@ -5,8 +5,11 @@ Checks header, CRLF, `#END` sentinel count, CapabilityID prefix and uniqueness,
 Kind vocabulary, that every EntryPoints and Tests path exists at the frozen
 commit, that Capability and Notes name no deliverable, package, scope,
 objective or decision identifier, and (with --coverage) that every non-test
-tracked file in the area's partition (git config files excepted) appears in some
-EntryPoints or Tests cell.
+tracked file in the area's partition (git config files excepted) appears in an
+EntryPoints cell (test-data fixtures may be listed under Tests). Directory
+EntryPoints are allowed only in DATA, DOCS and CHECKS, and never for a whole
+area prefix. The Area column must equal the area checked; the ownership screen
+is case-insensitive.
 Deterministic and read-only. Exit 0 = PASS, 1 = findings.
 
 Usage
@@ -28,7 +31,8 @@ P = "projects/chirality-piping/"
 HEADER = ["CapabilityID", "Area", "Kind", "Capability", "EntryPoints", "Tests", "Notes"]
 KINDS = {"ENGINE", "DATA_CONTRACT", "UI_OPERATION", "UI_SURFACE", "COMMAND", "DIAGNOSTIC", "INTEGRATION",
          "SECURITY_CONTROL", "DOCUMENT", "CHECK", "FIXTURE_SET", "TEST_ONLY"}
-OWNER_TOKEN = re.compile(r"\b(DEL-\d\d-\d\d|PKG-\d\d|SOW-\d{3}|OBJ-\d{3}|DEC-\d{3}|D-\d{2,3}[a-z]?|SCA-\d{3})\b")
+OWNER_TOKEN = re.compile(r"(?i)\b(DEL-\d\d-\d\d|PKG-\d\d|SOW-\d{3}|OBJ-\d{3}|DEC-\d{3}|D-\d{2,3}[a-z]?|SCA-\d{3})\b")
+DIR_OK_AREAS = {"DATA", "DOCS", "CHECKS"}  # family-grain areas may cite directories
 EXCLUDE = ("execution/", "plans/", "loop/", "init/", "tests/", "validation/evidence/")
 
 
@@ -58,11 +62,15 @@ def main(argv):
     dirs = {"/".join(t.split("/")[:i]) for t in tree for i in range(1, t.count("/") + 1)}
     ids = set()
     covered = set()
+    part = json.load(open(a.partition))
+    prefixes = part[a.area] if a.area != "SHELL" else ["apps/desktop/"]
     for r in body:
         if len(r) != len(HEADER):
             f.append(f"record {r[:1]} has {len(r)} fields")
             continue
         cid, area, kind, cap, ep, tests, notes = r
+        if area != a.area:
+            f.append(f"{cid}: Area {area!r} must be {a.area}")
         if not re.match(rf"^CAP-{a.area}-\d{{3}}$", cid):
             f.append(f"{cid}: ID must be CAP-{a.area}-NNN")
         if cid in ids:
@@ -82,18 +90,30 @@ def main(argv):
                 p = re.split(r"::|#L", tok, maxsplit=1)[0].rstrip("/")
                 if p not in tree and p not in dirs:
                     f.append(f"{cid}: {col} path not at the freeze: {p}")
-                else:
-                    # coverage counts EntryPoints and Tests (test data such as fixtures is listed under Tests)
-                    covered |= {t for t in tree if t == p or t.startswith(p + "/")}
+                    continue
+                if col != "EntryPoints":
+                    # test data (fixtures) listed under Tests counts toward coverage of test-data files only
+                    if re.search(r"(fixture|/fixtures?/|\.snap$)", p, re.I):
+                        covered |= {t for t in tree if t == p or t.startswith(p + "/")}
+                    continue
+                if p in dirs and p not in tree:
+                    rel = p[len(P):] if p.startswith(P) else p
+                    anc = [x for x in prefixes if x.rstrip("/").startswith(rel.rstrip("/") + "/") or x.rstrip("/") == rel.rstrip("/")]
+                    if a.area not in DIR_OK_AREAS:
+                        f.append(f"{cid}: directory EntryPoint {p} (only DATA, DOCS and CHECKS may cite directories)")
+                        continue
+                    if anc or not rel:
+                        f.append(f"{cid}: EntryPoint {p} is (or contains) a whole area prefix; name the family")
+                        continue
+                covered |= {t for t in tree if t == p or t.startswith(p + "/")}
     if a.coverage:
-        part = json.load(open(a.partition))
         prefixes = part[a.area]
         mine = []
         for t in tree:
             if not t.startswith(P):
                 continue
             rel = t[len(P):]
-            if rel.startswith(EXCLUDE) or "/node_modules/" in rel or re.search(r"(\.test|\.spec)\.(ts|tsx)$|(^|/)test_[^/]+\.py$|(^|/)\.git(ignore|attributes)$", rel):
+            if rel.startswith(EXCLUDE) or "/node_modules/" in rel or re.search(r"(\.test|\.spec)\.(ts|tsx|mjs|js)$|(^|/)test_[^/]+\.py$|/tests/[^/]+\.rs$|(^|/)\.git(ignore|attributes)$", rel):
                 continue
             if a.area == "SHELL":
                 if rel.startswith("apps/desktop/") and not rel.startswith("apps/desktop/src/features/"):

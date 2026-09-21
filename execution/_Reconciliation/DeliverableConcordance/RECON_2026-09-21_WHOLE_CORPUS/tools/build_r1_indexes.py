@@ -11,7 +11,10 @@ Deterministic and read-only against the frozen commit. It writes:
                                          count (static), and the gate record
                                          that covers the suite
   VALIDATION_AND_PROVENANCE_INDEX.csv    one row per validation or provenance
-                                         asset: family, path, kind
+                                         asset, including the archived evidence
+                                         records under validation/evidence/
+                                         (kind `evidence_record`): family, path,
+                                         kind
 Static counts are syntax-based (test function and case declarations). They are
 not pass counts; suite pass status comes only from GATE_EVIDENCE (CONVENTIONS A6).
 
@@ -90,18 +93,18 @@ def main(argv):
 
     # ---- verification index
     def suite_of(f):
+        if f.endswith(".rs"):
+            return "cargo_crate_sweep", "GATE:GATE_EVIDENCE/B4_4_SWEEP_9D55/SUMMARY.json"
         if f.startswith(P + "apps/desktop/e2e/"):
             return "desktop_playwright_e2e", "GATE:GATE_EVIDENCE/B4_4_SWEEP_9D55/SUMMARY.json;GATE:GATE_EVIDENCE/PR834_CI/HOSTED_SUMMARY.json"
         if f.startswith(P + "apps/desktop/"):
             return "desktop_vitest", "GATE:GATE_EVIDENCE/B4_4_SWEEP_9D55/SUMMARY.json"
-        if f.endswith(".rs"):
-            return "cargo_crate_sweep", "GATE:GATE_EVIDENCE/B4_4_SWEEP_9D55/SUMMARY.json"
         return "python_pytest", "GATE:GATE_EVIDENCE/B4_4_SWEEP_9D55/SUMMARY.json"
     tests = []
     for f in files:
         base = f.rsplit("/", 1)[-1]
         is_py = f.endswith(".py") and (base.startswith("test_") or base.endswith("_test.py"))
-        is_ts = re.search(r"\.(test|spec)\.(ts|tsx)$", base)
+        is_ts = re.search(r"\.(test|spec)\.(ts|tsx|mjs|js)$", base)
         is_rs = f.endswith(".rs") and ("/tests/" in f or base == "lib.rs" or base.endswith(".rs"))
         if not (is_py or is_ts or is_rs):
             continue
@@ -127,11 +130,10 @@ def main(argv):
     val = []
     for f in files:
         rel = f[len(P):]
-        if rel.startswith("validation/evidence/"):
-            continue
         if rel.startswith(("validation/", "provenance/", "docs/validation_manual/")):
-            fam = "/".join(rel.split("/")[:2])
-            kind = ("benchmark" if "/benchmarks/" in f else "hand_calc" if "/hand_calcs/" in f else
+            fam = "/".join(rel.split("/")[:3]) if rel.startswith("validation/evidence/") else "/".join(rel.split("/")[:2])
+            kind = ("evidence_record" if rel.startswith("validation/evidence/") else
+                    "benchmark" if "/benchmarks/" in f else "hand_calc" if "/hand_calcs/" in f else
                     "witness" if "/witness/" in f else "provenance" if rel.startswith("provenance/") else
                     "validation_manual" if rel.startswith("docs/validation_manual/") else "policy")
             val.append([f, fam, kind])

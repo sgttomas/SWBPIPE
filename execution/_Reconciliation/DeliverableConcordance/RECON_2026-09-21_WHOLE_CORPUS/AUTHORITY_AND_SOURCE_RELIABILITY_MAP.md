@@ -11,7 +11,7 @@ root.
 
 | Source | Function | Notes |
 |---|---|---|
-| `docs/PRD.md` (v0.4 after SCA-010; product name SWBPIPE) | Product requirements | The line-15 historical path keeps the former name by design (SCA-010) |
+| `docs/PRD.md` (v0.4 after SCA-010; product name SWBPIPE) | Product requirements | One historical path keeps the former name by design (SCA-010; line 16 at the freeze) |
 | `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, `docs/SPEC.md`, `docs/TYPES.md` | Project contract, directive, specification, types (lifecycle vocabulary in TYPES §9) | Project copies. The repository root has files with the same names; cite project copies as `projects/chirality-piping/docs/…` (Part D) |
 | `docs/IP_AND_DATA_BOUNDARY.md`, `docs/PROFESSIONAL_BOUNDARY.md`, `docs/claims_registry.md` | Boundary invariants and the claims taxonomy (DEC-081) | Claims restating these are `INVARIANT` tier |
 | `execution/_Decomposition/SOFTWARE_DECOMP.md` rev 0.12, including §12 `DEC-001`–`DEC-109` | Decomposition, package and deliverable scope, codified rulings | The package table (name, scope, assigned items, exclusions) backs CS-06 |
@@ -19,7 +19,8 @@ root.
 | `execution/_Coordination/_DECISIONS/_REGISTER.md` rows D-01–D-72 and their ruling records | Owner rulings | A ruling's "adopted effect" governs. Its packet's analysis is context |
 | Accepted scope changes: SCA-001 to SCA-010 | Scope amendments | See "Two scope-change pointers" below |
 | `execution/_DAG/_LATEST.md` → `DAG-010` | Approved dependency graph | A dependency authority only; it does not settle scope |
-| Loop fences F-PIP-1 to F-PIP-4 (`loop/WORKPLAN_2026-07-18b_piping_loop.md`, "Standing constraints") and DEC-043 | Standing boundaries | Retained by the owner-adopted successor procedure (`loop/WORKPLAN_2026-09-19_piping_loop.md`) |
+| Loop fences F-PIP-1 to F-PIP-4 (definitions in `loop/WORKPLAN_2026-07-18b_piping_loop.md`, "Standing constraints") and DEC-043 | Standing boundaries | Retained by the project `AGENTS.md` ("Project boundaries") under the owner-adopted successor procedure |
+| Project `AGENTS.md`, `loop/LOOP_INIT.md`, `software-workflow.json` | Project instructions, recurrent procedure, registered checks | Govern how work is done and checked; they do not create product scope |
 
 ## Adopted by reference (governing via a ruling; flag `AdoptedByReference=YES`)
 
@@ -43,14 +44,17 @@ R4 how far such adoption reaches (A3).
   2026-09-18.
 - Owner-direction records in AgentRuns. These are context, **except** under
   A3a, where a verbatim, hash-bound owner decision naming the exact divergence
-  may support `ACCEPTED_DIVERGENCE`, routed to R4 for confirmation. One
-  example is the 2026-09-18 hard-identifier selection in
-  `…/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/ACTIVATION_2026-09-18.md`.
-  The owner has since directed that active identifiers carrying the former
-  name are residue (R0 ruling addendum).
+  may support `ACCEPTED_DIVERGENCE`, routed to R4 for confirmation. The R0
+  example is DEL-11-01's R18 guide-edit adoption record. (The 2026-09-18
+  hard-identifier selection is context only: the owner has since directed
+  that active identifiers carrying the former name are residue; R0 ruling
+  addendum.)
 - Merged pull requests and their descriptions (A2: owner intent through the
   standing Git instruction; merge state is a fact).
 - Deliverable `MEMORY.md`, `_run_records/**` and `loop/LOOP_RECEIPTS.md`.
+- The same record can be context in one respect and evidence in another (A3).
+  A run record's account of why something was done is context. Its parity
+  report, review return or validation output is evidence of what exists.
 - Coordination notices and task-management records.
 - Prior reconciliation runs, including July's, as provenance only. Workers do
   not read the July ledgers.
@@ -70,9 +74,12 @@ R4 how far such adoption reaches (A3).
 - **DEC-043.** Unreviewed extracted equation artifacts from the external
   piping-design corpus are never evidence for engineering formula claims. Use
   the maintainer's vetted sources and record their review status.
-- `REVIEWED` requires a named human ruling or disposition covering the cited
-  record. Agent-produced technical evidence with no human disposition is
-  `UNVERIFIED`. Test and run-record evidence is `NOT_APPLICABLE` (C10).
+- `SourceReliability` follows C10, which wins over anything here. It rates
+  engineering and reliance-bearing sources: `ValidationEvidence` and cited
+  human dispositions. Rows whose evidence is tests or run records are
+  `NOT_APPLICABLE`. `REVIEWED` requires a named human ruling or disposition
+  covering the cited record. Agent-produced *validation* evidence with no
+  human disposition is `UNVERIFIED`.
 - Verification never stands in for validation (A5).
 
 ## Two scope-change pointers
