@@ -1,0 +1,50 @@
+{
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop",
+  "stdout_stderr": "each listed command redirected to its named canonical log; preserved raw output",
+  "commands": [
+    {
+      "log": "unit-core-repair.log",
+      "command": "npx vitest run src/features/workspace/table src/features/model-tree/ModelTree.test.tsx src/features/toolkit/DisplayIntegration.test.tsx --maxWorkers=1",
+      "result": "117 passed"
+    },
+    {
+      "log": "unit-connected-repair.log",
+      "command": "npx vitest run src/App.test.tsx src/App.projectHandlers.test.tsx --maxWorkers=1 --testNamePattern 'queues layout-grid|discards a delayed apply|withdraws an in-flight|invalidates a frozen hash-bound|withdraws delayed batch|rolls back a later failed step|preserves an ordered multi-selection|discloses MODEL_INCOMPLETE|clears reopened computed evidence|drops the earlier project|re-derives verified-at-save|keeps both recorded mismatches|retains the opened baseline|blocks later .* Open|serializes Saves|through native menu|records both snapshot observations'",
+      "result": "25 passed;233 intentionally skipped"
+    },
+    {
+      "log": "unit-nonstring-provenance.log",
+      "command": "npx vitest run src/features/workspace/table/ModelTree.table.test.tsx --maxWorkers=1",
+      "result": "9 passed"
+    },
+    {
+      "log": "types-frozen-final.log",
+      "command": "npx tsc --noEmit -p tsconfig.json",
+      "result": "exit0"
+    },
+    {
+      "log": "browser-text-1.log",
+      "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH='/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing' PLAYWRIGHT_WORKERS=1 sh ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/tools/with_e2e_lock.sh npx playwright test e2e/b4-table-editing.spec.ts --grep 'B4 text fields' --output=../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-2-CODEX/_run_records/worker/browser-text-1",
+      "result": "2failed;development count-oracle error",
+      "source": "development revision; not final passing evidence"
+    },
+    {
+      "log": "browser-selected.log",
+      "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH='/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing' PLAYWRIGHT_WORKERS=1 sh ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/tools/with_e2e_lock.sh npx playwright test e2e/b4-table-editing.spec.ts e2e/ui-foundation.spec.ts e2e/b3a-session-status.spec.ts e2e/r2-smoke.spec.ts --grep 'B4 |Grid drafts survive|canonical edit/save|guided workbench shell' --output=../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-2-CODEX/_run_records/worker/browser-selected",
+      "result": "14passed4failed",
+      "source": "browser-selected-source.json"
+    },
+    {
+      "log": "browser-repair.log",
+      "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH='/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing' PLAYWRIGHT_WORKERS=1 sh ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/tools/with_e2e_lock.sh npx playwright test e2e/b4-table-editing.spec.ts e2e/ui-foundation.spec.ts --grep 'B4 Both|B4 short|B4 virtual Grid|B4 text fields|Grid drafts survive' --output=../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-2-CODEX/_run_records/worker/browser-repair",
+      "result": "9passed1failed",
+      "source": "browser-repair-source.json"
+    },
+    {
+      "log": "browser-short-final.log",
+      "command": "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH='/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing' PLAYWRIGHT_WORKERS=1 sh ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/tools/with_e2e_lock.sh npx playwright test e2e/b4-table-editing.spec.ts --project chromium-compact --grep 'B4 short Grid keeps vertical chrome fixed and retains alternate review drafts' --output=../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-2-CODEX/_run_records/worker/browser-short-final",
+      "result": "1passed",
+      "source": "SOURCE_FREEZE.json"
+    }
+  ]
+}
