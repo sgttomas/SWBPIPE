@@ -2697,7 +2697,7 @@
       "scope": "common Sections/opt-in typed enum and bounded tests only",
       "activation": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_4_SECTIONS_ACTIVATION.md",
       "activationSha256": "e6d44615d671bdcff02fb4b2693d5eb6b36ebef1367d1211ca2c760533a7c64f",
-      "resources": "Exact16 browser executions granted under peer reservation/canonical lock5174/pinnedChromium/oneworker. Four bounded Rust checks completed. Native/build/full sweep remain ungranted.",
+      "resources": "Bounded two-P2 source repair + unit/TS and four clipping/enum browser cases granted; unrelated passing cases retained. Native pending independent backcheck.",
       "dependsOn": [
         "B4-3-INTEGRATION",
         "B4-4-SECTIONS-PREPARATION"
@@ -2746,7 +2746,18 @@
       "handoff": "instances/B4-4-CODEX/_run_records/MANAGER_HANDOFF.md",
       "handoffSha256": "4e8875a3202c5b86b07206a26291153383ac67359545243909221c171273176c",
       "manifestSha256": "67829408d489e89b7043836ae2604dc08533b5ea20503c88372c5dfc3450121f",
-      "rootVerification": "All111manifest payload hashes verified from committed blobs; maintained product identical40e833. Historical mutable DIAGNOSIS hash mismatch disclosed; raw failures retained."
+      "rootVerification": "All111manifest payload hashes verified from committed blobs; maintained product identical40e833. Historical mutable DIAGNOSIS hash mismatch disclosed; raw failures retained.",
+      "reviewerConcern": "Type popup may stay visible over header/other rows when owning first row is clipped by table scrolling; actual140-row witness requested before remedy.",
+      "clippingDiagnostic": {
+        "actualAgent": "/root/b3_manager/b4_4_sections",
+        "model": "gpt-6-astra",
+        "reasoning": "low",
+        "mechanism": "retained TASK followup by manager",
+        "brief": "instances/B4-4-CODEX/_run_records/CLIPPED_ENUM_DIAGNOSTIC_BRIEF.md",
+        "briefSha256": "18710b896a6fdcbfdc7f9f9c640b6dd39ef035552d60ab3b830a7f4393dadb15",
+        "inputsSha256": "80e1e3308d8cccabcd2dfaa8338d83cd7cee5d07b0a85bd6587911e17300ba37",
+        "state": "actual one desktop failure on1cef35/unchanged40e833; geometry/hitability/hash/history retained, passive clip repair now granted"
+      }
     },
     "B4-4-CI-COVERAGE": {
       "role": "ROOT maintained CI mapping",
@@ -2779,12 +2790,14 @@
       "model": "gpt-6-astra",
       "reasoning": "xhigh",
       "mechanism": "actual collaboration.spawn_agent fork_turns none",
-      "state": "active read-only maintained14-path source and supporting evidence review",
+      "state": "two P2 findings confirmed: false Section unit-validation assertion and interactable popup above clipped input; bounded repairs authorized",
       "basis": "fd002217f067020d44deaee22866e14eed81173f",
       "candidate": "17472d8ab9dd1abf152105effa13fb2a7ff9e0f6",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_4_SOURCE_REVIEW_LAUNCH.md",
       "briefSha256": "0bae7405394b484e799038d622fc65aa1966c6b9be36dbe202bc4cabbb199faa",
-      "limits": "No tests/build/UI/writes; browser/native/final combined gates pending; same-model independent review, no diversity claim"
+      "limits": "No tests/build/UI/writes; browser/native/final combined gates pending; same-model independent review, no diversity claim",
+      "repairDisposition": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_4_REVIEW_REPAIR_DISPOSITION.md",
+      "repairDispositionSha256": "7ada4ff31acb600fda73d4d2d4e3b025e069746d12386c6018f1bf70f83dbcf4"
     }
   },
   "edges": [

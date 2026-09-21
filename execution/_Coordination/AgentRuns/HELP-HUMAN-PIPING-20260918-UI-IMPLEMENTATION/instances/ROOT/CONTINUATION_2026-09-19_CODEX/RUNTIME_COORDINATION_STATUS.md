@@ -21,7 +21,7 @@ The proposed bounded journey is inspect/preview/submit/status, actual human revi
 
 Materials and corrected Node-review native/ROOT witnesses passed at their bound sources. Owned PIDs16639 and22492 were quit and process-only absence verified; no post-Quit app query. Canonical invented baselines are supported by observed UI/history/actions, not exported whole-model hashes. Node work was review-only: natural family blur kept/closed the editor, raw drafts were cleared and model Undo/Redo remained disabled. Native/build/CUA, source ports and shared lock are released; peer notified.
 
-The bounded Rust/browser runs are complete and source port 5174 is released. Peer acknowledged a conditional reservation for one affected native build/foreground/CUA witness and ROOT handback, after independent review clears. Execution remains ungranted; no full sweep is reserved yet.
+The original bounded Rust/browser runs passed. Independent review requested one additional desktop browser witness for a popup whose persistent input is clipped by table scrolling; ROOT granted that diagnostic on 5174 under the same lock and notified the peer. No product repair is granted before the diagnosis. The peer-reserved native/build/CUA transition remains conditional on review clearance; native execution and full sweep remain ungranted.
 
 Source5174/dist5175 use swbpipe-e2e.lock; ROOT5183/5184, canvas5185/5186 and Tauri5173 remain named resources. One native/CUA foreground slot. Native fixtures are invented; preserve other project rows/preferences.
 
