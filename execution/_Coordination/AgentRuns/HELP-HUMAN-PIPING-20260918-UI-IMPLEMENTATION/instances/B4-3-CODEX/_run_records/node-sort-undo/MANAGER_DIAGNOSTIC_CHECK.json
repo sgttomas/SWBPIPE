@@ -1,0 +1,13 @@
+{
+  "base": "53acac28c4e8554c708d860062fe95408e5ee1de",
+  "productSource": "75fa863ea5cfee9bfe8f5a6ebf0f31047663e4e5",
+  "maintainedDelta": "one diagnostic test addition; intentionally failing on unchanged production",
+  "returnSha256": "66f7120fcd40f29f9bcef376a9cd056605f912ac14f1fe5e745ccdc96400c49a",
+  "manifestSha256": "dfa4a2d450dacb8a8e5408ee5922d133df647c4ad16da5d7b5fdd0de02e1a490",
+  "verifiedPayloads": 23,
+  "rawObservation": "OBSERVATION_2 exactly equals base64 JSON attachment in BROWSER_DIAGNOSIS_2; movement/input/focus/caret/model/hash/history invariants independently checked",
+  "finding": "q-independent actual1+9 produces19, activewrapper removed/added1, down36px, sameinput/focus; textUndo leaves19",
+  "control": "run1 had no rowmove afterEnd did not collapse selection; Undo succeeded to1; retained separately",
+  "nextAuthority": "ROOT e118 permits Node-review-only existing-host opt-in after this checkpoint; no repair yet",
+  "native": "notactivated"
+}

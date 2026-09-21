@@ -1,0 +1,179 @@
+{
+  "config": {
+    "configFile": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/playwright.config.ts",
+    "rootDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-3-CODEX/_run_records/node-sort-undo/browser-diagnosis-2",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-3-CODEX/_run_records/node-sort-undo/browser-diagnosis-2",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-compact",
+        "name": "chromium-compact",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev -- --port 5174",
+      "reuseExistingServer": true,
+      "timeout": 30000,
+      "url": "http://127.0.0.1:5174"
+    }
+  },
+  "suites": [
+    {
+      "title": "b4-table-editing.spec.ts",
+      "file": "b4-table-editing.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "B4 diagnostic Node sorted review preserves text Undo after an active row crosses downward",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 2256,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m9\u001b[27m\"\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m9\u001b[27m\"\u001b[39m\n    at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts:608:27",
+                    "location": {
+                      "file": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+                      "column": 27,
+                      "line": 608
+                    },
+                    "snippet": "  606 |   expect(canonicalX).toBe(\"2\"); expect(canonicalAfterClear).toBe(\"2\"); expect(hashAfterStaging).toBe(hashBefore);\n  607 |   expect(history).toEqual({ undoDisabled: true, redoDisabled: true, editedMarkers: 0 });\n> 608 |   expect(afterUndo.value).toBe(\"1\"); expect(afterUndo.caret).toEqual([1, 1]); expect(afterUndo.rowOrder.slice(0, 2)).toEqual([firstId, secondId]);\n      |                           ^\n  609 | });\n  610 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+                        "column": 27,
+                        "line": 608
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"1\"\u001b[39m\nReceived: \u001b[31m\"1\u001b[7m9\u001b[27m\"\u001b[39m\n\n  606 |   expect(canonicalX).toBe(\"2\"); expect(canonicalAfterClear).toBe(\"2\"); expect(hashAfterStaging).toBe(hashBefore);\n  607 |   expect(history).toEqual({ undoDisabled: true, redoDisabled: true, editedMarkers: 0 });\n> 608 |   expect(afterUndo.value).toBe(\"1\"); expect(afterUndo.caret).toEqual([1, 1]); expect(afterUndo.rowOrder.slice(0, 2)).toEqual([firstId, secondId]);\n      |                           ^\n  609 | });\n  610 |\n    at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts:608:27"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-21T08:39:24.236Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser-identity",
+                      "contentType": "application/json",
+                      "body": "ewogICJjZHBWZXJzaW9uIjogewogICAgInByb3RvY29sVmVyc2lvbiI6ICIxLjMiLAogICAgInByb2R1Y3QiOiAiQ2hyb21lLzE0OC4wLjc3NzguOTYiLAogICAgInJldmlzaW9uIjogIkA4NjI1ZTA2NmZlYmM3MjFlMDE1ZWE5OTg0MmRhMTI5MDFlYjdlZDczIiwKICAgICJ1c2VyQWdlbnQiOiAiTW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTVfNykgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgSGVhZGxlc3NDaHJvbWUvMTQ4LjAuMC4wIFNhZmFyaS81MzcuMzYiLAogICAgImpzVmVyc2lvbiI6ICIxNC44LjE3OC4xNCIKICB9LAogICJwbGF5d3JpZ2h0QnJvd3NlclZlcnNpb24iOiAiMTQ4LjAuNzc3OC45NiIsCiAgImV4ZWN1dGFibGVQYXRoIjogIi9Vc2Vycy9yeWFuL0xpYnJhcnkvQ2FjaGVzL21zLXBsYXl3cmlnaHQvY2hyb21pdW0tMTIyMy9jaHJvbWUtbWFjLWFybTY0L0dvb2dsZSBDaHJvbWUgZm9yIFRlc3RpbmcuYXBwL0NvbnRlbnRzL01hY09TL0dvb2dsZSBDaHJvbWUgZm9yIFRlc3RpbmciLAogICJleGVjdXRhYmxlU2hhMjU2IjogIjI0NDdjN2JkZWE4ZThhZDM4YjUyNTk0ZjFiYTUzZTE4ODIxYzA1NDQ1ZThhMDdhZDFjZjNiMGYyMzkzMWQ4OWQiCn0="
+                    },
+                    {
+                      "name": "node-sorted-review-undo-observation",
+                      "contentType": "application/json",
+                      "body": "ewogICJmaXJzdElkIjogIm5vZGU6VUlGLVBSRUNJU0lPTi0wMDAwMCIsCiAgInNlY29uZElkIjogIm5vZGU6VUlGLVBSRUNJU0lPTi0wMDAwMSIsCiAgImJlZm9yZSI6IHsKICAgICJ2YWx1ZSI6ICIxIiwKICAgICJzYW1lSW5wdXQiOiB0cnVlLAogICAgImZvY3VzZWQiOiB0cnVlLAogICAgImNhcmV0IjogWwogICAgICAxLAogICAgICAxCiAgICBdLAogICAgInJvd09yZGVyIjogWwogICAgICAibm9kZTpVSUYtUFJFQ0lTSU9OLTAwMDAwIiwKICAgICAgIm5vZGU6VUlGLVBSRUNJU0lPTi0wMDAwMSIsCiAgICAgICJub2RlOlVJRi1QUkVDSVNJT04tMDAwMDIiLAogICAgICAibm9kZTpVSUYtUFJFQ0lTSU9OLTAwMDAzIiwKICAgICAgIm5vZGU6VUlGLVBSRUNJU0lPTi0wMDAwNCIsCiAgICAgICJub2RlOlVJRi1QUkVDSVNJT04tMDAwMDUiLAogICAgICAibm9kZTpVSUYtUFJFQ0lTSU9OLTAwMDA2IiwKICAgICAgIm5vZGU6VUlGLVBSRUNJU0lPTi0wMDAwNyIsCiAgICAgICJub2RlOlVJRi1QUkVDSVNJT04tMDAwMDgiLAogICAgICAibm9kZTpVSUYtUFJFQ0lTSU9OLTAwMDA5IiwKICAgICAgIm5vZGU6VUlGLVBSRUNJU0lPTi0wMDAxMCIsCiAgICAgICJub2RlOlVJRi1QUkVDSVNJT04tMDAwMTEiLAogICAgICAibm9kZTpVSUYtUFJFQ0lTSU9OLTAwMDEyIiwKICAgICAgIm5vZGU6VUlGLVBSRUNJU0lPTi0wMDAxMyIsCiAgICAgICJub2RlOlVJRi1QUkVDSVNJT04tMDAwMTQiLAogICAgICAibm9kZTpVSUYtUFJFQ0lTSU9OLTAwMDE1IiwKICAgICAgIm5vZGU6VUlGLVBSRUNJU0lPTi0wMDAxNiIsCiAgICAgICJub2RlOlVJRi1QUkVDSVNJT04tMDAwMTciLAogICAgICAibm9kZTpVSUYtUFJFQ0lTSU9OLTAwMDE4IiwKICAgICAgIm5vZGU6VUlGLVBSRUNJU0lPTi0wMDAxOSIsCiAgICAgICJub2RlOlVJRi1QUkVDSVNJT04tMDAwMjAiCiAgICBdLAogICAgImlucHV0WSI6IDM1MC45ODQzNzUKICB9LAogICJhZnRlckNyb3NzaW5nIjogewogICAgInZhbHVlIjogIjE5IiwKICAgICJzYW1lSW5wdXQiOiB0cnVlLAogICAgImZvY3VzZWQiOiB0cnVlLAogICAgImNhcmV0IjogWwogICAgICAyLAogICAgICAyCiAgICBdLAogICAgInJvd09yZGVyIjogWwogICAgICAibm9kZTpVSUYtUFJFQ0lTSU9OLTAwMDAxIiwKICAgICAgIm5vZGU6VUlGLVBSRUNJU0lPTi0wMDAwMCIsCiAgICAgICJub2RlOlVJRi1QUkVDSVNJT04tMDAwMDIiLAogICAgICAibm9kZTpVSUYtUFJFQ0lTSU9OLTAwMDAzIiwKICAgICAgIm5vZGU6VUlGLVBSRUNJU0lPTi0wMDAwNCIsCiAgICAgICJub2RlOlVJRi1QUkVDSVNJT04tMDAwMDUiLAogICAgICAibm9kZTpVSUYtUFJFQ0lTSU9OLTAwMDA2IiwKICAgICAgIm5vZGU6VUlGLVBSRUNJU0lPTi0wMDAwNyIsCiAgICAgICJub2RlOlVJRi1QUkVDSVNJT04tMDAwMDgiLAogICAgICAibm9kZTpVSUYtUFJFQ0lTSU9OLTAwMDA5IiwKICAgICAgIm5vZGU6VUlGLVBSRUNJU0lPTi0wMDAxMCIsCiAgICAgICJub2RlOlVJRi1QUkVDSVNJT04tMDAwMTEiLAogICAgICAibm9kZTpVSUYtUFJFQ0lTSU9OLTAwMDEyIiwKICAgICAgIm5vZGU6VUlGLVBSRUNJU0lPTi0wMDAxMyIsCiAgICAgICJub2RlOlVJRi1QUkVDSVNJT04tMDAwMTQiLAogICAgICAibm9kZTpVSUYtUFJFQ0lTSU9OLTAwMDE1IiwKICAgICAgIm5vZGU6VUlGLVBSRUNJU0lPTi0wMDAxNiIsCiAgICAgICJub2RlOlVJRi1QUkVDSVNJT04tMDAwMTciLAogICAgICAibm9kZTpVSUYtUFJFQ0lTSU9OLTAwMDE4IiwKICAgICAgIm5vZGU6VUlGLVBSRUNJU0lPTi0wMDAxOSIsCiAgICAgICJub2RlOlVJRi1QUkVDSVNJT04tMDAwMjAiCiAgICBdLAogICAgImlucHV0WSI6IDM4Ni45ODQzNzUKICB9LAogICJhZnRlclVuZG8iOiB7CiAgICAidmFsdWUiOiAiMTkiLAogICAgInNhbWVJbnB1dCI6IHRydWUsCiAgICAiZm9jdXNlZCI6IHRydWUsCiAgICAiY2FyZXQiOiBbCiAgICAgIDIsCiAgICAgIDIKICAgIF0sCiAgICAicm93T3JkZXIiOiBbCiAgICAgICJub2RlOlVJRi1QUkVDSVNJT04tMDAwMDEiLAogICAgICAibm9kZTpVSUYtUFJFQ0lTSU9OLTAwMDAwIiwKICAgICAgIm5vZGU6VUlGLVBSRUNJU0lPTi0wMDAwMiIsCiAgICAgICJub2RlOlVJRi1QUkVDSVNJT04tMDAwMDMiLAogICAgICAibm9kZTpVSUYtUFJFQ0lTSU9OLTAwMDA0IiwKICAgICAgIm5vZGU6VUlGLVBSRUNJU0lPTi0wMDAwNSIsCiAgICAgICJub2RlOlVJRi1QUkVDSVNJT04tMDAwMDYiLAogICAgICAibm9kZTpVSUYtUFJFQ0lTSU9OLTAwMDA3IiwKICAgICAgIm5vZGU6VUlGLVBSRUNJU0lPTi0wMDAwOCIsCiAgICAgICJub2RlOlVJRi1QUkVDSVNJT04tMDAwMDkiLAogICAgICAibm9kZTpVSUYtUFJFQ0lTSU9OLTAwMDEwIiwKICAgICAgIm5vZGU6VUlGLVBSRUNJU0lPTi0wMDAxMSIsCiAgICAgICJub2RlOlVJRi1QUkVDSVNJT04tMDAwMTIiLAogICAgICAibm9kZTpVSUYtUFJFQ0lTSU9OLTAwMDEzIiwKICAgICAgIm5vZGU6VUlGLVBSRUNJU0lPTi0wMDAxNCIsCiAgICAgICJub2RlOlVJRi1QUkVDSVNJT04tMDAwMTUiLAogICAgICAibm9kZTpVSUYtUFJFQ0lTSU9OLTAwMDE2IiwKICAgICAgIm5vZGU6VUlGLVBSRUNJU0lPTi0wMDAxNyIsCiAgICAgICJub2RlOlVJRi1QUkVDSVNJT04tMDAwMTgiLAogICAgICAibm9kZTpVSUYtUFJFQ0lTSU9OLTAwMDE5IiwKICAgICAgIm5vZGU6VUlGLVBSRUNJU0lPTi0wMDAyMCIKICAgIF0sCiAgICAiaW5wdXRZIjogMzg2Ljk4NDM3NQogIH0sCiAgImhvc3RNb3ZlcyI6IHsKICAgICJyZW1vdmVkIjogMSwKICAgICJhZGRlZCI6IDEKICB9LAogICJjYW5vbmljYWxYIjogIjIiLAogICJjYW5vbmljYWxBZnRlckNsZWFyIjogIjIiLAogICJoYXNoQmVmb3JlIjogInNoYTI1NjowYWJlMTNiNmI3MjUxMmVmODk0NGFhNjcxMWI1Y2RhZjc2Mjg3YzEwYWY0ZWNjZWEyMDUyNTdjNjIxZDViZDBmIiwKICAiaGFzaEFmdGVyU3RhZ2luZyI6ICJzaGEyNTY6MGFiZTEzYjZiNzI1MTJlZjg5NDRhYTY3MTFiNWNkYWY3NjI4N2MxMGFmNGVjY2VhMjA1MjU3YzYyMWQ1YmQwZiIsCiAgImhpc3RvcnkiOiB7CiAgICAidW5kb0Rpc2FibGVkIjogdHJ1ZSwKICAgICJyZWRvRGlzYWJsZWQiOiB0cnVlLAogICAgImVkaXRlZE1hcmtlcnMiOiAwCiAgfQp9"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-3-CODEX/_run_records/node-sort-undo/browser-diagnosis-2/b4-table-editing-B4-diagno-73d60-active-row-crosses-downward-chromium-desktop/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-3-CODEX/_run_records/node-sort-undo/browser-diagnosis-2/b4-table-editing-B4-diagno-73d60-active-row-crosses-downward-chromium-desktop/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+                    "column": 27,
+                    "line": 608
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "6f49393ff246acadcad3-abe29db4511ce9db5302",
+          "file": "b4-table-editing.spec.ts",
+          "line": 552,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-21T08:39:23.187Z",
+    "duration": 3852.2919999999995,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

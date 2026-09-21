@@ -1,0 +1,20 @@
+{
+  "workdir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop",
+  "browserExecutable": "/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+  "browserVersion": "148.0.7778.96",
+  "executableSHA256": "2447c7bdea8e8ad38b52594f1ba53e18821c05445e8a07ad1cf3b0f23931d89d",
+  "workers": 1,
+  "profile": "chromium-desktop",
+  "lock": "../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/tools/with_e2e_lock.sh",
+  "command": "npx playwright test e2e/b4-table-editing.spec.ts --grep \"B4 diagnostic Node sorted review preserves text Undo after an active row crosses downward\" --project=chromium-desktop --reporter=list,json --output=<fresh node-sort-undo directory>",
+  "environment": [
+    "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=<pinned executable>",
+    "PLAYWRIGHT_WORKERS=1",
+    "PLAYWRIGHT_JSON_OUTPUT_NAME=<fresh report path>"
+  ],
+  "collection": "same title/profile with --list; COLLECTION.log",
+  "attempt1": "DIAGNOSTIC_SOURCE_BINDING.json \u2192 BROWSER_DIAGNOSIS.json/log; no crossing because End left selection; Undo worked without host movement",
+  "attempt2": "DIAGNOSTIC_SOURCE_BINDING_2.json \u2192 BROWSER_DIAGNOSIS_2.json/log; ArrowRight achieved crossing; observed Undo failure",
+  "productionMutation": false,
+  "scope": "diagnosis only; no production counterfactual, native, build, full suite or Git"
+}

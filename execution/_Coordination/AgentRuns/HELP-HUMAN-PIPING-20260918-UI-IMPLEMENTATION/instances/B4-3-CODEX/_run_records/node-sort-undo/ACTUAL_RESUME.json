@@ -1,0 +1,13 @@
+{
+  "mechanism": "collaboration.followup_task",
+  "parent": "/root/b3_manager WORKING_ITEMS gpt-6-astra/high",
+  "target": "/root/b3_manager/b4_3_materials TASK gpt-6-astra/low",
+  "base": "53acac28c4e8554c708d860062fe95408e5ee1de",
+  "product": "75fa863ea5cfee9bfe8f5a6ebf0f31047663e4e5",
+  "briefSha256": "18389b7f0217f09dc481322d2f34e2359a1232f49eeda77a4eca6d302dbb0b5b",
+  "inputsSha256": "d2f5bed1f3b4641e10b439d26dbf6fe6b292f081b9cc759b728577099a237ca8",
+  "result": "retainedTASK resumed for diagnosis only",
+  "resource": "ROOTreleasednative/ports/lock;onepinnedsourceprofile/sharedlock",
+  "productionRepair": "notauthorized",
+  "descendants": "prohibited"
+}

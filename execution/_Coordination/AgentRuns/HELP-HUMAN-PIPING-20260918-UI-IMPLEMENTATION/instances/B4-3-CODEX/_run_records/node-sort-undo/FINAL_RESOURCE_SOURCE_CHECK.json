@@ -1,0 +1,8 @@
+{
+  "recordedAt": "2026-09-21T08:41:10.733214+00:00",
+  "head": "53acac28c4e8554c708d860062fe95408e5ee1de",
+  "productionHashMismatches": [],
+  "sharedLockExists": false,
+  "source5174Listener": "",
+  "maintainedDiff": " .../apps/desktop/e2e/b4-table-editing.spec.ts      | 60 ++++++++++++++++++++++\n 1 file changed, 60 insertions(+)\n"
+}
