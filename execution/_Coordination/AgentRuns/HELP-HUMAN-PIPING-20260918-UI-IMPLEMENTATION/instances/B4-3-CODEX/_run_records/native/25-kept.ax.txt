@@ -1,0 +1,12 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview · Edited — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 542-547
+~										565 cell (selected, settable) material:b4-native-second Elastic: 50000 MPa
+Quantity readout, Value: MPa
+300000
+MPa
++									576 text 2
++									577 text  of 
++									578 text 2
++									579 text  rows
++								580 text Draft retained; model unchanged.
+The focused UI element is 581 button material:b4-native-second Elastic: 50000 MPa

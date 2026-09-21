@@ -1,0 +1,36 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview · Edited — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 514-527, 538-541
+~							498 text 2  of  2 Materials 1  changed cells
++									548 row (selected)
++										549 cell (selectable, settable) material:b4-native-second
++										550 cell (selectable, settable) material:b4-native-second Label: Invented B4.3 sort witness
++										551 cell (selected, settable) Quantity readout, Value: MPa
+300000
+MPa
++										552 cell (selectable, settable) material:b4-native-second Shear: 110000 MPa
+Quantity readout, Value: MPa
+110000
+MPa
++										553 cell (selectable, settable) material:b4-native-second Thermal: 0.00001 1/degC
+Quantity readout, Value: 1/degC
+0.00001
+1/degC
++										554 cell (selectable, settable) material:b4-native-second Provenance: invented functional test only
++									555 row (selectable)
++										556 cell (selectable, settable) material:invented-carbon-steel
++										557 cell (selectable, settable) material:invented-carbon-steel Label: Invented carbon-steel-like material
++										558 cell (selectable, settable) material:invented-carbon-steel Elastic: 200000000000 Pa
+Quantity readout, Value: Pa
+200000000000
+Pa
++										559 cell (selectable, settable) material:invented-carbon-steel Shear: 77000000000 Pa
+Quantity readout, Value: Pa
+77000000000
+Pa
++										560 cell (selectable, settable) material:invented-carbon-steel Thermal: 0.000012 1/degC
+Quantity readout, Value: 1/degC
+0.000012
+1/degC
++										561 cell (selectable, settable) material:invented-carbon-steel Provenance: invented_example_no_material_standard
+~							533 button Queue changed cells
+~							534 button Clear grid edits

@@ -1,0 +1,22 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview · Edited — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 562-568, 580
+~							498 text 2  of  2 Materials 0  changed cells
++									580 row (selected)
++										581 cell (selectable, settable) material:b4-native-second
++										582 cell (selectable, settable) material:b4-native-second Label: Invented B4.3 sort witness
++										583 cell (selected, settable) material:b4-native-second Elastic: 300000 MPa
+Quantity readout, Value: MPa
+300000
+MPa
++										584 cell (selectable, settable) material:b4-native-second Shear: 110000 MPa
+Quantity readout, Value: MPa
+110000
+MPa
++										585 cell (selectable, settable) material:b4-native-second Thermal: 0.00001 1/degC
+Quantity readout, Value: 1/degC
+0.00001
+1/degC
++										586 cell (selectable, settable) material:b4-native-second Provenance: invented functional test only
+~							533 button (disabled) Queue changed cells
+~							534 button (disabled) Clear grid edits
+The focused UI element is 2 HTML content Description: SWBPIPE, URL: tauri://localhost

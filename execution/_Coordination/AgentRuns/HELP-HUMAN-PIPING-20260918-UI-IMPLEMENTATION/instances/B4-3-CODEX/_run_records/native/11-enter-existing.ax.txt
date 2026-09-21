@@ -1,0 +1,18 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 266-269
+~										256 cell (selected, settable)
++											266 text Pa
++											267 container Quantity readout
++												268 text 200000000000 Pa
++											269 text field (settable) material:invented-carbon-steel Elastic [Pa], Value: 200000000000
++									270 text Editing 
++									271 text Elastic
++									272 text  · 
++									273 text material:invented-carbon-steel
++									274 button Apply, Help: Apply (Enter)
++									275 button Cancel, Help: Cancel (Escape)
+Selected text: ```
+200000000000
+```
+
+Note: Pay special attention to the content selected by the user. If the user asks a question or refers to the content they are looking at on-screen, they might be referring to the selected content (but they might be referring to something else that's visible, too).
