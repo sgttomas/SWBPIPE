@@ -1,0 +1,55 @@
+{
+  "candidate": "6fdf46ee597b531d9d14fa85bfbc999a545881a1",
+  "kind": "early cheap record checks during bounded native build; not full preflight/product proof",
+  "checks": [
+    {
+      "name": "claims",
+      "args": [
+        "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+        "tools/validation/validate_claims_language.py",
+        "--repo-root",
+        "."
+      ],
+      "exit": 0,
+      "seconds": 0.6916389465332031,
+      "candidate": "6fdf46ee597b531d9d14fa85bfbc999a545881a1",
+      "logSha256": "148f3902df670a9ccff6805628cbea07990ef5cf95f0f1a892096c26812ed7fd",
+      "byteIdenticalCanonicalOutputReused": true,
+      "canonicalStdout": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_EARLY_REPOSITORY_CHECKS_55EA/claims.log"
+    },
+    {
+      "name": "g4",
+      "args": [
+        "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+        "tools/validation/validate_instruction_tranche_manifest.py",
+        "--base",
+        "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
+        "--head",
+        "6fdf46ee597b531d9d14fa85bfbc999a545881a1",
+        "--added-manifests-only"
+      ],
+      "exit": 0,
+      "seconds": 0.3525118827819824,
+      "candidate": "6fdf46ee597b531d9d14fa85bfbc999a545881a1",
+      "logSha256": "6d1963cce4756ae675accb4460567d4ec87c18aefd55b009d46ecf1cbab4f3a1",
+      "byteIdenticalCanonicalOutputReused": false,
+      "canonicalStdout": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_EARLY_CHECKS/g4.log"
+    },
+    {
+      "name": "receipts",
+      "args": [
+        "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+        "tools/validation/validate_piping_loop_receipts.py",
+        "--repo-root",
+        "."
+      ],
+      "exit": 0,
+      "seconds": 1.8821709156036377,
+      "candidate": "6fdf46ee597b531d9d14fa85bfbc999a545881a1",
+      "logSha256": "163deff7fcef7146b54dc4bd3c591dbd2a0f6fa0565932b793e64774d359a966",
+      "byteIdenticalCanonicalOutputReused": true,
+      "canonicalStdout": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_EARLY_REPOSITORY_CHECKS_55EA/receipts.log"
+    }
+  ],
+  "limits": "Native and final sweep/harness/actual-head CI remain pending; no full gate pass inferred."
+}
