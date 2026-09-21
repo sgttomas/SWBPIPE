@@ -1,0 +1,8 @@
+{
+  "recordedAt": "2026-09-21T07:24:42.114213+00:00",
+  "head": "6cd07a792a3e1efdd204f75b80f26f0a65e2de2e",
+  "sourceFreeze": "source-freeze-4.json",
+  "sourceFreezeSHA256": "22f6cb9e2f4f889026749f78e37b4061d10441d1e8f58acd7b96c506f1f5d3e7",
+  "gitMutationPerformedBy": "parent /root/b3_manager, not TASK",
+  "instruction": "product/testsource immutable; evidence-only closeout"
+}

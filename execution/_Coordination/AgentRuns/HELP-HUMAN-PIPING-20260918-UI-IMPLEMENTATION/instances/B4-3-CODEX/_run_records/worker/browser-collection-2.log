@@ -1,0 +1,4 @@
+Listing tests:
+  [chromium-desktop] › b4-table-editing.spec.ts:452:1 › B4 Materials stable editor owns character starts, virtual scrolling, filtering and resize
+  [chromium-compact] › b4-table-editing.spec.ts:452:1 › B4 Materials stable editor owns character starts, virtual scrolling, filtering and resize
+Total: 2 tests in 1 file

@@ -1,0 +1,28 @@
+{
+  "recordedAt": "2026-09-21T07:15:15.903495+00:00",
+  "workdir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop",
+  "base": "c9f19195214b2e097980dde5e0d5fccbfba8e34c",
+  "sourceFreeze": "source-freeze-1.json",
+  "browserExecutable": "/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+  "browserVersion": "148.0.7778.96",
+  "browserVersionEvidence": "undo-dom-probe-2.log plus Playwright attached browser identity",
+  "workers": 1,
+  "lock": "../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/tools/with_e2e_lock.sh",
+  "port": 5174,
+  "typecheck": "npx tsc --noEmit -p tsconfig.json",
+  "focusedUnit": "npx vitest run src/features/workspace/table/EngineeringTable.test.tsx src/features/workspace/table/tableState.test.ts src/features/workspace/table/modelTableAdapter.test.ts src/features/workspace/table/quantitySortProjection.test.tsx src/features/model-tree/ModelTree.test.tsx src/features/model-tree/MaterialTable.test.tsx src/features/toolkit/DisplayIntegration.test.tsx --maxWorkers=1",
+  "browserSelection": "B4 Materials preserve mixed-unit editing, delayed review sort, history and saved ownership|B4 Materials stable editor owns character starts, virtual scrolling, filtering and resize|B4 character-start (direct|review) (label|x) appends ordinary keys and preserves intentional selection|B4 text fields apply, recover filtered focus, preserve text Undo and retain review drafts through pointer Queue and Clear",
+  "browserBaseCommand": "npx playwright test e2e/b4-table-editing.spec.ts --grep <browserSelection> --output=<fresh-worker-evidence-directory>",
+  "browserCollection": "browser-final-collection.log",
+  "browserState": "Completed bounded cases across retained runs; see WORKER_RETURN.md for precise reassessment and failures.",
+  "limits": [
+    "No Git mutation by TASK",
+    "No native/CUA/build/full-suite/CI",
+    "No Current-results-to-Materials-table invalidation witness; exact shared Material operation App regression scheduled separately"
+  ],
+  "finalSourceFreeze": "source-freeze-4.json",
+  "latestGeometryBrowser": "browser-inert-repair.log/json",
+  "latestTypecheck": "ts-inert-repair.log",
+  "latestFocusedCore": "core-inert-repair.log",
+  "sharedMaterialResultsWitness": "material-shared-result-test.log"
+}
