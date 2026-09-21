@@ -1,0 +1,23 @@
+{
+  "base": "daf8d966cc46ebb11f92dd8415d1f427fd9b2e71",
+  "product": "6cd07a792a3e1efdd204f75b80f26f0a65e2de2e",
+  "parent": "/root/b3_manager WORKING_ITEMS gpt-6-astra/high",
+  "retainedTask": "/root/b3_manager/b4_3_materials TASK gpt-6-astra/low",
+  "bindings": [
+    {
+      "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_3_P2_REPAIR_DISPOSITION.md",
+      "sha256": "611c121ff6db0676c31241fb38beb42009395c603512f4e8f1c8bc515f41c498"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_INITIAL_SOURCE_REVIEW_RETURN.md",
+      "sha256": "f04de2848b917dac3cd25fcfa13ffcc2faa389e75b583530966293ce0dec994e"
+    }
+  ],
+  "sourceHashes": {
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx": "8f23b7b522d1001bd29650a5f3ff469020ddb344624cb77f45595db1924544ac",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/quantitySortProjection.ts": "a848b95a3b42d1ea4d3e2215afcda9ba58db378a392ca5a8caf7e1ec77bc2dc9",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/quantitySortProjection.test.tsx": "bf16c2b5cd1fd1cf56fc4ff5b1590030e2cb0f9808ee201e5d945bc34287d679",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/MaterialTable.test.tsx": "187d923c2bbe77c4b24fbb6a92d7f00a642c082d106e4e9e7c2f56f0c5a88530",
+    "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts": "9121515749f45c636d2fe590e4a37b68488559831baead45745e19d70e570e23"
+  }
+}

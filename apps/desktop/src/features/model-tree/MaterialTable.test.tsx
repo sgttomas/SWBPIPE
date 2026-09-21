@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ModelTree } from "./ModelTree";
+import * as displayQuantityService from "../../services/displayQuantityService";
 import { loadPreviewModel } from "../../services/previewService";
 import { DisplayUnitSelector, DisplayUnitsProvider } from "../display-units";
 import type { EditorOperationIntent, PreviewModel } from "../../types";
@@ -43,6 +44,60 @@ describe("Materials through shared direct/review table", () => {
     await waitFor(() => expect(within(table()).queryByRole("textbox")).toBeNull());
     input = editor("m-a", "thermal"); fireEvent.change(input, { target: { value: "0" } }); fireEvent.click(within(table()).getByRole("button", { name: "Apply" }));
     await waitFor(() => expect(p.onApplyCellIntent).toHaveBeenCalledTimes(2)); expect(p.onApplyCellIntent.mock.calls[1][0].change.after).toBe(JSON.stringify({ value: 0, unit: "1/K" }));
+  });
+
+  it("keeps an unchanged open Shear editor eligible while Elastic reconversion is pending", async () => {
+    const realConvert = displayQuantityService.convertDisplayQuantities;
+    let hold = false; const pending: Array<() => void> = [];
+    vi.spyOn(displayQuantityService, "convertDisplayQuantities").mockImplementation(async (items) => {
+      const result = await realConvert(items);
+      if (hold) await new Promise<void>((resolve) => pending.push(resolve));
+      return result;
+    });
+    const model = await fixture(); const p = props(model); const view = render(<ModelTree {...p} />); open();
+    await waitFor(() => expect(screen.getByTestId("table-cell-m-a-shear").parentElement).toHaveAttribute("aria-readonly", "false"));
+    fireEvent.click(within(table()).getByRole("button", { name: "Sort Elastic" })); expect(order()).toEqual(["m-b", "m-a"]);
+    const input = editor("m-a", "shear"); fireEvent.change(input, { target: { value: "88" } });
+    hold = true; const changed = structuredClone(model); changed.materials![0].elastic_modulus.value = 3;
+    view.rerender(<ModelTree {...p} model={changed} />);
+    await waitFor(() => expect(pending.length).toBeGreaterThan(0));
+    expect(within(table()).getByRole("status")).toHaveTextContent("sort unavailable"); expect(order()).toEqual(["m-a", "m-b"]);
+    expect(within(table()).getByRole("textbox")).toBe(input); expect(input).toHaveValue("88");
+    try {
+      fireEvent.click(within(table()).getByRole("button", { name: "Apply" }));
+      await waitFor(() => expect(p.onApplyCellIntent).toHaveBeenCalledTimes(1));
+      expect(p.onApplyCellIntent.mock.calls[0][0].change).toMatchObject({ field_path: "shear_modulus.value", before: String(model.materials![0].shear_modulus.value), unit: model.materials![0].shear_modulus.unit, after: JSON.stringify({ value: 88, unit: model.materials![0].shear_modulus.unit }) });
+    } finally { hold = false; await act(async () => pending.splice(0).forEach((resolve) => resolve())); }
+  });
+
+  it.each(["value", "type", "unit", "generation"])("keeps a changed %s editor basis ineligible during refresh and refuses stale Apply", async (change) => {
+    const realConvert = displayQuantityService.convertDisplayQuantities;
+    let hold = false; const pending: Array<() => void> = [];
+    vi.spyOn(displayQuantityService, "convertDisplayQuantities").mockImplementation(async (items) => {
+      const result = await realConvert(items); if (hold) await new Promise<void>((resolve) => pending.push(resolve)); return result;
+    });
+    const model = await fixture(); const p = props(model); const view = render(<ModelTree {...p} projectSessionGeneration={0} />); open();
+    const shearCell = () => screen.getByTestId("table-cell-m-a-shear");
+    await waitFor(() => expect(shearCell().parentElement).toHaveAttribute("aria-readonly", "false"));
+    const input = editor("m-a", "shear"); fireEvent.change(input, { target: { value: "88" } });
+    hold = true; const changed = structuredClone(model);
+    if (change === "value") changed.materials![0].shear_modulus.value = 4;
+    if (change === "type") (changed.materials![0].shear_modulus as unknown as { value: unknown }).value = String(model.materials![0].shear_modulus.value);
+    if (change === "unit") changed.materials![0].shear_modulus.unit = "MPa";
+    view.rerender(<ModelTree {...p} model={changed} projectSessionGeneration={change === "generation" ? 1 : 0} />);
+    await waitFor(() => expect(pending.length).toBeGreaterThan(0));
+    try {
+      if (change === "generation") { expect(within(table()).queryByRole("textbox")).toBeNull(); expect(shearCell().parentElement).toHaveAttribute("aria-readonly", "true"); }
+      else {
+        expect(within(table()).getByRole("textbox")).toBe(input); fireEvent.click(within(table()).getByRole("button", { name: "Apply" }));
+        expect(within(table()).getByRole("alert")).toHaveTextContent("read-only"); expect(p.onApplyCellIntent).not.toHaveBeenCalled();
+      }
+    } finally { hold = false; await act(async () => pending.splice(0).forEach((resolve) => resolve())); }
+    if (change !== "generation") {
+      fireEvent.click(within(table()).getByRole("button", { name: "Apply" }));
+      expect(p.onApplyCellIntent).not.toHaveBeenCalled();
+      expect(within(table()).getByRole("alert")).toHaveTextContent(change === "type" ? "read-only" : "changed after editing began");
+    }
   });
 
   it("keeps malformed bases unavailable directly and never invents units or metadata in review", async () => {

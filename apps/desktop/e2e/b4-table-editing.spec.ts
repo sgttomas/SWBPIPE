@@ -502,3 +502,48 @@ test("B4 Materials stable editor owns character starts, virtual scrolling, filte
   await table.getByRole("button", { name: "Cancel", exact: true }).click(); await page.setViewportSize(originalViewport);
   await info.attach("material-editor-clipping", { body: JSON.stringify({ headerFooterHitOwnership: hits }), contentType: "application/json" });
 });
+
+test("B4 Materials Apply Tab keeps the first Shear character while another quantity reconverts", async ({ page, browser }, info) => {
+  await attachBrowserIdentity(browser, info);
+  const { model } = await readFixture("precision-origin-base.model.json"); const material = model.materials[0]; const firstId = material.id; const secondId = "material:B4-P2-second";
+  model.materials = [{ ...material, elastic_modulus: { value: 200000, unit: "MPa" } },
+    { ...material, id: secondId, elastic_modulus: { value: 100000000000, unit: "Pa" } }];
+  await page.route("**/src/services/displayQuantityService.ts", async (route) => {
+    const response = await route.fetch(); const source = await response.text(); expect(source).toContain("export async function convertDisplayQuantities(");
+    await route.fulfill({ response, body: source.replace("export async function convertDisplayQuantities(", "async function originalConvertDisplayQuantities(") + `
+export async function convertDisplayQuantities(items) {
+  const result = await originalConvertDisplayQuantities(items);
+  const gate = window.__b4MaterialP2Gate;
+  if (gate.hold && items.some(item => item.id.includes('material') && item.id.includes('elastic'))) await new Promise(resolve => gate.pending.push(resolve));
+  return result;
+}
+` });
+  });
+  await page.addInitScript(() => { (window as any).__b4MaterialP2Gate = { hold: false, pending: [] }; });
+  await gotoModel(page, model); await page.getByTestId("view-switch-table").click(); await ensureTreeExpanded(page); await page.getByTestId("layout-mode-grid").click(); await page.getByTestId("entity-grid-type-materials").click();
+  const table = page.getByTestId("material-engineering-table"); const elastic = table.getByTestId(`table-cell-${firstId}-elastic`); const shear = table.getByTestId(`table-cell-${firstId}-shear`);
+  await expect(elastic.locator("..")).toHaveAttribute("aria-readonly", "false"); await expect(shear.locator("..")).toHaveAttribute("aria-readonly", "false");
+  await table.getByRole("button", { name: "Sort Elastic", exact: true }).click(); await expect(table.getByRole("rowheader").first()).toHaveText(secondId);
+  await elastic.dblclick(); await table.getByRole("textbox").fill("210000");
+  await page.evaluate(() => { (window as any).__b4MaterialP2Gate.hold = true; });
+  await page.keyboard.press("Tab"); await expect(elastic).toHaveText("210000"); await expect(shear).toBeFocused();
+  await expect.poll(() => page.evaluate(() => (window as any).__b4MaterialP2Gate.pending.length)).toBeGreaterThan(0);
+  await expect(table.getByRole("status").filter({ hasText: "Quantity sort unavailable" })).toContainText("sort unavailable"); await expect(table.getByRole("rowheader").first()).toHaveText(firstId);
+  await expect(page.getByTestId("workspace-undo")).toBeEnabled();
+  // No locator focus/fill repair: this is the first actual key after Apply+Tab.
+  await page.keyboard.press("8");
+  const firstKey = await table.evaluate((root) => ({ editorValue: root.querySelector<HTMLInputElement>("input")?.value ?? null,
+    activeTag: document.activeElement?.tagName, activeColumn: (document.activeElement as HTMLElement)?.dataset.columnKey,
+    shearReadonly: root.querySelector('[data-column-key="shear"]')?.parentElement?.getAttribute("aria-readonly") }));
+  await info.attach("material-p2-first-key", { body: JSON.stringify(firstKey), contentType: "application/json" });
+  const input = table.getByRole("textbox", { name: `${firstId} Shear [${material.shear_modulus.unit}]` });
+  await expect(input).toHaveValue("8"); await expect(input).toBeFocused();
+  await page.keyboard.press("7"); await expect(input).toHaveValue("87");
+  expect(await input.evaluate((node: HTMLInputElement) => [node.selectionStart, node.selectionEnd])).toEqual([2, 2]);
+  await expect(table.getByRole("status").filter({ hasText: "Quantity sort unavailable" })).toContainText("sort unavailable");
+  await table.getByRole("button", { name: "Cancel", exact: true }).click(); await expect(shear).toHaveText(String(material.shear_modulus.value));
+  await page.evaluate(() => { const gate = (window as any).__b4MaterialP2Gate; gate.hold = false; gate.pending.splice(0).forEach((resolve: () => void) => resolve()); });
+  await expect(table.getByRole("rowheader").first()).toHaveText(secondId);
+  // Exactly one accepted model operation; cancelled Shear entry adds no history.
+  await page.getByTestId("workspace-undo").click(); await expect(elastic).toHaveText("200000"); await expect(shear).toHaveText(String(material.shear_modulus.value)); await expect(page.getByTestId("workspace-undo")).toBeDisabled();
+});

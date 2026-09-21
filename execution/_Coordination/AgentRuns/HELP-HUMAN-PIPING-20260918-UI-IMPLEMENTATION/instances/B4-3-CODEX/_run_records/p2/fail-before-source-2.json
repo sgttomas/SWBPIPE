@@ -1,0 +1,7 @@
+{
+  "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx": "8f23b7b522d1001bd29650a5f3ff469020ddb344624cb77f45595db1924544ac",
+  "projects/chirality-piping/apps/desktop/src/features/workspace/table/quantitySortProjection.ts": "a848b95a3b42d1ea4d3e2215afcda9ba58db378a392ca5a8caf7e1ec77bc2dc9",
+  "projects/chirality-piping/apps/desktop/src/features/workspace/table/quantitySortProjection.test.tsx": "bf16c2b5cd1fd1cf56fc4ff5b1590030e2cb0f9808ee201e5d945bc34287d679",
+  "projects/chirality-piping/apps/desktop/src/features/model-tree/MaterialTable.test.tsx": "1c48ff07ade04a7e4a3cdc98b0edf850c6447b738ff83782d2282c2c0c213d6d",
+  "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts": "95ed1203b9dd40aa534acc853045611a97154b759b2c85db757042c972ec3fa7"
+}

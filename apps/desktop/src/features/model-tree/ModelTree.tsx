@@ -1027,7 +1027,7 @@ function MaterialTable({ model, drafts, generation, projectSessionGeneration, re
       const draft = review ? drafts[draftKey(row, column, projectSessionGeneration)] : undefined;
       return [column.key, { value: draft ?? column.value(row), unit: column.unit(row),
         showUnit: Boolean(quantity),
-        sortBasis: quantity ? JSON.stringify([typeof quantity.value, String(quantity.value), quantity.unit, draft ?? null]) : undefined,
+        sortBasis: quantity ? JSON.stringify([typeof quantity.value, Object.is(quantity.value, -0) ? "-0" : String(quantity.value), quantity.unit, draft ?? null]) : undefined,
         convertible: quantity ? draft !== undefined || (typeof quantity.value === "number" && Number.isFinite(quantity.value)) : undefined,
         readonly: gridCellReadonly(column, row) || (!review && Boolean(unavailable)),
         unavailable: !review && unavailable ? "Direct editing requires an existing finite quantity and its actual compatible unit." : undefined,
@@ -1037,9 +1037,11 @@ function MaterialTable({ model, drafts, generation, projectSessionGeneration, re
   const projection = useQuantitySortProjection(rows, quantities, generation, review ? "materials:review" : "materials:direct");
   const projectedRows = useMemo(() => rows.map((row) => ({ ...row, cells: Object.fromEntries(Object.entries(row.cells).map(([key, cell]) => {
     if (!quantities.some((column) => column.key === key)) return [key, cell];
-    const value = projection.get(quantityCellKey(row.key, key));
-    return [key, { ...cell, sortValue: value, readonly: cell.readonly || (!review && value === undefined),
-      unavailable: cell.unavailable ?? (!review && value === undefined ? "Direct editing unavailable while this quantity or its actual unit cannot be converted." : undefined) }];
+    const cellKey = quantityCellKey(row.key, key);
+    const value = projection.sortValues.get(cellKey);
+    const eligible = projection.eligibleCells.has(cellKey);
+    return [key, { ...cell, sortValue: value, readonly: cell.readonly || (!review && !eligible),
+      unavailable: cell.unavailable ?? (!review && !eligible ? "Direct editing unavailable while this quantity or its actual unit cannot be converted." : undefined) }];
   })) })), [rows, quantities, projection, review]);
   async function apply(captured: CapturedCell, value: string): Promise<TableApplyResult> {
     if (!onApplyCellIntent) return { applied: false, messages: ["The operation route is unavailable."] };
