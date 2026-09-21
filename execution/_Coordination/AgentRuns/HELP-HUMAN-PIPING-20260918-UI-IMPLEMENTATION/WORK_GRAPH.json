@@ -635,7 +635,7 @@
       "role": "slice",
       "lane": "B-SHELL",
       "title": "the table component through the one operation route",
-      "status": "B4.1 and B4.2 merged; Materials is next bounded family; full B4/fit work remains open",
+      "status": "B4.1/B4.2 merged; Materials source/native checks pass; related Node-review Undo repair and combined integration remain; full B4/fit remains open",
       "dependsOn": [
         "B3B"
       ],
@@ -665,7 +665,7 @@
         },
         {
           "item": "Check Node review text-Undo while a draft changes active sort order; Node still uses inline editor and the Materials probe showed Chromium history loss on actual ancestor movement",
-          "state": "suspected gap only; ROOT activated bounded diagnosis after native release, before final freeze",
+          "state": "confirmed by controlled browser diagnosis: active Node review row movement loses textUndo; bounded consumer repair granted, source/native/backcheck pending",
           "retireAt": "bounded B4 follow-up before claiming complete common-table/MVP keyboard coverage",
           "basis": "B4-3 architecture/undo-dom probe plus unchanged Node review sorting path; no Node repair authorized by the Materials brief",
           "diagnosticBrief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_NODE_SORT_UNDO_DIAGNOSTIC_BRIEF.md",
@@ -675,7 +675,7 @@
       ],
       "remainderPreparationBrief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_REMAINDER_PREPARATION_BRIEF.md",
       "remainderPreparationBriefSha256": "cf1ea19b9ef79493cb3399785745789d035f8bdc05dd9dd604ffdeae432d235c",
-      "remainderPreparationState": "initial recommendation implemented in B4.2; next separate Materials/Sections assessment returned, unactivated",
+      "remainderPreparationState": "Materials recommendation activated under B4.3; Sections remains preparation for a later bounded brief",
       "remainderPreparationBasis": {
         "source": "ed8cc27fdb37b8df2f20eb5f877aacb61bfd7db1",
         "workerReturnSha256": "f7aa44110af6fbef5564ad98b1cc80b95a892d2b0d888acb52a479663b9e2bca",
@@ -2442,7 +2442,7 @@
         "inputs": "instances/B4-3-CODEX/_run_records/NATIVE_INPUTS.json",
         "inputsSha256": "5dc84dd3b9ad4cf5e79a303ede122a5798be04c74991f356381f2c96e2c4045c",
         "evidenceCommit": "53acac28c4e8554c708d860062fe95408e5ee1de",
-        "return": "instances/B4-3-CODEX/NATIVE_RETURN.md",
+        "return": "instances/B4-3-CODEX/_run_records/NATIVE_RETURN.md",
         "returnSha256": "5517d9c74cc0fa1e9b1781394c3d8414bb46b7633a104d8555f8facbd797d65c",
         "managerHandoffSha256": "9e198e0aaa80f1f4b56220756a7b69f91357fb38325c27beb6303a77cf6b3c57",
         "rootReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_ROOT_NATIVE/RETURN.md",
@@ -2476,7 +2476,62 @@
         "state": "PASS; P2 closed; no new actionable findings",
         "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_P2_BACKCHECK_RETURN.md",
         "returnSha256": "c3f1371babff15cf0c14eb7cfde81aad7ace82e0685e6ea3bfeae18e02f0c600"
+      },
+      "nativeEvidenceReview": {
+        "launch": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_NATIVE_REVIEW_LAUNCH.md",
+        "launchSha256": "a85442e7d2e7b226f81be94d61b59652925c523763eabeb01910c8d59a2492be",
+        "candidate": "8883aca03c091b57ee37fe6d3923650ca1755a44",
+        "state": "PASS; scoped native evidence/ROOT claims supported",
+        "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_NATIVE_REVIEW_RETURN.md",
+        "returnSha256": "6e5e341c7a66dc1b31517a4a696e43d128b0231ea346110c9a4c4b3d4ccf701c"
       }
+    },
+    "B4-NODE-SORT-UNDO-DIAG": {
+      "role": "TASK Type2 diagnosis",
+      "parent": "B4-3-CODEX-MANAGER",
+      "actualAgent": "/root/b3_manager/b4_3_materials",
+      "model": "gpt-6-astra",
+      "reasoning": "low",
+      "mechanism": "manager actual retained TASK followup after ROOT native release",
+      "state": "confirmed moved-row textUndo failure on unchanged production; ROOT inspected frozen diagnosis and granted minimal Node-review-only repair; native execution not granted",
+      "basis": "53acac28c4e8554c708d860062fe95408e5ee1de / production75fa",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_NODE_SORT_UNDO_DIAGNOSTIC_BRIEF.md",
+      "briefSha256": "8866966443b009b1aace77d127eded2088fcd7e2e0a2d33b203b36aa06f4b847",
+      "addendum": "instances/B4-3-CODEX/_run_records/node-sort-undo/TASK_ADDENDUM.md",
+      "addendumSha256": "18389b7f0217f09dc481322d2f34e2359a1232f49eeda77a4eca6d302dbb0b5b",
+      "inputs": "instances/B4-3-CODEX/_run_records/node-sort-undo/INPUTS.json",
+      "inputsSha256": "d2f5bed1f3b4641e10b439d26dbf6fe6b292f081b9cc759b728577099a237ca8",
+      "scope": "diagnostic records and B4 spec test-only; one source desktop profile under shared lock; no product/build/native/full suite",
+      "dependsOn": [
+        "B4-3-REVIEW"
+      ],
+      "repairDisposition": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_NODE_SORT_UNDO_REPAIR_DISPOSITION.md",
+      "repairDispositionSha256": "e118a18dd98e823cb6a14af275d0e7a60c6206cf73f3ef5b988b9d62e7543950",
+      "diagnosticCandidate": "3ba8b70f9cf3b89ac77a77a4a967f372df27865d",
+      "diagnosticReturn": "instances/B4-3-CODEX/_run_records/node-sort-undo/WORKER_RETURN.md",
+      "diagnosticReturnSha256": "66f7120fcd40f29f9bcef376a9cd056605f912ac14f1fe5e745ccdc96400c49a",
+      "preparedNativePlan": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_NODE_REVIEW_NATIVE_PLAN.md",
+      "preparedNativePlanSha256": "c4b284f968dfabda6dab955557ff14e5abdf9f5e3fc23b2058cb18b0b87bfd17"
+    },
+    "B4-3-INTEGRATION": {
+      "role": "ROOT integration",
+      "parent": "ROOT",
+      "state": "initial clean combined source/native/ROOT records; no final freeze or PR",
+      "branch": "codex/swbpipe-b4-materials-integration-20260921",
+      "candidate": "8883aca03c091b57ee37fe6d3923650ca1755a44",
+      "desktopTree": "d389887bcbd67f286d65c8d0534161a5aa161df9",
+      "scope": "reviewed Materials and cache maintenance plus truthful run evidence; Node diagnosis before final freeze",
+      "remaining": [
+        "Node diagnostic disposition and any affected repair/review/native checks",
+        "single clean combined DEC-025 sweep",
+        "final combined source/evidence/records review and applicable preflight",
+        "actual-head hosted CI and merge"
+      ],
+      "dependsOn": [
+        "B4-3-CODEX-MANAGER",
+        "B4-3-REVIEW",
+        "CI-CACHE-WARMING"
+      ]
     }
   },
   "edges": [
@@ -2755,9 +2810,25 @@
     [
       "ROOT",
       "B4-3-FAMILY-PREPARATION"
+    ],
+    [
+      "ROOT",
+      "B4-3-CODEX-MANAGER"
+    ],
+    [
+      "ROOT",
+      "B4-3-REVIEW"
+    ],
+    [
+      "ROOT",
+      "B4-3-INTEGRATION"
+    ],
+    [
+      "B4-3-CODEX-MANAGER",
+      "B4-NODE-SORT-UNDO-DIAG"
     ]
   ],
-  "current_frontier": "Materials source/P2/native and ROOT own look pass at recorded scopes; native process released. Bounded Node sorted-review text-Undo diagnosis precedes final freeze. Combine reviewed changes and cache maintenance for one clean final sweep, complete candidate review and actual-head CI/merge. C4/live CLI decisions and qualification holds remain.",
+  "current_frontier": "Materials source/P2/native and ROOT evidence reviews pass. Repair confirmed Node-review moved-row textUndo with existing persistent host under separate bounded scope; affected source/native backchecks precede one final clean combined sweep, complete review and actual-head CI/merge. C4/live CLI decisions and qualification holds remain.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -2958,7 +3029,9 @@
           "B4-2-INTEGRATION",
           "B4-3-FAMILY-PREPARATION",
           "B4-3-CODEX-MANAGER",
-          "B4-3-REVIEW"
+          "B4-3-REVIEW",
+          "B4-NODE-SORT-UNDO-DIAG",
+          "B4-3-INTEGRATION"
         ]
       }
     }
