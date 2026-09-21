@@ -2064,7 +2064,7 @@
       "model": "gpt-6-astra",
       "reasoning": "high",
       "mechanism": "retainedmanager collaboration.followup_task; actual fresh TASK collaboration.spawn_agent under manager",
-      "status": "retained manager resumed for narrow R1 two-test-file repair; producta183 held, native awaits closure",
+      "status": "R1 closed; bounded native activation dispatched, actual native launch awaiting manager record",
       "base": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
       "branch": "codex/swbpipe-b4-node-fields-20260920",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_2_MANAGER_BRIEF.md",
@@ -2101,16 +2101,23 @@
       "workerReturn": "instances/B4-2-CODEX/_run_records/worker/RETURN.md",
       "workerReturnSha256": "9c6723c79318b97b02a18b36fb2b77fe6cd6e8716b0eda8ae403ccbe784f30e4",
       "artifactManifest": "instances/B4-2-CODEX/_run_records/worker/ARTIFACT_HASHES.json",
-      "artifactManifestSha256": "a0473f26c723e4d9df097343d6a6373d59519353443d4262837d5fbcb3547afe"
+      "artifactManifestSha256": "a0473f26c723e4d9df097343d6a6373d59519353443d4262837d5fbcb3547afe",
+      "candidateAfterR1": "97c03e3b26db1d49cc1f36ce627d19db8a56541c",
+      "r1Return": "instances/B4-2-CODEX/_run_records/r1/RETURN.md",
+      "r1ReturnSha256": "ff11d611a5a1f4e6de9814193bd3e9212db07e583a4b7a2572eca149db9a79ae",
+      "nativeActivation": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_NATIVE_ACTIVATION.txt",
+      "nativeActivationSha256": "71544fcd568d8d4cdb5f37fcefec051cf657770b253670b69dea098d3f046a1b",
+      "nativePlan": "instances/B4-2-CODEX/_run_records/MANAGER_NATIVE_PLAN.md",
+      "nativePlanSha256": "275c282069a8932a60ca82edc04f954016ffb8b2098b29a5f6177d56a3d7465c"
     },
     "B4-2-INTEGRATION": {
       "role": "ROOT integration",
       "parent": "ROOT",
       "slice": "B4",
       "branch": "codex/swbpipe-b4-node-integration-20260920",
-      "candidate": "d8bbad26376dbb06d0c83398f5933a381aedf22b",
+      "candidate": "e0383b0634682c679beeef85cb00f7824ded4495",
       "base": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
-      "status": "clean prepared fan-in; R1 verification repair/backcheck blocks acceptance, native/full gates pending",
+      "status": "clean source/evidence fan-in, R1 closed; bounded native/full-final gates pending",
       "dependsOn": [
         "B4-2-CODEX-MANAGER"
       ],
@@ -2142,7 +2149,7 @@
       "model": "gpt-6-astra",
       "reasoning": "xhigh",
       "mechanism": "actual fresh-context collaboration.spawn_agent; no implementation history/descendants",
-      "status": "complete15path review; R1/P2 verification finding open, source fan-in not accepted until correction/backcheck",
+      "status": "complete source review + R1 backcheck PASS through97c; no unresolved finding",
       "base": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
       "candidate": "a1833393e597acbe81f943accf64a9548035fe6a",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_2_INDEPENDENT_SOURCE_REVIEW_BRIEF.md",
@@ -2152,7 +2159,11 @@
       "initialReturnSha256": "a830d1b1ec6ddb81f3fdce865f1769a6b51816091014cada20ff98c9199dbb34",
       "finding": "R1 assertion-only reviewEditor calls mutate state in two ModelTree test files; no additional product defect established",
       "repairDisposition": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_2_R1_REPAIR_DISPOSITION.md",
-      "repairDispositionSha256": "4b2bf22a84c0ac6ae5175ac493896e4daa090d609a8eeff62df4c28bc31ec5ce"
+      "repairDispositionSha256": "4b2bf22a84c0ac6ae5175ac493896e4daa090d609a8eeff62df4c28bc31ec5ce",
+      "backcheckBrief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_R1_BACKCHECK_LAUNCH.txt",
+      "backcheckBriefSha256": "c49fb0016299984f1e17c4b9bbc82af23395b0e18a93b4df3f0579199253195d",
+      "backcheckReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_R1_BACKCHECK_RETURN.md",
+      "backcheckReturnSha256": "858501b8e8e0583c8832ad1ce00cb3249e0a7f371749d539b4e9fce67ca25b03"
     }
   },
   "edges": [
@@ -2429,7 +2440,7 @@
       "B4-2-REVIEW"
     ]
   ],
-  "current_frontier": "B4.2 full15path review found one P2 verification issue (mutating assertion reads); narrow two-test-file repair authorized. Producta183/evidence deb50 held; no product defect established. Native/full sweep/CI wait for repair/backcheck. C4/liveCLI decisions remain pending.",
+  "current_frontier": "B4.2 complete source review and R1 backcheck pass at97c/producta183. One native build/witness activated after peer resource acknowledgment; actual launch record pending. Final native/ROOT own look, clean sweep and hosted CI remain. C4/liveCLI decisions unchanged.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -2651,7 +2662,7 @@
     },
     "currentContract": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/PIPING_LIVE_CONTROL_CONTRACT_DRAFT.md",
     "peerFitReview": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/RUNTIME_ACTIVATION_REVIEW_CUSTODY.json",
-    "nativeHandoff": "ROOT released native/CUA after restored-model cleanup/ps43662 absence; peer acknowledged release/no claim and source/dist/E2E reservation, with no competing heavy work."
+    "nativeHandoff": "Peer acknowledged conditional Piping native/CUA/build slot after B4.2 R1 closure; defers competing activity until release. Not yet executing."
   },
   "pause": {
     "ownerText": "with the impending PR, use this as an opportunity to gracefully pause your work until I say resume.",
@@ -2707,14 +2718,14 @@
     "originMain": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
     "integrationBranch": {
       "branch": "codex/swbpipe-b4-node-integration-20260920",
-      "head": "d8bbad26376dbb06d0c83398f5933a381aedf22b",
+      "head": "e0383b0634682c679beeef85cb00f7824ded4495",
       "state": "clean B4.2 source fan-in; independent/native/final gates pending"
     },
     "shell": "a183 source freeze on new Node-fields branch; evidence-only packaging, native not launched",
     "canvas": "fb720420 preserved; C4 preparation returned",
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "isolated226b probe retains two authorized source edits and two untracked dependency entries; preserved, never fan-in",
-    "resources": "no local listener or shared lock; peer no conflict, source5174/shared lock assigned to manager",
+    "resources": "Piping owns acknowledged native/CUA/build slot for bounded witness; no competing browser/full sweep",
     "recordStatus": "prior postmerge pause tail and new resume/launch records await combined review at next checkpoint",
     "observedAt": "2026-09-21T04:06:53.197212+00:00"
   },
