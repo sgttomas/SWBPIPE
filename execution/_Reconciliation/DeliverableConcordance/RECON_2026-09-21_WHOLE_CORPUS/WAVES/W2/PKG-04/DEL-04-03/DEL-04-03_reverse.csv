@@ -1,0 +1,342 @@
+CapabilityID,Answer,ClaimKey,Reason
+RC-04-0001,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0002,NOT_MINE,,Core module outside the solver slice (core/solver/straight_pipe); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0003,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0004,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0005,NOT_MINE,,Schema contract (schemas/local_fea_handoff.schema.yaml); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0006,NOT_MINE,,Documentation or governance text (docs/architecture/adr); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0007,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0008,NOT_MINE,,Documentation or governance text (docs/_history/PRD_v0.1.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0009,NOT_MINE,,Desktop host command (apps/desktop/src-tauri); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0010,NOT_MINE,,"Friction normal-reaction supply for sliding nonlinear supports in the product adapter (DEL-04-04 nonlinear support area): not DEL-04-03's. Friction normal reaction serves sliding nonlinear supports (DEL-04-04), outside the linear slice."
+RC-04-0011,NOT_MINE,,Schema contract (schemas/target_mapping.schema.json); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0012,NOT_MINE,,Core module outside the solver slice (core/solver/diagnostics); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0013,NOT_MINE,,Documentation or governance text (docs/README.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0014,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0015,NOT_MINE,,Core module outside the solver slice (core/solver/straight_pipe); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0016,NOT_MINE,,Product mechanics result envelope with status boundaries and located result items (product preview adapter / results contract): not DEL-04-03's. DEL-04-03 cites product_physics only as the product caller of prepare_boundary and for DEC-049 hanger handling; the capability itself is outside the linear support and restraint slice.
+RC-04-0017,NOT_MINE,,Documentation or governance text (governance/CONTRIBUTION_REVIEW_CHECKLIST.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0018,NOT_MINE,,Load-combination evaluation over solved rows in the product adapter (PKG-05 load-case algebra area): not DEL-04-03's. DEL-04-03 cites product validation only for support and hanger input blocking; the capability itself is outside the linear support and restraint slice.
+RC-04-0019,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0020,NOT_MINE,,Documentation or governance text (docs/claims_registry.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0021,NOT_MINE,,Validation asset (validation/benchmarks/stress); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0022,NOT_MINE,,Documentation or governance text (docs/CONTRACT.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0023,NOT_MINE,,Product endpoint and station stress recovery and open-formula stress summary (DEL-05-03 stress recovery area): not DEL-04-03's. DEL-04-03 cites product_physics only as the product caller of prepare_boundary and for DEC-049 hanger handling; the capability itself is outside the linear support and restraint slice.
+RC-04-0024,NOT_MINE,,"Load, load-case or stress-recovery engine (core/loads/primitive_loads); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0025,PARTIAL,DEL-04-03:SOW#CLM-013,Includes the linear_supports README listed in CLM-013; other READMEs belong elsewhere.
+RC-04-0026,PARTIAL,DEL-04-03:SOW#CLM-007;DEL-04-03:SOW#completion-and-reliance-basis-epistemology/AC-001,Constant-effort consumption was the DEL-04-03 tranche R14-W1-T2 under DEC-049 (CLM-007; AC-001 names it); the force-assembly code lives in the product adapter.
+RC-04-0027,NOT_MINE,,Documentation or governance text (docs/validation_manual/headless_runner_reproduction.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0028,NOT_MINE,,Documentation or governance text (docs/architecture/extension_domain_contracts.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0029,NOT_MINE,,"Tooling, CI or repository configuration (.gitattributes); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0030,NOT_MINE,,Core module outside the solver slice (core/solver/diagnostics); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0031,NOT_MINE,,Core module outside the solver slice (core/product_physics/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0032,NOT_MINE,,"Tooling, CI or repository configuration (tools/release/package_release_artifact.py); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0033,NOT_MINE,,Documentation or governance text (docs/developer_guide/index.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0034,NOT_MINE,,Invented fixture or example data (fixtures/adapters/); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0035,NOT_MINE,,Headless runner surface (core/runner/headless); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0036,NOT_MINE,,"Load, load-case or stress-recovery engine (core/loads/stress_recovery); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0037,NOT_MINE,,"Tooling, CI or repository configuration (tools/coordination/dependency_type_rectification.py); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0038,NOT_MINE,,Core module outside the solver slice (core/solver/performance_harness); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0039,NOT_MINE,,Project surface (provenance/build-artifacts/); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0040,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0041,NOT_MINE,,Core module outside the solver slice (core/solver/diagnostics); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0042,NOT_MINE,,Shared section-definition resolution for pipes in the product adapter (section library area): not DEL-04-03's. DEL-04-03 cites product_physics only as the product caller of prepare_boundary and for DEC-049 hanger handling; the capability itself is outside the linear support and restraint slice.
+RC-04-0043,NOT_MINE,,"Load, load-case or stress-recovery engine (core/loads/primitive_loads); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0044,NOT_MINE,,Project surface (software-workflow.json); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0045,NOT_MINE,,Nonlinear support or integration engine (core/solver/nonlinear_integration); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0046,NOT_MINE,,"Expansion-joint user-stiffness macro elements and effective-area thrust in the product adapter (DEC-045 component area): not DEL-04-03's. Expansion joints are component macro elements (DEC-045), not support families."
+RC-04-0047,NOT_MINE,,Documentation or governance text (docs/validation_manual/index.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0048,NOT_MINE,,Schema contract (schemas/external_prover_metadata.schema.json); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0049,NOT_MINE,,Product mapping of solver kernel diagnostics with fail-closed handling of singular or non-finite solves: not DEL-04-03's. DEL-04-03 cites product_physics only as the product caller of prepare_boundary and for DEC-049 hanger handling; the capability itself is outside the linear support and restraint slice.
+RC-04-0050,NOT_MINE,,Documentation or governance text (docs/TYPES.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0051,NOT_MINE,,One-call symmetric order/store/factor/solve in core/solver/sparse_direct (DEC-023 solver): not DEL-04-03's. DEL-04-03 cites sparse_direct only in its settled solver-library context row; the capability itself is outside the linear support and restraint slice.
+RC-04-0052,NOT_MINE,,"Load, load-case or stress-recovery engine (core/loads/primitive_loads); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0053,NOT_MINE,,Invented fixture or example data (fixtures/material/); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0054,NOT_MINE,,Schema contract (schemas/report_protected_content_linter.schema.yaml); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0055,NOT_MINE,,Documentation or governance text (docs/IP_AND_DATA_BOUNDARY.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0056,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0057,COVERS,DEL-04-03:SOW#CLM-010.r09,Mechanics benchmark fixtures exercise apply_linear_supports and support cases; suite owned by the validation area.
+RC-04-0058,NOT_MINE,,Documentation or governance text (LICENSE.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0059,NOT_MINE,,"Load, load-case or stress-recovery engine (core/loads/stress_recovery); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0060,NOT_MINE,,Project surface (_harness/adapter.yaml); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0061,NOT_MINE,,"Linear-static preview solve orchestration in product_physics (validate, normalize, build, assemble, solve): not DEL-04-03's. DEL-04-03 cites product_physics only as the product caller of prepare_boundary and for DEC-049 hanger handling; the capability itself is outside the linear support and restraint slice."
+RC-04-0062,NOT_MINE,,"Load, load-case or stress-recovery engine (core/loads/stress_recovery); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0063,NOT_MINE,,Nonlinear support or integration engine (core/solver/nonlinear_integration); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0064,NOT_MINE,,Documentation or governance text (docs/security/telemetry_policy.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0065,NOT_MINE,,Schema contract (schemas/stress_neutral_export.schema.json); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0066,NOT_MINE,,"Tooling, CI or repository configuration (tools/ci/e2e_plan.py); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0067,NOT_MINE,,Invented fixture or example data (fixtures/report_lint/); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0068,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0069,NOT_MINE,,Documentation or governance text (docs/architecture/analysis_status_semantics.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0070,NOT_MINE,,"Tooling, CI or repository configuration (tools/release/check_release_readiness.py); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0071,NOT_MINE,,Validation asset (validation/benchmarks/sparse_suitability_observation.dec050.json); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0072,NOT_MINE,,Core module outside the solver slice (core/product_physics/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0073,NOT_MINE,,Validation asset (validation/witness/tools); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0074,NOT_MINE,,Core module outside the solver slice (core/product_preview/service.py); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0075,NOT_MINE,,Invented fixture or example data (fixtures/domain/); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0076,NOT_MINE,,Core module outside the solver slice (core/solver/straight_pipe); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0077,NOT_MINE,,Schema contract (schemas/caepipe_mbf_export.schema.json); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0078,NOT_MINE,,Invented fixture or example data (examples/rule_packs/invented_demo.yaml); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0079,NOT_MINE,,Core module outside the solver slice (core/section_properties/calculator.py); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0080,NOT_MINE,,Headless runner surface (core/runner/headless); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0081,NOT_MINE,,"Caller-supplied 12x12 user-stiffness two-node macro element in the frame kernel: not DEL-04-03's. User-stiffness macro elements are a DEL-04-01 kernel assembly feature (expansion joints), not supports."
+RC-04-0082,NOT_MINE,,Core module outside the solver slice (core/solver/curved_bend); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0083,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0084,NOT_MINE,,Desktop host command (apps/desktop/src-tauri); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0085,NOT_MINE,,Invented fixture or example data (fixtures/stress_neutral/); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0086,NOT_MINE,,Schema contract (schemas/model_state.schema.json); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0087,NOT_MINE,,Product modelling of bends as curved-arc macro elements with arc loads and stations: not DEL-04-03's. DEL-04-03 cites product_physics only as the product caller of prepare_boundary and for DEC-049 hanger handling; the capability itself is outside the linear support and restraint slice.
+RC-04-0088,NOT_MINE,,Core module outside the solver slice (core/section_properties/calculator.py); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0089,NOT_MINE,,Local-to-global stiffness transform with validated direction-cosine orientation (frame kernel): not DEL-04-03's. Transforms are DEL-04-01's kernel surface.
+RC-04-0090,NOT_MINE,,Documentation or governance text (docs/CI_STRATEGY.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0091,NOT_MINE,,"Tooling, CI or repository configuration (requirements-dev.txt); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0092,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0093,NOT_MINE,,"Skyline profile storage of a symmetric matrix (sparse_direct, DEC-023): not DEL-04-03's. DEL-04-03 cites sparse_direct only in its settled solver-library context row; the capability itself is outside the linear support and restraint slice."
+RC-04-0094,NOT_MINE,,Invented fixture or example data (fixtures/units/); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0095,NOT_MINE,,Preview model and solve-request wire shape (product adapter contract): not DEL-04-03's. DEL-04-03 cites product_physics only as the product caller of prepare_boundary and for DEC-049 hanger handling; the capability itself is outside the linear support and restraint slice.
+RC-04-0096,NOT_MINE,,Documentation or governance text (docs/validation_manual/cases); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0097,NOT_MINE,,Documentation or governance text (docs/SPEC.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0098,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0099,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0100,NOT_MINE,,Documentation or governance text (docs/security/local_first_storage_policy.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0101,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0102,NOT_MINE,,Headless runner surface (core/runner/headless); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0103,NOT_MINE,,"Tooling, CI or repository configuration (tools/release/generate_app_icon.py); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0104,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0105,NOT_MINE,,Schema contract (schemas/redaction_export_controls.schema.yaml); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0106,NOT_MINE,,Invented fixture or example data (fixtures/redaction_export_controls/); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0107,NOT_MINE,,Schema contract (schemas/model_operation.schema.json); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0108,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0109,NOT_MINE,,"Load, load-case or stress-recovery engine (core/loads/primitive_loads); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0110,NOT_MINE,,Nonlinear support or integration engine (core/solver/nonlinear_integration); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0111,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0112,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0113,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0114,NOT_MINE,,Invented fixture or example data (examples/models/invented); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0115,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0116,NOT_MINE,,Validation asset (validation/benchmarks/sparse_default_promotion_observation.dec053.json); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0117,NOT_MINE,,Core module outside the solver slice (core/solver/diagnostics); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0118,NOT_MINE,,Schema contract (schemas/review_geometry_export.schema.json); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0119,NOT_MINE,,Core module outside the solver slice (core/solver/curved_bend); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0120,NOT_MINE,,Invented fixture or example data (fixtures/product_preview/); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0121,NOT_MINE,,Schema contract (schemas/comparison_mapping.schema.json); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0122,NOT_MINE,,Validation asset (validation/portability_policy.json); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0123,NOT_MINE,,Core module outside the solver slice (core/product_physics/examples); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0124,NOT_MINE,,Validation asset (validation/witness/inputs); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0125,NOT_MINE,,Schema contract (schemas/plugin_manifest.schema.yaml); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0126,NOT_MINE,,"Tooling, CI or repository configuration (tools/release/run_evidence_sweep.py); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0127,NOT_MINE,,Documentation or governance text (docs/PLAN.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0128,NOT_MINE,,Documentation or governance text (docs/DIRECTIVE.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0129,NOT_MINE,,Core module outside the solver slice (core/model_transform/physical_to_analytical); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0130,NOT_MINE,,"Load, load-case or stress-recovery engine (core/loads/load_case_algebra); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0131,COVERS,DEL-04-03:SOW#CLM-010.r06,"Support witnesses (imposed displacement, mixed boundary, constant effort) are the invented fixtures R06 governs; authored under the validation area."
+RC-04-0132,NOT_MINE,,Validation asset (validation/benchmarks/nonlinear); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0133,NOT_MINE,,Headless runner surface (core/runner/headless); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0134,NOT_MINE,,Validation asset (validation/witness/inputs); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0135,NOT_MINE,,Documentation or governance text (governance/MAINTAINERS.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0136,PARTIAL,DEL-04-03:SOW#CLM-010.r01;DEL-04-03:SOW#CLM-010.r12,Family-to-restraint mapping uses prepare_boundary and the SOW-011 families; the product-side spring and restraint application departs from apply_linear_supports and sits in the product adapter.
+RC-04-0137,NOT_MINE,,Validated two-node 3D Euler-Bernoulli frame element and its 12x12 local stiffness (frame kernel): not DEL-04-03's. Frame elements are DEL-04-01's kernel surface.
+RC-04-0138,NOT_MINE,,Schema contract (schemas/constraint.schema.json); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0139,NOT_MINE,,Documentation or governance text (docs/AGENTIC_DEVELOPMENT_WORKFLOW.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0140,NOT_MINE,,Schema contract (schemas/analysis_run.schema.json); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0141,NOT_MINE,,Core module outside the solver slice (core/solver/performance_harness); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0142,NOT_MINE,,"Load, load-case or stress-recovery engine (core/loads/load_case_algebra); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0143,NOT_MINE,,Core module outside the solver slice (core/model_transform/physical_to_analytical); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0144,NOT_MINE,,Validation asset (validation/benchmarks/nonlinear); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0145,NOT_MINE,,Invented fixture or example data (fixtures/hanger/); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0146,NOT_MINE,,Core module outside the solver slice (core/product_preview/service.py); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0147,NOT_MINE,,Headless runner surface (core/runner/headless); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0148,NOT_MINE,,Invented fixture or example data (fixtures/native_json/); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0149,NOT_MINE,,Nonlinear support or integration engine (core/solver/nonlinear_integration); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0150,NOT_MINE,,Preview solver crate name/version and nonlinear loop identity pass-through (product adapter): not DEL-04-03's. DEL-04-03 cites product_physics only as the product caller of prepare_boundary and for DEC-049 hanger handling; the capability itself is outside the linear support and restraint slice.
+RC-04-0151,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0152,CLAIMED_BY,DEL-04-03:SOW#CLM-010.r01;DEL-04-03:SOW#CLM-010.r04,"Support family and SupportQuantity definitions (R01, R04)."
+RC-04-0153,NOT_MINE,,Documentation or governance text (docs/local_analysis/local_fea_handoff_guidance.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0154,NOT_MINE,,Dense global stiffness assembly of frame and user-stiffness elements (frame kernel): not DEL-04-03's. Global assembly is DEL-04-01's kernel surface.
+RC-04-0155,NOT_MINE,,Core module outside the solver slice (core/solver/curved_bend); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0156,NOT_MINE,,Core module outside the solver slice (core/units/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0157,NOT_MINE,,Nonlinear support or integration engine (core/solver/nonlinear_integration); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0158,NOT_MINE,,"Tooling, CI or repository configuration (tools/validation/validate_dependencies_schema.py); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0159,NOT_MINE,,"Tooling, CI or repository configuration (.gitignore); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0160,NOT_MINE,,Desktop host command (apps/desktop/src-tauri); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0161,NOT_MINE,,Documentation or governance text (docs/CHECKING_ENTRY_PROFILES.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0162,NOT_MINE,,Invented fixture or example data (fixtures/review_geometry/); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0163,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0164,NOT_MINE,,Documentation or governance text (docs/validation_manual/cases); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0165,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0166,NOT_MINE,,Documentation or governance text (docs/_Examples/README.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0167,NOT_MINE,,Desktop host command (apps/desktop/src-tauri); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0168,NOT_MINE,,"Load, load-case or stress-recovery engine (core/loads/primitive_loads); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0169,NOT_MINE,,Documentation or governance text (docs/PRD.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0170,NOT_MINE,,"Per-load-case material property selection and temperature interpolation (DEC-077, materials area): not DEL-04-03's. DEL-04-03 cites product_physics only as the product caller of prepare_boundary and for DEC-049 hanger handling; the capability itself is outside the linear support and restraint slice."
+RC-04-0171,NOT_MINE,,Schema contract (schemas/design_knowledge.schema.json); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0172,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0173,NOT_MINE,,Schema contract (schemas/caepipe_external_run.schema.json); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0174,NOT_MINE,,Documentation or governance text (docs/validation_manual/cases); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0175,NOT_MINE,,Schema contract (schemas/rule_pack.schema.yaml); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0176,NOT_MINE,,Invented fixture or example data (fixtures/rule_expressions/); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0177,NOT_MINE,,Validation asset (validation/benchmarks/physics_audit_regression); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0178,PARTIAL,DEL-04-03:SOW#CLM-007,CLM-007 declares DEC-049 hanger user data part of the linear-support slice; the validation and review rows are product adapter code.
+RC-04-0179,NOT_MINE,,Documentation or governance text (docs/BUILD_AND_RELEASE.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0180,NOT_MINE,,Headless runner surface (core/runner/headless); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0181,NOT_MINE,,"Tooling, CI or repository configuration (tools/serialization/build_checked_json.py); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0182,NOT_MINE,,Schema contract (schemas/rule_check_run_result.schema.json); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0183,NOT_MINE,,"Tooling, CI or repository configuration (package.json); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0184,NOT_MINE,,Core module outside the solver slice (core/product_preview/service.py); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0185,NOT_MINE,,Frame-kernel unit-basis and canonical model-reference metadata: not DEL-04-03's. The frame-kernel unit basis is DEL-04-01's; SupportQuantity uses its metadata types.
+RC-04-0186,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0187,NOT_MINE,,Documentation or governance text (docs/architecture/plugin_boundary.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0188,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0189,NOT_MINE,,Documentation or governance text (.github/ISSUE_TEMPLATE/README.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0190,CLAIMED_BY,DEL-04-03:SOW#CLM-010.r12,apply_linear_supports is the application surface R12 names; it has no product caller (IMPLEMENTED_DIFFERENTLY on R12).
+RC-04-0191,NOT_MINE,,Release-candidate protected-content scan runner (DEC-058): not DEL-04-03's. DEL-04-03 cites the scan tool only as the protected-content review mechanism it relies on; the capability itself is outside the linear support and restraint slice.
+RC-04-0192,NOT_MINE,,Schema contract (schemas/hanger.schema.yaml); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0193,NOT_MINE,,Core module outside the solver slice (core/security/secret_private_library); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0194,NOT_MINE,,Core module outside the solver slice (core/solver/straight_pipe); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0195,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0196,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0197,NOT_MINE,,Invented fixture or example data (fixtures/caepipe_external/); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0198,NOT_MINE,,Schema contract (schemas/material.schema.yaml); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0199,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0200,NOT_MINE,,"Load, load-case or stress-recovery engine (core/loads/self_weight_wasm); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0201,NOT_MINE,,"Seismic and wind equivalent-static load generation in the product adapter (DEC-068, PKG-05): not DEL-04-03's. DEL-04-03 cites product_physics only as the product caller of prepare_boundary and for DEC-049 hanger handling; the capability itself is outside the linear support and restraint slice."
+RC-04-0202,NOT_MINE,,"Load, load-case or stress-recovery engine (core/loads/load_case_algebra); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0203,NOT_MINE,,Section and mass properties with mill-tolerance wall reduction in the product adapter (DEC-068 section area): not DEL-04-03's. DEL-04-03 cites product_physics only as the product caller of prepare_boundary and for DEC-049 hanger handling; the capability itself is outside the linear support and restraint slice.
+RC-04-0204,NOT_MINE,,Desktop host command (apps/desktop/src-tauri); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0205,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0206,NOT_MINE,,Schema contract (schemas/component.schema.yaml); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0207,NOT_MINE,,"Load, load-case or stress-recovery engine (core/loads/user_loads); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0208,NOT_MINE,,Documentation or governance text (docs/VALIDATION_STRATEGY.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0209,NOT_MINE,,Deterministic dense Gaussian-elimination solve with singular-system reporting (frame kernel): not DEL-04-03's. The dense solve is DEL-04-01's kernel surface.
+RC-04-0210,NOT_MINE,,"Load, load-case or stress-recovery engine (core/loads/primitive_loads); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0211,NOT_MINE,,Schema contract (schemas/adapter_framework.schema.yaml); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0212,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0213,NOT_MINE,,"Load, load-case or stress-recovery engine (core/loads/user_loads); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0214,NOT_MINE,,Core module outside the solver slice (core/adapters/framework); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0215,NOT_MINE,,"Tooling, CI or repository configuration (.github/actions/setup-piping-e2e); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0216,NOT_MINE,,Invented fixture or example data (fixtures/canonical_hash/); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0217,NOT_MINE,,Documentation or governance text (docs/INTENT.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0218,NOT_MINE,,Documentation or governance text (docs/architecture/persistence_contract.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0219,NOT_MINE,,Conversion of authored primitive loads into element and nodal loads in the product adapter (PKG-05): not DEL-04-03's. DEL-04-03 cites product_physics only as the product caller of prepare_boundary and for DEC-049 hanger handling; the capability itself is outside the linear support and restraint slice.
+RC-04-0220,NOT_MINE,,Core module outside the solver slice (core/solver/performance_harness); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0221,NOT_MINE,,Project surface (api/api_boundary_contract.yaml); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0222,NOT_MINE,,Validation asset (validation/witness/inputs); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0223,NOT_MINE,,Invented fixture or example data (fixtures/export_adapter_sdk/); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0224,NOT_MINE,,Headless runner surface (core/runner/headless); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0225,NOT_MINE,,Invented fixture or example data (fixtures/model_operations/); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0226,NOT_MINE,,"Load, load-case or stress-recovery engine (core/loads/stress_recovery); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0227,NOT_MINE,,Schema contract (schemas/report_sections.schema.yaml); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0228,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0229,NOT_MINE,,Invented fixture or example data (fixtures/gui/); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0230,NOT_MINE,,Documentation or governance text (CONTRIBUTING.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0231,NOT_MINE,,Invented fixture or example data (fixtures/reports/); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0232,NOT_MINE,,Validation asset (validation/hand_calcs/nonlinear); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0233,NOT_MINE,,Headless runner surface (core/runner/headless); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0234,NOT_MINE,,"Internal pressure thrust applied as axial element loads from pressure records (product adapter, loads area): not DEL-04-03's. DEL-04-03 cites product_physics only as the product caller of prepare_boundary and for DEC-049 hanger handling; the capability itself is outside the linear support and restraint slice."
+RC-04-0235,NOT_MINE,,Product recovery of element end forces and station resultants with sign conventions: not DEL-04-03's. DEL-04-03 cites product_physics only as the product caller of prepare_boundary and for DEC-049 hanger handling; the capability itself is outside the linear support and restraint slice.
+RC-04-0236,NOT_MINE,,Schema contract (schemas/section.schema.yaml); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0237,NOT_MINE,,Documentation or governance text (docs/RELEASE_NOTES_TEMPLATE.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0238,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0239,NOT_MINE,,"Tooling, CI or repository configuration (tools/release/run_release_gate_records.py); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0240,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0241,NOT_MINE,,Desktop host command (apps/desktop/src-tauri); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0242,NOT_MINE,,Fixed six-DOF node ordering and node/element DOF index helpers (frame kernel): not DEL-04-03's. DOF ordering is DEL-04-01's; linear supports re-export FrameDof and use node_dof_index.
+RC-04-0243,NOT_MINE,,Schema contract (schemas/handoff_package.schema.json); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0244,NOT_MINE,,Core module outside the solver slice (core/solver/curved_bend); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0245,NOT_MINE,,"Planning registers (Deliverables, ScopeLedger, ContextBudgetQA): not DEL-04-03's. DEL-04-03 cites the registers only to check its identity and scope rows; the capability itself is outside the linear support and restraint slice."
+RC-04-0246,NOT_MINE,,Documentation or governance text (docs/security/secret_private_library_handling.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0247,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0248,NOT_MINE,,Invented fixture or example data (fixtures/analysis_runs/); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0249,NOT_MINE,,Signed node displacement and rotation result rows per load case (product adapter results): not DEL-04-03's. DEL-04-03 cites product_physics only as the product caller of prepare_boundary and for DEC-049 hanger handling; the capability itself is outside the linear support and restraint slice.
+RC-04-0250,NOT_MINE,,Documentation or governance text (docs/user_guide/index.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0251,NOT_MINE,,Architecture-basis corpus validator (PKG-00 tooling): not DEL-04-03's. DEL-04-03 cites the validator only as its R08 architecture-review record; the capability itself is outside the linear support and restraint slice.
+RC-04-0252,NOT_MINE,,Documentation or governance text (AGENTS.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0253,NOT_MINE,,Nonlinear support or integration engine (core/solver/nonlinear_supports); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0254,NOT_MINE,,Core module outside the solver slice (core/solver/performance_harness); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0255,NOT_MINE,,Core module outside the solver slice (core/solver/straight_pipe); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0256,NOT_MINE,,Documentation or governance text (README.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0257,NOT_MINE,,"Tooling, CI or repository configuration (tools/release/export_public_openpipestress.py); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0258,NOT_MINE,,"Load, load-case or stress-recovery engine (core/loads/user_loads); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0259,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0260,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0261,NOT_MINE,,Core module outside the solver slice (core/solver/straight_pipe); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0262,NOT_MINE,,Invented fixture or example data (fixtures/pcf_export/); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0263,NOT_MINE,,Desktop host command (apps/desktop/src-tauri); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0264,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0265,NOT_MINE,,"Tooling, CI or repository configuration (.github/workflows/piping-desktop-e2e.yml); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0266,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0267,NOT_MINE,,Documentation or governance text (governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0268,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0269,NOT_MINE,,Schema contract (schemas/operation_outcome.schema.json); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0270,NOT_MINE,,Global-system reduction for restrained DOFs with prescribed-displacement force adjustment (frame kernel): not DEL-04-03's. The prescribed-displacement reduction is DEL-04-01's kernel surface that linear supports delegate to.
+RC-04-0271,NOT_MINE,,"Thermal expansion equivalent element loads with fixed-end axial correction (product adapter, loads area): not DEL-04-03's. DEL-04-03 cites product_physics only as the product caller of prepare_boundary and for DEC-049 hanger handling; the capability itself is outside the linear support and restraint slice."
+RC-04-0272,NOT_MINE,,Documentation or governance text (docs/RELEASE_QUALITY_GATES.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0273,NOT_MINE,,Invented fixture or example data (fixtures/persistence/); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0274,NOT_MINE,,Singular-pivot and conditioning-proxy reporting of the skyline factorization (sparse_direct): not DEL-04-03's. DEL-04-03 cites sparse_direct only in its settled solver-library context row; the capability itself is outside the linear support and restraint slice.
+RC-04-0275,NOT_MINE,,Documentation or governance text (docs/architecture/code_neutral_analysis_boundary.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0276,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0277,NOT_MINE,,Documentation or governance text (docs/security/threat_model.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0278,NOT_MINE,,Documentation or governance text (docs/_ScopeChange/_LATEST.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0279,NOT_MINE,,Invented fixture or example data (fixtures/results/); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0280,NOT_MINE,,"Tooling, CI or repository configuration (package-lock.json); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0281,NOT_MINE,,Documentation or governance text (docs/validation_manual/cases); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0282,NOT_MINE,,Deterministic reverse Cuthill-McKee DOF ordering (sparse_direct): not DEL-04-03's. DEL-04-03 cites sparse_direct only in its settled solver-library context row; the capability itself is outside the linear support and restraint slice.
+RC-04-0283,NOT_MINE,,Invented fixture or example data (fixtures/caepipe_mbf/); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0284,NOT_MINE,,Schema contract (schemas/export_adapter_sdk.schema.json); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0285,NOT_MINE,,"Iterative active-set solve of gap, lift-off, friction and contact supports in the product adapter (DEL-04-04): not DEL-04-03's. Active-set gap, lift-off, friction and contact supports are DEL-04-04's; DEL-04-03 R11 keeps nonlinear behaviour out."
+RC-04-0286,NOT_MINE,,In-repo LDL-transpose profile factorization and solve with fixed operation order (sparse_direct): not DEL-04-03's. DEL-04-03 cites sparse_direct only in its settled solver-library context row; the capability itself is outside the linear support and restraint slice.
+RC-04-0287,COVERS,DEL-04-03:SOW#CLM-010.r05,Pre-mechanics blocking of unsupplied support and hanger inputs supports R05; validation module owned by the product adapter.
+RC-04-0288,NOT_MINE,,Schema contract (schemas/pcf_export.schema.json); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0289,NOT_MINE,,Schema contract (schemas/headless_runner.schema.yaml); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0290,NOT_MINE,,"Load, load-case or stress-recovery engine (core/loads/primitive_loads); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0291,NOT_MINE,,Core module outside the solver slice (core/reporting/pdf_emitter); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0292,NOT_MINE,,"Load, load-case or stress-recovery engine (core/loads/primitive_loads); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0293,NOT_MINE,,Schema contract (schemas/project_persistence.schema.yaml); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0294,NOT_MINE,,Core module outside the solver slice (core/solver/straight_pipe); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0295,NOT_MINE,,Invented fixture or example data (fixtures/plugin_manifest/); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0296,NOT_MINE,,Documentation or governance text (docs/security/redaction_export_controls.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0297,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0298,NOT_MINE,,Nonlinear support or integration engine (core/solver/nonlinear_integration); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0299,NOT_MINE,,"Tooling, CI or repository configuration (tools/coordination/dependency_semantic_refresh_fanin.py); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0300,NOT_MINE,,"Tooling, CI or repository configuration (.github/workflows/piping-e2e-cache.yml); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0301,NOT_MINE,,"Load, load-case or stress-recovery engine (core/loads/primitive_loads); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0302,NOT_MINE,,Schema contract (schemas/viewport_editor.schema.yaml); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0303,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0304,NOT_MINE,,Core module outside the solver slice (core/solver/diagnostics); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0305,NOT_MINE,,Schema contract (schemas/analysis_boundary.schema.yaml); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0306,NOT_MINE,,Invented fixture or example data (fixtures/analysis_boundary/); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0307,NOT_MINE,,Schema contract (schemas/units.schema.yaml); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0308,NOT_MINE,,Documentation or governance text (docs/report_notice_template.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0309,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0310,NOT_MINE,,"Tooling, CI or repository configuration (tools/coordination/list_deliverable_status.py); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0311,NOT_MINE,,Validation asset (validation/witness/fixtures); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0312,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0313,CLAIMED_BY,DEL-04-03:SOW#CLM-010.r05;DEL-04-03:SOW#CLM-010.r12,"prepare_boundary with findings (R05, R12); product-called."
+RC-04-0314,NOT_MINE,,Schema contract (schemas/analysis_status.schema.yaml); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0315,NOT_MINE,,Desktop host command (apps/desktop/src-tauri); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0316,NOT_MINE,,Documentation or governance text (docs/theory/centerline_analysis.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0317,NOT_MINE,,Schema contract (schemas/comparison_tolerance.schema.json); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0318,NOT_MINE,,Normalization of authored coordinates and quantities to canonical units at the mechanics boundary (product adapter): not DEL-04-03's. DEL-04-03 cites product_physics only as the product caller of prepare_boundary and for DEC-049 hanger handling; the capability itself is outside the linear support and restraint slice.
+RC-04-0319,NOT_MINE,,Invented fixture or example data (fixtures/component/); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0320,NOT_MINE,,Schema contract (schemas/results.schema.yaml); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0321,NOT_MINE,,Schema contract (schemas/model.schema.yaml); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0322,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0323,NOT_MINE,,"Load, load-case or stress-recovery engine (core/loads/load_case_algebra); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0324,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0325,NOT_MINE,,Nonlinear support or integration engine (core/solver/nonlinear_supports); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0326,NOT_MINE,,Core module outside the solver slice (core/product_preview/service.py); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0327,NOT_MINE,,Schema contract (schemas/native_json_export.schema.json); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0328,NOT_MINE,,"Load, load-case or stress-recovery engine (core/loads/primitive_loads); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+RC-04-0329,NOT_MINE,,"Caller choice of sparse interactive or dense scrutiny solve with solver-mode evidence rows (product adapter, DEC-053): not DEL-04-03's. DEL-04-03 cites product_physics only as the product caller of prepare_boundary and for DEC-049 hanger handling; the capability itself is outside the linear support and restraint slice."
+RC-04-0330,NOT_MINE,,Documentation or governance text (docs/PROFESSIONAL_BOUNDARY.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0331,NOT_MINE,,Documentation or governance text (docs/contributor_guide/index.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0332,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0333,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0334,NOT_MINE,,Nonlinear support or integration engine (core/solver/nonlinear_supports); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0335,NOT_MINE,,"User bend and branch stress multipliers applied to recovered stresses (product adapter, stress review): not DEL-04-03's. DEL-04-03 cites product_physics only as the product caller of prepare_boundary and for DEC-049 hanger handling; the capability itself is outside the linear support and restraint slice."
+RC-04-0336,NOT_MINE,,Validation asset (validation/hand_calcs/stress); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0337,NOT_MINE,,Desktop user-interface feature (apps/desktop/src); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0338,NOT_MINE,,Schema contract (schemas/report_generator.schema.yaml); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0339,NOT_MINE,,Documentation or governance text (tools/REGISTRY.md); not part of the linear support and restraint slice and no DEL-04-03 claim covers it.
+RC-04-0340,NOT_MINE,,"Tooling, CI or repository configuration (tools/release/run_coverage_telemetry.py); not part of the linear support and restraint slice and no DEL-04-03 claim covers it."
+#END,,,340

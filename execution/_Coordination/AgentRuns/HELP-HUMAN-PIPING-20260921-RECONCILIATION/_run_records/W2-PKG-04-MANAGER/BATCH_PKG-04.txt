@@ -1,0 +1,6 @@
+# Batch validation PKG-04 W2 (manager)
+--- validator --batch (6 forward ledgers)
+FINDING projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W2/PKG-04/DEL-04-01/DEL-04-01_forward.csv: DEL-04-01:SOW#CLM-014: same pattern CP-03/STALE_REVI as 8 other row(s) but {'Disposition': 'STALE_REVIEW_OR_EVIDENCE', 'CauseTag': 'DOC_BEHIND_CODE', 'AuthorityTier': 'LOCAL_DESIGN', 'DivergenceLayers': 'RECORD'} differs from the majority {'Disposition': 'STALE_REVIEW_OR_EVIDENCE', 'CauseTag': 'BASIS_POINTER_STALE', 'AuthorityTier': 'LOCAL_DESIGN', 'DivergenceLayers': 'RECORD'} without CANONICAL_DEPARTURE
+FINDING projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W2/PKG-04/DEL-04-01/DEL-04-01_forward.csv: DEL-04-01:SOW#CLM-021: same pattern CP-03/STALE_REVI as 8 other row(s) but {'Disposition': 'STALE_REVIEW_OR_EVIDENCE', 'CauseTag': 'DOC_BEHIND_CODE', 'AuthorityTier': 'LOCAL_DESIGN', 'DivergenceLayers': 'RECORD'} differs from the majority {'Disposition': 'STALE_REVIEW_OR_EVIDENCE', 'CauseTag': 'BASIS_POINTER_STALE', 'AuthorityTier': 'LOCAL_DESIGN', 'DivergenceLayers': 'RECORD'} without CANONICAL_DEPARTURE
+FAIL batch of 6 ledgers: 2 consistency findings
+exit=1
