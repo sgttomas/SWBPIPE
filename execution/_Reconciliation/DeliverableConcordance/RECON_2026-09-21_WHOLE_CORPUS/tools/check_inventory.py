@@ -5,7 +5,8 @@ Checks header, CRLF, `#END` sentinel count, CapabilityID prefix and uniqueness,
 Kind vocabulary, that every EntryPoints and Tests path exists at the frozen
 commit, that Capability and Notes name no deliverable, package, scope,
 objective or decision identifier, and (with --coverage) that every non-test
-tracked file in the area's partition appears in some EntryPoints cell.
+tracked file in the area's partition (git config files excepted) appears in some
+EntryPoints or Tests cell.
 Deterministic and read-only. Exit 0 = PASS, 1 = findings.
 
 Usage
@@ -81,7 +82,8 @@ def main(argv):
                 p = re.split(r"::|#L", tok, maxsplit=1)[0].rstrip("/")
                 if p not in tree and p not in dirs:
                     f.append(f"{cid}: {col} path not at the freeze: {p}")
-                elif col == "EntryPoints":
+                else:
+                    # coverage counts EntryPoints and Tests (test data such as fixtures is listed under Tests)
                     covered |= {t for t in tree if t == p or t.startswith(p + "/")}
     if a.coverage:
         part = json.load(open(a.partition))
@@ -91,7 +93,7 @@ def main(argv):
             if not t.startswith(P):
                 continue
             rel = t[len(P):]
-            if rel.startswith(EXCLUDE) or "/node_modules/" in rel or re.search(r"(\.test|\.spec)\.(ts|tsx)$|(^|/)test_[^/]+\.py$", rel):
+            if rel.startswith(EXCLUDE) or "/node_modules/" in rel or re.search(r"(\.test|\.spec)\.(ts|tsx)$|(^|/)test_[^/]+\.py$|(^|/)\.git(ignore|attributes)$", rel):
                 continue
             if a.area == "SHELL":
                 if rel.startswith("apps/desktop/") and not rel.startswith("apps/desktop/src/features/"):
@@ -100,7 +102,7 @@ def main(argv):
                 mine.append(t)
         missing = sorted(set(mine) - covered)
         if missing:
-            f.append(f"{len(missing)} of {len(mine)} area files not in any EntryPoints, e.g. {missing[:4]}")
+            f.append(f"{len(missing)} of {len(mine)} area files not in any EntryPoints or Tests cell, e.g. {missing[:4]}")
     for x in f:
         print("FINDING", x)
     print(f"{'PASS' if not f else 'FAIL'} INV_{a.area}: {len(body)} capabilities, {len(f)} findings")

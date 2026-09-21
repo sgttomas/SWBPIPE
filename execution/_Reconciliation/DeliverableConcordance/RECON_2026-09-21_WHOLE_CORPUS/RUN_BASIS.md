@@ -173,4 +173,9 @@ taxonomy per DEC-081).
   record's `returns/` contain absolute scratch paths from the session that
   produced them (harness REVIEW ABS_PATH_IN_UNCLASSIFIED_SURFACE). They are
   kept unedited for custody.
+- 2026-09-21 — R1 capability inventory complete: 12 owner-free area
+  inventories (`R1_INVENTORY/INV_*.csv`), each structurally checked with full
+  file coverage by `tools/check_inventory.py`, merged into
+  `IMPLEMENTATION_SURFACES.csv` (598 capabilities). Mechanical indexes and the
+  authority map were built earlier in R1.
 
