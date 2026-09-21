@@ -536,8 +536,8 @@ mod tests {
         assert_eq!(applied["simulation_disposition"], "committed_as_one_batch");
         assert_eq!(applied["operation_outcomes"].as_array().unwrap().len(), 2);
         assert!(applied["applied_model_backend_hash"].is_string());
-        assert_eq!(applied["applied_model"]["sections"][0]["properties"]["outside_diameter"]["value"], 60);
-        assert_eq!(applied["applied_model"]["sections"][0]["properties"]["wall_thickness"]["value"], 20);
+        assert_eq!(applied["applied_model"]["sections"][0]["properties"]["outside_diameter"]["value"], json!(60.0));
+        assert_eq!(applied["applied_model"]["sections"][0]["properties"]["wall_thickness"]["value"], json!(20.0));
         assert_no_nested_engine_claims(&applied);
         assert_eq!(model, original);
     }

@@ -1,0 +1,5 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (projects/chirality-piping/core/model_operations/operation_applier/target/debug/deps/open_pipe_stress_operation_applier-9e6ae2a19b7943e1)
+     Running tests/canonical_hash_parity.rs (projects/chirality-piping/core/model_operations/operation_applier/target/debug/deps/canonical_hash_parity-2eb51911ca74b873)
+     Running tests/contract_corpus.rs (projects/chirality-piping/core/model_operations/operation_applier/target/debug/deps/contract_corpus-728bfc4738acd1c3)
+     Running tests/support_authoring_conflicts.rs (projects/chirality-piping/core/model_operations/operation_applier/target/debug/deps/support_authoring_conflicts-609a471ebd0ab5cd)

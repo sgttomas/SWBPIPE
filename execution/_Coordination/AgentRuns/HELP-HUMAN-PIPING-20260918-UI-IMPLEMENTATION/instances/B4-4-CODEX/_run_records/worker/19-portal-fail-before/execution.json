@@ -1,0 +1,29 @@
+{
+  "candidate": "2c398ab123d008cfad5bb441ae5e69c6125a137a",
+  "command": [
+    "sh",
+    "../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/tools/with_e2e_lock.sh",
+    "npx",
+    "playwright",
+    "test",
+    "e2e/b4-sections.spec.ts",
+    "--grep",
+    "(?:^|\\s)B4 Sections enum explicit completion, passive cancellation and raw review retention$",
+    "--project=chromium-desktop",
+    "--reporter=list,json",
+    "--output=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-4-CODEX/_run_records/worker/19-portal-fail-before/artifacts"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop",
+  "environment": {
+    "PLAYWRIGHT_WORKERS": "1",
+    "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH": "/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+    "PLAYWRIGHT_JSON_OUTPUT_NAME": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-4-CODEX/_run_records/worker/19-portal-fail-before/report.json"
+  },
+  "version": "Google Chrome for Testing 148.0.7778.96",
+  "sources": {
+    "src/styles.css": "773f7c36104e6e82bb77b799b4060393dc69dab6d3770200d0bb2d9cacdfbf19",
+    "src/features/workspace/table/useEnumEditor.tsx": "909cff6062a45b10ac642ecded0273cd6ed7adf499087cbd84539955d0640865"
+  },
+  "test_sha256": "9c336e36001b8b4a8f29f6766aace3605783bd4f01a8120fb783c18330b2ea48",
+  "exit_code": 1
+}

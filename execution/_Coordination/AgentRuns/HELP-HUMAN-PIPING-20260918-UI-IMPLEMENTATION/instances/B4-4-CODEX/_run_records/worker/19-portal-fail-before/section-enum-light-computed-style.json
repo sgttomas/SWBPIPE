@@ -1,0 +1,14 @@
+{
+  "background": "rgba(0, 0, 0, 0)",
+  "text": "rgb(29, 36, 36)",
+  "border": "rgb(29, 36, 36)",
+  "borderStyle": "none",
+  "borderWidth": "0px",
+  "optionBackground": "rgba(0, 0, 0, 0)",
+  "optionText": "rgb(29, 36, 36)",
+  "hit": true,
+  "rootSurface": "rgb(255, 255, 255)",
+  "rootText": "rgb(34, 39, 44)",
+  "rootBorder": "rgb(213, 216, 219)",
+  "rootSelection": "rgb(226, 238, 254)"
+}

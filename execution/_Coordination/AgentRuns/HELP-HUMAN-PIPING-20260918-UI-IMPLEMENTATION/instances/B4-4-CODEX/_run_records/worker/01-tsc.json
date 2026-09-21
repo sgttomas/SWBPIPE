@@ -1,0 +1,24 @@
+{
+  "command": [
+    "npx",
+    "tsc",
+    "-b",
+    "--pretty",
+    "false"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop",
+  "exit_code": 1,
+  "timestamp": "2026-09-21T05:25:34.468701",
+  "sources": {
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/quantitySortProjection.test.tsx": "dbb0c65749e94577fe170c6aef7065fa96ad1bc904094691c5cae5ad25ab708a",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.test.tsx": "219e982d8fc60511f36de24acdd915e6b7d3b4b7fb734f890780ff9d24d4b6d6",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/ModelTree.table.test.tsx": "e67ad561397a93cb6fad35f6d052dd065a9324d714da7121f27e59ddb4e52524",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/useEnumEditor.tsx": "ba4b2c495c653026cbe0527a82bf131a7947e2f999588a1afe7c79ae8178d17b",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/tableState.test.ts": "63a5ee5b6e9f763f7669e30493f5357273be22cd7108c44db519d62985d078df",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/tableState.ts": "8f8a159741f7f9389dddee17378d35466877353bab441be6fe9291b4817ba403",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/modelTableAdapter.ts": "81742e21d8d35de7802a60e150fd72f6eba61e2d0f08cad1245d845d2227d5f3",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/modelTableAdapter.test.ts": "ed7fe7c640f5945f5496f213d22e1a5e987a71c955e41ef0f28af1fe37dc6acb",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx": "d3793125b2129ee1172fe87b89a87136d3240bda4831b759e7376cb91e90823d",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/quantitySortProjection.ts": "84addabae0ea1e65df20de711694b90c99623bd1d306f32f832ca9a90b4a7eba"
+  }
+}

@@ -1,0 +1,1 @@
+{"command": ["npx", "vitest", "run", "src/features/model-tree/SectionTable.test.tsx", "-t", "discloses raw unsupported", "--maxWorkers=1"], "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop", "exit_code": 1}

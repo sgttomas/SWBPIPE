@@ -1,0 +1,11 @@
+
+ RUN  v4.1.10 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/model-tree/SectionTable.test.tsx (4 tests | 1 failed | 3 skipped) 175ms
+     × discloses raw unsupported enum drafts when review is closed without enabling Queue 173ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 skipped (4)
+   Start at  05:30:47
+   Duration  701ms (transform 157ms, setup 64ms, import 207ms, tests 175ms, environment 175ms)
+
