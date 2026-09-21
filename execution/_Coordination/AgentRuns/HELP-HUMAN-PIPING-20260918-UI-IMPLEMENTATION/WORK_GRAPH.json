@@ -635,7 +635,7 @@
       "role": "slice",
       "lane": "B-SHELL",
       "title": "the table component through the one operation route",
-      "status": "B4.1 merged; B4.2 Node fields/common review renderer reviewed and native-tested at bounded scopes, final publication gates pending",
+      "status": "B4.1 and B4.2 merged; Materials is next bounded family; full B4/fit work remains open",
       "dependsOn": [
         "B3B"
       ],
@@ -648,7 +648,7 @@
           "item": "Retire duplicate Node bulk grid after equivalent label/provenance and multi-change review capability reaches common table grammar",
           "retireAt": "later B4 increment before claiming full B4/MVP table completion",
           "evidence": "B4_1_COMPATIBILITY_DISPOSITION.md; independent equivalence review required",
-          "state": "implemented and independently reviewed in producta064; publication pending",
+          "state": "retired in merged PR832; Node direct/review use one renderer, other families remain legacy",
           "retirementEvidence": "instances/B4-2-CODEX/RETURN.md and B4-2-REVIEW node; common core renders both Node policies, other families still legacy"
         },
         {
@@ -2184,7 +2184,7 @@
       "branch": "codex/swbpipe-b4-node-integration-20260920",
       "candidate": "d3db83b494cd00e9f8978a99f02a83bf626bd1fb",
       "base": "86e49b3a285f6022a8a56b3721612c7b5a7d8752",
-      "status": "one-line test repair independently PASS at8077; same-host sweep applicability checked; corrected full actual-head Linux CI pending",
+      "status": "merged PR832/c9f19195 after all8 actual-head checks pass at8077",
       "dependsOn": [
         "B4-2-CODEX-MANAGER"
       ],
@@ -2223,11 +2223,15 @@
         "url": "https://github.com/sgttomas/chirality/pull/832",
         "head": "8077032231ded1cc5d206becd03a18e43e6f3bb2",
         "tree": "7c136c19617267c05fb17d8bad0f8a9fb90b837c",
-        "state": "draft open, repaired code pushed once; corrected Linux workflow pending",
+        "state": "merged",
         "base": "86e49b3a285f6022a8a56b3721612c7b5a7d8752",
         "observationsPolicy": "Keep PR head fixed; final record checks/review and CI observations live on ROOT record branch and PR record, without bookkeeping synchronizations restarting CI.",
         "correctedRunId": 35567286692,
-        "correctedHarnessRunId": 35567286700
+        "correctedHarnessRunId": 35567286700,
+        "merge": "c9f19195214b2e097980dde5e0d5fccbfba8e34c",
+        "mergedAt": "2026-09-21T06:30:27Z",
+        "observation": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR832_CI/MERGE_OBSERVATION.json",
+        "observationSha256": "5b40a21955768f7a4887702740357ea6f5baa666cf7f819c80606929fb46f30e"
       },
       "publicationReview": {
         "state": "PASS complete34-path metadata tail and separately sealed actual-head gate observations",
@@ -2312,7 +2316,7 @@
       "model": "gpt-6-astra",
       "reasoning": "high",
       "mechanism": "actual collaboration.send_message while native TASK executes independently; no preparation child",
-      "status": "returned; separate Materials increment recommended, then Sections; no implementation activated",
+      "status": "returned, clarified and activated for Materials only after PR832 merge; Sections awaits later brief",
       "basis": "97c03e3b26db1d49cc1f36ce627d19db8a56541c/producta183",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_3_FAMILY_PREPARATION_BRIEF.md",
       "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_FAMILY_PREPARATION_RETURN.md",
@@ -2342,7 +2346,7 @@
     "CI-CACHE-WARMING": {
       "role": "ROOT bounded CI maintenance",
       "parent": "ROOT",
-      "status": "five maintained paths implemented on ROOT, static structure and31CI-policy tests pass; G4 and independent review pending; not inPR832",
+      "status": "independent source review found onlyP3 test isolation; corrected with31policy passes and negative control; bounded backcheck pending",
       "owner": "HELP_HUMAN /root, GPT-6 Astra high-or-greater, direct executor",
       "basis": "9bff54a7e836b187576059b8dd57491028fdb437",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_CACHE_FOLLOWUP.md",
@@ -2357,7 +2361,42 @@
         "projects/chirality-piping/tests/test_ci_e2e_plan.py",
         "projects/chirality-piping/docs/CI_STRATEGY.md",
         "projects/chirality-piping/execution/_Coordination/NOTICE_2026-09-21_CI_CACHE_WARMING.md"
-      ]
+      ],
+      "review": {
+        "agent": "/root/ci_cache_review",
+        "model": "gpt-6-astra",
+        "reasoning": "xhigh",
+        "role": "fresh independent TASK Type2",
+        "mechanism": "collaboration.spawn_agent fork_turns none",
+        "candidate": "18abc04ae793648ef3f571f3b7fc8d9cc60b57ea",
+        "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_CACHE_REVIEW_RETURN.md",
+        "returnSha256": "499479e64cad68bfc5a0dc8268880e64f7b2df02d4724009600b3ff17a698ea4"
+      }
+    },
+    "B4-3-CODEX-MANAGER": {
+      "role": "WORKING_ITEMS Type1",
+      "parent": "ROOT",
+      "actualAgent": "/root/b3_manager",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "state": "actual manager/one fresh TASK executing; source mainc9f19195, no native activation",
+      "basis": "c9f19195214b2e097980dde5e0d5fccbfba8e34c",
+      "branch": "codex/swbpipe-b4-materials-20260921",
+      "checkout": "existing swbpipe-wt3, prior branch/head preserved",
+      "scope": "prepared Materials UI/table adapters and bounded tests/evidence only",
+      "activation": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_3_MATERIALS_ACTIVATION_2026-09-21.md",
+      "activationSha256": "3316bb1f1b61e847741d17b21311395fdacc5b34dcad1c12af71bd95260a2894",
+      "mechanism": "ROOT collaboration.followup_task; manager actual collaboration.spawn_agent of /root/b3_manager/b4_3_materials",
+      "worker": {
+        "agent": "/root/b3_manager/b4_3_materials",
+        "role": "TASK Type2",
+        "model": "gpt-6-astra",
+        "reasoning": "low",
+        "brief": "instances/B4-3-CODEX/TASK_BRIEF.md",
+        "briefSha256": "8976eefebd04818fd86fcbeddae46283f0e3c36dd6987e7838355600419c3df0",
+        "launchInputs": "instances/B4-3-CODEX/_run_records/LAUNCH_INPUTS.json",
+        "launchInputsSha256": "191f7ff6f8f2f0d3a09c9c91c381bfeebe3f3ad1ed3df7df507b0e02cf9e8d54"
+      }
     }
   },
   "edges": [
@@ -2638,7 +2677,7 @@
       "B4-3-FAMILY-PREPARATION"
     ]
   ],
-  "current_frontier": "Corrected PR832 Linux shard2 passes, remaining hosted jobs pending before merge. Materials activation waits for merge. In parallel, separately agreed ROOT cache warm workflow is implemented with local checks, awaiting G4/independent review for next coherent batch; currentPRhead8077 unchanged.",
+  "current_frontier": "PR832 merged; Materials manager and one Astra/low TASK executing bounded family implementation. ROOT completes independent cache-test isolation backcheck and postmerge continuity. No active local browser/native workload; C4/CLI and remaining fit/qualification decisions stay pending.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -2923,13 +2962,13 @@
   },
   "liveContinuationState": {
     "root": "d02bb99092bf39e7e6d1554a68e77f94f349ab36 plus publication observation tail on ROOT branch",
-    "originMain": "86e49b3a285f6022a8a56b3721612c7b5a7d8752",
+    "originMain": "c9f19195214b2e097980dde5e0d5fccbfba8e34c",
     "integrationBranch": {
       "branch": "codex/swbpipe-b4-node-integration-20260920",
       "head": "8077032231ded1cc5d206becd03a18e43e6f3bb2",
-      "state": "one-line test repair independently PASS at8077; same-host sweep applicability checked; corrected full actual-head Linux CI pending"
+      "state": "PR832 merged; branch preserved at8077"
     },
-    "shell": "clean c578/producta064; all manager/worker execution returned",
+    "shell": "actual Materials manager/TASK executing on codex/swbpipe-b4-materials-20260921 in existingwt3 from mergedc9f19195; oldc578Node branch preserved",
     "canvas": "fb720420 preserved; C4 preparation returned",
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "isolated226b probe retains two authorized source edits and two untracked dependency entries; preserved, never fan-in",

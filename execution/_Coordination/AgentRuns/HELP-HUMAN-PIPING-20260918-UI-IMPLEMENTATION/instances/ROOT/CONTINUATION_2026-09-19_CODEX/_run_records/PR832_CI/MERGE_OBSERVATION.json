@@ -1,0 +1,76 @@
+{
+  "pr": 832,
+  "url": "https://github.com/sgttomas/chirality/pull/832",
+  "candidate": "8077032231ded1cc5d206becd03a18e43e6f3bb2",
+  "merge": "c9f19195214b2e097980dde5e0d5fccbfba8e34c",
+  "mergedAt": "2026-09-21T06:30:27Z",
+  "candidateTree": "7c136c19617267c05fb17d8bad0f8a9fb90b837c",
+  "mergeTree": "7c136c19617267c05fb17d8bad0f8a9fb90b837c",
+  "identicalTrees": true,
+  "executor": "ROOT Codex HELP_HUMAN issued ordinary gh ready/merge after all8 actual-head checks SUCCESS; not personal owner review",
+  "beforeReadyAndMerge": "PREMERGE.json",
+  "mergeCommand": "merge-command.json",
+  "correctedHosted": {
+    "runId": 35567286692,
+    "harnessRunId": 35567286700,
+    "status": "success",
+    "wallSeconds": 986,
+    "sourcePassed": 435,
+    "sourceExistingSkipped": 20,
+    "sourceCollected": 455,
+    "perStagePassed": {
+      "barrier": 30,
+      "shard1": 67,
+      "shard2": 80,
+      "shard3": 47,
+      "shard4": 211
+    },
+    "rawLogSha256": "5350a46b8e76e788f1b96f39abd046b1b59560db2d5f6451aede3c1259d396ae",
+    "rawLogBytes": 1238549
+  },
+  "localBasis": "clean d3db83 full host sweep plus two affected8077cases; independent review proves same macOS effective key events. No fresh8077 full-sweep claim and no prior waiver reused.",
+  "originalFailure": "../PR832_CI_FAILURE; failed shard2 and automatic cancellations remain unchanged",
+  "limits": "Scoped B4.2 integration only; Both+Inspector-open native pointer exposure, compact drawer fit and other B4 work remain open. No live-agent/Runtime adoption, qualification, usability acceptance, release or deliverable/DAG reconciliation.",
+  "files": {
+    "MERGED.json": {
+      "sha256": "ad91e157caa47b6a80779a5763c31fe3c957c42f4468ef097eaf4ba46c04e92e",
+      "bytes": 2860
+    },
+    "OPENED.json": {
+      "sha256": "80bae119ee2717a1b3ce9a373ae4746d0e4c7ebe84be3e043f9f3900e2667f18",
+      "bytes": 1174
+    },
+    "PREMERGE.json": {
+      "sha256": "e82b4ade356d8d5dcb92bd3e9b8ea6334530a506f087f4fe1204d9e1da4c9f72",
+      "bytes": 2793
+    },
+    "READY.json": {
+      "sha256": "f9b3a8b1edb624d118b0e989e2a42a21f0207d8b2f5611fc99d38eeb94d202f1",
+      "bytes": 2794
+    },
+    "corrected-count-lines.txt": {
+      "sha256": "97c2fb9809c6eff602cb96a71a7b6bf4e50cf72de949b3124108e992122b6a60",
+      "bytes": 559
+    },
+    "corrected-run.json": {
+      "sha256": "ff376945286effc60b9f7f8f4d53a166dc2f6fd3568db30a967c078650fdd707",
+      "bytes": 12472
+    },
+    "corrected-run.log.gz": {
+      "sha256": "59e1dcb8d88e48442ced50cba06c73ec51dc45b03b9a74d6ab1631563e85c4da",
+      "bytes": 168271
+    },
+    "harness-run.json": {
+      "sha256": "2fb42695f39a4f6f20dbe8930b3d6a859285cefd33f31c8c9d75aa4d2aed8134",
+      "bytes": 3789
+    },
+    "merge-command.json": {
+      "sha256": "7a8bc439d7cf829e36e8bc453208c2dae15acc6af1c6bfe11ef0a81ef85a544b",
+      "bytes": 370
+    },
+    "ready-command.json": {
+      "sha256": "b9015710f488f19b35f4433671729f5339802f04848e9a20207981453465f98b",
+      "bytes": 130
+    }
+  }
+}

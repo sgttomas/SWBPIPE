@@ -1,0 +1,36 @@
+test_balancing_is_deterministic_exact_and_keeps_serial_file (test_ci_e2e_plan.CollectionTests.test_balancing_is_deterministic_exact_and_keeps_serial_file) ... ok
+test_dedup_matrix_loss_and_override_are_refused (test_ci_e2e_plan.CollectionTests.test_dedup_matrix_loss_and_override_are_refused) ... ok
+test_empty_error_collection_refused (test_ci_e2e_plan.CollectionTests.test_empty_error_collection_refused) ... ok
+test_empty_missing_extra_or_duplicate_partition_fails (test_ci_e2e_plan.CollectionTests.test_empty_missing_extra_or_duplicate_partition_fails) ... ok
+test_exact_list_preserves_project_file_and_nested_titles (test_ci_e2e_plan.CollectionTests.test_exact_list_preserves_project_file_and_nested_titles) ... ok
+test_full_and_lean_preserve_explicit_selection (test_ci_e2e_plan.CollectionTests.test_full_and_lean_preserve_explicit_selection) ... ok
+test_json_reporter_tag_spelling_is_normalized (test_ci_e2e_plan.CollectionTests.test_json_reporter_tag_spelling_is_normalized) ... ok
+test_missing_duplicate_title_or_profile_fails (test_ci_e2e_plan.CollectionTests.test_missing_duplicate_title_or_profile_fails) ... ok
+test_new_unobserved_tests_remain_in_full_union (test_ci_e2e_plan.CollectionTests.test_new_unobserved_tests_remain_in_full_union) ... ok
+test_every_mode_fails_closed (test_ci_e2e_plan.GateTests.test_every_mode_fails_closed) ... ok
+test_actual_import_closure_includes_shared_instrument_consumers (test_ci_e2e_plan.PolicyTests.test_actual_import_closure_includes_shared_instrument_consumers) ... ok
+test_b3b_dedicated_spec_follows_product_only_persistence_change (test_ci_e2e_plan.PolicyTests.test_b3b_dedicated_spec_follows_product_only_persistence_change) ... ok
+test_b4_dedicated_spec_follows_product_only_layout_change (test_ci_e2e_plan.PolicyTests.test_b4_dedicated_spec_follows_product_only_layout_change) ... ok
+test_b4_dedicated_spec_follows_product_only_table_host_change (test_ci_e2e_plan.PolicyTests.test_b4_dedicated_spec_follows_product_only_table_host_change) ... ok
+test_c3_dedicated_spec_follows_product_only_authoring_change (test_ci_e2e_plan.PolicyTests.test_c3_dedicated_spec_follows_product_only_authoring_change) ... ok
+test_c3_dedicated_spec_follows_product_only_layout_change (test_ci_e2e_plan.PolicyTests.test_c3_dedicated_spec_follows_product_only_layout_change) ... ok
+test_closed_pr_exception_is_retired (test_ci_e2e_plan.PolicyTests.test_closed_pr_exception_is_retired) ... ok
+test_complete_pr_diff_prevents_last_commit_underselection (test_ci_e2e_plan.PolicyTests.test_complete_pr_diff_prevents_last_commit_underselection) ... ok
+test_host_event_cannot_be_relabelled (test_ci_e2e_plan.PolicyTests.test_host_event_cannot_be_relabelled) ... ok
+test_known_unrelated_projects_and_records_are_explicit_na (test_ci_e2e_plan.PolicyTests.test_known_unrelated_projects_and_records_are_explicit_na) ... ok
+test_lean_and_affected_ownership (test_ci_e2e_plan.PolicyTests.test_lean_and_affected_ownership) ... ok
+test_malformed_and_stale_plan_are_refused (test_ci_e2e_plan.PolicyTests.test_malformed_and_stale_plan_are_refused) ... ok
+test_manual_event_cannot_drop_requested_target_or_change_head (test_ci_e2e_plan.PolicyTests.test_manual_event_cannot_drop_requested_target_or_change_head) ... ok
+test_manual_full_is_explicit_milestone (test_ci_e2e_plan.PolicyTests.test_manual_full_is_explicit_milestone) ... ok
+test_manual_retarget_proof_requires_integrated_explicit_target (test_ci_e2e_plan.PolicyTests.test_manual_retarget_proof_requires_integrated_explicit_target) ... ok
+test_shared_unknown_ci_dependencies_and_model_inputs_are_full (test_ci_e2e_plan.PolicyTests.test_shared_unknown_ci_dependencies_and_model_inputs_are_full) ... ok
+test_source_spec_only_and_deleted_renamed_fallback (test_ci_e2e_plan.PolicyTests.test_source_spec_only_and_deleted_renamed_fallback) ... ok
+test_stale_target_is_distinct_from_merge_base_and_blocks (test_ci_e2e_plan.PolicyTests.test_stale_target_is_distinct_from_merge_base_and_blocks) ... ok
+test_unavailable_target_blocks_even_na (test_ci_e2e_plan.PolicyTests.test_unavailable_target_blocks_even_na) ... ok
+test_unknown_instrument_and_fixture_inputs_are_full (test_ci_e2e_plan.PolicyTests.test_unknown_instrument_and_fixture_inputs_are_full) ... ok
+test_metadata_events_cannot_create_or_replace_validation_checks (test_ci_e2e_plan.WorkflowTriggerTests.test_metadata_events_cannot_create_or_replace_validation_checks) ... ok
+
+----------------------------------------------------------------------
+Ran 31 tests in 3.678s
+
+OK

@@ -1,0 +1,14 @@
+{
+  "command": [
+    "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+    "tools/validation/validate_instruction_tranche_manifest.py",
+    "--base",
+    "9bff54a7e836b187576059b8dd57491028fdb437",
+    "--head",
+    "18abc04ae793648ef3f571f3b7fc8d9cc60b57ea",
+    "--added-manifests-only"
+  ],
+  "exitCode": 0,
+  "candidate": "18abc04ae793648ef3f571f3b7fc8d9cc60b57ea",
+  "sha256": "9ff608a5f5f080e8d51e8055fe696025bdf41e655eb8eed288e368858ce47803"
+}

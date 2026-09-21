@@ -71,9 +71,10 @@ class PolicyTests(unittest.TestCase):
                      ci.DESKTOP + 'playwright.config.ts', ci.DESKTOP + 'src/App.tsx',
                      ci.DESKTOP + 'src/features/workspace/workspaceSession.ts',
                      ci.DESKTOP + 'src/features/workspace/table/EngineeringTable.tsx', ci.PROJECT + 'unknown.ts']:
+            previous = self.git('rev-parse', 'HEAD')
             self.write(path)
             self.commit()
-            self.assertEqual(self.plan()['mode'], 'full', path)
+            self.assertEqual(self.plan(base=previous)['mode'], 'full', path)
 
     def test_complete_pr_diff_prevents_last_commit_underselection(self):
         self.write(ci.DESKTOP + 'src/App.tsx')

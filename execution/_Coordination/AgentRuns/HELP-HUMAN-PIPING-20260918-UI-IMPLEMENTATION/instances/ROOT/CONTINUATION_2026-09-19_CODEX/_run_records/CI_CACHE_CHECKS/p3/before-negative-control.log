@@ -1,0 +1,6 @@
+test_shared_unknown_ci_dependencies_and_model_inputs_are_full (cache_policy_before.PolicyTests.test_shared_unknown_ci_dependencies_and_model_inputs_are_full) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.805s
+
+OK

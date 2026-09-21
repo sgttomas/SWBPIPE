@@ -1,0 +1,18 @@
+test_shared_unknown_ci_dependencies_and_model_inputs_are_full (cache_policy_after.PolicyTests.test_shared_unknown_ci_dependencies_and_model_inputs_are_full) ... FAIL
+
+======================================================================
+FAIL: test_shared_unknown_ci_dependencies_and_model_inputs_are_full (cache_policy_after.PolicyTests.test_shared_unknown_ci_dependencies_and_model_inputs_are_full)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/tests/test_ci_e2e_plan.py", line 77, in test_shared_unknown_ci_dependencies_and_model_inputs_are_full
+    self.assertEqual(self.plan(base=previous)['mode'], 'full', path)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'not-applicable' != 'full'
+- not-applicable
++ full
+ : .github/workflows/piping-e2e-cache.yml
+
+----------------------------------------------------------------------
+Ran 1 test in 0.239s
+
+FAILED (failures=1)

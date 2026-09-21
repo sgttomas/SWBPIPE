@@ -1,0 +1,21 @@
+{
+  "purpose": "Deliberately classify only the new cache workflow as unrelated in memory; show old cumulative test misses it and repaired per-change test detects it. No production file mutation.",
+  "observations": [
+    {
+      "revision": "before",
+      "sourceSha256": "d145c6b0de80bfe2f721f27bd3422380a940d476f6c680d07928eb6fcacd9402",
+      "testsRun": 1,
+      "failures": 0,
+      "errors": 0,
+      "incorrectClassificationDetected": false
+    },
+    {
+      "revision": "after",
+      "sourceSha256": "f506ceb8e49a3c37fa8fdc18fa9a84445c57d8c84d25e52f52d04eaaa0caf1f1",
+      "testsRun": 1,
+      "failures": 1,
+      "errors": 0,
+      "incorrectClassificationDetected": true
+    }
+  ]
+}
