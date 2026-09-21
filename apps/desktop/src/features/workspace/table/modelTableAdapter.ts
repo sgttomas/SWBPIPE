@@ -142,3 +142,18 @@ export function materialTableColumns(review = false): TableColumn[] {
     equivalent: review ? undefined : (before, after) => Number(before) === Number(after)
   })), text("provenance", "Provenance")];
 }
+
+/** Section geometry stays engine-validated, including coupled OD/wall constraints. */
+export function sectionTableColumns(review = false): TableColumn[] {
+  const text = (key: string, label: string): TableColumn => ({ key, label, unit: "", kind: "text",
+    validate: review ? undefined : (value) => value.trim() ? undefined : "Enter text or explicitly enter TBD.",
+    equivalent: review ? undefined : (before, after) => before === after.trim()
+  });
+  return [text("name", "Name"), { ...text("type", "Type"), options: ["pipe"],
+    validate: (value) => value.trim() === "pipe" ? undefined : "Choose or enter pipe." },
+    ...["outside", "wall"].map((key): TableColumn => ({ key, label: key === "outside" ? "Outside dia." : "Wall",
+      unit: "per-row entered unit", kind: "quantity", projectedSort: true, minWidth: 180,
+      validate: review ? undefined : coordinateError,
+      equivalent: review ? undefined : (before, after) => Number(before) === Number(after)
+    })), text("provenance", "Provenance")];
+}
