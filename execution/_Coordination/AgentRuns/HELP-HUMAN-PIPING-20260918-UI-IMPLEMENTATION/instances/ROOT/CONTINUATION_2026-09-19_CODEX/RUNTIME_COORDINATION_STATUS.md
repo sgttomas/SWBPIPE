@@ -25,3 +25,5 @@ Peer acknowledged resume and reports no builds/tests/browser/native/CUA/oMLX wor
 No ownership transfer or pending product decision is implied by silence. Substantive scope/design disagreements return to the owner. Standard F-PIP-2/DEC-081 claim fence applies.
 
 Current native limit: Both+Inspector-open Provenance exposure remains unverified where a scrollbar thumb was not observable. Actual Table and Both/Inspector-closed pointer paths were verified; earlier failures and this limit remain explicit. B4.3 Materials preparation is retained only; no implementation or integration scope extension.
+
+CI follow-up: peer acknowledged ROOT as sole writer for a new Piping cache-warming workflow and bounded associated records/tests. Implementation is active on ROOT for a later coherent batch; PR832 remains fixed8077 while corrected CI runs. Reuse the shared setup action unchanged; canonical-repository/main guard avoids invoking absent Piping setup in the public projection. Existing exporter/workflow compatibility finding was handed to the peer, not repaired here. No Runtime/live CLI scope change.

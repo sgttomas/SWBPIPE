@@ -1,0 +1,14 @@
+{
+  "status": "pass",
+  "workflowSha256": "3013f93503e094e8abd1d2c6da1a851e63883dd76620f32a7ed5ca9025980ba2",
+  "checks": [
+    "YAML parse",
+    "push-main/manual only",
+    "all trigger inputs exist",
+    "canonical repo/main job guard",
+    "contents read only",
+    "checkout and unchanged setup action only",
+    "separate concurrency group"
+  ],
+  "limits": "Static local structure check. GitHub execution and main cache saving remain postmerge witnesses; actionlint is not installed."
+}

@@ -64,6 +64,7 @@ class PolicyTests(unittest.TestCase):
 
     def test_shared_unknown_ci_dependencies_and_model_inputs_are_full(self):
         for path in ['package.json', '.github/workflows/piping-desktop-e2e.yml',
+                     '.github/workflows/piping-e2e-cache.yml',
                      '.github/actions/setup-piping-e2e/action.yml', ci.PROJECT + 'tools/ci/e2e_plan.py',
                      ci.PROJECT + 'tools/ci/e2e_duration_hints.json', ci.PROJECT + 'package-lock.json',
                      ci.PROJECT + 'schemas/model.json', ci.PROJECT + 'core/solver/a.rs',

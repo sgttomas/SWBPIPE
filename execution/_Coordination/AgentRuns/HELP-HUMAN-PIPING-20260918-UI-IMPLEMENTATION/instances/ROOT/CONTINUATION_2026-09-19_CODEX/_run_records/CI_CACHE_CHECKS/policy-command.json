@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "projects/chirality-piping/tests",
+    "-p",
+    "test_ci_e2e_plan.py",
+    "-v"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 3.6736556659452617
+}

@@ -2338,6 +2338,26 @@
         "addendum": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_3_MATERIALS_PREPARATION_ADDENDUM.md",
         "addendumSha256": "47f67d1fef4ed3e789ebab7fd75b87e69c4636b3863586341749f3f01039cf32"
       }
+    },
+    "CI-CACHE-WARMING": {
+      "role": "ROOT bounded CI maintenance",
+      "parent": "ROOT",
+      "status": "five maintained paths implemented on ROOT, static structure and31CI-policy tests pass; G4 and independent review pending; not inPR832",
+      "owner": "HELP_HUMAN /root, GPT-6 Astra high-or-greater, direct executor",
+      "basis": "9bff54a7e836b187576059b8dd57491028fdb437",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/CI_CACHE_FOLLOWUP.md",
+      "briefSha256": "2cfdbf972f97a9022bcb20f215302217d42899e6ae19019c88707ee9b642b63d",
+      "ownerAuthority": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_CI_ECONOMY_DIRECTION_2026-09-20.md",
+      "peerAck": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_CACHE_DISCOVERY/PEER_OWNERSHIP_ACK.md",
+      "scope": "new internal-main setup-only workflow, bounded policy test/documentation/tranche; reuse existing shared action unchanged",
+      "remaining": "source, local checks, independent review, next coherent integration; actual main cache-write and later consumer hit remain postmerge observations",
+      "maintainedPaths": [
+        ".github/workflows/piping-e2e-cache.yml",
+        "docs/governance_harness/tranche_manifests/PIPING-CI-CACHE-WARMING-20260921.yaml",
+        "projects/chirality-piping/tests/test_ci_e2e_plan.py",
+        "projects/chirality-piping/docs/CI_STRATEGY.md",
+        "projects/chirality-piping/execution/_Coordination/NOTICE_2026-09-21_CI_CACHE_WARMING.md"
+      ]
     }
   },
   "edges": [
@@ -2618,7 +2638,7 @@
       "B4-3-FAMILY-PREPARATION"
     ]
   ],
-  "current_frontier": "Await corrected full actual-head Linux CI for draftPR832/8077, then normal merge if all applicable checks pass. Product unchanged by CI repair. Independent same-host effective-key reassessment carries original clean d3db83 sweep plus affected2pass, never a new full-sweep claim. Materials/cache follow-up remain prepared, unactivated.",
+  "current_frontier": "Corrected PR832 Linux shard2 passes, remaining hosted jobs pending before merge. Materials activation waits for merge. In parallel, separately agreed ROOT cache warm workflow is implemented with local checks, awaiting G4/independent review for next coherent batch; currentPRhead8077 unchanged.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",

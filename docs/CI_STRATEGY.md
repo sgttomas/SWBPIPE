@@ -70,7 +70,7 @@ the stable aggregate; only explicitly unneeded jobs may skip.
 
 ## Full checkpoints and integration
 
-Manual `workflow_dispatch` is the deliberate full integration-milestone mechanism
+Manual `workflow_dispatch` in **Piping Desktop E2E** is the deliberate full integration-milestone mechanism
 and always selects full source coverage. Broad-risk and CI-policy changes also
 select full automatically. There is no label-triggered or unconditional nightly run.
 
@@ -99,3 +99,18 @@ integration. Full local source/dist, native witness and governed qualification
 requirements remain distinct from this hosted source check. Fewer internal-worker
 PRs do not weaken review or merge checks, and an early owner merge is not a waiver.
 Branch protections, other project workflows and repository permissions are unchanged.
+
+## Dependency cache preparation
+
+**Piping E2E dependency cache** reuses the existing pinned setup action on trusted
+`main` when dependency/bootstrap inputs change, or by manual dispatch on `main`.
+It is restricted to `sgttomas/chirality`; the public projection omits Piping.
+Its separate concurrency group cannot cancel source validation. It prepares
+dependencies and WASM without running another browser suite or emitting the
+**Desktop E2E (source mode)** check. It does not replace any validation gate.
+
+This addresses observed PR-scoped cache misses; actual main cache creation and
+later consumer hits must be observed before claiming a timing improvement.
+Cross-host browser tests use the host's native text-editing shortcut, such as
+Playwright `ControlOrMeta+z` for text Undo; native macOS accelerator witnesses
+remain distinct.
