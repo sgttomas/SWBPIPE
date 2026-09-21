@@ -1,0 +1,40 @@
+{
+  "source": "1ad964e30b08bed57bba8f08e3a75e8c883c8b0b",
+  "files": [
+    {
+      "path": "_run_records/browser/new-01/artifacts/b4-table-editing-B4-node-c-26fd1-y-and-saved-state-ownership-chromium-compact/trace.zip",
+      "bytes": 2190067,
+      "sha256": "a921368ebff96df9e58d20d61871c5d32340d4152daa35cee60724359ffba802"
+    },
+    {
+      "path": "_run_records/browser/new-01/artifacts/b4-table-editing-B4-node-c-26fd1-y-and-saved-state-ownership-chromium-desktop/trace.zip",
+      "bytes": 2127423,
+      "sha256": "3a4491b1ea3a1ee4b3139ec32c89dc927920196002244e9a8ffb2e711a086692"
+    },
+    {
+      "path": "_run_records/worker/native-fit/before/trace.zip",
+      "bytes": 1101664,
+      "sha256": "730e1df9989a311a0809464d7cc03befc6f79062ad270b61d088d6c18695cbe0"
+    },
+    {
+      "path": "_run_records/worker/native-fit/candidate/trace.zip",
+      "bytes": 1168372,
+      "sha256": "acb4cb94ea129fbb716e64263abf373fe8bb709240b6d7ec81f80578ce496c9e"
+    },
+    {
+      "path": "_run_records/worker/native-fit/fail-before-artifacts/b4-table-editing-B4-Both-w-dfb4c-inside-the-coordinate-table-chromium-compact/trace.zip",
+      "bytes": 882267,
+      "sha256": "3d00d9fb0ba02a472d7679ddbe20621958c8a7482726660a767d7e3b0e35aa4c"
+    },
+    {
+      "path": "_run_records/worker/native-fit/fail-before-artifacts/b4-table-editing-B4-Both-w-dfb4c-inside-the-coordinate-table-chromium-desktop/trace.zip",
+      "bytes": 1964416,
+      "sha256": "5d9efb9f10d78ec9703e6ad7e3be6819de68ee959c627bf7ac74de54f89654f0"
+    },
+    {
+      "path": "_run_records/worker/native-fit/maintained/trace.zip",
+      "bytes": 1043753,
+      "sha256": "66e3c78455fda23fcf425aac534819e7155ccff7d92f52fa2014f3c679da0564"
+    }
+  ]
+}

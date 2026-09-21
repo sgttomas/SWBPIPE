@@ -1,0 +1,28 @@
+{
+  "at": "2026-09-20T23:13:03.881591+00:00",
+  "method": "Native CUA CmdQ; subsequent process-only checks, no app AX",
+  "checks": [
+    {
+      "argv": [
+        "ps",
+        "-p",
+        "25376",
+        "-o",
+        "pid=,comm="
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "pgrep",
+        "-fl",
+        "openpipestress-desktop"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    }
+  ]
+}

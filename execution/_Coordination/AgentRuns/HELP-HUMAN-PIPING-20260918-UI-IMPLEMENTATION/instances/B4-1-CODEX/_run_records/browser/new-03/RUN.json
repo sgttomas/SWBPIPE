@@ -1,0 +1,18 @@
+{
+  "source": "6dd0e466f4432f21d3ce6913782b95f9a325f700",
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop",
+  "argv": [
+    "sh",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/tools/with_e2e_lock.sh",
+    "npx",
+    "playwright",
+    "test",
+    "e2e/b4-table-editing.spec.ts",
+    "--workers=1",
+    "--output",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-1-CODEX/_run_records/browser/new-03/artifacts"
+  ],
+  "executable": "/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+  "version": "Google Chrome for Testing 148.0.7778.96",
+  "started": 1789945997.6383328
+}

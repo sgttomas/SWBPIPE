@@ -1,0 +1,39 @@
+{
+  "status": "SINGLE CURRENT RUNNABLE LEGACY SIX SELECTION",
+  "cwd": "projects/chirality-piping/apps/desktop",
+  "argv": [
+    "npx",
+    "playwright",
+    "test",
+    "e2e/ui-foundation.spec.ts",
+    "e2e/r2-smoke.spec.ts",
+    "e2e/b3a-session-status.spec.ts",
+    "--grep",
+    "(Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft|guided workbench shell keeps journey steps, details, and compact status reachable|canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot)$",
+    "--workers=1"
+  ],
+  "collectionArgv": [
+    "npx",
+    "playwright",
+    "test",
+    "e2e/ui-foundation.spec.ts",
+    "e2e/r2-smoke.spec.ts",
+    "e2e/b3a-session-status.spec.ts",
+    "--grep",
+    "(Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft|guided workbench shell keeps journey steps, details, and compact status reachable|canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot)$",
+    "--workers=1",
+    "--list"
+  ],
+  "expectedCollectedCases": 6,
+  "expectedDistinctTitles": 3,
+  "projects": [
+    "chromium-desktop",
+    "chromium-compact"
+  ],
+  "requiredEnvironment": {
+    "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH": "/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+    "PLAYWRIGHT_WORKERS": "1"
+  },
+  "executionRequirements": "First collect with --list and verify exactly6cases/3titles/twoconfiguredprofiles; then execute under existing shared with_e2e_lock.sh and a new evidence output directory. No leading ^: Playwright grep matches full title including project/file. Never copy legacy-01 failed recipes.",
+  "priorSuccessfulProof": "browser/legacy-02/RESULT.json and stdout.txt,6passed14.8s"
+}

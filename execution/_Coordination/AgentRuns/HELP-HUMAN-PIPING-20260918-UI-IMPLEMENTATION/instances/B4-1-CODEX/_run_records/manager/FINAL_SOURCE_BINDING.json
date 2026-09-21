@@ -1,0 +1,30 @@
+{
+  "base": "fd195cf4287e84572a12183169478a6f7ddf6a92",
+  "source": "6dd0e466f4432f21d3ce6913782b95f9a325f700",
+  "maintainedPaths": [
+    "projects/chirality-piping/apps/desktop/e2e/b3a-session-status.spec.ts",
+    "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+    "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+    "projects/chirality-piping/apps/desktop/src/App.projectHandlers.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/App.tableOperations.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/App.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/ModelTree.table.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/modelTableAdapter.test.ts",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/modelTableAdapter.ts",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/tableState.test.ts",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/tableState.ts",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+    "projects/chirality-piping/apps/desktop/src/styles.css"
+  ],
+  "sourceManifest": "worker/SOURCE_FREEZE_05.json",
+  "allHashesMatch": true,
+  "maintainedWorkingTreeAndIndexClean": true,
+  "note": "No native/lib/config/core/schema/VirtualList/shared-driver/instrument/CI production paths in this diff. Generated ignored builds do not change maintained inputs."
+}

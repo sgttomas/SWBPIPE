@@ -1,0 +1,17 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview · Edited — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 148, 150, 198, 204-205, 216-217
+~									87 row (selectable)
+~										89 cell (selectable, settable) node:N-120 X: 3.2 m
+~									206 row (selected)
+~										208 cell (selected, settable) node:N-110 X: 6.2 m
+~						137 text Selected:  node:N-110
+~							218 toggle button Select Low point elbow in viewport, Help: Low point elbow (node:N-110), Value: on
++							219 toggle button Select Vertical riser in viewport, Help: Vertical riser (pipe:P-110), Value: off
++							220 toggle button Select Invented branch connection marker in viewport, Help: Invented branch connection marker (component:C-120), Value: off
++							221 toggle button Select Riser elbow in viewport, Help: Riser elbow (node:N-120), Value: off
++							222 toggle button Select Invented constant-effort support in viewport, Help: Invented constant-effort support (support:CE-120), Value: off
++							223 toggle button Select Pump discharge run in viewport, Help: Pump discharge run (pipe:P-100), Value: off
++							224 toggle button Select Rack span in viewport, Help: Rack span (pipe:P-120), Value: off
++							225 toggle button Select Invented elbow marker in viewport, Help: Invented elbow marker (component:C-110), Value: off
+~					180 text node: node:N-110 Entered
+The focused UI element is 226 button node:N-110 X: 6.2 m

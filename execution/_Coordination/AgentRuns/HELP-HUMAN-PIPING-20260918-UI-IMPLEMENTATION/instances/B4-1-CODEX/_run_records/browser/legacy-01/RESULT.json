@@ -1,0 +1,25 @@
+{
+  "source": "840a21647983948c2f9930dd2fc56afb9e5d3eff",
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop",
+  "argv": [
+    "sh",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/tools/with_e2e_lock.sh",
+    "npx",
+    "playwright",
+    "test",
+    "e2e/ui-foundation.spec.ts",
+    "e2e/r2-smoke.spec.ts",
+    "e2e/b3a-session-status.spec.ts",
+    "--grep",
+    "^(Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft|guided workbench shell keeps journey steps, details, and compact status reachable|canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot)$",
+    "--workers=1",
+    "--output",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-1-CODEX/_run_records/browser/legacy-01/artifacts"
+  ],
+  "executable": "/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+  "version": "Google Chrome for Testing 148.0.7778.96",
+  "started": 1789945002.81357,
+  "exitCode": 1,
+  "finished": 1789945004.269196,
+  "stdoutSha256": "c5bd35f054b7662215cfaf0cbe818206f2bacafff90515eb31fec8a4e0b1068e"
+}

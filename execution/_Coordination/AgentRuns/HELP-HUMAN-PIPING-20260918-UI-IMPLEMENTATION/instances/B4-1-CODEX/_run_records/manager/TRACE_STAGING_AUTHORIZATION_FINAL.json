@@ -1,0 +1,9 @@
+{
+  "at": "2026-09-20T23:49:10.641147+00:00",
+  "authority": "ROOT explicit exact-path ordinary git add -f clarification",
+  "inventory": "TRACE_INVENTORY.json",
+  "inventorySha256": "4fadbe1bb414bbc0c50479a0745deb05410541161c5dacf132c88884a4fd8cfd",
+  "filesAuthorized": 7,
+  "scope": "first2fail-before traces plus5canonical fit failure/diagnostic/maintained-source traces; distinctions preserved; no ignore/history-force or other files",
+  "note": "ROOT states ordinary evidence staging within this manifest-bound B4.1 scope does not require a separate per-file question."
+}

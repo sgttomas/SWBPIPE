@@ -1,0 +1,19 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 182-224
+~								174 toggle button Nodes, Value: off
+~								178 toggle button Sections, Value: on
++							246 container (expanded) Secondary Actions: Collapse
++								247 text 0  of  0 Sections 0  changed cells
++								248 container Editable model entity table
++									249 table
++										250 row (selectable) ID
+NAME
+TYPE
+OUTSIDE DIA.
+WALL
+PROVENANCE
++									251 text No grid rows match this filter.
++								252 button (disabled) Queue changed cells
++								253 button (disabled) Clear grid edits
++								254 text Grid mode fans each changed cell into a structured review intent; storage remains local.
+The focused UI element is 2 HTML content Description: SWBPIPE, URL: tauri://localhost

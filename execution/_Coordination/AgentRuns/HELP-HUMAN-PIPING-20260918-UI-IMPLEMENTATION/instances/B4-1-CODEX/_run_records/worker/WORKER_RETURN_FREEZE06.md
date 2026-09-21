@@ -1,0 +1,9 @@
+# B4.1 worker freeze06 addendum
+
+ROOT-authorized actual minimum/Inspector pointer-fit diagnosis confirmed implicit entity-grid420px track inflating intended scroller beyond324px available width; pointer wheel moved the ModelTree/filter84px while intended grid could not scroll. Raw pre-repair widths, actual pointer fail-before in both profiles and separately labelled candidate CSS proof retained in worker/native-fit/. DIAGNOSIS_AND_CHECKS.md gives exact mechanism, scope source/hash, commands and limitations.
+
+Maintained change is only two CSS declarations (3 added lines with comment): minmax(0,1fr) entity-grid track and existing rowgroup min-width420 aligned with header. No EngineeringTable/ModelTree/VirtualList logic, budgets, native or model edits. Added one fit test to existing B4 spec, one execution per project; all prior tests/oracles unchanged.
+
+Final real-pointer source-browser fit2 pass, prior B4four pass, affected legacysix pass; TypeScript and diff-check pass. Final unmodified-source probe (no CSS injection) measures own rolegrid324/420, pointer scrollLeft96 and fixed filter; pane/canvas, footer/types and header/body alignment are asserted by actual regression. Initial zero-test legacy CLI selection failure retained and corrected only in invocation. No browser/native claim substitution: actual rebuilt Tauri fit still requires manager/ROOT recheck; source6dd nativeCancelPASS remains its historical scope.
+
+Source frozen/released: SOURCE_FREEZE_06.json SHA256 6b86f38e036c3dc2fb17d5d09fc10ea8f67339e304c985d178ad23e2fce76fca. Exactly src/styles.css and e2e/b4-table-editing.spec.ts differ from freeze05. All prior source/native/evidence immutable. Browser/server closed, no5174 listener/shared lock/pinned root process per native-fit/CLEANUP.json. No source writes or processes remain; browser resource handed back. No Git mutation/build/native/CUA/fullsuite by worker. Independent backcheck and native witness pending.

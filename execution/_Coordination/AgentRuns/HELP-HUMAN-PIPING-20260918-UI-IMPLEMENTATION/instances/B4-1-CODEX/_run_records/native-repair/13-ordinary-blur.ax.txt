@@ -1,0 +1,10 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview · Edited — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 128, 134, 243, 247-249
+~										200 cell (selected, settable) node:N-110 X: 5.1 m
++									243 text 5
+~									244 text  of 
+~									245 text 5
+~									246 text  rows
++								247 text Cell applied.
++							248 toggle button Select Rack span in viewport, Help: Rack span (pipe:P-120), Value: off
+The focused UI element is 49 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group

@@ -1,0 +1,7 @@
+# Native Cancel defect — bounded repair disposition
+
+ROOT authorized repair after actual840a uninstrumented Tauri failure, not a speculative native adapter change. Native TASK PID25376/binary prefix7affe9ae retained exact full identity and3reproductions: labelled Cancel after4.6 and5.1 drafts and direct visible coordinate click[247,588] after6.2 all published the draft plus Cell applied. Original files17/19/20/21 under native remain untouched. Blur-before-click is source inference, not observed passive DOM event telemetry.
+
+Existing TASK b4_1_table resumed Astra/low with only EngineeringTable.tsx/test and optional strengthened valid-draft Cancel assertion in e2e/b4-table-editing.spec.ts. No native/lib/config/probe/bridge writes or extra permissions. Preserve normal valid focus-leave Apply, explicit Apply exactly once, keyboard Cancel/Escape, newer external selection/focus and pointer-down/drag-away/cancel behavior. An intent guard must not arm indefinitely or activate on pointer-down. Fail-before focused checks then frozen repair, independent affected backcheck and affected source/native verification are required; broad sweep/merge held.
+
+Native executor may finish unaffected navigation/fit against unchanged840a bundle. Product source edits do not alter that already built binary; it is preliminary and failed for Cancel. Final repaired build and process identity must be distinct and affected interactions repeated after explicit old-process stop. The previous source-browser4+6 pass stays source840a evidence, not proof of the later repaired bytes.

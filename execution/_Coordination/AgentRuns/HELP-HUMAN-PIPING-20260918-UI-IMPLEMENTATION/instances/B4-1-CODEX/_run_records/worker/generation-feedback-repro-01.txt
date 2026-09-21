@@ -1,0 +1,33 @@
+
+ RUN  v4.1.10 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/workspace/table/EngineeringTable.test.tsx (14 tests | 1 failed | 13 skipped) 83ms
+     × clears completed-operation feedback when a new project generation replaces the model 81ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > clears completed-operation feedback when a new project generation replaces the model
+Error: expect(element).not.toBeInTheDocument()
+
+expected document not to contain element, found <p
+  class="engineering-table-message"
+  role="status"
+>
+  OLD_PROJECT_WARNING: retained source diagnostic
+</p> instead
+ ❯ src/features/workspace/table/EngineeringTable.test.tsx:144:59
+    142|     expect(screen.queryByRole("button", { name: "Cancel" })).not.toBeI…
+    143|     view.rerender(<Harness apply={apply} generation="p:2" />);
+    144|     expect(screen.queryByText(/OLD_PROJECT_WARNING/)).not.toBeInTheDoc…
+       |                                                           ^
+    145|     expect(screen.queryByText(/previous cell edit was cancelled/)).not…
+    146|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 13 skipped (14)
+   Start at  16:45:24
+   Duration  509ms (transform 70ms, setup 65ms, import 82ms, tests 83ms, environment 199ms)
+

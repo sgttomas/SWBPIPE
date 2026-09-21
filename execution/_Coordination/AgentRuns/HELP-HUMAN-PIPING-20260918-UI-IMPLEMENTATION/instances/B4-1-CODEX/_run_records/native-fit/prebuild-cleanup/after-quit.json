@@ -1,0 +1,28 @@
+{
+  "at": "2026-09-20T23:28:00.211731+00:00",
+  "method": "CUA native CmdQ, then process-only absence; no postquit AX",
+  "checks": [
+    {
+      "argv": [
+        "ps",
+        "-p",
+        "28041",
+        "-o",
+        "pid=,comm="
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "pgrep",
+        "-fl",
+        "openpipestress-desktop"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    }
+  ]
+}

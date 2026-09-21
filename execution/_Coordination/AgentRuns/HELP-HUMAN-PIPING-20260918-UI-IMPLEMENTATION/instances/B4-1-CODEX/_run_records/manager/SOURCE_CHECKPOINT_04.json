@@ -1,0 +1,10 @@
+{
+  "commit": "1ad964e30b08bed57bba8f08e3a75e8c883c8b0b",
+  "sourceFreeze": "worker/SOURCE_FREEZE_07.json",
+  "sha256": "bdcbafa9eafe7479d5ea507994ff87d18b6e0b17c2c8f3ddcc622c682346de43",
+  "changedFrom6dd": [
+    "projects/chirality-piping/apps/desktop/src/styles.css",
+    "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts"
+  ],
+  "checks": "fit2 + priorB4four + legacy6 PASS; then full-rectangle precision fit2 PASS; TS pass; nativefit pending"
+}

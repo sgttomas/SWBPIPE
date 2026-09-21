@@ -1,0 +1,13 @@
+[
+  "clears reopened computed evidence on model edit and exact undo/redo transitions",
+  "discards a delayed apply after opening a replacement model without creating a checkpoint",
+  "discloses MODEL_INCOMPLETE as blocked after a real browser model edit",
+  "does not start an obsolete report-package save or publish stale build state",
+  "invalidates a frozen hash-bound route review after another model revision",
+  "limits section type choices to pipe",
+  "opens reviewed rich forms in matching context and enables exposure after a wind field is applied",
+  "preserves an ordered multi-selection across an ordinary accepted edit",
+  "queues layout-grid cell edits as structured review intents",
+  "restores unknown context, validates without acceptance, applies once and saves exact original metadata coherently",
+  "rolls back a later failed step, then previews and commits two exact mixed-author members with one undo"
+]

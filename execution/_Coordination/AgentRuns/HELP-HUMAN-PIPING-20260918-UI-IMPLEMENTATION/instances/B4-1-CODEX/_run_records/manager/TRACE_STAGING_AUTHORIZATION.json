@@ -1,0 +1,16 @@
+{
+  "at": "2026-09-20T23:01:31.686232+00:00",
+  "authority": "ROOT explicit narrow clarification",
+  "action": "ordinary exact-path git add -f for the two canonical fail-before traces only",
+  "limits": "No ignore-rule/history-force or unrelated staging permission; evidence-only final packet",
+  "files": [
+    {
+      "path": "_run_records/browser/new-01/artifacts/b4-table-editing-B4-node-c-26fd1-y-and-saved-state-ownership-chromium-compact/trace.zip",
+      "sha256": "a921368ebff96df9e58d20d61871c5d32340d4152daa35cee60724359ffba802"
+    },
+    {
+      "path": "_run_records/browser/new-01/artifacts/b4-table-editing-B4-node-c-26fd1-y-and-saved-state-ownership-chromium-desktop/trace.zip",
+      "sha256": "3a4491b1ea3a1ee4b3139ec32c89dc927920196002244e9a8ffb2e711a086692"
+    }
+  ]
+}
