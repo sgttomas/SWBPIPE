@@ -1,0 +1,19 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 238
+~									197 row (selected)
+~										199 cell (selected, settable)
++											238 text field (settable) node:N-100 Label, Value: Pump nozzle
+~									204 row (selectable)
+~										207 cell (selectable, settable) node:N-110 X: 3.2 m
+~									239 text Editing 
+~									240 text Label
+~									241 text  · 
++									242 text node:N-100
++									243 button Apply, Help: Apply (Enter)
++									244 button Cancel, Help: Cancel (Escape)
+~					159 text node: node:N-100 Entered
+Selected text: ```
+Pump nozzle
+```
+
+Note: Pay special attention to the content selected by the user. If the user asks a question or refers to the content they are looking at on-screen, they might be referring to the selected content (but they might be referring to something else that's visible, too).

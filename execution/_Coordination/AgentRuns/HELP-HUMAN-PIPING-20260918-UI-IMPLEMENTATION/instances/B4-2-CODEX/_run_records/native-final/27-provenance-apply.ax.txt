@@ -1,0 +1,9 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview · Edited — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 355, 359-361
+~										332 cell (selected, settable) node:N-110 Provenance: native final provenance
++									355 text 5
+~									356 text  of 
+~									357 text 5
+~									358 text  rows
++								359 text Cell applied.
+The focused UI element is 360 button node:N-110 Provenance: native final provenance
