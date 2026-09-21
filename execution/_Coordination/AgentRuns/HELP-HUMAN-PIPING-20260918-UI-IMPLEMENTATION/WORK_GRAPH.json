@@ -2690,14 +2690,14 @@
       "model": "gpt-6-astra",
       "reasoning": "high",
       "mechanism": "ROOT actual retained manager followup",
-      "state": "actual retained native TASK resumed after cleanb028/productdb35 verification",
+      "state": "native/ROOT own-look complete, source held; worker and manager returned",
       "basis": "fd002217f067020d44deaee22866e14eed81173f",
       "branch": "codex/swbpipe-b4-sections-20260921",
       "checkout": "existingwt3 after clean verification; old Materials branch preserved",
       "scope": "common Sections/opt-in typed enum and bounded tests only",
       "activation": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_4_SECTIONS_ACTIVATION.md",
       "activationSha256": "e6d44615d671bdcff02fb4b2693d5eb6b36ebef1367d1211ca2c760533a7c64f",
-      "resources": "Exclusive native build/foreground/CUA granted; browser and full sweep withheld until release.",
+      "resources": "Native/CUA released; peer explicitly reserved final clean sweep, production build and governance preflight on5174/5175/sharedlock; no source edits during run.",
       "dependsOn": [
         "B4-3-INTEGRATION",
         "B4-4-SECTIONS-PREPARATION"
@@ -2777,6 +2777,15 @@
         "resumeSha256": "3e3e65304edd023e2a3fe9075fd111cb894b4363288107dd3b017c288b1bd820",
         "resources": "exclusive native build/foreground/CUA, no source repair or full sweep",
         "milestone": "One build exit0; fresh PID54294, binary9d4f950bd8a7857bfe18e39561a5af71cd1d8121be1fbf042290d687ccc78455; known invented27-entity baseline, Sections0, UndoRedooff/noEdited, no Mac lock. Actual interaction underway."
+      },
+      "nativeEvidence": "0d19d7e1ce7f8bf6bcbdbc489a8861acf52028a3",
+      "nativeManagerManifestSha256": "df447e1ab7ece2eb2673412a0c9397a5fca654415d1f91c475f7f4a9ccee7cc1",
+      "nativeRoot": {
+        "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_4_ROOT_NATIVE/RETURN.md",
+        "returnSha256": "0cd87da41b6842adfd2f7e0d0c83dfeb1a2cfd0f94e3ef8a97babde605e8e525",
+        "manifestSha256": "172aea967e62e23930317d2f2570e5700ce3f0608743842ef98380050a44add3",
+        "payloadCount": 22,
+        "state": "actual pointer-only popup opening/choice/Cancel and OD0.12Apply/Undo observed; baseline restored, ownedRedo/residualdiagnostics disclosed; Quit54294 and process-only absence verified"
       }
     },
     "B4-4-CI-COVERAGE": {
@@ -3148,7 +3157,7 @@
       "B4-4-CODEX-MANAGER"
     ]
   ],
-  "current_frontier": "B4.4 source and both P2 repairs independently reviewed; all affected source checks pass. ROOT activated one native witness with live handback; final combined sweep/review/publication CI follow. C4/liveCLI decisions and qualification/reconciliation holds remain.",
+  "current_frontier": "B4.4 source review/P2 backcheck/native/ROOT own-look complete. Prepare one clean combined candidate, governance preflight, registered sweep and complete-record review, then actual-head hosted CI/merge. Compact table fit prepared next but not activated. C4/liveCLI/qualification/reconciliation holds remain.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -3454,8 +3463,8 @@
     "observedAt": "2026-09-21T10:29:42.700950+00:00",
     "integration": {
       "branch": "codex/swbpipe-b4-sections-integration-20260921",
-      "head": "216c27af5c0fa25bae4d8670137a5ac5a65a714b",
-      "state": "early clean Sections source/CI verification candidate; old Materials integration6fa70 branch preserved"
+      "head": "d8d53f2bca659a26315fbdd7a2f97b8298f4785a",
+      "state": "final native/evidence fan-in next; immutable candidate to be recorded in preflight/sweep metadata"
     }
   },
   "historicalPauses": [

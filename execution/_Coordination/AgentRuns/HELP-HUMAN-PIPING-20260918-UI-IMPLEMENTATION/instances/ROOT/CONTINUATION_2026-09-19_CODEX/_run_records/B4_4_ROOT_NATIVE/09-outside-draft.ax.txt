@@ -1,0 +1,15 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview · Edited — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 205-208
+~										184 cell (selectable, settable) section:B4-native-sections Type: pipe
+~										187 cell (selected, settable)
++											205 text m
++											206 container Quantity readout
++												207 text 0.1 m
++											208 text field (settable) section:B4-native-sections Outside dia. [m], Value: 0.12
++									209 text Editing 
++									210 text Outside dia.
++									211 text  · 
++									212 text section:B4-native-sections
++									213 button Apply, Help: Apply (Enter)
++									214 button Cancel, Help: Cancel (Escape)
+The focused UI element is 208 text field (settable) section:B4-native-sections Outside dia. [m], Value: 0.12

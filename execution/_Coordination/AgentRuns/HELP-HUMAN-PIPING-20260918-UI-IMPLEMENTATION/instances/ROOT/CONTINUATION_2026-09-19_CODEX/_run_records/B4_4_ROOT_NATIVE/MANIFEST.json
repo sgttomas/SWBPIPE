@@ -1,0 +1,94 @@
+{
+  "source": "db35d7582e61d69ad415df7cdf4132b91e710dd8",
+  "binarySha256": "9d4f950bd8a7857bfe18e39561a5af71cd1d8121be1fbf042290d687ccc78455",
+  "files": {
+    "01-baseline.ax.txt": {
+      "sha256": "8c9123baa3a509e60f046fff0d515a5bb56db1e61d641fe6503d363f7d00a425",
+      "bytes": 4635
+    },
+    "02-redo-creation.ax.txt": {
+      "sha256": "3488fd5bcadf13ece9bdb86dcdf67507a3a8f894be1b39f2224606b1a9850abd",
+      "bytes": 1384
+    },
+    "03-type-editor.ax.txt": {
+      "sha256": "84d86c241e0812b6d034791c0d091f441bece8243aa1b4844f521bd23c2caf27",
+      "bytes": 1083
+    },
+    "03-type-editor.png": {
+      "sha256": "ec0c19f91267cd280b3aa709221d40248f86397e8226744909e0d8ac6addbfaa",
+      "bytes": 113829
+    },
+    "04-pointer-opens-popup.ax.txt": {
+      "sha256": "30aaf0c3d7e3fd8b5c7cbbb03488e1a2576a360ec276e13831f3340f526a07f6",
+      "bytes": 555
+    },
+    "04-pointer-opens-popup.png": {
+      "sha256": "c68eede3ce42ee1d4dd31b536d0f6efe06afba4f054593973ec4a1e2109f30e8",
+      "bytes": 114704
+    },
+    "05-typed-prefix.ax.txt": {
+      "sha256": "78219c5b8ad10210f80aae2bc2e0dba273e943ed30b7a1bed9d2446c6850147f",
+      "bytes": 5882
+    },
+    "06-prefix-popup.ax.txt": {
+      "sha256": "565c8b8c84ad36df7e45b5062d9b4087b843a80ec5cb132c5d92f99098939356",
+      "bytes": 250
+    },
+    "06-prefix-popup.png": {
+      "sha256": "2d6c0c83e44272acf5caa3d3477a519f35b3848da3d257ff8f8a5aad10f2deb1",
+      "bytes": 114542
+    },
+    "07-pointer-choice.ax.txt": {
+      "sha256": "2b2ce859cc8cfe9eefdf549661241437fc5b23786b3bd114a2770671beb87513",
+      "bytes": 5644
+    },
+    "08-pointer-cancel.ax.txt": {
+      "sha256": "76374b5a0e93c832d41ff8bda40c16a3a4ecd4957825e9de2b50bf7def60048d",
+      "bytes": 522
+    },
+    "09-outside-draft.ax.txt": {
+      "sha256": "ded9cd77affb896fbb67710c6bbefce215db0e1fcb18588208285c941ead7164",
+      "bytes": 917
+    },
+    "09-outside-draft.png": {
+      "sha256": "dbc3f00a0729e464c145c3d239af2f58f6ff4b3421fc802c9157714c227da5a0",
+      "bytes": 114247
+    },
+    "10-pointer-apply.ax.txt": {
+      "sha256": "e0dbd2a1331cd7f1c74b36cc58964af7534a388e935e00d58d7dfcddeba45fad",
+      "bytes": 667
+    },
+    "11-undo-quantity.ax.txt": {
+      "sha256": "5f2694d1b13c4a0875a626665b9213be04cb39a8124c5aeea62974c81680cef8",
+      "bytes": 504
+    },
+    "12-restored.ax.txt": {
+      "sha256": "bbbd77da892435cc2f8b5d1c107a286934848cc7ef028630dff330a77321abda",
+      "bytes": 6717
+    },
+    "12-restored.png": {
+      "sha256": "9876cd0cad1a361a4ff0d68e68f6eaa34079669720b1425162ac2addd0abca04",
+      "bytes": 121712
+    },
+    "13-empty-sections-final.ax.txt": {
+      "sha256": "a268d846e5bcac8f36a3b914768f2cc15403edb81154332e48d87334632ff3aa",
+      "bytes": 4666
+    },
+    "13-empty-sections-final.png": {
+      "sha256": "9474a85bfffc4f4317a128b855dc5254f672c6673adda9b724efa91c63d71a21",
+      "bytes": 100217
+    },
+    "14-quit-action.json": {
+      "sha256": "2d58f0d76c9d045424f9a4a5e520bca07d5221055b79c314d0db97d769dbcbfd",
+      "bytes": 71
+    },
+    "15-process-absence.json": {
+      "sha256": "55f76baf15288f82280ac7661a814c73b1e912815c7f4c218e9e20f592bcca8b",
+      "bytes": 245
+    },
+    "RETURN.md": {
+      "sha256": "0cd87da41b6842adfd2f7e0d0c83dfeb1a2cfd0f94e3ef8a97babde605e8e525",
+      "bytes": 2328
+    }
+  }
+}

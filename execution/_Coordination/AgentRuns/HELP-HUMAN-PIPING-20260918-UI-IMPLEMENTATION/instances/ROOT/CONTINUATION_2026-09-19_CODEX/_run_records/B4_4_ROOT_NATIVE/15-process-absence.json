@@ -1,0 +1,10 @@
+{
+  "utc": "2026-09-21T14:10:20.403366+00:00",
+  "pid": 54294,
+  "psExit": 1,
+  "stdout": "",
+  "stderr": "",
+  "absent": true,
+  "binarySha256": "9d4f950bd8a7857bfe18e39561a5af71cd1d8121be1fbf042290d687ccc78455",
+  "noPostQuitAppQuery": true
+}

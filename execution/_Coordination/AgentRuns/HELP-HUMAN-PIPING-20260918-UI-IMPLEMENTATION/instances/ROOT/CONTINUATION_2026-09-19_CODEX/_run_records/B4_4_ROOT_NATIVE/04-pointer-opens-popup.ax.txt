@@ -1,0 +1,5 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview · Edited — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~											111 combo box (expanded, settable) section:B4-native-sections Type, Value: pipe, Secondary Actions: Collapse
++			119 list (settable) Supported values
++				120 text pipe
+The focused UI element is 111 combo box (expanded, settable) section:B4-native-sections Type, Value: pipe, Secondary Actions: Collapse

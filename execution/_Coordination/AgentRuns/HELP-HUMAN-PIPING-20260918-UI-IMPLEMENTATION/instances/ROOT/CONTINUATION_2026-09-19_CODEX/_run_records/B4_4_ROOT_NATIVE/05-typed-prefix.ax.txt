@@ -1,0 +1,118 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview · Edited — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 1-78, 83-90, 102-120
++	102 container
++		103 scroll area
++			104 HTML content Description: SWBPIPE, URL: tauri://localhost
++				105 container
++					106 container Toolbar
++						107 heading SWBPIPE, Value: 1
++							108 text SWBPIPE
++						109 container Invented Utility Loop Preview
++							110 text Invented Utility Loop Preview
++							111 container Unsaved model edits
++								112 text  · Edited
++						113 container Editing tools
++							114 button Undo model edit, Help: Undo (⌘Z)
++							115 button Redo model edit, Help: Redo (⇧⌘Z)
++							116 toggle button Description: Select (⎋), Value: on
++						117 container View
++							118 toggle button Table, Help: Table view (⌘1), Value: on
++							119 toggle button Model, Help: Model view (⌘2), Value: off
++							120 toggle button Both, Help: Both view (⌘3), Value: off
++						121 button Run
++						122 button (collapsed) Issues, 6, Help: Issues, Secondary Actions: Expand
++						123 container Panels
++							124 button (disabled, collapsed) Inspector, Help: Table view opens rows in place, Secondary Actions: Expand
++							125 button (disabled) Agent, Help: Agent: not available yet
++						126 pop up button Display units, Value: Entered, Help: Display units. Readouts use the selected units where conversion is available. Unavailable quantities retain entered values. Editing uses entered units.
++						127 summary Appearance, Value: off
++						128 container Human toolkit
++							129 button (collapsed) Find modeling commands, Help: Search or command (⌘K), Secondary Actions: Expand
++					130 container Stages
++						131 content list
++							132 toggle button Model, Value: on
++							133 toggle button Loads, Value: off
++							134 toggle button (disabled) Results, Help: No run yet, Value: off
++							135 toggle button (disabled) Review, Help: No run yet, Value: off
++						136 content list
++							137 button (collapsed) Libraries, Secondary Actions: Expand
++							138 button (collapsed) Rules, Secondary Actions: Expand
++							139 button (collapsed) Issues, 6, Help: Issues, Secondary Actions: Expand
++					140 container Modeling workspace
++						141 container Tables
++							142 toggle button Model, Value: on
++							143 toggle button Review changes, Value: off
++							144 button (disabled, expanded) Collapse table drawer, Help: Table view shows the tables at full width, Secondary Actions: Collapse
++						145 container Model tree
++							146 text MODEL
++							147 container Layout grid mode
++								148 toggle button Tree, Value: off
++								149 toggle button Grid, Value: on
++							150 container Model tree filtering
++								151 container
++									152 text Filter model
++									153 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
++										154 text Name, ID, type, or group
++								155 text 28  of  28  model entities visible
++								156 button (disabled) Clear model tree filter
++							157 container Bulk entity grid
++								158 container Grid entity type
++									159 toggle button Nodes, Value: off
++									160 toggle button Pipes, Value: off
++									161 toggle button Supports, Value: off
++									162 toggle button Materials, Value: off
++									163 toggle button Sections, Value: on
++									164 toggle button Components, Value: off
++									165 toggle button Load Cases, Value: off
++									166 toggle button Combinations, Value: off
++								167 container
++									168 table (settable) Section fields
++										169 row (selectable)
++											170 cell (settable)
++												171 text Section
++											172 cell (settable)
++												173 button Sort Name
++											174 cell (settable)
++												175 button Sort Type
++											176 cell (settable)
++												177 button Sort Outside dia.
++											178 cell (settable)
++												179 button Sort Wall
++											180 cell (settable)
++												181 button Sort Provenance
++										182 row (selected)
++											183 cell (selectable, settable) section:B4-native-sections
++											184 cell (selectable, settable) section:B4-native-sections Name: Invented Sections witness
++											185 cell (selected, settable)
++												186 combo box (expanded, settable) section:B4-native-sections Type, Value: pi, Secondary Actions: Collapse
++													187 text (settable) pi
++											188 cell (selectable, settable) section:B4-native-sections Outside dia.: 0.1 m
+Quantity readout, Value: m
+0.1
+m
++											189 cell (selectable, settable) section:B4-native-sections Wall: 0.01 m
+Quantity readout, Value: m
+0.01
+m
++											190 cell (selectable, settable) section:B4-native-sections Provenance: invented functional witness
++									191 container Section fields footer
++										192 text Editing 
++										193 text Type
++										194 text  · 
++										195 text section:B4-native-sections
++										196 button Apply, Help: Apply (Enter)
++										197 button Cancel, Help: Cancel (Escape)
++								198 button (collapsed) Review multiple changes, Secondary Actions: Expand
++					199 container Agent
++						200 button (disabled) Agent, Help: Agent: not available yet
++					201 container Workspace status
++						202 container Analysis statuses
++						203 button (collapsed) 6 Issues, Secondary Actions: Expand
++						204 text section: section:B4-native-sections Entered
++						205 button (collapsed) About SWBPIPE…, Secondary Actions: Expand
++				206 list (settable) Supported values
++					207 text pipe
++		208 list
++			209 text Pi
++		210 button close
+The focused UI element is 186 combo box (expanded, settable) section:B4-native-sections Type, Value: pi, Secondary Actions: Collapse

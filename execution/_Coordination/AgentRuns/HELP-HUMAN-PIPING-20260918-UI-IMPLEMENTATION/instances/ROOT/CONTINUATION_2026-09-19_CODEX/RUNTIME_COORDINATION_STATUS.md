@@ -21,7 +21,7 @@ The proposed bounded journey is inspect/preview/submit/status, actual human revi
 
 Materials and corrected Node-review native/ROOT witnesses passed at their bound sources. Owned PIDs16639 and22492 were quit and process-only absence verified; no post-Quit app query. Canonical invented baselines are supported by observed UI/history/actions, not exported whole-model hashes. Node work was review-only: natural family blur kept/closed the editor, raw drafts were cleared and model Undo/Redo remained disabled. Native/build/CUA, source ports and shared lock are released; peer notified.
 
-Both bounded browser rounds passed and their resources are released. Independent backcheck cleared both P2 findings. ROOT activated the peer-reserved native build/foreground/CUA witness and subsequent live ROOT handback; no browser or full sweep runs concurrently. Peer notified of actual activation.
+Native and ROOT own-look witnesses completed at source db35. Known invented baseline restored, owned Redo and residual diagnostics disclosed; PID54294 quit and process-only absence verified. Native/build/CUA released. Peer explicitly reserved the final clean registered sweep, production build and governance preflight, including5174/5175/sharedlock; no source changes during the run.
 
 Source5174/dist5175 use swbpipe-e2e.lock; ROOT5183/5184, canvas5185/5186 and Tauri5173 remain named resources. One native/CUA foreground slot. Native fixtures are invented; preserve other project rows/preferences.
 

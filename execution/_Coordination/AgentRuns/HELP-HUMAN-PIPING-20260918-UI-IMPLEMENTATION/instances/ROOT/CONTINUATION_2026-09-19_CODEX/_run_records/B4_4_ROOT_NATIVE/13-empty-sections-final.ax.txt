@@ -1,0 +1,106 @@
+Window: "Invented Utility Loop Preview — SWBPIPE", App: SWBPIPE.
+0 standard window Invented Utility Loop Preview — SWBPIPE, Secondary Actions: Raise
+	1 scroll area
+		2 HTML content Description: SWBPIPE, URL: tauri://localhost
+			3 container
+				4 container Toolbar
+					5 heading SWBPIPE, Value: 1
+						6 text SWBPIPE
+					7 container Invented Utility Loop Preview
+						8 text Invented Utility Loop Preview
+					9 container Editing tools
+						10 button (disabled) Undo model edit, Help: Nothing to undo
+						11 button Redo model edit, Help: Redo (⇧⌘Z)
+						12 toggle button Description: Select (⎋), Value: on
+					13 container View
+						14 toggle button Table, Help: Table view (⌘1), Value: on
+						15 toggle button Model, Help: Model view (⌘2), Value: off
+						16 toggle button Both, Help: Both view (⌘3), Value: off
+					17 button Run
+					18 button (collapsed) Issues, 6, Help: Issues, Secondary Actions: Expand
+					19 container Panels
+						20 button (disabled, collapsed) Inspector, Help: Table view opens rows in place, Secondary Actions: Expand
+						21 button (disabled) Agent, Help: Agent: not available yet
+					22 pop up button Display units, Value: Entered, Help: Display units. Readouts use the selected units where conversion is available. Unavailable quantities retain entered values. Editing uses entered units.
+					23 summary Appearance, Value: off
+					24 container Human toolkit
+						25 button (collapsed) Find modeling commands, Help: Search or command (⌘K), Secondary Actions: Expand
+				26 container Stages
+					27 content list
+						28 toggle button Model, Value: on
+						29 toggle button Loads, Value: off
+						30 toggle button (disabled) Results, Help: No run yet, Value: off
+						31 toggle button (disabled) Review, Help: No run yet, Value: off
+					32 content list
+						33 button (collapsed) Libraries, Secondary Actions: Expand
+						34 button (collapsed) Rules, Secondary Actions: Expand
+						35 button (collapsed) Issues, 6, Help: Issues, Secondary Actions: Expand
+				36 container Modeling workspace
+					37 container Tables
+						38 toggle button Model, Value: on
+						39 toggle button Review changes, Value: off
+						40 button (disabled, expanded) Collapse table drawer, Help: Table view shows the tables at full width, Secondary Actions: Collapse
+					41 container Model tree
+						42 text MODEL
+						43 container Layout grid mode
+							44 toggle button Tree, Value: off
+							45 toggle button Grid, Value: on
+						46 container Model tree filtering
+							47 container
+								48 text Filter model
+								49 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
+									50 text Name, ID, type, or group
+							51 text 27  of  27  model entities visible
+							52 button (disabled) Clear model tree filter
+						53 container Bulk entity grid
+							54 container Grid entity type
+								55 toggle button Nodes, Value: off
+								56 toggle button Pipes, Value: off
+								57 toggle button Supports, Value: off
+								58 toggle button Materials, Value: off
+								59 toggle button Sections, Value: on
+								60 toggle button Components, Value: off
+								61 toggle button Load Cases, Value: off
+								62 toggle button Combinations, Value: off
+							63 container
+								64 table (settable) Section fields
+									65 row (selectable)
+										66 cell (settable)
+											67 text Section
+										68 cell (settable)
+											69 button Sort Name
+										70 cell (settable)
+											71 button Sort Type
+										72 cell (settable)
+											73 button Sort Outside dia.
+										74 cell (settable)
+											75 button Sort Wall
+										76 cell (settable)
+											77 button Sort Provenance
+								78 container Section fields footer
+									79 text 0
+									80 text  of 
+									81 text 0
+									82 text  rows
+								83 text Cell applied.
+							84 button (collapsed) Review multiple changes, Secondary Actions: Expand
+				85 container Agent
+					86 button (disabled) Agent, Help: Agent: not available yet
+				87 container Workspace status
+					88 container Analysis statuses
+					89 button (collapsed) 6 Issues, Secondary Actions: Expand
+					90 text project: project:invented-loop-01 Entered
+					91 button (collapsed) About SWBPIPE…, Secondary Actions: Expand
+	92 close button
+	93 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	94 minimize button
+	95 text Invented Utility Loop Preview — SWBPIPE
+96 menu bar
+	97 SWBPIPE
+	98 File
+	99 Edit
+	100 View
+	101 Insert
+	102 Analyze
+
+The focused UI element is 2 HTML content Description: SWBPIPE, URL: tauri://localhost
