@@ -1,0 +1,9 @@
+
+Running 4 tests using 1 worker
+
+  ✓  1 [chromium-desktop] › e2e/b4-sections.spec.ts:36:1 › B4 Sections enum explicit completion, passive cancellation and raw review retention (3.8s)
+  ✓  2 [chromium-desktop] › e2e/b4-sections.spec.ts:149:1 › B4 diagnostic clipped Section enum dismisses its detached options after real body scroll (2.2s)
+  ✓  3 [chromium-compact] › e2e/b4-sections.spec.ts:36:1 › B4 Sections enum explicit completion, passive cancellation and raw review retention (3.3s)
+  ✓  4 [chromium-compact] › e2e/b4-sections.spec.ts:149:1 › B4 diagnostic clipped Section enum dismisses its detached options after real body scroll (2.2s)
+
+  4 passed (13.6s)

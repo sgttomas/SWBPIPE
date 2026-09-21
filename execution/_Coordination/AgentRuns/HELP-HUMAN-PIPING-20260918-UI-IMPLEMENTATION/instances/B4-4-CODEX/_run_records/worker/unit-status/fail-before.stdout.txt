@@ -1,0 +1,15 @@
+
+ RUN  v4.1.10 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/model-tree/SectionTable.test.tsx (13 tests | 5 failed | 8 skipped) 491ms
+     × does not invent a unit from malformed metadata undefined 169ms
+     × does not invent a unit from malformed metadata  98ms
+     × does not invent a unit from malformed metadata false 78ms
+     × does not invent a unit from malformed metadata mm 80ms
+     × does not invent a unit from malformed metadata { symbol: 'mm' } 64ms
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 8 skipped (13)
+   Start at  07:51:11
+   Duration  1.24s (transform 168ms, setup 94ms, import 234ms, tests 491ms, environment 328ms)
+

@@ -1,0 +1,24 @@
+{
+  "candidate": "db35d7582e61d69ad415df7cdf4132b91e710dd8",
+  "command": [
+    "sh",
+    "../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/tools/with_e2e_lock.sh",
+    "npx",
+    "playwright",
+    "test",
+    "e2e/b4-sections.spec.ts",
+    "--grep",
+    "(?:^|\\s)(?:B4 diagnostic clipped Section enum dismisses its detached options after real body scroll|B4 Sections enum explicit completion, passive cancellation and raw review retention)$",
+    "--reporter=list,json",
+    "--retries=0",
+    "--output=/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-4-CODEX/_run_records/worker/unit-status/browser-artifacts"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop",
+  "environment": {
+    "PLAYWRIGHT_WORKERS": "1",
+    "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH": "/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing"
+  },
+  "source_manifest": "FREEZE.json",
+  "exit_code": 0,
+  "port5174_listener_after": ""
+}

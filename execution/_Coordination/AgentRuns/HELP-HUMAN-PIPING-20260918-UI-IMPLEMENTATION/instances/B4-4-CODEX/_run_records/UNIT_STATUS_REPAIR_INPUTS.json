@@ -1,0 +1,8 @@
+{
+  "base": "1cef35b6456649cd7e89de2a377e22d4c1205e24",
+  "briefSha256": "1e0bb0a0dbfda70665dd8f099ac3e3278990a2a0833f6b7b521dc4d311f67eb6",
+  "sources": {
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/modelTableAdapter.ts": "81742e21d8d35de7802a60e150fd72f6eba61e2d0f08cad1245d845d2227d5f3",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/SectionTable.test.tsx": "b9b4e71b1e167bac4abe2838c91d6bb6fc813c4feb1beeeb43162808b587835a"
+  }
+}

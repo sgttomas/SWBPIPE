@@ -1,0 +1,3 @@
+Listing tests:
+  [chromium-desktop] › b4-sections.spec.ts:149:1 › B4 diagnostic clipped Section enum dismisses its detached options after real body scroll
+Total: 1 test in 1 file

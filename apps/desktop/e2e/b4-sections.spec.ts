@@ -145,3 +145,41 @@ test("B4 Sections moved review row preserves text Undo, input ownership and virt
   await page.getByTestId("clear-entity-grid-drafts").click(); await filter.fill(""); await expect(cell).toHaveText("2"); expect(await currentModelHashThroughVisibleExport(page)).toBe(hashBefore);
   await expect(page.getByTestId("workspace-undo")).toBeDisabled(); await movement.dispose();
 });
+
+test("B4 diagnostic clipped Section enum dismisses its detached options after real body scroll", async ({ page, browser }, info) => {
+  await attachBrowserIdentity(browser, info); const model = await inventedSections(140);
+  await openSections(page, model); const hashBefore = await currentModelHashThroughVisibleExport(page);
+  const table = page.getByTestId("section-engineering-table"), rows = page.getByTestId("section-engineering-table-rows");
+  await table.getByTestId("table-cell-section:B4-0-type").dblclick(); const input = table.getByRole("combobox");
+  await input.fill("pi"); await input.click(); await expect(page.getByRole("listbox", { name: "Supported values" })).toBeVisible();
+  const capture = () => table.evaluate((root) => {
+    const editor = root.querySelector<HTMLInputElement>('input[role="combobox"]')!, body = root.querySelector('[data-testid="section-engineering-table-rows"]')!;
+    const row = root.querySelector('[data-editor-anchor]')!.closest('[role="row"]')!, popup = document.querySelector('.engineering-table-enum-popup'), option = popup?.querySelector('[role="option"]');
+    const rect = (node: Element | null | undefined) => node ? (() => { const r = node.getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height, top: r.top, bottom: r.bottom }; })() : null;
+    const e = editor.getBoundingClientRect(), b = body.getBoundingClientRect(), o = option?.getBoundingClientRect();
+    return { scrollTop: body.scrollTop, editor: rect(editor), anchor: rect(root.querySelector("[data-editor-anchor]")), bodySlot: rect(root.querySelector(".engineering-table-body-slot")), grid: rect(root.querySelector('[role="grid"]')), row: rect(row), body: rect(body), popup: rect(popup), option: rect(option),
+      clipPath: getComputedStyle(editor.closest('.engineering-table-editor-layer')!).clipPath,
+      editorBodyIntersection: Math.max(0, Math.min(e.bottom, b.bottom) - Math.max(e.top, b.top)),
+      popupVisibility: popup ? getComputedStyle(popup).visibility : null,
+      optionHit: Boolean(option && o && option.contains(document.elementFromPoint(o.x + o.width / 2, o.y + o.height / 2))),
+      draft: editor.value, focusedEditor: document.activeElement === editor, activeTag: document.activeElement?.tagName,
+      undoDisabled: (document.querySelector('[data-testid="workspace-undo"]') as HTMLButtonElement).disabled,
+      editedMarkers: document.querySelectorAll('[data-testid="project-edited"]').length };
+  });
+  const before = await capture(); const bodyBox = await rows.boundingBox(); expect(bodyBox).not.toBeNull();
+  // Pointer motion preserves input focus; use a body location away from its popup.
+  await page.mouse.move(bodyBox!.x + bodyBox!.width - 30, bodyBox!.y + bodyBox!.height / 2); await page.mouse.wheel(0, 90);
+  await expect.poll(() => rows.evaluate((node) => node.scrollTop)).toBeGreaterThan(60);
+  const after = await capture(); await info.attach("clipped-enum-observation", { body: JSON.stringify({ before, after }, null, 2), contentType: "application/json" });
+  await page.screenshot({ path: info.outputPath("clipped-enum-after-wheel.png") });
+  // External focus is intentional, after the decisive scroll snapshot. Invalid
+  // direct text stays retained; no operation or prefix completion is permitted.
+  const filter = page.getByTestId("model-tree-filter-input"); await filter.click(); await expect(filter).toBeFocused(); await expect(input).toHaveValue("pi");
+  await expect(page.getByRole("listbox", { name: "Supported values" })).toHaveCount(0);
+  await table.getByRole("button", { name: "Cancel", exact: true }).click();
+  const hashAfter = await currentModelHashThroughVisibleExport(page); await expect(page.getByTestId("workspace-undo")).toBeDisabled();
+  expect(hashAfter).toBe(hashBefore); expect(before.draft).toBe("pi"); expect(after.draft).toBe("pi");
+  expect(after.focusedEditor).toBe(true); expect(after.undoDisabled).toBe(true); expect(after.editedMarkers).toBe(0);
+  expect(after.editorBodyIntersection).toBe(0); expect(after.optionHit, "options must not remain hitable when their editor is fully clipped").toBe(false);
+  expect(after.popup, "fully clipped editor dismisses the detached options").toBeNull();
+});

@@ -1,0 +1,31 @@
+{
+  "candidate": "db35d7582e61d69ad415df7cdf4132b91e710dd8",
+  "files": {
+    "FREEZE.json": "8e9d8ee066460d40f9c689e64ae97255357f37756598c54cee0890f785b2e491",
+    "RETURN.md": "ae56482250d6fc5f1b0bd349cb383f5a503fa8b2d64afe82709631f99f13ef15",
+    "affected.json": "6cba1541c435bf19fe1f6b7f1c08300cffc01353d993e07dc2a8d4fdeb9a2cb8",
+    "affected.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "affected.stdout.txt": "33784302e164936e596c43e3a6d9e8bd464d0e851254c973cb742d12181db03f",
+    "app.json": "127088bf2d7735a91eb57944f17244496a9d6e9f9546f06c643cfeaff47ba98e",
+    "app.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "app.stdout.txt": "be57a883d886ae8880f4422f5c6470db858d07c51fc123700dfda67af9e15ee7",
+    "browser-artifacts/.last-run.json": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+    "browser-artifacts/b4-sections-B4-Sections-en-905dc-on-and-raw-review-retention-chromium-compact/section-enum-dark-selected.png": "ba53616ef83d730e29dc1453ea2c0fdf9edca9859ba66261226c41dc554ae72c",
+    "browser-artifacts/b4-sections-B4-Sections-en-905dc-on-and-raw-review-retention-chromium-compact/section-enum-light-selected.png": "66aec14144e7ed0ff02d95d4e7726e4e8fe4b02bde935efac9f3e09efc00d639",
+    "browser-artifacts/b4-sections-B4-Sections-en-905dc-on-and-raw-review-retention-chromium-desktop/section-enum-dark-selected.png": "5607c69447388c1490b8b2b36836d9208fc32f902e0c55f391814e99cf084bed",
+    "browser-artifacts/b4-sections-B4-Sections-en-905dc-on-and-raw-review-retention-chromium-desktop/section-enum-light-selected.png": "c0eac0afdfbd1bf495ada6cd97ae73c2b19c79947016f6de95355fc3834c369e",
+    "browser-artifacts/b4-sections-B4-diagnostic--cdda0-ions-after-real-body-scroll-chromium-compact/clipped-enum-after-wheel.png": "83e06855677ebc95dc8e0d3f688d6cf24544ece628c49914d4822d4fb15d10c6",
+    "browser-artifacts/b4-sections-B4-diagnostic--cdda0-ions-after-real-body-scroll-chromium-desktop/clipped-enum-after-wheel.png": "55de9c65e40f92d4303f7dd81380d877b9c36f31eb583e916307e16e63c6c453",
+    "browser-collection.txt": "555eec8b8c85d8b798ba78e0e4751717b7e5d16b1721fe018dd02f80e15cb0c0",
+    "browser-execution.json": "bb19eb905fb836266c06fa21c3e617f7f601c62f3b3ea55cd897cec3ca2c09cc",
+    "browser-report.json": "a0b2de2d21e300b72def09790e87c03623e0e926c9893d18450446940f2018d6",
+    "browser.stderr.txt": "b0d08b210c1bcf4ebba2b60416ac3894d2968ff9f7c17c04d6e57c07531c6041",
+    "browser.stdout.txt": "0150d20909e44b369009c5b20f3844e366ef21dc9b3b089f4e715c59ef5e1735",
+    "fail-before.json": "03cfc15c35a1344aba05e3051728f867d1bed8a8e2ca05efb57939102f6e4cbe",
+    "fail-before.stderr.txt": "f90c9b7a17b57c0db2ac39edccbfca192150ce7f457873086358115f537ad6c9",
+    "fail-before.stdout.txt": "835d26b4fecc6d472f6c6dec8bd62c7efed2e8761b632142e7dd09e1f23cee56",
+    "tsc.json": "5d11089ac21093f62e9010f9f6163da734d30b431fdff9223d73f6b898e6e975",
+    "tsc.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tsc.stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

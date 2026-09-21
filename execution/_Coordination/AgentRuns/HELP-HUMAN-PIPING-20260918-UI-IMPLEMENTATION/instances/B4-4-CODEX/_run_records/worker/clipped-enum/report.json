@@ -1,0 +1,179 @@
+{
+  "config": {
+    "configFile": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/playwright.config.ts",
+    "rootDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-4-CODEX/_run_records/worker/clipped-enum/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      },
+      {
+        "outputDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-4-CODEX/_run_records/worker/clipped-enum/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-compact",
+        "name": "chromium-compact",
+        "testDir": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev -- --port 5174",
+      "reuseExistingServer": true,
+      "timeout": 30000,
+      "url": "http://127.0.0.1:5174"
+    }
+  },
+  "suites": [
+    {
+      "title": "b4-sections.spec.ts",
+      "file": "b4-sections.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "B4 diagnostic clipped Section enum dismisses its detached options after real body scroll",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 2905,
+                  "error": {
+                    "message": "Error: options must not remain hitable when their editor is fully clipped\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mfalse\u001b[39m\nReceived: \u001b[31mtrue\u001b[39m",
+                    "stack": "Error: options must not remain hitable when their editor is fully clipped\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mfalse\u001b[39m\nReceived: \u001b[31mtrue\u001b[39m\n    at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-sections.spec.ts:183:143",
+                    "location": {
+                      "file": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-sections.spec.ts",
+                      "column": 143,
+                      "line": 183
+                    },
+                    "snippet": "  181 |   expect(hashAfter).toBe(hashBefore); expect(before.draft).toBe(\"pi\"); expect(after.draft).toBe(\"pi\");\n  182 |   expect(after.focusedEditor).toBe(true); expect(after.undoDisabled).toBe(true); expect(after.editedMarkers).toBe(0);\n> 183 |   expect(after.editorBodyIntersection).toBe(0); expect(after.optionHit, \"options must not remain hitable when their editor is fully clipped\").toBe(false);\n      |                                                                                                                                               ^\n  184 |   expect(after.popup, \"fully clipped editor dismisses the detached options\").toBeNull();\n  185 | });\n  186 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-sections.spec.ts",
+                        "column": 143,
+                        "line": 183
+                      },
+                      "message": "Error: options must not remain hitable when their editor is fully clipped\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mfalse\u001b[39m\nReceived: \u001b[31mtrue\u001b[39m\n\n  181 |   expect(hashAfter).toBe(hashBefore); expect(before.draft).toBe(\"pi\"); expect(after.draft).toBe(\"pi\");\n  182 |   expect(after.focusedEditor).toBe(true); expect(after.undoDisabled).toBe(true); expect(after.editedMarkers).toBe(0);\n> 183 |   expect(after.editorBodyIntersection).toBe(0); expect(after.optionHit, \"options must not remain hitable when their editor is fully clipped\").toBe(false);\n      |                                                                                                                                               ^\n  184 |   expect(after.popup, \"fully clipped editor dismisses the detached options\").toBeNull();\n  185 | });\n  186 |\n    at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-sections.spec.ts:183:143"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-21T13:48:31.559Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser-identity",
+                      "contentType": "application/json",
+                      "body": "ewogICJjZHBWZXJzaW9uIjogewogICAgInByb3RvY29sVmVyc2lvbiI6ICIxLjMiLAogICAgInByb2R1Y3QiOiAiQ2hyb21lLzE0OC4wLjc3NzguOTYiLAogICAgInJldmlzaW9uIjogIkA4NjI1ZTA2NmZlYmM3MjFlMDE1ZWE5OTg0MmRhMTI5MDFlYjdlZDczIiwKICAgICJ1c2VyQWdlbnQiOiAiTW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTVfNykgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgSGVhZGxlc3NDaHJvbWUvMTQ4LjAuMC4wIFNhZmFyaS81MzcuMzYiLAogICAgImpzVmVyc2lvbiI6ICIxNC44LjE3OC4xNCIKICB9LAogICJwbGF5d3JpZ2h0QnJvd3NlclZlcnNpb24iOiAiMTQ4LjAuNzc3OC45NiIsCiAgImV4ZWN1dGFibGVQYXRoIjogIi9Vc2Vycy9yeWFuL0xpYnJhcnkvQ2FjaGVzL21zLXBsYXl3cmlnaHQvY2hyb21pdW0tMTIyMy9jaHJvbWUtbWFjLWFybTY0L0dvb2dsZSBDaHJvbWUgZm9yIFRlc3RpbmcuYXBwL0NvbnRlbnRzL01hY09TL0dvb2dsZSBDaHJvbWUgZm9yIFRlc3RpbmciLAogICJleGVjdXRhYmxlU2hhMjU2IjogIjI0NDdjN2JkZWE4ZThhZDM4YjUyNTk0ZjFiYTUzZTE4ODIxYzA1NDQ1ZThhMDdhZDFjZjNiMGYyMzkzMWQ4OWQiCn0="
+                    },
+                    {
+                      "name": "clipped-enum-observation",
+                      "contentType": "application/json",
+                      "body": "ewogICJiZWZvcmUiOiB7CiAgICAic2Nyb2xsVG9wIjogMCwKICAgICJlZGl0b3IiOiB7CiAgICAgICJ4IjogNTM3Ljg5MDYyNSwKICAgICAgInkiOiAzMzkuMzc1LAogICAgICAid2lkdGgiOiAyNDIuMDQ2ODc1LAogICAgICAiaGVpZ2h0IjogMzUsCiAgICAgICJ0b3AiOiAzMzkuMzc1LAogICAgICAiYm90dG9tIjogMzc0LjM3NQogICAgfSwKICAgICJhbmNob3IiOiB7CiAgICAgICJ4IjogNTM3Ljg5MDYyNSwKICAgICAgInkiOiAzMzkuMzc1LAogICAgICAid2lkdGgiOiAyNDIuMDQ2ODc1LAogICAgICAiaGVpZ2h0IjogMzUsCiAgICAgICJ0b3AiOiAzMzkuMzc1LAogICAgICAiYm90dG9tIjogMzc0LjM3NQogICAgfSwKICAgICJib2R5U2xvdCI6IHsKICAgICAgIngiOiA2OCwKICAgICAgInkiOiAzMzkuMzc1LAogICAgICAid2lkdGgiOiAxMzE2LAogICAgICAiaGVpZ2h0IjogNDYzLjYyNSwKICAgICAgInRvcCI6IDMzOS4zNzUsCiAgICAgICJib3R0b20iOiA4MDMKICAgIH0sCiAgICAiZ3JpZCI6IHsKICAgICAgIngiOiA2OCwKICAgICAgInkiOiAyOTMuMTg3NSwKICAgICAgIndpZHRoIjogMTMxNiwKICAgICAgImhlaWdodCI6IDUwOS44MTI1LAogICAgICAidG9wIjogMjkzLjE4NzUsCiAgICAgICJib3R0b20iOiA4MDMKICAgIH0sCiAgICAicm93IjogewogICAgICAieCI6IDY4LAogICAgICAieSI6IDMzOS4zNzUsCiAgICAgICJ3aWR0aCI6IDEzMTYsCiAgICAgICJoZWlnaHQiOiAzNiwKICAgICAgInRvcCI6IDMzOS4zNzUsCiAgICAgICJib3R0b20iOiAzNzUuMzc1CiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJ4IjogNjgsCiAgICAgICJ5IjogMzM5LjM3NSwKICAgICAgIndpZHRoIjogMTMxNiwKICAgICAgImhlaWdodCI6IDQ2NCwKICAgICAgInRvcCI6IDMzOS4zNzUsCiAgICAgICJib3R0b20iOiA4MDMuMzc1CiAgICB9LAogICAgInBvcHVwIjogewogICAgICAieCI6IDUzNy44OTA2MjUsCiAgICAgICJ5IjogMzc0LjM3NSwKICAgICAgIndpZHRoIjogMjQyLjA0Njg3NSwKICAgICAgImhlaWdodCI6IDMyLAogICAgICAidG9wIjogMzc0LjM3NSwKICAgICAgImJvdHRvbSI6IDQwNi4zNzUKICAgIH0sCiAgICAib3B0aW9uIjogewogICAgICAieCI6IDUzOC44OTA2MjUsCiAgICAgICJ5IjogMzc1LjM3NSwKICAgICAgIndpZHRoIjogMjQwLjA0Njg3NSwKICAgICAgImhlaWdodCI6IDMwLAogICAgICAidG9wIjogMzc1LjM3NSwKICAgICAgImJvdHRvbSI6IDQwNS4zNzUKICAgIH0sCiAgICAiY2xpcFBhdGgiOiAiaW5zZXQoNDYuMTg3NXB4IDYwNC4wNjJweCA0NjkuNjI1cHggNDY5Ljg5MXB4KSIsCiAgICAiZWRpdG9yQm9keUludGVyc2VjdGlvbiI6IDM1LAogICAgInBvcHVwVmlzaWJpbGl0eSI6ICJ2aXNpYmxlIiwKICAgICJvcHRpb25IaXQiOiB0cnVlLAogICAgImRyYWZ0IjogInBpIiwKICAgICJmb2N1c2VkRWRpdG9yIjogdHJ1ZSwKICAgICJhY3RpdmVUYWciOiAiSU5QVVQiLAogICAgInVuZG9EaXNhYmxlZCI6IHRydWUsCiAgICAiZWRpdGVkTWFya2VycyI6IDAKICB9LAogICJhZnRlciI6IHsKICAgICJzY3JvbGxUb3AiOiA5MCwKICAgICJlZGl0b3IiOiB7CiAgICAgICJ4IjogNTM3Ljg5MDYyNSwKICAgICAgInkiOiAyNDkuMzc1LAogICAgICAid2lkdGgiOiAyNDIuMDQ2ODc1LAogICAgICAiaGVpZ2h0IjogMzUsCiAgICAgICJ0b3AiOiAyNDkuMzc1LAogICAgICAiYm90dG9tIjogMjg0LjM3NQogICAgfSwKICAgICJhbmNob3IiOiB7CiAgICAgICJ4IjogNTM3Ljg5MDYyNSwKICAgICAgInkiOiAyNDkuMzc1LAogICAgICAid2lkdGgiOiAyNDIuMDQ2ODc1LAogICAgICAiaGVpZ2h0IjogMzUsCiAgICAgICJ0b3AiOiAyNDkuMzc1LAogICAgICAiYm90dG9tIjogMjg0LjM3NQogICAgfSwKICAgICJib2R5U2xvdCI6IHsKICAgICAgIngiOiA2OCwKICAgICAgInkiOiAzMzkuMzc1LAogICAgICAid2lkdGgiOiAxMzE2LAogICAgICAiaGVpZ2h0IjogNDYzLjYyNSwKICAgICAgInRvcCI6IDMzOS4zNzUsCiAgICAgICJib3R0b20iOiA4MDMKICAgIH0sCiAgICAiZ3JpZCI6IHsKICAgICAgIngiOiA2OCwKICAgICAgInkiOiAyOTMuMTg3NSwKICAgICAgIndpZHRoIjogMTMxNiwKICAgICAgImhlaWdodCI6IDUwOS44MTI1LAogICAgICAidG9wIjogMjkzLjE4NzUsCiAgICAgICJib3R0b20iOiA4MDMKICAgIH0sCiAgICAicm93IjogewogICAgICAieCI6IDY4LAogICAgICAieSI6IDI0OS4zNzUsCiAgICAgICJ3aWR0aCI6IDEzMTYsCiAgICAgICJoZWlnaHQiOiAzNiwKICAgICAgInRvcCI6IDI0OS4zNzUsCiAgICAgICJib3R0b20iOiAyODUuMzc1CiAgICB9LAogICAgImJvZHkiOiB7CiAgICAgICJ4IjogNjgsCiAgICAgICJ5IjogMzM5LjM3NSwKICAgICAgIndpZHRoIjogMTMxNiwKICAgICAgImhlaWdodCI6IDQ2NCwKICAgICAgInRvcCI6IDMzOS4zNzUsCiAgICAgICJib3R0b20iOiA4MDMuMzc1CiAgICB9LAogICAgInBvcHVwIjogewogICAgICAieCI6IDUzNy44OTA2MjUsCiAgICAgICJ5IjogMjg0LjM3NSwKICAgICAgIndpZHRoIjogMjQyLjA0Njg3NSwKICAgICAgImhlaWdodCI6IDMyLAogICAgICAidG9wIjogMjg0LjM3NSwKICAgICAgImJvdHRvbSI6IDMxNi4zNzUKICAgIH0sCiAgICAib3B0aW9uIjogewogICAgICAieCI6IDUzOC44OTA2MjUsCiAgICAgICJ5IjogMjg1LjM3NSwKICAgICAgIndpZHRoIjogMjQwLjA0Njg3NSwKICAgICAgImhlaWdodCI6IDMwLAogICAgICAidG9wIjogMjg1LjM3NSwKICAgICAgImJvdHRvbSI6IDMxNS4zNzUKICAgIH0sCiAgICAiY2xpcFBhdGgiOiAiaW5zZXQoNDYuMTg3NXB4IDYwNC4wNjJweCA1NTkuNjI1cHggNDY5Ljg5MXB4KSIsCiAgICAiZWRpdG9yQm9keUludGVyc2VjdGlvbiI6IDAsCiAgICAicG9wdXBWaXNpYmlsaXR5IjogInZpc2libGUiLAogICAgIm9wdGlvbkhpdCI6IHRydWUsCiAgICAiZHJhZnQiOiAicGkiLAogICAgImZvY3VzZWRFZGl0b3IiOiB0cnVlLAogICAgImFjdGl2ZVRhZyI6ICJJTlBVVCIsCiAgICAidW5kb0Rpc2FibGVkIjogdHJ1ZSwKICAgICJlZGl0ZWRNYXJrZXJzIjogMAogIH0KfQ=="
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-4-CODEX/_run_records/worker/clipped-enum/artifacts/b4-sections-B4-diagnostic--cdda0-ions-after-real-body-scroll-chromium-desktop/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-4-CODEX/_run_records/worker/clipped-enum/artifacts/b4-sections-B4-diagnostic--cdda0-ions-after-real-body-scroll-chromium-desktop/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-sections.spec.ts",
+                    "column": 143,
+                    "line": 183
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "53c0d84efc0f4ae20b8c-24e1c8d301b031e6ab4d",
+          "file": "b4-sections.spec.ts",
+          "line": 149,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-21T13:48:30.866Z",
+    "duration": 4459.2300000000005,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

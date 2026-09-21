@@ -1,0 +1,10 @@
+{
+  "briefSha256": "18710b896a6fdcbfdc7f9f9c640b6dd39ef035552d60ab3b830a7f4393dadb15",
+  "base": "76de10606d2fdd4f8e1090883ab5d049567e975f",
+  "product": "40e8333d900c9b9c43b427533deca41e3a34543d",
+  "paths": {
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/useEnumEditor.tsx": "909cff6062a45b10ac642ecded0273cd6ed7adf499087cbd84539955d0640865",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx": "80061bae2ecaa7e6afd4b067f5bb028c2beea7eaf6ae49fbf755612d141bf36b",
+    "projects/chirality-piping/apps/desktop/e2e/b4-sections.spec.ts": "9c336e36001b8b4a8f29f6766aace3605783bd4f01a8120fb783c18330b2ea48"
+  }
+}

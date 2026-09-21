@@ -1,0 +1,18 @@
+{
+  "candidate": "1cef35b6456649cd7e89de2a377e22d4c1205e24",
+  "production": "40e8333d900c9b9c43b427533deca41e3a34543d",
+  "files": {
+    "PLAN.json": "879f979b30afd21eb28c3c129fcbe41a779c58b52a8fa68cec97439f2c5b19a1",
+    "RETURN.md": "7da7cd203ce144af462288e0806220b7aea369dc9e5651039b584664a88b62a2",
+    "artifacts/.last-run.json": "84e2e9a3198e715f6881678e5a935d96ce574339d0d7ac516b265158224600db",
+    "artifacts/b4-sections-B4-diagnostic--cdda0-ions-after-real-body-scroll-chromium-desktop/clipped-enum-after-wheel.png": "c3e6f49fb864366dc8917ac2dd341559ee7369c9ce481c90f6869e2199736314",
+    "artifacts/b4-sections-B4-diagnostic--cdda0-ions-after-real-body-scroll-chromium-desktop/error-context.md": "f47834d22d449232955f1d226303216ebfe5249a5637b04fc9a2dd7fbe46e433",
+    "artifacts/b4-sections-B4-diagnostic--cdda0-ions-after-real-body-scroll-chromium-desktop/trace.zip": "4e3cb9b00bdd0f83addf75d8624f566a74b41b6137b66699441f6de8428efc7e",
+    "collection.txt": "2f4907240030d4625641bbcef9e029322816bd80b8e50620a0a98a47b5424961",
+    "execution.json": "02e3d2ac637b9eb5115db90b3fa005afe4ed9fd78dc640c7216ba01ba8926c0b",
+    "observation.json": "b32ef3c7d76c73a90f8b66b2b53e4a9066aa8dd3f1522efc6818e1c00b033e24",
+    "report.json": "c7e5ec62ff020a98ce170ee4bcf6800cf257122785e35d0beeb14f027db36d3d",
+    "stderr.txt": "adc718c8153bf7c5312bb4ec4a526cf0e3d85201e1a63871c218f61bb2c71114",
+    "stdout.txt": "5ca6ca73a1e9ee6f40b82e8be877e60ce7190d00d0beeefa123eed45e0199a40"
+  }
+}
