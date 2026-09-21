@@ -1,0 +1,11 @@
+{
+  "at": "2026-09-21T09:24:09.437484+00:00",
+  "pid": 22492,
+  "quit": "native Cmd+Q",
+  "processExit": 1,
+  "processStdout": "",
+  "portsExit": 1,
+  "portsStdout": "",
+  "sharedLockPresent": false,
+  "postQuitAppQuery": false
+}

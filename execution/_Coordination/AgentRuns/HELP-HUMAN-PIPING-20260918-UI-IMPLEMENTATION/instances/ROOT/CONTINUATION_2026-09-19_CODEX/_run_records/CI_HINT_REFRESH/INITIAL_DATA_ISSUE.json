@@ -1,0 +1,13 @@
+{
+  "classification": "data-adapter error caught by existing CI policy tests, not a product or test-oracle defect",
+  "initialHintSha256": "e055ab27bcf4ec43191d554e11e7ddb7aa2dbd43b073adc00cf6d208f013aa1d",
+  "initialScriptSha256": "2d24717ac6cf6a0c9e344a78a0fe41b83128c05268b8a10d077638cce6ac0e13",
+  "reportedZero": {
+    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a frozen controller recipe retains prescribed workload and bounded independent segments": 0.0
+  },
+  "existingWeightSeconds": 0.001,
+  "failure": "31 policy tests ran; two errored on the unchanged strictly-positive duration-hint validator",
+  "disposition": "retain the existing0.001second positive scheduling weight for this rounded0ms report; disclose it as a floor, not measured time; do not relax validation",
+  "rawLog": "policy-tests.log",
+  "sourcePatch": "positive-weight-correction.patch"
+}

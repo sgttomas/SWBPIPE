@@ -1,0 +1,64 @@
+{
+  "kind": "historical scheduling replay; not executed future timing",
+  "head": "8077032231ded1cc5d206becd03a18e43e6f3bb2",
+  "priorHintsCommit": "c9f19195214b2e097980dde5e0d5fccbfba8e34c",
+  "sourceInventory": 455,
+  "observedPassDurations": 435,
+  "existingSkips": 20,
+  "newlyMeasuredKeys": 20,
+  "unchangedFallbackSeconds": 30,
+  "unchangedSkipWeightSeconds": 0.05,
+  "retainedPriorOnlyKeys": 23,
+  "roundedZeroPassesUsingExistingPositiveWeight": [
+    "chromium-compact \u203a e2e/ui-foundation/full-cohort-controller.spec.ts \u203a frozen controller recipe retains prescribed workload and bounded independent segments"
+  ],
+  "identicalCoverageAndBarrier": true,
+  "oldBinRecordedDurationSums": {
+    "barrier": 116.3,
+    "shard-1": 251.476,
+    "shard-2": 236.551,
+    "shard-3": 375.0,
+    "shard-4": 476.945
+  },
+  "newBinRecordedDurationSums": {
+    "barrier": 116.3,
+    "shard-1": 334.727,
+    "shard-2": 334.772,
+    "shard-3": 335.231,
+    "shard-4": 335.242
+  },
+  "newBinCounts": {
+    "barrier": 30,
+    "shard-1": 155,
+    "shard-2": 125,
+    "shard-3": 54,
+    "shard-4": 91
+  },
+  "bindings": {
+    "log": "5350a46b8e76e788f1b96f39abd046b1b59560db2d5f6451aede3c1259d396ae",
+    "collection": "a0dc8c80206f83ed4abfea7482943b233def635c10b97aaacb7671475f55a4ac",
+    "plan": "4509c29e2faa013620185ae835633203f04860783886ec8a0d68f23b58265e1b",
+    "run": "ff376945286effc60b9f7f8f4d53a166dc2f6fd3568db30a967c078650fdd707",
+    "selector": "ce6f619b4cc9629aaca6338f155f9093c5b1b8006cc53b575f2d49459402eff6",
+    "priorHints": "3ec74a15f33615dbfd8f7530972e3ddb9a25ccfdd30266cee4234e97f41af175",
+    "refreshedHints": "ec333f0b55433efc6f093f7b4635fb7fd8259ca00586fc3fdf6575207bd6b7fa"
+  },
+  "historicalSourceBodies": {
+    "projects/chirality-piping/apps/desktop/e2e/b3-accessibility.spec.ts": "684be3d9ee42f32a3f0b2f7bf2ef8d1b690353e75a4154bf6c288773ade7992a",
+    "projects/chirality-piping/apps/desktop/e2e/b3a-session-status.spec.ts": "b92e73b71a7fd2e1f6bc0f6ea99bdcc2f60363debaf46d62fb64c5a3a2d41191",
+    "projects/chirality-piping/apps/desktop/e2e/b3b-project-persistence.spec.ts": "9703a4ff4d9ee7a69a75c3d6ab144b44235081cce2f5cf8d7db09ef51396866b",
+    "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts": "4d10d41b4fa2af44e8ac2c0d40fe88086a3b6042a6e5685b5ea57fec4c469dc5",
+    "projects/chirality-piping/apps/desktop/e2e/c3-viewport-visibility.spec.ts": "251ed3228801e2929e92343978df711e091b029c5ebbe9707c5e221d4549ccd1",
+    "projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts": "24892f8e86fcb5ded0c45b4c65b67569da595a2c5d04d0aa52c171225eef5261",
+    "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts": "c996c234c07c40555576fa439725a4c52dab16e317a6e59ca11f3add19a01010",
+    "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts": "9464cf1163a9a78bd2a607297721c65a71c9db8fc44cc174132dfb6cd0bf2ae5",
+    "projects/chirality-piping/apps/desktop/e2e/result-compatibility.spec.ts": "c469faaeab1d3f684ac340d9f0008efc6624e70ce4fe8b29ac040e22c845b2bb",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts": "0bbfd7c51482a5243e75a347b4ed39cfd5a698ef233b5f172c87fa4dc6a95fd3",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/causal-method-contract.spec.ts": "572bf26e6185bf229f6d140308e6efede40f45b5b710c76dfbf138505e7b7807",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/fresh-demo-policy.spec.ts": "ab1883d6975e0804d3abb34183f9f2c8d95fb8e6a6769a96c4c4403360a57cee",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/full-cohort-controller.spec.ts": "3d92c1d27380216bc8dbc2906778b31b0b098bc6a6bb24b954d0b8a07ed7b725",
+    "projects/chirality-piping/apps/desktop/e2e/ui-foundation/performance-targets.spec.ts": "e645adbc092a8f432e7f69c3b955944f31eff7bae485e6ab5b7a5349aaeebe18",
+    "projects/chirality-piping/apps/desktop/e2e/workspace-layout.spec.ts": "1c4ee246d36627d85d1b8f455c1052909e0edfd7263368af1c1b78b374c9fe25"
+  },
+  "limit": "Replay sums recorded test durations only, excluding setup/runner/reporting variance. Materials and new Node scenarios were absent from PR832 and retain fallback weights. Actual later CI timing remains unobserved."
+}

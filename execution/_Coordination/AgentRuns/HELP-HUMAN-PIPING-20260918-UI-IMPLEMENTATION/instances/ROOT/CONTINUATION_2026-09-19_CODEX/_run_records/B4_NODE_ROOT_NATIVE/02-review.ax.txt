@@ -1,0 +1,94 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 63-117
++							137 text 5  of  5 Nodes 0  changed cells
++							138 container
++								139 table (settable) Node review drafts
++									140 row (selectable)
++										141 cell (settable)
++											142 text Node
++										143 cell (settable)
++											144 button Sort Label
++										145 cell (settable)
++											146 button Sort X
++										147 cell (settable)
++											148 button Sort Y
++										149 cell (settable)
++											150 button Sort Z
++										151 cell (settable)
++											152 button Sort Provenance
++									153 row (selectable)
++										154 cell (selectable, settable) node:N-100
++										155 cell (selectable, settable) node:N-100 Label: Pump nozzle
++										156 cell (selected, settable) node:N-100 X: 0 m
+Quantity readout, Value: 0
+m
++										157 cell (selectable, settable) node:N-100 Y: 0 m
+Quantity readout, Value: 0
+m
++										158 cell (selectable, settable) node:N-100 Z: 0 m
+Quantity readout, Value: 0
+m
++										159 cell (selectable, settable) node:N-100 Provenance: invented_example
++									160 row (selectable)
++										161 cell (selectable, settable) node:N-110
++										162 cell (selectable, settable) node:N-110 Label: Low point elbow
++										163 cell (selectable, settable) node:N-110 X: 3.2 m
+Quantity readout, Value: 3.2
+m
++										164 cell (selectable, settable) node:N-110 Y: 0 m
+Quantity readout, Value: 0
+m
++										165 cell (selectable, settable) node:N-110 Z: 0 m
+Quantity readout, Value: 0
+m
++										166 cell (selectable, settable) node:N-110 Provenance: invented_example
++									167 row (selectable)
++										168 cell (selectable, settable) node:N-120
++										169 cell (selectable, settable) node:N-120 Label: Riser elbow
++										170 cell (selectable, settable) node:N-120 X: 3.2 m
+Quantity readout, Value: 3.2
+m
++										171 cell (selectable, settable) node:N-120 Y: 2.4 m
+Quantity readout, Value: 2.4
+m
++										172 cell (selectable, settable) node:N-120 Z: 0 m
+Quantity readout, Value: 0
+m
++										173 cell (selectable, settable) node:N-120 Provenance: invented_example
++									174 row (selectable)
++										175 cell (selectable, settable) node:N-130
++										176 cell (selectable, settable) node:N-130 Label: Rack turn
++										177 cell (selectable, settable) node:N-130 X: 7.6 m
+Quantity readout, Value: 7.6
+m
++										178 cell (selectable, settable) node:N-130 Y: 2.4 m
+Quantity readout, Value: 2.4
+m
++										179 cell (selectable, settable) node:N-130 Z: 0 m
+Quantity readout, Value: 0
+m
++										180 cell (selectable, settable) node:N-130 Provenance: invented_example
++									181 row (selectable)
++										182 cell (selectable, settable) node:N-140
++										183 cell (selectable, settable) node:N-140 Label: Terminal tie-in
++										184 cell (selectable, settable) node:N-140 X: 7.6 m
+Quantity readout, Value: 7.6
+m
++										185 cell (selectable, settable) node:N-140 Y: 2.4 m
+Quantity readout, Value: 2.4
+m
++										186 cell (selectable, settable) node:N-140 Z: 2.2 m
+Quantity readout, Value: 2.2
+m
++										187 cell (selectable, settable) node:N-140 Provenance: invented_example
++								188 container Node review drafts footer
++									189 text 5
++									190 text  of 
++									191 text 5
++									192 text  rows
++							193 button (disabled) Queue changed cells
++							194 button (disabled) Clear grid edits
++							195 container
++								196 text Grid mode fans each changed cell into a structured review intent; storage remains local.  Blank or whitespace text becomes TBD when queued; keeping a draft does not change the model.
+~							118 button (expanded) Return to node fields, Secondary Actions: Collapse
+The focused UI element is 2 HTML content Description: SWBPIPE, URL: tauri://localhost
