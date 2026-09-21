@@ -1,0 +1,32 @@
+# B4.2 combined candidate and evidence review
+
+Parent /root HELP_HUMAN Agent0 -> retained independent /root/b3b_c3_ci_review, TASK Type2, Codex harness-native, gpt-6-astra/xhigh. This is a read-only follow-up under the agreed delegation strategy. You did not write the product or records. Retained context is valid for previously reviewed PR829 closeout records; B4.2 product review by another fresh reviewer is independently bound below. Same-model review is not model diversity. Actual filesystem/tool privileges are unrestricted; these scope limits are instruction-enforced. No descendants.
+
+Resolve REPO_ROOT as usual. Read candidate blobs from Git or the frozen integration checkout swbpipe-wt2; candidate d3db83b494cd00e9f8978a99f02a83bf626bd1fb, base current main 86e49b3a285f6022a8a56b3721612c7b5a7d8752. Review the complete 292-path base..candidate diff, including all maintained changes, source/review/evidence assembly, graph and owner-direction records. ROOT's checkout contains the launch record but is not the product candidate. Do not write files, switch/merge branches, run tests/builds/UI, acquire resources, mutate Git or use network. Return verbatim in chat.
+
+Purpose: seek actionable integration defects, unsupported claims, scope drift, missing source-review coverage or misbound evidence before publication. Reuse already checked byte-identical source/evidence where justified; do not repeat the entire previous source investigation without a reason. Verify the 15 maintained desktop paths exactly match source a0649cbc9a434a28144d010a3a19d68111ace412; verify initial full source review plus R1 and character-repair backchecks covers them. Upstream PR830/831 was merged before freeze: export work is upstream, Piping CI action only loses one final blank line. No product changes introduced during fan-in.
+
+Inspect new records and verify their actual hash references, raw failures and bounded pass counts, native identity and cleanup limits, observed Queue/Clear/unit behavior and authority separation. Native evidence is in instances/B4-2-CODEX/_run_records/native, native-final, native-character-repair and ROOT continuation/_run_records/B4_2_ROOT_NATIVE_FINAL; use actual filenames/manifests. Verify both final manifests and supporting decisive AX/screenshot artifacts as needed. Native97c failure is preserved; final native PID82749/binary fd1e227b6f2df603779ff054e77930edec0a590e7020d22d58cb03459aab1896 covers producta064. ROOT own look is a separate bounded observation, not a human/CLI witness. Both+Inspector-open Provenance pointer exposure remains UNVERIFIED; actual Table and Both/Inspector-closed paths passed. Compact Model/narrow-Both drawer gap remains open. All apps are now closed by CmdQ plus process-only verification.
+
+Do not mistake focused pass carryforward for a final full-suite run: the required clean DEC-025 sweep has not completed and actual-head hosted CI remains pending. ROOT is running gates/sweep on the frozen candidate concurrently with this read-only review; later canonical sweep/publication-tail bytes will receive a bounded backcheck. No C4/live CLI activation, Runtime changes, B4.3 Materials implementation, deliverable reconciliation/DAG rebuild, release or qualification. Owner explicit resume after PR829 authorizes current bounded B4.2 only under existing overall authority; pending questions remain pending.
+
+Return PASS or actionable findings with severity, precise path/location, trigger/impact/evidence and remedy; complete reviewed range/path inventory hash, coverage limitations, remaining gates, any mismatched references and actual model/role/tool actions. Consult software-code-review as needed. Do not request an extra owner decision for routine documentary drift; flag the affected action and let ROOT disposition it.
+
+Candidate context SHA256 bindings:
+```json
+{
+  "AGENTS.md": "d151dad92a074abebf8e6225c92c4c6e88fd586f2283377b50b5051eff39be7b",
+  "agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+  "projects/chirality-piping/AGENTS.md": "eec1b9accc5dc4485fd0aab423678bed4c4c98396dc88b9089703965eb3d2005",
+  "projects/chirality-piping/loop/LOOP_INIT.md": "f327d5c6fe4d964a15786813f6de72170bc5e94471753846f461f622281e5f94",
+  ".agents/skills/software-code-review/SKILL.md": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
+  "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_2_MANAGER_BRIEF.md": "9d534b90967995ddf67dd81bef9afc6ff7e7a9bac0d711afa91272d7cf0c72f0",
+  "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_2_SEMANTIC_CLARIFICATION.md": "7fd4ba6f56c1941823f90fbb488159efd2f624d33f53afb2d091d5e8d37a833a",
+  "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_2_REVIEW_UNIT_CLARIFICATION.md": "e0628e173b3dfecc34f3f692823e7dbafaa06d2b5a4296fb4eaa63c6874fca9c",
+  "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_INITIAL_SOURCE_REVIEW_RETURN.md": "a830d1b1ec6ddb81f3fdce865f1769a6b51816091014cada20ff98c9199dbb34",
+  "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_R1_BACKCHECK_RETURN.md": "858501b8e8e0583c8832ad1ce00cb3249e0a7f371749d539b4e9fce67ca25b03",
+  "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_CHARACTER_BACKCHECK_RETURN.md": "479b015044b971d6194edff87fa692eda918f3369f818f5adfaeaf5939b1b9cd",
+  "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_ROOT_NATIVE_FINAL/RETURN.md": "9f969c00ce1ab6aced9a49b6dc1dfb73d368cc51740833e5eff348b83d994d04",
+  "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_ROOT_NATIVE_FINAL/MANIFEST.json": "279398923c3b415f209c30ec4ac2d0acb01e3777c5b24b871444295fd72ce6b9"
+}
+```

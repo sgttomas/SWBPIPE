@@ -1,0 +1,22 @@
+{
+  "candidate": "d3db83b494cd00e9f8978a99f02a83bf626bd1fb",
+  "statusBefore": "",
+  "startedAt": "2026-09-21T05:13:26.642053+00:00",
+  "command": [
+    "sh",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/tools/with_e2e_lock.sh",
+    "python3",
+    "tools/release/run_evidence_sweep.py",
+    "--execute",
+    "--require-capability",
+    "host",
+    "--output-dir",
+    "/tmp/swbpipe-b42-d3db83/sweep/result"
+  ],
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/projects/chirality-piping",
+  "environment": {
+    "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH": "/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+    "PLAYWRIGHT_WORKERS": "1"
+  },
+  "python": "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3"
+}

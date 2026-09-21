@@ -598,7 +598,7 @@
     "B3A": {
       "role": "slice",
       "lane": "B-SHELL",
-      "title": "the unsaved-edits mark; the 'Solver · Not solved' fallback chip",
+      "title": "the unsaved-edits mark; the 'Solver \u00b7 Not solved' fallback chip",
       "status": "merged as 88c6c746; all local and hosted checks subsequently passed; technical integration only",
       "dependsOn": [
         "B3"
@@ -2182,14 +2182,42 @@
       "parent": "ROOT",
       "slice": "B4",
       "branch": "codex/swbpipe-b4-node-integration-20260920",
-      "candidate": "d68a65fbba6052550f6654de1aeaec2be26e517b",
-      "base": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
-      "status": "clean final lane evidence/source assembled; add ROOT own look and finish clean sweep/combined review/CI",
+      "candidate": "d3db83b494cd00e9f8978a99f02a83bf626bd1fb",
+      "base": "86e49b3a285f6022a8a56b3721612c7b5a7d8752",
+      "status": "complete clean host sweep and combined review pass; metadata publication review/actual-head CI pending",
       "dependsOn": [
         "B4-2-CODEX-MANAGER"
       ],
       "scope": "oldPR829 branch preserved; ROOT owns fan-in/finalchecks/PR/CI",
-      "sourceCandidate": "a0649cbc9a434a28144d010a3a19d68111ace412"
+      "sourceCandidate": "a0649cbc9a434a28144d010a3a19d68111ace412",
+      "upstreamRefresh": {
+        "from": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
+        "to": "86e49b3a285f6022a8a56b3721612c7b5a7d8752",
+        "scope": "PR830/831 export work; Piping setup action removes only a final blank line; desktop product unchanged"
+      },
+      "combinedReview": {
+        "agent": "/root/b3b_c3_ci_review",
+        "model": "gpt-6-astra",
+        "reasoning": "xhigh",
+        "role": "TASK Type2 independent read-only",
+        "mechanism": "actual collaboration.followup_task",
+        "state": "PASS; no actionable findings; later validation/publication tail pending",
+        "base": "86e49b3a285f6022a8a56b3721612c7b5a7d8752",
+        "candidate": "d3db83b494cd00e9f8978a99f02a83bf626bd1fb",
+        "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_COMBINED_REVIEW_LAUNCH.md",
+        "briefSha256": "1ab622bdc6cefcd70393738f7f9a579b6d92f0ea58b7ddfea710b2426497cefd",
+        "reviewedPaths": 292,
+        "returnRecord": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_COMBINED_REVIEW_RETURN.md",
+        "returnSha256": "9976d710aa5c1eab1cccdd9154c5e55f620545786419e307ffe0871174291969"
+      },
+      "finalValidation": {
+        "candidate": "d3db83b494cd00e9f8978a99f02a83bf626bd1fb",
+        "state": "complete clean host sweep PASS; final metadata gates/actual-head CI pending",
+        "summary": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_SWEEP_D3DB/SUMMARY.json",
+        "summarySha256": "e9ccd70add091ce58d8dff9470a3c5a8a28e9e027f85615833da926675ee2d5c",
+        "preflightSummary": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_FINAL_CHECKS/SUMMARY.json",
+        "preflightSummarySha256": "711eddfd0fc8ea63f5e4c6da38894a4864991b6d1ffb80f2d8a8b8dae8fc18fc"
+      }
     },
     "PR829-RESUME-RECORDS-REVIEW": {
       "role": "TASK Type2 independent records review",
@@ -2250,7 +2278,25 @@
       "scope": "read-only no writes/tests/UI/resources; native supervision separately authorized",
       "recommendation": "Mixed per-row quantity units need truthful presentation and qualified conversion-backed sort; no Node numeric validator/fallback reuse. Materials first; Sections coupled geometry/type/provenance later.",
       "briefSha256": "243353df03eae09b813f9c76e7ad8f826a2962376351a1cf6c2fe90dc71d64e6",
-      "returnSha256": "301cd8d0ed6dfec1007479be379bcda61d450db8a1afdbbfb09c667683c44783"
+      "returnSha256": "301cd8d0ed6dfec1007479be379bcda61d450db8a1afdbbfb09c667683c44783",
+      "preparedBrief": {
+        "path": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_3_MATERIALS_PREPARED_BRIEF.md",
+        "sha256": "13a66f70f0bfa96b0848719d8e957b38752f35573f9298cc99d5affee751df5c",
+        "state": "prepared only; activation after B4.2 publication and explicit ROOT handoff"
+      },
+      "preparedScopeCheck": {
+        "state": "returned; ROOT adopts bounded missing-unit and visible-draft sort clarifications; no activation",
+        "actualAgent": "/root/b3_manager",
+        "model": "gpt-6-astra",
+        "reasoning": "high",
+        "mechanism": "collaboration.followup_task; dispatch text retained from tool transcript; prepared brief sealed before dispatch",
+        "launch": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_PREPARED_SCOPE_CHECK_LAUNCH.txt",
+        "launchSha256": "546ddbbd4c40f9791d18d03eec87c24eb80aa119c07abe068e9488d62399c5b1",
+        "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_PREPARED_SCOPE_CHECK_RETURN.md",
+        "returnSha256": "7d0264a88981b717b7437c6a1b35f5c9d922db978bf7311a430924ed31d69d68",
+        "addendum": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_3_MATERIALS_PREPARATION_ADDENDUM.md",
+        "addendumSha256": "47f67d1fef4ed3e789ebab7fd75b87e69c4636b3863586341749f3f01039cf32"
+      }
     }
   },
   "edges": [
@@ -2531,7 +2577,7 @@
       "B4-3-FAMILY-PREPARATION"
     ]
   ],
-  "current_frontier": "B4.2 source/repair reviews and rebuilt native+ROOT own look pass at stated scopes; canonical model restored and native82749 closed. Assemble clean final candidate for one complete sweep/combined evidence review/actual-head CI. Both+Inspector exposure limit and other B4 gaps remain. Materials next separately prepared, not activated.",
+  "current_frontier": "B4.2 complete clean host sweep and independent combined review PASS at d3db83/producta064. Prepare metadata-only publication candidate, bounded final records review and all actual-head CI before one PR merge. Materials brief/addendum prepared but unactivated; C4/CLI and remaining B4 fit/qualification limits unchanged.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -2815,20 +2861,20 @@
     "scope": "No silence-as-approval; unaffected authorized B4.2 proceeds"
   },
   "liveContinuationState": {
-    "root": "7f048f5976c88c9a1f39eadb9f83489c29cc6111 plus final native own-look record",
-    "originMain": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
+    "root": "1520ccdd3b6345c67ddfcc64a3aa91feb7ba6a4f plus validation staging records",
+    "originMain": "86e49b3a285f6022a8a56b3721612c7b5a7d8752",
     "integrationBranch": {
       "branch": "codex/swbpipe-b4-node-integration-20260920",
-      "head": "d68a65fbba6052550f6654de1aeaec2be26e517b",
-      "state": "clean B4.2 source fan-in; independent/native/final gates pending"
+      "head": "d3db83b494cd00e9f8978a99f02a83bf626bd1fb",
+      "state": "complete clean host sweep and combined review pass; metadata publication review/actual-head CI pending"
     },
     "shell": "clean c578/producta064; all manager/worker execution returned",
     "canvas": "fb720420 preserved; C4 preparation returned",
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "isolated226b probe retains two authorized source edits and two untracked dependency entries; preserved, never fan-in",
-    "resources": "no Piping native process; upcoming full sweep reserves5174/5175/shared lock, peer acknowledged",
-    "recordStatus": "current complete-candidate evidence review/final gates pending",
-    "observedAt": "2026-09-21T05:02:51.647842+00:00"
+    "resources": "sweep ended; process-only checks found no Piping native/test/build processes or5173/5174/5175 listeners; shared E2E lock absent; resources released",
+    "recordStatus": "metadata publication candidate preparation; final records review and CI pending",
+    "observedAt": "2026-09-21T05:33:42.980853+00:00"
   },
   "historicalPauses": [
     {

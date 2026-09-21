@@ -1,0 +1,5 @@
+First final-receipt precheck, ROOT HEAD1520ccdd3 before final candidate fan-in; Receipt158 was in working state. Command: /Users/ryan/.local/share/mise/installs/python/3.13/bin/python3 tools/validation/validate_piping_loop_receipts.py --repo-root .
+Raw stdout:
+INVALID COMMIT_NOT_ANCESTOR /Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/loop/LOOP_RECEIPTS.md:3352: Examined-Through d3db83b494cd00e9f8978a99f02a83bf626bd1fb is not an ancestor of HEAD
+
+The subsequent independent claims command passed; its shell exit0 did not make this receipt check pass. ROOT had not yet incorporated the clean tested integration branch. Preserve correct Examined-Through d3db83 and all old receipts; merge that candidate into the records branch, then validate on the actual combined candidate. This is a recorded checkout/ancestry failure, not a product test failure or a changed receipt criterion.
