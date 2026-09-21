@@ -1,0 +1,13 @@
+{
+  "at": "2026-09-21T00:33:29.449905+00:00",
+  "mechanism": "collaboration.followup_task",
+  "task": "/root/b3_manager/b4_1_table",
+  "parent": "/root/b3_manager",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra/low unchanged existing instance",
+  "scope": "read-only source/browser scroll-owner diagnosis and proposal; evidence-only writes",
+  "briefSha256": "cbe782f512b1f4fc87c8dffc3aa94f27096c81328b5264fa8624044d15983b1e",
+  "inputsSha256": "5030ba28a42e069b2640b6f41c1b6344adce6353ebf8aa2fd6aa41f8c363a58b",
+  "resources": "5174/sharedlock/pinnedChromium1worker; no native/build/CUA/full sweep",
+  "enforcement": "host unrestricted, scope/role/resource instruction-enforced"
+}

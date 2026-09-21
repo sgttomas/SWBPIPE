@@ -1,0 +1,1163 @@
+{
+  "version": "148.0.7778.96",
+  "records": [
+    {
+      "profile": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "state": "default",
+      "input": "view Model + Grid",
+      "data": {
+        "pane": {
+          "bounds": {
+            "x": 56,
+            "y": 616,
+            "width": 1000,
+            "height": 280
+          },
+          "clientHeight": 279,
+          "scrollHeight": 279,
+          "scrollTop": 0,
+          "padding": "24px 0px 0px",
+          "gap": "0px",
+          "value": null
+        },
+        "host": {
+          "bounds": {
+            "x": 56,
+            "y": 669,
+            "width": 1000,
+            "height": 227
+          },
+          "clientHeight": 227,
+          "scrollHeight": 659,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "model": {
+          "bounds": {
+            "x": 56,
+            "y": 669,
+            "width": 1000,
+            "height": 658.984375
+          },
+          "clientHeight": 659,
+          "scrollHeight": 659,
+          "scrollTop": 0,
+          "padding": "12px",
+          "gap": "normal",
+          "value": null
+        },
+        "title": {
+          "bounds": {
+            "x": 68,
+            "y": 681,
+            "width": 976,
+            "height": 16.796875
+          },
+          "clientHeight": 17,
+          "scrollHeight": 17,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "7px",
+          "value": null
+        },
+        "mode": {
+          "bounds": {
+            "x": 68,
+            "y": 707.796875,
+            "width": 976,
+            "height": 32
+          },
+          "clientHeight": 32,
+          "scrollHeight": 32,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "6px",
+          "value": null
+        },
+        "filter": {
+          "bounds": {
+            "x": 68,
+            "y": 747.796875,
+            "width": 976,
+            "height": 53.390625
+          },
+          "clientHeight": 53,
+          "scrollHeight": 53,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "6px 8px",
+          "value": null
+        },
+        "families": {
+          "bounds": {
+            "x": 68,
+            "y": 811.1875,
+            "width": 976,
+            "height": 34
+          },
+          "clientHeight": 34,
+          "scrollHeight": 34,
+          "scrollTop": 0,
+          "padding": "0px 0px 2px",
+          "gap": "6px",
+          "value": null
+        },
+        "table": {
+          "bounds": {
+            "x": 68,
+            "y": 853.1875,
+            "width": 976,
+            "height": 425
+          },
+          "clientHeight": 425,
+          "scrollHeight": 425,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "header": {
+          "bounds": {
+            "x": 68,
+            "y": 853.1875,
+            "width": 976,
+            "height": 33
+          },
+          "clientHeight": 32,
+          "scrollHeight": 32,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "rows": {
+          "bounds": {
+            "x": 68,
+            "y": 886.1875,
+            "width": 976,
+            "height": 360
+          },
+          "clientHeight": 360,
+          "scrollHeight": 360,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "footer": {
+          "bounds": {
+            "x": 68,
+            "y": 1246.1875,
+            "width": 976,
+            "height": 32
+          },
+          "clientHeight": 31,
+          "scrollHeight": 31,
+          "scrollTop": 0,
+          "padding": "4px 8px",
+          "gap": "6px",
+          "value": null
+        },
+        "review": {
+          "bounds": {
+            "x": 68,
+            "y": 1286.1875,
+            "width": 976,
+            "height": 29.796875
+          },
+          "clientHeight": 30,
+          "scrollHeight": 30,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "resize": {
+          "bounds": {
+            "x": 56,
+            "y": 616,
+            "width": 1000,
+            "height": 24
+          },
+          "clientHeight": 24,
+          "scrollHeight": 24,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": "280"
+        }
+      }
+    },
+    {
+      "profile": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "state": "minimum",
+      "input": "30 ArrowDown on existing resize separator",
+      "data": {
+        "pane": {
+          "bounds": {
+            "x": 56,
+            "y": 716,
+            "width": 1000,
+            "height": 180
+          },
+          "clientHeight": 179,
+          "scrollHeight": 179,
+          "scrollTop": 0,
+          "padding": "24px 0px 0px",
+          "gap": "0px",
+          "value": null
+        },
+        "host": {
+          "bounds": {
+            "x": 56,
+            "y": 769,
+            "width": 1000,
+            "height": 127
+          },
+          "clientHeight": 127,
+          "scrollHeight": 659,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "model": {
+          "bounds": {
+            "x": 56,
+            "y": 769,
+            "width": 1000,
+            "height": 658.984375
+          },
+          "clientHeight": 659,
+          "scrollHeight": 659,
+          "scrollTop": 0,
+          "padding": "12px",
+          "gap": "normal",
+          "value": null
+        },
+        "title": {
+          "bounds": {
+            "x": 68,
+            "y": 781,
+            "width": 976,
+            "height": 16.796875
+          },
+          "clientHeight": 17,
+          "scrollHeight": 17,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "7px",
+          "value": null
+        },
+        "mode": {
+          "bounds": {
+            "x": 68,
+            "y": 807.796875,
+            "width": 976,
+            "height": 32
+          },
+          "clientHeight": 32,
+          "scrollHeight": 32,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "6px",
+          "value": null
+        },
+        "filter": {
+          "bounds": {
+            "x": 68,
+            "y": 847.796875,
+            "width": 976,
+            "height": 53.390625
+          },
+          "clientHeight": 53,
+          "scrollHeight": 53,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "6px 8px",
+          "value": null
+        },
+        "families": {
+          "bounds": {
+            "x": 68,
+            "y": 911.1875,
+            "width": 976,
+            "height": 34
+          },
+          "clientHeight": 34,
+          "scrollHeight": 34,
+          "scrollTop": 0,
+          "padding": "0px 0px 2px",
+          "gap": "6px",
+          "value": null
+        },
+        "table": {
+          "bounds": {
+            "x": 68,
+            "y": 953.1875,
+            "width": 976,
+            "height": 425
+          },
+          "clientHeight": 425,
+          "scrollHeight": 425,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "header": {
+          "bounds": {
+            "x": 68,
+            "y": 953.1875,
+            "width": 976,
+            "height": 33
+          },
+          "clientHeight": 32,
+          "scrollHeight": 32,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "rows": {
+          "bounds": {
+            "x": 68,
+            "y": 986.1875,
+            "width": 976,
+            "height": 360
+          },
+          "clientHeight": 360,
+          "scrollHeight": 360,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "footer": {
+          "bounds": {
+            "x": 68,
+            "y": 1346.1875,
+            "width": 976,
+            "height": 32
+          },
+          "clientHeight": 31,
+          "scrollHeight": 31,
+          "scrollTop": 0,
+          "padding": "4px 8px",
+          "gap": "6px",
+          "value": null
+        },
+        "review": {
+          "bounds": {
+            "x": 68,
+            "y": 1386.1875,
+            "width": 976,
+            "height": 29.796875
+          },
+          "clientHeight": 30,
+          "scrollHeight": 30,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "resize": {
+          "bounds": {
+            "x": 56,
+            "y": 716,
+            "width": 1000,
+            "height": 24
+          },
+          "clientHeight": 24,
+          "scrollHeight": 24,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": "180"
+        }
+      }
+    },
+    {
+      "profile": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "state": "expanded",
+      "input": "30 ArrowUp on existing resize separator",
+      "data": {
+        "pane": {
+          "bounds": {
+            "x": 56,
+            "y": 404,
+            "width": 1000,
+            "height": 492
+          },
+          "clientHeight": 491,
+          "scrollHeight": 491,
+          "scrollTop": 0,
+          "padding": "24px 0px 0px",
+          "gap": "0px",
+          "value": null
+        },
+        "host": {
+          "bounds": {
+            "x": 56,
+            "y": 457,
+            "width": 1000,
+            "height": 439
+          },
+          "clientHeight": 439,
+          "scrollHeight": 659,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "model": {
+          "bounds": {
+            "x": 56,
+            "y": 457,
+            "width": 1000,
+            "height": 658.984375
+          },
+          "clientHeight": 659,
+          "scrollHeight": 659,
+          "scrollTop": 0,
+          "padding": "12px",
+          "gap": "normal",
+          "value": null
+        },
+        "title": {
+          "bounds": {
+            "x": 68,
+            "y": 469,
+            "width": 976,
+            "height": 16.796875
+          },
+          "clientHeight": 17,
+          "scrollHeight": 17,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "7px",
+          "value": null
+        },
+        "mode": {
+          "bounds": {
+            "x": 68,
+            "y": 495.796875,
+            "width": 976,
+            "height": 32
+          },
+          "clientHeight": 32,
+          "scrollHeight": 32,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "6px",
+          "value": null
+        },
+        "filter": {
+          "bounds": {
+            "x": 68,
+            "y": 535.796875,
+            "width": 976,
+            "height": 53.390625
+          },
+          "clientHeight": 53,
+          "scrollHeight": 53,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "6px 8px",
+          "value": null
+        },
+        "families": {
+          "bounds": {
+            "x": 68,
+            "y": 599.1875,
+            "width": 976,
+            "height": 34
+          },
+          "clientHeight": 34,
+          "scrollHeight": 34,
+          "scrollTop": 0,
+          "padding": "0px 0px 2px",
+          "gap": "6px",
+          "value": null
+        },
+        "table": {
+          "bounds": {
+            "x": 68,
+            "y": 641.1875,
+            "width": 976,
+            "height": 425
+          },
+          "clientHeight": 425,
+          "scrollHeight": 425,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "header": {
+          "bounds": {
+            "x": 68,
+            "y": 641.1875,
+            "width": 976,
+            "height": 33
+          },
+          "clientHeight": 32,
+          "scrollHeight": 32,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "rows": {
+          "bounds": {
+            "x": 68,
+            "y": 674.1875,
+            "width": 976,
+            "height": 360
+          },
+          "clientHeight": 360,
+          "scrollHeight": 360,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "footer": {
+          "bounds": {
+            "x": 68,
+            "y": 1034.1875,
+            "width": 976,
+            "height": 32
+          },
+          "clientHeight": 31,
+          "scrollHeight": 31,
+          "scrollTop": 0,
+          "padding": "4px 8px",
+          "gap": "6px",
+          "value": null
+        },
+        "review": {
+          "bounds": {
+            "x": 68,
+            "y": 1074.1875,
+            "width": 976,
+            "height": 29.796875
+          },
+          "clientHeight": 30,
+          "scrollHeight": 30,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "resize": {
+          "bounds": {
+            "x": 56,
+            "y": 404,
+            "width": 1000,
+            "height": 24
+          },
+          "clientHeight": 24,
+          "scrollHeight": 24,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": "600"
+        }
+      }
+    },
+    {
+      "profile": "compact",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "state": "default",
+      "input": "view Model + Grid",
+      "data": {
+        "pane": {
+          "bounds": {
+            "x": 56,
+            "y": 496,
+            "width": 840,
+            "height": 280
+          },
+          "clientHeight": 279,
+          "scrollHeight": 279,
+          "scrollTop": 0,
+          "padding": "24px 0px 0px",
+          "gap": "0px",
+          "value": null
+        },
+        "host": {
+          "bounds": {
+            "x": 56,
+            "y": 549,
+            "width": 840,
+            "height": 227
+          },
+          "clientHeight": 227,
+          "scrollHeight": 659,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "model": {
+          "bounds": {
+            "x": 56,
+            "y": 549,
+            "width": 840,
+            "height": 658.984375
+          },
+          "clientHeight": 659,
+          "scrollHeight": 659,
+          "scrollTop": 0,
+          "padding": "12px",
+          "gap": "normal",
+          "value": null
+        },
+        "title": {
+          "bounds": {
+            "x": 68,
+            "y": 561,
+            "width": 816,
+            "height": 16.796875
+          },
+          "clientHeight": 17,
+          "scrollHeight": 17,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "7px",
+          "value": null
+        },
+        "mode": {
+          "bounds": {
+            "x": 68,
+            "y": 587.796875,
+            "width": 816,
+            "height": 32
+          },
+          "clientHeight": 32,
+          "scrollHeight": 32,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "6px",
+          "value": null
+        },
+        "filter": {
+          "bounds": {
+            "x": 68,
+            "y": 627.796875,
+            "width": 816,
+            "height": 53.390625
+          },
+          "clientHeight": 53,
+          "scrollHeight": 53,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "6px 8px",
+          "value": null
+        },
+        "families": {
+          "bounds": {
+            "x": 68,
+            "y": 691.1875,
+            "width": 816,
+            "height": 34
+          },
+          "clientHeight": 34,
+          "scrollHeight": 34,
+          "scrollTop": 0,
+          "padding": "0px 0px 2px",
+          "gap": "6px",
+          "value": null
+        },
+        "table": {
+          "bounds": {
+            "x": 68,
+            "y": 733.1875,
+            "width": 816,
+            "height": 425
+          },
+          "clientHeight": 425,
+          "scrollHeight": 425,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "header": {
+          "bounds": {
+            "x": 68,
+            "y": 733.1875,
+            "width": 816,
+            "height": 33
+          },
+          "clientHeight": 32,
+          "scrollHeight": 32,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "rows": {
+          "bounds": {
+            "x": 68,
+            "y": 766.1875,
+            "width": 816,
+            "height": 360
+          },
+          "clientHeight": 360,
+          "scrollHeight": 360,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "footer": {
+          "bounds": {
+            "x": 68,
+            "y": 1126.1875,
+            "width": 816,
+            "height": 32
+          },
+          "clientHeight": 31,
+          "scrollHeight": 31,
+          "scrollTop": 0,
+          "padding": "4px 8px",
+          "gap": "6px",
+          "value": null
+        },
+        "review": {
+          "bounds": {
+            "x": 68,
+            "y": 1166.1875,
+            "width": 816,
+            "height": 29.796875
+          },
+          "clientHeight": 30,
+          "scrollHeight": 30,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "resize": {
+          "bounds": {
+            "x": 56,
+            "y": 496,
+            "width": 840,
+            "height": 24
+          },
+          "clientHeight": 24,
+          "scrollHeight": 24,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": "280"
+        }
+      }
+    },
+    {
+      "profile": "compact",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "state": "minimum",
+      "input": "30 ArrowDown on existing resize separator",
+      "data": {
+        "pane": {
+          "bounds": {
+            "x": 56,
+            "y": 596,
+            "width": 840,
+            "height": 180
+          },
+          "clientHeight": 179,
+          "scrollHeight": 179,
+          "scrollTop": 0,
+          "padding": "24px 0px 0px",
+          "gap": "0px",
+          "value": null
+        },
+        "host": {
+          "bounds": {
+            "x": 56,
+            "y": 649,
+            "width": 840,
+            "height": 127
+          },
+          "clientHeight": 127,
+          "scrollHeight": 659,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "model": {
+          "bounds": {
+            "x": 56,
+            "y": 649,
+            "width": 840,
+            "height": 658.984375
+          },
+          "clientHeight": 659,
+          "scrollHeight": 659,
+          "scrollTop": 0,
+          "padding": "12px",
+          "gap": "normal",
+          "value": null
+        },
+        "title": {
+          "bounds": {
+            "x": 68,
+            "y": 661,
+            "width": 816,
+            "height": 16.796875
+          },
+          "clientHeight": 17,
+          "scrollHeight": 17,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "7px",
+          "value": null
+        },
+        "mode": {
+          "bounds": {
+            "x": 68,
+            "y": 687.796875,
+            "width": 816,
+            "height": 32
+          },
+          "clientHeight": 32,
+          "scrollHeight": 32,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "6px",
+          "value": null
+        },
+        "filter": {
+          "bounds": {
+            "x": 68,
+            "y": 727.796875,
+            "width": 816,
+            "height": 53.390625
+          },
+          "clientHeight": 53,
+          "scrollHeight": 53,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "6px 8px",
+          "value": null
+        },
+        "families": {
+          "bounds": {
+            "x": 68,
+            "y": 791.1875,
+            "width": 816,
+            "height": 34
+          },
+          "clientHeight": 34,
+          "scrollHeight": 34,
+          "scrollTop": 0,
+          "padding": "0px 0px 2px",
+          "gap": "6px",
+          "value": null
+        },
+        "table": {
+          "bounds": {
+            "x": 68,
+            "y": 833.1875,
+            "width": 816,
+            "height": 425
+          },
+          "clientHeight": 425,
+          "scrollHeight": 425,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "header": {
+          "bounds": {
+            "x": 68,
+            "y": 833.1875,
+            "width": 816,
+            "height": 33
+          },
+          "clientHeight": 32,
+          "scrollHeight": 32,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "rows": {
+          "bounds": {
+            "x": 68,
+            "y": 866.1875,
+            "width": 816,
+            "height": 360
+          },
+          "clientHeight": 360,
+          "scrollHeight": 360,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "footer": {
+          "bounds": {
+            "x": 68,
+            "y": 1226.1875,
+            "width": 816,
+            "height": 32
+          },
+          "clientHeight": 31,
+          "scrollHeight": 31,
+          "scrollTop": 0,
+          "padding": "4px 8px",
+          "gap": "6px",
+          "value": null
+        },
+        "review": {
+          "bounds": {
+            "x": 68,
+            "y": 1266.1875,
+            "width": 816,
+            "height": 29.796875
+          },
+          "clientHeight": 30,
+          "scrollHeight": 30,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "resize": {
+          "bounds": {
+            "x": 56,
+            "y": 596,
+            "width": 840,
+            "height": 24
+          },
+          "clientHeight": 24,
+          "scrollHeight": 24,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": "180"
+        }
+      }
+    },
+    {
+      "profile": "compact",
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "state": "expanded",
+      "input": "30 ArrowUp on existing resize separator",
+      "data": {
+        "pane": {
+          "bounds": {
+            "x": 56,
+            "y": 404,
+            "width": 840,
+            "height": 372
+          },
+          "clientHeight": 371,
+          "scrollHeight": 371,
+          "scrollTop": 0,
+          "padding": "24px 0px 0px",
+          "gap": "0px",
+          "value": null
+        },
+        "host": {
+          "bounds": {
+            "x": 56,
+            "y": 457,
+            "width": 840,
+            "height": 319
+          },
+          "clientHeight": 319,
+          "scrollHeight": 659,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "model": {
+          "bounds": {
+            "x": 56,
+            "y": 457,
+            "width": 840,
+            "height": 658.984375
+          },
+          "clientHeight": 659,
+          "scrollHeight": 659,
+          "scrollTop": 0,
+          "padding": "12px",
+          "gap": "normal",
+          "value": null
+        },
+        "title": {
+          "bounds": {
+            "x": 68,
+            "y": 469,
+            "width": 816,
+            "height": 16.796875
+          },
+          "clientHeight": 17,
+          "scrollHeight": 17,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "7px",
+          "value": null
+        },
+        "mode": {
+          "bounds": {
+            "x": 68,
+            "y": 495.796875,
+            "width": 816,
+            "height": 32
+          },
+          "clientHeight": 32,
+          "scrollHeight": 32,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "6px",
+          "value": null
+        },
+        "filter": {
+          "bounds": {
+            "x": 68,
+            "y": 535.796875,
+            "width": 816,
+            "height": 53.390625
+          },
+          "clientHeight": 53,
+          "scrollHeight": 53,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "6px 8px",
+          "value": null
+        },
+        "families": {
+          "bounds": {
+            "x": 68,
+            "y": 599.1875,
+            "width": 816,
+            "height": 34
+          },
+          "clientHeight": 34,
+          "scrollHeight": 34,
+          "scrollTop": 0,
+          "padding": "0px 0px 2px",
+          "gap": "6px",
+          "value": null
+        },
+        "table": {
+          "bounds": {
+            "x": 68,
+            "y": 641.1875,
+            "width": 816,
+            "height": 425
+          },
+          "clientHeight": 425,
+          "scrollHeight": 425,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "header": {
+          "bounds": {
+            "x": 68,
+            "y": 641.1875,
+            "width": 816,
+            "height": 33
+          },
+          "clientHeight": 32,
+          "scrollHeight": 32,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "rows": {
+          "bounds": {
+            "x": 68,
+            "y": 674.1875,
+            "width": 816,
+            "height": 360
+          },
+          "clientHeight": 360,
+          "scrollHeight": 360,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "footer": {
+          "bounds": {
+            "x": 68,
+            "y": 1034.1875,
+            "width": 816,
+            "height": 32
+          },
+          "clientHeight": 31,
+          "scrollHeight": 31,
+          "scrollTop": 0,
+          "padding": "4px 8px",
+          "gap": "6px",
+          "value": null
+        },
+        "review": {
+          "bounds": {
+            "x": 68,
+            "y": 1074.1875,
+            "width": 816,
+            "height": 29.796875
+          },
+          "clientHeight": 30,
+          "scrollHeight": 30,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": null
+        },
+        "resize": {
+          "bounds": {
+            "x": 56,
+            "y": 404,
+            "width": 840,
+            "height": 24
+          },
+          "clientHeight": 24,
+          "scrollHeight": 24,
+          "scrollTop": 0,
+          "padding": "0px",
+          "gap": "normal",
+          "value": "600"
+        }
+      }
+    }
+  ]
+}

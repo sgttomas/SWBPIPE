@@ -1,0 +1,30 @@
+{
+  "canonicalSha256": "f59a04f54a7b7aba241f4ec144052032ca781a7222ef748e663b929e0e74598c",
+  "argv": [
+    "npx",
+    "playwright",
+    "test",
+    "e2e/ui-foundation.spec.ts",
+    "e2e/r2-smoke.spec.ts",
+    "e2e/b3a-session-status.spec.ts",
+    "--grep",
+    "(Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft|guided workbench shell keeps journey steps, details, and compact status reachable|canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot)$",
+    "--workers=1",
+    "--list"
+  ],
+  "exitCode": 0,
+  "cases": [
+    "[chromium-desktop] \u203a b3a-session-status.spec.ts:5:1 \u203a canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot",
+    "[chromium-desktop] \u203a r2-smoke.spec.ts:148:1 \u203a guided workbench shell keeps journey steps, details, and compact status reachable",
+    "[chromium-desktop] \u203a ui-foundation.spec.ts:349:1 \u203a Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft",
+    "[chromium-compact] \u203a b3a-session-status.spec.ts:5:1 \u203a canonical edit/save/Undo/Redo/reopen marker follows the persisted snapshot",
+    "[chromium-compact] \u203a r2-smoke.spec.ts:148:1 \u203a guided workbench shell keeps journey steps, details, and compact status reachable",
+    "[chromium-compact] \u203a ui-foundation.spec.ts:349:1 \u203a Grid drafts survive Tree round-trips and a filtered queue clears only its visible draft"
+  ],
+  "caseCount": 6,
+  "titleCount": 3,
+  "projects": [
+    "chromium-compact",
+    "chromium-desktop"
+  ]
+}

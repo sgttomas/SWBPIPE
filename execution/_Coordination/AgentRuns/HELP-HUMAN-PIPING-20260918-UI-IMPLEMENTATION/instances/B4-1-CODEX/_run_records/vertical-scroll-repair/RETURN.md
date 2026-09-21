@@ -1,0 +1,19 @@
+# Vertical repair worker return
+
+Retained TASK /root/b3_manager/b4_1_table, requested Astra/low, no descendants. Exact wt3 scope/resource grant verified before work. Maintained source frozen at SOURCE_FREEZE.json SHA256f2c9969e3d74598add1dcb5278dd6aed3a9ade6493bc348051f90ea928fa9d43; parent reports all14 hashes matched commit ed8cc27fdb37b8df2f20eb5f877aacb61bfd7db1. No further maintained writes after freeze. Evidence-only packaging follows that immutable freeze.
+
+Implemented finite full-height Grid chrome and adaptive body sizing using unchanged VirtualList API, one visible controlled direct/review work area with mounted hidden/inert draft retention, actual-element/positive-inert resize observation and explicit allocation conflict feedback. No engine/schema/history/controller semantics, VirtualList implementation, native, pane budgets, shared drivers/instrument/config/CI or unrelated component changes. App adds only boundedGrid={!tableDrawer.collapsible}. Exact seven legacy helper adaptations use truthful aria-expanded state and preserve their behavioral oracles.
+
+Measured short Model drawer default host227/minimum127/expanded439 or319 cannot fit the considered compact form at minimum without further presentation work. Under ROOT's allowed fallback, collapsible Model/narrow Both retain prior scroll behavior; this remains a precise gap, not a claim that all redesigns are impossible. No full B4 fit closure.
+
+Final checks:153 focused +17 App cases pass; TS/diff-check pass. New vertical4 pass; stronger actual invalid-draft Libraries inert-resize/reveal2 pass; prior B4six pass; canonical legacy collection6 and execution6 pass. Exact commands/raw outputs and failures are indexed in CHECKS.md and FAILURES_AND_DIAGNOSES.md. No protected oracle/tolerance/timeout was weakened. The bounded additional source-CDP wheel setup preserves exact top0/max and separate boundary-chaining assertions. Source browser evidence is not physical/native gesture evidence.
+
+Review-toggle explicit button/flex choice was ROOT authorized after measured native-details percentage collapse. Stable aria-controls, Enter/Space, footer traversal and visibility are witnessed. Metrics accurately distinguish direct coordinate header from bulk counts summary; no measured bulk column-header invariance is claimed from the counts metric. Pane/viewport-host/drawn-canvas rectangles are separately labelled, with no D72/drawing-buffer qualification.
+
+Browser/server/sharedlock released; CLEANUP.json SHA256ed011750aeaa907a7dc98ff6aedee6db7088a4b8daf5cd6ce9ac7a46f0011494. No running worker checks/processes, no native/CUA/build/full-sweep/Git mutation. Existing native31977 and every previous failed/partial/qualified return remain untouched. Manager owns independent review, integration and native handoff.
+
+## Bounded later native witness
+
+After ROOT-owned verified quit/rebuild/relaunch: at full-height Both+Inspector in default and configured-minimum windows, wheel over short rows/control areas and confirm filter/families/header/footer remain fixed; pointer Z/horizontal movement and valid Cancel/Apply/one Undo still work. Exercise explicit Review/Return with Enter/Space and pointer, retained invalid direct and bulk drafts, filtered Queue, other families and footer reachability. Repeat Libraries resize/Close with a retained invalid edit and no focus/selection corruption. Use a supported, specifically authorized larger invented model if available to witness body scrolling/top/bottom chaining and threshold behavior; do not inject page state or claim an unperformed native virtualized branch. Keep short-drawer fallback qualified. Native source/binary identity and actual logical size need their own records; screenshot pixels are not size evidence.
+
+F-PIP-2/DEC-081 applies. No engineering acceptance, native fit pass, full B4 completion, release or other-loop activation is asserted.

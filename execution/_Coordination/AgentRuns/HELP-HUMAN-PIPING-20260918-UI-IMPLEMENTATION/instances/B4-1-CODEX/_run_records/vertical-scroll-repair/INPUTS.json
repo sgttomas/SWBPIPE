@@ -1,0 +1,35 @@
+{
+  "at": "2026-09-21T00:54:39.553063+00:00",
+  "repoRoot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3",
+  "baseHead": "c8f8e503383e15b42b171c4957c6f458d3697150",
+  "productSource": "1ad964e30b08bed57bba8f08e3a75e8c883c8b0b",
+  "rootDispositionOrigin": "/Users/ryan/.codex/worktrees/b3d208ad-bb6f-4bed-aaab-c567e28cbe23/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_1_VERTICAL_SCROLL_REPAIR_DISPOSITION.md",
+  "rootDispositionSha256": "b125b5b7b5fefa7011e504c891f440edcd22801f361ccd8778d770de28a072b6",
+  "briefSha256": "5546218b6b76199c5b083e27df139575e63414eaf2b8a8d9a18d8483f7994ba3",
+  "sourceInputs": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "sha256": "c3b783b943a6795cd77d88cccdce16b7cb1daf9bec230ab8de0e6210a11c5f5b"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+      "sha256": "a4d06f38404676335f7a6f87eaf8e064c5b31a20bff59adc94dfd94bfc759f3c"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx",
+      "sha256": "09dcd1f71d331b057589a0b88ea156ce017c887dce49f54f99c9261c94a7faf7"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/VirtualList.tsx",
+      "sha256": "0ef58bdc7c98188be7b1a828125ac056de25bb7646ca38bff76f3ad11d49c92c"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/styles.css",
+      "sha256": "61bee585ea09cf36879c912583e27c57fe799abb0b968557298fea46c04ea3aa"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+      "sha256": "71745e5e89cc7ac0bb855037aa2887d80f6dcf6d5c699f513781623ee8d7756c"
+    }
+  ]
+}

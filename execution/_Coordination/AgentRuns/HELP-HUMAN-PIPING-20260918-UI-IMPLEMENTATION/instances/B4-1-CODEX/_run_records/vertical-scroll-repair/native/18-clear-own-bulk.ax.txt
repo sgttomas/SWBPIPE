@@ -1,0 +1,6 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~							371 text 5  of  5 Nodes 0  changed cells
+~											381 text field (settable) node:N-100 X, Value: 0
+~							470 button (disabled) Queue changed cells
+~							471 button (disabled) Clear grid edits
+The focused UI element is 2 HTML content Description: SWBPIPE, URL: tauri://localhost

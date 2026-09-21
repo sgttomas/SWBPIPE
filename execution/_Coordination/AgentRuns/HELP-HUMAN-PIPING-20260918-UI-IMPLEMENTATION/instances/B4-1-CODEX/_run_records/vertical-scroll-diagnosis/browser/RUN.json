@@ -1,0 +1,141 @@
+{
+  "source": "c8f8e503383e15b42b171c4957c6f458d3697150",
+  "cwd": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop",
+  "argv": [
+    "/Users/ryan/.local/share/mise/installs/node/24.18.0/bin/node",
+    "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-1-CODEX/_run_records/vertical-scroll-diagnosis/probe.mjs",
+    "../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-1-CODEX/_run_records/vertical-scroll-diagnosis/browser"
+  ],
+  "executable": "/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+  "version": "148.0.7778.96",
+  "executableSha256": "2447c7bdea8e8ad38b52594f1ba53e18821c05445e8a07ad1cf3b0f23931d89d",
+  "scriptSha256": "2c54038d7f773665b5471aabe80e20c08c090268b05584813ce4e36ca88125b0",
+  "scenarios": [
+    {
+      "name": "desktop-grid-body",
+      "input": {
+        "pointer": {
+          "x": 168,
+          "y": 464.1875
+        },
+        "hit": "<button type=\"button\" title=\"node:N-120\">node:N-120</button>",
+        "deltaX": 0,
+        "deltaY": 600,
+        "method": "Playwright page.mouse.wheel; no scroll setter/style injection"
+      },
+      "changed": [],
+      "filterY": [
+        187.796875,
+        187.796875
+      ],
+      "familiesY": [
+        251.1875,
+        251.1875
+      ],
+      "rowgroup": {
+        "clientHeight": 360,
+        "scrollHeight": 360,
+        "contentHeight": 180,
+        "rowCount": 5
+      }
+    },
+    {
+      "name": "desktop-family-controls",
+      "input": {
+        "pointer": {
+          "x": 168,
+          "y": 263.1875
+        },
+        "hit": "<button aria-pressed=\"false\" data-testid=\"entity-grid-type-pipes\" type=\"button\">Pipes</button>",
+        "deltaX": 0,
+        "deltaY": 600,
+        "method": "Playwright page.mouse.wheel; no scroll setter/style injection"
+      },
+      "changed": [],
+      "filterY": [
+        187.796875,
+        187.796875
+      ],
+      "familiesY": [
+        251.1875,
+        251.1875
+      ],
+      "rowgroup": {
+        "clientHeight": 360,
+        "scrollHeight": 360,
+        "contentHeight": 180,
+        "rowCount": 5
+      }
+    },
+    {
+      "name": "compact-grid-body",
+      "input": {
+        "pointer": {
+          "x": 168,
+          "y": 502.1875
+        },
+        "hit": "<button type=\"button\" title=\"node:N-120\">node:N-120</button>",
+        "deltaX": 0,
+        "deltaY": 600,
+        "method": "Playwright page.mouse.wheel; no scroll setter/style injection"
+      },
+      "changed": [
+        {
+          "tag": "DIV",
+          "cls": "shell-tree-host",
+          "scrollTop": 68,
+          "scrollLeft": 0
+        }
+      ],
+      "filterY": [
+        187.796875,
+        119.796875
+      ],
+      "familiesY": [
+        251.1875,
+        183.1875
+      ],
+      "rowgroup": {
+        "clientHeight": 360,
+        "scrollHeight": 360,
+        "contentHeight": 180,
+        "rowCount": 5
+      }
+    },
+    {
+      "name": "compact-family-controls",
+      "input": {
+        "pointer": {
+          "x": 168,
+          "y": 263.1875
+        },
+        "hit": "<button aria-pressed=\"false\" data-testid=\"entity-grid-type-pipes\" type=\"button\">Pipes</button>",
+        "deltaX": 0,
+        "deltaY": 600,
+        "method": "Playwright page.mouse.wheel; no scroll setter/style injection"
+      },
+      "changed": [
+        {
+          "tag": "DIV",
+          "cls": "shell-tree-host",
+          "scrollTop": 68,
+          "scrollLeft": 0
+        }
+      ],
+      "filterY": [
+        187.796875,
+        119.796875
+      ],
+      "familiesY": [
+        251.1875,
+        183.1875
+      ],
+      "rowgroup": {
+        "clientHeight": 360,
+        "scrollHeight": 360,
+        "contentHeight": 180,
+        "rowCount": 5
+      }
+    }
+  ]
+}

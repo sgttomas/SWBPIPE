@@ -1,0 +1,81 @@
+[2m[WebServer] [22m(node:36505) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 1 worker
+
+(node:36507) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:36507) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium-desktop] › e2e/b4-table-editing.spec.ts:140:1 › B4 short Grid keeps vertical chrome fixed and retains alternate review drafts (2.2s)
+  ✘  2 [chromium-desktop] › e2e/b4-table-editing.spec.ts:164:1 › B4 virtual Grid confines body scrolling and boundary wheel without moving chrome (10.5s)
+(node:36527) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:36527) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 [chromium-compact] › e2e/b4-table-editing.spec.ts:140:1 › B4 short Grid keeps vertical chrome fixed and retains alternate review drafts (1.9s)
+  ✘  4 [chromium-compact] › e2e/b4-table-editing.spec.ts:164:1 › B4 virtual Grid confines body scrolling and boundary wheel without moving chrome (10.5s)
+
+
+  1) [chromium-desktop] › e2e/b4-table-editing.spec.ts:164:1 › B4 virtual Grid confines body scrolling and boundary wheel without moving chrome 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m0[39m
+    Received: [31m230[39m
+
+    Call Log:
+    - Timeout 10000ms exceeded while waiting on the predicate
+
+      170 |   await page.mouse.wheel(0, 1000000); await expect.poll(async () => { const state = await scrollState(); return state.maximum - state.top; }).toBe(0);
+      171 |   await page.mouse.wheel(0, 600); await expect.poll(() => gridChromeBounds(page)).toEqual(before);
+    > 172 |   await page.mouse.wheel(0, -1000000); await expect.poll(async () => (await scrollState()).top).toBe(0); await page.mouse.wheel(0, -600); await expect.poll(() => gridChromeBounds(page)).toEqual(before);
+          |                                                                                                 ^
+      173 |   await page.locator(".entity-grid-tabs").hover(); await page.mouse.wheel(0, 600); await expect.poll(() => gridChromeBounds(page)).toEqual(before);
+      174 |   const filter = page.getByTestId("model-tree-filter-input"); await filter.fill(model.nodes.at(-1).id);
+      175 |   await expect(rows.locator('[role="row"]')).toHaveCount(1); const filtered = await gridChromeBounds(page); await rows.hover(); await page.mouse.wheel(0, 600); await expect.poll(() => gridChromeBounds(page)).toEqual(filtered);
+        at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts:172:97
+
+    Error Context: ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-1-CODEX/_run_records/vertical-scroll-repair/vertical-01-artifacts/b4-table-editing-B4-virtua-f38ad-wheel-without-moving-chrome-chromium-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-1-CODEX/_run_records/vertical-scroll-repair/vertical-01-artifacts/b4-table-editing-B4-virtua-f38ad-wheel-without-moving-chrome-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-1-CODEX/_run_records/vertical-scroll-repair/vertical-01-artifacts/b4-table-editing-B4-virtua-f38ad-wheel-without-moving-chrome-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium-compact] › e2e/b4-table-editing.spec.ts:164:1 › B4 virtual Grid confines body scrolling and boundary wheel without moving chrome 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m0[39m
+    Received: [31m235[39m
+
+    Call Log:
+    - Timeout 10000ms exceeded while waiting on the predicate
+
+      170 |   await page.mouse.wheel(0, 1000000); await expect.poll(async () => { const state = await scrollState(); return state.maximum - state.top; }).toBe(0);
+      171 |   await page.mouse.wheel(0, 600); await expect.poll(() => gridChromeBounds(page)).toEqual(before);
+    > 172 |   await page.mouse.wheel(0, -1000000); await expect.poll(async () => (await scrollState()).top).toBe(0); await page.mouse.wheel(0, -600); await expect.poll(() => gridChromeBounds(page)).toEqual(before);
+          |                                                                                                 ^
+      173 |   await page.locator(".entity-grid-tabs").hover(); await page.mouse.wheel(0, 600); await expect.poll(() => gridChromeBounds(page)).toEqual(before);
+      174 |   const filter = page.getByTestId("model-tree-filter-input"); await filter.fill(model.nodes.at(-1).id);
+      175 |   await expect(rows.locator('[role="row"]')).toHaveCount(1); const filtered = await gridChromeBounds(page); await rows.hover(); await page.mouse.wheel(0, 600); await expect.poll(() => gridChromeBounds(page)).toEqual(filtered);
+        at /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts:172:97
+
+    Error Context: ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-1-CODEX/_run_records/vertical-scroll-repair/vertical-01-artifacts/b4-table-editing-B4-virtua-f38ad-wheel-without-moving-chrome-chromium-compact/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-1-CODEX/_run_records/vertical-scroll-repair/vertical-01-artifacts/b4-table-editing-B4-virtua-f38ad-wheel-without-moving-chrome-chromium-compact/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B4-1-CODEX/_run_records/vertical-scroll-repair/vertical-01-artifacts/b4-table-editing-B4-virtua-f38ad-wheel-without-moving-chrome-chromium-compact/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium-desktop] › e2e/b4-table-editing.spec.ts:164:1 › B4 virtual Grid confines body scrolling and boundary wheel without moving chrome 
+    [chromium-compact] › e2e/b4-table-editing.spec.ts:164:1 › B4 virtual Grid confines body scrolling and boundary wheel without moving chrome 
+  2 passed (27.4s)

@@ -1,0 +1,77 @@
+{
+  "at": "2026-09-21T01:41:58.939354+00:00",
+  "base": "c8f8e503383e15b42b171c4957c6f458d3697150",
+  "status": "SOURCE FROZEN; no more maintained writes; evidence-only packaging follows",
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/b3a-session-status.spec.ts",
+      "sha256": "67a0bd101897ff49e8a6127387415a4f642c553007c3eaaca6f41c8fe44b2bc9"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+      "sha256": "a64a21655a16f1d4cd47dcb7c413ce87a4ab6c6095acb4921bb0e6b5303df342"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+      "sha256": "c98ec36970286dc828e4e48a40f53a471a4696fad1146093109b04cac01f5ca3"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+      "sha256": "d237551d5553b07877cc078eca5fd6247e2eee47f0e4a18cebb3dc85d4707f5b"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.projectHandlers.test.tsx",
+      "sha256": "d6a15e2b75748cc7fe2c560f0662533102e2861c06b085218dc0de2cd7885f17"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "sha256": "e1f54f39173848706c7d5d93fa32f617350ecc038c5f006027f9bcabff9fae52"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "sha256": "05ab59648af6d3c94a2001cd25c893d275a35aa4f463525c9b60345967109c2f"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.test.tsx",
+      "sha256": "245c66bdb75aad83a1843f4581cec94c99a6b47c21ac9efc023a298713760b91"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+      "sha256": "5fb7efb59ccd97eeb547d21ac59f6de80fef8157136b011a9b5cbb49cf1cf919"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx",
+      "sha256": "f56a934dcc7adafa5ae68fb01c70606954119e91c0aa5b96a4a07e16f78c5a44"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.test.tsx",
+      "sha256": "b5803a7eaef59779c6f0b477f10f14549cb430019516c9fa731f57ca027ae979"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx",
+      "sha256": "bedfc82601621155d030af0e8d21c302052c27aa03fd47821dbf3731c2b87530"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/ModelTree.table.test.tsx",
+      "sha256": "ff1249c6245ed40bd09a578e39311e6c5d86bb59fbbc0b4168d081c581b497df"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/styles.css",
+      "sha256": "ea48c829259a4ebd17d004d30199e38e612463620dbbba1c14b109a5dd973c25"
+    }
+  ],
+  "checks": {
+    "unit": "unit-final.txt:153 passed",
+    "appConsumers": "app-consumers-final.txt:17 passed,201 unrelated skipped",
+    "typescript": "typescript-final.txt:exit0",
+    "browserVertical": "vertical-06.txt:4 passed; resize-final.txt:2 affected cases passed after stronger draft assertion",
+    "browserPriorB4": "prior-b4.txt:6 passed",
+    "legacy": "LEGACY_COLLECTION.json:6 collected; legacy.txt:6 passed",
+    "diffCheck": "pass"
+  },
+  "limits": [
+    "Collapsible Model/narrow Both drawers retain previous behavior; minimum host127px presentation gap.",
+    "Native witness and independent review pending.",
+    "Review helper header metric measures counts, not bulk column header."
+  ]
+}

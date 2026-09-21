@@ -1,0 +1,100 @@
+{
+  "scope": "canonical B4.1 vertical diagnosis/repair verification; ordinary exact-path index staging authorized by ROOT; no ignored caches/binaries",
+  "files": [
+    {
+      "path": "_run_records/vertical-scroll-diagnosis/browser/compact-family-controls-trace.zip",
+      "bytes": 1104626,
+      "sha256": "53c5054a4283ff536d4728c17e1652013bd7e46d2ee013b221bf2ce85449b623"
+    },
+    {
+      "path": "_run_records/vertical-scroll-diagnosis/browser/compact-grid-body-trace.zip",
+      "bytes": 1044787,
+      "sha256": "753c14bb527a568eff56a550df2caa249a560c8044d4121ef3316a34372560ac"
+    },
+    {
+      "path": "_run_records/vertical-scroll-diagnosis/browser/desktop-family-controls-trace.zip",
+      "bytes": 2078435,
+      "sha256": "4c918b39a33fb818b28734b6331cef5a533d4ea7c513d8083d2d1ad498ae9a1d"
+    },
+    {
+      "path": "_run_records/vertical-scroll-diagnosis/browser/desktop-grid-body-trace.zip",
+      "bytes": 2146026,
+      "sha256": "f7b156e5bf894565e87c1c8813a05b541dc8e0730e6c0590a85e50e7ad2892f1"
+    },
+    {
+      "path": "_run_records/vertical-scroll-repair/drawer-before/compact-trace.zip",
+      "bytes": 3513936,
+      "sha256": "3f8a7da02d8f94392e5a3fdef96b6cd0e41aebff56d0cc7d1ee30436bd18ecc5"
+    },
+    {
+      "path": "_run_records/vertical-scroll-repair/drawer-before/desktop-trace.zip",
+      "bytes": 3955986,
+      "sha256": "9230951de3c0fc9a3b7d12cff302632b530bcc6b704c4665118a3e4ae0436e6a"
+    },
+    {
+      "path": "_run_records/vertical-scroll-repair/layout-01/compact-family-controls-trace.zip",
+      "bytes": 2139720,
+      "sha256": "d41cad4870c69200c1e1e6f8d022b9b63d95798fed492ee38d4a9d602a675bbc"
+    },
+    {
+      "path": "_run_records/vertical-scroll-repair/layout-01/compact-grid-body-trace.zip",
+      "bytes": 1054941,
+      "sha256": "e777bd188840f4e5b96ea710086e2ad6bed1bb830dcc9c6dd80271e403ad623c"
+    },
+    {
+      "path": "_run_records/vertical-scroll-repair/layout-01/desktop-family-controls-trace.zip",
+      "bytes": 2202574,
+      "sha256": "bac2200f238e03419e59353e4455a9109603f077fa92454d4c22eab55e397819"
+    },
+    {
+      "path": "_run_records/vertical-scroll-repair/layout-01/desktop-grid-body-trace.zip",
+      "bytes": 1059663,
+      "sha256": "4e5959464ba354a9f46adbad8ec60eccdaf4e8b0f85f8bb6bcef7affbc3f9668"
+    },
+    {
+      "path": "_run_records/vertical-scroll-repair/vertical-01-artifacts/b4-table-editing-B4-virtua-f38ad-wheel-without-moving-chrome-chromium-compact/trace.zip",
+      "bytes": 3659528,
+      "sha256": "72e78d8acc9ddd9a3046f3bc4f976054b843a1dbbb0d4deae361b3a17869091b"
+    },
+    {
+      "path": "_run_records/vertical-scroll-repair/vertical-01-artifacts/b4-table-editing-B4-virtua-f38ad-wheel-without-moving-chrome-chromium-desktop/trace.zip",
+      "bytes": 3980389,
+      "sha256": "046795b93c6b829f4485efde2a87a53aacd515c73cbe9f40a72e64de28127f10"
+    },
+    {
+      "path": "_run_records/vertical-scroll-repair/vertical-02-artifacts/b4-table-editing-B4-short--c7057-ins-alternate-review-drafts-chromium-desktop/trace.zip",
+      "bytes": 761640,
+      "sha256": "4a90cfc6a89cfa26845a538365b3fcd43b0401a09b8e2ea84e75e5864265b07d"
+    },
+    {
+      "path": "_run_records/vertical-scroll-repair/vertical-03-artifacts/b4-table-editing-B4-virtua-f38ad-wheel-without-moving-chrome-chromium-compact/trace.zip",
+      "bytes": 2617624,
+      "sha256": "adcd29ebb621f9cd6311e5f84f8f09875c5b3a10270d18c3fd3f1e45891ee560"
+    },
+    {
+      "path": "_run_records/vertical-scroll-repair/vertical-03-artifacts/b4-table-editing-B4-virtua-f38ad-wheel-without-moving-chrome-chromium-desktop/trace.zip",
+      "bytes": 2919038,
+      "sha256": "332d431dff24d816bc5b926efbc1eaad124ac0dbddb98b6a1b38272076b2986a"
+    },
+    {
+      "path": "_run_records/vertical-scroll-repair/vertical-04-artifacts/b4-table-editing-B4-virtua-f38ad-wheel-without-moving-chrome-chromium-compact/trace.zip",
+      "bytes": 2622038,
+      "sha256": "c59b1e88c035f2c669bba0e6d3b3fbb226409a68d48ef78033ddd3c729ea5964"
+    },
+    {
+      "path": "_run_records/vertical-scroll-repair/vertical-04-artifacts/b4-table-editing-B4-virtua-f38ad-wheel-without-moving-chrome-chromium-desktop/trace.zip",
+      "bytes": 3007377,
+      "sha256": "3a46bf2f5cd75f9332c9975fda7733c56ad85537a36eb34de277403eafb3c623"
+    },
+    {
+      "path": "_run_records/vertical-scroll-repair/vertical-05-artifacts/b4-table-editing-B4-virtua-f38ad-wheel-without-moving-chrome-chromium-compact/trace.zip",
+      "bytes": 6004225,
+      "sha256": "e1d99bfe6aa0d1dca37e2ac922dda5fa0ad79073ef72a602a9f5af57d0e7152d"
+    },
+    {
+      "path": "_run_records/vertical-scroll-repair/vertical-05-artifacts/b4-table-editing-B4-virtua-f38ad-wheel-without-moving-chrome-chromium-desktop/trace.zip",
+      "bytes": 6410449,
+      "sha256": "a66dc5d91835c101b00bfc653a4102f6441e7d44d69494024974ce74d8bd087d"
+    }
+  ]
+}

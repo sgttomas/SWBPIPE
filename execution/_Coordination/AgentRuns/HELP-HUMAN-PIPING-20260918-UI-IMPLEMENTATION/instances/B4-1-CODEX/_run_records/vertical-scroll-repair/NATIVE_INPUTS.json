@@ -1,0 +1,67 @@
+{
+  "at": "2026-09-21T01:53:36.068839+00:00",
+  "repoRoot": "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3",
+  "source": "ed8cc27fdb37b8df2f20eb5f877aacb61bfd7db1",
+  "freezeSha256": "f2c9969e3d74598add1dcb5278dd6aed3a9ade6493bc348051f90ea928fa9d43",
+  "planSha256": "fdfde38bc6c5434d50b41c25c69dee62f0eb18f438e775072970aca5575cd9e9",
+  "addendumSha256": "ca4b48ff3442f1f1cc52a179ca652cbadf7765c02d64e6f80301b5cfa731bfe8",
+  "sourceFiles": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/b3a-session-status.spec.ts",
+      "sha256": "67a0bd101897ff49e8a6127387415a4f642c553007c3eaaca6f41c8fe44b2bc9"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+      "sha256": "a64a21655a16f1d4cd47dcb7c413ce87a4ab6c6095acb4921bb0e6b5303df342"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+      "sha256": "c98ec36970286dc828e4e48a40f53a471a4696fad1146093109b04cac01f5ca3"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+      "sha256": "d237551d5553b07877cc078eca5fd6247e2eee47f0e4a18cebb3dc85d4707f5b"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.projectHandlers.test.tsx",
+      "sha256": "d6a15e2b75748cc7fe2c560f0662533102e2861c06b085218dc0de2cd7885f17"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "sha256": "e1f54f39173848706c7d5d93fa32f617350ecc038c5f006027f9bcabff9fae52"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "sha256": "05ab59648af6d3c94a2001cd25c893d275a35aa4f463525c9b60345967109c2f"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.test.tsx",
+      "sha256": "245c66bdb75aad83a1843f4581cec94c99a6b47c21ac9efc023a298713760b91"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+      "sha256": "5fb7efb59ccd97eeb547d21ac59f6de80fef8157136b011a9b5cbb49cf1cf919"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx",
+      "sha256": "f56a934dcc7adafa5ae68fb01c70606954119e91c0aa5b96a4a07e16f78c5a44"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.test.tsx",
+      "sha256": "b5803a7eaef59779c6f0b477f10f14549cb430019516c9fa731f57ca027ae979"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx",
+      "sha256": "bedfc82601621155d030af0e8d21c302052c27aa03fd47821dbf3731c2b87530"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/ModelTree.table.test.tsx",
+      "sha256": "ff1249c6245ed40bd09a578e39311e6c5d86bb59fbbc0b4168d081c581b497df"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/styles.css",
+      "sha256": "ea48c829259a4ebd17d004d30199e38e612463620dbbba1c14b109a5dd973c25"
+    }
+  ],
+  "grant": "ROOT source review PASS + peer resource release; one uninstrumented build/native witness; no stored rows/hooks"
+}

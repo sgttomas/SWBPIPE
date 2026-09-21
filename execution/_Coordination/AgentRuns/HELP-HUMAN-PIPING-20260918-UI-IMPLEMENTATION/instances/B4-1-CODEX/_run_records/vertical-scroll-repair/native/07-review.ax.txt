@@ -1,0 +1,112 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 180-216, 243-249, 258
++							258 text Direct coordinate edit retained. Return to node coordinates to correct or cancel it.
++							259 text 5  of  5 Nodes 0  changed cells
++							260 container Editable model entity table
++								261 table
++									262 row (selectable) ID
+LABEL
+X
+Y
+Z
+PROVENANCE
++									263 row (selectable)
++										264 cell (selectable) node:N-100
++											265 toggle button node:N-100, Value: off
++										266 cell (selectable)
++											267 text field (settable) node:N-100 Label, Value: Pump nozzle
++										268 cell (selectable)
++											269 text field (settable) node:N-100 X, Value: 0
++											270 container Quantity readout
++												271 text 0 m
++										272 cell (selectable)
++											273 text field (settable) node:N-100 Y, Value: 0
++											274 container Quantity readout
++												275 text 0 m
++										276 cell (selectable)
++											277 text field (settable) node:N-100 Z, Value: 0
++											278 container Quantity readout
++												279 text 0 m
++										280 cell (selectable)
++											281 text field (settable) node:N-100 Provenance, Value: invented_example
++									282 row (selectable)
++										283 cell (selectable) node:N-110
++											284 toggle button node:N-110, Value: on
++										285 cell (selectable)
++											286 text field (settable) node:N-110 Label, Value: Low point elbow
++										287 cell (selectable)
++											288 text field (settable) node:N-110 X, Value: 3.2
++											289 container Quantity readout
++												290 text 3.2 m
++										291 cell (selectable)
++											292 text field (settable) node:N-110 Y, Value: 0
++											293 container Quantity readout
++												294 text 0 m
++										295 cell (selectable)
++											296 text field (settable) node:N-110 Z, Value: 0
++											297 container Quantity readout
++												298 text 0 m
++										299 cell (selectable)
++											300 text field (settable) node:N-110 Provenance, Value: invented_example
++									301 row (selectable)
++										302 cell (selectable) node:N-120
++											303 toggle button node:N-120, Value: off
++										304 cell (selectable)
++											305 text field (settable) node:N-120 Label, Value: Riser elbow
++										306 cell (selectable)
++											307 text field (settable) node:N-120 X, Value: 3.2
++											308 container Quantity readout
++												309 text 3.2 m
++										310 cell (selectable)
++											311 text field (settable) node:N-120 Y, Value: 2.4
++											312 container Quantity readout
++												313 text 2.4 m
++										314 cell (selectable)
++											315 text field (settable) node:N-120 Z, Value: 0
++											316 container Quantity readout
++												317 text 0 m
++										318 cell (selectable)
++											319 text field (settable) node:N-120 Provenance, Value: invented_example
++									320 row (selectable)
++										321 cell (selectable) node:N-130
++											322 toggle button node:N-130, Value: off
++										323 cell (selectable)
++											324 text field (settable) node:N-130 Label, Value: Rack turn
++										325 cell (selectable)
++											326 text field (settable) node:N-130 X, Value: 7.6
++											327 container Quantity readout
++												328 text 7.6 m
++										329 cell (selectable)
++											330 text field (settable) node:N-130 Y, Value: 2.4
++											331 container Quantity readout
++												332 text 2.4 m
++										333 cell (selectable)
++											334 text field (settable) node:N-130 Z, Value: 0
++											335 container Quantity readout
++												336 text 0 m
++										337 cell (selectable)
++											338 text field (settable) node:N-130 Provenance, Value: invented_example
++									339 row (selectable)
++										340 cell (selectable) node:N-140
++											341 toggle button node:N-140, Value: off
++										342 cell (selectable)
++											343 text field (settable) node:N-140 Label, Value: Terminal tie-in
++										344 cell (selectable)
++											345 text field (settable) node:N-140 X, Value: 7.6
++											346 container Quantity readout
++												347 text 7.6 m
++										348 cell (selectable)
++											349 text field (settable) node:N-140 Y, Value: 2.4
++											350 container Quantity readout
++												351 text 2.4 m
++										352 cell (selectable)
++											353 text field (settable) node:N-140 Z, Value: 2.2
++											354 container Quantity readout
++												355 text 2.2 m
++										356 cell (selectable)
++											357 text field (settable) node:N-140 Provenance, Value: invented_example
++							358 button (disabled) Queue changed cells
++							359 button (disabled) Clear grid edits
++							360 text Grid mode fans each changed cell into a structured review intent; storage remains local.
+~							221 button (expanded) Return to node coordinates, Secondary Actions: Collapse
+The focused UI element is 2 HTML content Description: SWBPIPE, URL: tauri://localhost

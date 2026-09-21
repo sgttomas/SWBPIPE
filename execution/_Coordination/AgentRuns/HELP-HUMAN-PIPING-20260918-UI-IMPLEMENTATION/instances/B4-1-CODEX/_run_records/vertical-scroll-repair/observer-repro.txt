@@ -1,0 +1,37 @@
+
+ RUN  v4.1.10 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/workspace/table/EngineeringTable.test.tsx (33 tests | 1 failed | 32 skipped) 20ms
+     × rebinds allocation observation when a retained review swaps small and virtual body elements 19ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > rebinds allocation observation when a retained review swaps small and virtual body elements
+TestingLibraryElementError: Unable to find an element with the text: 123. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<output>[39m
+      [0m360[0m
+    [36m</output>[39m
+    [36m<div[39m
+      [33mdata-height[39m=[32m"123"[39m
+    [36m/>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError ../../node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/features/workspace/table/EngineeringTable.test.tsx:258:121
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 32 skipped (33)
+   Start at  19:08:02
+   Duration  440ms (transform 80ms, setup 65ms, import 86ms, tests 20ms, environment 187ms)
+

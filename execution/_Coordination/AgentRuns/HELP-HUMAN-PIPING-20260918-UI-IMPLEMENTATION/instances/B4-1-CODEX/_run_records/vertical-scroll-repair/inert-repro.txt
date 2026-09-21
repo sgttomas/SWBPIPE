@@ -1,0 +1,46 @@
+
+ RUN  v4.1.10 /Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt3/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/workspace/table/EngineeringTable.test.tsx (34 tests | 1 failed | 33 skipped) 22ms
+     × records positive size changes under an inert page and reveals with the current height 20ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > records positive size changes under an inert page and reveals with the current height
+TestingLibraryElementError: Unable to find an element with the text: 73. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33minert[39m=[32m""[39m
+    [36m>[39m
+      [36m<output>[39m
+        [0m120[0m
+      [36m</output>[39m
+      [36m<div[39m
+        [33mdata-height[39m=[32m"73"[39m
+      [36m/>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError ../../node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/features/workspace/table/EngineeringTable.test.tsx:274:99
+    272|     try {
+    273|       const view = render(<Slot inactive={false} height={120} />); exp…
+    274|       view.rerender(<Slot inactive height={73} />); act(() => callback…
+       |                                                                                                   ^
+    275|       view.rerender(<Slot inactive={false} height={73} />); expect(scr…
+    276|     } finally { heights.mockRestore(); widths.mockRestore(); globalThi…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 33 skipped (34)
+   Start at  19:14:42
+   Duration  612ms (transform 83ms, setup 90ms, import 100ms, tests 22ms, environment 313ms)
+
