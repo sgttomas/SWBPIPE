@@ -70,17 +70,17 @@
    "note": "only pre-merge launch",
    "brief": "briefs/ACT-REVIEW_brief.md",
    "briefSha256": "17a385b4af98a008148a142cb548f753cd3f2ebcb6f368a7e4ad9ecfd599c796",
-   "return": "returns/ACT-REVIEW_return.md",
+   "return": "_run_records/returns/ACT-REVIEW_return.md",
    "returnSha256": "23bf30491fa678f47ea93107d6b24d42f74cce4576b8f5ab7b11a59b6600bb3f",
    "actualAgent": "ae985ad18ea2bd25b",
    "mechanism": "harness-native Agent tool, subagent_type general-purpose, foreground, parent ROOT (D-GOV-35)",
    "modelRequested": "opus (claude-opus-5)",
    "reasoningRequested": "high (inherited from session; the host takes no per-call reasoning setting)",
    "enforcement": "read-only and non-delegation are instruction-asserted, not host-enforced; reviewer reported working tree unchanged",
-   "backcheck1Return": "returns/ACT-REVIEW_backcheck1_return.md",
+   "backcheck1Return": "_run_records/returns/ACT-REVIEW_backcheck1_return.md",
    "backcheck1ReturnSha256": "22f829c1ecfc23686edd37a6abf368c49eae967d6ab7e7d48917cf606b3c3469",
    "returnCustody": "returns extracted verbatim from the parent session transcript (tool result; task-notification result), not the child's own transcript",
-   "backcheck2Return": "returns/ACT-REVIEW_backcheck2_return.md",
+   "backcheck2Return": "_run_records/returns/ACT-REVIEW_backcheck2_return.md",
    "backcheck2ReturnSha256": "de8270ff6db978f101d7be6657da1931357fe3d281f6822b5e8c9d5cb97b530a",
    "reviewedCandidate": "20192a20c (subsequent commits are records-only and listed in the PR)"
   },
@@ -137,15 +137,21 @@
    "mechanism": "harness-native Agent tool, general-purpose, background (D-GOV-35)",
    "brief": "briefs/R0-PR-REVIEW_brief.md",
    "briefSha256": "6d642bb757550cfe91d26f53a67612c3c877269fff04ebf8d36801a175402c5d",
-   "return": "returns/R0-PR-REVIEW_return.md",
+   "return": "_run_records/returns/R0-PR-REVIEW_return.md",
    "returnSha256": "67fb54b0f92a6671e7da2ffe12f08e0e0e0c0071b03db758d24775fc84730ebc",
-   "status": "backcheck 3 FINDINGS (B3-1..4) repaired; backcheck 4 pending",
-   "backcheck1Return": "returns/R0-PR-REVIEW_backcheck1_return.md",
+   "status": "backcheck 6 PASS (review closed); PR #839 opened",
+   "backcheck1Return": "_run_records/returns/R0-PR-REVIEW_backcheck1_return.md",
    "backcheck1ReturnSha256": "f8b92cd69be29dd254265d0173b12e6e269325a0450b2687966db45ae1f5eb61",
-   "backcheck2Return": "returns/R0-PR-REVIEW_backcheck2_return.md",
+   "backcheck2Return": "_run_records/returns/R0-PR-REVIEW_backcheck2_return.md",
    "backcheck2ReturnSha256": "7d6e6e1ac6bde46a3f314532fce5b3a7daeaced71fc9b1e48ae843d8620b4773",
-   "backcheck3Return": "returns/R0-PR-REVIEW_backcheck3_return.md",
-   "backcheck3ReturnSha256": "a4019dfcc5cf1c76680b8c292a832196aa35e8d8c6ec413fd6b680e723c276f8"
+   "backcheck3Return": "_run_records/returns/R0-PR-REVIEW_backcheck3_return.md",
+   "backcheck3ReturnSha256": "a4019dfcc5cf1c76680b8c292a832196aa35e8d8c6ec413fd6b680e723c276f8",
+   "backcheck4Return": "_run_records/returns/R0-PR-REVIEW_backcheck4_return.md",
+   "backcheck4ReturnSha256": "b2749149ad27bd736fad100544031af9488fa43e79bd44dee1d7665105994072",
+   "backcheck5Return": "_run_records/returns/R0-PR-REVIEW_backcheck5_return.md",
+   "backcheck5ReturnSha256": "4ff0f6b29cad68fc20a7713311df8a62c3d0c4336e4a63fdeecf8f9e67f84613",
+   "backcheck6Return": "_run_records/returns/R0-PR-REVIEW_backcheck6_return.md",
+   "backcheck6ReturnSha256": "3ced732fd5ed6f74b7d3a6411df0567742d0a68baa150a904471bddcd01ed275"
   }
  },
  "edges": [
@@ -162,7 +168,7 @@
    "R0-PR-REVIEW"
   ]
  ],
- "current_frontier": "R0 PR: independent review, checks, merge. Then R1 whole inventory.",
+ "current_frontier": "R0/R1 PR #839: CI, merge. Then R2 wave 1 (WAVE_PLAN.md): PKG-07 and PKG-16 managers.",
  "openWithOwner": [],
  "holdsPreserved": [
   "Piping development pause (owner, 2026-09-21)",

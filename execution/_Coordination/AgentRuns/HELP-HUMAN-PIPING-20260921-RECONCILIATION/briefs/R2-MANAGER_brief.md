@@ -23,8 +23,9 @@ In this brief, `RUN` means
 ## Boundary
 
 - Write only under
-  `{REPO}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260921-RECONCILIATION/instances/{WAVE}-{PKG}-MANAGER/`.
-  That is your record: `LAUNCHES.jsonl`, sealed child launch messages, child
+  `{REPO}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260921-RECONCILIATION/_run_records/{WAVE}-{PKG}-MANAGER/`.
+  (`_run_records/` is the harness's structural evidence directory, so verbatim
+  launch messages and returns may keep exact paths.) That is your record: `LAUNCHES.jsonl`, sealed child launch messages, child
   returns verbatim, validator transcripts, and `MANAGER_RETURN.md`.
 - Your workers write their ledgers under `RUN/WAVES/{WAVE}/{PKG}/`.
 - No git writes; only Agent 0 commits.

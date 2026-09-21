@@ -207,3 +207,12 @@ taxonomy per DEC-081).
   row of the same package uses, so they are recognisable from `EntryPoints`.
   This is inherent (workers need the paths to answer); the verifier brief now
   says to weigh the sampled-versus-area comparison accordingly.
+- 2026-09-21 — PR #839 CI (harness live baseline, GEN-8) failed: verbatim
+  review returns and the sealed wave-1 launch messages sat in AgentRuns paths
+  the harness does not classify, and they carry exact machine paths. They were
+  moved unchanged (`git mv`) to the structural evidence directory
+  `_run_records/` (`_run_records/returns/`, `_run_records/launches/`); earlier
+  `RUN_STATE.jsonl` events keep their old `returns/…` paths as history, and a
+  `RELOCATE` event records the move. Manager records now go under
+  `_run_records/{WAVE}-{PKG}-MANAGER/`. This supersedes the earlier disclosure
+  that the returns stay as REVIEW findings.
