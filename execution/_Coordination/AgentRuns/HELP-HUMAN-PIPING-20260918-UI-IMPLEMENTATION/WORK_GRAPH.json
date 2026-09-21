@@ -665,9 +665,12 @@
         },
         {
           "item": "Check Node review text-Undo while a draft changes active sort order; Node still uses inline editor and the Materials probe showed Chromium history loss on actual ancestor movement",
-          "state": "suspected analogous gap only; no Node reproduction or defect verdict yet",
+          "state": "suspected gap only; ROOT activated bounded diagnosis after native release, before final freeze",
           "retireAt": "bounded B4 follow-up before claiming complete common-table/MVP keyboard coverage",
-          "basis": "B4-3 architecture/undo-dom probe plus unchanged Node review sorting path; no Node repair authorized by the Materials brief"
+          "basis": "B4-3 architecture/undo-dom probe plus unchanged Node review sorting path; no Node repair authorized by the Materials brief",
+          "diagnosticBrief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_NODE_SORT_UNDO_DIAGNOSTIC_BRIEF.md",
+          "diagnosticBriefSha256": "8866966443b009b1aace77d127eded2088fcd7e2e0a2d33b203b36aa06f4b847",
+          "next": "one source-profile actual-key reproduction; no production repair granted; manager seals TASK launch/input"
         }
       ],
       "remainderPreparationBrief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_REMAINDER_PREPARATION_BRIEF.md",
@@ -2390,7 +2393,7 @@
       "actualAgent": "/root/b3_manager",
       "model": "gpt-6-astra",
       "reasoning": "high",
-      "state": "source/P2 reviewed; ROOT granted one fresh bounded native witness, pending actual launch",
+      "state": "Materials source/native complete at scoped PASS; separate Node diagnosis activated after ROOT own look/verified Quit",
       "basis": "c9f19195214b2e097980dde5e0d5fccbfba8e34c",
       "branch": "codex/swbpipe-b4-materials-20260921",
       "checkout": "existing swbpipe-wt3, prior branch/head preserved",
@@ -2425,12 +2428,27 @@
         "evidence": "2bbb8ce4f4d9a8230b710d15a278f2176f86d99b"
       },
       "nativePreparation": {
-        "state": "ROOT activation sealed; actual manager/native launch to be observed",
+        "state": "native return sealed and ROOT own look PASS; PID16639 quit and process-only absence verified",
         "record": "instances/B4-3-CODEX/_run_records/NATIVE_PLAN_DRAFT.md",
         "sha256": "dc789da88f84713e6a0f4c774aae029c680f06a9217ad94d261776e48014ffb8",
         "scope": "one uninstrumented build; verified invented baseline; one synthetic Material through existing Inspector create; mixed-unit sort/textUndo, pointer/field/page lifecycle and baseline restoration; no store actions",
         "activation": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_3_NATIVE_ACTIVATION.md",
-        "activationSha256": "4dbb1017d7f2adc8815d3e3e7ecb4246ba542ba8682afb8ea60b6a1ef8c10104"
+        "activationSha256": "4dbb1017d7f2adc8815d3e3e7ecb4246ba542ba8682afb8ea60b6a1ef8c10104",
+        "actualAgent": "/root/b3_manager/b4_1_native",
+        "model": "gpt-6-astra",
+        "reasoning": "low",
+        "addendum": "instances/B4-3-CODEX/_run_records/NATIVE_ADDENDUM.md",
+        "addendumSha256": "1beaac9a28706741fb0226919b0c04d802f9440f1a8b78e2cbe08673d7d514bc",
+        "inputs": "instances/B4-3-CODEX/_run_records/NATIVE_INPUTS.json",
+        "inputsSha256": "5dc84dd3b9ad4cf5e79a303ede122a5798be04c74991f356381f2c96e2c4045c",
+        "evidenceCommit": "53acac28c4e8554c708d860062fe95408e5ee1de",
+        "return": "instances/B4-3-CODEX/NATIVE_RETURN.md",
+        "returnSha256": "5517d9c74cc0fa1e9b1781394c3d8414bb46b7633a104d8555f8facbd797d65c",
+        "managerHandoffSha256": "9e198e0aaa80f1f4b56220756a7b69f91357fb38325c27beb6303a77cf6b3c57",
+        "rootReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_ROOT_NATIVE/RETURN.md",
+        "rootReturnSha256": "e06a5049b68a56c6e064b4855bd887a2e1c32e5b73bd5ff7331d7660c08ac4d8",
+        "rootManifestSha256": "c8187cc76c653efa9696574ddf9db70c7a1c31f8ea569629b75180c66cad2aed",
+        "limits": "canonical model restored by Undo; owned redo history remains until Quit. Native no controlled pending-conversion/exact caret-index/converted-readout/Both+Inspector-open claim."
       }
     },
     "B4-3-REVIEW": {
@@ -2739,7 +2757,7 @@
       "B4-3-FAMILY-PREPARATION"
     ]
   ],
-  "current_frontier": "Materials source/P2 review PASS; one fresh bounded native build/witness and ROOT own look now authorized. Combine reviewed Materials with reviewed cache maintenance for one clean final sweep, complete candidate review and actual-head CI/merge. Node sorted-review Undo gap remains unproven; C4/live CLI decisions and qualification holds remain.",
+  "current_frontier": "Materials source/P2/native and ROOT own look pass at recorded scopes; native process released. Bounded Node sorted-review text-Undo diagnosis precedes final freeze. Combine reviewed changes and cache maintenance for one clean final sweep, complete candidate review and actual-head CI/merge. C4/live CLI decisions and qualification holds remain.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -3028,17 +3046,17 @@
     "root": "132112c1edf99f159a7c150177b137de3d72ed6a plus current backcheck/continuity records",
     "originMain": "c9f19195214b2e097980dde5e0d5fccbfba8e34c",
     "integrationBranch": {
-      "branch": "codex/swbpipe-b4-node-integration-20260920",
-      "head": "8077032231ded1cc5d206becd03a18e43e6f3bb2",
-      "state": "PR832 merged; branch preserved at8077"
+      "branch": "codex/swbpipe-b4-materials-integration-20260921",
+      "head": "6b48c8c5b427a7b1bd4731e91d8e15e3711923b8",
+      "state": "clean initial combined source; no final candidate/sweep yet; old Node integration branch preserved"
     },
-    "shell": "Materials source 75fa863ea5cfee9bfe8f5a6ebf0f31047663e4e5 / evidence 2bbb8ce4f4d9a8230b710d15a278f2176f86d99b clean in wt3; worker held pending independent backcheck",
+    "shell": "Materials native evidence53acac, product75fa; separately bounded Node diagnosis activated by ROOT",
     "canvas": "fb720420 preserved; C4 preparation returned",
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "isolated226b probe retains two authorized source edits and two untracked dependency entries; preserved, never fan-in",
-    "resources": "Piping manager/native TASK granted exclusive native/build/CUA after independent P2 PASS; browser ports/shared lock released. Peer notified; ROOT performs only disjoint records/Git work.",
-    "recordStatus": "Materials P2 closed; fresh native witness activated under sealed ROOT brief. Cache source/P3 review closed; combined final gates ahead.",
-    "observedAt": "2026-09-21T08:14:31.205509+00:00"
+    "resources": "native16639 quit and verified absent; no5173/5174/5175 listener/shared lock at release. Manager granted one short source browser diagnosis next; peer notified.",
+    "recordStatus": "Materials native/ROOT PASS with exact method/history limitations retained; Node unconfirmed; no full candidate/sweep yet",
+    "observedAt": "2026-09-21T08:32:24.850081+00:00"
   },
   "historicalPauses": [
     {

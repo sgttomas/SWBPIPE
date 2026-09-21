@@ -1,0 +1,10 @@
+{
+  "source": "75fa863ea5cfee9bfe8f5a6ebf0f31047663e4e5",
+  "laneEvidence": "2bbb8ce4f4d9a8230b710d15a278f2176f86d99b",
+  "integrationBranch": "codex/swbpipe-b4-materials-integration-20260921",
+  "integrationHead": "6b48c8c5b427a7b1bd4731e91d8e15e3711923b8",
+  "desktopTree": "d389887bcbd67f286d65c8d0534161a5aa161df9",
+  "status": "clean initial merge; desktop identical to reviewed source; no tests/build run in integration tree",
+  "nativeActualManagerReturn": "Materials native launched via retained b4_1_native Astra/low followup, no descendants. Clean2bbb/current11maintained+host/fixture hashes verified, product75fa. Sealed NATIVE_ADDENDUM SHA1beaac9a28706741fb0226919b0c04d802f9440f1a8b78e2cbe08673d7d514bc; NATIVE_INPUTS SHA5dc84dd3b9ad4cf5e79a303ede122a5798be04c74991f356381f2c96e2c4045c. Full activation4dbb/c3fbackcheck/dc789plan bound. Exact baseline E restoration before synthetic comparison, no preferences/store/hooks, actual entered-unit claims only, onebuild/newPID, finalbaseline restoration/livehandback/noQuit emphasized. I hold source/resources except evidence supervision.",
+  "observedAt": "2026-09-21T08:22:22.524413+00:00"
+}
