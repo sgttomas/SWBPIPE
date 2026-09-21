@@ -1,0 +1,389 @@
+CapabilityID,Answer,ClaimKey,Reason
+RC-00-0001,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0002,NOT_MINE,,"Loading the wasm operation-engine asset with a named failure and no fallback is DEL-10-03/DEL-10-04 build and runtime plumbing (DEC-020); REQ-05-02 constrains the route that engine serves (RC-00-0220), not the loader."
+RC-00-0003,NOT_MINE,,"Desktop browser test suite (PKG-07 and PKG-09 owners); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0004,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0005,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0006,NOT_MINE,,"Handoff/export interoperability (PKG-15/PKG-17); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0007,NOT_MINE,,"Checked canonical-JSON profile (duplicate keys, I-JSON range) is serialization and hashing behaviour (PKG-02; DEL-00-04 architecture); REQ-05-02 cites the operation engine only as the command target GUI edits route to; the operation's own domain rules belong to PKG-16/PKG-02."
+RC-00-0008,NOT_MINE,,"Project surface owned outside PKG-00; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0009,NOT_MINE,,Drawing authored force and moment arrows is viewport rendering (DEL-07-01); cited on resolved-decisions.r01 only as evidence that the DEC-009 Three.js viewport exists.
+RC-00-0010,NOT_MINE,,"Verification/validation evidence (PKG-09); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0011,NOT_MINE,,"macOS app packaging (window limits, bundle identity, icons, linked crates) is DEL-10-04's; src-tauri Cargo.toml is cited on resolved-decisions.r01 only as evidence of the DEC-009 Tauri 2 shell."
+RC-00-0012,NOT_MINE,,"Project surface owned outside PKG-00; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0013,NOT_MINE,,"Loading a sample agent proposal into the session is PKG-16 proposal intake; workspaceSession.ts is cited for its state slices, and this loader only calls their setters."
+RC-00-0014,NOT_MINE,,Explicit variable spring hanger stiffness is a mechanics input rule (PKG-04/PKG-05); product_physics lib.rs is cited on normative-requirements.s01 only for its professional-boundary block.
+RC-00-0015,NOT_MINE,,The operation review ledger lists and exports queued intents and proposals (PKG-16/DEL-07-09 review UI); it reads session state that RC-00-0247 carries but adds no state-architecture element.
+RC-00-0016,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0017,NOT_MINE,,"Rule-pack engine or authoring (PKG-06); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0018,NOT_MINE,,Distance measurement between picked nodes is a viewport measuring tool (DEL-07-01); cited on resolved-decisions.r01 only as evidence that the DEC-009 Three.js viewport exists.
+RC-00-0019,NOT_MINE,,"Project surface owned outside PKG-00; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0020,NOT_MINE,,Selection and hover halos are presentation of selection in the renderer (DEL-07-01); the selection state they bind is RC-00-0054; cited on resolved-decisions.r01 only as evidence that the DEC-009 Three.js viewport exists.
+RC-00-0021,NOT_MINE,,"Library import validation (accepted, rejected, quarantined) is PKG-03 library governance; src-tauri lib.rs is cited on REQ-05-02 only as the host of the native operation commands."
+RC-00-0022,NOT_MINE,,"Label, grid and load-display toggles are viewport display options (DEL-07-01); cited on resolved-decisions.r01 only as evidence that the DEC-009 Three.js viewport exists."
+RC-00-0023,NOT_MINE,,"Project surface owned outside PKG-00; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0024,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0025,NOT_MINE,,"Units capability (PKG-02); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0026,NOT_MINE,,Display unit conversion through the native or wasm engine is a PKG-02 units capability; src-tauri lib.rs is cited on REQ-05-02 only as the host of the native operation commands.
+RC-00-0027,NOT_MINE,,Refusing to store a non-accepted library import is PKG-03/PKG-12 private-data handling; src-tauri lib.rs is cited on REQ-05-02 only as the host of the native operation commands.
+RC-00-0028,NOT_MINE,,"Handoff/export interoperability (PKG-15/PKG-17); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0029,NOT_MINE,,"Project tooling (release, validation or coordination); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0030,NOT_MINE,,"The Python validation-preview engine for proposed operation sets is PKG-16 with no desktop caller located; REQ-05-02 is judged on the Rust/wasm route the GUI uses, which is cited under core/model_operations."
+RC-00-0031,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0032,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0033,NOT_MINE,,Keeping inactive workspace sections mounted but dormant is a rendering-cost measure of the PKG-07 shell (D-68 workspace); it is not durable/transient state separation.
+RC-00-0034,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0035,NOT_MINE,,"Units capability (PKG-02); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0036,NOT_MINE,,"Invented fixture or example data owned by its consuming package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0037,NOT_MINE,,"Reporting capability (PKG-08); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0038,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0039,NOT_MINE,,"Stage rail and tab-strip navigation is PKG-07 shell chrome; the features/workspace folder is cited for the session-state modules, not for shell navigation."
+RC-00-0040,NOT_MINE,,Tests forbidding colour literals in viewport sources enforce design tokens (PKG-07 design system); cited on resolved-decisions.r01 only as evidence that the DEC-009 Three.js viewport exists.
+RC-00-0041,NOT_MINE,,Freezing and validating a node or route draft before apply is a viewport authoring review feature (DEL-07-01/DEL-07-09) that consumes the REQ-05-02 route; cited on resolved-decisions.r01 only as evidence that the DEC-009 Three.js viewport exists.
+RC-00-0042,NOT_MINE,,The packaged-binary self-test flag is DEL-10-04 packaging smoke evidence; src-tauri lib.rs is cited on REQ-05-02 only as the host of the native operation commands.
+RC-00-0043,NOT_MINE,,Building and queuing component-creation intents is an authoring feature (DEL-07-03/DEL-07-09) that consumes the REQ-05-02 route; cited on resolved-decisions.r01 only as evidence that the DEC-009 Three.js viewport exists.
+RC-00-0044,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0045,NOT_MINE,,"Project surface owned outside PKG-00; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0046,NOT_MINE,,Self-weight load plan generation is a PKG-05 loads capability; src-tauri lib.rs is cited on REQ-05-02 only as the host of the native operation commands.
+RC-00-0047,NOT_MINE,,"Handoff/export interoperability (PKG-15/PKG-17); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0048,CONSTRAINS,DEL-00-05:AB#normative-requirements/REQ-05-03;DEL-00-05:AB#open-holds-and-routed-questions.s02,Checkpoint undo/redo of applied session model edits is the scoped undo/redo REQ-05-03 constrains; its storage mechanism is the open hold judged on open-holds.s02. Implementation belongs to PKG-07.
+RC-00-0049,NOT_MINE,,"Handoff/export interoperability (PKG-15/PKG-17); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0050,NOT_MINE,,"Project tooling (release, validation or coordination); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0051,NOT_MINE,,"Invented fixture or example data owned by its consuming package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0052,NOT_MINE,,The disabled agent strip is a PKG-07 shell placeholder for a future agent column; it holds no state architecture.
+RC-00-0053,NOT_MINE,,"Rule-pack engine or authoring (PKG-06); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0054,CONSTRAINS,DEL-00-05:AB#normative-requirements/REQ-05-04;DEL-00-05:AB#normative-requirements/REQ-05-01,"Ordered typed multi-selection with focus, range, box and visibility is the framework-agnostic selection architecture REQ-05-04 requires, kept in session state (REQ-05-01); the code is PKG-07 implementation, so the basis constrains it without owning it."
+RC-00-0055,NOT_MINE,,Returning the unit catalog to the frontend is a PKG-02 units service; src-tauri lib.rs is cited on REQ-05-02 only as the host of the native operation commands.
+RC-00-0056,NOT_MINE,,"Verification/validation evidence (PKG-09); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0057,NOT_MINE,,"Verification/validation evidence (PKG-09); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0058,NOT_MINE,,"Desktop browser test suite (PKG-07 and PKG-09 owners); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0059,NOT_MINE,,"The versioned UI diagnostics snapshot on a page global serves the D-68/D-72 measurement harness; it is performance instrumentation, not GUI state architecture."
+RC-00-0060,NOT_MINE,,"Schema contract owned by its implementing package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0061,NOT_MINE,,"Schema contract owned by its implementing package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0062,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0063,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0064,NOT_MINE,,Saving and opening accepted private libraries per project is PKG-03/PKG-12 storage; src-tauri lib.rs is cited on REQ-05-02 only as the host of the native operation commands.
+RC-00-0065,NOT_MINE,,"The spreadsheet-like engineering table editor (navigation, sorting, per-cell validation) is a DEL-07-02/DEL-07-03 editing feature; the features/workspace folder is cited for the session-state modules only."
+RC-00-0066,NOT_MINE,,Node creation from typed coordinates or a plane click is a viewport authoring feature that submits reviewable drafts (DEL-07-01/DEL-07-09); cited on resolved-decisions.r01 only as evidence that the DEC-009 Three.js viewport exists.
+RC-00-0067,NOT_MINE,,"Schema contract owned by its implementing package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0068,NOT_MINE,,"The end-to-end accessibility checks (focus, Escape, disabled reasons) are DEL-07-06 acceptance evidence; this spec is cited on open-holds.s03 only to show the accessibility baseline exists."
+RC-00-0069,NOT_MINE,,"Verification/validation evidence (PKG-09); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0070,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0071,NOT_MINE,,Building a redaction-controlled report package request from the session is PKG-08 reporting; workspaceSession.ts is cited for its state slices only.
+RC-00-0072,NOT_MINE,,"Schema contract owned by its implementing package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0073,NOT_MINE,,"Schema contract owned by its implementing package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0074,NOT_MINE,,The File/Edit/View/Insert/Analyze menu model and command dispatch belong to the PKG-07 shell and DEL-07-09 command vocabulary; workspaceSession.ts is cited for its state slices only.
+RC-00-0075,NOT_MINE,,"Project tooling (release, validation or coordination); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0076,NOT_MINE,,"Project surface owned outside PKG-00; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0077,NOT_MINE,,"Persistence capability (PKG-02; DEL-00-04 architecture); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0078,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0079,NOT_MINE,,"Invented fixture or example data owned by its consuming package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0080,NOT_MINE,,"Project tooling (release, validation or coordination); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0081,NOT_MINE,,"Handoff/export interoperability (PKG-15/PKG-17); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0082,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0083,NOT_MINE,,"Schema contract owned by its implementing package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0084,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0085,NOT_MINE,,Background solve jobs with cooperative cancellation follow the DEL-00-03 job model and PKG-04; only their progress state falls under REQ-05-01 (RC-00-0227); src-tauri lib.rs is cited on REQ-05-02 only as the host of the native operation commands.
+RC-00-0086,NOT_MINE,,"Handoff/export interoperability (PKG-15/PKG-17); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0087,NOT_MINE,,"Schema contract owned by its implementing package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0088,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0089,NOT_MINE,,Creating and editing load combinations is a PKG-05 domain operation; REQ-05-02 cites the operation engine only as the command target GUI edits route to; the operation's own domain rules belong to PKG-16/PKG-02.
+RC-00-0090,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0091,NOT_MINE,,"Schema contract owned by its implementing package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0092,NOT_MINE,,Producing the selected entity's display label and property rows is inspector presentation delegated to DEL-07-02 under DEC-074 O2; features/model-workspace is cited on realized-artifacts only as a feature module name.
+RC-00-0093,NOT_MINE,,"Invented fixture or example data owned by its consuming package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0094,NOT_MINE,,Rich edits of material temperature tables and wind data are PKG-03/PKG-05 domain operations; REQ-05-02 cites the operation engine only as the command target GUI edits route to; the operation's own domain rules belong to PKG-16/PKG-02.
+RC-00-0095,NOT_MINE,,Resolving pipe references to shared sections is a mechanics input rule (PKG-03/PKG-04); product_physics lib.rs is cited on normative-requirements.s01 only for its professional-boundary block.
+RC-00-0096,NOT_MINE,,Load-case and primitive-load create/delete/edit is a PKG-05 domain operation; REQ-05-02 cites the operation engine only as the command target GUI edits route to; the operation's own domain rules belong to PKG-16/PKG-02.
+RC-00-0097,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0098,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0099,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0100,NOT_MINE,,"Reporting capability (PKG-08); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0101,CONSTRAINS,DEL-00-05:AB#normative-requirements/REQ-05-04,Canvas click and label selection with additive and toggle modifiers feeds the ordered selection architecture of REQ-05-04; viewport picking itself is DEL-07-01's.
+RC-00-0102,NOT_MINE,,"Recording user acceptance or rejection decisions over operations is PKG-16 audit-trail behaviour; core/model_operations is cited for the operation engine that REQ-05-02 routes to, not the audit trail."
+RC-00-0103,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0104,NOT_MINE,,"Invented fixture or example data owned by its consuming package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0105,NOT_MINE,,"The solve panel (run, cancel, solver mode, readiness summary) is PKG-07 solve UX over the DEL-00-03 job model; workspaceSession.ts is cited for its state slices only."
+RC-00-0106,NOT_MINE,,Exporting the design-workspace composition as JSON is a PKG-13/PKG-14 design-workspace feature; features/design-workspace is cited on realized-artifacts only as a feature module name.
+RC-00-0107,NOT_MINE,,Native window title and menu state synchronisation is PKG-07 shell and DEL-10-04 platform integration; src-tauri lib.rs is cited on REQ-05-02 only as the host of the native operation commands.
+RC-00-0108,NOT_MINE,,"Project surface owned outside PKG-00; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0109,NOT_MINE,,"Creating, opening and saving local projects is PKG-02 persistence under DEL-00-04 architecture; the durable side of REQ-05-01 is judged on the envelope type (RC-00-0128); src-tauri lib.rs is cited on REQ-05-02 only as the host of the native operation commands."
+RC-00-0110,CONSTRAINS,DEL-00-05:AB#normative-requirements/REQ-05-02,Native validate-only command for one structured operation is the service-side half of the REQ-05-02 route; the command and crate belong to PKG-16/DEL-10-03.
+RC-00-0111,NOT_MINE,,"The bottom status bar (chips, selection readout, units, drawer toggles) is PKG-07 shell chrome that reads session state; it adds no state-architecture element."
+RC-00-0112,NOT_MINE,,Switching pipe display between schematic lines and actual diameter is viewport rendering (DEL-07-01); cited on resolved-decisions.r01 only as evidence that the DEC-009 Three.js viewport exists.
+RC-00-0113,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0114,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0115,NOT_MINE,,"Sample/blank/open/save project flows are PKG-02/PKG-07 project lifecycle; their session slice is part of the split recorded on RC-00-0247, and the flows themselves are not this basis's."
+RC-00-0116,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0117,NOT_MINE,,"Project tooling (release, validation or coordination); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0118,NOT_MINE,,Splitting and rigidly transforming pipe runs are PKG-16 geometry operations; REQ-05-02 cites the operation engine only as the command target GUI edits route to; the operation's own domain rules belong to PKG-16/PKG-02.
+RC-00-0119,NOT_MINE,,"Handoff/export interoperability (PKG-15/PKG-17); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0120,NOT_MINE,,The solve-run timeline builder is a PKG-07 GUI contract engine (Python) for solve execution UX; core/gui is cited on realized-artifacts only as a location name.
+RC-00-0121,NOT_MINE,,"Verification/validation evidence (PKG-09); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0122,NOT_MINE,,"Solver/mechanics capability (PKG-04/PKG-05); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0123,NOT_MINE,,"Desktop browser test suite (PKG-07 and PKG-09 owners); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0124,NOT_MINE,,"Reporting capability (PKG-08); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0125,CONSTRAINS,DEL-00-05:AB#normative-requirements/REQ-05-02,Atomic batch engine with rollback is the batch form of the REQ-05-02 command route; owned by PKG-16.
+RC-00-0126,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0127,NOT_MINE,,"Handoff/export interoperability (PKG-15/PKG-17); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0128,CONSTRAINS,DEL-00-05:AB#normative-requirements/REQ-05-01,"The frontend LocalProjectEnvelope type (types.ts L971) is the durable side of the REQ-05-01 split and carries no selection, viewport or job-progress fields; the type file is PKG-07/PKG-02 implementation."
+RC-00-0129,NOT_MINE,,"Invented fixture or example data owned by its consuming package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0130,NOT_MINE,,"Verification/validation evidence (PKG-09); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0131,NOT_MINE,,Evaluating explicit load combinations over solved rows is PKG-05 mechanics; product_physics lib.rs is cited on normative-requirements.s01 only for its professional-boundary block.
+RC-00-0132,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0133,NOT_MINE,,Resolving a result or diagnostic to its model entity is a PKG-07 results-navigation feature; workspaceSession.ts is cited for its state slices only.
+RC-00-0134,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0135,CONSTRAINS,DEL-00-05:AB#normative-requirements/REQ-05-04,The model tree's selection sync and visibility state consume the REQ-05-04 selection architecture; tree behaviour itself is DEL-07-02's under DEC-074 O2.
+RC-00-0136,NOT_MINE,,"CI infrastructure (DEL-10-04); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0137,NOT_MINE,,"Verification/validation evidence (PKG-09); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0138,NOT_MINE,,"Project tooling (release, validation or coordination); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0139,NOT_MINE,,Rebasing coordinates to a local render origin keeps float32 precision in the renderer (DEL-07-01); cited on resolved-decisions.r01 only as evidence that the DEC-009 Three.js viewport exists.
+RC-00-0140,CONSTRAINS,DEL-00-05:AB#normative-requirements/REQ-05-03;DEL-00-05:AB#normative-requirements/REQ-05-01,"End-to-end checks of table edits, undo/redo and save/open session status exercise REQ-05-03 and the durable/transient split of REQ-05-01; the specs are PKG-07 tests."
+RC-00-0141,NOT_MINE,,"Verification/validation evidence (PKG-09); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0142,NOT_MINE,,"Desktop browser test suite (PKG-07 and PKG-09 owners); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0143,NOT_MINE,,"Units capability (PKG-02); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0144,NOT_MINE,,"CI infrastructure (DEL-10-04); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0145,NOT_MINE,,"Handoff/export interoperability (PKG-15/PKG-17); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0146,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0147,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0148,NOT_MINE,,The property inspector is delegated to DEL-07-02 under DEC-074 O2 (REQ-05-04); features/model-tree is cited on realized-artifacts only to name where that delegated behaviour lives.
+RC-00-0149,NOT_MINE,,"Verification/validation evidence (PKG-09); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0150,NOT_MINE,,"Invented fixture or example data owned by its consuming package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0151,NOT_MINE,,"Desktop browser test suite (PKG-07 and PKG-09 owners); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0152,NOT_MINE,,"Solver/mechanics capability (PKG-04/PKG-05); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0153,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0154,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0155,NOT_MINE,,Frontend build and unit-test configuration (including the wasm asset guard) is DEL-10-04's; package.json is cited only as evidence of the DEC-009 stack and of no third-party state library (open-holds.s01).
+RC-00-0156,NOT_MINE,,"Persistence capability (PKG-02; DEL-00-04 architecture); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0157,NOT_MINE,,"Handoff/export interoperability (PKG-15/PKG-17); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0158,NOT_MINE,,Migrating the local SQLite store schema is PKG-02 persistence (DEL-00-04 architecture); src-tauri lib.rs is cited on REQ-05-02 only as the host of the native operation commands.
+RC-00-0159,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0160,NOT_MINE,,"Rule-pack engine or authoring (PKG-06); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0161,NOT_MINE,,Preview mechanics solving through the linked physics engine is PKG-04; src-tauri lib.rs is cited on REQ-05-02 only as the host of the native operation commands.
+RC-00-0162,NOT_MINE,,"Desktop browser test suite (PKG-07 and PKG-09 owners); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0163,NOT_MINE,,The command bar that arms creation tools is DEL-07-09 tool-palette behaviour in the viewport; cited on resolved-decisions.r01 only as evidence that the DEC-009 Three.js viewport exists.
+RC-00-0164,NOT_MINE,,"Security/privacy capability (PKG-12); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0165,CONSTRAINS,DEL-00-05:AB#normative-requirements/REQ-05-02,Atomic batch validate/apply against a claimed model hash is part of the command route REQ-05-02 constrains; the service is PKG-16 implementation.
+RC-00-0166,NOT_MINE,,"Project surface owned outside PKG-00; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0167,NOT_MINE,,"Schema contract owned by its implementing package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0168,NOT_MINE,,"Invented fixture or example data owned by its consuming package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0169,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0170,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0171,NOT_MINE,,"Handoff/export interoperability (PKG-15/PKG-17); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0172,NOT_MINE,,"Per-field edit rules for sections, materials, nodes and other records are PKG-16/PKG-02 domain validation; REQ-05-02 cites the operation engine only as the command target GUI edits route to; the operation's own domain rules belong to PKG-16/PKG-02."
+RC-00-0173,COVERS,DEL-00-05:CONTEXT#register-references,"The Deliverables, ScopeLedger and ContextBudgetQA registers carry this deliverable's rows, which CONTEXT#register-references points to; a record relation only."
+RC-00-0174,NOT_MINE,,"Schema contract owned by its implementing package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0175,NOT_MINE,,"Library data model (PKG-03); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0176,CONSTRAINS,DEL-00-05:AB#normative-requirements/REQ-05-01,Per-user UI preferences kept in browser storage and out of the project file are chrome state on the transient side of the REQ-05-01 split (consistent with DEC-109); owned by PKG-07.
+RC-00-0177,NOT_MINE,,"Library data model (PKG-03); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0178,NOT_MINE,,Routing toolkit commands and creation-tool arming from the current selection is DEL-07-09 palette routing; it consumes selection state (RC-00-0054) and history availability but does not define them.
+RC-00-0179,NOT_MINE,,"Invented fixture or example data owned by its consuming package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0180,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0181,NOT_MINE,,"Units capability (PKG-02); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0182,NOT_MINE,,"Reporting capability (PKG-08); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0183,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0184,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0185,NOT_MINE,,Assigning or detaching shared sections with property propagation is a PKG-03/PKG-16 domain operation; REQ-05-02 cites the operation engine only as the command target GUI edits route to; the operation's own domain rules belong to PKG-16/PKG-02.
+RC-00-0186,NOT_MINE,,"The Rust viewport-editor crate models viewport session state and command intents for DEL-07-01; it is consistent with REQ-05-01 but is that deliverable's contract, and core/gui is cited on realized-artifacts only as a location name."
+RC-00-0187,NOT_MINE,,"Serialization/hash capability (PKG-02; DEL-00-04 architecture); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0188,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0189,CONSTRAINS,DEL-00-05:AB#normative-requirements/REQ-05-02,Single-operation validate/apply through the native operation crate or its wasm build is the application-service command route REQ-05-02 requires GUI mutations to take; owned by PKG-16/DEL-10-03 implementation.
+RC-00-0190,NOT_MINE,,Building the native macOS menu bar and forwarding choices to the web view is PKG-07 shell and DEL-10-04 platform integration; src-tauri lib.rs is cited on REQ-05-02 only as the host of the native operation commands.
+RC-00-0191,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0192,NOT_MINE,,The matte pipe shader is viewport rendering (DEL-07-01); cited on resolved-decisions.r01 only as evidence that the DEC-009 Three.js viewport exists.
+RC-00-0193,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0194,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0195,NOT_MINE,,"Camera presets, view cube and fit commands are viewport navigation (DEL-07-01); camera state is transient but owned there; cited on resolved-decisions.r01 only as evidence that the DEC-009 Three.js viewport exists."
+RC-00-0196,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0197,NOT_MINE,,"Project tooling (release, validation or coordination); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0198,NOT_MINE,,"Handoff/export interoperability (PKG-15/PKG-17); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0199,CONSTRAINS,DEL-00-05:AB#normative-requirements/REQ-05-05,"The blocking-data panel types the six warning classes with a local contract class beside each, which REQ-05-05 requires GUI warnings to keep; the panel is DEL-07-04 implementation."
+RC-00-0200,NOT_MINE,,Resolving canvas colours from design tokens is viewport theming (DEL-07-01); cited on resolved-decisions.r01 only as evidence that the DEC-009 Three.js viewport exists.
+RC-00-0201,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0202,NOT_MINE,,"Serialization/hash capability (PKG-02; DEL-00-04 architecture); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0203,NOT_MINE,,"The results panel (filters, paging, detail, endpoint tables) is a PKG-07 results feature (DEL-07-05); workspaceSession.ts is cited for its state slices only."
+RC-00-0204,NOT_MINE,,"Verification/validation evidence (PKG-09); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0205,NOT_MINE,,Publishing the unit catalogue and unit look-ups is PKG-02 units; src-tauri lib.rs is cited on REQ-05-02 only as the host of the native operation commands.
+RC-00-0206,NOT_MINE,,"Handoff/export interoperability (PKG-15/PKG-17); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0207,NOT_MINE,,"Units capability (PKG-02); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0208,CONSTRAINS,DEL-00-05:AB#normative-requirements/REQ-05-01,End-to-end check that viewport visibility is independent of model history and results tests the REQ-05-01 durable/transient split; the suite belongs to PKG-07.
+RC-00-0209,NOT_MINE,,"Schema contract owned by its implementing package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0210,NOT_MINE,,"Verification/validation evidence (PKG-09); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0211,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0212,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0213,NOT_MINE,,Rule-pack validation and checksum stamping is PKG-06; src-tauri lib.rs is cited on REQ-05-02 only as the host of the native operation commands.
+RC-00-0214,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0215,NOT_MINE,,"Handoff/export interoperability (PKG-15/PKG-17); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0216,NOT_MINE,,"Solver/mechanics capability (PKG-04/PKG-05); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0217,NOT_MINE,,Recording the aggregate rule-check status against the rendered model and discarding stale aggregates is PKG-06 rule-check UX with DEL-00-03 staleness semantics; workspaceSession.ts is cited for its state slices only.
+RC-00-0218,NOT_MINE,,"Schema contract owned by its implementing package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0219,NOT_MINE,,"Verification/validation evidence (PKG-09); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0220,CONSTRAINS,DEL-00-05:AB#normative-requirements/REQ-05-02,The wasm32 build exposing the operation and batch engines is the browser-mode leg of the REQ-05-02 route (DEC-020); owned by PKG-16/DEL-10-03.
+RC-00-0221,NOT_MINE,,"Mapping status tokens to display labels follows the DEC-102 display-form table (claims registry, PKG-01/PKG-07); features/workspace is cited for the session-state modules only."
+RC-00-0222,NOT_MINE,,"Rule-pack engine or authoring (PKG-06); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0223,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0224,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0225,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0226,NOT_MINE,,"Agent rationale recording is PKG-16 decision-support metadata; core/model_operations is cited for the operation engine REQ-05-02 routes to, not this module."
+RC-00-0227,CONSTRAINS,DEL-00-05:AB#normative-requirements/REQ-05-01,"Solve-job audit tracking and stale-solve invalidation keep job-progress state transient and separate from the project, as REQ-05-01 requires; job semantics belong to DEL-00-03/PKG-07."
+RC-00-0228,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0229,NOT_MINE,,"Handoff/export interoperability (PKG-15/PKG-17); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0230,NOT_MINE,,Inserting component symbols at a node is a PKG-03/PKG-16 domain operation; REQ-05-02 cites the operation engine only as the command target GUI edits route to; the operation's own domain rules belong to PKG-16/PKG-02.
+RC-00-0231,NOT_MINE,,"Invented fixture or example data owned by its consuming package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0232,NOT_MINE,,"Security/privacy capability (PKG-12); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0233,NOT_MINE,,"Library data model (PKG-03); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0234,NOT_MINE,,"Stage, view and section layout rules of the workspace shell are PKG-07 shell design (D-68); per-stage view memory is chrome state but the layout rules are not this basis's."
+RC-00-0235,NOT_MINE,,"Library data model (PKG-03); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0236,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0237,NOT_MINE,,"Rule-pack engine or authoring (PKG-06); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0238,NOT_MINE,,"The top toolbar (project name, undo/redo, run/stop, toggles) is PKG-07 shell chrome whose undo/redo buttons call the REQ-05-03 handlers carried by RC-00-0048."
+RC-00-0239,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0240,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0241,NOT_MINE,,"Library data model (PKG-03); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0242,NOT_MINE,,"Schema contract owned by its implementing package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0243,NOT_MINE,,"Persistence capability (PKG-02; DEL-00-04 architecture); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0244,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0245,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0246,NOT_MINE,,Connecting and deleting pipe runs with endpoint and dependency checks is a PKG-16 domain operation; REQ-05-02 cites the operation engine only as the command target GUI edits route to; the operation's own domain rules belong to PKG-16/PKG-02.
+RC-00-0247,CONSTRAINS,DEL-00-05:AB#normative-requirements/REQ-05-01,"The six session slices behind WorkspaceSessionContext realize the durable/transient state split REQ-05-01 requires; orchestration code is PKG-07's, constrained by this basis."
+RC-00-0248,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0249,NOT_MINE,,Composing design-workspace panels is a PKG-13/PKG-14 GUI contract engine (Python); core/gui is cited on realized-artifacts only as a location name.
+RC-00-0250,NOT_MINE,,The compact accessible select control is a PKG-07 UI widget; features/workspace is cited for the session-state modules only.
+RC-00-0251,NOT_MINE,,"WebGL renderer lifecycle, frame scheduling and context-loss handling are viewport resource management (DEL-07-01, D-68); cited on resolved-decisions.r01 only as evidence that the DEC-009 Three.js viewport exists."
+RC-00-0252,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0253,NOT_MINE,,"Project tooling (release, validation or coordination); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0254,NOT_MINE,,Library-import provenance and quarantine enforcement in the desktop runtime is PKG-03/PKG-12; src-tauri lib.rs is cited on REQ-05-02 only as the host of the native operation commands.
+RC-00-0255,NOT_MINE,,"Schema contract owned by its implementing package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0256,CONSTRAINS,DEL-00-05:AB#normative-requirements/REQ-05-04,Window/crossing box selection feeds the REQ-05-04 selection architecture and discards stale gestures; viewport gesture code is DEL-07-01's.
+RC-00-0257,NOT_MINE,,"Library data model (PKG-03); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0258,NOT_MINE,,"Project tooling (release, validation or coordination); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0259,NOT_MINE,,"Serialization/hash capability (PKG-02; DEL-00-04 architecture); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0260,NOT_MINE,,"Project tooling (release, validation or coordination); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0261,NOT_MINE,,"Library data model (PKG-03); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0262,NOT_MINE,,Thermal expansion equivalent loads are PKG-05 mechanics; product_physics lib.rs is cited on normative-requirements.s01 only for its professional-boundary block.
+RC-00-0263,NOT_MINE,,"Verification/validation evidence (PKG-09); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0264,NOT_MINE,,"Units capability (PKG-02); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0265,NOT_MINE,,"Library data model (PKG-03); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0266,NOT_MINE,,"Security/privacy capability (PKG-12); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0267,NOT_MINE,,"Verification/validation evidence (PKG-09); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0268,NOT_MINE,,"Model-document version evaluation and migration is PKG-02 persistence (DEC-019, DEL-00-04 architecture); src-tauri lib.rs is cited on REQ-05-02 only as the host of the native operation commands."
+RC-00-0269,NOT_MINE,,The operation-outcome document is the DEL-00-06 result-envelope contract realized by DEL-10-03; REQ-05-02 cites the operation engine only as the command target GUI edits route to; the operation's own domain rules belong to PKG-16/PKG-02.
+RC-00-0270,NOT_MINE,,The cached model index with bounds and spatial chunks serves tree and viewport performance (PKG-07); features/workspace is cited for the session-state modules only.
+RC-00-0271,NOT_MINE,,"Schema contract owned by its implementing package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0272,NOT_MINE,,"Library data model (PKG-03); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0273,NOT_MINE,,"Schema contract owned by its implementing package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0274,NOT_MINE,,Grouped support boundary-association validation is a PKG-16 domain operation; REQ-05-02 cites the operation engine only as the command target GUI edits route to; the operation's own domain rules belong to PKG-16/PKG-02.
+RC-00-0275,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0276,NOT_MINE,,The deformed-shape overlay is viewport results display (DEL-07-01/DEL-07-05); cited on resolved-decisions.r01 only as evidence that the DEC-009 Three.js viewport exists.
+RC-00-0277,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0278,NOT_MINE,,"Verification/validation evidence (PKG-09); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0279,CONSTRAINS,DEL-00-05:AB#normative-requirements/REQ-05-02,"The operation apply panel validates and applies queued operations one at a time through the engine, the GUI face of the REQ-05-02 route; owned by PKG-07/DEL-07-09."
+RC-00-0280,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0281,NOT_MINE,,"Desktop browser test suite (PKG-07 and PKG-09 owners); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0282,CONSTRAINS,DEL-00-05:AB#normative-requirements/REQ-05-02,Native apply of one validated operation to a cloned document is the service-side mutation path REQ-05-02 requires; implementation owned by PKG-16.
+RC-00-0283,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0284,NOT_MINE,,"Handoff/export interoperability (PKG-15/PKG-17); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0285,COVERS,DEL-00-05:AB,"The architecture-basis validator checks this member's ArchitectureBasis marker, AB-00-05 row, manifest hash, context notice and lifecycle; a coverage relation, not ownership (the validator implements the D-43 reading contract for the whole package)."
+RC-00-0286,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0287,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0288,NOT_MINE,,"Library data model (PKG-03); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0289,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0290,NOT_MINE,,"Reporting capability (PKG-08); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0291,NOT_MINE,,Tree grid layout and bulk table editing are DEL-07-02 behaviour (DEC-074 O2) that queue intents into the REQ-05-02 route; features/model-tree is cited on realized-artifacts only as a location name.
+RC-00-0292,NOT_MINE,,The accessibility and usability baseline review engine is DEL-07-06; it is cited on open-holds.s03 only to show the accessibility baseline exists.
+RC-00-0293,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0294,NOT_MINE,,Drawing dimmed entities through prepared companion batches is viewport rendering of visibility state (DEL-07-01); the state itself is RC-00-0354; cited on resolved-decisions.r01 only as evidence that the DEC-009 Three.js viewport exists.
+RC-00-0295,NOT_MINE,,Keeping disabled controls focusable with a disabled-reason tooltip is a DEL-07-06 accessibility widget; features/workspace is cited for the session-state modules only.
+RC-00-0296,NOT_MINE,,Display conversion through the unit catalog without altering stored values is PKG-02 units; src-tauri lib.rs is cited on REQ-05-02 only as the host of the native operation commands.
+RC-00-0297,NOT_MINE,,Result-viewer record building is a DEL-07-05 GUI contract engine (Python); core/gui is cited on realized-artifacts only as a location name.
+RC-00-0298,NOT_MINE,,Virtualized lists and target pickers are PKG-07 UI widgets for large sets; features/workspace is cited for the session-state modules only.
+RC-00-0299,NOT_MINE,,Drafting inspector edit intents is DEL-07-02 behaviour (DEC-074 O2) that feeds the REQ-05-02 route; features/model-tree is cited on realized-artifacts only as a location name.
+RC-00-0300,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0301,NOT_MINE,,Blocking stale before-values and mismatched claimed model hashes is operation-engine concurrency control (PKG-16); REQ-05-02 cites the operation engine only as the command target GUI edits route to; the operation's own domain rules belong to PKG-16/PKG-02.
+RC-00-0302,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0303,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0304,NOT_MINE,,Computing and re-checking model and envelope hashes on save and open is PKG-02 persistence integrity (DEL-00-04); src-tauri lib.rs is cited on REQ-05-02 only as the host of the native operation commands.
+RC-00-0305,NOT_MINE,,"Schema contract owned by its implementing package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0306,NOT_MINE,,Node create/delete with reference checks is a PKG-16 domain operation; REQ-05-02 cites the operation engine only as the command target GUI edits route to; the operation's own domain rules belong to PKG-16/PKG-02.
+RC-00-0307,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0308,NOT_MINE,,"Verification/validation evidence (PKG-09); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0309,NOT_MINE,,Rendering the hash-bound calculation report is PKG-08; src-tauri lib.rs is cited on REQ-05-02 only as the host of the native operation commands.
+RC-00-0310,NOT_MINE,,"CI infrastructure (DEL-10-04); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0311,NOT_MINE,,"The Python warning/blocking record builder keeps DEL-07-04's local warning vocabulary; REQ-05-05 is judged on the product panel (RC-00-0199), and core/gui is cited on realized-artifacts only as a location name."
+RC-00-0312,NOT_MINE,,"Invented fixture or example data owned by its consuming package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0313,NOT_MINE,,The Python model-tree and inspector record builder is DEL-07-02's under DEC-074 O2; it is cited on REQ-05-04 only as evidence of where the delegated behaviour lives.
+RC-00-0314,NOT_MINE,,The design-workspace summary panel is a PKG-13/PKG-14 feature; features/design-workspace is cited on realized-artifacts only as a feature module name.
+RC-00-0315,NOT_MINE,,"Solver/mechanics capability (PKG-04/PKG-05); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0316,NOT_MINE,,"Shared unit, status, hash and source-of-truth helpers for the Python GUI record builders are PKG-07/PKG-02 boundary helpers; core/gui is cited on realized-artifacts only as a location name."
+RC-00-0317,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0318,NOT_MINE,,Generating a sample review-only agent proposal is PKG-16; src-tauri lib.rs is cited on REQ-05-02 only as the host of the native operation commands.
+RC-00-0319,NOT_MINE,,"Project tooling (release, validation or coordination); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0320,NOT_MINE,,"Units capability (PKG-02); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0321,NOT_MINE,,Measuring shell chrome height to budget the canvas is PKG-07 shell layout; features/workspace is cited for the session-state modules only.
+RC-00-0322,NOT_MINE,,"CI infrastructure (DEL-10-04); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0323,NOT_MINE,,"Handoff/export interoperability (PKG-15/PKG-17); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0324,NOT_MINE,,"Persistence capability (PKG-02; DEL-00-04 architecture); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0325,NOT_MINE,,Listing editor intents queued from the viewport with unit status is viewport queue display (DEL-07-01/DEL-07-09); cited on resolved-decisions.r01 only as evidence that the DEC-009 Three.js viewport exists.
+RC-00-0326,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0327,NOT_MINE,,Support create/delete/configure with restraint and hanger validation is a PKG-04/PKG-16 domain operation; REQ-05-02 cites the operation engine only as the command target GUI edits route to; the operation's own domain rules belong to PKG-16/PKG-02.
+RC-00-0328,NOT_MINE,,"Schema contract owned by its implementing package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0329,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0330,NOT_MINE,,"Verification/validation evidence (PKG-09); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0331,NOT_MINE,,"Project tooling (release, validation or coordination); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0332,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0333,NOT_MINE,,"Verification/validation evidence (PKG-09); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0334,NOT_MINE,,"Reporting capability (PKG-08); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0335,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0336,NOT_MINE,,"Reporting capability (PKG-08); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0337,NOT_MINE,,"Design/state/run capability (PKG-13/PKG-14); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0338,NOT_MINE,,"Handoff/export interoperability (PKG-15/PKG-17); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0339,NOT_MINE,,"Verification/validation evidence (PKG-09); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0340,NOT_MINE,,Reporting local storage capability and store migration status is PKG-02/PKG-12 storage; src-tauri lib.rs is cited on REQ-05-02 only as the host of the native operation commands.
+RC-00-0341,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0342,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0343,NOT_MINE,,Carrying a project store forward from the former data folder is PKG-02 persistence migration (SCA-010 rename consequence); src-tauri lib.rs is cited on REQ-05-02 only as the host of the native operation commands.
+RC-00-0344,NOT_MINE,,"Handoff/export interoperability (PKG-15/PKG-17); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0345,NOT_MINE,,"Desktop browser test suite (PKG-07 and PKG-09 owners); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0346,NOT_MINE,,"Persistence capability (PKG-02; DEL-00-04 architecture); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0347,NOT_MINE,,Running a user rule pack against a solved model is PKG-06; src-tauri lib.rs is cited on REQ-05-02 only as the host of the native operation commands.
+RC-00-0348,NOT_MINE,,"Verification/validation evidence (PKG-09); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0349,NOT_MINE,,"CONTRACT.md is the governing invariant catalogue; normative-requirements.s01 cites it as the source of the carried OPS-K invariants, so it governs this deliverable rather than being realized by it."
+RC-00-0350,NOT_MINE,,Saving and opening user rule packs per project is PKG-06 storage; src-tauri lib.rs is cited on REQ-05-02 only as the host of the native operation commands.
+RC-00-0351,NOT_MINE,,Recomputing saved model and envelope hashes on return and reopen is PKG-02 persistence integrity (DEL-00-04 architecture); features/workspace is cited for the session-state modules only.
+RC-00-0352,NOT_MINE,,"Units capability (PKG-02); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0353,NOT_MINE,,"Viewport status reporting (context loss, excluded geometry, catalog availability) is DEL-07-01; cited on resolved-decisions.r01 only as evidence that the DEC-009 Three.js viewport exists."
+RC-00-0354,CONSTRAINS,DEL-00-05:AB#normative-requirements/REQ-05-01,"Hide, isolate and show-all derive transient visibility sets without changing the model, the transient view state REQ-05-01 separates from project state; owned by DEL-07-01."
+RC-00-0355,CONSTRAINS,DEL-00-05:AB#normative-requirements/REQ-05-02,Session queue/validate/apply of batches and frozen route drafts is where GUI edits enter the REQ-05-02 command route; PKG-07 implementation constrained by this basis.
+RC-00-0356,NOT_MINE,,"Units capability (PKG-02); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0357,NOT_MINE,,"Project surface owned outside PKG-00; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0358,NOT_MINE,,"Security/privacy capability (PKG-12); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0359,NOT_MINE,,Converting table cell edits into operation intents is a DEL-07-02/DEL-07-03 table adapter that consumes the REQ-05-02 route; features/workspace is cited for the session-state modules only.
+RC-00-0360,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0361,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0362,NOT_MINE,,"Invented fixture or example data owned by its consuming package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0363,NOT_MINE,,"Verification/validation evidence (PKG-09); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0364,NOT_MINE,,Loading invented preview fixtures at startup is PKG-07/PKG-11 fixture handling; src-tauri lib.rs is cited on REQ-05-02 only as the host of the native operation commands.
+RC-00-0365,NOT_MINE,,"Project tooling (release, validation or coordination); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0366,NOT_MINE,,"Security/privacy capability (PKG-12); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0367,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0368,NOT_MINE,,Section and material create/delete with reference blocking is a PKG-03/PKG-16 domain operation; REQ-05-02 cites the operation engine only as the command target GUI edits route to; the operation's own domain rules belong to PKG-16/PKG-02.
+RC-00-0369,NOT_MINE,,Rendering the interactive 3D centreline view is DEL-07-01; cited on resolved-decisions.r01 only as evidence that the DEC-009 Three.js viewport exists.
+RC-00-0370,NOT_MINE,,Saving exact result or stress-neutral JSON bytes to Downloads is PKG-08/PKG-17 export; src-tauri lib.rs is cited on REQ-05-02 only as the host of the native operation commands.
+RC-00-0371,NOT_MINE,,"Invented fixture or example data owned by its consuming package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0372,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0373,NOT_MINE,,"Material, component and rule-pack-reference editor records are a DEL-07-03 GUI contract engine (Python); core/gui is cited on realized-artifacts only as a location name."
+RC-00-0374,NOT_MINE,,"Units capability (PKG-02); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0375,NOT_MINE,,"CI infrastructure (DEL-10-04); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0376,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0377,NOT_MINE,,"Invented fixture or example data owned by its consuming package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0378,NOT_MINE,,"Handoff/export interoperability (PKG-15/PKG-17); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0379,NOT_MINE,,"Serialization/hash capability (PKG-02; DEL-00-04 architecture); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0380,NOT_MINE,,"Verification/validation evidence (PKG-09); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0381,NOT_MINE,,"Governance or documentation surface (PKG-01/PKG-11 or loop instructions); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0382,NOT_MINE,,"Library data model (PKG-03); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0383,NOT_MINE,,Drafting a straight pipe route with plane and axis constraints is viewport authoring (DEL-07-01/DEL-07-09); cited on resolved-decisions.r01 only as evidence that the DEC-009 Three.js viewport exists.
+RC-00-0384,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0385,NOT_MINE,,"Desktop GUI feature (PKG-07); outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0386,NOT_MINE,,"Invented fixture or example data owned by its consuming package; outside GUI state and interaction architecture, and no DEL-00-05 key covers it."
+RC-00-0387,NOT_MINE,,Saving a report package after redaction and local-first checks is PKG-08; src-tauri lib.rs is cited on REQ-05-02 only as the host of the native operation commands.
+#END,,,387

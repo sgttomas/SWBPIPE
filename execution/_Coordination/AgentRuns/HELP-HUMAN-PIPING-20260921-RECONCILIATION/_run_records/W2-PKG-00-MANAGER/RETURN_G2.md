@@ -1,0 +1,16 @@
+DONE DEL-00-05 forward=03efacbc36b729bbde293934667975915cbf0ba739f75589c9e52d10b5cbd92c reverse=0c45c4aae83d8df76b8973f22f48729c0197f25805e872184957364341e121d0 notes=3377ea13e8b4e916990d1b9b325649d2b08bc799a0028e5c8703139364f36656 validator=PASS
+DONE DEL-00-06 forward=be09bb89741e2e0177ebde27a359b11a8d302f8ea8badc70711f0ac52d2bec9e reverse=254b7f06a5762491d11d761742799e9db5d2c9e11974ba1ab921cf6f6f35b36e notes=0b7b26cbe06af81dd190b72dbc6467c92f29c7798110d13f106029de899343ef validator=PASS
+DONE DEL-00-07 forward=1c0c7622002239215d44f7479c326491cf9b1ea914d8058e269a597efed81fd9 reverse=c8a7360c2ed4ab18c34fdf7f8f5d7a597a8918de4210ecb07856916ed651ab01 notes=63c5fd4c36e6310dc112c6fac79ef5d4de8dea92609fdaef1c09e22c1c2e1b38 validator=PASS
+DONE DEL-00-08 forward=e96c1ebf43e88308fccffd9dea439a3199cea62f2e3a0d0215d7c32b339d055b reverse=8833ecae7982b84f652bebc080f759867c0b5128f03c4b000ea8a77114730cd5 notes=cfcc6fde43bc0781cf6485899385a2197861d83685d49a9a499bd4af3ea43cd4 validator=PASS
+BATCH PASS 0 findings
+
+- **Dispositions (158 rows):** 101 ALIGNED, 31 STALE_REVIEW_OR_EVIDENCE, 4 STALE_SETUP_SPECIFICATION, 4 IMPLEMENTED_DIFFERENTLY, 1 PARTIALLY_IMPLEMENTED, 9 COVERED_BY_CHILDREN, 8 NOT_ASSESSED. There are no UNKNOWN rows and no departures from the canonical table. Each forward ledger passed the validator with `--notes-gap` before it was sealed.
+- **Top causes:** BASIS_POINTER_STALE 19 (the basis files still cite decomposition rev 0.9 and DAG-007, and 00-05/00-06 cite a §8.4 that never existed), SCOPE_REDIRECTED_BY_RULING 7, DOC_BEHIND_CODE 5, AUTHORITY_UNCLEAR 3.
+- **Possible defect, owner item (DEL-00-06 REQ-06-02):** when a solver diagnostic is copied into the result-export envelope, the list of affected objects is dropped and a fixed remediation string is put in its place. REQ-06-02 says every field except class must be kept across a boundary. The code is `core/runner/headless/src/result_envelope_binding.rs` L159-L182. Disposed IMPLEMENTED_DIFFERENTLY · POSSIBLE_DEFECT · PROJECT_BASELINE · OWNER, confidence MEDIUM.
+- **Open holds the code has settled with no ruling (CP-10, owner):** state-management library and undo/redo storage (00-05), and the severity taxonomy (00-06).
+- **Holds overtaken by a later ruling (owner):** 00-05 accessibility hold versus D-68, and 00-07 "external format list still open" versus SCA-004 and the PKG-17 export writers that already exist (MEDIUM).
+- **Other findings:** 00-08's CI bullet predates D-65/DEC-093, which accepted the hosted E2E workflow as a gate path. 00-07 REQ-07-03 is PARTIALLY_IMPLEMENTED: plugins cannot bypass controls only because no plugin runtime exists yet.
+- **Rename residue (CP-04):** `.opsproj` and the `openpipestress-runner` binary name, recorded on the 00-07 and 00-08 surface rows as R4 code-change candidates. No ISSUED, invariant or authority-conflict rows, and no protected-check rows.
+- **Friction for the verifier:** CP-02 says a pointer fix needs no decision (`AuthorityNeeded NO`). But each ArchitectureBasis file is hash-bound in the PKG-00 CONSOLIDATION_MANIFEST, so any text fix also has to re-record that hash.
+
+Everything is under `RUN/WAVES/W2/PKG-00/DEL-00-0{5..8}/`. The carry-forward notebook is `RUN/WAVES/W2/PKG-00/_WORKER_DEL-00-05_NOTES.md`. Scratch files are deleted.

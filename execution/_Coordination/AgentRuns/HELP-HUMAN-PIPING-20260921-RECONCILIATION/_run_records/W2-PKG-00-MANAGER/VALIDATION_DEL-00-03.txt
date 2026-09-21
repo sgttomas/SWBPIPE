@@ -1,0 +1,13 @@
+# Manager validation — DEL-00-03 (W2 PKG-00)
+forward_sha256_recomputed=1d77b6f40821a0796b40df3f2bb1ad12ea3b773ec1b506dd7df564ceecd072e3
+seal_line=SEALED DEL-00-03 1d77b6f40821a0796b40df3f2bb1ad12ea3b773ec1b506dd7df564ceecd072e3 2026-09-21T22:51:59Z
+worker_reported_forward=1d77b6f40821a0796b40df3f2bb1ad12ea3b773ec1b506dd7df564ceecd072e3
+SEAL_MATCH=YES
+reverse_sha256=ca53e53c4ec9540dfc3f84c4f8af5def3b121fd28b37f3864d93094974678319
+forward_last_line=#END,,,,,,,,,,,,,,,,,,,,,,,,,,,,,37,
+reverse_last_line=#END,,,387
+notes_present=YES
+command: PYTHONDONTWRITEBYTECODE=1 python3 RUN/tools/validate_ledger_v2.py --run-dir RUN --repo-root . --deliverable DEL-00-03 --forward projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W2/PKG-00/DEL-00-03/DEL-00-03_forward.csv --reverse projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W2/PKG-00/DEL-00-03/DEL-00-03_reverse.csv --inventory RUN/ROUTING/PKG-00_capabilities.csv --notes-gap
+---
+PASS DEL-00-03: 37 forward rows, 28 required keys, 7 canonical, 0 findings
+exit=0
