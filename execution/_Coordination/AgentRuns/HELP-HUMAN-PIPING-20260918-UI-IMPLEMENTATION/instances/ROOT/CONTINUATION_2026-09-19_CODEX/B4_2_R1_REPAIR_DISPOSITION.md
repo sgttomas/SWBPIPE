@@ -1,0 +1,9 @@
+# B4.2 R1 — passive test reads
+
+ROOT → retained WORKING_ITEMS Astra/high and its existing bounded Astra/low TASK. Initial complete15-path source review returned one actionable P2 verification finding, R1, retained verbatim in `_run_records/B4_2_INITIAL_SOURCE_REVIEW_RETURN.md`. Source/evidence deb50 remains the baseline; no additional product defect was established. Preserve the original finding/verdict and source freeze.
+
+Repair only assertion-only uses of mutating reviewEditor helpers in `apps/desktop/src/features/model-tree/ModelTree.test.tsx` and `apps/desktop/src/features/workspace/table/ModelTree.table.test.tsx`. Read the specified cell button or its specifically identified active input without clicks, focus, Keep draft or editor creation. Preserve raw whitespace/value identity, every expected value and all existing transition/Queue/payload/generation assertions. Editor-opening helpers remain only at deliberate interaction steps. Match the active input to the requested row/field, never whichever input happens to be present.
+
+Run both affected test files and TypeScript. If a newly truthful sequence fails, diagnose it and return the measured result before widening to product edits; do not weaken the original assertion or silently add an interaction. No product/browser/native/full-suite rerun for a successful two-test-file-only repair. Keep source held otherwise; commit the bounded correction and raw check evidence separately, return exact path/hash/commit identities for the retained independent reviewer to backcheck.
+
+Manager may seal/supply this as an addendum and resume the same TASK. Type2 has no descendants. Resource scope remains unit/TypeScript only; no native build/CUA until review closure and separate handoff. ROOT owns integration and eventual full clean sweep/CI.

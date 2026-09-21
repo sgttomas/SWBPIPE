@@ -2064,7 +2064,7 @@
       "model": "gpt-6-astra",
       "reasoning": "high",
       "mechanism": "retainedmanager collaboration.followup_task; actual fresh TASK collaboration.spawn_agent under manager",
-      "status": "implementation active; first2-profile text journey running under source lock; broader affected checks/freeze pending",
+      "status": "retained manager resumed for narrow R1 two-test-file repair; producta183 held, native awaits closure",
       "base": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
       "branch": "codex/swbpipe-b4-node-fields-20260920",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_2_MANAGER_BRIEF.md",
@@ -2091,20 +2091,31 @@
       "childLaunchSha256": "0618651a462a486914d190681974ac7302ef698c466678afab4b986bc1907a85",
       "reviewUnitClarification": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_2_REVIEW_UNIT_CLARIFICATION.md",
       "reviewUnitClarificationSha256": "e0628e173b3dfecc34f3f692823e7dbafaa06d2b5a4296fb4eaa63c6874fca9c",
-      "scopeClarification": "Existing lifted drafts are not unit-keyed; preserve Queue-time before/unit. Narrow new captured-editor stale-callback guard; ROOT erroneous draftKey assertion corrected."
+      "scopeClarification": "Existing lifted drafts are not unit-keyed; preserve Queue-time before/unit. Narrow new captured-editor stale-callback guard; ROOT erroneous draftKey assertion corrected.",
+      "sourceCandidate": "a1833393e597acbe81f943accf64a9548035fe6a",
+      "sourceFreeze": "instances/B4-2-CODEX/_run_records/worker/SOURCE_FREEZE.json",
+      "sourceFreezeSha256": "d6122068807c2a984fab19889627c06e3a7fb3ad2c08200761b7e5566464d6f2",
+      "sourceHandoff": "instances/B4-2-CODEX/_run_records/MANAGER_SOURCE_HANDOFF.md",
+      "sourceHandoffSha256": "81757d885f0e88a0ed7b9645230b79e1a10dbdae9c95b68bb9232141b7728b38",
+      "evidenceCheckpoint": "deb50f5db6e3dc4b89e88aaca34449357647cab9",
+      "workerReturn": "instances/B4-2-CODEX/_run_records/worker/RETURN.md",
+      "workerReturnSha256": "9c6723c79318b97b02a18b36fb2b77fe6cd6e8716b0eda8ae403ccbe784f30e4",
+      "artifactManifest": "instances/B4-2-CODEX/_run_records/worker/ARTIFACT_HASHES.json",
+      "artifactManifestSha256": "a0473f26c723e4d9df097343d6a6373d59519353443d4262837d5fbcb3547afe"
     },
     "B4-2-INTEGRATION": {
       "role": "ROOT integration",
       "parent": "ROOT",
       "slice": "B4",
       "branch": "codex/swbpipe-b4-node-integration-20260920",
-      "candidate": "cd8a459427cde1a150bfc12ba933515086051e41",
+      "candidate": "d8bbad26376dbb06d0c83398f5933a381aedf22b",
       "base": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
-      "status": "clean preparation candidate; no B4.2 product yet",
+      "status": "clean prepared fan-in; R1 verification repair/backcheck blocks acceptance, native/full gates pending",
       "dependsOn": [
         "B4-2-CODEX-MANAGER"
       ],
-      "scope": "oldPR829 branch preserved; ROOT owns fan-in/finalchecks/PR/CI"
+      "scope": "oldPR829 branch preserved; ROOT owns fan-in/finalchecks/PR/CI",
+      "sourceCandidate": "a1833393e597acbe81f943accf64a9548035fe6a"
     },
     "PR829-RESUME-RECORDS-REVIEW": {
       "role": "TASK Type2 independent records review",
@@ -2123,6 +2134,25 @@
       "finding": "P3 initialbrief Queue/clear phrase ambiguous; additive clarification preserves visibleQueue versus explicitClear-all",
       "backcheck": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_2_SEMANTIC_CLARIFICATION.md",
       "backcheckSha256": "7fd4ba6f56c1941823f90fbb488159efd2f624d33f53afb2d091d5e8d37a833a"
+    },
+    "B4-2-REVIEW": {
+      "role": "TASK Type2 independent complete source review",
+      "parent": "ROOT",
+      "actualAgent": "/root/b4_2_code_review",
+      "model": "gpt-6-astra",
+      "reasoning": "xhigh",
+      "mechanism": "actual fresh-context collaboration.spawn_agent; no implementation history/descendants",
+      "status": "complete15path review; R1/P2 verification finding open, source fan-in not accepted until correction/backcheck",
+      "base": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
+      "candidate": "a1833393e597acbe81f943accf64a9548035fe6a",
+      "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_2_INDEPENDENT_SOURCE_REVIEW_BRIEF.md",
+      "boundary": "read-only; no tests/build/UI/network/Git mutations/delegation; host unrestricted, constraints instructional",
+      "briefSha256": "fc0ab7a77acc2f5ed063308d4c2ef94658099a7dba93a304f0e88a322493a937",
+      "initialReturn": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_INITIAL_SOURCE_REVIEW_RETURN.md",
+      "initialReturnSha256": "a830d1b1ec6ddb81f3fdce865f1769a6b51816091014cada20ff98c9199dbb34",
+      "finding": "R1 assertion-only reviewEditor calls mutate state in two ModelTree test files; no additional product defect established",
+      "repairDisposition": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_2_R1_REPAIR_DISPOSITION.md",
+      "repairDispositionSha256": "4b2bf22a84c0ac6ae5175ac493896e4daa090d609a8eeff62df4c28bc31ec5ce"
     }
   },
   "edges": [
@@ -2393,9 +2423,13 @@
     [
       "ROOT",
       "PR829-RESUME-RECORDS-REVIEW"
+    ],
+    [
+      "ROOT",
+      "B4-2-REVIEW"
     ]
   ],
-  "current_frontier": "Explicit owner resume received. Main15e8/mergedPR829 and clean lanes revalidated. Activate bounded B4.2 Node scalar fields/common review rendering with retained Astra/high manager and one Astra/low worker; C4/liveCLI decisions still pending. No new phase/DAG work.",
+  "current_frontier": "B4.2 full15path review found one P2 verification issue (mutating assertion reads); narrow two-test-file repair authorized. Producta183/evidence deb50 held; no product defect established. Native/full sweep/CI wait for repair/backcheck. C4/liveCLI decisions remain pending.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -2673,16 +2707,16 @@
     "originMain": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
     "integrationBranch": {
       "branch": "codex/swbpipe-b4-node-integration-20260920",
-      "head": "cd8a459427cde1a150bfc12ba933515086051e41",
-      "state": "clean, ROOT-owned next integration; oldPR8298f24 branch preserved"
+      "head": "d8bbad26376dbb06d0c83398f5933a381aedf22b",
+      "state": "clean B4.2 source fan-in; independent/native/final gates pending"
     },
-    "shell": "codex/swbpipe-b4-node-fields-20260920 at main15e8, actual fresh worker b4_2_table active; old shellc0 preserved",
+    "shell": "a183 source freeze on new Node-fields branch; evidence-only packaging, native not launched",
     "canvas": "fb720420 preserved; C4 preparation returned",
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "isolated226b probe retains two authorized source edits and two untracked dependency entries; preserved, never fan-in",
     "resources": "no local listener or shared lock; peer no conflict, source5174/shared lock assigned to manager",
     "recordStatus": "prior postmerge pause tail and new resume/launch records await combined review at next checkpoint",
-    "observedAt": "2026-09-21T03:40:35.247074+00:00"
+    "observedAt": "2026-09-21T04:06:53.197212+00:00"
   },
   "historicalPauses": [
     {

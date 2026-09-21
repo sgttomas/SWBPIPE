@@ -4,8 +4,8 @@ Current after the owner's explicit resume following PR829. Sole editor: Piping H
 
 | Scope | Current owner/state |
 |---|---|
-| Piping UI/domain/controller | Existing shell manager Astra/high and one Astra/low worker; B4.2 Node Label/string Provenance plus common direct/review table rendering. No controller/native/CLI changes in this increment. |
-| Piping integration, graph and this note | ROOT. Main15e8b7a72 is merged PR829; B4.1 passed local/native/independent/actual-head CI checks at their recorded scopes. Next integration preserves the old branches and postmerge continuity records. |
+| Piping UI/domain/controller | Existing shell manager Astra/high and one Astra/low worker; B4.2 Node Label/string Provenance plus common direct/review table rendering is source-frozena183 on codex/swbpipe-b4-node-fields-20260920. No controller/native/CLI changes in this increment. |
+| Piping integration, graph and this note | ROOT. Main15e8b7a72 is merged PR829; B4.1 passed local/native/independent/actual-head CI checks at their recorded scopes. Current clean integration433d251e on codex/swbpipe-b4-node-integration-20260920 includes the new source; fresh independent review/native/final gates remain. Old branches and postmerge records are preserved. |
 | Runtime | Peer owns reusable Runtime. Generic tools PR824 and actual-client probe PR827 are merged. No Runtime/shared Root product changes currently needed for the proposed Piping CLI tranche. |
 
 B4.2 scope and checks are in B4_2_MANAGER_BRIEF.md. Main/source and clean shell/integration/canvas branches were revalidated on resume. Parked design-system and isolated busy-probe state remain preserved. Full B4, the compact collapsible-drawer gap and other deferred table work remain open. B5 follows B4. C4 label dispositions remain pending. PR829 closeout is in _run_records/PR829_CI; its full hosted workflow took1001seconds with425source passes/20existing skips. No release, usability/performance qualification or deliverable/DAG reconciliation follows.
