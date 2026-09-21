@@ -1,0 +1,3 @@
+$ PYTHONDONTWRITEBYTECODE=1 python3 RUN/tools/validate_ledger_v2.py --run-dir RUN --repo-root . --deliverable DEL-03-07 --forward projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W2/PKG-03/DEL-03-07/DEL-03-07_forward.csv --reverse projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W2/PKG-03/DEL-03-07/DEL-03-07_reverse.csv --inventory RUN/ROUTING/PKG-03_capabilities.csv --notes-gap
+PASS DEL-03-07: 97 forward rows, 53 required keys, 7 canonical, 0 findings
+exit=0
