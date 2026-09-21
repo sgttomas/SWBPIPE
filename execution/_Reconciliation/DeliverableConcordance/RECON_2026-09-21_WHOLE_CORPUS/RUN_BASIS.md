@@ -216,3 +216,13 @@ taxonomy per DEC-081).
   `RELOCATE` event records the move. Manager records now go under
   `_run_records/{WAVE}-{PKG}-MANAGER/`. This supersedes the earlier disclosure
   that the returns stay as REVIEW findings.
+- 2026-09-21 — R2 wave 1 (PKG-07, PKG-16) ran and was verified at double
+  sampling. The gate as written was not met: PKG-16 had 6.3% firm false
+  alignment (1 of 16), and one shared-text resolution was unrecorded. The
+  pooled rate was 4.4%, and all five firm errors had one cause. The owner
+  adopted remedy R-1 to R-6, ruled F7 (implementation with no product
+  caller) and F8 (the tier of the gap wins), and chose a second gate wave
+  (`WAVES/W1/W1_GATE_RULING.md`; CONVENTIONS Part F). The validator gains
+  `--notes-gap` and batch `--resolutions`; the worker, manager and verifier
+  briefs carry Part F; `WAVES/W1/RESOLUTIONS.csv` records all 32 wave 1
+  disagreements. Gate wave 2 is PKG-00 to PKG-04 at the full cap.

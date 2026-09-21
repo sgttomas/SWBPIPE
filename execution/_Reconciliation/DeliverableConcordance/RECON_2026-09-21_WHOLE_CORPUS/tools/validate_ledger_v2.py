@@ -15,6 +15,15 @@ Batch consistency mode (checks rows across several validated forward ledgers):
   Flags any two rows with the same BodySHA256, or the same CanonicalSituation,
   whose Disposition, CauseTag, AuthorityTier or DivergenceLayers differ, unless
   the departing row's Notes carry `CANONICAL_DEPARTURE:` with a reason.
+  `--resolutions <RESOLUTIONS.csv>` (CONVENTIONS F6) substitutes Agent 0's
+  recorded resolution values for the listed keys before comparing.
+
+Part F checks (CONVENTIONS F1, F2, F4), required from gate wave 2 onward:
+  add `--notes-gap` to single mode. It fails an ALIGNED row whose evidence,
+  RemainingWork or Notes carry gap wording, unless Notes give
+  `GAP_WORDING_CHECKED: <reason>` or (Remaining rows) `OPEN_ACTION: <key>`;
+  requires ClaimType DECLARED_STATE on STATUS#remaining units; and requires an
+  OPEN_ACTION key to name a non-aligned row of the same ledger.
 """
 
 from __future__ import annotations
@@ -286,6 +295,49 @@ def validate_one(a, f):
     return rows, required, canon
 
 
+GAP_WORDING = re.compile(
+    r"not located|not found|carried on|carried by|dispositioned on|partial|unmet|missing|gap\b|"
+    r"no test|untested|not asserted|not exercised|not evidenced|absent|lacks|without", re.I)
+GAP_COLUMNS = ("ImplementationEvidence", "VerificationEvidence", "RemainingWork", "Notes")
+
+
+def part_f(a, rows, f):
+    byk = {r["ClaimKey"]: r for r in rows}
+    listed = 0
+    for r in rows:
+        k, tag = r["ClaimKey"], f"{a.forward}: {r['ClaimKey']}"
+        if "STATUS#remaining/" in k and r["ClaimType"] != "DECLARED_STATE":
+            f.append(f"{tag}: F2: Remaining units are ClaimType DECLARED_STATE, not {r['ClaimType']!r}")
+        oa = re.search(r"OPEN_ACTION:\s*(\S+)", r["Notes"])
+        if oa:
+            tgt = oa.group(1).rstrip(".,;)")
+            if "STATUS#remaining/" not in k:
+                f.append(f"{tag}: F2: OPEN_ACTION is for Remaining units only")
+            elif tgt not in byk:
+                f.append(f"{tag}: F2: OPEN_ACTION names {tgt!r}, not a row of this ledger")
+            elif byk[tgt]["Disposition"] == "ALIGNED":
+                f.append(f"{tag}: F2: OPEN_ACTION row {tgt} is ALIGNED, so it does not carry the open work")
+        if r["Disposition"] != "ALIGNED":
+            continue
+        hit = next((m.group(0) for c in GAP_COLUMNS for m in [GAP_WORDING.search(r[c])] if m), None)
+        if hit and not re.search(r"GAP_WORDING_CHECKED:\s*\S.{9,}", r["Notes"]) and not oa:
+            listed += 1
+            f.append(f"{tag}: F4: ALIGNED row carries gap wording {hit!r}; re-dispose it (F1) or add "
+                     "GAP_WORDING_CHECKED: <why this is not an unmet element of the claim>")
+    return listed
+
+
+def load_resolutions(path):
+    if not path:
+        return {}
+    out = {}
+    for r in csv.DictReader(open(path, newline="", encoding="utf-8")):
+        if r["ClaimKey"] == "#END" or not r["Disposition"]:
+            continue
+        out[r["ClaimKey"]] = r
+    return out
+
+
 def batch(a, f):
     """Cross-ledger consistency. CS rows are checked field-by-field in single mode, so here
     CS groups are keyed by their mechanical Variant; CP groups compare only rows that took
@@ -293,8 +345,12 @@ def batch(a, f):
     keys = {r["ClaimKey"]: r for r in csv.DictReader(open(f"{a.run_dir}/CLAIM_KEYS_V2.csv", newline="", encoding="utf-8"))}
     variant = {r["ClaimKey"]: r["Variant"] for r in csv.DictReader(open(f"{a.run_dir}/CANONICAL_ASSIGNMENTS.csv", newline="", encoding="utf-8"))}
     groups = collections.defaultdict(list)
+    res = load_resolutions(a.resolutions)
     for path in a.batch:
         for r in load(path, FORWARD_FIELDS, "Notes", f):
+            if r["ClaimKey"] in res:
+                r = dict(r, **{c: res[r["ClaimKey"]][c] for c in CONSISTENCY_FIELDS},
+                          Notes=r["Notes"] + " [resolved in " + os.path.basename(a.resolutions) + "]")
             ki = keys.get(r["ClaimKey"])
             if ki and int(ki["SharedTextCount"]) > 1 and ki["UnitKind"] != "SURFACE" and r["ClaimKey"] not in variant:
                 groups[("body", ki["BodySHA256"])].append((path, r))
@@ -325,6 +381,8 @@ def main(argv):
     ap.add_argument("--reverse")
     ap.add_argument("--inventory")
     ap.add_argument("--batch", nargs="+")
+    ap.add_argument("--resolutions", help="WAVES/<W>/RESOLUTIONS.csv (batch mode, CONVENTIONS F6)")
+    ap.add_argument("--notes-gap", action="store_true", help="apply Part F checks (F1/F2/F4) in single mode")
     a = ap.parse_args(argv)
     f: list[str] = []
     if a.batch:
@@ -340,6 +398,8 @@ def main(argv):
     if res is None:
         return 2
     rows, required, canon = res
+    if a.notes_gap:
+        part_f(a, rows, f)
     for x in f:
         print("FINDING", x)
     print(f"{'PASS' if not f else 'FAIL'} {a.deliverable}: {len(rows)} forward rows, "

@@ -67,7 +67,18 @@ Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Rules and inputs (read before starting)
 
-1. `RUN/CONVENTIONS.md`: the bound rules. Apply them exactly.
+1. `RUN/CONVENTIONS.md`: the bound rules. Apply them exactly, including
+   **Part F** (ruled after wave 1). In short:
+   - F1: a row whose own evidence or Notes record an unmet element of its
+     claim is never `ALIGNED`, even if the gap is also recorded elsewhere;
+   - F2: Remaining units are `DECLARED_STATE`; an accurate item with an open
+     action is `ALIGNED` with `OPEN_ACTION: <governing key>` only when a
+     non-aligned governing row carries the work;
+   - F3: setup-era origin text (before 2026-07-14, by `git log -S`) is
+     `STALE_SETUP_SPECIFICATION`;
+   - F7: a tested engine with no product caller satisfies only claims about
+     that engine; mark such `ALIGNED` rows `PRODUCT_CALLER: NONE`;
+   - F8: the tier follows the remaining gap.
 2. `RUN/CANONICAL_SITUATIONS.md`: canonical and pattern situations.
 3. `RUN/AUTHORITY_AND_SOURCE_RELIABILITY_MAP.md`: what is governing, context
    and evidence.
@@ -101,8 +112,12 @@ deliverables, so the same situation gets the same treatment.
    per required key, any `.rNN` rows for blocks you split, and any `.sNN`
    sub-claims. It ends with an `#END` sentinel that carries the row count in
    `Notes`.
-2. Run the validator until it passes, from `{REPO}`:
-   `PYTHONDONTWRITEBYTECODE=1 python3 RUN/tools/validate_ledger_v2.py --run-dir RUN --repo-root . --deliverable <DEL> --forward <path>`
+2. Run the validator with the Part F checks until it passes, from `{REPO}`:
+   `PYTHONDONTWRITEBYTECODE=1 python3 RUN/tools/validate_ledger_v2.py --run-dir RUN --repo-root . --deliverable <DEL> --forward <path> --notes-gap`
+   For each F4 finding, either re-dispose the row (F1) or, only when the
+   wording truly is not about an unmet element of this claim, add
+   `GAP_WORDING_CHECKED: <why>` to its Notes. The verifier checks every such
+   row.
 3. **Seal.** Compute the ledger's SHA-256 and write `<DEL>_SEAL.txt` with one
    line: `SEALED <DEL> <sha256> <UTC timestamp>`. Never edit the forward file
    after sealing.
@@ -121,8 +136,10 @@ correct. The verifier and a fresh worker handle corrections.
 2. For **each** of your deliverables, write `<DEL>_reverse.csv`. It holds one
    row per capability in the routing file, using the B2 answers, and ends
    with the `#END` sentinel. Use the routing file's `CapabilityID` values
-   as given. Judge every row on its evidence alone.
-3. Validate each with `--forward <file> --reverse <file> --inventory RUN/ROUTING/{PKG}_capabilities.csv`.
+   as given. Judge every row on its evidence alone. Where a capability's
+   `EntryPoints` hit a path your own forward ledger cites, a `NOT_MINE`
+   reason must address that capability specifically (F5).
+3. Validate each with `--forward <file> --reverse <file> --inventory RUN/ROUTING/{PKG}_capabilities.csv --notes-gap`.
 
 **Notes, per deliverable.** Write `<DEL>_notes.md`. It covers:
 

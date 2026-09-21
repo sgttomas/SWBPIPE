@@ -44,12 +44,20 @@ doubles the rates marked *.
 |---|---|
 | `INVARIANT`, `ACCEPTED_DIVERGENCE`, `AUTHORITY_CONFLICT`, `UNKNOWN`, `LIFECYCLE_REASSESSMENT_REQUIRED`; every row of an ISSUED deliverable; every row carrying `PROTECTED_CHECK` or `FROZEN_CONTRACT` | 100% |
 | Every row whose unit has `SharedTextCount > 1` in `CLAIM_KEYS_V2.csv` (owner-confirmed consistency enforcement) | 100% |
+| `ALIGNED` rows whose Notes carry `GAP_WORDING_CHECKED:` or `OPEN_ACTION:` (CONVENTIONS F2, F4) | 100% |
+| `ALIGNED` rows whose Notes carry `PRODUCT_CALLER: NONE` (F7: is the claim about the engine itself?) | 25%* |
 | Other non-aligned rows | 25%* |
 | `ALIGNED` normative rows (`REQUIREMENT`, `ACCEPTANCE`, `EXCLUSION`), weighted toward `LOW`/`MEDIUM` confidence, `NONE_FOUND` verification and `NONE` verification class | 20%* |
 | Structural and inherited canonical rows | 10%* |
 
 - Conformance to `CanonicalSituation` and same-body rows is checked
-  mechanically on 100%, using `validate_ledger_v2.py --batch`.
+  mechanically on 100%, using `validate_ledger_v2.py --batch`. Also run
+  single mode with `--notes-gap` on every ledger; it must pass.
+- Judge Part F (F1–F8) like any other rule. A firm error includes an
+  `ALIGNED` row that records an unmet element of its claim (F1).
+- For `NOT_MINE` answers whose capability `EntryPoints` hit a path the
+  deliverable's forward ledger cites, check F5 (a capability-specific
+  reason) on at least 20%.
 - The reverse answers are checked on 100% of `CLAIMED_BY`, `PARTIAL`,
   `UNKEYED` and `CONSTRAINS` rows, plus 10% of `NOT_MINE`. Worker routing
   files use routing-local IDs (`RC-<nn>-<NNNN>`); resolve them to inventory

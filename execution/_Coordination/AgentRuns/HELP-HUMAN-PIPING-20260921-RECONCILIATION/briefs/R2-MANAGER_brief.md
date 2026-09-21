@@ -65,8 +65,8 @@ Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
      harness-native Agent tool, foreground"), and your own agent ID as parent.
 4. On each return:
    - Store the return verbatim as `RETURN_<group>.md`.
-   - For every deliverable, run the single-mode validator with `--reverse` and
-     `--inventory`.
+   - For every deliverable, run the single-mode validator with `--reverse`,
+     `--inventory` and `--notes-gap` (Part F checks).
    - Recompute the forward-file SHA-256 and check that it equals both the
      `<DEL>_SEAL.txt` hash and the worker's reported hash.
    - Save the validator output to `VALIDATION_<DEL>.txt`.

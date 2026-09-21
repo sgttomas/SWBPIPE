@@ -283,6 +283,8 @@ Rules:
 - **(g)** `ACCEPTED_DIVERGENCE` requires a named governing ruling that permits
   the divergent state, or an A3a owner record.
 - **(h)** `UNKNOWN` requires the smallest next check in `RemainingWork`.
+- **(i)** Part F1: a row that records an unmet element of its own claim is
+  not `ALIGNED`. See also F2, F3, F7 and F8.
 
 **C7. Cause tag (RULED).** Required on every non-aligned row, one per row;
 the cause of the remaining gap wins.
@@ -395,6 +397,68 @@ departures, convention friction, and the smallest checks for `UNKNOWN` rows.
 - Never state or imply a release, approval, compliance or certification
   claim.
 - Agent dispositions are never owner rulings.
+
+## Part F — Wave 1 gate amendments (RULED, `WAVES/W1/W1_GATE_RULING.md`)
+
+These apply from gate wave 2 onward. Wave 1 ledgers stay sealed; their
+disagreements are recorded in `WAVES/W1/RESOLUTIONS.csv` (F6).
+
+**F1. No aligned row with a recorded gap (C6(i)).** A row whose own
+evidence, `RemainingWork` or Notes record an unmet element of its claim is not
+`ALIGNED`, even when the same gap is also recorded on another row. It takes
+the disposition of the unmet element, usually `PARTIALLY_IMPLEMENTED` or
+`UNKNOWN · EVIDENCE_NOT_LOCATED`. C1 (common defects) may share the cause
+and the `FindingGroup` across rows, but never turns a row `ALIGNED`. F2
+states the one case this does not cover.
+
+**F2. Remaining items that record an open action (extends A4).** Every
+`STATUS#remaining/*` unit is `ClaimType DECLARED_STATE`. When the text is
+accurate and the action it records is still open:
+- if a governing claim row in the same ledger carries the open work, the
+  Remaining row is `ALIGNED` with `OPEN_ACTION: <that ClaimKey>` in Notes
+  (the declaration is true; the gap lives on the governing row);
+- otherwise the Remaining row takes the gap disposition itself
+  (`DOCUMENTED_UNIMPLEMENTED` or `PARTIALLY_IMPLEMENTED`), so the open work is
+  not lost.
+A Remaining item whose runtime observation predates later changes to the
+code it describes, with no newer record, is `UNKNOWN · EVIDENCE_NOT_LOCATED`
+(the W1 resolution of body `1840ad3a…`).
+
+**F3. Origin test for the stale classes (clarifies C6(c)).** Text first
+present before the Scope of Work migration (2026-07-14), found with
+`git log -S` on the frozen history, is `STALE_SETUP_SPECIFICATION`, even
+where the migration re-declared it. `STALE_REVIEW_OR_EVIDENCE` is for text
+first declared at or after the migration.
+
+**F4. Notes-gap check.** Before sealing, the worker runs the validator with
+`--notes-gap`. It lists `ALIGNED` rows whose evidence, `RemainingWork` or
+Notes contain gap wording. For each listed row the worker either re-disposes
+it (F1) or writes `GAP_WORDING_CHECKED: <why the wording is not an unmet
+element of this claim>` in Notes. Verifiers sample every listed row.
+
+**F5. Specific NOT_MINE where paths overlap.** When a capability's
+`EntryPoints` hit a path the deliverable's own forward ledger cites, the
+`NOT_MINE` reason must address that capability; a per-deliverable template
+reason is not enough.
+
+**F6. Recorded resolutions.** Verifier resolutions and contested rows are
+recorded by Agent 0 in `WAVES/<W>/RESOLUTIONS.csv` (key, class, verifier
+values, source). Batch mode accepts `--resolutions`; a pair resolved there is
+reported as resolved, not as a conflict. R3 reads each sealed ledger together
+with its wave's resolutions. Sealed ledgers are never patched.
+
+**F7. Implementation with no product caller.** The claim's subject decides
+(C6(b)). A tested engine or library with no product caller satisfies a claim
+about that engine or library. It does not satisfy a claim about app or
+runtime behaviour; that row is `PARTIALLY_IMPLEMENTED` (cause usually
+`PARTIAL_SLICE`). Every `ALIGNED` row whose implementation evidence has no
+product caller carries `PRODUCT_CALLER: NONE` in Notes, for R3 clustering.
+
+**F8. Tier of the gap wins (refines C3).** As with C7's cause rule, the tier
+follows the remaining gap. When a requirement restates a boundary invariant
+and only a record clause in it is stale while the boundary holds, the row
+takes the gap's tier (usually `LOCAL_DESIGN`) and names the boundary in
+Notes. `INVARIANT` applies when the gap touches the boundary's subject.
 
 ## Narrowings and changes against the adopted texts (disclosed)
 

@@ -1,0 +1,34 @@
+ClaimKey,DeliverableID,Class,Disposition,CauseTag,AuthorityTier,BaselineClass,DivergenceLayers,OtherCorrections,Basis,Source
+DEL-07-01:SOW#CLM-005.r05,DEL-07-01,FIRM,IMPLEMENTED_DIFFERENTLY,AUTHORITY_UNCLEAR,PROJECT_BASELINE,NONE,RECORD,CanonicalSituation CP-10; AuthorityNeeded OWNER; share the CP-10 finding,F1; C6(d),PKG-07_VERIFICATION.md F1
+DEL-07-02:SOW#CLM-025.r04,DEL-07-02,FIRM,PARTIALLY_IMPLEMENTED,PARTIAL_SLICE,LOCAL_DESIGN,NONE,RECORD,AuthorityNeeded NO,F1,PKG-07_VERIFICATION.md F2
+DEL-07-02:SOW#CLM-018.r06,DEL-07-02,FIRM,PARTIALLY_IMPLEMENTED,PARTIAL_SLICE,LOCAL_DESIGN,NONE,RECORD,AuthorityNeeded NO,F1,PKG-07_VERIFICATION.md F3
+DEL-07-02:SOW#CLM-026,DEL-07-02,FIRM,UNKNOWN,EVIDENCE_NOT_LOCATED,LOCAL_DESIGN,NONE,RECORD,RemainingWork as RQ-008 (locate or run the fixture-provenance and protected-content review),F1; C6(h),PKG-07_VERIFICATION.md F4
+DEL-07-06:STATUS#remaining/R04,DEL-07-06,RESOLVED_PAIR,UNKNOWN,EVIDENCE_NOT_LOCATED,LOCAL_DESIGN,NONE,RECORD,AuthorityNeeded NO; RemainingWork as DEL-07-02 R04,F2 (runtime observation predates later code changes); majority of body 1840ad3a,"PKG-07_VERIFICATION.md W1, section 5"
+DEL-07-03:SOW#CLM-012/DEL-07-03-R-005,DEL-07-03,CONTESTED,,,,,,Candidate UNKNOWN · AUTHORITY_UNCLEAR · PROJECT_BASELINE · RECORD · OWNER,Awaits R4 authority reading: DEC-094 vs SCA-009 annex on the R-005 landing,PKG-07_VERIFICATION.md W2-W5
+DEL-07-03:SOW#CLM-005.r04,DEL-07-03,CONTESTED,,,,,,Candidate UNKNOWN · AUTHORITY_UNCLEAR · PROJECT_BASELINE · RECORD · OWNER,Awaits R4 authority reading: DEC-094 vs SCA-009 annex on the R-005 landing,PKG-07_VERIFICATION.md W2-W5
+DEL-07-03:SOW#CLM-008/DEL-07-03-R-005,DEL-07-03,CONTESTED,,,,,,Candidate UNKNOWN · AUTHORITY_UNCLEAR · PROJECT_BASELINE · RECORD · OWNER,Awaits R4 authority reading: DEC-094 vs SCA-009 annex on the R-005 landing,PKG-07_VERIFICATION.md W2-W5
+DEL-07-03:SOW#CLM-017,DEL-07-03,CONTESTED,,,,,,Candidate UNKNOWN · AUTHORITY_UNCLEAR · PROJECT_BASELINE · RECORD · OWNER,Awaits R4 authority reading: DEC-094 vs SCA-009 annex on the R-005 landing,PKG-07_VERIFICATION.md W2-W5
+DEL-07-07:SOW#CLM-032/OI-07-07-001,DEL-07-07,WEAK,STALE_SETUP_SPECIFICATION,DOC_BEHIND_CODE,LOCAL_DESIGN,NONE,RECORD,,"F3 (setup-era origin text, first present 7bee9ae41)",PKG-07_VERIFICATION.md W6-W9
+DEL-07-07:SOW#CLM-032/OI-07-07-002,DEL-07-07,WEAK,STALE_SETUP_SPECIFICATION,DOC_BEHIND_CODE,LOCAL_DESIGN,NONE,RECORD,,"F3 (setup-era origin text, first present 7bee9ae41)",PKG-07_VERIFICATION.md W6-W9
+DEL-07-07:SOW#CLM-032/OI-07-07-003,DEL-07-07,WEAK,STALE_SETUP_SPECIFICATION,DOC_BEHIND_CODE,LOCAL_DESIGN,NONE,RECORD,,"F3 (setup-era origin text, first present 7bee9ae41)",PKG-07_VERIFICATION.md W6-W9
+DEL-07-07:SOW#CLM-005.r06,DEL-07-07,WEAK,STALE_SETUP_SPECIFICATION,DOC_BEHIND_CODE,LOCAL_DESIGN,NONE,RECORD,,"F3 (setup-era origin text, first present 7bee9ae41)",PKG-07_VERIFICATION.md W6-W9
+DEL-07-05:SOW#CLM-005.r03,DEL-07-05,WEAK,STALE_SETUP_SPECIFICATION,DOC_BEHIND_CODE,LOCAL_DESIGN,NONE,RECORD,,"F3 (setup-era origin text, first present 7bee9ae41)",PKG-07_VERIFICATION.md W10-W11
+DEL-07-05:SOW#CLM-033.r01,DEL-07-05,WEAK,STALE_SETUP_SPECIFICATION,DOC_BEHIND_CODE,LOCAL_DESIGN,NONE,RECORD,,"F3 (setup-era origin text, first present 7bee9ae41)",PKG-07_VERIFICATION.md W10-W11
+DEL-07-01:SOW#CLM-013/DEL-07-01-VER-03,DEL-07-01,FIELD,,,,,,VerificationEvidence: cite _run_records/TASK_RUN_2026-06-16_dependency-semantic-refresh_DEL-07-01.md (not rerun),verifier field correction,PKG-07_VERIFICATION.md Field table
+DEL-07-01:SOW#CLM-022.r02,DEL-07-01,FIELD,,,,,,VerificationEvidence: as VER-03,verifier field correction,PKG-07_VERIFICATION.md Field table
+DEL-07-01:SOW#CLM-013/DEL-07-01-VER-04,DEL-07-01,FIELD,,,,,,VerificationEvidence: cite the 2026-05-10 enum record and 2026-06-16 schema record (not rerun),verifier field correction,PKG-07_VERIFICATION.md Field table
+DEL-07-01:SOW#CLM-022.r03,DEL-07-01,FIELD,,,,,,VerificationEvidence: as VER-04,verifier field correction,PKG-07_VERIFICATION.md Field table
+DEL-07-02:SOW#CLM-015/DEL-07-02-RQ-008,DEL-07-02,FIELD,,,,,,AuthorityNeeded: REVIEW,verifier field correction,PKG-07_VERIFICATION.md Field table
+DEL-07-02:SOW#CLM-025.r06,DEL-07-02,FIELD,,,,,,AuthorityNeeded: REVIEW,verifier field correction,PKG-07_VERIFICATION.md Field table
+DEL-07-02:SOW#CLM-018.r08,DEL-07-02,FIELD,,,,,,AuthorityNeeded: REVIEW,verifier field correction,PKG-07_VERIFICATION.md Field table
+DEL-07-06:SOW#CLM-026,DEL-07-06,FIELD,,,,,,VerificationClass: UNIT,verifier field correction,PKG-07_VERIFICATION.md Field table
+DEL-07-09:PALETTE_OPERATION_ROUTING#all-row-routing-and-bounded-residuals.r02,DEL-07-09,FIELD,,,,,,CauseTag: RECORD_DRIFT,verifier field correction,PKG-07_VERIFICATION.md Field table
+DEL-07-09:PALETTE_ORGANIZATION_CONTRACT#evidence-disposition,DEL-07-09,FIELD,,,,,,CauseTag: RECORD_DRIFT,verifier field correction,PKG-07_VERIFICATION.md Field table
+DEL-07-09:PALETTE_ORGANIZATION_CONTRACT#n7-f1-f2-f3-repair-amendment-final-rereview-pend.s04,DEL-07-09,FIELD,,,,,,CauseTag: RECORD_DRIFT,verifier field correction,PKG-07_VERIFICATION.md Field table
+DEL-16-04:SOW#CLM-009/REQ-16-04-09,DEL-16-04,FIRM,PARTIALLY_IMPLEMENTED,PARTIAL_SLICE,INVARIANT,NONE,IP_DATA;CLAIMS,"AuthorityNeeded NO; RemainingWork: show each touching path (store, report) preserving the listed checks; restate the stale 'until concrete paths are assigned' clause",F1; C6(a); F8 (gap touches the boundary's subject),PKG-16_VERIFICATION.md F1
+DEL-16-03:CONTEXT#description,DEL-16-03,WEAK,PARTIALLY_IMPLEMENTED,PARTIAL_SLICE,PROJECT_BASELINE,NONE,BASELINE,FindingGroup FG-DEL-16-03-02,F7 (the only recorder has no product caller; the claim is about runtime recording),PKG-16_VERIFICATION.md W1
+DEL-16-04:SOW#CLM-009/REQ-16-04-08,DEL-16-04,WEAK,STALE_REVIEW_OR_EVIDENCE,SCOPE_REDIRECTED_BY_RULING,LOCAL_DESIGN,NONE,RECORD,Row stands; name the boundary (IP/data or human authority) in Notes,F8 (only the record clause is stale; the boundary holds),PKG-16_VERIFICATION.md W2-W3
+DEL-16-04:SOW#completion-and-reliance-basis-epistemology/AC-001,DEL-16-04,WEAK,STALE_REVIEW_OR_EVIDENCE,SCOPE_REDIRECTED_BY_RULING,LOCAL_DESIGN,NONE,RECORD,Row stands; name the boundary (IP/data or human authority) in Notes,F8 (only the record clause is stale; the boundary holds),PKG-16_VERIFICATION.md W2-W3
+DEL-16-01:SOW#CLM-009.r01,DEL-16-01,FIELD,,,,,,"ImplementationEvidence: apps/desktop/src/types.ts#L645 (and applier check_kinds), not schemas/viewport_editor.schema.yaml; disposition, tier, AuthorityNeeded unchanged",verifier field correction,PKG-16_VERIFICATION.md D1
+DEL-16-01:SOW#CLM-009.r03,DEL-16-01,FIELD,,,,,,"ImplementationEvidence: apps/desktop/src/types.ts#L645 (and applier check_kinds), not schemas/viewport_editor.schema.yaml; disposition, tier, AuthorityNeeded unchanged",verifier field correction,PKG-16_VERIFICATION.md D1
+#END,,,,,,,,,,32
