@@ -2690,14 +2690,14 @@
       "model": "gpt-6-astra",
       "reasoning": "high",
       "mechanism": "ROOT actual retained manager followup",
-      "state": "both P2 repairs/evidence handed back; source db35, backcheck pending",
+      "state": "ROOT activated one affected native build/witness via retained manager; actual child resumption pending",
       "basis": "fd002217f067020d44deaee22866e14eed81173f",
       "branch": "codex/swbpipe-b4-sections-20260921",
       "checkout": "existingwt3 after clean verification; old Materials branch preserved",
       "scope": "common Sections/opt-in typed enum and bounded tests only",
       "activation": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_4_SECTIONS_ACTIVATION.md",
       "activationSha256": "e6d44615d671bdcff02fb4b2693d5eb6b36ebef1367d1211ca2c760533a7c64f",
-      "resources": "Bounded two-P2 source repair + unit/TS and four clipping/enum browser cases granted; unrelated passing cases retained. Native pending independent backcheck.",
+      "resources": "Exclusive native build/foreground/CUA granted; browser and full sweep withheld until release.",
       "dependsOn": [
         "B4-3-INTEGRATION",
         "B4-4-SECTIONS-PREPARATION"
@@ -2760,7 +2760,9 @@
       },
       "repairSource": "db35d7582e61d69ad415df7cdf4132b91e710dd8",
       "repairEvidence": "b028c82ba44d528fc169fec2e1b82e1bc58fa6dd",
-      "repairCheck": "73focused unit passes/4files, App1PASS/217filtered, TypeScript PASS and4affected browser passes/13.6s. ROOT verified48new committed evidence bindings. Real vertical scroll and unit-geometry horizontal/partial coverage distinguished."
+      "repairCheck": "73focused unit passes/4files, App1PASS/217filtered, TypeScript PASS and4affected browser passes/13.6s. ROOT verified48new committed evidence bindings. Real vertical scroll and unit-geometry horizontal/partial coverage distinguished.",
+      "nativeActivation": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_4_NATIVE_ACTIVATION.md",
+      "nativeActivationSha256": "cdec5820232ea10117b3d6c35ef1d94031f6b77e56423fc21acd447669d2ec6d"
     },
     "B4-4-CI-COVERAGE": {
       "role": "ROOT maintained CI mapping",
@@ -2793,7 +2795,7 @@
       "model": "gpt-6-astra",
       "reasoning": "xhigh",
       "mechanism": "actual collaboration.spawn_agent fork_turns none",
-      "state": "complete original review with two P2 findings; no other actionable findings, repair/backcheck pending",
+      "state": "both P2 findings closed atdb35; no new actionable findings",
       "basis": "fd002217f067020d44deaee22866e14eed81173f",
       "candidate": "17472d8ab9dd1abf152105effa13fb2a7ff9e0f6",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_4_SOURCE_REVIEW_LAUNCH.md",
@@ -2804,11 +2806,13 @@
       "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_4_SOURCE_REVIEW_RETURN.md",
       "returnSha256": "7a6319dba54889bcc73bfd582e9af536111583dbc2c1425ec4262901cd5a7b3b",
       "backcheck": {
-        "state": "active retained independent TASK followup, six-path repair",
+        "state": "PASS complete, source fit for remaining verification",
         "basis": "76de10606d2fdd4f8e1090883ab5d049567e975f",
         "candidate": "db35d7582e61d69ad415df7cdf4132b91e710dd8",
         "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_4_P2_BACKCHECK_LAUNCH.md",
-        "briefSha256": "72fef4026a2d5fec411af7b15b3c97475b015e14a3ca1455a1b7f749b4bb6402"
+        "briefSha256": "72fef4026a2d5fec411af7b15b3c97475b015e14a3ca1455a1b7f749b4bb6402",
+        "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_4_P2_BACKCHECK_RETURN.md",
+        "returnSha256": "a7650dd16b65f7271d144eef75729d5350575a2ad293cc518088d488e8e0bbeb"
       }
     }
   },
@@ -3114,7 +3118,7 @@
       "B4-4-CODEX-MANAGER"
     ]
   ],
-  "current_frontier": "B4.4 source/evidence frozen and integrated for review: focused checks and all16browser cases pass. Independent fresh Astra/xhigh source review active; peer reserved affected native/build/CUA conditionally, execution awaits review. One final combined clean sweep and actual-head CI follow. C4/liveCLI and qualification/reconciliation holds remain.",
+  "current_frontier": "B4.4 source and both P2 repairs independently reviewed; all affected source checks pass. ROOT activated one native witness with live handback; final combined sweep/review/publication CI follow. C4/liveCLI decisions and qualification/reconciliation holds remain.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
