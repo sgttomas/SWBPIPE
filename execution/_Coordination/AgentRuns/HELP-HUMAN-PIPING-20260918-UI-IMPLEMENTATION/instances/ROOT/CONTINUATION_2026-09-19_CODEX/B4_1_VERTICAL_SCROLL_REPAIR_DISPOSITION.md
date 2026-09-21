@@ -1,0 +1,23 @@
+# B4.1 vertical scroll repair — ROOT disposition
+
+ROOT HELP_HUMAN engineering disposition within existing owner-authorized B4 work, not a new owner ruling. Basis: clean c8f8e503383e15b42b171c4957c6f458d3697150, product1ad964e30b08bed57bba8f08e3a75e8c883c8b0b. Read MANAGER_PROPOSAL.md in B4-1-CODEX/_run_records/vertical-scroll-diagnosis, SHA25689e823565c42dd2df293169f68b8c62cb791995faa6aa39d7098e1a8539ca22b; owner axis record SHA256b9bb903ed29992c09fac30e3f8b763e5d59e1fbb49ca28fd62f13d1142653e73 and the preserved earlier correction.
+
+Approve the proposed finite Grid-mode layout and adaptive body measurement. Keep title/mode/filter/count/family controls outside the vertically scrolling work area, reserve actual header/footer/diagnostic space, and pass the allocated body height through the existing VirtualList input. Observe the allocated slot, not unconstrained content; handle resize/wrapping/empty/hidden cases without circular growth or a replacement magic360 constant. Preserve the horizontal containment repair and existing pane/canvas allocation. Tree mode keeps its existing behavior.
+
+## Presentation decision
+
+Approve one visible bounded editing work area. Opening Review multiple changes uses it for the retained bulk editor; the direct table stays mounted, hidden and inert. Closing it restores the direct editor and its retained state. Keep the toggle/return control reachable and correctly named, retain bulk draft counts, and show a concise retained direct-draft indicator while review is active when applicable. No hidden draft is silently discarded, queued or rebased; valid focus-leave Apply still follows the adopted route. This supersedes the earlier simultaneous-visible sibling presentation only, not its capability/semantic requirements. Duplicate implementation retirement remains a later B4 obligation.
+
+## Short Model drawer
+
+Authorize the small missing measurement at existing drawer default/minimum/expanded states before constraining that context. Keep the existing pane budgets, minimums and resize controls. Within those bounds, the manager may choose a compact presentation using the same controls: combine redundant title/mode/filter chrome and use a single-row reachable family control when needed. All families, Tree/Grid, filter/clear, review/return, Apply/Cancel and diagnostics must remain reachable by pointer and keyboard; explain any setup-only driver adaptation while preserving its original behavioral oracle.
+
+Do not silently produce a visible zero-height body, hide mandatory controls or raise a pane minimum to pass. If the compact presentation cannot satisfy the existing allocation without a consequential new product rule, retain the previous short-drawer behavior for this increment, record the precise remaining B4 gap and return that conflict. The measured Both/Table repair need not wait for an invented global redesign. No full B4 closure is inferred either way.
+
+## Single writer and checks
+
+Retained WORKING_ITEMS Astra/high owns the structural choice and one Astra/low TASK owns the implementation; Type2 does not delegate. Exact primary surfaces: ModelTree.tsx, EngineeringTable.tsx, styles.css and focused existing table/transition/B4 browser tests. A narrow App presentation prop is allowed only if needed to express an existing view/height context cleanly; identify it in the return. No operation engine/schema, native/lib, viewport/pane-budget, shared VirtualList implementation or unrelated component changes. Return a concrete necessity before extending those boundaries.
+
+Prove short and virtualized models in both configured profiles; real vertical wheel over body and controls, top/bottom chaining, actual body scrolling only when rows overflow, fixed surrounding chrome and unchanged pane/viewport-host bounds. Include wrapped feedback/footer, filter-threshold pinned invalid draft, hidden/generation transitions, the alternate retained review area, filtered Queue and representative other families. Preserve Cancel/Apply, keyboard/focus/selection ownership, history and Save/Open oracles. Report drawn-canvas measurements separately from host bounds and keep D72/usability holds.
+
+Bounded5174/shared-lock browser diagnosis and affected checks are authorized; one worker. No full sweep, new native build or CUA use now. Live native31977 stays with ROOT/owner until an explicit cleanup/rebuild handoff. Freeze product/evidence after focused checks for independent affected review; then plan one connected native vertical-control witness on the repaired binary. Earlier failed, partial and superseded observations remain unchanged.

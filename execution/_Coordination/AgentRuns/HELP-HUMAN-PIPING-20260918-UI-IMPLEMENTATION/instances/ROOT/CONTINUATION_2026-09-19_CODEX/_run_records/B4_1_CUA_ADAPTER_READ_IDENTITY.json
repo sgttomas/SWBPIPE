@@ -1,0 +1,21 @@
+{
+  "purpose": "Read-only local adapter diagnosis; not an execution recipe or capability qualification",
+  "paths": {
+    "cua_wrapper": {
+      "origin": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/cua/dist/lib/js/oai_js_cua/src/tinysky_alt/create_tinysky_alt.js",
+      "sha256": "75b1fdf61d51ff9778a33cb02a75ab9e26cabc13fbdd53ed52131dd5f16cb8a7"
+    },
+    "mac_scroll": {
+      "origin": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/sky/dist/project/cua/sky_js/src/targets/mac/scroll.js",
+      "sha256": "f026bbeaca656bddb8212c535690d6acbb1a969b392657368ef964a0f015fe95"
+    },
+    "mac_client": {
+      "origin": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/sky/dist/project/cua/sky_js/src/targets/mac/client.js",
+      "sha256": "b5addc3c85ff0124095042832bca0fe1a271d119925459df7bd284dcab1931ab"
+    },
+    "mac_drag": {
+      "origin": "/Applications/ChatGPT.app/Contents/Resources/cua_node/lib/node_modules/@oai/sky/dist/project/cua/sky_js/src/targets/mac/drag.js",
+      "sha256": "01df9da83423d1b600b162b71d382d0991fcb62779a969facfbb0b649ffe135e"
+    }
+  }
+}
