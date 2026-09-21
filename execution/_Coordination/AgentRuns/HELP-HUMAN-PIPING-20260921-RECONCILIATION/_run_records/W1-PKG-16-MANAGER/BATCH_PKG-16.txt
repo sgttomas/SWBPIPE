@@ -1,0 +1,5 @@
+# Batch validator transcript PKG-16 W1 (2026-09-21T20:52:23Z)
+# (supersedes a first manager invocation that failed with FileNotFoundError because the shell passed the four paths as one argument; manager quoting error, not a ledger defect)
+$ PYTHONDONTWRITEBYTECODE=1 python3 RUN/tools/validate_ledger_v2.py --run-dir RUN --repo-root . --batch RUN/WAVES/W1/PKG-16/DEL-16-01/DEL-16-01_forward.csv RUN/WAVES/W1/PKG-16/DEL-16-02/DEL-16-02_forward.csv RUN/WAVES/W1/PKG-16/DEL-16-03/DEL-16-03_forward.csv RUN/WAVES/W1/PKG-16/DEL-16-04/DEL-16-04_forward.csv
+PASS batch of 4 ledgers: 0 consistency findings
+exit=0

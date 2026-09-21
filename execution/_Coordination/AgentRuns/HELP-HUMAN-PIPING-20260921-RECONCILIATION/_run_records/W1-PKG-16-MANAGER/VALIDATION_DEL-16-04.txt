@@ -1,0 +1,11 @@
+# Validator transcript DEL-16-04 (2026-09-21T20:52:07Z)
+$ PYTHONDONTWRITEBYTECODE=1 python3 RUN/tools/validate_ledger_v2.py --run-dir RUN --repo-root . --deliverable DEL-16-04 --forward projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W1/PKG-16/DEL-16-04/DEL-16-04_forward.csv --reverse projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W1/PKG-16/DEL-16-04/DEL-16-04_reverse.csv --inventory RUN/ROUTING/PKG-16_capabilities.csv
+PASS DEL-16-04: 71 forward rows, 68 required keys, 9 canonical, 0 findings
+exit=0
+# Seal check
+forward_sha256=ed05c5bbbb46bc3e7454d3a6ec273b270cbe2a2f1cb729fbf1808534283db5d9
+seal: SEALED DEL-16-04 ed05c5bbbb46bc3e7454d3a6ec273b270cbe2a2f1cb729fbf1808534283db5d9 2026-09-21T20:46:30Z
+reverse_sha256=3e9357259eae621e9c99e5b589897af1dfe42a97a16099b3fc76efb58c804394
+notes_sha256=2f0165046c0d26c563ac5f43b3b8bbc9904180434663ef664b856de8d5138d19
+forward_end: #END,,,,,,,,,,,,,,,,,,,,,,,,,,,,,71,
+reverse_end: #END,,,353
