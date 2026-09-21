@@ -1,0 +1,73 @@
+{
+  "purpose": "Early cheap repository gates before the source repair/final expensive sweep. Not final candidate validation.",
+  "candidate": "55ea7bc9fab1a3f1786b4014f04e2077c668adf5",
+  "productSource": "1ad964e30b08bed57bba8f08e3a75e8c883c8b0b",
+  "cleanAtStart": true,
+  "base": "fd195cf4287e84572a12183169478a6f7ddf6a92",
+  "checks": [
+    {
+      "name": "claims",
+      "args": [
+        "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+        "tools/validation/validate_claims_language.py",
+        "--repo-root",
+        "."
+      ],
+      "candidate": "55ea7bc9fab1a3f1786b4014f04e2077c668adf5",
+      "exit": 0,
+      "seconds": 0.739008903503418,
+      "logSha256": "148f3902df670a9ccff6805628cbea07990ef5cf95f0f1a892096c26812ed7fd"
+    },
+    {
+      "name": "g4",
+      "args": [
+        "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+        "tools/validation/validate_instruction_tranche_manifest.py",
+        "--base",
+        "fd195cf4287e84572a12183169478a6f7ddf6a92",
+        "--head",
+        "55ea7bc9fab1a3f1786b4014f04e2077c668adf5",
+        "--added-manifests-only"
+      ],
+      "candidate": "55ea7bc9fab1a3f1786b4014f04e2077c668adf5",
+      "exit": 0,
+      "seconds": 0.42044782638549805,
+      "logSha256": "acd8cc3bc5f4ec3ae4006753d2821bb76f735b182193125a16cc43adfb239074"
+    },
+    {
+      "name": "receipts",
+      "args": [
+        "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+        "tools/validation/validate_piping_loop_receipts.py",
+        "--repo-root",
+        "."
+      ],
+      "candidate": "55ea7bc9fab1a3f1786b4014f04e2077c668adf5",
+      "exit": 0,
+      "seconds": 2.031877040863037,
+      "logSha256": "163deff7fcef7146b54dc4bd3c591dbd2a0f6fa0565932b793e64774d359a966"
+    },
+    {
+      "name": "self-check",
+      "args": [
+        "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+        "tools/practitioner_harness/harness.py",
+        "self-check",
+        "--json-report",
+        "/Users/ryan/dev/chirality/.claude/worktrees/swbpipe-wt2/_harness_generated/b4-early-55ea.json"
+      ],
+      "candidate": "55ea7bc9fab1a3f1786b4014f04e2077c668adf5",
+      "exit": 0,
+      "seconds": 30.367904901504517,
+      "logSha256": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e"
+    }
+  ],
+  "summary": "All4 gates exit0. Claims353 files; receipt contract valid; G4 zero instruction-surface changes; self-check baseline4REVIEW/112WARN/14INFO/1NA, zeroBLOCK. New vertical source/evidence not covered.",
+  "files": {
+    "claims.log": "148f3902df670a9ccff6805628cbea07990ef5cf95f0f1a892096c26812ed7fd",
+    "g4.log": "acd8cc3bc5f4ec3ae4006753d2821bb76f735b182193125a16cc43adfb239074",
+    "receipts.log": "163deff7fcef7146b54dc4bd3c591dbd2a0f6fa0565932b793e64774d359a966",
+    "self-check.json": "7c70938d61e4415ce010084f2ae53d2ca3666417c59d986a00c9cd3db572cfa3",
+    "self-check.log": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e"
+  }
+}
