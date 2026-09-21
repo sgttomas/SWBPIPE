@@ -658,7 +658,14 @@
       ],
       "remainderPreparationBrief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_REMAINDER_PREPARATION_BRIEF.md",
       "remainderPreparationBriefSha256": "cf1ea19b9ef79493cb3399785745789d035f8bdc05dd9dd604ffdeae432d235c",
-      "remainderPreparationState": "prepared, unlaunched; manager read-only return only after B4.1 source handback"
+      "remainderPreparationState": "active read-only manager preparation after clean evidencec0 handback; no new worker or implementation",
+      "remainderPreparationBasis": {
+        "source": "ed8cc27fdb37b8df2f20eb5f877aacb61bfd7db1",
+        "workerReturnSha256": "f7aa44110af6fbef5564ad98b1cc80b95a892d2b0d888acb52a479663b9e2bca",
+        "authority": "ROOT dispatch under the sealed prepared brief; source writer handed back and independent source review passed",
+        "actualMechanism": "collaboration.send_message to active retained /root/b3_manager; begins after evidence checkpoint",
+        "scope": "manager read-only next table plan; native coordination is separate ongoing work; no B5/CLI implementation"
+      }
     },
     "B5": {
       "role": "slice",
@@ -1656,7 +1663,7 @@
       "model": "gpt-6-astra",
       "reasoning": "high",
       "mechanism": "Codex delegated-harness-native retained manager; new bounded TASK",
-      "status": "sourceed8 independently reviewed; retained native TASK resumed actual bounded build/witness after sealed handoff; evidence packaging active",
+      "status": "sourceed8 independently reviewed; native vertical TASK PASS and ROOT own look/scrollbar-Z-Cancel PASS; clean evidencec0 handed back; remainder preparation read-only active",
       "base": "fd195cf4287e84572a12183169478a6f7ddf6a92",
       "branch": "codex/swbpipe-b-shell-20260918",
       "brief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_1_MANAGER_BRIEF.md",
@@ -1668,7 +1675,7 @@
       "childBriefSha256": "56df2fc1dec4fffac347042287cc90f9b50f548df24fa810d2d456e4fef43578",
       "childInputsSha256": "58a86b65a5d125e481ceb0e46a05090cd2befeaaee25f9bd46f43ef0ef0b8d6a",
       "writeLease": "shell/controller/table; exact sealed brief; no native or external live transport; no shared Root graph writes",
-      "resourceState": "Piping native/CUA slot acknowledged by dev - app; one rebuilt ed8 witness authorized, no full sweep; source held",
+      "resourceState": "all Piping native processes closed and native/CUA released/acknowledged; source/dist5174/5175/shared E2E lock reserved for clean sweep; manager read-only preparation only",
       "enforcement": "instruction-asserted; host unrestricted; Type2 no delegation",
       "compatibilityDisposition": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_1_COMPATIBILITY_DISPOSITION.md",
       "compatibilityDispositionSha256": "f317cddf86edc5faf672629f70c0575d26ff77e2b3b494d7e167687e42865827",
@@ -1737,7 +1744,27 @@
       "nativeVerticalInputs": "instances/B4-1-CODEX/_run_records/vertical-scroll-repair/NATIVE_INPUTS.json",
       "nativeVerticalInputsSha256": "43932e26b5fd07ca59d2190df627fc6fdc278ab570793c2189ee50b7af32b480",
       "nativeVerticalLaunch": "instances/B4-1-CODEX/_run_records/vertical-scroll-repair/NATIVE_LAUNCH.json",
-      "nativeVerticalLaunchSha256": "4517888d6b0cf7d7ee585c11f89ed81fd8695c1b7b9832f1d83c9132af87cf3d"
+      "nativeVerticalLaunchSha256": "4517888d6b0cf7d7ee585c11f89ed81fd8695c1b7b9832f1d83c9132af87cf3d",
+      "verticalEvidenceCheckpoint": "c0a3314e2b141d8f93b90364250d2bffa89433f7",
+      "verticalEvidenceManifest": "instances/B4-1-CODEX/_run_records/VERTICAL_EVIDENCE_MANIFEST.json",
+      "verticalEvidenceManifestSha256": "e253948a89428c8c6627a83ce5a34be59d6760005cd7f44d64e0cf9d89f77a67",
+      "verticalManagerReturn": "instances/B4-1-CODEX/_run_records/vertical-scroll-repair/MANAGER_RETURN.md",
+      "verticalManagerReturnSha256": "98993dd15e31e01582ef1f3f38bec6690411ae051dd7244d02e42b0665534afe",
+      "nativeVertical": {
+        "source": "ed8cc27fdb37b8df2f20eb5f877aacb61bfd7db1",
+        "pid": 43662,
+        "binarySha256": "a21fe722e419c51b87d8fe6929441d512f44685cbc306b912e424ed29fa8e87d",
+        "return": "instances/B4-1-CODEX/_run_records/vertical-scroll-repair/NATIVE_RETURN.md",
+        "returnSha256": "fa9d6ba6dadfe4f32707af80b3dfb03f28a8bca456d0a18eb100758db7087b50",
+        "manifestSha256": "394347916a9722ffcb2138fa52e33685d7f20b06e3282cda87bf44a1dce010e0",
+        "verdict": "bounded verticalPASS in observed non-collapsible contexts; actual small reviewoverflow, retained drafts, pointerCancel/Apply/UndoRedo; no native large/drawer/exact-size qualification",
+        "rootOwnLook": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_1_ROOT_VERTICAL_NATIVE_ED8/RETURN.md",
+        "rootOwnLookManifest": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_1_ROOT_VERTICAL_NATIVE_ED8/MANIFEST.json",
+        "cleanup": "ROOT restored canonical model, closed drafts/review/inspector, CmdQ; process-only ps43662 exit1/empty, no postQuitAX",
+        "rootOwnLookSha256": "1893918ff08ad8803e8d9478a93d1e5b104c1697b36df9fe2293e829b381620b",
+        "rootOwnLookManifestSha256": "108baac42d08da425d5f4a29ae26b8ca9cdb89c85ca64dbdfcabd5f56912080e",
+        "newHorizontalScope": "ROOT observed visible scrollbar thumb drag exposeZ with fixed filter/families, physical Z4.4 entry and Cancel to0 without model/history change. ed8 only; no new horizontal-wheel claim and earlier failures remain."
+      }
     },
     "LIVE-CONTROL-PREPARATION": {
       "role": "ROOT proposed stage with bounded TASK inventory and peer fit review",
@@ -1880,8 +1907,8 @@
       "role": "ROOT integration",
       "parent": "ROOT",
       "branch": "codex/swbpipe-b4-controls-20260920",
-      "status": "clean local combined repaired source da504; independent backcheck and rebuilt native witness precede final sweep/publication",
-      "candidate": "da504e5a9a1a386494df80e965abda88b4020312",
+      "status": "clean combined ed8 source and c0 native/evidence; ROOT own-look tail being added; final clean sweep, combined review and actual-head CI pending",
+      "candidate": "c623022a8e8ea2aae66568a4b36bbe17f0134ced",
       "base": "fd195cf4287e84572a12183169478a6f7ddf6a92",
       "sourceCandidate": "ed8cc27fdb37b8df2f20eb5f877aacb61bfd7db1",
       "ciMapCommit": "ab3b057e4",
@@ -2186,7 +2213,7 @@
       "B4-EARLY-RECORDS-REVIEW"
     ]
   ],
-  "current_frontier": "B4.1 repaired sourceed8 independently reviewed and integratedda504;445-test collection has exact full partition coverage. Peer acknowledged Piping native/CUA slot; one rebuilt qualified vertical witness authorized. Final clean sweep/combined review/CI remain pending. C4 and liveCLI decisions remain pending; B4 remainder preparation unlaunched.",
+  "current_frontier": "B4.1 sourceed8 independently reviewed; bounded native vertical witness and ROOT own look passed, including a new native scrollbar-pointerZ/Cancel observation. All native processes closed. Assemble final clean sweep candidate; final combined review/CI remain. B4 remainder preparation active read-only; C4/liveCLI decisions pending; no full B4 closure.",
   "frontier_history": [
     {
       "until": "2026-09-18T19:41Z",
@@ -2408,7 +2435,7 @@
     },
     "currentContract": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/PIPING_LIVE_CONTROL_CONTRACT_DRAFT.md",
     "peerFitReview": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/RUNTIME_ACTIVATION_REVIEW_CUSTODY.json",
-    "nativeHandoff": "dev - app acknowledged Piping claim for rebuilted8 witness and reports no conflicting native/CUA/build/test activity; it defers until ROOT release notice."
+    "nativeHandoff": "ROOT released native/CUA after restored-model cleanup/ps43662 absence; peer acknowledged release/no claim and source/dist/E2E reservation, with no competing heavy work."
   },
   "pause": {
     "ownerText": "Pause your work",
@@ -2467,19 +2494,19 @@
     "scope": "No silence-as-approval; unaffected B4.1 continues"
   },
   "liveContinuationState": {
-    "root": "08326b77d2a710689216d83b832eab6bb1409f28 plus this source-freeze/review tail",
+    "root": "c390e67e1f764cc1b07a21795d4a6e56c1efbdfd plus native own-look tail",
     "originMain": "fd195cf4287e84572a12183169478a6f7ddf6a92",
     "integrationBranch": {
       "branch": "codex/swbpipe-b4-controls-20260920",
-      "head": "da504e5a9a1a386494df80e965abda88b4020312",
+      "head": "c623022a8e8ea2aae66568a4b36bbe17f0134ced",
       "state": "ROOT-owned local combined candidate; old PR828 branch127677 preserved"
     },
-    "shell": "ed8 source freeze; evidence-only packaging, maintained bytes held",
+    "shell": "clean evidencec0, producted8 unchanged; manager read-only remainder preparation",
     "canvas": "fb720420 preserved; C4 preparation returned",
     "design": "4dddd441 parked unchanged",
     "nativeProbe": "separate two-edit worktree preserved; never fan-in",
-    "resources": "Piping native/CUA slot acknowledged by dev - app; one rebuilt ed8 witness authorized, no full sweep; source held",
-    "recordStatus": "ROOT checkpoint binds owner correction/axis, horizontal review and B5 preparation; independent review of new record tail pending",
-    "observedAt": "2026-09-21T01:47:31.689752+00:00"
+    "resources": "all Piping native processes closed and native/CUA released/acknowledged; source/dist5174/5175/shared E2E lock reserved for clean sweep; manager read-only preparation only",
+    "recordStatus": "source and prior records reviewed at stated scopes; new native/publication tail awaits combined backcheck",
+    "observedAt": "2026-09-21T02:11:42.840274+00:00"
   }
 }

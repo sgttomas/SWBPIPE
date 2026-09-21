@@ -1,0 +1,88 @@
+{
+  "at": "2026-09-21T02:08:07.307587+00:00",
+  "source": "ed8cc27fdb37b8df2f20eb5f877aacb61bfd7db1",
+  "binarySha256": "a21fe722e419c51b87d8fe6929441d512f44685cbc306b912e424ed29fa8e87d",
+  "pid": 43662,
+  "files": {
+    "01-baseline.ax.txt": {
+      "sha256": "edd31b46082165b20a0425dc293ee6d58771e7050e71d5d937a3ee3eee645dea",
+      "bytes": 2642
+    },
+    "01-baseline.jpg": {
+      "sha256": "9a9206780e5ad6317d559a3529814da49d1a5e30d05b138b90253966fb4caeb9",
+      "bytes": 177302
+    },
+    "02-horizontal-pointer.ax.txt": {
+      "sha256": "9bfb17da9712f7d9d9d07a2c9bbbc8544085d026724922ccb40394b84622a027",
+      "bytes": 146
+    },
+    "02-horizontal-pointer.jpg": {
+      "sha256": "81742cd6ac978c4776cb5dfd88937cb48b7489bbaf0b332a9c44e2533888cdbe",
+      "bytes": 174090
+    },
+    "03-z-pointer-draft.ax.txt": {
+      "sha256": "984687110aa9f489d94500b22e4dc28230934786fc8e8814f480e3bbd0b23676",
+      "bytes": 377
+    },
+    "03-z-pointer-draft.jpg": {
+      "sha256": "909435de3e1fba6fb873391ce06a9c2665394bdbd8e2e71d3a34179711c1a48a",
+      "bytes": 176311
+    },
+    "04-z-pointer-cancel.ax.txt": {
+      "sha256": "5e974b31b576ee9dfd18fbef9f1bc73cc71acaa33c45d99bedd4a518a2f03920",
+      "bytes": 467
+    },
+    "04-z-pointer-cancel.jpg": {
+      "sha256": "3f236e513924040891e12adb190c1e811db05357791e4e01c3baa6f5ba9429ec",
+      "bytes": 173903
+    },
+    "05-vertical-down.ax.txt": {
+      "sha256": "7ea8a54f9a4f69665390cb1bbc19264a66f13573acf80859860dd18b0fecf997",
+      "bytes": 162
+    },
+    "05-vertical-down.jpg": {
+      "sha256": "d5db80690e93b1812f3ab14c9a0c259a9acc53cd6bf6cdeb55deda3c99fd4db8",
+      "bytes": 173854
+    },
+    "06-review.ax.txt": {
+      "sha256": "2fbebf9f670f7b0cdde1d83c37db830ea6b3b7b18bd7934c027601db34d395c6",
+      "bytes": 5068
+    },
+    "06-review.jpg": {
+      "sha256": "5314c1de511d47c81b5d1a47fb80c8213732308681c5b58857c692b77c94f7cb",
+      "bytes": 194375
+    },
+    "07-review-scroll.ax.txt": {
+      "sha256": "40f86f2efd1a73cd04ee3fc9c14cf0095ea7854c62c3317c9af854512b498f8d",
+      "bytes": 193
+    },
+    "07-review-scroll.jpg": {
+      "sha256": "99c0abafe127a8627560c384f17edb8a24ab8b64b280766fbd23362fa34f0629",
+      "bytes": 194691
+    },
+    "08-final-clean.ax.txt": {
+      "sha256": "be103a5825a6165c40b4242b301d7ccbe1c19ac9239e131bfc93191eb7e2ed58",
+      "bytes": 10245
+    },
+    "08-final-clean.jpg": {
+      "sha256": "ba5a8bbb4e024b76f226b7136893dd17a4579535d30f391c1c4353744ee780aa",
+      "bytes": 140876
+    },
+    "RETURN.md": {
+      "sha256": "1893918ff08ad8803e8d9478a93d1e5b104c1697b36df9fe2293e829b381620b",
+      "bytes": 3749
+    }
+  },
+  "cleanup": {
+    "command": [
+      "ps",
+      "-p",
+      "43662",
+      "-o",
+      "pid=,lstart=,command="
+    ],
+    "exit": 1,
+    "stdout": "",
+    "noAppQueryAfterQuit": true
+  }
+}
