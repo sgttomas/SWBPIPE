@@ -1,0 +1,125 @@
+{
+  "candidate": "d02bb99092bf39e7e6d1554a68e77f94f349ab36",
+  "sourceSweep": "d3db83b494cd00e9f8978a99f02a83bf626bd1fb",
+  "scope": "34-path run-evidence/continuity/receipt-only tail; no maintained product/tool/config change",
+  "checks": "receipts/claims/G4/self-check/actual-candidate CI collection exit0; self-check same4REVIEW112WARN14INFO1NA/noBLOCK; full collection455 selected0omitted",
+  "files": {
+    "ci-plan.json": {
+      "rawSha256": "4509c29e2faa013620185ae835633203f04860783886ec8a0d68f23b58265e1b",
+      "rawBytes": 76473,
+      "storedAs": "ci-plan.json.gz",
+      "sha256": "4710340d84be4fceff3d8507dbf4d1a376273ab5c0a1a63d082dd113fe75751d",
+      "bytes": 3829
+    },
+    "collection-checks.json": {
+      "rawSha256": "6aeac30846f1927f86eac050da674d08baddcd880e2f71729daba9d1110f0f4a",
+      "rawBytes": 1225,
+      "storedAs": "collection-checks.json.gz",
+      "sha256": "ae973828b3eded2d52bdf4ea25ef172421296ea8a9781c145170b6ee9cec056f",
+      "bytes": 498
+    },
+    "results.json": {
+      "rawSha256": "8c6b14b3d244e8967b300020d7b5bec9ffeb3b9d3723f3478e124ecd7846c5ed",
+      "rawBytes": 1888,
+      "storedAs": "results.json.gz",
+      "sha256": "9e755940733d04307793f34049702ad1390fe3a726940c9eecc244492ea8274c",
+      "bytes": 680
+    },
+    "ci-collection.log": {
+      "rawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rawBytes": 0,
+      "canonicalPrior": "../B4_2_FINAL_CHECKS/ci-collection.log.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    "ci-plan.log": {
+      "rawSha256": "a234092ea601750d5bf38b2e723c7752522b4dc8523b74a69b169ca9ccdab6e9",
+      "rawBytes": 76604,
+      "storedAs": "ci-plan.log.gz",
+      "sha256": "8b4b9ab1fb063444a7edaef273a7a4400275eb1e81305dec201b4d65a4fd3603",
+      "bytes": 3916
+    },
+    "claims.log": {
+      "rawSha256": "148f3902df670a9ccff6805628cbea07990ef5cf95f0f1a892096c26812ed7fd",
+      "rawBytes": 87,
+      "canonicalPrior": "../B4_2_FINAL_CHECKS/claims.log.gz",
+      "sha256": "d76a742a6184abdbce29fa095cc00155c34486e4ce4e24b58f6c66fc62700a59"
+    },
+    "g4.log": {
+      "rawSha256": "3cfbb35768daec6bff87fb13312829d94c4995f3c997ef4b8fd34348ca6422b1",
+      "rawBytes": 16163,
+      "storedAs": "g4.log.gz",
+      "sha256": "e2135d3dead3c717d64c682020c228915e4387f5948e6ecbe77dbf399da9d8a2",
+      "bytes": 2465
+    },
+    "harness-self-check.log": {
+      "rawSha256": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e",
+      "rawBytes": 41362,
+      "canonicalPrior": "../B4_2_FINAL_CHECKS/harness-self-check.log.gz",
+      "sha256": "1cf076336c641fea7f04fda949a2234ddc409da49f6ff7ffb834440fbcf0f897"
+    },
+    "receipts.log": {
+      "rawSha256": "338f66e8febd974332cec1a51b10c380beb15d12be675c7c0c0586d404cb4e39",
+      "rawBytes": 195,
+      "storedAs": "receipts.log.gz",
+      "sha256": "4ec7250e754e188d5d008bcc5f11f90daa73016eec7ec2f5df843a5c7965a63a",
+      "bytes": 182
+    },
+    "collection/barrier.stdout.json": {
+      "rawSha256": "b48d5a6da63235451fce49bb8557b7388c4b2b5d7a6836c2db08a33dd5b7ce59",
+      "rawBytes": 21646,
+      "storedAs": "collection/barrier.stdout.json.gz",
+      "sha256": "2c983d7c00a2472b818b7f31586144e48fa6478ab7ec3b8391f8f61aa3dabae3",
+      "bytes": 2059
+    },
+    "collection/collection.json": {
+      "rawSha256": "e41f63fba5721b4e681792a634023421640313081f44dc9e912318ff42b6e422",
+      "rawBytes": 450562,
+      "storedAs": "collection/collection.json.gz",
+      "sha256": "ba3154ebc07cb55843b2b437798148ccf8cc0af5cc17826a4a65933710ab7550",
+      "bytes": 46739
+    },
+    "collection/shard-1.stdout.json": {
+      "rawSha256": "820f0fa5a6cf10b33a7a3dff387483d6e28d8e45d86544e9c87794e544497dc5",
+      "rawBytes": 48248,
+      "storedAs": "collection/shard-1.stdout.json.gz",
+      "sha256": "c287c2d22f0141bea0baa18d3e005861ebd8a26f408ec0b96229a8a5f2005d69",
+      "bytes": 5023
+    },
+    "collection/shard-2.stdout.json": {
+      "rawSha256": "6042a8e61f93a5613141b798d58852ee53c0edd68db23f276866409b98e70a2a",
+      "rawBytes": 56914,
+      "storedAs": "collection/shard-2.stdout.json.gz",
+      "sha256": "bcfa91fc3739f64b337a72e93ef0d5c8787ac73eb1c8d5ce6182f01e59dfe6a7",
+      "bytes": 5887
+    },
+    "collection/shard-3.stdout.json": {
+      "rawSha256": "64f5526325ccd0830d9919adb4920fa602edb960292fc0bb3c029fe7d7f8c84d",
+      "rawBytes": 34132,
+      "storedAs": "collection/shard-3.stdout.json.gz",
+      "sha256": "ad62da62ef865a0b1a782a3aa3cb031daf624aa68a3be0d9994383c621a2f8aa",
+      "bytes": 3817
+    },
+    "collection/shard-4.stdout.json": {
+      "rawSha256": "df46d96c2c7971c1ce477dbd4cd6fecc2dfcb1eec58807be366789ebedcaf060",
+      "rawBytes": 160079,
+      "storedAs": "collection/shard-4.stdout.json.gz",
+      "sha256": "84682d2535cc8e0f5e892816855b53cce73834eec59eb47d2d8391879a4089ec",
+      "bytes": 14820
+    },
+    "collection/source.stdout.json": {
+      "rawSha256": "a0dc8c80206f83ed4abfea7482943b233def635c10b97aaacb7671475f55a4ac",
+      "rawBytes": 308966,
+      "storedAs": "collection/source.stdout.json.gz",
+      "sha256": "c6e6afdc1be3ebd4b0168a3d8b076f14bcfcfb2afed20b75a668ee565bc29938",
+      "bytes": 21893
+    },
+    "harness-report.json": {
+      "rawSha256": "1777228750ef802e0ed4c821642396c6656079129ba780e255a37f8334a80bd3",
+      "rawBytes": 129080,
+      "storedAs": "harness-report.json.gz",
+      "sha256": "7a2d18ab21a544023d2a9cd7759b2692b47fd912f87b5736ad7948582690b3fa",
+      "bytes": 12055
+    }
+  },
+  "limits": "Hosted checks still pending. These observations and subsequent review return are retained on the ROOT records branch without changing the frozen PR head."
+}
