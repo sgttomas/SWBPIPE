@@ -124,3 +124,43 @@ Run HELP-HUMAN-PIPING-20260921-RECONCILIATION. Scope: f250882c1..4172aa98e (W3 r
 Scratch files: `.../scratchpad/review_w3/`. The reviewer made no git writes and edited no ledgers or resolutions.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+
+## Backcheck 1 (range 4172aa98e..24bbc75e0)
+
+Verdict: PASS. The three SHOULD-FIX items and the minors are resolved, and nothing blocking or SHOULD-FIX was introduced. Two new MINOR wording points are listed at the end.
+
+The commit touches five files, all inside RUN and AR:
+- W3/RESOLUTIONS.csv
+- CROSS_WAVE/ALL_WAVES_RESOLUTIONS_COMBINED.csv
+- W3_ASSESSMENT.md
+- RUN_STATE.jsonl (+4 lines, 0 deletions)
+- this return file, committed byte-identical to the returned version (sha256 4f9e9ac0…)
+
+The diff outside RUN and AR is empty.
+
+- **SF1: verified.**
+  - The two rows now read `ALIGNED,,,,NONE`: BaselineClass is empty and DivergenceLayers is `NONE`. No other row changed.
+  - File hashes: W3 is b2f521a3… and the combined file is d0c7876a…, both matching the FIX record in RUN_STATE.
+  - Re-run: the W3 batch passes (58 ledgers, 0 findings) and the corpus batch passes (102 ledgers, 0 findings).
+  - The combined file still equals the concatenation of the W1, W2, W3 and CROSS_WAVE data rows (599 rows, one #END).
+  - The value-change profile is unchanged apart from these two rows, which now set DivergenceLayers to NONE.
+  - Correction to my own finding 1: the "sealed ALIGNED convention" text is in the rows' OtherCorrections column, not Basis. Agent 0's wording is right.
+- **SF2: verified.** The table now gives the out-of-sample and targeted figures, and the reruns bullet gives the CLM-020 caveat. The rows cited in the table (DEL-06-05 CLM-020.r05, DEL-11-03 CLM-004.r01, DEL-13-02 CLM-012/R-13-02-005, DEL-15-02 CLM-020, and PKG-12's three §4 out-of-sample rows) are all in RESOLUTIONS.csv.
+- **SF3: verified.**
+  - Every owner item I listed has been added.
+  - The two worker-raised items are marked.
+  - The post-gate PKG-12 question and the DivergenceLayers gap are in the Method list.
+- **Minors: verified.**
+  - Departure 5 now covers the verifier's exposure to the hint.
+  - Departure 8 covers the Direction 8 relabel and the F3 change. Its "30 W1/W2 rows" matches my count (7 + 23).
+  - Its claim that every W3 SEMANTIC_READY sub-claim has an OWNER_CONFIRMED row checks out: 49 architecture-basis rows cite SEMANTIC_READY and there are 49 OWNER_CONFIRMED rows, an exact key match, all STALE_REVIEW_OR_EVIDENCE.
+  - The duplicate keys are disclosed, and so is the W-1c transcription.
+- **New MINOR B1-1.** The new "Out-of-sample errors" bullet calls these "confirmed errors outside the sample" and includes PKG-12.
+  - The PKG-12 verifier called its three rows "same pattern … not counted". One of them, DEL-12-03 CLM-026, is conditional ("if the clause concerns runtime routing").
+  - All three are recorded as OBSERVED, not FIRM.
+  - Suggest "confirmed or suspected" for PKG-12.
+- **New MINOR B1-2.** Departure 6 says the W-1c transcription is "disclosed in the part 2C return".
+  - No separate part 2C return exists. RUN_STATE L363 lists only the draft CSV and does not mention W-1c.
+  - The disclosure is in the OtherCorrections column of the W-1c rows in RESOLUTIONS_DRAFT_PART2C.csv and RESOLUTIONS.csv. The pointer should name those.
+
+Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
