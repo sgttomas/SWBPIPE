@@ -189,6 +189,19 @@ the M2, M3, M5, M12 and M13 keys (see `CORPUS_CLAIMS.csv` `OtherCorrections`).
   for T5B-C05/C06 (M13) and PKG-04 VER-001 (M3); H1 items on ROUTING_GAP
   capabilities (M10); H3 items for M6.
 - **Depends on:** none.
+- **Placed here by Agent 0 (questions attached to the owner session; options not
+  drafted):**
+  - U7, under M2 — T6-C02 rows offering "narrow or defer by ruling" on the
+    round-trip subject: `DEL-03-01:SOW#CLM-011/REQ-03-01-007` and
+    `DEL-03-01:SOW#production-and-verification-method-praxeology/VER-001`.
+  - U2 — local `Dependencies.csv` rows still ACTIVE where DAG-010 retired them
+    (T11 D-02): R5 record repair, or a DAG rebuild outside this run (which would
+    need separate authorization).
+  - U4 — does the CONVENTIONS F3 origin test apply to the item or to the assessed
+    sentence? (`DEL-12-02:SOW#CLM-037/REXC-OI-002`, T5A-C08).
+  - U9 — no DivergenceLayers value fits a pure product gap (claimed code exists,
+    no product path calls it; `WAVES/W3/W3_ASSESSMENT.md:98`, PKG-15 verifier §6).
+  - U10 — the rerun-launch hint as a method rule: already drafted as M11.
 - **Related:** C7 (the T8 readings are separate; M13 is not a T8 cluster).
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

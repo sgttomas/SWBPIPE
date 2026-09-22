@@ -36,12 +36,14 @@ The eight subjects:
 
 **Prior rulings and governing text.**
 - OPS-K-UNIT-1 (`F:docs/CONTRACT.md:33`) requires imported values and exports
-  to be unit-aware; OPS-K-DATA-2 forbids invented data. Both are cited as the
+  to be unit-aware and dimensionally checked. OPS-K-DATA-2
+  (`F:docs/CONTRACT.md:27`) makes missing solve-required or rule-check-required
+  values explicit findings, never silent defaults. Both are cited as the
   normative source on the DEL-15-03 FG-02 rows.
 - AB-00-06 (diagnostics) and SPEC §7–§8 govern diagnostic fields. DEL-00-06
   REQ-06-02 says every field except class is kept across crossings.
 - DEC-026 (`F:execution/_Decomposition/SOFTWARE_DECOMP.md:617`; register row
-  D-04, `_DECISIONS/_REGISTER.md:31`) makes fixture overrides tighten-only and
+  D-04, `execution/_Coordination/_DECISIONS/_REGISTER.md:31`) makes fixture overrides tighten-only and
   treats loosening as a governance event.
 - DEC-020 (`SOFTWARE_DECOMP.md:611`) is the operation-seam ruling behind
   DEL-16-02's runtime.
@@ -89,8 +91,11 @@ Each subject is ruled separately. Options are as they stand in the evidence.
   parts hold either way.
 - (b) Not intended. Fix the export route classification so invented/public
   content is preserved; restore label carry for checksums.
-- Consequences: (a) authorises SOW revision and R5 record repair of 19 rows;
-  (b) authorises a code-fix brief on the exporter route and then re-verification.
+- Consequences: (a) authorises SOW revision and R5 record repair of 19 rows.
+  Its units part (redacting units-manifest values) conflicts with OPS-K-UNIT-1,
+  which requires exports to be unit-aware, so (a) also needs a contract basis:
+  either an OPS-K-UNIT-1 amendment or a ruling that redacted exports keep unit
+  metadata. (b) authorises a code-fix brief on the exporter route and then re-verification.
   Either way B7 matters: if B7 retires or ports the Python exporter, the code
   target of (b) moves.
 
@@ -220,7 +225,7 @@ reading (C7), subject 3 leaves this packet and goes to H2 under REVIEW.
 
 - **Undecided.** Export packages lose hashes and units that the handoff contract
   promises. Diagnostics show classes and remediation that no producer supplied,
-  against the do-not-invent principle. Unitless values can pass the import gate
+  against the producer-carries-its-values reading of AB-00-06. Unitless values can pass the import gate
   (INVARIANT). A protected-check tolerance stays loosened without its governance
   event. A text catch-up done first would ratify all of this silently.
 - **"Adopt the code" options.** Amending INVARIANT-backed requirements (S1, S3)
@@ -241,7 +246,7 @@ reading (C7), subject 3 leaves this packet and goes to H2 under REVIEW.
 
 | Option type | Authorises | Path |
 |---|---|---|
-| Adopt behaviour (S1a, S2b, S3b, S4b, S6b, S7a/b, S8a) | SOW text revision on the named deliverables, then R5 record repair of the listed rows | Ordinary change path; R5 under separate authorization. S3b also needs a contract amendment to OPS-K-UNIT-1 through the governance path |
+| Adopt behaviour (S1a, S2b, S3b, S4b, S6b, S7a/b, S8a) | SOW text revision on the named deliverables, then R5 record repair of the listed rows | Ordinary change path; R5 under separate authorization. S1a (its units part) and S3b also need a contract amendment to OPS-K-UNIT-1 through the governance path, or for S1a a ruling that unit metadata survives redaction |
 | Restore text (S1b, S2a, S3a, S4a, S6a, S7c, S8b) | A code-fix brief per subject (exporter route; desktop diagnostic adapters and runner binding; import gate; preview path; operation applier; path policy; DEL-17-06 writer) | H2 candidate brief under a production brief, chirality-change PR path with independent review; rows re-verified later, never edited in place |
 | S5a | A DEC-026 governed-record amendment with the reason, then R5 repair of three rows | Owner record in the register / DEC-026 record |
 | S5b | A fixture and benchmark code change | H2 brief |
@@ -256,6 +261,14 @@ Nothing executes until the owner rules. R5 needs separate authorization (D-73).
 - **Blocks:** H2 briefs for the exporter, diagnostic adapters, runner binding,
   import gate, preview path; H4 rows of DEL-15-03, DEL-08-03/04, DEL-00-06,
   DEL-09-01, DEL-12-01, DEL-16-02, DEL-17-06 in these subjects (BlockedOnPacket C1).
+- **Placed here by Agent 0 (question attached to the owner session; options not drafted):**
+  - U5 — narrow an INVARIANT restatement instead of implementing it:
+    `DEL-03-08:SOW#CLM-026`, `DEL-03-08:SOW#CLM-011/DEL-03-08-RQ-004`,
+    `DEL-06-01:SOW#CLM-011/REQ-06-01-011` (T6-C03).
+  - U6 — are storage, rule-pack and library commands exempt from the diagnostics
+    envelope? The keys CFB-14 lists: `DEL-00-06:AB#normative-requirements/REQ-06-03`,
+    `DEL-00-03:AB#normative-requirements/REQ-03-02`, `DEL-06-04:SOW#CLM-004.r05`,
+    `DEL-06-04:SOW#CLM-010/R-06-04-012` (T6-C02). Joins subject 2.
 - **Related:** B6 owns the DEL-17-04 part of T5A-C05. C6 carries the
   diagnostics-boundary method split; H3 carries T11 SS-01. A3 holds the
   separate DEL-12-01 private-data-root CP-10 item.

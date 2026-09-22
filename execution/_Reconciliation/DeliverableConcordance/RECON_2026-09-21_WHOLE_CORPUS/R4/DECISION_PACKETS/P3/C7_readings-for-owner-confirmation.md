@@ -80,8 +80,9 @@ in the evidence.
 - **R4.** (a) A REQ reads PROJECT_BASELINE only when the scope item itself names
   the unmet element: DEL-14-02 r09 and DEL-07-05 ×2 PROJECT_BASELINE; DEL-17-02 ×2,
   DEL-17-07, DEL-17-09 LOCAL_DESIGN. (b) Any REQ tracing to an IN scope item
-  reads PROJECT_BASELINE (which empties LOCAL_DESIGN for REQs), or all stay as
-  sealed.
+  reads PROJECT_BASELINE (which empties LOCAL_DESIGN for REQs). (c) All seven
+  stay as sealed (DEL-07-05 ×2 and the PKG-17 rows LOCAL_DESIGN, DEL-14-02 r09
+  PROJECT_BASELINE), with no corpus test recorded.
 - **R5.** (a) DEFERRED_BY_RULING for DEL-05-04 and DEL-15-04 (the MVP carries no
   acceptance workflow; DEC-081 creates none). T8 rates this MEDIUM confidence:
   DEC-081 states what it does not create rather than "defer". (b) PARTIAL_SLICE
@@ -110,14 +111,14 @@ cited fact with plain `grep`/`find` (T8 observation 5).
 
 ## 5. Affected claims
 
-C7 claims **T6-C09 whole** and the **T8 rows of five clusters** (filter). It
-does not claim portions of the classes those T8 rows sit in; those classes are
+C7 discusses **T6-C09 whole** (route carrier `NO_ACTION_ROWS.csv`) and the
+**T8 rows of five clusters** (filter). It does not claim portions of the classes those T8 rows sit in; those classes are
 counted by their packets or handoffs, which carry `BlockedOnPacket C7` where a
 reading changes their route.
 
 | Set | Rows | Filter |
 |---|---|---|
-| T6-C09 | 9 (whole class) | `CLASS_ASSIGNMENTS.csv` `ClassID == T6-C09` |
+| T6-C09 | 9 (whole class; discussed, not claimed) | `CLASS_ASSIGNMENTS.csv` `ClassID == T6-C09` |
 | T8 rows, R1–R5 | 132 | `R3/TASKS/T8_ROWS.csv` `Cluster` in {SR-1, UNIT_VOCABULARY, F1_ON_CONTEXT, TIER_IN_SCOPE_REQ, ACCEPTANCE_WORKFLOW} |
 
 **T6-C09 keys.** `DEL-07-03:SOW#CLM-005.r04`*, `SOW#CLM-005.r05`,
@@ -186,7 +187,7 @@ contested rows show the replacement is defensible, so the owner's call stands.
   to H3 review; R4 — DEL-07-05 ×2 go to B12's owner routing at PROJECT_BASELINE;
   R5 — NO_ACTION until an acceptance workflow is authorised (B12); R6 — optional
   R5 citation repair on DEL-07-03.
-- **Replace (b).** Agent 0 records the replacement reading; rows are recounted in
+- **Replace (b), or R4(c).** Agent 0 records the replacement reading; rows are recounted in
   the partition before H4 is finalised. R6(b) opens a DEC/SCA clarification owner
   decision on SCA-009 closure.
 - If a reading should bind later runs, a convention amendment through HELPS_HUMANS.
@@ -194,12 +195,16 @@ contested rows show the replacement is defensible, so the owner's call stands.
 
 ## 9. Dependencies
 
-- **Depends on:** none.
+- **Depends on:** B4 (DEC-094 and the DEL-07-09 envelope bear on R6; B4 lists
+  C7 as blocked by it).
 - **Blocks:** A5's R5 follow-through (R1 sets the cause the repair records); C1
   subject 3 route (R2); H2 unit-vocabulary briefs (R2); H4 SR-1 rows and H2/H3
   rows of the F1, tier and acceptance clusters (BlockedOnPacket C7).
-- **Related:** B12 (acceptance-workflow selection; DEL-07-05 ratio choice);
-  B4 (DEC-094 and the DEL-07-09 envelope); C6 (method items that are not T8
+- **Placed here by Agent 0 (question attached to the owner session; options not
+  drafted):** U1 — one wave-level reading of the DEL-05-02/05-03 AC-001 rows:
+  `DEL-05-02:SOW#completion-and-reliance-basis-epistemology/AC-001`,
+  `DEL-05-03:SOW#completion-and-reliance-basis-epistemology/AC-001` (T5B-C06).
+- **Related:** B12 (acceptance-workflow selection; DEL-07-05 ratio choice); C6 (method items that are not T8
   clusters).
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

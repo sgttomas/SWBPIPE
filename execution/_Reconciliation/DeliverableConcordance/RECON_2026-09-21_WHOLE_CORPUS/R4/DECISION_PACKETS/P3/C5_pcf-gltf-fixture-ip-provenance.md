@@ -72,6 +72,15 @@ OWNER only if the boundary text's status is in question (C6).
 - Consequences: (a) is evidence and record work, then re-verification of the
   DEL-17-07 and DEL-17-08 rows; (b) needs an owner reading that project-authored
   fixtures are exempt from the template, which the draft text does not state.
+- **Who makes the records.** Under (a) or (b) the maintainer disposition is
+  written by the review WORKING_ITEMS runs (§1 holders); no option in the
+  evidence assigns it elsewhere.
+- **Public status until a record exists.** This part follows C6 M5. If the
+  draft boundary text governs, line 72 makes the fixtures non-public data until a
+  maintainer disposition exists: (i) keep them in the public tree pending the
+  disposition, with the gap recorded; or (ii) quarantine them (line 84) until
+  it exists. If the draft is evidence only, no public-status consequence follows
+  from the missing record alone.
 
 ## 4. Evidence and reliability
 
@@ -141,6 +150,8 @@ for (their RemainingWork says so); the form of that record waits on C2.
   should bind generally, a boundary-text amendment through the governance path.
 - **1(c).** A quarantine record under the boundary text; the fixture leaves public
   paths through H2.
+- **Public status (i)/(ii).** (i) no action beyond the review; (ii) a quarantine
+  record and removal from public paths through H2.
 - **2(a)/(b).** A review under WORKING_ITEMS (workflow: review) writing the
   provenance records and disposition; rows change on re-verification.
 - Nothing executes until the owner acts. R5 needs separate authorization.
@@ -149,8 +160,9 @@ for (their RemainingWork says so); the form of that record waits on C2.
 
 - **Depends on:** C2 (review-record standard); C6 (whether the draft
   `IP_AND_DATA_BOUNDARY.md` governs).
-- **Blocks:** the H3 review of the T6-C05 DEL-17-07/08 rows and the H2 T6-C01
-  DEL-17-07 row on these points (BlockedOnPacket C5).
+- **Blocks:** the H3 review of the T6-C05 DEL-17-07/08 rows listed in §5 and
+  the H2 T6-C01 row `DEL-17-07:SOW#CLM-021` (BlockedOnPacket C5). C5 blocks no
+  other DEL-17-07 row, including no Remaining item.
 - **Related:** A7 (export plan; PCF source-basis refs); H2 PCF code items (zero
   coordinate, missing disclosure file) are separate.
 

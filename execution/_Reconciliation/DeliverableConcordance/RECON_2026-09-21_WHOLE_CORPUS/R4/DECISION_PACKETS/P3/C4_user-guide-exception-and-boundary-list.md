@@ -10,8 +10,7 @@ This is a proposal. It repairs, rules and changes nothing.
 
 Two claims-and-scope questions from the W3 owner list
 (`RUN/WAVES/W3/W3_ASSESSMENT.md:85-86`).
-1. **DEL-11-01.** How far does the R18 "guide-only SOW exception", with
-   DEC-107 (iii), reach? Does it cover the SOW's read-only text on
+1. **DEL-11-01.** How far does the R18 "guide-only SOW exception" reach? Does it cover the SOW's read-only text on
    `docs/user_guide/index.md`, including the guide edits made before either act?
 2. **DEL-11-04 R-DEL-11-04-002.** Is the requirement to add a certification,
    approval, sealing and code-compliance non-claim to the public fixture notices
@@ -35,7 +34,11 @@ conventions do not settle.
   recomputed its hash and found it matches the bound hash
   (`RUN/WAVES/W3/PKG-11/PKG-11_VERIFICATION.md` §6, worker-raised items).
 - DEC-107 (`F:execution/_Decomposition/SOFTWARE_DECOMP.md:698`) item (iii)
-  directs edits to the user guide and leaves the live SOW untouched.
+  directs only the BS-ACCEPT withdrawal edits to the user guide. Its
+  "untouched" list, which names the live `ScopeOfWork.md` files, marks the reach
+  of that withdrawal act. It is not a standing bar on SOW edits and not a general
+  guide-scope exception; it supports the four rows only as a later owner act that
+  edited the guide.
 - Both acts postdate the first guide edits. The four rows are
   ACCEPTED_DIVERGENCE · SCOPE_GREW_BY_DIRECTION · OWNER.
 
@@ -56,11 +59,11 @@ conventions do not settle.
 ## 3. Options
 
 **Item 1.**
-- (a) Confirm reach: the exception and DEC-107 cover the read-only text and the
+- (a) Confirm reach: the R18 exception covers the read-only text and the
   pre-exception edits. The four rows stand as accepted divergence; no repair.
 - (b) Direct a SOW catch-up so the SOW records the guide as in scope. This is an
-  R5 record repair that DEC-107's leave-the-SOW-untouched instruction currently
-  prevents, so it also needs an owner instruction lifting that part of DEC-107.
+  R5 record repair. DEC-107 does not bar it; the owner may confirm that DEC-107
+  does not bear on it.
 - (c) Confirm reach from the R18 record onward only; treat the 2026-05-09 and
   2026-06-07 edits as history with no further action. (Implied by the verifier's
   dating; not proposed by a task.)
@@ -85,7 +88,7 @@ conventions do not settle.
 | `RUN/R3/TASKS/T5B_CLASSES.md` T5B-C09 | R3 proposal | DEL-11-01 confirmation under A3a |
 | `RUN/R3/TASKS/T6_CLASSES.md` T6-C03 | R3 proposal | DEL-11-04 row as protected-subject remainder |
 | `F:docs/claims_registry.md:99`, `:219` | Governing text (DEC-081/DEC-107), verified by this writer | The authoring instruction |
-| DEC-107 row, `SOFTWARE_DECOMP.md:698` | Ruled, verified line | Guide edits and SOW untouched |
+| DEC-107 row, `SOFTWARE_DECOMP.md:698` | Ruled, verified line | BS-ACCEPT withdrawal edits to the guide; the reach of that act |
 
 Known only from the verifier's reading: the guide's creation and edit dates,
 the fixture notice contents, and the owner record's hash match. This writer did
@@ -117,7 +120,8 @@ not open the owner record.
   record repair could either erase a sanctioned exception or ratify edits made
   before it. Item 2: an agent may carry out the first RemainingWork option and
   put a retired litany into public fixtures, or leave a kept requirement unmet.
-- **Item 1(b).** Conflicts with DEC-107 (iii) unless the owner lifts that part.
+- **Item 1(b).** Edits a SOW row that currently records the exception as
+  divergence; the SOW then no longer shows that the guide grew by direction.
 - **Item 2(a).** Re-introduces the pattern DEC-081 was ruled to remove.
 - **Item 2(b).** Retires a requirement DEC-081 Wave 2 visibly kept.
 
@@ -132,7 +136,7 @@ not open the owner record.
 
 - **Item 1(a)/(c).** An owner confirmation recorded at R4; rows stay
   ACCEPTED_DIVERGENCE. No R5 work.
-- **Item 1(b).** An owner instruction amending DEC-107 (iii) scope, then an R5
+- **Item 1(b).** An owner direction for the catch-up, then an R5
   record repair of the DEL-11-01 SOW through the ordinary change path.
 - **Item 2(a).** An H2 fixture-notice and test brief under a production brief,
   chirality-change PR path with independent review.
@@ -146,6 +150,9 @@ not open the owner record.
 - **Depends on:** none.
 - **Blocks:** H2 and H3 handling of `DEL-11-04:SOW#CLM-011/R-DEL-11-04-002`
   (BlockedOnPacket C4); any H4 repair of the four DEL-11-01 rows.
+- **Placed here by Agent 0 (question attached to the owner session; options not
+  drafted):** U8 — owner discharge of the deferred DEL-11-03 theory scopes:
+  `DEL-11-03:SOW#CLM-010.s02` and `DEL-11-03:SOW#CLM-004.r01`.
 - **Related:** B4 (the other T5B-C09 row); A4 (rename residue in PKG-11 guides,
   PKG-11 verifier §7 item 3).
 

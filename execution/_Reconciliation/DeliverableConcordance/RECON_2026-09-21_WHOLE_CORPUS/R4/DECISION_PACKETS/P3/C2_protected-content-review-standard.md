@@ -9,16 +9,19 @@ evidence that protected content exists, or that the boundary holds.
 
 ## 1. Decision
 
-Two linked questions.
+Three questions; the first two are linked, the third is separate.
 1. **Evidence standard.** When a claim names a protected-content, private-data
    or fixture-provenance review, does an agent's own reading or an automated
    denylist test satisfy it, or must a dated review record exist? (T11 T-02,
    R-02.)
-2. **What to do about the absence.** Given the standard, authorise a bounded
-   protected-content review of the named surfaces at current bytes, and decide
-   whether PR #787's removed protected check (DEL-04-04 REQ-08) is restored.
+2. **The review round.** Given the standard, authorise a bounded
+   protected-content review of the named surfaces at current bytes, or defer to
+   the DEC-058 release scan.
+3. **PR #787's removed protected check (DEL-04-04 REQ-08).** Restore it, or
+   rule the removal intended. This is a PROTECTED_CHECK on loop-identity
+   diagnostics, not protected content; it is decided independently of Q2.
 
-**Holder: OWNER** for question 1 (a corpus-wide evidence-standard reading that
+**Holder: OWNER** for questions 1 and 3 (question 1 is a corpus-wide evidence-standard reading that
 T11 routes OWNER_DECISION). **WORKING_ITEMS (workflow: review)** executes the
 reviews once the standard is set; the class authority of T7-C09 and T5B-C02 is
 REVIEW. The DEC-058 scan owner and sole signatory stay as ruled (the owner).
@@ -26,7 +29,7 @@ REVIEW. The DEC-058 scan owner and sole signatory stay as ruled (the owner).
 ## 2. Background
 
 - **DEC-058** (D-20; `F:execution/_Decomposition/SOFTWARE_DECOMP.md:649`;
-  `_DECISIONS/_REGISTER.md:53`): an owner-owned release-artifact scan and a
+  `execution/_Coordination/_DECISIONS/_REGISTER.md:53`): an owner-owned release-artifact scan and a
   sole-signatory release gate, recorded as
   `SCAN_<candidate>_<utc>_<commit12>.json` with owner sign-off. The register
   notes nothing was scanned, cleared or published under the ruling.
@@ -69,18 +72,22 @@ REVIEW. The DEC-058 scan owner and sole signatory stay as ruled (the owner).
 - Consequences: (a) conflicts with the W1 FIRM resolution and R0 F8, so those
   run conventions would need re-reading; (b) and (c) need a review round.
 
-**Question 2 — the review round and PR #787.**
+**Question 2 — the review round.**
 - (a) Authorise one bounded protected-content and private-data review per
   fixture surface (about 11 surfaces for T7-C09; the crates, fixtures, guides
   and SOWs for T5B-C02), each writing a dated record binding the reviewed
-  hashes. Restore the DEL-04-04 envelope-binding test through H2.
+  hashes.
 - (b) Defer reviews to the DEC-058 release scan. The rows stay open until
-  release; the removed check is recorded as intended.
-- (c) As (a) for the reviews, but rule the PR #787 removal intended and amend
-  DEL-04-04 REQ-08.
-- Consequences: (a) and (c) produce evidence only and do not change the IP
+  release.
+- Consequences: (a) produces evidence only and does not change the IP
   boundary. (b) leaves INVARIANT rows resting on self-declaration and keyword
   screening until release.
+
+**Question 3 — DEL-04-04 REQ-08 (PR #787).**
+- (a) Restore the envelope-binding test through H2.
+- (b) Rule the PR #787 removal intended and amend DEL-04-04 REQ-08.
+- Consequences: (a) is a test-only change; (b) is a SOW amendment of a
+  PROTECTED_CHECK requirement. Either combines freely with Q2(a) or Q2(b).
 
 ## 4. Evidence and reliability
 
@@ -101,10 +108,10 @@ None of these is a review record.
 
 ## 5. Affected claims
 
-| Class | Class rows | Portion | Filter |
+| Class | Class rows | Rows discussed (not a claimed portion; route carrier H3/H2) | Filter |
 |---|---|---|---|
-| T7-C09 | 31 | 31 (whole class) | `CLASS_ASSIGNMENTS.csv` `ClassID == T7-C09` |
-| T5B-C02 | 12 | 12 (whole class) | `ClassID == T5B-C02` |
+| T7-C09 | 31 | 31 (whole class; carrier H3) | `CLASS_ASSIGNMENTS.csv` `ClassID == T7-C09` |
+| T5B-C02 | 12 | 12 (whole class; carrier H3) | `ClassID == T5B-C02` |
 | T7-C06 | 42 | 1 key decided here; class route stays with H2 | `ClaimKey == DEL-04-04:SOW#CLM-010/DEL-04-04-REQ-08` |
 
 - **T7-C09 by surface.** Persistence (DEL-02-05 ×3), branch/component
@@ -148,13 +155,14 @@ None of these is a review record.
   A protected check stays removed without a recorded intent.
 - **Option 1(a).** Weakens a boundary INVARIANT's evidence to an agent's own
   reading, which R0 F8 already found unreliable.
-- **Option 2(b).** Defers every INVARIANT review to a release that has no date.
+- **Option Q2(b).** Defers every INVARIANT review to a release that has no date.
 
 ## 7. Recommended routing
 
 - Question 1: no recommendation; owner's call. The evidence shows the split
   exists; it does not settle which standard the owner wants.
-- Question 2: the evidence supports restoring or re-ruling the DEL-04-04 check
+- Question 2: no recommendation; owner's call.
+- Question 3: the evidence supports restoring or re-ruling the DEL-04-04 check
   before any record repair, because the row is VERIFICATION_REMOVED on a
   PROTECTED_CHECK. Whether to restore or amend is the owner's call.
 
@@ -164,12 +172,13 @@ None of these is a review record.
   amendment through HELPS_HUMANS if it is to bind later runs). Under (a), a later
   concordance re-reads the 29 rows; under (b)/(c), the comparators are
   re-verified after the review round. No ledger is patched (F6).
-- **Q2(a)/(c) reviews.** A review under WORKING_ITEMS (workflow: review), once per
+- **Q2(a) reviews.** A review under WORKING_ITEMS (workflow: review), once per
   surface, writing a dated record binding reviewed hashes; it uses the DEC-058
   scan owner and signatory where the release path applies. Rows change on
   re-verification. Any problem found becomes a separate repair.
-- **Q2(a) PR #787.** An H2 test-restoration brief under a production brief,
-  chirality-change PR path with independent review. **Q2(c):** SOW amendment of
+- **Q2(b).** Nothing executes now; the rows wait for the DEC-058 release scan.
+- **Q3(a).** An H2 test-restoration brief under a production brief,
+  chirality-change PR path with independent review. **Q3(b):** SOW amendment of
   DEL-04-04 REQ-08 through the change path, then R5.
 - Nothing executes until the owner acts. R5 needs separate authorization.
 

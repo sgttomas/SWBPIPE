@@ -32,7 +32,7 @@ independent reviewer supplies the basis.
 
 - **A5** (`RUN/CONVENTIONS.md:91`): verification is not validation; tests are
   never promoted to validation.
-- **D-68** (`_DECISIONS/_REGISTER.md:105`, ruled 2026-09-15): adopted the
+- **D-68** (`execution/_Coordination/_DECISIONS/_REGISTER.md:105`, ruled 2026-09-15): adopted the
   professional modelling workspace foundation and bounded accessibility
   criteria, with "no … independent-usability closure".
 - **DEC-080** (D-47; `F:execution/_Decomposition/SOFTWARE_DECOMP.md:671`;
@@ -71,8 +71,8 @@ independent reviewer supplies the basis.
 **Item 3 — DEL-05-03 pressure reference (2 rows).**
 - (a) Keep the owner hold.
 - (b) Lift the hold so engineering rules the pressure reference model and its
-  companion decisions, followed by activation and validation through the
-  physics-audit activation plan.
+  companion decisions. Activation of the dormant kernel and its validation then
+  need their own authorization, through the physics-audit activation plan.
 
 **Engineering holds (DEL-13-04 REQ-007; DEL-14-04 ×2; DEL-14-05 R01).** No owner
 option: engineering names a vetted basis (benchmark, independent witness or
@@ -106,10 +106,10 @@ views, option (a) changes nothing.
 
 ## 5. Affected claims
 
-| Class / item | Class rows | Portion | Filter |
+| Class / item | Class rows | Rows discussed (not a claimed portion) | Filter |
 |---|---|---|---|
-| T7-C08 | 10 | 10 (whole class) | `CLASS_ASSIGNMENTS.csv` `ClassID == T7-C08` |
-| T7-C07 | 7 | 2 (owner-facing part: DEL-05-03) | `ClassID == T7-C07` and `DeliverableID == DEL-05-03` |
+| T7-C08 | 10 | 10 (whole class; carrier `NO_ACTION_ROWS.csv`) | `CLASS_ASSIGNMENTS.csv` `ClassID == T7-C08` |
+| T7-C07 | 7 | 2 (owner-facing part: DEL-05-03; carrier H3) | `ClassID == T7-C07` and `DeliverableID == DEL-05-03` |
 | T9 items | 3 items | 3 | `T9_LIFECYCLE.csv` `Item` starts `STALE_VV:VNV-` |
 
 - **T7-C08 keys.** `DEL-07-03:SOW#CLM-007/PDU-049`, `DEL-07-03:SOW#CLM-012/DEL-07-03-R-011`,
@@ -118,7 +118,7 @@ views, option (a) changes nothing.
   `DEL-07-06:SOW#CLM-018`, `DEL-07-06:SOW#completion-and-reliance-basis-epistemology/AC-001`,
   `DEL-17-05:SOW#CLM-019`. All ten also appear in `R3/NO_ACTION_ROWS.csv`
   (class route NO_ACTION), which Agent 0 records.
-- **T7-C07 portion.** `DEL-05-03:CONTEXT#description`,
+- **T7-C07 rows discussed.** `DEL-05-03:CONTEXT#description`,
   `DEL-05-03:SOW#CLM-011/DEL-05-03-RQ-001.s01` (BaselineClass OWNER_HOLD).
   The other five T7-C07 rows (`DEL-02-02:STATUS#remaining/R05`,
   `DEL-13-04:SOW#CLM-017/DEL-13-04-REQ-007`, `DEL-14-04:SOW#CLM-008.r02`,
@@ -149,15 +149,16 @@ H3 without an owner act.
 ## 8. On-ruling mechanism
 
 - **Keep (a).** Nothing executes. Agent 0 records the confirmation in
-  `R3_SYNTHESIS.md` or R4 closure; rows stay NO_ACTION.
+  `R3_SYNTHESIS.md` or R4 closure. The T7-C08 rows stay NO_ACTION; the two
+  DEL-05-03 rows stay on the ENGINEERING_AUTHORITY route (H3), held.
 - **Item 1(b).** An owner authorisation scoping an independent validation
   tranche, executed by an EXTERNAL or independent reviewer; rows change on
   re-verification in a later concordance.
 - **Item 2(b).** An owner DEC-080 activation act (procurement, then a live
   correlation run), outside agent latitude (DEC-082); then a validation tranche.
 - **Item 3(b).** An owner act lifting the DEL-05-03 hold; engineering rules the
-  reference model and companions (H3); activation and validation through the
-  physics-audit activation plan. Nothing becomes a code fix or record repair
+  reference model and companions (H3). Activation and validation need a separate
+  authorization, through the physics-audit activation plan. Nothing becomes a code fix or record repair
   until that basis exists.
 
 ## 9. Dependencies
@@ -165,6 +166,10 @@ H3 without an owner act.
 - **Depends on:** none.
 - **Blocks:** H3 items for DEL-05-03 (BlockedOnPacket C3). H2 residue on
   DEL-17-05 record fields is not blocked (T6 O1).
+- **Placed here by Agent 0 (question attached to the owner session; options not
+  drafted):** CAP-PHYS-029 (T3, UNKEYED_SCOPE_GAP proposed for DEL-05-03, route
+  ENGINEERING_AUTHORITY; `R3/TASKS/T3_OWNERSHIP.csv` line 103) waits on the
+  DEL-05-03 pressure reference hold (item 3).
 - **Related:** B12 (release/QA/stage gates); C7 (acceptance-workflow cause is a
   separate reading).
 
