@@ -1,0 +1,243 @@
+{
+  "status": "proposal_preparation_only",
+  "base_commit": "e74feb34b7ca99ebeb903ffb52f7fdd2b3efd169",
+  "actual_execution": {
+    "mechanism": "Codex delegated-harness-native collaboration child",
+    "agent": "/root/piping_ownership_proposal",
+    "parent": "/root",
+    "role": "TASK",
+    "delegated_children": [],
+    "model_effort": "inherited parent; precise model/effort not independently observed by this child",
+    "brief": "Prepare one concrete consolidated Piping ownership proposal for the remaining B-set under current decomposition/DEC-020/044/094/103, with tentative checked identities, stable claims, source loci, interfaces, dependency impacts and adoption sequence. Write only PIPING_OWNERSHIP_PROPOSAL.md and SOURCES.json. No production, history, instructions, graph, register, decomposition or Git mutation.",
+    "enforcement": "Host workspace-write sandbox; narrower two-file write boundary instruction-enforced. Read-only git status/rev-parse used. No network, product execution, Git mutation or subdelegation.",
+    "authority": "User authorized proposal preparation after R5/R6; this artifact does not claim adoption or new human decision."
+  },
+  "sources": [
+    {
+      "path": ".agents/skills/proposal-format/SKILL.md",
+      "sha256": "63e6d2545c31df939511a5a137c214d5444ca562f6abf9b048de3aa2f8dac59d",
+      "consultation": "read full selected skill"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "1bb670ca339a990b153cf033dac2d8e29ca71bdea0accee4200e6dd1feed3d57",
+      "consultation": "supplied root instructions; filesystem identity recorded"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "consultation": "read full role"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d8a1f4380962efcd258571c6fb563722be9e2e89d4fa5898b7f6d24dc61ab879",
+      "consultation": "read full project instructions"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-07_API boundary and adapter contract map/ArchitectureBasis.md",
+      "sha256": "4b10f6dc5e1e740a746dd606b4dd8f5c34a76fd7dd2f77529d93bd11906901e1",
+      "consultation": "selected result/adapter/architecture scope excerpts"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/ScopeOfWork.md",
+      "sha256": "4d3d2a9d661b768061badafda1c99abc7d1e4b4cd502e906c843513e2fd458e9",
+      "consultation": "selected purpose, scope, ownership and requirement excerpts"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/ScopeOfWork.md",
+      "sha256": "80bc243696753933d909122188c4831a6ab33e525c029120be0de27215fbedfc",
+      "consultation": "selected purpose, scope, ownership and requirement excerpts"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/ScopeOfWork.md",
+      "sha256": "2a65686eda78d1fa8489726b7218cce63685526270832b68f307702cbdbbef54",
+      "consultation": "selected purpose, scope, ownership and requirement excerpts"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/ScopeOfWork.md",
+      "sha256": "a48fd2d5b337593a3292c5a801b0d2bc01845c18ecf0cd937cb712546763b4a0",
+      "consultation": "selected purpose, scope, ownership and requirement excerpts"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/ScopeOfWork.md",
+      "sha256": "e367dbf581dab361ad78bcd8aba6d2edc4ea51a063522fc8dd085bc15890c961",
+      "consultation": "selected purpose, scope, ownership and requirement excerpts"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_CONTEXT.md",
+      "sha256": "74e16027574a01f3f6ce59d8a39847d313529d3cbda9bd3e8e319780581d6641",
+      "consultation": "full current context"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/ScopeOfWork.md",
+      "sha256": "529841e94183ff9b77532c6b0187a795602e8faf585e6b9da21bbfbb9baacaf0",
+      "consultation": "selected purpose, scope, ownership and requirement excerpts"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/ScopeOfWork.md",
+      "sha256": "8e29df53945f768bbfe831d7c376446e19ee242493936b4d4f98f2bdae41b2fb",
+      "consultation": "selected purpose, scope, ownership and requirement excerpts"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-010/DependencyEdges.csv",
+      "sha256": "1892d2e7295d936b1dbf57104ab00df149fe17f8afbab4dc8b7e1c8b95082d28",
+      "consultation": "header and representative rows; candidate graph not validated"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/_LATEST.md",
+      "sha256": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3",
+      "consultation": "full pointer"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+      "sha256": "fe328b7b8440dde9a94ae2ed2b85a6cb55db66653fe5adf56de8f33e3c6c60c2",
+      "consultation": "selected decisions, scope, deliverable and objective rows"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Decomposition/_LATEST.md",
+      "sha256": "9491c6a5b5663e12d00805e2360e623ad79ca65d2ebfdb1ea99f2affa5974f87",
+      "consultation": "full pointer"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/BACKCHECK/R6_2026-09-22/CAPABILITY_ACCOUNTING.csv",
+      "sha256": "119004792b55576e6a7b04fc3852ab8e042f7fbcd28db4e5d98c63fe54011911",
+      "consultation": "header/sample plus full CSV accounting count"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/BACKCHECK/R6_2026-09-22/HANDOFF.md",
+      "sha256": "5124d04fd86df5601b93cc140f9cff98b6537cdcd3c068a8105e42832dcee630",
+      "consultation": "full handoff"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R3/SCOPE_CHANGE_HANDOFF/SCOPE_CHANGE_ITEMS.csv",
+      "sha256": "fa4c04882cfac6bb6c12154e49d4f38ef47be35ad7d3ebd8e3fce9fdc517f1d3",
+      "consultation": "full CSV loaded, B1-B6 filtered source rows"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R3/TASKS/T1_UNMAPPED.csv",
+      "sha256": "df5a2a4746d489f385ad645d03cf6a536ce3cffaf06a0a4ba4df6da0066c0ee0",
+      "consultation": "header/sample"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R3/TASKS/T2_UNMAPPED.csv",
+      "sha256": "f82ddfd2a5df82ea07a05b1b2a1b65bafd2151e57ad7f77a43770be76120335f",
+      "consultation": "header/sample"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R3/TASKS/T3_OWNERSHIP.csv",
+      "sha256": "3d5f4c7103e5b7961e1c6a7fec662d66c6ac3f595a7522849d09d570b2cb8924",
+      "consultation": "header/sample"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R4/DECISION_PACKETS/P2/B10_plugin-adapter-runtime-and-grants.md",
+      "sha256": "205de414cf64bf5cdc42f65ebe724a4a19112398b5cf7c9398885bd8a081b653",
+      "consultation": "packet read; B1-B6/B12 source and options sections individually re-read; other packets through combined output"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R4/DECISION_PACKETS/P2/B11_del-07-09-promotion.md",
+      "sha256": "89b57aa2e0700afd7c4f1ff73cd483867a45dc91f3e2f71781740abd133896c9",
+      "consultation": "packet read; B1-B6/B12 source and options sections individually re-read; other packets through combined output"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R4/DECISION_PACKETS/P2/B12_other-held-owner-selections.md",
+      "sha256": "788c3fb0d2261533f3a773798b6f826cbcfdb5f3781011562304e75361aba5c5",
+      "consultation": "packet read; B1-B6/B12 source and options sections individually re-read; other packets through combined output"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R4/DECISION_PACKETS/P2/B1_product-solve-path-owner.md",
+      "sha256": "70f2ca041cdd6948465c973f46fc715af0d9522039cf7fc2b2003e35fd764052",
+      "consultation": "packet read; B1-B6/B12 source and options sections individually re-read; other packets through combined output"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R4/DECISION_PACKETS/P2/B2_desktop-workspace-shell.md",
+      "sha256": "f7265ad96d5dc5a7ea9407b0a5c9df4eb84657bfed9382a14ca8739956e0a84a",
+      "consultation": "packet read; B1-B6/B12 source and options sections individually re-read; other packets through combined output"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R4/DECISION_PACKETS/P2/B3_runtime-operation-applier.md",
+      "sha256": "72ab4bdbf4ca4a0098fb4704d71f61a38be1f71d519e71b1a6a3481571cb7788",
+      "consultation": "packet read; B1-B6/B12 source and options sections individually re-read; other packets through combined output"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R4/DECISION_PACKETS/P2/B4_load-case-editor-landing.md",
+      "sha256": "d6d3bbf56591acf876ec560dbc8405991a045aa93e4806b19b3f27cd35ac3bde",
+      "consultation": "packet read; B1-B6/B12 source and options sections individually re-read; other packets through combined output"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R4/DECISION_PACKETS/P2/B5_unowned-and-disputed-panels.md",
+      "sha256": "c77eb93d63c3fe5c3fe51d6446c07467fcaa46b0c8997a48d596e4451e2c6a52",
+      "consultation": "packet read; B1-B6/B12 source and options sections individually re-read; other packets through combined output"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R4/DECISION_PACKETS/P2/B6_panels-vs-no-gui-sows.md",
+      "sha256": "8e79882c1b22a5f8f368db52f2ddb6555eac4fc93d2f46ba5a177d3a6c7b8262",
+      "consultation": "packet read; B1-B6/B12 source and options sections individually re-read; other packets through combined output"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R4/DECISION_PACKETS/P2/B7_canonical-handoff-path.md",
+      "sha256": "43d70689675cfb40971d57f0323a470fb926ea322512452cbabb3cc3d6cd7b72",
+      "consultation": "packet read; B1-B6/B12 source and options sections individually re-read; other packets through combined output"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R4/DECISION_PACKETS/P2/B8_model-state-and-comparison.md",
+      "sha256": "7aa6840e74b68b4c4d77aa3b71eeecccb83203d67a62a4733361e70bf0e63e57",
+      "consultation": "packet read; B1-B6/B12 source and options sections individually re-read; other packets through combined output"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R4/DECISION_PACKETS/P2/B9_pkg13-product-status.md",
+      "sha256": "b23eb277ea6207a87b41ce14ed74f7c191af94d8d11f1a84c4d610ed1bc66810",
+      "consultation": "packet read; B1-B6/B12 source and options sections individually re-read; other packets through combined output"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5/TASKS/PACKET_ANALYSIS.md",
+      "sha256": "38f2b27a7146c79e4869af7e6e4ab100357d3cbfa4cd004d770a24836294b2e2",
+      "consultation": "packet table and controlling interpretation"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-009_2026-08-20_0000/ACCEPTANCE_RECORD.md",
+      "sha256": "0e4b789920f9a0f8f6f3776555a44352de051f4542e750aa9bc6e8604a785771",
+      "consultation": "Gate 4 and Gate 5 closure sections"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-009_2026-08-20_0000/Vocabulary_Annex.md",
+      "sha256": "f005abbc0d55b047ee7c34628e169aeb3646cd139a9c2c214a33760df4d63c7c",
+      "consultation": "full annex"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-010_2026-09-18_1400/Amendment_Preview.md",
+      "sha256": "2b50e7ca3adff01748218260f7779bcbda5a86ddade180dd694cc5a85b565c44",
+      "consultation": "full preview"
+    },
+    {
+      "path": "projects/chirality-piping/plans/PLAN_2026-06-12_caepipe_external_oracle_feedback_loop.md",
+      "sha256": "177e8f508a8f4c4950b85805bd6bb43190e54bf2e4b834b3744f51e4a257c2ae",
+      "consultation": "identity collision search excerpts"
+    }
+  ],
+  "proposal_sha256": "e9b0d14daf75205d6b796f6082d9f389ca1a017652266aaef834415bacb1d1fe",
+  "selfchecks": {
+    "tentative_identity_collisions_outside_authored_directory": [],
+    "r6_capability_rows": 598,
+    "r6_unique_capability_keys": 598,
+    "existing_identity_references_valid": true,
+    "proposal_blocks": 6,
+    "required_closing_fields_present": true,
+    "not_run": [
+      "product tests",
+      "native UI checks",
+      "engineering validation",
+      "accepted-scope or DAG validators (no accepted artifacts edited)"
+    ],
+    "limitations": [
+      "Initial combined packet output was truncated; decision/options portions for B1-B6 and B12 were retrieved separately.",
+      "Initial guessed DEL-00-07 path did not exist; discovered actual ArchitectureBasis path and read targeted excerpts.",
+      "Current code loci were located by file inventory and historical source reports; no current runtime-behavior assertion is made."
+    ]
+  },
+  "independent_review": {
+    "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-20260922-DECISION-FOLLOWUP/PIPING_REVIEW.md",
+    "result": "PASS for publication of proposed package; source-bound assessment across 38 deliverables",
+    "limits": "No human concurrence or adoption, no production conformance; subsequent publication/adoption deltas require backcheck. Per-panel contract bindings, schema work and actual graph validation remain outstanding.",
+    "hash_binding": "Reviewer record owns exact reviewed candidate hashes; path only here avoids circular mutable hash dependence."
+  }
+}
