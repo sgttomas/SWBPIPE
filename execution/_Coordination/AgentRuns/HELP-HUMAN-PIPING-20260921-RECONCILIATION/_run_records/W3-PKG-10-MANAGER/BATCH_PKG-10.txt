@@ -1,0 +1,4 @@
+# Batch validation PKG-10 W3 (manager)
+--- validator --batch (5 forward ledgers)
+PASS batch of 5 ledgers: 0 consistency findings
+exit=0

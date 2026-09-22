@@ -1,0 +1,10 @@
+# Batch transcript — W3 PKG-05 (manager), all 5 forward ledgers
+RESOLUTIONS: none for W3 at run time (WAVES/W3/RESOLUTIONS.csv absent)
+$ python3 RUN/tools/validate_ledger_v2.py --run-dir RUN --repo-root . --batch <5 forward files>
+projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-05/DEL-05-01/DEL-05-01_forward.csv
+projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-05/DEL-05-02/DEL-05-02_forward.csv
+projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-05/DEL-05-03/DEL-05-03_forward.csv
+projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-05/DEL-05-04/DEL-05-04_forward.csv
+projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-05/DEL-05-05/DEL-05-05_forward.csv
+PASS batch of 5 ledgers: 0 consistency findings
+exit=0

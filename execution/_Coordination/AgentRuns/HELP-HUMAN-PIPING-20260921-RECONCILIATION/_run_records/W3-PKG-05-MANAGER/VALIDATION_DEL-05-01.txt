@@ -1,0 +1,14 @@
+# Validator transcript — DEL-05-01 (manager, W3 PKG-05)
+$ PYTHONDONTWRITEBYTECODE=1 python3 RUN/tools/validate_ledger_v2.py --run-dir RUN --repo-root . --deliverable DEL-05-01 --forward projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-05/DEL-05-01/DEL-05-01_forward.csv --reverse projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-05/DEL-05-01/DEL-05-01_reverse.csv --inventory RUN/ROUTING/PKG-05_capabilities.csv --notes-gap
+PASS DEL-05-01: 88 forward rows, 85 required keys, 7 canonical, 0 findings
+exit=0
+# Seal check
+forward_sha256=184bec7dc57afb72b7e1a2aeff50e1c3385784d569738a6425fe7615371be043
+reverse_sha256=d39329e43ddaba4efdad70da16334823b1c5c292c64df171928ce9e5fd2fc0fb
+seal: SEALED DEL-05-01 184bec7dc57afb72b7e1a2aeff50e1c3385784d569738a6425fe7615371be043 2026-09-22T00:09:20Z
+forward_rows_excl_header_and_sentinel=88
+sentinel: #END,,,,,,,,,,,,,,,,,,,,,,,,,,,,,88,
+DEL-05-01_SEAL.txt
+DEL-05-01_forward.csv
+DEL-05-01_notes.md
+DEL-05-01_reverse.csv
