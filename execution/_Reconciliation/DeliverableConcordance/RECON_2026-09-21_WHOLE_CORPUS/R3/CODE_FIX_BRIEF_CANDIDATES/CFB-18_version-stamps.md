@@ -47,7 +47,7 @@ This brief quotes no protected, private or third-party content. Execution uses i
 
 ## BlockedOnPacket
 
-None. No affected row's class or T8 reading needs an owner or review decision.
+None. No affected row's class or T8/T12 reading needs an owner or review decision.
 
 ## Dependencies
 

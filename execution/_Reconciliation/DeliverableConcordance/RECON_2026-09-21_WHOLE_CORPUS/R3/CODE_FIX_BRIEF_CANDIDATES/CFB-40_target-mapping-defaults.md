@@ -52,12 +52,12 @@ Freeze line citations in Scope were re-read at the freeze (`00115c719`) by H2 as
 
 ## Protected-content status
 
-Protected subject: 16 of 17 rows are at INVARIANT tier or carry protected layers (IP_DATA, VALIDATION). An independent review of any repair is required before reliance. 
+Protected subject: 16 of 17 rows are at INVARIANT tier or carry an IP_DATA, CLAIMS or SECURITY layer (row layers: IP_DATA, VALIDATION). An independent review of any repair is required before reliance. 
 This brief quotes no protected, private or third-party content. Execution uses invented or synthetic fixtures only and introduces no standards text, tables or equation sources (DEC-043).
 
 ## BlockedOnPacket
 
-17 of 17 claim rows carry a block: B7 (17); C6 (3); H3[T6-C03] (3); H3[T7-C06] (13). `H3[<class>]` names the H3 register item for that class (review before repair). All rows are blocked.
+17 of 17 claim rows carry a block: B7 (17); C6 (3); H3[T6-C03] (3); H3[T7-C06] (13). `H3[<class>]` names the H3 register item for that class (review before repair; mapped in `H3_TOKEN_MAP.csv`). All rows are blocked.
 
 ## Notes and open views
 

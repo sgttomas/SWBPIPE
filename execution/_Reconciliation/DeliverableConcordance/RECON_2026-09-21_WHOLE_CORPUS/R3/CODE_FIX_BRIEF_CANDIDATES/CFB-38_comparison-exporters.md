@@ -4,7 +4,7 @@
 
 ## Scope
 
-Implement comparison CSV/JSON exporters that emit the `comparison_review_csv_v1`/`json_v1` contracts with instance-level schema validation (only `schemas/comparison_mapping.schema.json` and `schemas/comparison_tolerance.schema.json` exist at the freeze); write contract documentation and a TBD register; repoint the dependency record to DAG-010.
+Implement comparison CSV/JSON exporters that emit the `comparison_review_csv_v1`/`json_v1` contracts with instance-level schema validation (only `schemas/comparison_mapping.schema.json` and `schemas/comparison_tolerance.schema.json` exist at the freeze); write contract documentation and a TBD register; repoint the dependency record to DAG-010. Guard (chirality-piping execution profile §8): dependency-graph changes are not made under this brief; they go to the separate owner-directed DAG rebuild (see U2 and C6).
 
 ## Affected claims
 
@@ -44,7 +44,7 @@ This brief quotes no protected, private or third-party content. Execution uses i
 
 ## BlockedOnPacket
 
-None. No affected row's class or T8 reading needs an owner or review decision.
+None. No affected row's class or T8/T12 reading needs an owner or review decision.
 
 ## Notes and open views
 
@@ -52,5 +52,5 @@ None. No affected row's class or T8 reading needs an owner or review decision.
 
 ## Dependencies
 
-B12 (D7, context), CFB-37.
+B12 (D7, context), CFB-37, B8 (context: option (b) ports and option (c) re-scopes DEL-14-04/05).
 

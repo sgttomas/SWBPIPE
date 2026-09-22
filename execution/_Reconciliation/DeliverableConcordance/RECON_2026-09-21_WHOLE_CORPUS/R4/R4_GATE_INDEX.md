@@ -24,7 +24,7 @@ H3 item it waits on (`BlockedOnPacket`).
 |---|---|---|---|
 | H1 scope change | WORKING_ITEMS (workflow: scope-change), after the owner | 241 items over 227 capabilities and 17 T6-C07 rows | `R3/SCOPE_CHANGE_HANDOFF/` |
 | H2 code-fix candidates | production brief, after any blocking ruling | 54 briefs, 386 rows | `R3/CODE_FIX_BRIEF_CANDIDATES/` |
-| H3 engineering and review | ENGINEERING; WORKING_ITEMS (workflow: review) | 34 items | `R3/ENGINEERING_AUTHORITY/` |
+| H3 engineering and review | ENGINEERING; WORKING_ITEMS (workflow: review) | 35 items | `R3/ENGINEERING_AUTHORITY/` |
 | H4 R5 tranche proposal | R5, once separately authorized | 2,234 rows in 20 tranches | `R4/R5_TRANCHE_PROPOSAL/` |
 
 H4 and H2 finished before H3 existed and name review items by class. The
@@ -73,7 +73,10 @@ other's options.
 - **T7-C09 and T5B-C02 (protected-content review).** C2 asks the owner what
   standard satisfies the claim. H3 ER-06 and ER-04 carry the review itself.
 - **T7-C07 on DEL-05-03 (2 rows).** C3 asks whether the pressure reference
-  hold stays. H3 ER-12..14 carry the engineering question once a hold lifts.
+  hold stays. H3 ER-12 carries the engineering question once the hold lifts.
+- **NO_ACTION classes put to the owner.** T7-C08 (10 rows) is discussed in
+  C3, and T6-C09 (9 rows) in C7. Both stay recorded in
+  `R3/NO_ACTION_ROWS.csv` unless the owner's answer changes their route.
 - **T7-C04 (A8).** A8 counts the rows. B5 (palette landing) and B12
   (CF-001/CF-002, secret provider) draft the choices. Rule A8 with B5 and B12.
 - **PB-TBD-003.** B12 D14 and A10's release-label floor are one subject.
@@ -82,45 +85,52 @@ other's options.
   `DEL-04-04:SOW#CLM-010/DEL-04-04-REQ-08` (C2) and
   `DEL-11-04:SOW#CLM-011/R-DEL-11-04-002` (C4). Both are marked blocked on
   their packet in `CODE_FIX_ROWS.csv`. C5 decides 11 DEL-17-07/08 rows that
-  stay with H2 and H3.
+  stay with H2 and H3. The H2 row `DEL-17-07:SOW#CLM-021` is marked blocked
+  on C5.
 
 ## 4. Items found on no topic list
 
 The drafters reported these without drafting them, as the brief required.
-Agent 0 proposes where each is put to the owner. Proposed attachments add a
-question to the packet's owner session; they do not change packet text.
+Agent 0 placed each one with the packet whose owner session is nearest to its
+subject. The packet names the item in one line as an attached question; it
+does not draft options for it. Every row behind a U-item is marked blocked on
+its host packet in the handoffs, so none of them counts as ready.
 
-| ID | Item | Source | Proposed placement | Holder |
+| ID | Item | Rows behind it | Host | Holder |
 |---|---|---|---|---|
-| U1 | One wave-level reading of the DEL-05-02/05-03 `…/AC-001` rows | H4; T5B-C06 | C7 (readings for confirmation) | OWNER |
-| U2 | Local `Dependencies.csv` rows still show dependencies DAG-010 retired: R5 record repair, or the DAG rebuild outside this run | H4; profile §8 | C6 (method and routing) | OWNER |
-| U3 | DEL-17-02's four export schemas: contract-level tables under DEC-076, or common schema files | H1-241; T6-C07 | B7 (canonical handoff and export path) | OWNER, then scope-change |
-| U4 | Does the CONVENTIONS F3 origin test apply to the item or the assessed sentence? | H3; `DEL-12-02:SOW#CLM-037/REXC-OI-002` (T5A-C08) | C6 | OWNER |
-| U5 | Narrow an INVARIANT restatement instead of implementing it | H2 and H3; `DEL-03-08:SOW#CLM-026`, RQ-004; `DEL-06-01:SOW#CLM-011/REQ-06-01-011` (T6-C03) | C1 (code against SOW intent) | OWNER |
-| U6 | Are storage, rule-pack and library commands exempt from the diagnostics envelope? | H2; DEL-00-06 REQ-06-03, DEL-00-03 REQ-03-02, DEL-06-04 | C1 (diagnostic class subject) | OWNER |
-| U7 | T6-C02 rows offering "narrow or defer by ruling" outside A2, B3, B7, B8 | H2 | Needs its own owner question; listed per brief in `CODE_FIX_CANDIDATES.md` | OWNER |
-| U8 | Owner discharge of the deferred DEL-11-03 theory scopes | H2; `DEL-11-03` CLM-010.s02 | C4 (guide and boundary reach) | OWNER |
-| U9 | No DivergenceLayers value fits a pure product gap | P2, P3; `WAVES/W3/W3_ASSESSMENT.md:98`; PKG-15 verifier §6 | C6 | OWNER; HELPS_HUMANS for the convention |
-| U10 | The rerun-launch hint as a method rule | P2; W3 Departures item 5 | C6 | OWNER; HELPS_HUMANS |
+| U1 | One wave-level reading of the DEL-05-02/05-03 `…/AC-001` rows (T5B-C06) | 2 H4 rows, token `C7` | C7 | OWNER |
+| U2 | Local `Dependencies.csv` rows still show dependencies DAG-010 retired: R5 record repair, or the DAG rebuild outside this run (profile §8) | 15 H4 rows, token `C6`. CFB-38 and CFB-50 carry the profile §8 guard | C6 | OWNER. A DAG rebuild needs separate authorization |
+| U3 | DEL-17-02's four export schemas: contract-level tables under DEC-076, or common schema files | H1-241, token `B7` | B7 | OWNER, then scope-change |
+| U4 | Does the CONVENTIONS F3 origin test apply to the item or the assessed sentence? | `DEL-12-02:SOW#CLM-037/REXC-OI-002` (T5A-C08, in H3 ER-02) | C6 | OWNER |
+| U5 | Narrow an INVARIANT restatement instead of implementing it | `DEL-03-08:SOW#CLM-026` and RQ-004; `DEL-06-01:SOW#CLM-011/REQ-06-01-011` (T6-C03). H2 token `C1` added to the H3 block | C1 | OWNER |
+| U6 | Are storage, rule-pack and library commands exempt from the diagnostics envelope? | The CFB-14 rows (DEL-00-03 REQ-03-02, DEL-00-06 REQ-06-03, CLM-004.r05), H2 token `C1` | C1 (diagnostic class) | OWNER |
+| U7 | T6-C02 rows offering "narrow or defer by ruling" outside A2, B3, B7, B8. RV6's scan found the remainder: two rows | `DEL-03-01:SOW#CLM-011/REQ-03-01-007`, `DEL-03-01:SOW#production-and-verification-method-praxeology/VER-001` (CFB-09), H2 token `C6` | C6 M2 (the DEL-03-01 round trip) | OWNER |
+| U8 | Owner discharge of the deferred DEL-11-03 theory scopes | `DEL-11-03` CLM-010.s02 and CLM-004.r01 (CFB-28), H2 token `C4` | C4 | OWNER |
+| U9 | No DivergenceLayers value fits a pure product gap | none (method item; `WAVES/W3/W3_ASSESSMENT.md:98`) | C6 | OWNER; HELPS_HUMANS for the convention |
+| U10 | The rerun-launch hint as a method rule | none | already drafted as C6 M11 | OWNER; HELPS_HUMANS |
 
-**Other gaps H1 and P1 reported, with proposed placement:**
+**Other gaps H1 and P1 reported:**
 
-- **Four T1 REVIEW routes with no H3 item** (CAP-COREC-053, FEATB-029,
-  FEATB-030, PHYS-021). H3's scope excluded T1–T3. H1 holds them as
-  `REVIEW (T1 route, no H3 item)`. They go to WORKING_ITEMS (workflow:
-  review) with H3's items.
+- **Four T1 REVIEW capabilities with no H3 item** (CAP-COREC-053,
+  FEATB-029, FEATB-030, PHYS-021). H3 now carries them as ER-35, and H1 items
+  H1-017, 110, 116 and 117 are blocked on it.
 - **CAP-PHYS-029** (T3 route ENGINEERING_AUTHORITY, waiting on the
-  owner-held pressure reference model). Proposed with C3, alongside the
-  DEL-05-03 hold.
+  owner-held pressure reference model). It is attached to C3, beside the
+  DEL-05-03 hold, and H1-176 is blocked on C3.
 - **84 capabilities T1–T3 route to R5 record repair.** They are outside H4,
   which covers class rows and T9/T11 items only. Their repair follows H1's key
-  issue and runs through H1.
+  issue and runs through H1, under separate R5 authorization.
 - **CAP-SHELL-013 and CAP-SHELL-028 code-fix readings.** These are outside
   H2's scope. They follow B2 (shell owner). A code-fix brief is drafted only
   after B2 rules.
 - **The frozen `LICENSE.md` heading still reads "OpenPipeStress License".**
-  P1 saw it in passing and placed it in no packet. Proposed with A4 (rename
-  ruling).
+  P1 saw it in passing and placed it in no packet. It is attached to A4
+  (rename ruling).
+- **A1 against H4 on the DEL-17-01/02 injection rows.** A1 asks for a
+  block; T8 and H4's first reading said none was needed. Agent 0 chose to
+  block, because a block costs no repair. H4 carries A1 on those two rows
+  and a guard on the five T4A-C01 main injection rows. The other view stays
+  in H4 §6.
 
 ## 5. Disagreements left visible
 
@@ -151,16 +161,17 @@ views without choosing. The main sets are:
 Several packets gate others. The order that unblocks the most work is:
 
 1. **A5** (PKG-00 lifecycle) and **C7** (readings). A5 gates 82 owner rows and
-   the SEMANTIC_READY text. C7's readings set how 132 T8 rows are repaired.
+   the SEMANTIC_READY text. C7's readings set how 132 T8 rows are routed.
 2. **A4** (rename) and **A9** (declaration blocks): 298 rows of mechanical
    R5 work that turn on one treatment each.
-3. **B1, B2, B7** (solve path, shell, handoff path). These gate most H1
-   CREATE and ASSIGN items and the largest T12 clusters.
+3. **B1, B2, B7** (solve path, shell, handoff path). B1 and B2 block 64 of
+   the 167 H1 CREATE and ASSIGN items. B7 carries the largest T12 cluster
+   (T12-C01, 213 rows).
 4. **A1, A2, A3, C1**: the code-direction questions that gate H2 briefs.
 5. **The rest.** Each packet's §9 gives its dependencies.
 
-The readiness figures are in the handoffs. H4 has 1,290 rows ready once R5 is
-authorized. H2 has 20 briefs with no blocker. H1 has 124 items with no packet
+The readiness figures are in the handoffs. H4 has 1,280 rows ready once R5 is
+authorized. H2 has 18 briefs with no blocker. H1 has 124 items with no packet
 blocker.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

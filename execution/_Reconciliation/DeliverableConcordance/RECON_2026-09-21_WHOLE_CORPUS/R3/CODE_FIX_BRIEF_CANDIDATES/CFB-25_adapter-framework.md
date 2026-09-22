@@ -52,7 +52,7 @@ This brief quotes no protected, private or third-party content. Execution uses i
 
 ## BlockedOnPacket
 
-9 of 12 claim rows carry a block: B10 (7); B7 (2). `H3[<class>]` names the H3 register item for that class (review before repair). Unblocked rows may proceed separately once selected.
+9 of 12 claim rows carry a block: B10 (7); B7 (2). `H3[<class>]` names the H3 register item for that class (review before repair; mapped in `H3_TOKEN_MAP.csv`). Unblocked rows may proceed separately once selected.
 
 ## Notes and open views
 

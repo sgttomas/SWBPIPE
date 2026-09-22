@@ -19,8 +19,8 @@ Reproducing filter: `CODE_FIX_ROWS.csv` where `CFB == "CFB-28"`. Each key below 
 | `DEL-11-01:SOW#CLM-006.r07` | T6-C01 | NONE | — | — | Add an equipment-load slot to guide section 9 or drop it from the outline row. |
 | `DEL-11-01:SOW#completion-and-reliance-basis-epistemology/AC-001` | T6-C01 | NONE | — | — | Add the accessibility intent to the contract (and guide), and refresh the PDU-055 current declarations. |
 | `DEL-11-01:SOW#production-and-verification-method-praxeology/VER-001.s02` | T6-C01 | NONE | — | — | Add accessibility content to the contract, then review it. |
-| `DEL-11-03:SOW#CLM-004.r01` | T6-C01 | NONE | — | — | (none recorded; see Notes in ledger) |
-| `DEL-11-03:SOW#CLM-010.s02` | T6-C01 | NONE | — | — | Select public/permissive sources for the three deferred scopes (history, formula-level frame, local-FEA practice) or have the owner discharge them. |
+| `DEL-11-03:SOW#CLM-004.r01` | T6-C01 | NONE | — | — | OC: as CLM-010.s02. |
+| `DEL-11-03:SOW#CLM-010.s02` | T6-C01 | NONE | C4 | — | Select public/permissive sources for the three deferred scopes (history, formula-level frame, local-FEA practice) or have the owner discharge them. |
 | `DEL-11-03:SOW#completion-and-reliance-basis-epistemology/AC-001` | T6-C01 | NONE | — | — | Add to the contract the verification-versus-validation distinction and an explicit bar on presenting unverified extracted equations or narrative as a design basis. |
 | `DEL-11-04:CONTEXT#anticipated-artifacts` | T6-C01 | NONE | — | — | Author a tutorial that walks through the invented examples, or record a decision that DEL-11-04 tutorials are out of scope. |
 | `DEL-11-04:SOW#CLM-011/R-DEL-11-04-002` | T6-C03 | REVIEW | H3[T6-C03];C4 | — | Add an explicit certification, approval, sealing and code-compliance non-claim to both fixture notices (and to the test's required notice text), or narrow the requiremen… |
@@ -44,18 +44,18 @@ Freeze line citations in Scope were re-read at the freeze (`00115c719`) by H2 as
 
 ## Protected-content status
 
-Protected subject: 1 of 8 rows are at INVARIANT tier or carry protected layers (CLAIMS). An independent review of any repair is required before reliance. 
+Protected subject: 1 of 8 rows are at INVARIANT tier or carry an IP_DATA, CLAIMS or SECURITY layer (row layers: CLAIMS). An independent review of any repair is required before reliance. 
 This brief quotes no protected, private or third-party content. Execution uses invented or synthetic fixtures only and introduces no standards text, tables or equation sources (DEC-043).
 
 ## BlockedOnPacket
 
-1 of 8 claim rows carry a block: C4 (1); H3[T6-C03] (1). `H3[<class>]` names the H3 register item for that class (review before repair). Unblocked rows may proceed separately once selected.
+2 of 8 claim rows carry a block: C4 (2); H3[T6-C03] (1). `H3[<class>]` names the H3 register item for that class (review before repair; mapped in `H3_TOKEN_MAP.csv`). Unblocked rows may proceed separately once selected.
 
 ## Notes and open views
 
 - DEL-11-04 R-DEL-11-04-002 is CONTESTED;FIELD: the candidate reading makes it a stale requirement overtaken by the DEC-081/DEC-107 directive, which C4 decides; it also needs the T6-C03 review.
 - The DEL-11-01 "refresh the PDU-055 current declarations" part is a D-41 declaration question (A9 context).
-- DEL-11-03 CLM-010.s02 source selection may need the owner to discharge the deferral (RF-11-03-C-003 human DEFER); no packet names it.
+- DEL-11-03 CLM-010.s02 source selection may need the owner to discharge the deferral (RF-11-03-C-003 human DEFER). This is U8, placed with C4; the row carries C4.
 
 ## Dependencies
 

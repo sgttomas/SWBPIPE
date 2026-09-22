@@ -16,8 +16,8 @@ Reproducing filter: `CODE_FIX_ROWS.csv` where `CFB == "CFB-09"`. Each key below 
 
 | Key | Class | Authority | BlockedOnPacket | T8/T12 view | Remaining work (effective; OC = OtherCorrections) |
 |---|---|---|---|---|---|
-| `DEL-03-01:SOW#CLM-011/REQ-03-01-007` | T6-C02 | NONE | — | — | Add or locate a material serialization round-trip check, or record a ruling that defers it. |
-| `DEL-03-01:SOW#production-and-verification-method-praxeology/VER-001` | T6-C02 | NONE | — | — | Evidence deterministic persistence compatibility for material data (round-trip), or record its deferral. |
+| `DEL-03-01:SOW#CLM-011/REQ-03-01-007` | T6-C02 | NONE | C6 | — | Add or locate a material serialization round-trip check, or record a ruling that defers it. |
+| `DEL-03-01:SOW#production-and-verification-method-praxeology/VER-001` | T6-C02 | NONE | C6 | — | Evidence deterministic persistence compatibility for material data (round-trip), or record its deferral. |
 | `DEL-03-02:SOW#production-and-verification-method-praxeology/VER-001` | T6-C02 | NONE | — | — | Evidence deterministic persistence compatibility for library documents, or record where it is governed. |
 | `DEL-03-05:CONTEXT#anticipated-artifacts` | T6-C01 | NONE | — | — | Add schema-shape or invented fixture records for reducer and flange (and a component-library valve record), or restate the artifact as one shared rigid-family fixture. |
 
@@ -44,14 +44,14 @@ This brief quotes no protected, private or third-party content. Execution uses i
 
 ## BlockedOnPacket
 
-None. No affected row's class or T8 reading needs an owner or review decision.
+2 of 4 claim rows carry a block: C6 (2). `H3[<class>]` names the H3 register item for that class (review before repair; mapped in `H3_TOKEN_MAP.csv`). Unblocked rows may proceed separately once selected.
 
 ## Notes and open views
 
 - CONTESTED (T6-C02): the two DEL-03-01 rows; the Notes may overstate the absence of round-trip evidence, and DEL-03-05 CLM-010.r08 judges the same evidence the other way. First step is to re-check whether existing evidence already meets the claim.
-- The "record a ruling that defers it" branch on PROJECT_BASELINE rows is an owner alternative, not executed here.
+- Both DEL-03-01 rows offer "or record a ruling that defers it" with no packet among A2, B3, B7 or B8. This is U7, placed with C6 (M2); both rows carry C6.
 
 ## Dependencies
 
-None.
+C6 (U7).
 

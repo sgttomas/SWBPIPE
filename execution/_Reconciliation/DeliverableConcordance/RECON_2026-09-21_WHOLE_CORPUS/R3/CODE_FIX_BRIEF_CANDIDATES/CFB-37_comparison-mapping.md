@@ -42,7 +42,7 @@ This brief quotes no protected, private or third-party content. Execution uses i
 
 ## BlockedOnPacket
 
-None. No affected row's class or T8 reading needs an owner or review decision.
+None. No affected row's class or T8/T12 reading needs an owner or review decision.
 
 ## Notes and open views
 
@@ -50,5 +50,5 @@ None. No affected row's class or T8 reading needs an owner or review decision.
 
 ## Dependencies
 
-CFB-04.
+CFB-04, B8 (context: option (b) ports and option (c) re-scopes DEL-14-04/05).
 

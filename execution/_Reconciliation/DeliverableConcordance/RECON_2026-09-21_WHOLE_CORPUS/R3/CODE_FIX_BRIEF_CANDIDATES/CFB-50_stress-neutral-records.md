@@ -4,7 +4,7 @@
 
 ## Scope
 
-Record the CSV contract location and whether comparison fixtures are still wanted; write the requirement-to-evidence traceability table; run the owning semantic and dependency workflows.
+Record the CSV contract location and whether comparison fixtures are still wanted; write the requirement-to-evidence traceability table; run the owning semantic and dependency workflows. Guard (chirality-piping execution profile §8): dependency-graph changes are not made under this brief; they go to the separate owner-directed DAG rebuild (see U2 and C6).
 
 ## Affected claims
 
@@ -40,7 +40,7 @@ This brief quotes no protected, private or third-party content. Execution uses i
 
 ## BlockedOnPacket
 
-None. No affected row's class or T8 reading needs an owner or review decision.
+None. No affected row's class or T8/T12 reading needs an owner or review decision.
 
 ## Notes and open views
 

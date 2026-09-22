@@ -23,9 +23,9 @@ Reproducing filter: `CODE_FIX_ROWS.csv` where `CFB == "CFB-07"`. Each key below 
 | `DEL-02-05:SOW#CLM-021.r02` | T6-C02 | NONE | A2 | — | Route the Python persistence service and schema checksum labels through the project JCS profile (core/serialization/canonical_json), or record a ruling that permits sort… |
 | `DEL-02-05:SOW#CLM-030.r05` | T6-C02 | NONE | A2 | — | Route the Python persistence service and schema checksum labels through the project JCS profile (core/serialization/canonical_json), or record a ruling that permits sort… |
 | `DEL-14-01:CONTEXT#architecture-basis-injection.s03` | T6-C02 | NONE | A2 | — | Implement RFC 8785/JCS canonicalization for model-state record hashes, or obtain a ruling that narrows the DEC-010 JCS-compatible basis to the sorted-compact label, then… |
-| `DEL-14-01:SOW#CLM-004` | T6-C02 | NONE | A2 | T12 T12-C02: OWNER_DECISION | Implement RFC 8785/JCS canonicalization for model-state record hashes, or obtain a ruling that narrows the DEC-010 JCS-compatible basis to the sorted-compact label, then… |
-| `DEL-14-01:SOW#CLM-005` | T6-C02 | NONE | A2;A1 | T8 DEC-009: OWNER_DECISION; T12 T12-C02: OWNER_DECISION; DISAGREES (T8 OWNER_DECISION / class CODE_FIX_CANDIDATE) | Implement RFC 8785/JCS canonicalization for model-state record hashes, or obtain a ruling that narrows the DEC-010 JCS-compatible basis to the sorted-compact label, then… |
-| `DEL-14-01:SOW#CLM-011.r04` | T6-C02 | NONE | A2 | T12 T12-C02: OWNER_DECISION | Implement RFC 8785/JCS canonicalization for model-state record hashes, or obtain a ruling that narrows the DEC-010 JCS-compatible basis to the sorted-compact label, then… |
+| `DEL-14-01:SOW#CLM-004` | T6-C02 | NONE | A2;B8 | T12 T12-C02: OWNER_DECISION | Implement RFC 8785/JCS canonicalization for model-state record hashes, or obtain a ruling that narrows the DEC-010 JCS-compatible basis to the sorted-compact label, then… |
+| `DEL-14-01:SOW#CLM-005` | T6-C02 | NONE | A2;A1;B8 | T8 DEC-009: OWNER_DECISION; T12 T12-C02: OWNER_DECISION; DISAGREES (T8 OWNER_DECISION / class CODE_FIX_CANDIDATE) | Implement RFC 8785/JCS canonicalization for model-state record hashes, or obtain a ruling that narrows the DEC-010 JCS-compatible basis to the sorted-compact label, then… |
+| `DEL-14-01:SOW#CLM-011.r04` | T6-C02 | NONE | A2;B8 | T12 T12-C02: OWNER_DECISION | Implement RFC 8785/JCS canonicalization for model-state record hashes, or obtain a ruling that narrows the DEC-010 JCS-compatible basis to the sorted-compact label, then… |
 | `DEL-14-01:SOW#CLM-012` | T6-C02 | NONE | A2 | — | Implement RFC 8785/JCS canonicalization for model-state record hashes, or obtain a ruling that narrows the DEC-010 JCS-compatible basis to the sorted-compact label, then… |
 | `DEL-14-01:SOW#CLM-019` | T6-C02 | NONE | A2 | — | Implement RFC 8785/JCS canonicalization for model-state record hashes, or obtain a ruling that narrows the DEC-010 JCS-compatible basis to the sorted-compact label, then… |
 
@@ -52,14 +52,15 @@ This brief quotes no protected, private or third-party content. Execution uses i
 
 ## BlockedOnPacket
 
-12 of 12 claim rows carry a block: A1 (1); A2 (12). `H3[<class>]` names the H3 register item for that class (review before repair). All rows are blocked.
+12 of 12 claim rows carry a block: A1 (1); A2 (12); B8 (3). `H3[<class>]` names the H3 register item for that class (review before repair; mapped in `H3_TOKEN_MAP.csv`). All rows are blocked.
 
 ## Notes and open views
 
 - Every row waits on A2. DEL-14-01:SOW#CLM-005 also carries the T8 DEC-009 reading (OWNER_DECISION; A1).
+- DEL-14-01 CLM-004, CLM-005 and CLM-011.r04 also carry B8: their T12-C02 reading is OWNER_DECISION, and B8 §5 asks H2 to mark them.
 - CONTESTED: the four DEL-02-05 rows split FROZEN_CONTRACT vs NONE BaselineClass with DEL-02-02 FG-DEL-02-02-01 (T6-C02 notes).
 
 ## Dependencies
 
-A2, A1.
+A2, A1, B8.
 

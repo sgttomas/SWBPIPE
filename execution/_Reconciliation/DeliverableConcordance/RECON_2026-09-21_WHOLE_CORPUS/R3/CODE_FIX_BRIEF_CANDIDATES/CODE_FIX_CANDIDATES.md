@@ -60,40 +60,46 @@ The classes here belong wholly to H2. None of them is a packet split class.
 
 - **A topic ID (A1–A10, B1–B12, C1–C7)** means the row waits on that R4
   decision packet. That is the case when:
-  - the row's T8 reading needs an owner decision;
+  - the row's T8 or T12 reading needs an owner or review decision;
   - the topic file names the block, as for the DEL-15-02 defaults behind B7;
   - the ledger RemainingWork waits on a selection that a packet carries.
 - **`H3[<class>]`** means the H3 engineering-and-review register item for that
   class, T6-C03 or T7-C06. Both classes have owning authority REVIEW, so an
   independent review must come before any repair is relied on. Agent 0 maps
-  `H3[<class>]` to the H3 item ID at integration.
+  `H3[<class>]` to the H3 item ID at integration (`H3_TOKEN_MAP.csv`: ER-21, ER-22).
+- **An H3 item ID (`ER-20`)** is used directly where a row waits on a named
+  H3 reviewer choice (DEL-12-01 LFSP-REQ-011).
 - A dependency marked "context" in a brief is related but not blocking.
 
-Blocked rows: **140 of 380 claim rows**, plus 5 of the 6 items.
+Blocked rows: **155 of 380 claim rows**, plus 5 of the 6 items (revised after the RV6/RV7 reviews; previously 140).
 
 | Blocker | Rows |
 |---|---|
 | H3[T7-C06] | 42 + 5 items |
 | H3[T6-C03] | 34 |
 | B7 | 30 |
-| B10 | 18 |
+| B10 | 19 |
 | C7 | 16 |
 | A2 | 12 |
-| B8 | 6 |
+| C1 | 10 |
+| A1 | 9 |
+| B8 | 9 |
 | B12 | 6 |
-| A1 | 4 |
+| B9 | 5 |
+| C6 | 5 |
+| A7 | 4 |
 | A6 | 3 |
 | B3 | 3 |
-| C1 | 3 |
-| C6 | 3 |
+| C4 | 2 |
 | A3 | 1 |
 | C2 | 1 |
-| C4 | 1 |
+| C5 | 1 |
+| ER-20 | 1 |
 
 A row can carry more than one blocker. Across the briefs:
 
-- 16 are wholly blocked;
-- 20 are unblocked;
+- 18 are wholly blocked;
+- 18 are unblocked;
 - 18 are partly blocked. Their unblocked rows can go ahead separately.
 
 17 briefs touch a protected subject: an INVARIANT tier or an IP_DATA, CLAIMS
@@ -105,7 +111,12 @@ WORKING_ITEMS (workflow: review). The decisions named in `BlockedOnPacket`
 stay with the holder of each packet (see each packet's Decision section).
 Where a row's RemainingWork offers to narrow a PROJECT_BASELINE or INVARIANT
 requirement, or to "obtain a ruling", the brief lists that alternative. That
-alternative belongs to the owner, and no brief takes it.
+alternative belongs to the owner, and no brief takes it. Where a row offers to
+narrow a LOCAL_DESIGN requirement (for example DEL-11-05 REQ-11-05-07 in
+CFB-03, DEL-07-04 CLM-013 and CLM-022 in CFB-27), the narrowing is a
+deliverable-local Scope of Work edit: its holder is WORKING_ITEMS (workflow:
+scope-change), and it runs only as a separately authorized R5 record repair
+(H4), not under a code-fix brief.
 
 ## Briefs by area
 
@@ -124,25 +135,25 @@ alternative belongs to the owner, and no brief takes it.
 | [CFB-04](CFB-04_domain-units-schema-binding.md) | Load and unit schema binding to the DEC-018 units catalog | 4 | T6-C01 3, T6-C02 1 | B12 (1) | no |
 | [CFB-05](CFB-05_analysis-boundary-diagnostic.md) | Analysis-boundary Diagnostic code and acceptance-reference staleness | 3 | T6-C01 1, T6-C02 1, T6-C03 1 | A3 (1), B12 (2), H3[T6-C03] (1) | yes |
 | [CFB-06](CFB-06_plugin-manifest-fixture.md) | Plugin manifest fixture conformance and manifest hashing tests | 5 | T6-C01 2, T6-C03 2, T7-C06 1 | B10 (2), H3[T6-C03] (2), H3[T7-C06] (1) | yes |
-| [CFB-07](CFB-07_jcs-canonicalization.md) | Route Python persistence and model-state hashes through the project JCS profile | 12 | T6-C02 12 | A1 (1), A2 (12) | no |
+| [CFB-07](CFB-07_jcs-canonicalization.md) | Route Python persistence and model-state hashes through the project JCS profile | 12 | T6-C02 12 | A1 (1), A2 (12), B8 (3) | no |
 | [CFB-08](CFB-08_project-package-roundtrip.md) | Project package: populated rule-pack reference round trip, explicit migrate, compatibility window | 8 | T6-C01 6, T6-C02 2 | B12 (1) | no |
-| [CFB-09](CFB-09_material-component-library-records.md) | Material and library persistence round trip; component fixture coverage | 4 | T6-C01 1, T6-C02 3 | — | no |
+| [CFB-09](CFB-09_material-component-library-records.md) | Material and library persistence round trip; component fixture coverage | 4 | T6-C01 1, T6-C02 3 | C6 (2) | no |
 
 ### Physics inputs, solver and diagnostics
 
 | CFB | Change | Rows | Classes | BlockedOnPacket (rows) | Protected subject |
 |---|---|---:|---|---|---|
-| [CFB-10](CFB-10_physics-input-unit-provenance.md) | Component and product-physics inputs: unit-against-dimension and redistribution checks | 4 | T6-C03 4 | H3[T6-C03] (4) | yes |
+| [CFB-10](CFB-10_physics-input-unit-provenance.md) | Component and product-physics inputs: unit-against-dimension and redistribution checks | 4 | T6-C03 4 | C1 (2), H3[T6-C03] (4) | yes |
 | [CFB-11](CFB-11_import-gate-bare-numerics.md) | Import gate: reject bare numeric values for unit-bearing fields | 3 | T7-C05 3 | C1 (3) | yes |
 | [CFB-12](CFB-12_solver-mechanics-verification.md) | Mechanics solver verification: restore envelope-binding tests and add boundary tests | 6 | T6-C01 2, T6-C02 1, T6-C03 2, T7-C06 1 | C2 (1), H3[T6-C03] (2), H3[T7-C06] (1) | yes |
 | [CFB-13](CFB-13_producer-diagnostic-envelope.md) | AB-00-06 diagnostic fields on producer diagnostics | 11 | T6-C01 2, T6-C02 9 | — | no |
-| [CFB-14](CFB-14_command-result-envelopes.md) | Storage, rule-pack and library commands: diagnostics envelope conformance | 4 | T6-C02 4 | B10 (1) | no |
+| [CFB-14](CFB-14_command-result-envelopes.md) | Storage, rule-pack and library commands: diagnostics envelope conformance | 4 | T6-C02 4 | B10 (1), C1 (4) | no |
 
 ### Rule engine, manifests and reporting
 
 | CFB | Change | Rows | Classes | BlockedOnPacket (rows) | Protected subject |
 |---|---|---:|---|---|---|
-| [CFB-15](CFB-15_rule-evaluator-safety.md) | Rule evaluator and completeness checker: protected-content, bypass and bounds tests | 9 | T6-C01 1, T6-C03 8 | B10 (3), H3[T6-C03] (8) | yes |
+| [CFB-15](CFB-15_rule-evaluator-safety.md) | Rule evaluator and completeness checker: protected-content, bypass and bounds tests | 9 | T6-C01 1, T6-C03 8 | B10 (3), C1 (1), H3[T6-C03] (8) | yes |
 | [CFB-16](CFB-16_manifest-asset-hashing.md) | Non-JSON asset manifest hashing and asset-entry fields | 5 | T6-C01 5 | — | no |
 | [CFB-17](CFB-17_rule-pack-library-refs.md) | Populate rule-pack and library references through the product report, export and analysis-run path | 29 + 1 item | T6-C01 7, T6-C02 22 | — | no |
 | [CFB-18](CFB-18_version-stamps.md) | Software/application and solver version stamps in manifests and rendered reports | 7 | T6-C02 7 | — | no |
@@ -170,13 +181,13 @@ alternative belongs to the owner, and no brief takes it.
 
 | CFB | Change | Rows | Classes | BlockedOnPacket (rows) | Protected subject |
 |---|---|---:|---|---|---|
-| [CFB-28](CFB-28_user-docs.md) | User guide, theory note and examples: missing slots and non-claim notices | 8 | T6-C01 7, T6-C03 1 | C4 (1), H3[T6-C03] (1) | yes |
+| [CFB-28](CFB-28_user-docs.md) | User guide, theory note and examples: missing slots and non-claim notices | 8 | T6-C01 7, T6-C03 1 | C4 (2), H3[T6-C03] (1) | yes |
 
 ### Local-first storage, privacy and telemetry
 
 | CFB | Change | Rows | Classes | BlockedOnPacket (rows) | Protected subject |
 |---|---|---:|---|---|---|
-| [CFB-29](CFB-29_local-store-export-redistribution.md) | Local-first store and export: provenance survival and redistribution metadata in export decisions | 5 | T6-C01 3, T6-C03 2 | B10 (1), H3[T6-C03] (2) | yes |
+| [CFB-29](CFB-29_local-store-export-redistribution.md) | Local-first store and export: provenance survival and redistribution metadata in export decisions | 5 | T6-C01 3, T6-C03 2 | B10 (1), ER-20 (1), H3[T6-C03] (2) | yes |
 | [CFB-30](CFB-30_telemetry-config.md) | Telemetry: product config default-false opt-in and field-class rejection test | 4 | T6-C01 3, T6-C02 1 | — | yes |
 | [CFB-31](CFB-31_private-library-guard.md) | Private-library guard integration into product export, report and share seams | 12 | T6-C01 6, T6-C02 3, T6-C03 3 | B10 (2), B12 (2), H3[T6-C03] (3) | yes |
 
@@ -185,7 +196,7 @@ alternative belongs to the owner, and no brief takes it.
 | CFB | Change | Rows | Classes | BlockedOnPacket (rows) | Protected subject |
 |---|---|---:|---|---|---|
 | [CFB-32](CFB-32_constraint-knowledge-unit-schema.md) | Constraint and design-knowledge schemas: bind Parameter.value to value_kind quantity; add force_per_length | 10 | T7-C06 10 | C7 (10), H3[T7-C06] (10) | yes |
-| [CFB-33](CFB-33_constraint-evaluation.md) | Constraint conflict evaluation and product caller for the validation engine | 2 | T6-C01 1, T6-C02 1 | — | no |
+| [CFB-33](CFB-33_constraint-evaluation.md) | Constraint conflict evaluation and product caller for the validation engine | 2 | T6-C01 1, T6-C02 1 | A1 (2), B9 (2) | no |
 | [CFB-34](CFB-34_model-state-save-compare.md) | Model-state product save/list/open and comparison through the application-service boundary | 6 | NOT_DIVERGENT 1, T6-C01 1, T6-C02 4 | A1 (3), B8 (6), C7 (1) | no |
 | [CFB-35](CFB-35_model-state-privacy-screening.md) | Model-state external references: privacy and protected-content screening | 2 | T6-C03 2 | H3[T6-C03] (2) | yes |
 | [CFB-36](CFB-36_analysis-run-completeness.md) | Analysis-run records: producer dimensions, diagnostic breadth, versioned result contract | 5 | NOT_DIVERGENT 1, T6-C02 4 | C7 (1) | no |
@@ -205,7 +216,7 @@ alternative belongs to the owner, and no brief takes it.
 
 | CFB | Change | Rows | Classes | BlockedOnPacket (rows) | Protected subject |
 |---|---|---:|---|---|---|
-| [CFB-43](CFB-43_runtime-constraint-stage.md) | Constraint-validation stage on the runtime operation route | 3 | T6-C02 3 | B3 (3) | no |
+| [CFB-43](CFB-43_runtime-constraint-stage.md) | Constraint-validation stage on the runtime operation route | 3 | T6-C02 3 | A1 (3), B3 (3), B9 (3) | no |
 | [CFB-44](CFB-44_decision-history-contract.md) | Durable hash-bound decision/history contract; touching-path check preservation | 6 | T6-C02 5, T6-C03 1 | H3[T6-C03] (1) | yes |
 
 ### Export formats
@@ -219,9 +230,9 @@ alternative belongs to the owner, and no brief takes it.
 | [CFB-49](CFB-49_caepipe-harness-records.md) | CAEPIPE harness run-record fields (non-live parts) | 18 | T6-C01 18 | — | no |
 | [CFB-50](CFB-50_stress-neutral-records.md) | Stress-neutral CSV: contract location, traceability table, owning workflows | 3 | T6-C01 3 | — | no |
 | [CFB-51](CFB-51_pcf-silent-fallbacks.md) | PCF export silent fallbacks: zero coordinates, millimetre assumption, missing disclosure member | 4 + 3 items | T7-C06 4 | H3[T7-C06] (4) | no |
-| [CFB-52](CFB-52_pcf-family-coverage.md) | PCF profile: per-family classification and component mappings beyond straight pipe | 11 | T6-C01 11 | C7 (1) | no |
+| [CFB-52](CFB-52_pcf-family-coverage.md) | PCF profile: per-family classification and component mappings beyond straight pipe | 11 | T6-C01 11 | A7 (4), C5 (1), C7 (1) | no |
 | [CFB-53](CFB-53_gltf-profile.md) | glTF review-geometry profile: GLB or JSON profile, per-family coverage, transform and consumer-risk policy | 10 | T6-C01 10 | — | no |
-| [CFB-54](CFB-54_plugin-sdk-admission.md) | Plugin SDK admission contract: external-execution policy, registry states, checklist categories | 8 | T6-C01 8 | B10 (1), C7 (1) | no |
+| [CFB-54](CFB-54_plugin-sdk-admission.md) | Plugin SDK admission contract: external-execution policy, registry states, checklist categories | 8 | T6-C01 8 | B10 (2), C7 (1) | no |
 
 ## Rows with two views (T8 against class route)
 
@@ -234,6 +245,16 @@ are shown. H2 does not choose between them.
 | `DEL-03-07:SOW#CLM-003.r06`, `SOW#CLM-009.r05`, `SOW#CLM-021.s02` (unit vocabulary) | CODE_FIX_CANDIDATE (REVIEW) | OWNER_DECISION (T7-C05) | C1 | CFB-11 |
 | `DEL-14-01:SOW#CLM-024`, `DEL-14-02:SOW#CLM-024` (F1 on CONTEXT) | CODE_FIX_CANDIDATE | not divergent | C7 | CFB-34, CFB-36 |
 | `DEL-17-02:SOW#CLM-019/DEL-17-02-REQ-014`, `SOW#CLM-023/DEL-17-02-REQ-053`, `DEL-17-07:SOW#CLM-016/DEL-17-07-REQ-034`, `DEL-17-09:SOW#CLM-013/DEL-17-09-REQ-010` (tier of in-scope REQs, CP-11) | NO_ACTION | CODE_FIX_CANDIDATE (T6-C01) | C7 | CFB-45, CFB-52, CFB-54 |
+
+T12 readings that differ from the code-fix class route (both views shown in the briefs):
+
+| Rows | T12 route | Class route | Held in | Brief |
+|---|---|---|---|---|
+| `DEL-14-01:SOW#CLM-004`, `SOW#CLM-005`, `SOW#CLM-011.r04` (T12-C02) | OWNER_DECISION | CODE_FIX_CANDIDATE (T6-C02) | B8 (with A2; CLM-005 also A1) | CFB-07 |
+| `DEL-14-01:SOW#CLM-011.r01` (T12-C02) | OWNER_DECISION | CODE_FIX_CANDIDATE (T6-C02) | B8 | CFB-34 |
+| `DEL-14-01:SOW#CLM-024` (T12-C02) | OWNER_DECISION | not divergent (T8 K4: CODE_FIX) | B8, C7 | CFB-34 |
+| `DEL-13-03:SOW#CLM-005.r04` (T12-C03) | OWNER_DECISION | CODE_FIX_CANDIDATE (T6-C01) | B9 (with A1) | CFB-33 |
+| `DEL-13-01:SOW#CLM-005.r05` (T12-C03) | REVIEW | CODE_FIX_CANDIDATE (T7-C06) | ER-22 (H3[T7-C06]), C7 | CFB-32 |
 
 Other open readings are recorded in the briefs:
 
@@ -272,27 +293,28 @@ elsewhere:
 - **Handoff schema compliance.** B7. The code side is in CFB-41 and CFB-42.
 - **GUI panels against SOW exclusions.** B6.
 
-## UNASSIGNED owner decisions found
+## Owner decisions first reported UNASSIGNED (now placed in the gate index)
 
-These are owner alternatives that the ledgers or the T6 on-ruling mechanism
-name. No P1–P3 topic carries them. H2 does not draft them.
+H2's first return reported these as UNASSIGNED. `R4/R4_GATE_INDEX.md` §4 now
+places them; the affected rows carry the placement token.
 
-1. **Command envelope exemption.** Whether storage, rule-pack and library
-   commands are exempt from the diagnostics envelope. This is the FIRM
-   alternative on `DEL-00-06:AB#normative-requirements/REQ-06-03`. It becomes
-   OWNER if exempted. It also touches DEL-00-03 REQ-03-02 and DEL-06-04
-   CLM-004.r05/R-06-04-012. Brief: CFB-14.
-2. **Narrowing INVARIANT restatements.** Two rows offer this:
+1. **U6, command envelope exemption** (placed with C1). Whether storage,
+   rule-pack and library commands are exempt from the diagnostics envelope.
+   Rows: `DEL-00-06:AB#normative-requirements/REQ-06-03`,
+   `DEL-00-03:AB#normative-requirements/REQ-03-02`, `DEL-06-04:SOW#CLM-004.r05`
+   and `SOW#CLM-010/R-06-04-012`. All carry C1. Brief: CFB-14.
+2. **U5, narrowing INVARIANT restatements** (placed with C1).
    `DEL-03-08:SOW#CLM-026` and `SOW#CLM-011/DEL-03-08-RQ-004` (CFB-10), and
-   `DEL-06-01:SOW#CLM-011/REQ-06-01-011` (CFB-15). T6-C03 routes such
-   narrowing to the owner as a decision-packet item.
-3. **Narrowing PROJECT_BASELINE requirements.** Many T6-C02 rows offer
-   "or obtain a ruling that narrows / defers". Examples: DEL-03-01 round trip,
-   DEL-16-02/16-03 constraint stage, DEL-15-03 export path. T6-C02 says to
-   list these for a later packet. Those under A2 (JCS), B3, B7 and B8 are
-   already covered. The remainder has no packet.
-4. **DEL-11-03 deferred theory scopes.** Owner discharge of the deferred scopes
-   (`SOW#CLM-010.s02`, RF-11-03-C-003 human DEFER). Brief: CFB-28.
+   `DEL-06-01:SOW#CLM-011/REQ-06-01-011` (CFB-15). All carry C1.
+3. **U7, PROJECT_BASELINE "narrow or defer by ruling" rows outside A2, B3, B7
+   and B8** (placed with C6, M2). A scan of the unblocked PROJECT_BASELINE,
+   INVARIANT and FROZEN_CONTRACT rows leaves exactly two:
+   `DEL-03-01:SOW#CLM-011/REQ-03-01-007` and
+   `DEL-03-01:SOW#production-and-verification-method-praxeology/VER-001`
+   (CFB-09). Both carry C6.
+4. **U8, DEL-11-03 deferred theory scopes** (placed with C4). Owner discharge
+   of the deferred scopes (`DEL-11-03:SOW#CLM-010.s02`, RF-11-03-C-003 human
+   DEFER). The row carries C4. Brief: CFB-28.
 
 ## Disagreements left open
 
@@ -300,3 +322,4 @@ name. No P1–P3 topic carries them. H2 does not draft them.
 - **DEL-03-07.** T8 route and class route differ (see the two-views table).
 - **F1 rows.** T8 route and class route differ (see the two-views table).
 - **CP-11 rows.** T8 route and class route differ (see the two-views table).
+- **T12 rows.** Seven rows where the T12 reading differs from the class route (see the T12 table).

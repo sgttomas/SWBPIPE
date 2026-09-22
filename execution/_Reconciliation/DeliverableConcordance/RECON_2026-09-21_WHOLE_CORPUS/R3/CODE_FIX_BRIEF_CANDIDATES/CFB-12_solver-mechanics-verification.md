@@ -4,7 +4,7 @@
 
 ## Scope
 
-Restore a report-facing fixture test asserting the envelope carries nonlinear component identity and NONLINEAR_ASSEMBLED_LOOP assumption/limitation diagnostics (removed by b43cc00c4, PR #787); add a solver-boundary test that the nonlinear path assembles only frame, user-stiffness and curved-bend elements; record the DEL-04-05 module boundary review or cite one; bind harness records to the result schema (or record the exemption) with the named report-facing test; add a fixture provenance index record; decide whether the DEC-025 local sweep is the CI gate or add solver cargo tests to hosted CI.
+Restore a report-facing fixture test asserting the envelope carries nonlinear component identity and NONLINEAR_ASSEMBLED_LOOP assumption/limitation diagnostics (removed by b43cc00c4, PR #787); add a solver-boundary test that the nonlinear path assembles only frame, user-stiffness and curved-bend elements; record the DEL-04-05 module boundary review or cite one; bind harness records to the result schema (or record the exemption) with the named report-facing test; add a fixture provenance index record; record the DEC-025 local sweep as the CI gate REQ-010 means (the hosted-CI alternative needs a new decision packet under DEC-059).
 
 ## Affected claims
 
@@ -42,17 +42,17 @@ Freeze line citations in Scope were re-read at the freeze (`00115c719`) by H2 as
 
 ## Protected-content status
 
-Protected subject: 3 of 6 rows are at INVARIANT tier or carry protected layers (BASELINE). An independent review of any repair is required before reliance. 
+Protected subject: 3 of 6 rows are at INVARIANT tier or carry an IP_DATA, CLAIMS or SECURITY layer (row layers: BASELINE). An independent review of any repair is required before reliance. 
 This brief quotes no protected, private or third-party content. Execution uses invented or synthetic fixtures only and introduces no standards text, tables or equation sources (DEC-043).
 
 ## BlockedOnPacket
 
-3 of 6 claim rows carry a block: C2 (1); H3[T6-C03] (2); H3[T7-C06] (1). `H3[<class>]` names the H3 register item for that class (review before repair). Unblocked rows may proceed separately once selected.
+3 of 6 claim rows carry a block: C2 (1); H3[T6-C03] (2); H3[T7-C06] (1). `H3[<class>]` names the H3 register item for that class (review before repair; mapped in `H3_TOKEN_MAP.csv`). Unblocked rows may proceed separately once selected.
 
 ## Notes and open views
 
 - DEL-04-04 REQ-08 is the corpus's only VERIFICATION_REMOVED row; C2 owns whether PR #787's removal is ruled on.
-- Hosted CI is deferred by DEC-059; the REQ-010 row records the CI-gate choice and does not reopen DEC-059.
+- Hosted CI: DEC-059 keeps the DEC-025 local registered sweep as the merge gate under every branch and requires a new decision packet for any hosted merge-gating; DEC-025 prohibits Actions on the private monorepo. The "add solver cargo tests to hosted CI" option therefore needs a new decision packet and is not executable under this brief. The executable part is recording the DEC-025 sweep as the gate meant by REQ-010.
 
 ## Dependencies
 

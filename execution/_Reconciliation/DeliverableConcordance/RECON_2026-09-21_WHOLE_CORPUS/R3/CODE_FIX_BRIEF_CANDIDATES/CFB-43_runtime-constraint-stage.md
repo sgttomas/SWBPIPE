@@ -16,9 +16,9 @@ Reproducing filter: `CODE_FIX_ROWS.csv` where `CFB == "CFB-43"`. Each key below 
 
 | Key | Class | Authority | BlockedOnPacket | T8/T12 view | Remaining work (effective; OC = OtherCorrections) |
 |---|---|---|---|---|---|
-| `DEL-16-02:CONTEXT#description` | T6-C02 | NONE | B3 | — | Same as REQ-16-02-003. |
-| `DEL-16-02:SOW#CLM-010/REQ-16-02-003` | T6-C02 | NONE | B3 | — | Integrate a constraint-validation stage (DEL-13-03) into the runtime operation route or record a ruling deferring it. |
-| `DEL-16-03:SOW#CLM-010/DEL-16-03-REQ-002` | T6-C02 | NONE | B3 | — | Gate runtime acceptance receipts on a constraint-validation stage or record a ruling. |
+| `DEL-16-02:CONTEXT#description` | T6-C02 | NONE | B3;B9;A1 | — | Same as REQ-16-02-003. |
+| `DEL-16-02:SOW#CLM-010/REQ-16-02-003` | T6-C02 | NONE | B3;B9;A1 | — | Integrate a constraint-validation stage (DEL-13-03) into the runtime operation route or record a ruling deferring it. |
+| `DEL-16-03:SOW#CLM-010/DEL-16-03-REQ-002` | T6-C02 | NONE | B3;B9;A1 | — | Gate runtime acceptance receipts on a constraint-validation stage or record a ruling. |
 
 ## Evidence
 
@@ -42,13 +42,14 @@ This brief quotes no protected, private or third-party content. Execution uses i
 
 ## BlockedOnPacket
 
-3 of 3 claim rows carry a block: B3 (3). `H3[<class>]` names the H3 register item for that class (review before repair). All rows are blocked.
+3 of 3 claim rows carry a block: A1 (3); B3 (3); B9 (3). `H3[<class>]` names the H3 register item for that class (review before repair; mapped in `H3_TOKEN_MAP.csv`). All rows are blocked.
 
 ## Notes and open views
 
 - The applier sits outside the DEL-16-02/16-03 scopes (B3); the stage lands wherever B3 places the applier. The "record a ruling deferring it" branch is an owner alternative.
+- All three rows carry B9: the stage wires the DEL-13-03 engine into the runtime route and changes the `lib.rs:4213` `constraint_validation` label that B9 §2 cites, and B9 §9 blocks H2 briefs touching the desktop constraint display. They also carry A1, because the stage is the Python DEL-13-03 engine unless A1 ports it.
 
 ## Dependencies
 
-B3, CFB-33.
+B3, B9, A1, CFB-33.
 

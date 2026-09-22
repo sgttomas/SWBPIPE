@@ -37,12 +37,12 @@ Freeze line citations in Scope were re-read at the freeze (`00115c719`) by H2 as
 
 ## Protected-content status
 
-Protected subject: 3 of 4 rows are at INVARIANT tier or carry protected layers (SECURITY). An independent review of any repair is required before reliance. 
+Protected subject: 3 of 4 rows are at INVARIANT tier or carry an IP_DATA, CLAIMS or SECURITY layer (row layers: SECURITY). An independent review of any repair is required before reliance. 
 This brief quotes no protected, private or third-party content. Execution uses invented or synthetic fixtures only and introduces no standards text, tables or equation sources (DEC-043).
 
 ## BlockedOnPacket
 
-None. No affected row's class or T8 reading needs an owner or review decision.
+None. No affected row's class or T8/T12 reading needs an owner or review decision.
 
 ## Notes and open views
 

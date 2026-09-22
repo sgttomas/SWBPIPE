@@ -32,23 +32,23 @@ Freeze line citations in Scope were re-read at the freeze (`00115c719`) by H2 as
 
 ## Acceptance checks
 
-- The scan runs over result fixtures and fails on a planted synthetic marker.
+- Scanner tooling covers result fixtures and fails on a planted synthetic marker. Running the DEC-058 release scan is the owner's act, not an acceptance step of this brief.
 - Unit-conversion witness tests cover each target format.
 - Independent review for the INVARIANT row (H3 item for T6-C03).
 - The affected ledger rows are re-verified in a later concordance; no ALIGNED status is claimed from this brief.
 
 ## Protected-content status
 
-Protected subject: 1 of 4 rows are at INVARIANT tier or carry protected layers (CLAIMS, IP_DATA). An independent review of any repair is required before reliance. 
+Protected subject: 1 of 4 rows are at INVARIANT tier or carry an IP_DATA, CLAIMS or SECURITY layer (row layers: CLAIMS, IP_DATA). An independent review of any repair is required before reliance. 
 This brief quotes no protected, private or third-party content. Execution uses invented or synthetic fixtures only and introduces no standards text, tables or equation sources (DEC-043).
 
 ## BlockedOnPacket
 
-1 of 4 claim rows carry a block: H3[T6-C03] (1). `H3[<class>]` names the H3 register item for that class (review before repair). Unblocked rows may proceed separately once selected.
+1 of 4 claim rows carry a block: H3[T6-C03] (1). `H3[<class>]` names the H3 register item for that class (review before repair; mapped in `H3_TOKEN_MAP.csv`). Unblocked rows may proceed separately once selected.
 
 ## Notes and open views
 
-- The DEC-058 scan evidence (FIELD on DEL-08-04 V-7) is added as evidence, not re-run here.
+- The DEL-08-04 V-7 remainder (the OC: run the DEC-058 scan over AC-5) is an owner act under DEC-058, which makes the owner the scan owner. It is outside this code-fix scope; only the scanner tooling part stays here, behind the H3 review.
 
 ## Dependencies
 

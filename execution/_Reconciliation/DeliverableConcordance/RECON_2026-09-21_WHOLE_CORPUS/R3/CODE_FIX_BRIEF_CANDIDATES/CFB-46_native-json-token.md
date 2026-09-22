@@ -45,7 +45,7 @@ This brief quotes no protected, private or third-party content. Execution uses i
 
 ## BlockedOnPacket
 
-4 of 4 claim rows carry a block: H3[T7-C06] (4). `H3[<class>]` names the H3 register item for that class (review before repair). All rows are blocked.
+4 of 4 claim rows carry a block: H3[T7-C06] (4). `H3[<class>]` names the H3 register item for that class (review before repair; mapped in `H3_TOKEN_MAP.csv`). All rows are blocked.
 
 ## Notes and open views
 

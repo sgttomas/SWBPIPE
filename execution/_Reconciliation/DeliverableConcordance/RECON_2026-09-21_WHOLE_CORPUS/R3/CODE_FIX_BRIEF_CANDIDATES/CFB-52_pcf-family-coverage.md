@@ -16,17 +16,17 @@ Reproducing filter: `CODE_FIX_ROWS.csv` where `CFB == "CFB-52"`. Each key below 
 
 | Key | Class | Authority | BlockedOnPacket | T8/T12 view | Remaining work (effective; OC = OtherCorrections) |
 |---|---|---|---|---|---|
-| `DEL-17-07:CONTEXT#description` | T6-C01 | NONE | — | — | Extend the exporter beyond the straight-pipe slice per the profile classification. |
+| `DEL-17-07:CONTEXT#description` | T6-C01 | NONE | A7 | — | Extend the exporter beyond the straight-pipe slice per the profile classification. |
 | `DEL-17-07:SOW#CLM-005` | T6-C01 | NONE | — | — | Add a per-family classification record to the PCF profile (or record that the loss report is the classification carrier) and reconcile the ordering clause with the lande… |
-| `DEL-17-07:SOW#CLM-014/DEL-17-07-REQ-013` | T6-C01 | NONE | — | — | Add per-family classification to the profile record for every plan-listed candidate family. |
+| `DEL-17-07:SOW#CLM-014/DEL-17-07-REQ-013` | T6-C01 | NONE | A7 | — | Add per-family classification to the profile record for every plan-listed candidate family. |
 | `DEL-17-07:SOW#CLM-016/DEL-17-07-REQ-034` | T6-C01 | NONE | C7 | T8 TIER_IN_SCOPE_REQ: NO_ACTION; DISAGREES (T8 NO_ACTION / class CODE_FIX_CANDIDATE) | Implement component mappings (bends, tees, reducers, flanges, valves) with approximation classification, or record their exclusion in the profile. |
 | `DEL-17-07:SOW#CLM-019` | T6-C01 | NONE | — | — | Add ambiguous/missing-unit negative tests and a coordinate-policy test once the profile is selected. |
 | `DEL-17-07:SOW#CLM-020` | T6-C01 | NONE | — | — | Convert the remaining coverage classes (units, coordinates and vertical axis, material provenance, component approximations) into tests. |
-| `DEL-17-07:SOW#CLM-021` | T6-C01 | NONE | — | — | Document fixture provenance and a per-class support table for the PCF profile. |
+| `DEL-17-07:SOW#CLM-021` | T6-C01 | NONE | C5 | — | Document fixture provenance and a per-class support table for the PCF profile. |
 | `DEL-17-07:SOW#CLM-028` | T6-C01 | NONE | — | — | Add per-family classification to the profile. |
-| `DEL-17-07:SOW#CLM-029` | T6-C01 | NONE | — | — | Represent each plan-listed family separately in the profile. |
+| `DEL-17-07:SOW#CLM-029` | T6-C01 | NONE | A7 | — | Represent each plan-listed family separately in the profile. |
 | `DEL-17-07:SOW#CLM-040` | T6-C01 | NONE | — | — | Extend the sidecar to omitted entities and loss rows, or record that loss affected_refs and diagnostic affected_object are the link. |
-| `DEL-17-07:SOW#purpose-and-objective-traceability/OUT-001` | T6-C01 | NONE | — | — | Extend mapping boundaries to the plan-listed families beyond straight pipe. |
+| `DEL-17-07:SOW#purpose-and-objective-traceability/OUT-001` | T6-C01 | NONE | A7 | — | Extend mapping boundaries to the plan-listed families beyond straight pipe. |
 
 ## Evidence
 
@@ -49,14 +49,15 @@ This brief quotes no protected, private or third-party content. Execution uses i
 
 ## BlockedOnPacket
 
-1 of 11 claim rows carry a block: C7 (1). `H3[<class>]` names the H3 register item for that class (review before repair). Unblocked rows may proceed separately once selected.
+6 of 11 claim rows carry a block: A7 (4); C5 (1); C7 (1). `H3[<class>]` names the H3 register item for that class (review before repair; mapped in `H3_TOKEN_MAP.csv`). Unblocked rows may proceed separately once selected.
 
 ## Notes and open views
 
-- "Plan-listed" refers to the deleted export plan; A7 decides whether it is restored, re-pointed or retired.
+- "Plan-listed" refers to the deleted export plan; A7 decides whether it is restored, re-pointed or retired. The four rows scoped to plan-listed families (REQ-013, CLM-029, OUT-001, CONTEXT#description) carry A7: without a plan they have no target set.
+- CLM-021 (document fixture provenance) carries C5, as C5 §5 and §9 ask.
 - REQ-034 is CP-11: T8 reads NO_ACTION, class reads CODE_FIX_CANDIDATE (C7).
 
 ## Dependencies
 
-A7, C7, C5 (context).
+A7, C7, C5.
 

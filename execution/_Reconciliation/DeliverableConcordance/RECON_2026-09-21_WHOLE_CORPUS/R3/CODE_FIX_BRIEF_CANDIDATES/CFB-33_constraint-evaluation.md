@@ -16,8 +16,8 @@ Reproducing filter: `CODE_FIX_ROWS.csv` where `CFB == "CFB-33"`. Each key below 
 
 | Key | Class | Authority | BlockedOnPacket | T8/T12 view | Remaining work (effective; OC = OtherCorrections) |
 |---|---|---|---|---|---|
-| `DEL-13-03:SOW#CLM-005.r04` | T6-C01 | NONE | — | T12 T12-C03: OWNER_DECISION | (none recorded; see Notes in ledger) |
-| `DEL-13-03:SOW#CLM-013.r01` | T6-C02 | NONE | — | — | Implement conflict evaluation (connectivity, clearance, route/no-go, support-zone, slope/drain/vent) over supplied geometry and user criteria, and wire the engine to a p… |
+| `DEL-13-03:SOW#CLM-005.r04` | T6-C01 | NONE | B9;A1 | T12 T12-C03: OWNER_DECISION | (none recorded; see Notes in ledger) |
+| `DEL-13-03:SOW#CLM-013.r01` | T6-C02 | NONE | B9;A1 | — | Implement conflict evaluation (connectivity, clearance, route/no-go, support-zone, slope/drain/vent) over supplied geometry and user criteria, and wire the engine to a p… |
 
 ## Evidence
 
@@ -40,14 +40,15 @@ This brief quotes no protected, private or third-party content. Execution uses i
 
 ## BlockedOnPacket
 
-None. No affected row's class or T8 reading needs an owner or review decision.
+2 of 2 claim rows carry a block: A1 (2); B9 (2). `H3[<class>]` names the H3 register item for that class (review before repair; mapped in `H3_TOKEN_MAP.csv`). All rows are blocked.
 
 ## Notes and open views
 
 - CLM-005.r04 is WEAK: the engine reading gives ALIGNED; only the F7/C6(a) path reading gives this remainder.
 - The runtime constraint stage is CFB-43.
+- Both rows carry B9: the product-caller-or-library choice is B9 option (a) against (b), and the T12-C03 reading of CLM-005.r04 is OWNER_DECISION. Both also carry A1, because the constraint engine is Python (`core/constraints/validation/engine.py`) and B9 option (a) needs A1 if the engines stay Python.
 
 ## Dependencies
 
-CFB-43.
+B9, A1, CFB-43.
 

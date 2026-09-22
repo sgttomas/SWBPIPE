@@ -4,7 +4,7 @@
 
 ## Scope
 
-Conform storage, rule-pack and library commands to the schema-first result/diagnostics envelope (they return typed receipts or a bare error string at the freeze), per AB-00-06 REQ-06-03 and DEL-00-03 REQ-03-02.
+Conform storage, rule-pack and library commands to the schema-first result/diagnostics envelope (they return typed receipts or a bare error string at the freeze), per AB-00-06 REQ-06-03 and DEL-00-03 REQ-03-02, or record the owner's exemption. Every row's RemainingWork begins "Decide whether"; that owner question is U6, placed with C1, and every row waits on it.
 
 ## Affected claims
 
@@ -16,10 +16,10 @@ Reproducing filter: `CODE_FIX_ROWS.csv` where `CFB == "CFB-14"`. Each key below 
 
 | Key | Class | Authority | BlockedOnPacket | T8/T12 view | Remaining work (effective; OC = OtherCorrections) |
 |---|---|---|---|---|---|
-| `DEL-00-03:AB#normative-requirements/REQ-03-02` | T6-C02 | NONE | — | — | Decide whether storage, rule-pack and library commands must return the diagnostics envelope; they now return typed receipts or a bare error string. |
-| `DEL-00-06:AB#normative-requirements/REQ-06-03` | T6-C02 | NONE | — | — | OC: decide whether storage, rule-pack and library commands must return the diagnostics envelope, or narrow REQ-06-03 |
-| `DEL-06-04:SOW#CLM-004.r05` | T6-C02 | NONE | — | — | Decide whether rule-pack commands must return the schema-first result envelope, then conform them or narrow the claim. |
-| `DEL-06-04:SOW#CLM-010/R-06-04-012` | T6-C02 | NONE | B10 | — | Decide whether rule-pack commands must return the schema-first envelope; bind any future rule-pack plugin execution to a governed dispatch path. |
+| `DEL-00-03:AB#normative-requirements/REQ-03-02` | T6-C02 | NONE | C1 | — | Decide whether storage, rule-pack and library commands must return the diagnostics envelope; they now return typed receipts or a bare error string. |
+| `DEL-00-06:AB#normative-requirements/REQ-06-03` | T6-C02 | NONE | C1 | — | OC: decide whether storage, rule-pack and library commands must return the diagnostics envelope, or narrow REQ-06-03 |
+| `DEL-06-04:SOW#CLM-004.r05` | T6-C02 | NONE | C1 | — | Decide whether rule-pack commands must return the schema-first result envelope, then conform them or narrow the claim. |
+| `DEL-06-04:SOW#CLM-010/R-06-04-012` | T6-C02 | NONE | B10;C1 | — | Decide whether rule-pack commands must return the schema-first envelope; bind any future rule-pack plugin execution to a governed dispatch path. |
 
 ## Evidence
 
@@ -33,8 +33,8 @@ Freeze line citations in Scope were re-read at the freeze (`00115c719`) by H2 as
 
 ## Acceptance checks
 
-- Each storage, rule-pack and library command returns the envelope, with a contract test per command family.
-- Error paths return envelope diagnostics, not bare strings.
+- If C1 (U6) rules conformance: each storage, rule-pack and library command returns the envelope, with a contract test per command family, and error paths return envelope diagnostics, not bare strings.
+- If C1 (U6) rules an exemption: the exemption is recorded against AB-00-06 REQ-06-03 and DEL-00-03 REQ-03-02 (record repair through H4; no code change), and the exempted commands are listed.
 - The affected ledger rows are re-verified in a later concordance; no ALIGNED status is claimed from this brief.
 
 ## Protected-content status
@@ -44,14 +44,14 @@ This brief quotes no protected, private or third-party content. Execution uses i
 
 ## BlockedOnPacket
 
-1 of 4 claim rows carry a block: B10 (1). `H3[<class>]` names the H3 register item for that class (review before repair). Unblocked rows may proceed separately once selected.
+4 of 4 claim rows carry a block: B10 (1); C1 (4). `H3[<class>]` names the H3 register item for that class (review before repair; mapped in `H3_TOKEN_MAP.csv`). All rows are blocked.
 
 ## Notes and open views
 
-- Owner alternative (FIRM OtherCorrections on DEL-00-06 REQ-06-03): exempt the storage commands from the envelope, which makes AuthorityNeeded OWNER. No packet carries this alternative; it is reported UNASSIGNED.
+- Owner alternative (FIRM OtherCorrections on DEL-00-06 REQ-06-03): exempt the storage commands from the envelope, which makes AuthorityNeeded OWNER. This is U6, which the gate index places with C1; all four rows carry C1.
 - DEL-06-04 R-06-04-012 also names binding future rule-pack plugin execution to a governed dispatch path (B10).
 
 ## Dependencies
 
-B10 (R-06-04-012 part).
+C1 (U6), B10 (R-06-04-012 part).
 

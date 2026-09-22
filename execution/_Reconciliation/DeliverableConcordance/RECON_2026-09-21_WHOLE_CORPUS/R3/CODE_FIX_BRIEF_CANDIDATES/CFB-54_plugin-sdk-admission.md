@@ -16,7 +16,7 @@ Reproducing filter: `CODE_FIX_ROWS.csv` where `CFB == "CFB-54"`. Each key below 
 
 | Key | Class | Authority | BlockedOnPacket | T8/T12 view | Remaining work (effective; OC = OtherCorrections) |
 |---|---|---|---|---|---|
-| `DEL-17-09:CONTEXT#description` | T6-C01 | NONE | — | — | Implement the runtime SDK surface under its owning deliverable, or restate the description to the admission contract. |
+| `DEL-17-09:CONTEXT#description` | T6-C01 | NONE | B10 | — | Implement the runtime SDK surface under its owning deliverable, or restate the description to the admission contract. |
 | `DEL-17-09:SOW#CLM-013/DEL-17-09-REQ-010` | T6-C01 | NONE | C7 | T8 TIER_IN_SCOPE_REQ: NO_ACTION; DISAGREES (T8 NO_ACTION / class CODE_FIX_CANDIDATE) | Add an external-execution policy and non-authoritative run-evidence record to the contract, or record that external execution is excluded. |
 | `DEL-17-09:SOW#CLM-027` | T6-C01 | NONE | — | — | Add an external execution policy field to registry records. |
 | `DEL-17-09:SOW#CLM-029` | T6-C01 | NONE | — | — | Align checklist categories with the eleven Step 5 topics or record why some are carried elsewhere. |
@@ -45,12 +45,13 @@ This brief quotes no protected, private or third-party content. Execution uses i
 
 ## BlockedOnPacket
 
-2 of 8 claim rows carry a block: B10 (1); C7 (1). `H3[<class>]` names the H3 register item for that class (review before repair). Unblocked rows may proceed separately once selected.
+3 of 8 claim rows carry a block: B10 (2); C7 (1). `H3[<class>]` names the H3 register item for that class (review before repair; mapped in `H3_TOKEN_MAP.csv`). Unblocked rows may proceed separately once selected.
 
 ## Notes and open views
 
 - STATUS R01 (runtime loader binding, candidate owners DEL-10-01/DEL-10-02) is an assignment, not code; it waits on B10.
 - REQ-010 is CP-11: T8 reads NO_ACTION (C7).
+- CONTEXT#description ("implement the runtime SDK surface") waits on the plugin runtime, B10, as the sibling STATUS R01 row does.
 - The quarantine/checklist taxonomy (PDU-034) is B10/B12 context.
 
 ## Dependencies

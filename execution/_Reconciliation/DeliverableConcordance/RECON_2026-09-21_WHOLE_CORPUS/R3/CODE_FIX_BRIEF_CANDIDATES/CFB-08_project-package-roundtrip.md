@@ -17,10 +17,10 @@ Reproducing filter: `CODE_FIX_ROWS.csv` where `CFB == "CFB-08"`. Each key below 
 | Key | Class | Authority | BlockedOnPacket | T8/T12 view | Remaining work (effective; OC = OtherCorrections) |
 |---|---|---|---|---|---|
 | `DEL-02-05:SOW#CLM-014/REQ-02-05-024` | T6-C01 | NONE | — | — | Add missing/private rule-pack reference diagnostics to envelope validation and a populated-reference round-trip fixture. |
-| `DEL-02-05:SOW#CLM-019.r04` | T6-C01 | NONE | — | — | (none recorded; see Notes in ledger) |
+| `DEL-02-05:SOW#CLM-019.r04` | T6-C01 | NONE | — | — | OC: FindingGroup FG-DEL-02-05-06; Notes add PRODUCT_CALLER: NONE (rule-pack reference diagnostics judged on REQ-02-05-024). |
 | `DEL-02-05:SOW#CLM-019.r06` | T6-C02 | NONE | — | — | Implement the explicit migrate-project operation (DEC-019 explicit-operation evidence) and restate the framework note. |
 | `DEL-02-05:SOW#CLM-022.r05` | T6-C01 | NONE | — | — | Add a populated rule-pack reference round-trip fixture and assertions. |
-| `DEL-02-05:SOW#CLM-030.r03` | T6-C01 | NONE | — | — | (none recorded; see Notes in ledger) |
+| `DEL-02-05:SOW#CLM-030.r03` | T6-C01 | NONE | — | — | OC: FindingGroup FG-DEL-02-05-06 (populated rule-pack round trip judged on CLM-030.r08). |
 | `DEL-02-05:SOW#CLM-030.r08` | T6-C01 | NONE | — | — | As DEL-02-05:SOW#CLM-022.r05. |
 | `DEL-02-05:STATUS#remaining/R03` | T6-C01 | NONE | — | — | Implement the H2 unification or record its deferral. |
 | `DEL-08-01:STATUS#remaining/R01` | T6-C02 | NONE | B12 | — | Define and implement the package compatibility-window/versioning policy (reader behaviour for other manifest schema versions). |
@@ -48,7 +48,7 @@ This brief quotes no protected, private or third-party content. Execution uses i
 
 ## BlockedOnPacket
 
-1 of 8 claim rows carry a block: B12 (1). `H3[<class>]` names the H3 register item for that class (review before repair). Unblocked rows may proceed separately once selected.
+1 of 8 claim rows carry a block: B12 (1). `H3[<class>]` names the H3 register item for that class (review before repair; mapped in `H3_TOKEN_MAP.csv`). Unblocked rows may proceed separately once selected.
 
 ## Notes and open views
 

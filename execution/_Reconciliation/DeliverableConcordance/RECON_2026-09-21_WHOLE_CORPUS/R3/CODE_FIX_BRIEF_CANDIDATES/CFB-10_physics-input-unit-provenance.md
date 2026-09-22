@@ -18,8 +18,8 @@ Reproducing filter: `CODE_FIX_ROWS.csv` where `CFB == "CFB-10"`. Each key below 
 |---|---|---|---|---|---|
 | `DEL-03-04:SOW#CLM-011/DEL-03-04-RQ-005` | T6-C03 | REVIEW | H3[T6-C03] | — | Add branch-specific unit tests (accepted, rejected and absent units) for run size, header size, connection angle and reinforcement area on the product path, or cite them… |
 | `DEL-03-08:SOW#CLM-011/DEL-03-08-RQ-003` | T6-C03 | REVIEW | H3[T6-C03] | — | Check each input unit against its declared dimension (for example through the DEC-018 catalog in core/units) instead of string equality alone. |
-| `DEL-03-08:SOW#CLM-011/DEL-03-08-RQ-004` | T6-C03 | REVIEW | H3[T6-C03] | — | Require redistribution_status in input provenance and propagate input provenance to derived outputs, or narrow the requirement. |
-| `DEL-03-08:SOW#CLM-026` | T6-C03 | REVIEW | H3[T6-C03] | — | Add a redistribution-status check on inputs, or narrow the principle. |
+| `DEL-03-08:SOW#CLM-011/DEL-03-08-RQ-004` | T6-C03 | REVIEW | H3[T6-C03];C1 | — | Require redistribution_status in input provenance and propagate input provenance to derived outputs, or narrow the requirement. |
+| `DEL-03-08:SOW#CLM-026` | T6-C03 | REVIEW | H3[T6-C03];C1 | — | Add a redistribution-status check on inputs, or narrow the principle. |
 
 ## Evidence
 
@@ -39,20 +39,20 @@ Freeze line citations in Scope were re-read at the freeze (`00115c719`) by H2 as
 
 ## Protected-content status
 
-Protected subject: 4 of 4 rows are at INVARIANT tier or carry protected layers (BASELINE, IP_DATA, VALIDATION). An independent review of any repair is required before reliance. 
+Protected subject: 4 of 4 rows are at INVARIANT tier or carry an IP_DATA, CLAIMS or SECURITY layer (row layers: BASELINE, IP_DATA, VALIDATION). An independent review of any repair is required before reliance. 
 This brief quotes no protected, private or third-party content. Execution uses invented or synthetic fixtures only and introduces no standards text, tables or equation sources (DEC-043).
 
 ## BlockedOnPacket
 
-4 of 4 claim rows carry a block: H3[T6-C03] (4). `H3[<class>]` names the H3 register item for that class (review before repair). All rows are blocked.
+4 of 4 claim rows carry a block: C1 (2); H3[T6-C03] (4). `H3[<class>]` names the H3 register item for that class (review before repair; mapped in `H3_TOKEN_MAP.csv`). All rows are blocked.
 
 ## Notes and open views
 
-- Narrowing branches (DEL-03-08 CLM-026 and RQ-004 "or narrow") restate an INVARIANT and are not deliverable-local; they are owner items (UNASSIGNED in the H2 return).
+- Narrowing branches (DEL-03-08 CLM-026 and RQ-004 "or narrow") restate an INVARIANT and are not deliverable-local; they are owner items: U5, placed with C1. Both rows carry C1.
 - DEL-03-08 ownership against the product-physics owner is B1 (PHYS-007); the fix lands wherever B1 places it.
 - CONTESTED: DEL-03-04 RQ-005 (VALIDATION vs BASELINE layer).
 
 ## Dependencies
 
-H3[T6-C03], B1.
+H3[T6-C03], C1 (U5), B1.
 

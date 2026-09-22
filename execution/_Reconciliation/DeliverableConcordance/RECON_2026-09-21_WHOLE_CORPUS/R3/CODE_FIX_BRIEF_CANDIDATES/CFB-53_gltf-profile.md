@@ -48,13 +48,13 @@ This brief quotes no protected, private or third-party content. Execution uses i
 
 ## BlockedOnPacket
 
-None. No affected row's class or T8 reading needs an owner or review decision.
+None. No affected row's class or T8/T12 reading needs an owner or review decision.
 
 ## Notes and open views
 
-- "Plan-listed" families depend on A7. glTF fixture provenance is C5.
+- No DEL-17-08 row cites the deleted export plan in its ledger text; the per-family classification is against the selected JSON glTF profile, so an A7 ruling does not change these rows' scope. A7 stays context. glTF fixture provenance is C5 (context).
 
 ## Dependencies
 
-A7, C5 (context).
+A7 (context), C5 (context).
 

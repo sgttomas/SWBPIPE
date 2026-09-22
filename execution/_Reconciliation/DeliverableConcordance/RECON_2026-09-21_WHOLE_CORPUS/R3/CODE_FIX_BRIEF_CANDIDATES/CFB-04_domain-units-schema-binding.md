@@ -19,7 +19,7 @@ Reproducing filter: `CODE_FIX_ROWS.csv` where `CFB == "CFB-04"`. Each key below 
 | `DEL-02-01:SOW#CLM-019` | T6-C01 | NONE | — | — | Add a provenance manifest for the fixtures/domain examples and refresh the stored fixtures to the typed LoadRecord shape so they validate as committed; reword 'eventual… |
 | `DEL-02-02:SOW#CLM-014/U-001` | T6-C02 | NONE | — | — | Bind schema-level unit strings to the core/units catalog (or validate unit/dimension consistency at the schema boundary) and trace the remaining import/export paths. |
 | `DEL-02-02:SOW#CLM-018` | T6-C01 | NONE | B12 | — | Add the schema-location and diagnostic-code decision records when decided, and update SPEC section 4 so it no longer gates conversion constants that DEC-018 accepted. |
-| `DEL-02-02:SOW#CLM-020` | T6-C01 | NONE | — | — | (none recorded; see Notes in ledger) |
+| `DEL-02-02:SOW#CLM-020` | T6-C01 | NONE | — | — | OC: literal DimensionId sets remain in `core/gui/pkg02_boundary.py:10`, `core/constraints/validation/engine.py:64`, `core/model_transform/physical_to_analytical/contract.py:34`; derive them from the units schema vocabulary. |
 
 ## Evidence
 
@@ -44,7 +44,7 @@ This brief quotes no protected, private or third-party content. Execution uses i
 
 ## BlockedOnPacket
 
-1 of 4 claim rows carry a block: B12 (1). `H3[<class>]` names the H3 register item for that class (review before repair). Unblocked rows may proceed separately once selected.
+1 of 4 claim rows carry a block: B12 (1). `H3[<class>]` names the H3 register item for that class (review before repair; mapped in `H3_TOKEN_MAP.csv`). Unblocked rows may proceed separately once selected.
 
 ## Notes and open views
 

@@ -16,7 +16,7 @@ Reproducing filter: `CODE_FIX_ROWS.csv` where `CFB == "CFB-15"`. Each key below 
 
 | Key | Class | Authority | BlockedOnPacket | T8/T12 view | Remaining work (effective; OC = OtherCorrections) |
 |---|---|---|---|---|---|
-| `DEL-06-01:SOW#CLM-011/REQ-06-01-011` | T6-C03 | REVIEW | H3[T6-C03] | — | Add a schema conditional (public_invented_example privacy class requires invented_non_engineering_example redistribution and a notice), or record that the DEL-06-05 exam… |
+| `DEL-06-01:SOW#CLM-011/REQ-06-01-011` | T6-C03 | REVIEW | H3[T6-C03];C1 | — | Add a schema conditional (public_invented_example privacy class requires invented_non_engineering_example redistribution and a notice), or record that the DEL-06-05 exam… |
 | `DEL-06-02:SOW#CLM-006.r05` | T6-C03 | REVIEW | H3[T6-C03];B10 | — | Bind any adapter or plugin invocation of the evaluator to a governed runtime dispatch path with no-bypass tests (Remaining R03) |
 | `DEL-06-02:SOW#CLM-013/REQ-06-02-010` | T6-C03 | REVIEW | H3[T6-C03];B10 | — | Bind any adapter or plugin evaluator invocation to a governed runtime dispatch path with no-bypass tests (Remaining R03) |
 | `DEL-06-02:SOW#CLM-013/REQ-06-02-011` | T6-C03 | REVIEW | H3[T6-C03] | — | Add the public-example protected-content test family and evaluator plugin/adapter bypass-attempt tests (Remaining R01) |
@@ -45,19 +45,19 @@ Freeze line citations in Scope were re-read at the freeze (`00115c719`) by H2 as
 
 ## Protected-content status
 
-Protected subject: 8 of 9 rows are at INVARIANT tier or carry protected layers (IP_DATA, SECURITY). An independent review of any repair is required before reliance. 
+Protected subject: 8 of 9 rows are at INVARIANT tier or carry an IP_DATA, CLAIMS or SECURITY layer (row layers: IP_DATA, SECURITY). An independent review of any repair is required before reliance. 
 This brief quotes no protected, private or third-party content. Execution uses invented or synthetic fixtures only and introduces no standards text, tables or equation sources (DEC-043).
 
 ## BlockedOnPacket
 
-8 of 9 claim rows carry a block: B10 (3); H3[T6-C03] (8). `H3[<class>]` names the H3 register item for that class (review before repair). Unblocked rows may proceed separately once selected.
+8 of 9 claim rows carry a block: B10 (3); C1 (1); H3[T6-C03] (8). `H3[<class>]` names the H3 register item for that class (review before repair; mapped in `H3_TOKEN_MAP.csv`). Unblocked rows may proceed separately once selected.
 
 ## Notes and open views
 
 - The three CP-11 no-bypass rows hold only because no dispatch path exists; they wait on B10.
-- DEL-06-01 REQ-06-01-011 "or record/narrow" restates an INVARIANT; narrowing is an owner item (UNASSIGNED in the H2 return).
+- DEL-06-01 REQ-06-01-011 "or record/narrow" restates an INVARIANT; narrowing is an owner item: U5, placed with C1. The row carries C1.
 
 ## Dependencies
 
-H3[T6-C03], B10.
+H3[T6-C03], C1 (U5), B10.
 
