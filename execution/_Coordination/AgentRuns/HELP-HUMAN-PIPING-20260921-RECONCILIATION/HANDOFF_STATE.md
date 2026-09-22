@@ -22,31 +22,30 @@ A cold session starts here. Read in order: this file, `OWNER_DIRECTIONS.md`,
   `_run_records/returns/R2-W3-CLOSE-REVIEW_return.md` (PASS at backcheck 1).
   Launch messages are in `_run_records/launches/`; manager records in
   `_run_records/<WAVE>-<PKG>-MANAGER/`.
+- R2 merged to `main` (PR #842, merge `dfcce81e4`).
+- R3 and R4 drafts are complete on branch `claude/piping-recon-r3-20260922`:
+  the deterministic tables (`tools/synthesize_r3.py`,
+  `tools/index_r3_classes.py`, both with `--check`), 14 verified analyses in
+  `RUN/R3/TASKS/`, `R3_SYNTHESIS.md`, `COVERAGE_AND_QA.md`, 29 decision
+  packets in `RUN/R4/DECISION_PACKETS/`, the four handoffs (H1 scope change,
+  H2 code-fix, H3 engineering and review, H4 R5 tranches) and the integration
+  record `RUN/R4/R4_GATE_INDEX.md` (owner-row coverage by
+  `tools/check_r4_coverage.py`).
 - Verbatim review returns moved from `returns/` to `_run_records/returns/`
   (RELOCATE event); older records, including the D-73 ruling record, cite the
   old path.
 
 ## Next actions
 
-Status (2026-09-22): R2 closed; R2 PR to `main` next, then R3.
+Status (2026-09-22): R3/R4 drafted and integrated; independent review next.
 
-1. Open the R2 PR from this branch; merge under the standing Git
-   authorization once required CI passes (the independent reviews cover the
-   candidate: R2-AMEND, R2-W2-GATE, R2-W3-CLOSE).
-2. R3 synthesis (writes only in the run folder), from the sealed ledgers read
-   with the four adopted resolutions files
-   (`WAVES/CROSS_WAVE/ALL_WAVES_RESOLUTIONS_COMBINED.csv`):
-   final unmapped capability set, duplicate ownership, stale evidence,
-   Remaining and lifecycle defects, clustering of non-aligned claims by cause
-   and tier; resolve the contested corpus clusters listed in
-   `W3_ASSESSMENT.md` (SR-1, DEC-009, unit vocabulary, F1 on CONTEXT, export
-   plan, in-scope REQ tier, acceptance-workflow cause) or route them to R4;
-   method notes (the `.sNN` batch blind spot); separate scope-change,
-   code-fix-candidate and engineering-authority outputs.
-3. R3/R4 PR with independent review, then the R4 owner gate (owner items in
-   `W2_GATE_ASSESSMENT.md` and `W3_ASSESSMENT.md`, plus SEMANTIC_READY status
-   advance, rerun-rule reading, PKG-12 post-gate question). R5/R6 need a
-   separate owner authorization.
+1. Fresh independent review of the R3/R4 set, with backchecks until no
+   blocking finding remains.
+2. Open the R3/R4 PR from this branch; merge under the standing Git
+   authorization once required CI passes.
+3. Hold the R4 owner gate: the owner rules the packets in the order suggested
+   in `R4_GATE_INDEX.md` §6, including the ten placed items U1–U10. The run
+   stops at R4. R5/R6 need a separate owner authorization.
 
 ## Departures from the approved plan
 

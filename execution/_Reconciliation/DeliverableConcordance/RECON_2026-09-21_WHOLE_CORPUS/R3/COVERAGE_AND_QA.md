@@ -150,7 +150,37 @@ independent review.
     a cross-check (T10). It predates the July R5 repairs, and its claim grain
     is about four times coarser. Its figures are not comparable one-for-one.
 
-## 4. Containment
+## 4. R4 integration coverage
+
+Seven drafters (P1–P3, H1–H4) turned the classes into 29 decision packets and
+four handoffs. `R4/R4_GATE_INDEX.md` is the integration record.
+
+- **Owner rows.** `tools/check_r4_coverage.py` places every one of the 444
+  OWNER_DECISION rows in exactly one packet and checks all 24 stated portions
+  (`R4/PACKET_CLAIMS.csv`, with a `--check` mode). Seven classes are split
+  across packets. Three of them were not on the topic file's split list;
+  each still splits cleanly.
+- **Other routes.** Agent 0 checked each handoff at its return:
+  - H4 carries every R5 class row once.
+  - H2 carries every code-fix class row once.
+  - H3 names every class routed to review or engineering, or carrying review
+    authority.
+  - H1 carries all 227 capabilities that need a scope action, and all 17
+    T6-C07 rows.
+- **Placeholders.** H2 and H4 name H3 review items by class. They map to H3
+  item IDs through the two `H3_TOKEN_MAP.csv` files.
+- **Limits specific to R4.**
+  - The keys ER-15 and ER-16 mark as waiting on A5 and C7 come from a keyword
+    filter. They are a lower bound.
+  - The W3 millimetre item (W3-PC-03) was never confirmed by a verifier.
+  - The capability-side record repair for 84 T1–T3 capabilities runs through
+    H1, not H4.
+  - Ten items were found on no topic list (U1–U10). They are placed by
+    proposal, not drafted (gate index §4).
+  - Rows in the deliberate dual views (gate index §3) appear in both a packet
+    and a handoff.
+
+## 5. Containment
 
 - Through R3, the run wrote only in the run folder and the orchestration
   record.
