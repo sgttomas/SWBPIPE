@@ -1,0 +1,3 @@
+# cmd: PYTHONDONTWRITEBYTECODE=1 python3 tools/validate_ledger_v2.py --run-dir . --repo-root /Users/ryan/dev/chirality/.claude/worktrees/task-management-gen-pass-518da2 --deliverable DEL-09-04 --forward WAVES/W3/PKG-09/DEL-09-04/DEL-09-04_forward.csv --reverse WAVES/W3/PKG-09/DEL-09-04/DEL-09-04_reverse.csv --inventory ROUTING/PKG-09_capabilities.csv --notes-gap
+PASS DEL-09-04: 68 forward rows, 67 required keys, 7 canonical, 0 findings
+# exit: 0
