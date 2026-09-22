@@ -1,0 +1,112 @@
+[
+  {
+    "command": [
+      "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+      "tools/validation/validate_dependencies_schema.py",
+      "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/DependencyEdges.csv"
+    ],
+    "exit_code": 0,
+    "stdout": "VALID: projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/DependencyEdges.csv\n  Columns: 31 (29 required + 2 extension)\n  Data rows: 1571\n  Extensions: EstimateImpactClass, ConsumerHint\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+      "tools/validation/validate_dependencies_schema.py",
+      "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-04-07/Dependencies.csv"
+    ],
+    "exit_code": 0,
+    "stdout": "VALID: projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-04-07/Dependencies.csv\n  Columns: 31 (29 required + 2 extension)\n  Data rows: 24\n  Extensions: EstimateImpactClass, ConsumerHint\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+      "tools/validation/validate_dependencies_schema.py",
+      "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-01/Dependencies.csv"
+    ],
+    "exit_code": 0,
+    "stdout": "VALID: projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-01/Dependencies.csv\n  Columns: 29 (29 required + 0 extension)\n  Data rows: 20\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+      "tools/validation/validate_dependencies_schema.py",
+      "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-03/Dependencies.csv"
+    ],
+    "exit_code": 0,
+    "stdout": "VALID: projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-03/Dependencies.csv\n  Columns: 29 (29 required + 0 extension)\n  Data rows: 20\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+      "tools/validation/validate_dependencies_schema.py",
+      "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-04/Dependencies.csv"
+    ],
+    "exit_code": 0,
+    "stdout": "VALID: projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-04/Dependencies.csv\n  Columns: 29 (29 required + 0 extension)\n  Data rows: 18\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+      "tools/validation/validate_dependencies_schema.py",
+      "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-08/Dependencies.csv"
+    ],
+    "exit_code": 0,
+    "stdout": "VALID: projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-08/Dependencies.csv\n  Columns: 29 (29 required + 0 extension)\n  Data rows: 30\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+      "tools/validation/validate_dependencies_schema.py",
+      "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-11/Dependencies.csv"
+    ],
+    "exit_code": 0,
+    "stdout": "VALID: projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-11/Dependencies.csv\n  Columns: 31 (29 required + 2 extension)\n  Data rows: 12\n  Extensions: EstimateImpactClass, ConsumerHint\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+      "tools/validation/validate_dependencies_schema.py",
+      "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-12/Dependencies.csv"
+    ],
+    "exit_code": 0,
+    "stdout": "VALID: projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-12/Dependencies.csv\n  Columns: 31 (29 required + 2 extension)\n  Data rows: 26\n  Extensions: EstimateImpactClass, ConsumerHint\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+      "tools/validation/validate_dependencies_schema.py",
+      "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-08-04/Dependencies.csv"
+    ],
+    "exit_code": 0,
+    "stdout": "VALID: projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-08-04/Dependencies.csv\n  Columns: 29 (29 required + 0 extension)\n  Data rows: 23\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+      "tools/validation/validate_dependencies_schema.py",
+      "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-16-03/Dependencies.csv"
+    ],
+    "exit_code": 0,
+    "stdout": "VALID: projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-16-03/Dependencies.csv\n  Columns: 29 (29 required + 0 extension)\n  Data rows: 17\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+      "tools/validation/validate_dependencies_schema.py",
+      "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-16-06/Dependencies.csv"
+    ],
+    "exit_code": 0,
+    "stdout": "VALID: projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-16-06/Dependencies.csv\n  Columns: 31 (29 required + 2 extension)\n  Data rows: 12\n  Extensions: EstimateImpactClass, ConsumerHint\n",
+    "stderr": ""
+  }
+]

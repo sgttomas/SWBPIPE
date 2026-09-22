@@ -1,0 +1,309 @@
+{
+  "status": "PROPOSED_NOT_ADOPTED",
+  "application": "Owning TASK must backcheck candidate source documents and local baselines before application; this is an exact preview, not execution of dependency-extract or graph activation.",
+  "files": [
+    {
+      "deliverable": "DEL-04-07",
+      "candidate": "execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-04-07/Dependencies.csv",
+      "proposed_landing": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+      "sha256": "33991044b75f09fc40726f271cbce0ba5c6f2678c11eb9e10f3e1a05494ef633",
+      "baseline_sha256": null,
+      "baseline_csv_rows": 0,
+      "added_rows": 24,
+      "baseline_csv_bytes_preserved": null
+    },
+    {
+      "deliverable": "DEL-04-07",
+      "candidate": "execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-04-07/_DEPENDENCIES.md",
+      "proposed_landing": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_DEPENDENCIES.md",
+      "sha256": "2cde7ad5955c17c26aa86747e87c77768a4b8138a9453410f438efa775a76c56",
+      "baseline_sha256": null,
+      "baseline_csv_rows": 0,
+      "added_rows": 24,
+      "baseline_csv_bytes_preserved": null
+    },
+    {
+      "deliverable": "DEL-07-01",
+      "candidate": "execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-01/Dependencies.csv",
+      "proposed_landing": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/Dependencies.csv",
+      "sha256": "96ffe738a7255e2e1473350ae83990bbf158f25a7a2eb74db1909026e7acf675",
+      "baseline_sha256": "f9ca09f503126374b8c3645b054f66da373008e1c9d4d90bc970a12b5dbd2128",
+      "baseline_csv_rows": 18,
+      "added_rows": 2,
+      "baseline_csv_bytes_preserved": true
+    },
+    {
+      "deliverable": "DEL-07-01",
+      "candidate": "execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-01/_DEPENDENCIES.md",
+      "proposed_landing": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_DEPENDENCIES.md",
+      "sha256": "8951875e30f11f5ff96eec124465fac13c8e48696fab5ca7a10af1d03db57f78",
+      "baseline_sha256": "aca9b0fd630d087a80fef307c3e7a649fd8c122c506b9304547d3d395560c77b",
+      "baseline_csv_rows": 18,
+      "added_rows": 2,
+      "baseline_csv_bytes_preserved": null
+    },
+    {
+      "deliverable": "DEL-07-03",
+      "candidate": "execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-03/Dependencies.csv",
+      "proposed_landing": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/Dependencies.csv",
+      "sha256": "235fdd05a69b1ef2dddf4896861a80ba72f79b26cf1267347a8b37d0ab7545da",
+      "baseline_sha256": "c511f8ea8ec13ac94133d6f5d8c98bbece580a216ace03c269fdfd15ed4c2457",
+      "baseline_csv_rows": 17,
+      "added_rows": 3,
+      "baseline_csv_bytes_preserved": true
+    },
+    {
+      "deliverable": "DEL-07-03",
+      "candidate": "execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-03/_DEPENDENCIES.md",
+      "proposed_landing": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_DEPENDENCIES.md",
+      "sha256": "924dd5457a682447199445421c3c744b6a6a35c4da8917cea0d00d086b533a1f",
+      "baseline_sha256": "3c4f690336d4887915eff36de009667b238049f6d657bbdb6c5bf97a3b6e73c8",
+      "baseline_csv_rows": 17,
+      "added_rows": 3,
+      "baseline_csv_bytes_preserved": null
+    },
+    {
+      "deliverable": "DEL-07-04",
+      "candidate": "execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-04/Dependencies.csv",
+      "proposed_landing": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/Dependencies.csv",
+      "sha256": "b703f15c4b5537b1c1d282c633e6d15f0b401f5afbd9d765fe01049413d6fc0a",
+      "baseline_sha256": "0b307842d3b209a95a7f492daa15977e963e31534bb6fc3fa01ebbd383cec388",
+      "baseline_csv_rows": 16,
+      "added_rows": 2,
+      "baseline_csv_bytes_preserved": true
+    },
+    {
+      "deliverable": "DEL-07-04",
+      "candidate": "execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-04/_DEPENDENCIES.md",
+      "proposed_landing": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_DEPENDENCIES.md",
+      "sha256": "d0c053fb3fff385b0a133b6314b676feffa4893034b38ba09a40d0bb7bb2c7fe",
+      "baseline_sha256": "ab51030b0600335328f87186c6a4283e6b94640f3d7ef0df0506c08be7694065",
+      "baseline_csv_rows": 16,
+      "added_rows": 2,
+      "baseline_csv_bytes_preserved": null
+    },
+    {
+      "deliverable": "DEL-07-08",
+      "candidate": "execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-08/Dependencies.csv",
+      "proposed_landing": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/Dependencies.csv",
+      "sha256": "f86596be336d47ec64e010d9d0877034e86922f089e50a56317a86b4d96937fc",
+      "baseline_sha256": "32e03014d98267609eae94c680b02968308bbabf1f8651f1afcb4a83ac19712b",
+      "baseline_csv_rows": 29,
+      "added_rows": 1,
+      "baseline_csv_bytes_preserved": true
+    },
+    {
+      "deliverable": "DEL-07-08",
+      "candidate": "execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-08/_DEPENDENCIES.md",
+      "proposed_landing": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_DEPENDENCIES.md",
+      "sha256": "39f866255ac2d405ed1d8fa3139d0a121251457c3f3e67eafa606f49726e80fb",
+      "baseline_sha256": "bd4c05544afba6bebeef652bfb3c41e758b914f022aada18358b44a3d6369500",
+      "baseline_csv_rows": 29,
+      "added_rows": 1,
+      "baseline_csv_bytes_preserved": null
+    },
+    {
+      "deliverable": "DEL-07-11",
+      "candidate": "execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-11/Dependencies.csv",
+      "proposed_landing": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+      "sha256": "32ab9b56319a60ba1daade4eb6e9b674943b52acecdc1be2f5aa3a8a5c6087e9",
+      "baseline_sha256": null,
+      "baseline_csv_rows": 0,
+      "added_rows": 12,
+      "baseline_csv_bytes_preserved": null
+    },
+    {
+      "deliverable": "DEL-07-11",
+      "candidate": "execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-11/_DEPENDENCIES.md",
+      "proposed_landing": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_DEPENDENCIES.md",
+      "sha256": "df44f0ca3ef1c9a5963ed265c5c0458a3bb2525067f8e5b0da1c7f974c3c2e0f",
+      "baseline_sha256": null,
+      "baseline_csv_rows": 0,
+      "added_rows": 12,
+      "baseline_csv_bytes_preserved": null
+    },
+    {
+      "deliverable": "DEL-07-12",
+      "candidate": "execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-12/Dependencies.csv",
+      "proposed_landing": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+      "sha256": "fc0913c55445110c0622ba6cf8941dd71d5d0c6ae0910c3af57ee5ee99141112",
+      "baseline_sha256": null,
+      "baseline_csv_rows": 0,
+      "added_rows": 26,
+      "baseline_csv_bytes_preserved": null
+    },
+    {
+      "deliverable": "DEL-07-12",
+      "candidate": "execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-12/_DEPENDENCIES.md",
+      "proposed_landing": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_DEPENDENCIES.md",
+      "sha256": "208897b25226d7ee44b26a8e60d18161d60edff1b698706de86e1a01aa559ed8",
+      "baseline_sha256": null,
+      "baseline_csv_rows": 0,
+      "added_rows": 26,
+      "baseline_csv_bytes_preserved": null
+    },
+    {
+      "deliverable": "DEL-08-04",
+      "candidate": "execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-08-04/Dependencies.csv",
+      "proposed_landing": "execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/Dependencies.csv",
+      "sha256": "2c85a3bcec76f691c959e2fd4d97f3f23263f32fd44f7112f764a031cc42c2d4",
+      "baseline_sha256": "c56771246ea1fdadd5a25d567386118e1b34eef6d394942fbae4171191841a85",
+      "baseline_csv_rows": 22,
+      "added_rows": 1,
+      "baseline_csv_bytes_preserved": true
+    },
+    {
+      "deliverable": "DEL-08-04",
+      "candidate": "execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-08-04/_DEPENDENCIES.md",
+      "proposed_landing": "execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_DEPENDENCIES.md",
+      "sha256": "3e3af5af61356717281689ce6309eaf84094bf172bdfca178ce3fd2176d807ba",
+      "baseline_sha256": "a4d30ec617ed95dc37d92ec256fefddaddeee64d0820c3158d2aa848b845d8d5",
+      "baseline_csv_rows": 22,
+      "added_rows": 1,
+      "baseline_csv_bytes_preserved": null
+    },
+    {
+      "deliverable": "DEL-16-03",
+      "candidate": "execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-16-03/Dependencies.csv",
+      "proposed_landing": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/Dependencies.csv",
+      "sha256": "52db83caf551c046b66de8380d4fdac9cd08aae3f3b4a2dbaa6b13b4c610af32",
+      "baseline_sha256": "3f9a2038f2fe330d13bf4c3d16cd31e557f0c70ec0e2081b25716fbfb16a04af",
+      "baseline_csv_rows": 16,
+      "added_rows": 1,
+      "baseline_csv_bytes_preserved": true
+    },
+    {
+      "deliverable": "DEL-16-03",
+      "candidate": "execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-16-03/_DEPENDENCIES.md",
+      "proposed_landing": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_DEPENDENCIES.md",
+      "sha256": "98ff87e4626113da264a7d60a084b9948463319aa681c3c63dfe4b32dab3d0e7",
+      "baseline_sha256": "d000578237e3935a433bc881721c1c0fc8c1fff1f058279a898bf2ca86df222a",
+      "baseline_csv_rows": 16,
+      "added_rows": 1,
+      "baseline_csv_bytes_preserved": null
+    },
+    {
+      "deliverable": "DEL-16-06",
+      "candidate": "execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-16-06/Dependencies.csv",
+      "proposed_landing": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+      "sha256": "187cc2f09189c80c1ea18ea32e92e2d6fbaae98e4df13bd07daf7179100f94aa",
+      "baseline_sha256": null,
+      "baseline_csv_rows": 0,
+      "added_rows": 12,
+      "baseline_csv_bytes_preserved": null
+    },
+    {
+      "deliverable": "DEL-16-06",
+      "candidate": "execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-16-06/_DEPENDENCIES.md",
+      "proposed_landing": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_DEPENDENCIES.md",
+      "sha256": "1a0fd4e587c5f2726963b9c9f5459523ebea74e258d4d52f9fa6fc8bec3227d7",
+      "baseline_sha256": null,
+      "baseline_csv_rows": 0,
+      "added_rows": 12,
+      "baseline_csv_bytes_preserved": null
+    }
+  ],
+  "conditional_promotion_manifest": "LOCAL_MIRRORS_PROMOTION.json",
+  "conditional_group2_group3_hashes": {
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_DEPENDENCIES.md": {
+      "candidate_sha256": "2cde7ad5955c17c26aa86747e87c77768a4b8138a9453410f438efa775a76c56",
+      "applied_sha256": "41fb1fd8582391fab88f4e411647ba6e2581e747cb1b7453f659f765e3790137",
+      "accepted_sha256": "64692bf0940994f35459f096ae74b8ee9dbbad134fa695d335dac584fd5b0cf7"
+    },
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv": {
+      "candidate_sha256": "33991044b75f09fc40726f271cbce0ba5c6f2678c11eb9e10f3e1a05494ef633",
+      "applied_sha256": "33991044b75f09fc40726f271cbce0ba5c6f2678c11eb9e10f3e1a05494ef633",
+      "accepted_sha256": "33991044b75f09fc40726f271cbce0ba5c6f2678c11eb9e10f3e1a05494ef633"
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_DEPENDENCIES.md": {
+      "candidate_sha256": "8951875e30f11f5ff96eec124465fac13c8e48696fab5ca7a10af1d03db57f78",
+      "applied_sha256": "aa3259fe8008ebb5d296f493df4ca3db38f2eccd4191788fb59f9924c6b197bb",
+      "accepted_sha256": "57c9e4f8b8d0545f04906d76212ba801268078df47cb7e1a98337a58c5b01785"
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/Dependencies.csv": {
+      "candidate_sha256": "96ffe738a7255e2e1473350ae83990bbf158f25a7a2eb74db1909026e7acf675",
+      "applied_sha256": "96ffe738a7255e2e1473350ae83990bbf158f25a7a2eb74db1909026e7acf675",
+      "accepted_sha256": "96ffe738a7255e2e1473350ae83990bbf158f25a7a2eb74db1909026e7acf675"
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_DEPENDENCIES.md": {
+      "candidate_sha256": "924dd5457a682447199445421c3c744b6a6a35c4da8917cea0d00d086b533a1f",
+      "applied_sha256": "3f762c2476601232f60e7d8cfb65823adf6949f4910f3482ff25909a505eb5b0",
+      "accepted_sha256": "4030082a1a3254543eb1cba2c21033e723a284eca915fe8f693af9d1122c5968"
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/Dependencies.csv": {
+      "candidate_sha256": "235fdd05a69b1ef2dddf4896861a80ba72f79b26cf1267347a8b37d0ab7545da",
+      "applied_sha256": "235fdd05a69b1ef2dddf4896861a80ba72f79b26cf1267347a8b37d0ab7545da",
+      "accepted_sha256": "235fdd05a69b1ef2dddf4896861a80ba72f79b26cf1267347a8b37d0ab7545da"
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_DEPENDENCIES.md": {
+      "candidate_sha256": "d0c053fb3fff385b0a133b6314b676feffa4893034b38ba09a40d0bb7bb2c7fe",
+      "applied_sha256": "ebff060030a7677540715c72dcf3a0cc3eeead13c64456d7828214c00facb07a",
+      "accepted_sha256": "55abb06edb4da316b16ad89b55d733489b6e809df214628ae1f4bebcacae2b5e"
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/Dependencies.csv": {
+      "candidate_sha256": "b703f15c4b5537b1c1d282c633e6d15f0b401f5afbd9d765fe01049413d6fc0a",
+      "applied_sha256": "b703f15c4b5537b1c1d282c633e6d15f0b401f5afbd9d765fe01049413d6fc0a",
+      "accepted_sha256": "b703f15c4b5537b1c1d282c633e6d15f0b401f5afbd9d765fe01049413d6fc0a"
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_DEPENDENCIES.md": {
+      "candidate_sha256": "39f866255ac2d405ed1d8fa3139d0a121251457c3f3e67eafa606f49726e80fb",
+      "applied_sha256": "b70001828d35be35c361986d25e1eedb18fe7c65761f21de1cdf9da0befd1242",
+      "accepted_sha256": "3acef4c11ea9f395e11c6695033bcd13e596b619f746dee5f7dccdd203f82ad9"
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/Dependencies.csv": {
+      "candidate_sha256": "f86596be336d47ec64e010d9d0877034e86922f089e50a56317a86b4d96937fc",
+      "applied_sha256": "f86596be336d47ec64e010d9d0877034e86922f089e50a56317a86b4d96937fc",
+      "accepted_sha256": "f86596be336d47ec64e010d9d0877034e86922f089e50a56317a86b4d96937fc"
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_DEPENDENCIES.md": {
+      "candidate_sha256": "df44f0ca3ef1c9a5963ed265c5c0458a3bb2525067f8e5b0da1c7f974c3c2e0f",
+      "applied_sha256": "9c48a6692db909a1b89e61db60e88ef414bf63dec5909865df8b38d3057cca01",
+      "accepted_sha256": "64e9581af1f97846322b2abdf46debccaa90b8b65375dad6595f270450af8b7f"
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv": {
+      "candidate_sha256": "32ab9b56319a60ba1daade4eb6e9b674943b52acecdc1be2f5aa3a8a5c6087e9",
+      "applied_sha256": "32ab9b56319a60ba1daade4eb6e9b674943b52acecdc1be2f5aa3a8a5c6087e9",
+      "accepted_sha256": "32ab9b56319a60ba1daade4eb6e9b674943b52acecdc1be2f5aa3a8a5c6087e9"
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_DEPENDENCIES.md": {
+      "candidate_sha256": "208897b25226d7ee44b26a8e60d18161d60edff1b698706de86e1a01aa559ed8",
+      "applied_sha256": "7a7c03dd009217bdec795333a7bed20f45ad7c95002e9f7a378e2ace8c86188b",
+      "accepted_sha256": "3d2f2da7fbc1a37bc6ae9f84af0c30dba01e80ed5befb6e71d5602ff4915e052"
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv": {
+      "candidate_sha256": "fc0913c55445110c0622ba6cf8941dd71d5d0c6ae0910c3af57ee5ee99141112",
+      "applied_sha256": "fc0913c55445110c0622ba6cf8941dd71d5d0c6ae0910c3af57ee5ee99141112",
+      "accepted_sha256": "fc0913c55445110c0622ba6cf8941dd71d5d0c6ae0910c3af57ee5ee99141112"
+    },
+    "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_DEPENDENCIES.md": {
+      "candidate_sha256": "3e3af5af61356717281689ce6309eaf84094bf172bdfca178ce3fd2176d807ba",
+      "applied_sha256": "0d483a701df6dc616dd503838236d435e3353851ffd8199944122782d262ffbb",
+      "accepted_sha256": "84f9f29176273ee1d89803ff418d551426f70610ba9453216757d8159fe9b01b"
+    },
+    "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/Dependencies.csv": {
+      "candidate_sha256": "2c85a3bcec76f691c959e2fd4d97f3f23263f32fd44f7112f764a031cc42c2d4",
+      "applied_sha256": "2c85a3bcec76f691c959e2fd4d97f3f23263f32fd44f7112f764a031cc42c2d4",
+      "accepted_sha256": "2c85a3bcec76f691c959e2fd4d97f3f23263f32fd44f7112f764a031cc42c2d4"
+    },
+    "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_DEPENDENCIES.md": {
+      "candidate_sha256": "98ff87e4626113da264a7d60a084b9948463319aa681c3c63dfe4b32dab3d0e7",
+      "applied_sha256": "70668671184a110eb1a5d5f9f44eff34c95c38c703918f2b620ce3fdcce818ae",
+      "accepted_sha256": "5ef58f849184a43ec5d99f867ef4841327df7b1a9b456f0d50fc9a39cba96ecd"
+    },
+    "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/Dependencies.csv": {
+      "candidate_sha256": "52db83caf551c046b66de8380d4fdac9cd08aae3f3b4a2dbaa6b13b4c610af32",
+      "applied_sha256": "52db83caf551c046b66de8380d4fdac9cd08aae3f3b4a2dbaa6b13b4c610af32",
+      "accepted_sha256": "52db83caf551c046b66de8380d4fdac9cd08aae3f3b4a2dbaa6b13b4c610af32"
+    },
+    "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_DEPENDENCIES.md": {
+      "candidate_sha256": "1a0fd4e587c5f2726963b9c9f5459523ebea74e258d4d52f9fa6fc8bec3227d7",
+      "applied_sha256": "7094b81f5372449e25e867fbaa42f123fd422cac5744b67b919868df87b41769",
+      "accepted_sha256": "cab450475650389a6b4e90b48beb6449f3bd5d1ab40e66b835a8561ec1cf66f5"
+    },
+    "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv": {
+      "candidate_sha256": "187cc2f09189c80c1ea18ea32e92e2d6fbaae98e4df13bd07daf7179100f94aa",
+      "applied_sha256": "187cc2f09189c80c1ea18ea32e92e2d6fbaae98e4df13bd07daf7179100f94aa",
+      "accepted_sha256": "187cc2f09189c80c1ea18ea32e92e2d6fbaae98e4df13bd07daf7179100f94aa"
+    }
+  }
+}

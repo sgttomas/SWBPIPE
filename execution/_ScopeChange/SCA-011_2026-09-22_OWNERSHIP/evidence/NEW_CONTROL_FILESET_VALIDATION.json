@@ -1,0 +1,33 @@
+{
+  "scope": "Temporary overlay assembled from exact candidate manifest; no live scaffold created",
+  "checks": [
+    {
+      "deliverable": "DEL-04-07",
+      "tool": "zsh tools/validation/check_min_viable_fileset.sh <isolated candidate overlay>",
+      "exit_code": 0,
+      "stdout": "PASS: DEL-04-07 \u2014 all 5 minimum viable files present\n",
+      "stderr": ""
+    },
+    {
+      "deliverable": "DEL-07-11",
+      "tool": "zsh tools/validation/check_min_viable_fileset.sh <isolated candidate overlay>",
+      "exit_code": 0,
+      "stdout": "PASS: DEL-07-11 \u2014 all 5 minimum viable files present\n",
+      "stderr": ""
+    },
+    {
+      "deliverable": "DEL-07-12",
+      "tool": "zsh tools/validation/check_min_viable_fileset.sh <isolated candidate overlay>",
+      "exit_code": 0,
+      "stdout": "PASS: DEL-07-12 \u2014 all 5 minimum viable files present\n",
+      "stderr": ""
+    },
+    {
+      "deliverable": "DEL-16-06",
+      "tool": "zsh tools/validation/check_min_viable_fileset.sh <isolated candidate overlay>",
+      "exit_code": 0,
+      "stdout": "PASS: DEL-16-06 \u2014 all 5 minimum viable files present\n",
+      "stderr": ""
+    }
+  ]
+}

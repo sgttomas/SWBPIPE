@@ -1,0 +1,279 @@
+{
+  "schema_version": "0.1.0-draft",
+  "record_kind": "ComparisonResult",
+  "contract_owner": "DEL-14-05",
+  "source_refs": [
+    {
+      "object_type": "invented-shape-only",
+      "ref": "invented-shape-only"
+    }
+  ],
+  "provenance_refs": [
+    {
+      "object_type": "invented-shape-only",
+      "ref": "invented-shape-only"
+    }
+  ],
+  "professional_boundary": {
+    "human_review_required": true,
+    "software_makes_compliance_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_sealing_claim": false,
+    "software_makes_approval_claim": false,
+    "software_makes_authentication_claim": false
+  },
+  "payload": {
+    "comparison_review": {
+      "comparison_id": "invented-shape-only",
+      "comparison_kind": "model_state_to_model_state",
+      "created_at": "invented-shape-only",
+      "participants": [
+        {
+          "participant_id": "invented-left",
+          "side": "left",
+          "model_state_ref": {
+            "record_type": "model_state_record",
+            "record_ref": {
+              "object_type": "Project",
+              "ref": "invented-shape-only"
+            },
+            "schema_ref": "schemas/model_state.schema.json",
+            "immutable_hash_refs": [
+              {
+                "algorithm": "sha256",
+                "canonicalization": "JCS",
+                "payload_ref": {
+                  "object_type": "Project",
+                  "ref": "invented-shape-only"
+                },
+                "payload_scope": "comparison_review_record",
+                "value": "invented-shape-only"
+              }
+            ]
+          },
+          "analysis_run_ref": {
+            "record_type": "model_state_record",
+            "record_ref": {
+              "object_type": "Project",
+              "ref": "invented-shape-only"
+            },
+            "schema_ref": "schemas/model_state.schema.json",
+            "immutable_hash_refs": [
+              {
+                "algorithm": "sha256",
+                "canonicalization": "JCS",
+                "payload_ref": {
+                  "object_type": "Project",
+                  "ref": "invented-shape-only"
+                },
+                "payload_scope": "comparison_review_record",
+                "value": "invented-shape-only"
+              }
+            ]
+          },
+          "result_envelope_ref": {
+            "record_type": "model_state_record",
+            "record_ref": {
+              "object_type": "Project",
+              "ref": "invented-shape-only"
+            },
+            "schema_ref": "schemas/model_state.schema.json",
+            "immutable_hash_refs": [
+              {
+                "algorithm": "sha256",
+                "canonicalization": "JCS",
+                "payload_ref": {
+                  "object_type": "Project",
+                  "ref": "invented-shape-only"
+                },
+                "payload_scope": "comparison_review_record",
+                "value": "invented-shape-only"
+              }
+            ]
+          },
+          "unit_system_ref": {
+            "object_type": "Project",
+            "ref": "invented-shape-only"
+          },
+          "hash_refs": [],
+          "provenance": {
+            "source_name": "invented-shape-only",
+            "source_location": "invented-shape-only",
+            "source_license": "invented-shape-only",
+            "contributor": "invented-shape-only",
+            "contributor_certification": "invented-shape-only",
+            "redistribution_status": "public_permissive",
+            "review_status": "pending",
+            "privacy_classification": "public_metadata"
+          }
+        },
+        {
+          "participant_id": "invented-right",
+          "side": "right",
+          "model_state_ref": {
+            "record_type": "model_state_record",
+            "record_ref": {
+              "object_type": "Project",
+              "ref": "invented-shape-only"
+            },
+            "schema_ref": "schemas/model_state.schema.json",
+            "immutable_hash_refs": [
+              {
+                "algorithm": "sha256",
+                "canonicalization": "JCS",
+                "payload_ref": {
+                  "object_type": "Project",
+                  "ref": "invented-shape-only"
+                },
+                "payload_scope": "comparison_review_record",
+                "value": "invented-shape-only"
+              }
+            ]
+          },
+          "analysis_run_ref": {
+            "record_type": "model_state_record",
+            "record_ref": {
+              "object_type": "Project",
+              "ref": "invented-shape-only"
+            },
+            "schema_ref": "schemas/model_state.schema.json",
+            "immutable_hash_refs": [
+              {
+                "algorithm": "sha256",
+                "canonicalization": "JCS",
+                "payload_ref": {
+                  "object_type": "Project",
+                  "ref": "invented-shape-only"
+                },
+                "payload_scope": "comparison_review_record",
+                "value": "invented-shape-only"
+              }
+            ]
+          },
+          "result_envelope_ref": {
+            "record_type": "model_state_record",
+            "record_ref": {
+              "object_type": "Project",
+              "ref": "invented-shape-only"
+            },
+            "schema_ref": "schemas/model_state.schema.json",
+            "immutable_hash_refs": [
+              {
+                "algorithm": "sha256",
+                "canonicalization": "JCS",
+                "payload_ref": {
+                  "object_type": "Project",
+                  "ref": "invented-shape-only"
+                },
+                "payload_scope": "comparison_review_record",
+                "value": "invented-shape-only"
+              }
+            ]
+          },
+          "unit_system_ref": {
+            "object_type": "Project",
+            "ref": "invented-shape-only"
+          },
+          "hash_refs": [],
+          "provenance": {
+            "source_name": "invented-shape-only",
+            "source_location": "invented-shape-only",
+            "source_license": "invented-shape-only",
+            "contributor": "invented-shape-only",
+            "contributor_certification": "invented-shape-only",
+            "redistribution_status": "public_permissive",
+            "review_status": "pending",
+            "privacy_classification": "public_metadata"
+          }
+        }
+      ],
+      "tolerance_profile_refs": [],
+      "mappings": [],
+      "unmatched_records": [],
+      "diagnostics": [],
+      "assumptions": [],
+      "export_contract": {
+        "json_export": {
+          "format_id": "comparison_review_json_v1",
+          "root_schema_ref": "schemas/comparison_mapping.schema.json",
+          "stable_ids_required": true,
+          "mapping_ids_required": true,
+          "unit_metadata_required": true,
+          "tolerance_profile_refs_required": true,
+          "diagnostics_required": true,
+          "provenance_required": true,
+          "assumptions_required": true,
+          "hash_refs_required": true,
+          "professional_boundary_notice_required": true
+        },
+        "csv_export": {
+          "format_id": "comparison_review_csv_v1",
+          "stable_row_id_column": "review_row_id",
+          "required_columns": [
+            "review_row_id",
+            "comparison_id",
+            "mapping_id",
+            "mapping_status",
+            "unmatched_classification",
+            "left_ref",
+            "right_ref",
+            "result_ref",
+            "unit",
+            "dimension",
+            "tolerance_profile_ref",
+            "diagnostic_codes",
+            "hash_refs",
+            "provenance_ref",
+            "assumption_ids",
+            "professional_boundary_notice",
+            "TBD"
+          ],
+          "ordering": "stable_by_review_row_id_then_mapping_id",
+          "delimiter": "comma",
+          "encoding": "utf-8",
+          "privacy_redaction_required": true
+        },
+        "report_section_exports": [],
+        "diagnostics_included": true,
+        "provenance_included": true,
+        "assumptions_included": true,
+        "hash_refs_included": true,
+        "professional_boundary_notice_included": true
+      },
+      "hashes": [],
+      "professional_boundary": {
+        "human_review_required": true,
+        "software_makes_compliance_claim": false,
+        "software_makes_certification_claim": false,
+        "software_makes_sealing_claim": false,
+        "software_makes_approval_claim": false,
+        "software_makes_authentication_claim": false,
+        "notice": "invented-shape-only"
+      },
+      "provenance": {
+        "source_name": "invented-shape-only",
+        "source_location": "invented-shape-only",
+        "source_license": "invented-shape-only",
+        "contributor": "invented-shape-only",
+        "contributor_certification": "invented-shape-only",
+        "redistribution_status": "public_permissive",
+        "review_status": "pending",
+        "privacy_classification": "public_metadata"
+      }
+    },
+    "producer_owner": "DEL-14-03",
+    "producer_payload": {
+      "comparison_kind": "model_state_to_model_state",
+      "engine": "invented-shape-only",
+      "created_at": "invented-shape-only",
+      "left_state_ref": {},
+      "right_state_ref": {},
+      "summary": {},
+      "entities": [],
+      "metadata": {},
+      "diagnostics": [],
+      "professional_boundary": {},
+      "provenance": {}
+    }
+  }
+}

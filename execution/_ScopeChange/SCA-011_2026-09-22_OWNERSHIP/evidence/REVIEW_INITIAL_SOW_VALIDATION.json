@@ -1,0 +1,26 @@
+{
+  "reviewer": "/root/piping_scope_manager/piping_independent_review",
+  "freeze_sha256": "3079976ebb8ccfef5653f38c53a9d241ffb5c1f9bf1bae9e2d991c920a0cbeb3",
+  "execution": "Python loop invoked registered validator once per candidate ScopeOfWork.md; captured output in tool transcript; only failure printed with aggregate count. This record faithfully serializes that observed result, not a rerun.",
+  "command_template": "python3 tools/scope_of_work/validate_scope_of_work.py <candidate ScopeOfWork.md> --json",
+  "candidate_sows": 24,
+  "passed": 23,
+  "failed": 1,
+  "failure": {
+    "target": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/ScopeOfWork.md",
+    "exit_code": 1,
+    "stdout": {
+      "format": "INVALID",
+      "issues": [
+        "format state is INVALID",
+        "unresolved local references: REQ-012"
+      ],
+      "target": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/ScopeOfWork.md",
+      "valid": false
+    }
+  },
+  "finding": "F1",
+  "line": 653,
+  "correct_source_id": "DEL-13-04-REQ-012",
+  "source_definition_line": 253
+}

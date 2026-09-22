@@ -1,0 +1,15 @@
+# Piping: exact ownership amendment and propagation
+
+**Group 2 candidate.** You have already accepted the responsibility direction. This checkpoint concerns the exact amendment and its application plan. Canonical records and accepted SCA-010/DAG-010 pointers remain unchanged while this package is reviewed.
+
+The amendment adds four delivery homes: product solve integration (**DEL-04-07**), desktop shell/host integration (**DEL-07-11**), interoperability/evidence-review GUI (**DEL-07-12**) and controlled operation application (**DEL-16-06**). Two finite scope statements cover the shell and review GUI (**SOW-078/079**). Packages and objectives remain unchanged: **102 → 106 deliverables; 77 → 79 scope items; 18 packages and 18 objectives**.
+
+It also makes the specified existing-owner boundaries explicit: vocabulary coverage versus editor/palette implementation; user acceptance/audit versus operation application; domain mathematics versus product composition; rule/status presentation; and result-interface owners. A source-grounded summary correction restores **DEL-13-02** to OBJ-018 in place of the erroneous DEL-12-02 reference, matching the existing deliverable and scope-ledger mappings. It changes no objective or product responsibility.
+
+Review the [exact amendment](AMENDMENT.patch), [file and hash manifest](APPLY_MANIFEST.csv), [action register](Amendment_Actions.csv) and [propagation plan](Propagation_Plan.md). The [panel contract map](interfaces/GUI_CONTRACT_BINDINGS.csv), [source-owner assessment](interfaces/SOURCE_OWNER_ASSESSMENT.md) and [dependency candidate](dependencies/MANIFEST.json) supply the substantive interface checks. The [independent review](evidence/INDEPENDENT_REVIEW.md) and [candidate validation](evidence/INTEGRATION_VALIDATION.json) bind the final reviewable package.
+
+**Decision requested:** accept this exact ownership amendment and its propagation plan for application. The plan includes new control/claim materialization, existing-carrier changes, the reviewed successor dependency delta/local mirrors, and targeted reconciliation. Distinct workflow owners perform those steps; their completed records and the dependency adoption are presented together at the final audited-poststate checkpoint.
+
+All existing dependency rows are preserved; new contract inputs remain truthfully pending. The stage model separates early contracts from later implementation/coverage/outcome evidence so palette, comparison-export and audit/application handoffs do not become circular prerequisites.
+
+The three [result schema drafts](interfaces/INTERFACE_CONTRACTS.md) are concrete design work for their now-named owners. **Their new wire wrappers are excluded from this ownership application**; they establish neither production schema authority nor conformance. Existing numerical criteria, engineering/professional acceptance, privacy, licensed/external activation, compatibility, candidate-generator ownership and lifecycle/release holds remain. Existing code has acquired a forward owner, not a completion certificate.

@@ -1,0 +1,126 @@
+# DEL-14-05 Implementation Memory
+
+## 2026-07-12 - D-41 R5 T4 PDU-022 supporting evidence
+
+- The selected T4 evidence does not consume comparison export contracts. Report-section references, analysis-status/limitation preservation for comparison outputs, layout, and policy choices remain open.
+- Focused evidence is recorded in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T4-PDU012-PDU021-PDU022-PDU040.md`; lifecycle remains `IN_PROGRESS`, with no review, validation, approval, compliance, release, or professional-reliance conclusion.
+
+Worker: DEL-14-05
+Revision: OpenPipeStress DEV-001 revision 0.5 Tranche F
+Date: 2026-05-04
+
+## Scope
+
+Implemented contract-first JSON Schema 2020-12 artifacts for comparison mapping/review records and unit-aware tolerance profiles:
+
+- `schemas/comparison_mapping.schema.json`
+- `schemas/comparison_tolerance.schema.json`
+- `tests/test_comparison_contracts.py`
+
+No comparison engine, result-delta engine, report renderer, external validation decision, commercial-tool input ingestion, lifecycle register update, dependency update, or shared documentation edit was performed.
+
+## Contract Notes
+
+- Comparison participants reference immutable model-state records, analysis-run records, and result-export envelopes through stable record references plus hash references.
+- Mapping records distinguish automatic matches, manual matches, unresolved mappings, unmatched-left, unmatched-right, ignored, and `TBD`.
+- Unmatched records carry explicit classifications and review metadata.
+- Tolerance profiles carry unit-system references, dimension IDs, unit references, review metadata, provenance, and professional-boundary notices.
+- No default numeric tolerance values are defined by the schema. Any numeric tolerance value must be supplied by a governed profile record and marked with a value status.
+- JSON and CSV export contracts reserve stable IDs, mapping IDs, unit metadata, tolerance profile references, diagnostics, provenance, assumptions, hashes, and professional-boundary notices.
+- Report-section export references are reserved as references only; rendering remains unimplemented.
+
+## Open TBDs
+
+- Exact governed tolerance values and profile approval workflow remain external to this deliverable.
+- Final report rendering integration remains reserved for downstream report work.
+- Delta calculation behavior remains reserved for comparison engine deliverables.
+
+## 2026-05-11 TP-RECON-01 Reconciliation
+
+Sources used: TP-RECON-01 dispatch row for `DEL-14-05`; archived DEV-001 implementation evidence rows; REV05 lifecycle snapshot; DEL-14-05 sealed brief; Tranche F proposal, implementation handoff, review/audit closeout, and promotion handoff; commit `05878bf`; current deliverable context, specification, memory, and status.
+
+- 2026-05-04 DEV-001 revision 0.5 Tranche F implemented contract-first comparison mapping, tolerance, and export schema/test artifacts and promoted the evidence to `COMMITTED` at commit `05878bf` (`schema: add tranche f contracts`).
+- Evidence identifies `schemas/comparison_mapping.schema.json`, `schemas/comparison_tolerance.schema.json`, `tests/test_comparison_contracts.py`, deliverable `MEMORY.md`, and `_STATUS.md` as the DEL-14-05 artifacts touched by Tranche F.
+- Verification evidence recorded JSON parse checks for both schemas and focused comparison contract tests covering stable IDs, manual mappings, unmatched classifications, unit-normalized tolerance metadata, and JSON/CSV export contracts.
+- Deferred scope remains unchanged: comparison engines, governed tolerance values, report rendering, external validation decisions, commercial-prover ingestion, and runtime integration stayed downstream or later-gated.
+- Lifecycle reconciliation preserves `CHECKING`; this TP entry records history only and adds no engineering sign-off state.
+
+## 2026-05-16 - DEV-001 downstream PKG-02 audit memory addendum
+
+Durable context preserved after reconciliation review:
+- DEV-001 package-worker audit reviewed this deliverable for downstream compatibility with the accepted PKG-02 foundation contracts.
+- Local audit artifacts are `execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/_REVIEW.md` and `execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/Review_Findings.csv`.
+- Package audit summary is `execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/_audit/PKG02_DOWNSTREAM_REVIEW_2026-05-16.md`; package run record is `execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/_run_records/TASK_RUN_2026-05-16_PKG14_PKG02_DOWNSTREAM_AUDIT.md`.
+- This was audit evidence only. It did not change lifecycle state, authorize release, or make a professional, certification, sealing, approval, or code-compliance claim.
+- The May 16 package-worker TASK run record did not fully preserve canonical per-deliverable TASK documentation context; this addendum preserves the durable deliverable-local pointer without modifying the completed run record.
+
+## 2026-06-04 - TP-AUTHORITY-REFRESH-0_7-DAG006
+
+- WORKING_ITEMS/TASK workforce current-authority refresh applied to active deliverable-local surfaces for `DEL-14-05`.
+- Current authority basis is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` plus approved `execution/_DAG/DAG-006/` active graph authority.
+- Historical run records, historical DAG row IDs, review dispositions, lifecycle `_STATUS.md`, aggregate DAG artifacts, candidate edges, repo-level governance files, schemas, code, and tools were intentionally not changed by this refresh.
+- Preserved historical references remain evidence of earlier work, not current authority claims.
+
+## 2026-06-06 - Comparison contract evidence hardening
+
+- TASK worker hardened DEL-14-05 schema/test evidence for stable reference preservation, manual mapping evidence, unmatched-record hash references, export hash/provenance/professional-boundary preservation, and tolerance-rule unit metadata policy.
+- `schemas/comparison_mapping.schema.json` now requires mapping evidence records, explicit CSV hash columns, report-section preservation flags, and export-level hash inclusion without implementing comparison engines or report rendering.
+- `schemas/comparison_tolerance.schema.json` now requires per-rule unit metadata policy and hash references, and numeric tolerance values are structurally limited to externally governed or project-specific-review-required status paths.
+- `tests/test_comparison_contracts.py` records focused assertions for the hardened schema fields and continues to check that no schema `default` keys define silent numeric tolerances.
+- No governed tolerance values, code-specific acceptance criteria, external validation decision, lifecycle update, review disposition, professional approval, certification, sealing, authentication, or code-compliance claim was added.
+
+## 2026-06-07 - TP-PKG14-Remaining Checking Alignment
+
+- Bounded TASK validation for DEL-14-05 passed: `python3 -m json.tool schemas/comparison_mapping.schema.json`, `python3 -m json.tool schemas/comparison_tolerance.schema.json`, and `python3 -m pytest tests/test_comparison_contracts.py -q` completed successfully.
+- No-silent-tolerance evidence was confirmed: both comparison schemas contain zero `default` keys, and `tests/test_comparison_contracts.py` asserts no schema defaults plus the numeric tolerance status guard.
+- Deliverable-local consistency scan using conservative defaults found no missing core files, no missing four-doc kit files, no identity mismatches, and no candidate unsourced numerics. The `TBD`/`ASSUMPTION` markers are intentional deferred decisions for governed tolerance values, final mapping workflow authority, exact CSV/JSON/report-section layout, downstream engine/export integration, source-safe examples, and dependency satisfaction evidence.
+- `_STATUS.md` was set to `CHECKING` for this bounded transition only. No release, professional-approval, certification, sealing, authentication, or code-compliance claim was made.
+
+## 2026-06-17 - Lifecycle Housekeeping
+
+- Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-06-17 - TP-UNITS-BTAIL-COMPTOLCORPUS-001 tolerance-pair contract support
+
+- Extended `schemas/comparison_tolerance.schema.json` with optional
+  `relative_tolerance_value`, `absolute_tolerance_value`, and
+  `tolerance_pair_policy` fields on tolerance rules.
+- Numeric pair values are guarded by the same externally governed /
+  project-specific-review-required status constraint as numeric scalar
+  tolerance values. No default numeric tolerance value was introduced.
+- `tests/test_comparison_contracts.py` now asserts the optional pair fields,
+  nonnegative numeric shape, externally governed placeholder vocabulary, and
+  numeric status guard.
+- Validation passed: `python3 tests/test_comparison_contracts.py`; adjacent
+  comparison pytest subset passed 23/23; full Python suite passed 360/360;
+  `git diff --check`.
+- Boundary preserved: contract support for governed tolerance profiles only.
+  No default tolerance, external validation decision, release threshold,
+  professional approval, certification, sealing, authentication, or
+  code-compliance claim changed.
+
+## 2026-06-17 - TP-UNITS-BTAIL-COMPARISONGUIUNITS-001 supporting comparison-policy evidence
+
+- Supporting role for DEL-14-04 comparison workspace tranche: the desktop
+  comparison packet now records unit-policy evidence aligned with the
+  comparison mapping and tolerance contract boundary.
+- The packet records DEC-018/DEC-026/DEL-14-05 basis refs, equal-explicit-unit
+  matching policy, matched result units, unmatched row counts,
+  `conversion_performed=false`, and `tolerance_profile_ref=TBD`.
+- Validation passed: focused App Vitest 56/56, focused R2/R3 Playwright smoke
+  file 14/14, full desktop Vitest 18/18 files and 399/399 tests, desktop
+  production build with the existing Vite large-chunk warning, and
+  `git diff --check`. DEC-025 sweep evidence is recorded in closeout
+  artifacts.
+- Boundary preserved: no schema change, governed tolerance value, default
+  tolerance, external validation decision, comparison pass/fail claim,
+  release threshold, professional approval, certification, sealing,
+  authentication, or code-compliance claim changed.
+## 2026-07-12 - D-41 R5 T6 PDU-037 verification refresh
+
+- DEL-14-04 deterministic comparison and DEL-14-05 mapping/schema backcheck refreshed within the 19/19 Python set. Engine logic remains with DEL-14-04; tolerance suitability and independent validation remain absent.
+- Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T6-PDU037.md`. Lifecycle remains `IN_PROGRESS`; the D-41 bootstrap remains for T7.
+
+## 2026-09-22 — SCA-011 interface responsibility
+
+Owns the common comparison-result/export interface and authoritative versioned schema, alongside existing mapping/tolerance contracts. DEL-14-03 and DEL-14-04 produce it; DEL-08-04 consumes/maps it. Review and accept the named ComparisonResult draft or its explicit successor before producer conformance claims; bind mapping, unmatched accounting, tolerance references, units, diagnostics and reporting handoff without selecting numeric tolerances or report layout. Drafts and semantic checks: `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/INTERFACE_CONTRACTS.md`. This records responsibility, not implemented contract conformance or lifecycle promotion.

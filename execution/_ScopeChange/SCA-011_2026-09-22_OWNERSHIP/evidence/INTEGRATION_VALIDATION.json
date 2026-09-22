@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "canonical_tracked_changes": [
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260921-RECONCILIATION/WORK_GRAPH.json"
+  ],
+  "canonical_amendment_applied": false,
+  "candidate_files": 83,
+  "new_canonical_paths": 29,
+  "modified_canonical_paths": 54,
+  "unique_canonical_targets": true,
+  "preimage_and_transformation_hashes": "PASS",
+  "manifest_sha256": "b96c0adc2b588429a1311606072bc22ee9c5f3c303be2c6701422dcdecbcce7a",
+  "patch_sha256": "3a138b0e799adf7a398050e47aa73356490036c246e95f0a05eb4344dcb7af4d",
+  "schema_drafts_excluded_from_application": true,
+  "limits": [
+    "Application preview only; exact transforms assert no human acceptance before its actual act.",
+    "Graph acceptance and final snapshot pointer remain group-3 acts; new contract maturity remains pending.",
+    "Product/native/engineering verification not run or claimed."
+  ]
+}

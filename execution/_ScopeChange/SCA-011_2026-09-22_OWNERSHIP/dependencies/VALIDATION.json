@@ -1,0 +1,45 @@
+{
+  "status": "PASS",
+  "errors": [],
+  "baseline_rows": 1487,
+  "candidate_rows": 1571,
+  "candidate_nodes": 106,
+  "new_row_classes": {
+    "ANCHOR": 22,
+    "EXECUTION": 62
+  },
+  "new_execution_satisfaction": {
+    "PENDING": 62
+  },
+  "stage_edges": 1041,
+  "stage_scc_count": 0,
+  "negative_probes": {
+    "baseline_damage": [
+      "BASELINE_ROWS_CHANGED"
+    ],
+    "duplicate_row": [
+      "DUPLICATE_DIRECTED_EDGE",
+      "DUPLICATE_ID"
+    ],
+    "dangling_target": [
+      "DANGLING_TARGET"
+    ],
+    "unsupported_satisfaction": [
+      "UNSUPPORTED_MATURITY_OR_SATISFACTION"
+    ],
+    "reverse_stage_SCA011-IF-PALETTE-ORGANIZATION": [
+      "STAGE_CYCLE"
+    ],
+    "reverse_stage_SCA011-IF-COMPARISON-EXPORT": [
+      "STAGE_CYCLE"
+    ],
+    "reverse_stage_SCA011-IF-APPLICATION-OUTCOME": [
+      "STAGE_CYCLE"
+    ]
+  },
+  "limits": [
+    "Stage expansion is a proposed sequencing interpretation of distinct artifacts; it is not adoption or proof the contract artifacts exist.",
+    "Baseline maturity/satisfaction fields are preserved, not freshly revalidated; all new execution rows remain PENDING.",
+    "Stock graph audit covers full accepted-plus-additive deliverable graph. Supplement adds all three new DOCUMENT bindings and four explicit stage-internal requirements. Other historical DOCUMENT relations retain their original evidence without a new artifact-stage interpretation."
+  ]
+}

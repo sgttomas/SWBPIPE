@@ -54,7 +54,7 @@
     "execution/_Coordination/_DECISIONS/D-73_*",
     "execution/_Coordination/_DECISIONS/_REGISTER.md",
     "docs/RECONCILIATION_PROFILE.md",
-    "execution/_Decomposition/SOFTWARE_DECOMP.md §12 (DEC-110 on ruling)",
+    "execution/_Decomposition/SOFTWARE_DECOMP.md \u00a712 (DEC-110 on ruling)",
     "this run record"
    ]
   },
@@ -214,6 +214,17 @@
     "Applicable checks and Git integration",
     "Actual owner ruling for reserved choices after reviewable proposals exist"
    ]
+  },
+  "ownership_amendment": {
+   "recorded": "2026-09-22",
+   "state": "preparing_exact_group_2_candidate",
+   "owner_direction": "P-OWN-01..06 responsibility direction accepted in current chat; exact words in group-1 snapshot",
+   "basis": "008ef6a4e370822c65eb26ddd792752b4267c7ab",
+   "candidate_project_relative": "execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/",
+   "group_1_snapshot_project_relative": "execution/_ScopeChange/checkpoint_snapshots/SCA-011_GROUP-1_2026-09-22/",
+   "current_authority": "Decomposition0.12/SCA010/DAG010 unchanged",
+   "mechanism": "Codex native HELP_HUMAN -> WORKING_ITEMS -> bounded TASK collaboration",
+   "next_safe_action": "Finish exact candidate and independent review; present reserved group-2 amendment/propagation checkpoint before canonical application"
   }
  }
 }

@@ -1,0 +1,46 @@
+# SCA-011 candidate dependency treatment
+
+**PROPOSED; NOT ADOPTED.** The owner direction selects the ownership amendment; this group-2 derivative is prepared for review under the scope-change gates. DAG-010 remains the approved authority. No live dependency register, source document or pointer changes here.
+
+The candidate has 106 nodes and 1,571 register rows. It preserves the exact byte prefixes of DAG-010's 102 nodes and 1,487 rows, including all existing maturity/satisfaction evidence. It adds four candidate identities, 22 anchors and 62 execution relations; 59 are deliverable inputs and three are staged artifact bindings. Eight proposed relations already existed and are cited in `ExistingRelations.csv`, without duplicate rows. No old row is modified or retired. Node landing paths are proposed future live paths; the actual draft controls are in the sibling candidate tree.
+
+Dependency-extract (`chirality-root/dependency-extract`, `workflows/dependency-extract/WORKFLOW.md`) was consulted for canonical schema, two-pass, evidence and maturity rules. Its explicit scope is deliverable-local, so it was **not executed as a project graph builder**. This is the parent's bounded ad hoc graph-preparation assignment. Project/user workflow collision locations were checked: neither supplied a dependency-extract package. Canonical `Status` remains ACTIVE/RETIRED; the containing package and Notes, not an invented enum, identify candidate status.
+
+## Contracts are required before implementation; coverage and receipts follow it
+
+A stock canonical audit counts every active deliverable edge, including INTERFACE and CONSTRAINT, when testing cycles. Renaming a prerequisite “interface” does not cure a cycle. Nor does simply deleting the edge. The three reciprocal information flows below concern distinct artifacts and stages; the candidate records their contract dependencies explicitly as DOCUMENT targets and validates the expanded stage graph. The DOCUMENT IDs are stable candidate artifact identities, **not a claim that a named, versioned authoritative schema already exists**. Their TargetLocation names the actual candidate draft under `staged-contracts/`. Those drafts define the three stage boundaries and readiness witnesses; their existence does not establish accepted production contract maturity. The exact adopted artifact/version and source-owner review must be bound before the affected production use; all three remain PENDING, and the graph itself is not adopted.
+
+| Case | Required order / artifact distinction | Preserved accepted rows | Candidate binding |
+|---|---|---|---|
+| Palette | DEL-07-09's organization contract binds the operation taxonomy before DEL-07-01 implements/routes the palette. DEL-07-09's later coverage assessment consumes the actual viewport/tree command surfaces. Defining the organization is distinct from proving all commands covered. | DAG-010-DEL-07-09-E001/E002/E003 | DEL-07-01 consumes SCA011-IF-PALETTE-ORGANIZATION, a CONSTRAINT on the prior organization contract. It does not require DEL-07-09's final coverage/lifecycle completion. |
+| Comparison export | The existing DEL-08-04 **base result-envelope contract** is an input to DEL-14-05's common comparison schema. The later DEL-08-04 **comparison mapping/export implementation** consumes that schema and the base envelope. Fields, version and compatibility policy remain for the bounded contract draft and source-owner check. | DAG-002-E0790; E0793; E0796/E0797 | DEL-08-04 consumes SCA011-IF-COMPARISON-EXPORT as an INTERFACE. An export fixture or preview cannot stand in for the authoritative common schema. |
+| Operation receipt | DEL-16-03 emits the pre-application accepted/rejected decision bound to the current model/preview. DEL-16-06 applies only an accepted valid operation. DEL-16-03's final audit then records the actual outcome, preserving nonmutation on rejection or stale basis. | DAG-002-E0832/E0833/E0834/E0835/E0836 | DEL-16-06's prerequisite on DEL-16-03 is the **acceptance-decision stage**; DEL-16-03 consumes SCA011-IF-APPLICATION-OUTCOME as the later HANDOVER. Acceptance is not evidence that application succeeded. |
+
+`StagedInterfaces.json` supplies exact producer/consumer stages and open witnesses. `StageGraph.json` expands the complete 1,034-edge deliverable graph plus these three DOCUMENT bindings and four stage-internal requirements into 1,041 stage edges. The aliases refine whole-deliverable labels only for these named stages; existing row bytes remain unchanged. No artifact-stage readiness is inferred from the zero-cycle result. If the eventual contract cannot actually be produced at its named prior stage, the model must be revised and revalidated; it must not be marked satisfied to preserve an attractive graph.
+
+The supplement's scope is explicit: all accepted-plus-added deliverable edges, all three new DOCUMENT constraints, and their stage sequencing. Historical non-deliverable references retain their existing evidence; this is not a new stage interpretation of every historical document. New document targets are intentionally absent from the stock deliverable-only cycle calculation, which is why the supplement and negative cycle probes are necessary.
+
+## Maturity and evidence
+
+All 62 new execution rows propose RequiredMaturity=SEMANTIC_READY, consistent with the accepted contract-level gate. ProposedMaturity=TBD and SatisfactionStatus=PENDING withhold any assertion of present readiness or consumer conformance. Architecture inputs are CONSTRAINT rows; product/service/record inputs are PREREQUISITE rows; final outcome is HANDOVER. Anchor rows trace candidate identity/scope/objectives and use NOT_APPLICABLE satisfaction because those rows do not prove execution closure.
+
+Existing row maturity/satisfaction fields are preserved historical evidence, **not a fresh satisfaction audit**. No deliverable status was read or changed to manufacture readiness. Product code presence, GUI mounting, schema names and successful graph validation confer no implementation, native, engineering, privacy or release acceptance.
+
+DEL-07-12 has a finite panel inventory. Each input row names the consuming panel or record family; the graph does not require every upstream family for every panel. GUI preparation may continue while a family's source contract remains open; claiming actual output for that family requires the appropriate reviewed record contract and route evidence. Broader per-panel engine/schema review is owned by the parallel interface assessment, not falsely claimed by this graph extraction.
+
+## Candidate local mirrors and adoption
+
+`local-mirrors/` contains exact proposed CSV mirrors and indexes for four new and six existing owners. `LOCAL_MIRRORS_MANIFEST.json` records every proposed landing, prior file hash and candidate hash. `LOCAL_MIRRORS_PROMOTION.json` supplies exact conditional Group 2 and Group 3 metadata transformations with candidate/applied/accepted hashes for all 20 files; CSV transformations are empty because extraction-time Notes remain provenance. No transformation is an acceptance act. Index references are anchored from repository root so they remain valid after canonical placement. Existing local CSV bytes remain an exact prefix, preserving their own baseline independently of aggregate authority. Empty optional aggregate columns are omitted when a local register uses the 29-column core schema. Old local indexes are quoted as historical records; the candidate summary supplies the new counts and makes the current graph authority explicit.
+
+These previews are not live local extraction or synchronization. An owning TASK must check the frozen candidate source documents and unchanged local hashes, then apply only an adopted graph/ownership delta under its bounded brief. A future dependency-extract run must use actual local source documents; this ad hoc cross-deliverable preparation does not relax that method's read/write ceiling. No canonical pointer or mirror is changed by the builders.
+
+## Reproduction and meaningful checks
+
+From the repository root:
+
+1. Run `python3 projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/build_candidate.py`.
+2. Run `python3 tools/coordination/audit_dag.py --dag-dir projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies --canonical --strict --json-out projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/DAG_Audit.json --markdown-out projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/DAG_Audit.md`.
+3. Run `python3 projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/validate_candidate.py`.
+4. Run `python3 projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/build_local_previews.py`, then the repository dependency schema validator on each preview CSV.
+
+`VALIDATION.json` records seven deliberate negative probes: baseline damage, duplicate ID/edge, dangling target, unsupported SATISFIED assertion, and reversal of each staged relation. Every probe must fail for its expected reason. Stock audit and supplemental checks are structural evidence only; the new contract witnesses remain outstanding.

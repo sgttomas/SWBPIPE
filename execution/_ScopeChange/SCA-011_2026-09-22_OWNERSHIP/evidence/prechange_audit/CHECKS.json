@@ -1,0 +1,26 @@
+{
+  "python": "3.13.7 (v3.13.7:bcee1c32211, Aug 14 2025, 19:10:51) [Clang 16.0.0 (clang-1600.0.26.6)]",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "audit_helper_exit": 0,
+  "matrix_rows": 80,
+  "unique_unit_ids": 80,
+  "source_inputs": 342,
+  "checks": "80-row denominator, no duplicate unit IDs, 4 grouped findings (2 warnings, 2 informational), source basis pinned; SCA-010 evaluated against own compact accepted contract",
+  "artifact_sha256": {
+    "Brief.md": "06238f1ecb416c7fbe45cb80ffe57ab97e23c68e6eb89539d262197bff538bac",
+    "Decision_Log.md": "45bfeea4e33892a66c26eec893a6f9237463a770f129e6f2c9a098186e2aeff1",
+    "Decomp_Coverage_IssueLog.csv": "80c8d7ca5e230203f441d675491847b80a212280b7793fb20b51c77d161e9ae5",
+    "Decomp_Coverage_Matrix.csv": "33ac58e819e1aacbc97da55b387107a044f0069fe2bb5b749b08a7237e368979",
+    "Decomp_Coverage_Report.md": "e849836b212dc94f739e92ed1b1eeca61355f236aeda8722395babd2e32eeaea",
+    "QA_Report.md": "437526952a58747a96fc39e6e2854fd88f9e8525e40d3a03b22a8362b8148bb6",
+    "RUN_SUMMARY.md": "3635b8581e71137f639518d848034ac8301082eac00772b880464f4c6054b635",
+    "SOURCES.json": "bfbe1c098e86777dbaaf117a583ff61655f750cebd3bd3bead6ee97402c91bd0",
+    "audit_baseline.py": "b3191acf0e83f114c9cd13b5b5e44679eeb2cb011db0596a419cd95bfce8a691",
+    "audit_stdout.json.txt": "80cef46ad179feac58b54f62b6b38193b55758ee8c335898c0aecc1fb9ec4404",
+    "coverage_summary.json": "3237f6fb3317c0401a3dfe9fa1c07d659d72fb4ed4f70cff85c2e6f2c1595b84",
+    "inventory.json": "e49f9b2c78052ce19671ec5f09cae669411ed50bdad6448a6a8c9ac899e7ae5b",
+    "register_validation.json": "0afad9e8ef75011e6ec42cd818b7e25596c81090251285db73f956f4d49b4a19",
+    "register_validation.txt": "2ffbc74e5d25fc3c9aa77236d5949f65320ad0e7c34980095267b180a1cf8051",
+    "sow_validation.json": "c3fca201e709dbf3c34c12ad42b3597911b7103107cc9895dde39ae07174f6f7"
+  }
+}

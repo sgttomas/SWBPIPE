@@ -1,0 +1,93 @@
+{
+  "basis_commit": "008ef6a4e370822c65eb26ddd792752b4267c7ab",
+  "role": "WORKING_ITEMS",
+  "mechanism": "Codex-native collaboration descendant /root/piping_scope_manager",
+  "model": "inherited parent model; no override requested",
+  "consultation": "Full instructions/method and bounded relevant source excerpts; full-file SHA identifies bytes, not a claim of exhaustive semantic audit. Child manifests preserve their own additional reads.",
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "1bb670ca339a990b153cf033dac2d8e29ca71bdea0accee4200e6dd1feed3d57"
+    },
+    {
+      "path": "agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d8a1f4380962efcd258571c6fb563722be9e2e89d4fa5898b7f6d24dc61ab879"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "295ee9e892ea9b572b1be52218ad3ee823c82c4739eefabcab31f4fac97c83c0"
+    },
+    {
+      "path": "workflows/index.json",
+      "sha256": "7e3f3f5de13c6627b0b907e786e54a2433ce9c735be8983b3baa4d8fe230bee6"
+    },
+    {
+      "path": "workflows/scope-change/WORKFLOW.md",
+      "sha256": "58f5d1d53c655fdc5668d928f6087003590f40e321e25e3d9447805ee64a7a90"
+    },
+    {
+      "path": "workflows/scope-change/execution.json",
+      "sha256": "35e108bccac694cac738db03c61709e3db1886f84a3ee5545a1bbc5bdd4f3ab2"
+    },
+    {
+      "path": "workflows/scope-change/resources/contract.md",
+      "sha256": "4453a719f1588c4eba08bdb4a979140ff3541ed5a29f04477ea58a844f344d02"
+    },
+    {
+      "path": "workflows/scope-change/resources/method.md",
+      "sha256": "34187e83856853f655389625e3465e3c2cb9ff8ad38be1f4d138ee7470d167f5"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md",
+      "sha256": "e9b0d14daf75205d6b796f6082d9f389ca1a017652266aaef834415bacb1d1fe"
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-20260922-DECISION-FOLLOWUP/PIPING_REVIEW.md",
+      "sha256": "a55dec0f4d406fdbb26fe48969d55f48bf9ba1ae43701d6b1ac930331d32a314"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+      "sha256": "fe328b7b8440dde9a94ae2ed2b85a6cb55db66653fe5adf56de8f33e3c6c60c2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/_LATEST.md",
+      "sha256": "7780e448b927aabd1e388bd6740b3d2ab715d107f1ad7d6823bec8f94a924e4f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/_LATEST.md",
+      "sha256": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-009_2026-08-20_0000/Vocabulary_Annex.md",
+      "sha256": "f005abbc0d55b047ee7c34628e169aeb3646cd139a9c2c214a33760df4d63c7c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-003_2026-05-17_1658/Supersession_Map.csv",
+      "sha256": "35546a0886d13e5aa2a29fc1239342b8a82f9ee01f765397cf025443dceac5bf"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-009_2026-08-20_0000/Supersession_Map.csv",
+      "sha256": "29a4e4d96f0f27117a1ceadee3bd0d470ec6668ac58c35180839e33c181fc2cc"
+    },
+    {
+      "path": "tools/coordination/accumulate_supersession_map.py",
+      "sha256": "d967144da35d5b28d1d24072655c42bd5f01c8a80c14bea1fe6985206e28c75f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/ScopeOfWork.md",
+      "sha256": "529841e94183ff9b77532c6b0187a795602e8faf585e6b9da21bbfbb9baacaf0"
+    },
+    {
+      "path": ".agents/skills/preparation/SKILL.md",
+      "sha256": "4d18f47dec1ff43ffd2c559d486c1a958853b7b728cc13c7e80ef4375faa0fcc"
+    },
+    {
+      "path": "tools/validation/check_min_viable_fileset.sh",
+      "sha256": "a6c4af3c684aa22b2ff9baa89ca4108cfe3a976da04aabfb852371c2c5c20f8c"
+    }
+  ]
+}

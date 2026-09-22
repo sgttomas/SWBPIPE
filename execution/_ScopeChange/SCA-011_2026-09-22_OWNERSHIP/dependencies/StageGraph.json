@@ -1,0 +1,5218 @@
+{
+  "status": "PROPOSED_NOT_ADOPTED",
+  "aliases": {
+    "DEL-07-01": "DEL-07-01::palette-implementation",
+    "DEL-07-09": "DEL-07-09::coverage-assessment",
+    "DEL-08-04": "DEL-08-04::base-result-envelope",
+    "DEL-14-05": "DEL-14-05::comparison-contract",
+    "DEL-16-03": "DEL-16-03::acceptance-decision",
+    "DEL-16-06": "DEL-16-06::application"
+  },
+  "edges": [
+    {
+      "consumer": "DEL-01-01",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0001"
+    },
+    {
+      "consumer": "DEL-01-01",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0002"
+    },
+    {
+      "consumer": "DEL-01-01",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0003"
+    },
+    {
+      "consumer": "DEL-01-01",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0004"
+    },
+    {
+      "consumer": "DEL-01-02",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0005"
+    },
+    {
+      "consumer": "DEL-01-02",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0006"
+    },
+    {
+      "consumer": "DEL-01-02",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0007"
+    },
+    {
+      "consumer": "DEL-01-02",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0008"
+    },
+    {
+      "consumer": "DEL-01-02",
+      "upstream": "DEL-01-01",
+      "basis": "DAG-002-E0389"
+    },
+    {
+      "consumer": "DEL-01-03",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0009"
+    },
+    {
+      "consumer": "DEL-01-03",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0010"
+    },
+    {
+      "consumer": "DEL-01-03",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0011"
+    },
+    {
+      "consumer": "DEL-01-03",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0012"
+    },
+    {
+      "consumer": "DEL-01-03",
+      "upstream": "DEL-01-01",
+      "basis": "DAG-002-E0390"
+    },
+    {
+      "consumer": "DEL-01-03",
+      "upstream": "DEL-01-02",
+      "basis": "DAG-002-E0391"
+    },
+    {
+      "consumer": "DEL-01-04",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0013"
+    },
+    {
+      "consumer": "DEL-01-04",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0014"
+    },
+    {
+      "consumer": "DEL-01-04",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0015"
+    },
+    {
+      "consumer": "DEL-01-04",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0016"
+    },
+    {
+      "consumer": "DEL-02-01",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0017"
+    },
+    {
+      "consumer": "DEL-02-01",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0018"
+    },
+    {
+      "consumer": "DEL-02-01",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0019"
+    },
+    {
+      "consumer": "DEL-02-01",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0020"
+    },
+    {
+      "consumer": "DEL-02-01",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0021"
+    },
+    {
+      "consumer": "DEL-02-01",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0022"
+    },
+    {
+      "consumer": "DEL-02-01",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0023"
+    },
+    {
+      "consumer": "DEL-02-02",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0024"
+    },
+    {
+      "consumer": "DEL-02-02",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0025"
+    },
+    {
+      "consumer": "DEL-02-02",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0026"
+    },
+    {
+      "consumer": "DEL-02-02",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0027"
+    },
+    {
+      "consumer": "DEL-02-02",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0028"
+    },
+    {
+      "consumer": "DEL-02-02",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0029"
+    },
+    {
+      "consumer": "DEL-02-02",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0030"
+    },
+    {
+      "consumer": "DEL-02-02",
+      "upstream": "DEL-02-01",
+      "basis": "DAG-002-E0393"
+    },
+    {
+      "consumer": "DEL-02-03",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0031"
+    },
+    {
+      "consumer": "DEL-02-03",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0032"
+    },
+    {
+      "consumer": "DEL-02-03",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0033"
+    },
+    {
+      "consumer": "DEL-02-03",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0034"
+    },
+    {
+      "consumer": "DEL-02-03",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0035"
+    },
+    {
+      "consumer": "DEL-02-03",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0036"
+    },
+    {
+      "consumer": "DEL-02-03",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0037"
+    },
+    {
+      "consumer": "DEL-02-03",
+      "upstream": "DEL-02-01",
+      "basis": "DAG-002-E0394"
+    },
+    {
+      "consumer": "DEL-02-04",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0038"
+    },
+    {
+      "consumer": "DEL-02-04",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0039"
+    },
+    {
+      "consumer": "DEL-02-04",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0040"
+    },
+    {
+      "consumer": "DEL-02-04",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0041"
+    },
+    {
+      "consumer": "DEL-02-04",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0042"
+    },
+    {
+      "consumer": "DEL-02-04",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0043"
+    },
+    {
+      "consumer": "DEL-02-04",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0044"
+    },
+    {
+      "consumer": "DEL-02-05",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0045"
+    },
+    {
+      "consumer": "DEL-02-05",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0046"
+    },
+    {
+      "consumer": "DEL-02-05",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0047"
+    },
+    {
+      "consumer": "DEL-02-05",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0048"
+    },
+    {
+      "consumer": "DEL-02-05",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0049"
+    },
+    {
+      "consumer": "DEL-02-05",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0050"
+    },
+    {
+      "consumer": "DEL-02-05",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0051"
+    },
+    {
+      "consumer": "DEL-02-05",
+      "upstream": "DEL-02-01",
+      "basis": "DAG-002-E0398"
+    },
+    {
+      "consumer": "DEL-02-05",
+      "upstream": "DEL-02-02",
+      "basis": "DAG-002-E0399"
+    },
+    {
+      "consumer": "DEL-02-05",
+      "upstream": "DEL-02-03",
+      "basis": "DAG-002-E0400"
+    },
+    {
+      "consumer": "DEL-03-01",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0052"
+    },
+    {
+      "consumer": "DEL-03-01",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0053"
+    },
+    {
+      "consumer": "DEL-03-01",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0054"
+    },
+    {
+      "consumer": "DEL-03-01",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0055"
+    },
+    {
+      "consumer": "DEL-03-01",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0056"
+    },
+    {
+      "consumer": "DEL-03-01",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0057"
+    },
+    {
+      "consumer": "DEL-03-01",
+      "upstream": "DEL-02-01",
+      "basis": "DAG-002-E0401"
+    },
+    {
+      "consumer": "DEL-03-01",
+      "upstream": "DEL-02-02",
+      "basis": "DAG-002-E0402"
+    },
+    {
+      "consumer": "DEL-03-01",
+      "upstream": "DEL-01-02",
+      "basis": "DAG-002-E0403"
+    },
+    {
+      "consumer": "DEL-03-01",
+      "upstream": "DEL-01-03",
+      "basis": "DAG-002-E0404"
+    },
+    {
+      "consumer": "DEL-03-02",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0058"
+    },
+    {
+      "consumer": "DEL-03-02",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0059"
+    },
+    {
+      "consumer": "DEL-03-02",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0060"
+    },
+    {
+      "consumer": "DEL-03-02",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0061"
+    },
+    {
+      "consumer": "DEL-03-02",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0062"
+    },
+    {
+      "consumer": "DEL-03-02",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0063"
+    },
+    {
+      "consumer": "DEL-03-02",
+      "upstream": "DEL-02-01",
+      "basis": "DAG-002-E0405"
+    },
+    {
+      "consumer": "DEL-03-02",
+      "upstream": "DEL-02-02",
+      "basis": "DAG-002-E0406"
+    },
+    {
+      "consumer": "DEL-03-02",
+      "upstream": "DEL-01-02",
+      "basis": "DAG-002-E0407"
+    },
+    {
+      "consumer": "DEL-03-02",
+      "upstream": "DEL-01-03",
+      "basis": "DAG-002-E0408"
+    },
+    {
+      "consumer": "DEL-03-03",
+      "upstream": "DEL-00-01",
+      "basis": "TP-DAG-004-DEL-03-03-003"
+    },
+    {
+      "consumer": "DEL-03-03",
+      "upstream": "DEL-00-02",
+      "basis": "TP-DAG-004-DEL-03-03-004"
+    },
+    {
+      "consumer": "DEL-03-03",
+      "upstream": "DEL-00-04",
+      "basis": "TP-DAG-004-DEL-03-03-005"
+    },
+    {
+      "consumer": "DEL-03-03",
+      "upstream": "DEL-00-06",
+      "basis": "TP-DAG-004-DEL-03-03-006"
+    },
+    {
+      "consumer": "DEL-03-03",
+      "upstream": "DEL-00-07",
+      "basis": "TP-DAG-004-DEL-03-03-007"
+    },
+    {
+      "consumer": "DEL-03-03",
+      "upstream": "DEL-00-08",
+      "basis": "TP-DAG-004-DEL-03-03-008"
+    },
+    {
+      "consumer": "DEL-03-03",
+      "upstream": "DEL-03-02",
+      "basis": "TP-DAG-004-DEL-03-03-009"
+    },
+    {
+      "consumer": "DEL-03-03",
+      "upstream": "DEL-02-02",
+      "basis": "TP-DAG-004-DEL-03-03-010"
+    },
+    {
+      "consumer": "DEL-03-03",
+      "upstream": "DEL-01-02",
+      "basis": "TP-DAG-004-DEL-03-03-011"
+    },
+    {
+      "consumer": "DEL-03-04",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0070"
+    },
+    {
+      "consumer": "DEL-03-04",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0071"
+    },
+    {
+      "consumer": "DEL-03-04",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0072"
+    },
+    {
+      "consumer": "DEL-03-04",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0073"
+    },
+    {
+      "consumer": "DEL-03-04",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0074"
+    },
+    {
+      "consumer": "DEL-03-04",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0075"
+    },
+    {
+      "consumer": "DEL-03-04",
+      "upstream": "DEL-03-02",
+      "basis": "DAG-002-E0412"
+    },
+    {
+      "consumer": "DEL-03-04",
+      "upstream": "DEL-02-02",
+      "basis": "DAG-002-E0413"
+    },
+    {
+      "consumer": "DEL-03-04",
+      "upstream": "DEL-01-02",
+      "basis": "DAG-002-E0414"
+    },
+    {
+      "consumer": "DEL-03-05",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0076"
+    },
+    {
+      "consumer": "DEL-03-05",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0077"
+    },
+    {
+      "consumer": "DEL-03-05",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0078"
+    },
+    {
+      "consumer": "DEL-03-05",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0079"
+    },
+    {
+      "consumer": "DEL-03-05",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0080"
+    },
+    {
+      "consumer": "DEL-03-05",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0081"
+    },
+    {
+      "consumer": "DEL-03-05",
+      "upstream": "DEL-03-02",
+      "basis": "DAG-002-E0415"
+    },
+    {
+      "consumer": "DEL-03-05",
+      "upstream": "DEL-02-02",
+      "basis": "DAG-002-E0416"
+    },
+    {
+      "consumer": "DEL-03-05",
+      "upstream": "DEL-01-02",
+      "basis": "DAG-002-E0417"
+    },
+    {
+      "consumer": "DEL-03-06",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0082"
+    },
+    {
+      "consumer": "DEL-03-06",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0083"
+    },
+    {
+      "consumer": "DEL-03-06",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0084"
+    },
+    {
+      "consumer": "DEL-03-06",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0085"
+    },
+    {
+      "consumer": "DEL-03-06",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0086"
+    },
+    {
+      "consumer": "DEL-03-06",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0087"
+    },
+    {
+      "consumer": "DEL-03-06",
+      "upstream": "DEL-03-02",
+      "basis": "DAG-002-E0418"
+    },
+    {
+      "consumer": "DEL-03-06",
+      "upstream": "DEL-02-02",
+      "basis": "DAG-002-E0419"
+    },
+    {
+      "consumer": "DEL-03-06",
+      "upstream": "DEL-01-02",
+      "basis": "DAG-002-E0420"
+    },
+    {
+      "consumer": "DEL-03-07",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0088"
+    },
+    {
+      "consumer": "DEL-03-07",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0089"
+    },
+    {
+      "consumer": "DEL-03-07",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0090"
+    },
+    {
+      "consumer": "DEL-03-07",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0091"
+    },
+    {
+      "consumer": "DEL-03-07",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0092"
+    },
+    {
+      "consumer": "DEL-03-07",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0093"
+    },
+    {
+      "consumer": "DEL-03-07",
+      "upstream": "DEL-03-01",
+      "basis": "DAG-002-E0421"
+    },
+    {
+      "consumer": "DEL-03-07",
+      "upstream": "DEL-03-02",
+      "basis": "DAG-002-E0422"
+    },
+    {
+      "consumer": "DEL-03-07",
+      "upstream": "DEL-01-02",
+      "basis": "DAG-002-E0423"
+    },
+    {
+      "consumer": "DEL-03-07",
+      "upstream": "DEL-01-03",
+      "basis": "DAG-002-E0424"
+    },
+    {
+      "consumer": "DEL-03-07",
+      "upstream": "DEL-02-04",
+      "basis": "DAG-002-E0425"
+    },
+    {
+      "consumer": "DEL-03-08",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0094"
+    },
+    {
+      "consumer": "DEL-03-08",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0095"
+    },
+    {
+      "consumer": "DEL-03-08",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0096"
+    },
+    {
+      "consumer": "DEL-03-08",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0097"
+    },
+    {
+      "consumer": "DEL-03-08",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0098"
+    },
+    {
+      "consumer": "DEL-03-08",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0099"
+    },
+    {
+      "consumer": "DEL-03-08",
+      "upstream": "DEL-03-01",
+      "basis": "DAG-002-E0426"
+    },
+    {
+      "consumer": "DEL-03-08",
+      "upstream": "DEL-03-02",
+      "basis": "DAG-002-E0427"
+    },
+    {
+      "consumer": "DEL-03-08",
+      "upstream": "DEL-02-02",
+      "basis": "DAG-002-E0428"
+    },
+    {
+      "consumer": "DEL-04-01",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0100"
+    },
+    {
+      "consumer": "DEL-04-01",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0101"
+    },
+    {
+      "consumer": "DEL-04-01",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0102"
+    },
+    {
+      "consumer": "DEL-04-01",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0103"
+    },
+    {
+      "consumer": "DEL-04-01",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0104"
+    },
+    {
+      "consumer": "DEL-04-01",
+      "upstream": "DEL-02-01",
+      "basis": "DAG-002-E0429"
+    },
+    {
+      "consumer": "DEL-04-01",
+      "upstream": "DEL-02-02",
+      "basis": "DAG-002-E0430"
+    },
+    {
+      "consumer": "DEL-04-01",
+      "upstream": "DEL-02-03",
+      "basis": "DAG-002-E0431"
+    },
+    {
+      "consumer": "DEL-04-02",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0105"
+    },
+    {
+      "consumer": "DEL-04-02",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0106"
+    },
+    {
+      "consumer": "DEL-04-02",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0107"
+    },
+    {
+      "consumer": "DEL-04-02",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0108"
+    },
+    {
+      "consumer": "DEL-04-02",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0109"
+    },
+    {
+      "consumer": "DEL-04-02",
+      "upstream": "DEL-04-01",
+      "basis": "DAG-002-E0432"
+    },
+    {
+      "consumer": "DEL-04-02",
+      "upstream": "DEL-03-08",
+      "basis": "DAG-002-E0433"
+    },
+    {
+      "consumer": "DEL-04-02",
+      "upstream": "DEL-02-02",
+      "basis": "DAG-002-E0434"
+    },
+    {
+      "consumer": "DEL-04-03",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0110"
+    },
+    {
+      "consumer": "DEL-04-03",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0111"
+    },
+    {
+      "consumer": "DEL-04-03",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0112"
+    },
+    {
+      "consumer": "DEL-04-03",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0113"
+    },
+    {
+      "consumer": "DEL-04-03",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0114"
+    },
+    {
+      "consumer": "DEL-04-03",
+      "upstream": "DEL-04-01",
+      "basis": "DAG-002-E0435"
+    },
+    {
+      "consumer": "DEL-04-03",
+      "upstream": "DEL-02-01",
+      "basis": "DAG-002-E0436"
+    },
+    {
+      "consumer": "DEL-04-03",
+      "upstream": "DEL-02-02",
+      "basis": "DAG-002-E0437"
+    },
+    {
+      "consumer": "DEL-04-04",
+      "upstream": "DEL-00-01",
+      "basis": "TP-DAG-004-DEL-04-04-E001"
+    },
+    {
+      "consumer": "DEL-04-04",
+      "upstream": "DEL-00-02",
+      "basis": "TP-DAG-004-DEL-04-04-E002"
+    },
+    {
+      "consumer": "DEL-04-04",
+      "upstream": "DEL-00-03",
+      "basis": "TP-DAG-004-DEL-04-04-E003"
+    },
+    {
+      "consumer": "DEL-04-04",
+      "upstream": "DEL-00-06",
+      "basis": "TP-DAG-004-DEL-04-04-E004"
+    },
+    {
+      "consumer": "DEL-04-04",
+      "upstream": "DEL-00-08",
+      "basis": "TP-DAG-004-DEL-04-04-E005"
+    },
+    {
+      "consumer": "DEL-04-04",
+      "upstream": "DEL-04-03",
+      "basis": "TP-DAG-004-DEL-04-04-E006"
+    },
+    {
+      "consumer": "DEL-04-04",
+      "upstream": "DEL-04-01",
+      "basis": "TP-DAG-004-DEL-04-04-E007"
+    },
+    {
+      "consumer": "DEL-04-04",
+      "upstream": "DEL-04-06",
+      "basis": "TP-DAG-004-DEL-04-04-E008"
+    },
+    {
+      "consumer": "DEL-04-04",
+      "upstream": "DEL-02-02",
+      "basis": "TP-DAG-004-DEL-04-04-E009"
+    },
+    {
+      "consumer": "DEL-04-05",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0120"
+    },
+    {
+      "consumer": "DEL-04-05",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0121"
+    },
+    {
+      "consumer": "DEL-04-05",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0122"
+    },
+    {
+      "consumer": "DEL-04-05",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0123"
+    },
+    {
+      "consumer": "DEL-04-05",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0124"
+    },
+    {
+      "consumer": "DEL-04-05",
+      "upstream": "DEL-04-01",
+      "basis": "DAG-002-E0444"
+    },
+    {
+      "consumer": "DEL-04-05",
+      "upstream": "DEL-04-06",
+      "basis": "DAG-002-E0445"
+    },
+    {
+      "consumer": "DEL-04-06",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0125"
+    },
+    {
+      "consumer": "DEL-04-06",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0126"
+    },
+    {
+      "consumer": "DEL-04-06",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0127"
+    },
+    {
+      "consumer": "DEL-04-06",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0128"
+    },
+    {
+      "consumer": "DEL-04-06",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0129"
+    },
+    {
+      "consumer": "DEL-04-06",
+      "upstream": "DEL-04-01",
+      "basis": "DAG-002-E0438"
+    },
+    {
+      "consumer": "DEL-04-06",
+      "upstream": "DEL-02-03",
+      "basis": "DAG-002-E0439"
+    },
+    {
+      "consumer": "DEL-04-06",
+      "upstream": "DEL-02-02",
+      "basis": "DAG-002-E0440"
+    },
+    {
+      "consumer": "DEL-05-01",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0130"
+    },
+    {
+      "consumer": "DEL-05-01",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0131"
+    },
+    {
+      "consumer": "DEL-05-01",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0132"
+    },
+    {
+      "consumer": "DEL-05-01",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0133"
+    },
+    {
+      "consumer": "DEL-05-01",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0134"
+    },
+    {
+      "consumer": "DEL-05-02",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0135"
+    },
+    {
+      "consumer": "DEL-05-02",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0136"
+    },
+    {
+      "consumer": "DEL-05-02",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0137"
+    },
+    {
+      "consumer": "DEL-05-02",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0138"
+    },
+    {
+      "consumer": "DEL-05-02",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0139"
+    },
+    {
+      "consumer": "DEL-05-02",
+      "upstream": "DEL-05-01",
+      "basis": "DAG-002-E0451"
+    },
+    {
+      "consumer": "DEL-05-02",
+      "upstream": "DEL-02-02",
+      "basis": "DAG-002-E0452"
+    },
+    {
+      "consumer": "DEL-05-02",
+      "upstream": "DEL-05-04",
+      "basis": "DAG-002-E0453"
+    },
+    {
+      "consumer": "DEL-05-03",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0140"
+    },
+    {
+      "consumer": "DEL-05-03",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0141"
+    },
+    {
+      "consumer": "DEL-05-03",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0142"
+    },
+    {
+      "consumer": "DEL-05-03",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0143"
+    },
+    {
+      "consumer": "DEL-05-03",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0144"
+    },
+    {
+      "consumer": "DEL-05-03",
+      "upstream": "DEL-04-02",
+      "basis": "DAG-002-E0454"
+    },
+    {
+      "consumer": "DEL-05-03",
+      "upstream": "DEL-03-08",
+      "basis": "DAG-002-E0455"
+    },
+    {
+      "consumer": "DEL-05-03",
+      "upstream": "DEL-05-01",
+      "basis": "DAG-002-E0456"
+    },
+    {
+      "consumer": "DEL-05-03",
+      "upstream": "DEL-02-02",
+      "basis": "DAG-002-E0457"
+    },
+    {
+      "consumer": "DEL-05-03",
+      "upstream": "DEL-05-04",
+      "basis": "DAG-002-E0458"
+    },
+    {
+      "consumer": "DEL-05-04",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0145"
+    },
+    {
+      "consumer": "DEL-05-04",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0146"
+    },
+    {
+      "consumer": "DEL-05-04",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0147"
+    },
+    {
+      "consumer": "DEL-05-04",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0148"
+    },
+    {
+      "consumer": "DEL-05-04",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0149"
+    },
+    {
+      "consumer": "DEL-05-04",
+      "upstream": "DEL-02-03",
+      "basis": "DAG-002-E0450"
+    },
+    {
+      "consumer": "DEL-05-05",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0150"
+    },
+    {
+      "consumer": "DEL-05-05",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0151"
+    },
+    {
+      "consumer": "DEL-05-05",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0152"
+    },
+    {
+      "consumer": "DEL-05-05",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0153"
+    },
+    {
+      "consumer": "DEL-05-05",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0154"
+    },
+    {
+      "consumer": "DEL-05-05",
+      "upstream": "DEL-05-01",
+      "basis": "DAG-002-E0459"
+    },
+    {
+      "consumer": "DEL-05-05",
+      "upstream": "DEL-04-01",
+      "basis": "DAG-002-E0460"
+    },
+    {
+      "consumer": "DEL-05-05",
+      "upstream": "DEL-02-02",
+      "basis": "DAG-002-E0461"
+    },
+    {
+      "consumer": "DEL-05-03",
+      "upstream": "DEL-05-05",
+      "basis": "DEL-05-05-E001"
+    },
+    {
+      "consumer": "DEL-06-01",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0155"
+    },
+    {
+      "consumer": "DEL-06-01",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0156"
+    },
+    {
+      "consumer": "DEL-06-01",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0157"
+    },
+    {
+      "consumer": "DEL-06-01",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0158"
+    },
+    {
+      "consumer": "DEL-06-01",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0159"
+    },
+    {
+      "consumer": "DEL-06-01",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0160"
+    },
+    {
+      "consumer": "DEL-06-01",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0161"
+    },
+    {
+      "consumer": "DEL-06-01",
+      "upstream": "DEL-02-01",
+      "basis": "DAG-002-E0462"
+    },
+    {
+      "consumer": "DEL-06-01",
+      "upstream": "DEL-02-02",
+      "basis": "DAG-002-E0463"
+    },
+    {
+      "consumer": "DEL-06-01",
+      "upstream": "DEL-02-03",
+      "basis": "DAG-002-E0464"
+    },
+    {
+      "consumer": "DEL-06-01",
+      "upstream": "DEL-01-02",
+      "basis": "DAG-002-E0465"
+    },
+    {
+      "consumer": "DEL-06-01",
+      "upstream": "DEL-01-04",
+      "basis": "DAG-002-E0466"
+    },
+    {
+      "consumer": "DEL-06-02",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0162"
+    },
+    {
+      "consumer": "DEL-06-02",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0163"
+    },
+    {
+      "consumer": "DEL-06-02",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0164"
+    },
+    {
+      "consumer": "DEL-06-02",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0165"
+    },
+    {
+      "consumer": "DEL-06-02",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0166"
+    },
+    {
+      "consumer": "DEL-06-02",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0167"
+    },
+    {
+      "consumer": "DEL-06-02",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0168"
+    },
+    {
+      "consumer": "DEL-06-02",
+      "upstream": "DEL-06-01",
+      "basis": "DAG-002-E0467"
+    },
+    {
+      "consumer": "DEL-06-02",
+      "upstream": "DEL-02-02",
+      "basis": "DAG-002-E0468"
+    },
+    {
+      "consumer": "DEL-06-03",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0169"
+    },
+    {
+      "consumer": "DEL-06-03",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0170"
+    },
+    {
+      "consumer": "DEL-06-03",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0171"
+    },
+    {
+      "consumer": "DEL-06-03",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0172"
+    },
+    {
+      "consumer": "DEL-06-03",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0173"
+    },
+    {
+      "consumer": "DEL-06-03",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0174"
+    },
+    {
+      "consumer": "DEL-06-03",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0175"
+    },
+    {
+      "consumer": "DEL-06-03",
+      "upstream": "DEL-06-01",
+      "basis": "DAG-002-E0469"
+    },
+    {
+      "consumer": "DEL-06-03",
+      "upstream": "DEL-02-03",
+      "basis": "DAG-002-E0470"
+    },
+    {
+      "consumer": "DEL-06-03",
+      "upstream": "DEL-05-04",
+      "basis": "DAG-002-E0471"
+    },
+    {
+      "consumer": "DEL-06-04",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0176"
+    },
+    {
+      "consumer": "DEL-06-04",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0177"
+    },
+    {
+      "consumer": "DEL-06-04",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0178"
+    },
+    {
+      "consumer": "DEL-06-04",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0179"
+    },
+    {
+      "consumer": "DEL-06-04",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0180"
+    },
+    {
+      "consumer": "DEL-06-04",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0181"
+    },
+    {
+      "consumer": "DEL-06-04",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0182"
+    },
+    {
+      "consumer": "DEL-06-04",
+      "upstream": "DEL-06-01",
+      "basis": "DAG-002-E0472"
+    },
+    {
+      "consumer": "DEL-06-04",
+      "upstream": "DEL-02-05",
+      "basis": "DAG-002-E0473"
+    },
+    {
+      "consumer": "DEL-06-05",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0183"
+    },
+    {
+      "consumer": "DEL-06-05",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0184"
+    },
+    {
+      "consumer": "DEL-06-05",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0185"
+    },
+    {
+      "consumer": "DEL-06-05",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0186"
+    },
+    {
+      "consumer": "DEL-06-05",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0187"
+    },
+    {
+      "consumer": "DEL-06-05",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0188"
+    },
+    {
+      "consumer": "DEL-06-05",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0189"
+    },
+    {
+      "consumer": "DEL-06-05",
+      "upstream": "DEL-06-01",
+      "basis": "DAG-002-E0474"
+    },
+    {
+      "consumer": "DEL-06-05",
+      "upstream": "DEL-06-02",
+      "basis": "DAG-002-E0475"
+    },
+    {
+      "consumer": "DEL-07-01::palette-implementation",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0190"
+    },
+    {
+      "consumer": "DEL-07-01::palette-implementation",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0191"
+    },
+    {
+      "consumer": "DEL-07-01::palette-implementation",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0192"
+    },
+    {
+      "consumer": "DEL-07-01::palette-implementation",
+      "upstream": "DEL-00-05",
+      "basis": "DAG-002-E0193"
+    },
+    {
+      "consumer": "DEL-07-01::palette-implementation",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0194"
+    },
+    {
+      "consumer": "DEL-07-01::palette-implementation",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0195"
+    },
+    {
+      "consumer": "DEL-07-01::palette-implementation",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0196"
+    },
+    {
+      "consumer": "DEL-07-01::palette-implementation",
+      "upstream": "DEL-02-01",
+      "basis": "DAG-002-E0478"
+    },
+    {
+      "consumer": "DEL-07-01::palette-implementation",
+      "upstream": "DEL-02-02",
+      "basis": "DAG-002-E0479"
+    },
+    {
+      "consumer": "DEL-07-01::palette-implementation",
+      "upstream": "DEL-02-05",
+      "basis": "DAG-002-E0480"
+    },
+    {
+      "consumer": "DEL-07-01::palette-implementation",
+      "upstream": "DEL-03-02",
+      "basis": "DAG-002-E0481"
+    },
+    {
+      "consumer": "DEL-07-01::palette-implementation",
+      "upstream": "DEL-03-03",
+      "basis": "DAG-002-E0482"
+    },
+    {
+      "consumer": "DEL-07-01::palette-implementation",
+      "upstream": "DEL-03-04",
+      "basis": "DAG-002-E0483"
+    },
+    {
+      "consumer": "DEL-07-01::palette-implementation",
+      "upstream": "DEL-03-05",
+      "basis": "DAG-002-E0484"
+    },
+    {
+      "consumer": "DEL-07-01::palette-implementation",
+      "upstream": "DEL-03-06",
+      "basis": "DAG-002-E0485"
+    },
+    {
+      "consumer": "DEL-07-02",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0197"
+    },
+    {
+      "consumer": "DEL-07-02",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0198"
+    },
+    {
+      "consumer": "DEL-07-02",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0199"
+    },
+    {
+      "consumer": "DEL-07-02",
+      "upstream": "DEL-00-05",
+      "basis": "DAG-002-E0200"
+    },
+    {
+      "consumer": "DEL-07-02",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0201"
+    },
+    {
+      "consumer": "DEL-07-02",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0202"
+    },
+    {
+      "consumer": "DEL-07-02",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0203"
+    },
+    {
+      "consumer": "DEL-07-02",
+      "upstream": "DEL-02-01",
+      "basis": "DAG-002-E0486"
+    },
+    {
+      "consumer": "DEL-07-02",
+      "upstream": "DEL-02-05",
+      "basis": "DAG-002-E0487"
+    },
+    {
+      "consumer": "DEL-07-02",
+      "upstream": "DEL-03-02",
+      "basis": "DAG-002-E0488"
+    },
+    {
+      "consumer": "DEL-07-02",
+      "upstream": "DEL-02-02",
+      "basis": "DEP-007-02-004"
+    },
+    {
+      "consumer": "DEL-07-02",
+      "upstream": "DEL-03-01",
+      "basis": "DEP-007-02-005"
+    },
+    {
+      "consumer": "DEL-07-02",
+      "upstream": "DEL-06-01",
+      "basis": "DEP-007-02-006"
+    },
+    {
+      "consumer": "DEL-07-02",
+      "upstream": "DEL-06-04",
+      "basis": "DEP-007-02-007"
+    },
+    {
+      "consumer": "DEL-07-03",
+      "upstream": "DEL-07-02",
+      "basis": "DEP-007-02-008"
+    },
+    {
+      "consumer": "DEL-07-04",
+      "upstream": "DEL-07-02",
+      "basis": "DEP-007-02-009"
+    },
+    {
+      "consumer": "DEL-07-03",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0204"
+    },
+    {
+      "consumer": "DEL-07-03",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0205"
+    },
+    {
+      "consumer": "DEL-07-03",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0206"
+    },
+    {
+      "consumer": "DEL-07-03",
+      "upstream": "DEL-00-05",
+      "basis": "DAG-002-E0207"
+    },
+    {
+      "consumer": "DEL-07-03",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0208"
+    },
+    {
+      "consumer": "DEL-07-03",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0209"
+    },
+    {
+      "consumer": "DEL-07-03",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0210"
+    },
+    {
+      "consumer": "DEL-07-03",
+      "upstream": "DEL-03-01",
+      "basis": "DAG-002-E0489"
+    },
+    {
+      "consumer": "DEL-07-03",
+      "upstream": "DEL-03-02",
+      "basis": "DAG-002-E0490"
+    },
+    {
+      "consumer": "DEL-07-03",
+      "upstream": "DEL-03-07",
+      "basis": "DAG-002-E0491"
+    },
+    {
+      "consumer": "DEL-07-03",
+      "upstream": "DEL-06-01",
+      "basis": "DAG-002-E0492"
+    },
+    {
+      "consumer": "DEL-07-03",
+      "upstream": "DEL-06-04",
+      "basis": "DAG-002-E0493"
+    },
+    {
+      "consumer": "DEL-07-03",
+      "upstream": "DEL-12-01",
+      "basis": "DAG-002-E0494"
+    },
+    {
+      "consumer": "DEL-07-03",
+      "upstream": "DEL-02-02",
+      "basis": "DEV-001-STAGE2-DEL-07-03-PKG02-001"
+    },
+    {
+      "consumer": "DEL-07-04",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0211"
+    },
+    {
+      "consumer": "DEL-07-04",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0212"
+    },
+    {
+      "consumer": "DEL-07-04",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0213"
+    },
+    {
+      "consumer": "DEL-07-04",
+      "upstream": "DEL-00-05",
+      "basis": "DAG-002-E0214"
+    },
+    {
+      "consumer": "DEL-07-04",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0215"
+    },
+    {
+      "consumer": "DEL-07-04",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0216"
+    },
+    {
+      "consumer": "DEL-07-04",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0217"
+    },
+    {
+      "consumer": "DEL-07-04",
+      "upstream": "DEL-05-04",
+      "basis": "DAG-002-E0496"
+    },
+    {
+      "consumer": "DEL-07-04",
+      "upstream": "DEL-06-03",
+      "basis": "DAG-002-E0497"
+    },
+    {
+      "consumer": "DEL-07-04",
+      "upstream": "DEL-04-06",
+      "basis": "DAG-002-E0498"
+    },
+    {
+      "consumer": "DEL-07-04",
+      "upstream": "DEL-02-03",
+      "basis": "DEV-001-STAGE2-DEL-07-04-PKG02-001"
+    },
+    {
+      "consumer": "DEL-07-05",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-004-E0218"
+    },
+    {
+      "consumer": "DEL-07-05",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-004-E0219"
+    },
+    {
+      "consumer": "DEL-07-05",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-004-E0220"
+    },
+    {
+      "consumer": "DEL-07-05",
+      "upstream": "DEL-00-05",
+      "basis": "DAG-004-E0221"
+    },
+    {
+      "consumer": "DEL-07-05",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-004-E0222"
+    },
+    {
+      "consumer": "DEL-07-05",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-004-E0223"
+    },
+    {
+      "consumer": "DEL-07-05",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-004-E0224"
+    },
+    {
+      "consumer": "DEL-07-05",
+      "upstream": "DEL-05-03",
+      "basis": "DAG-004-E0499"
+    },
+    {
+      "consumer": "DEL-07-05",
+      "upstream": "DEL-05-04",
+      "basis": "DAG-004-E0500"
+    },
+    {
+      "consumer": "DEL-07-05",
+      "upstream": "DEL-04-06",
+      "basis": "DAG-004-E0501"
+    },
+    {
+      "consumer": "DEL-07-05",
+      "upstream": "DEL-02-02",
+      "basis": "DEV-001-STAGE2-DEL-07-05-PKG02-001"
+    },
+    {
+      "consumer": "DEL-07-05",
+      "upstream": "DEL-02-03",
+      "basis": "DEV-001-STAGE2-DEL-07-05-PKG02-002"
+    },
+    {
+      "consumer": "DEL-07-05",
+      "upstream": "DEL-02-05",
+      "basis": "DEV-001-STAGE2-DEL-07-05-PKG02-003"
+    },
+    {
+      "consumer": "DEL-07-06",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0225"
+    },
+    {
+      "consumer": "DEL-07-06",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0226"
+    },
+    {
+      "consumer": "DEL-07-06",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0227"
+    },
+    {
+      "consumer": "DEL-07-06",
+      "upstream": "DEL-00-05",
+      "basis": "DAG-002-E0228"
+    },
+    {
+      "consumer": "DEL-07-06",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0229"
+    },
+    {
+      "consumer": "DEL-07-06",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0230"
+    },
+    {
+      "consumer": "DEL-07-06",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0231"
+    },
+    {
+      "consumer": "DEL-07-07",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0232"
+    },
+    {
+      "consumer": "DEL-07-07",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0233"
+    },
+    {
+      "consumer": "DEL-07-07",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0234"
+    },
+    {
+      "consumer": "DEL-07-07",
+      "upstream": "DEL-00-05",
+      "basis": "DAG-002-E0235"
+    },
+    {
+      "consumer": "DEL-07-07",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0236"
+    },
+    {
+      "consumer": "DEL-07-07",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0237"
+    },
+    {
+      "consumer": "DEL-07-07",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0238"
+    },
+    {
+      "consumer": "DEL-07-07",
+      "upstream": "DEL-04-01",
+      "basis": "DAG-002-E0502"
+    },
+    {
+      "consumer": "DEL-07-07",
+      "upstream": "DEL-05-01",
+      "basis": "DAG-002-E0503"
+    },
+    {
+      "consumer": "DEL-07-07",
+      "upstream": "DEL-04-06",
+      "basis": "DAG-002-E0504"
+    },
+    {
+      "consumer": "DEL-07-07",
+      "upstream": "DEL-05-04",
+      "basis": "DAG-002-E0505"
+    },
+    {
+      "consumer": "DEL-07-07",
+      "upstream": "DEL-10-05",
+      "basis": "DAG-002-E0624"
+    },
+    {
+      "consumer": "DEL-07-07",
+      "upstream": "DEL-02-03",
+      "basis": "DEV-001-STAGE2-DEL-07-07-PKG02-001"
+    },
+    {
+      "consumer": "DEL-07-07",
+      "upstream": "DEL-02-05",
+      "basis": "DEV-001-STAGE2-DEL-07-07-PKG02-002"
+    },
+    {
+      "consumer": "DEL-07-08",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0625"
+    },
+    {
+      "consumer": "DEL-07-08",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0626"
+    },
+    {
+      "consumer": "DEL-07-08",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0627"
+    },
+    {
+      "consumer": "DEL-07-08",
+      "upstream": "DEL-00-05",
+      "basis": "DAG-002-E0628"
+    },
+    {
+      "consumer": "DEL-07-08",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0629"
+    },
+    {
+      "consumer": "DEL-07-08",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0630"
+    },
+    {
+      "consumer": "DEL-07-08",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0631"
+    },
+    {
+      "consumer": "DEL-07-08",
+      "upstream": "DEL-07-01::palette-implementation",
+      "basis": "DAG-002-E0840"
+    },
+    {
+      "consumer": "DEL-07-08",
+      "upstream": "DEL-07-02",
+      "basis": "DAG-002-E0841"
+    },
+    {
+      "consumer": "DEL-07-08",
+      "upstream": "DEL-07-04",
+      "basis": "DAG-002-E0842"
+    },
+    {
+      "consumer": "DEL-07-08",
+      "upstream": "DEL-07-05",
+      "basis": "DAG-002-E0843"
+    },
+    {
+      "consumer": "DEL-07-08",
+      "upstream": "DEL-13-01",
+      "basis": "DAG-002-E0844"
+    },
+    {
+      "consumer": "DEL-07-08",
+      "upstream": "DEL-13-03",
+      "basis": "DAG-002-E0845"
+    },
+    {
+      "consumer": "DEL-07-08",
+      "upstream": "DEL-14-01",
+      "basis": "DAG-002-E0847"
+    },
+    {
+      "consumer": "DEL-07-08",
+      "upstream": "DEL-14-03",
+      "basis": "DAG-002-E0848"
+    },
+    {
+      "consumer": "DEL-07-08",
+      "upstream": "DEL-14-04",
+      "basis": "DAG-002-E0849"
+    },
+    {
+      "consumer": "DEL-07-08",
+      "upstream": "DEL-14-05::comparison-contract",
+      "basis": "DAG-002-E0850"
+    },
+    {
+      "consumer": "DEL-07-08",
+      "upstream": "DEL-16-01",
+      "basis": "DAG-002-E0851"
+    },
+    {
+      "consumer": "DEL-07-08",
+      "upstream": "DEL-16-02",
+      "basis": "DAG-002-E0852"
+    },
+    {
+      "consumer": "DEL-07-08",
+      "upstream": "DEL-16-03::acceptance-decision",
+      "basis": "DAG-002-E0853"
+    },
+    {
+      "consumer": "DEL-07-08",
+      "upstream": "DEL-02-03",
+      "basis": "DEV-001-STAGE2-DEL-07-08-PKG02-001"
+    },
+    {
+      "consumer": "DEL-07-08",
+      "upstream": "DEL-02-05",
+      "basis": "DEV-001-STAGE2-DEL-07-08-PKG02-002"
+    },
+    {
+      "consumer": "DEL-08-01",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0239"
+    },
+    {
+      "consumer": "DEL-08-01",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0240"
+    },
+    {
+      "consumer": "DEL-08-01",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0241"
+    },
+    {
+      "consumer": "DEL-08-01",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0242"
+    },
+    {
+      "consumer": "DEL-08-01",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0243"
+    },
+    {
+      "consumer": "DEL-08-01",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0244"
+    },
+    {
+      "consumer": "DEL-08-01",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0245"
+    },
+    {
+      "consumer": "DEL-08-01",
+      "upstream": "DEL-02-05",
+      "basis": "DAG-002-E0522"
+    },
+    {
+      "consumer": "DEL-08-01",
+      "upstream": "DEL-05-03",
+      "basis": "DAG-002-E0523"
+    },
+    {
+      "consumer": "DEL-08-01",
+      "upstream": "DEL-05-04",
+      "basis": "DAG-002-E0524"
+    },
+    {
+      "consumer": "DEL-08-01",
+      "upstream": "DEL-06-04",
+      "basis": "DAG-002-E0525"
+    },
+    {
+      "consumer": "DEL-08-01",
+      "upstream": "DEL-08-02",
+      "basis": "DAG-002-E0526"
+    },
+    {
+      "consumer": "DEL-08-01",
+      "upstream": "DEL-08-03",
+      "basis": "DAG-002-E0527"
+    },
+    {
+      "consumer": "DEL-08-01",
+      "upstream": "DEL-01-04",
+      "basis": "DAG-002-E0528"
+    },
+    {
+      "consumer": "DEL-08-02",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0246"
+    },
+    {
+      "consumer": "DEL-08-02",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0247"
+    },
+    {
+      "consumer": "DEL-08-02",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0248"
+    },
+    {
+      "consumer": "DEL-08-02",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0249"
+    },
+    {
+      "consumer": "DEL-08-02",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0250"
+    },
+    {
+      "consumer": "DEL-08-02",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0251"
+    },
+    {
+      "consumer": "DEL-08-02",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0252"
+    },
+    {
+      "consumer": "DEL-08-02",
+      "upstream": "DEL-02-05",
+      "basis": "DAG-002-E0512"
+    },
+    {
+      "consumer": "DEL-08-02",
+      "upstream": "DEL-06-04",
+      "basis": "DAG-002-E0513"
+    },
+    {
+      "consumer": "DEL-08-02",
+      "upstream": "DEL-02-02",
+      "basis": "TASK-DEV001-STAGE2-DEL-08-02-E001"
+    },
+    {
+      "consumer": "DEL-08-03",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0253"
+    },
+    {
+      "consumer": "DEL-08-03",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0254"
+    },
+    {
+      "consumer": "DEL-08-03",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0255"
+    },
+    {
+      "consumer": "DEL-08-03",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0256"
+    },
+    {
+      "consumer": "DEL-08-03",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0257"
+    },
+    {
+      "consumer": "DEL-08-03",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0258"
+    },
+    {
+      "consumer": "DEL-08-03",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0259"
+    },
+    {
+      "consumer": "DEL-08-03",
+      "upstream": "DEL-04-06",
+      "basis": "DAG-002-E0518"
+    },
+    {
+      "consumer": "DEL-08-03",
+      "upstream": "DEL-05-04",
+      "basis": "DAG-002-E0519"
+    },
+    {
+      "consumer": "DEL-08-03",
+      "upstream": "DEL-03-07",
+      "basis": "DAG-002-E0520"
+    },
+    {
+      "consumer": "DEL-08-03",
+      "upstream": "DEL-01-04",
+      "basis": "DAG-002-E0521"
+    },
+    {
+      "consumer": "DEL-08-04::base-result-envelope",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0260"
+    },
+    {
+      "consumer": "DEL-08-04::base-result-envelope",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0261"
+    },
+    {
+      "consumer": "DEL-08-04::base-result-envelope",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0262"
+    },
+    {
+      "consumer": "DEL-08-04::base-result-envelope",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0263"
+    },
+    {
+      "consumer": "DEL-08-04::base-result-envelope",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0264"
+    },
+    {
+      "consumer": "DEL-08-04::base-result-envelope",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0265"
+    },
+    {
+      "consumer": "DEL-08-04::base-result-envelope",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0266"
+    },
+    {
+      "consumer": "DEL-08-04::base-result-envelope",
+      "upstream": "DEL-02-01",
+      "basis": "DAG-002-E0514"
+    },
+    {
+      "consumer": "DEL-08-04::base-result-envelope",
+      "upstream": "DEL-02-02",
+      "basis": "DAG-002-E0515"
+    },
+    {
+      "consumer": "DEL-08-04::base-result-envelope",
+      "upstream": "DEL-08-02",
+      "basis": "DEP-08-04-E001"
+    },
+    {
+      "consumer": "DEL-08-04::base-result-envelope",
+      "upstream": "DEL-06-04",
+      "basis": "DEP-08-04-E002"
+    },
+    {
+      "consumer": "DEL-07-05",
+      "upstream": "DEL-08-04::base-result-envelope",
+      "basis": "DEP-08-04-E005"
+    },
+    {
+      "consumer": "DEL-08-01",
+      "upstream": "DEL-08-04::base-result-envelope",
+      "basis": "DEP-08-04-E006"
+    },
+    {
+      "consumer": "DEL-10-02",
+      "upstream": "DEL-08-04::base-result-envelope",
+      "basis": "DEP-08-04-E007"
+    },
+    {
+      "consumer": "DEL-08-05",
+      "upstream": "DEL-00-01",
+      "basis": "DEL-08-05-DEP-004"
+    },
+    {
+      "consumer": "DEL-08-05",
+      "upstream": "DEL-00-02",
+      "basis": "DEL-08-05-DEP-005"
+    },
+    {
+      "consumer": "DEL-08-05",
+      "upstream": "DEL-00-03",
+      "basis": "DEL-08-05-DEP-006"
+    },
+    {
+      "consumer": "DEL-08-05",
+      "upstream": "DEL-00-04",
+      "basis": "DEL-08-05-DEP-007"
+    },
+    {
+      "consumer": "DEL-08-05",
+      "upstream": "DEL-00-06",
+      "basis": "DEL-08-05-DEP-008"
+    },
+    {
+      "consumer": "DEL-08-05",
+      "upstream": "DEL-00-07",
+      "basis": "DEL-08-05-DEP-009"
+    },
+    {
+      "consumer": "DEL-08-05",
+      "upstream": "DEL-00-08",
+      "basis": "DEL-08-05-DEP-010"
+    },
+    {
+      "consumer": "DEL-08-05",
+      "upstream": "DEL-01-02",
+      "basis": "DEL-08-05-DEP-011"
+    },
+    {
+      "consumer": "DEL-08-05",
+      "upstream": "DEL-01-04",
+      "basis": "DEL-08-05-DEP-012"
+    },
+    {
+      "consumer": "DEL-08-05",
+      "upstream": "DEL-08-01",
+      "basis": "DEL-08-05-DEP-013"
+    },
+    {
+      "consumer": "DEL-08-06",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0632"
+    },
+    {
+      "consumer": "DEL-08-06",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0633"
+    },
+    {
+      "consumer": "DEL-08-06",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0634"
+    },
+    {
+      "consumer": "DEL-08-06",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0635"
+    },
+    {
+      "consumer": "DEL-08-06",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0636"
+    },
+    {
+      "consumer": "DEL-08-06",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0637"
+    },
+    {
+      "consumer": "DEL-08-06",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0638"
+    },
+    {
+      "consumer": "DEL-08-06",
+      "upstream": "DEL-01-04",
+      "basis": "DAG-002-E0854"
+    },
+    {
+      "consumer": "DEL-08-06",
+      "upstream": "DEL-08-01",
+      "basis": "DAG-002-E0855"
+    },
+    {
+      "consumer": "DEL-08-06",
+      "upstream": "DEL-08-02",
+      "basis": "DAG-002-E0856"
+    },
+    {
+      "consumer": "DEL-08-06",
+      "upstream": "DEL-08-03",
+      "basis": "DAG-002-E0857"
+    },
+    {
+      "consumer": "DEL-08-06",
+      "upstream": "DEL-08-04::base-result-envelope",
+      "basis": "DAG-002-E0858"
+    },
+    {
+      "consumer": "DEL-08-06",
+      "upstream": "DEL-08-05",
+      "basis": "DAG-002-E0859"
+    },
+    {
+      "consumer": "DEL-08-06",
+      "upstream": "DEL-12-02",
+      "basis": "DAG-002-E0860"
+    },
+    {
+      "consumer": "DEL-08-06",
+      "upstream": "DEL-14-01",
+      "basis": "DAG-002-E0861"
+    },
+    {
+      "consumer": "DEL-08-06",
+      "upstream": "DEL-14-02",
+      "basis": "DAG-002-E0862"
+    },
+    {
+      "consumer": "DEL-08-06",
+      "upstream": "DEL-14-03",
+      "basis": "DAG-002-E0863"
+    },
+    {
+      "consumer": "DEL-08-06",
+      "upstream": "DEL-14-04",
+      "basis": "DAG-002-E0864"
+    },
+    {
+      "consumer": "DEL-08-06",
+      "upstream": "DEL-14-05::comparison-contract",
+      "basis": "DAG-002-E0865"
+    },
+    {
+      "consumer": "DEL-08-06",
+      "upstream": "DEL-15-01",
+      "basis": "DAG-002-E0866"
+    },
+    {
+      "consumer": "DEL-08-06",
+      "upstream": "DEL-15-03",
+      "basis": "DAG-002-E0867"
+    },
+    {
+      "consumer": "DEL-08-06",
+      "upstream": "DEL-15-04",
+      "basis": "DAG-002-E0868"
+    },
+    {
+      "consumer": "DEL-09-01",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0274"
+    },
+    {
+      "consumer": "DEL-09-01",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0275"
+    },
+    {
+      "consumer": "DEL-09-01",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0276"
+    },
+    {
+      "consumer": "DEL-09-01",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0277"
+    },
+    {
+      "consumer": "DEL-09-01",
+      "upstream": "DEL-04-01",
+      "basis": "DAG-002-E0532"
+    },
+    {
+      "consumer": "DEL-09-01",
+      "upstream": "DEL-04-02",
+      "basis": "DAG-002-E0533"
+    },
+    {
+      "consumer": "DEL-09-01",
+      "upstream": "DEL-04-03",
+      "basis": "DAG-002-E0534"
+    },
+    {
+      "consumer": "DEL-09-01",
+      "upstream": "DEL-05-01",
+      "basis": "DAG-002-E0535"
+    },
+    {
+      "consumer": "DEL-09-01",
+      "upstream": "DEL-01-02",
+      "basis": "DAG-002-E0536"
+    },
+    {
+      "consumer": "DEL-09-01",
+      "upstream": "DEL-02-02",
+      "basis": "TP-DAG-004-DEL-09-01-E001"
+    },
+    {
+      "consumer": "DEL-09-01",
+      "upstream": "DEL-04-06",
+      "basis": "TP-DAG-004-DEL-09-01-E002"
+    },
+    {
+      "consumer": "DEL-09-02",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0278"
+    },
+    {
+      "consumer": "DEL-09-02",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0279"
+    },
+    {
+      "consumer": "DEL-09-02",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0280"
+    },
+    {
+      "consumer": "DEL-09-02",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0281"
+    },
+    {
+      "consumer": "DEL-09-02",
+      "upstream": "DEL-05-03",
+      "basis": "DAG-002-E0537"
+    },
+    {
+      "consumer": "DEL-09-02",
+      "upstream": "DEL-03-08",
+      "basis": "DAG-002-E0538"
+    },
+    {
+      "consumer": "DEL-09-02",
+      "upstream": "DEL-01-02",
+      "basis": "DAG-002-E0540"
+    },
+    {
+      "consumer": "DEL-09-03",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0282"
+    },
+    {
+      "consumer": "DEL-09-03",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0283"
+    },
+    {
+      "consumer": "DEL-09-03",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0284"
+    },
+    {
+      "consumer": "DEL-09-03",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0285"
+    },
+    {
+      "consumer": "DEL-09-03",
+      "upstream": "DEL-04-04",
+      "basis": "DAG-002-E0541"
+    },
+    {
+      "consumer": "DEL-09-03",
+      "upstream": "DEL-04-06",
+      "basis": "DAG-002-E0542"
+    },
+    {
+      "consumer": "DEL-09-04",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0286"
+    },
+    {
+      "consumer": "DEL-09-04",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0287"
+    },
+    {
+      "consumer": "DEL-09-04",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0288"
+    },
+    {
+      "consumer": "DEL-09-04",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0289"
+    },
+    {
+      "consumer": "DEL-09-04",
+      "upstream": "DEL-09-01",
+      "basis": "DAG-002-E0543"
+    },
+    {
+      "consumer": "DEL-09-04",
+      "upstream": "DEL-09-02",
+      "basis": "DAG-002-E0544"
+    },
+    {
+      "consumer": "DEL-09-04",
+      "upstream": "DEL-09-03",
+      "basis": "DAG-002-E0545"
+    },
+    {
+      "consumer": "DEL-09-04",
+      "upstream": "DEL-01-04",
+      "basis": "DAG-002-E0546"
+    },
+    {
+      "consumer": "DEL-09-05",
+      "upstream": "DEL-09-04",
+      "basis": "DEL-09-04-E001"
+    },
+    {
+      "consumer": "DEL-09-05",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0290"
+    },
+    {
+      "consumer": "DEL-09-05",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0291"
+    },
+    {
+      "consumer": "DEL-09-05",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0292"
+    },
+    {
+      "consumer": "DEL-09-05",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0293"
+    },
+    {
+      "consumer": "DEL-09-05",
+      "upstream": "DEL-09-01",
+      "basis": "DAG-002-E0547"
+    },
+    {
+      "consumer": "DEL-09-05",
+      "upstream": "DEL-09-02",
+      "basis": "DAG-002-E0548"
+    },
+    {
+      "consumer": "DEL-09-05",
+      "upstream": "DEL-09-03",
+      "basis": "DAG-002-E0549"
+    },
+    {
+      "consumer": "DEL-09-05",
+      "upstream": "DEL-08-05",
+      "basis": "DAG-002-E0550"
+    },
+    {
+      "consumer": "DEL-09-05",
+      "upstream": "DEL-01-04",
+      "basis": "DAG-002-E0551"
+    },
+    {
+      "consumer": "DEL-10-04",
+      "upstream": "DEL-09-05",
+      "basis": "DAG-002-E0620"
+    },
+    {
+      "consumer": "DEL-10-01",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0294"
+    },
+    {
+      "consumer": "DEL-10-01",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0295"
+    },
+    {
+      "consumer": "DEL-10-01",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0296"
+    },
+    {
+      "consumer": "DEL-10-01",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0297"
+    },
+    {
+      "consumer": "DEL-10-01",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0298"
+    },
+    {
+      "consumer": "DEL-10-01",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0299"
+    },
+    {
+      "consumer": "DEL-10-01",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0300"
+    },
+    {
+      "consumer": "DEL-10-01",
+      "upstream": "DEL-02-04",
+      "basis": "DAG-002-E0552"
+    },
+    {
+      "consumer": "DEL-10-01",
+      "upstream": "DEL-02-01",
+      "basis": "DAG-002-E0553"
+    },
+    {
+      "consumer": "DEL-10-01",
+      "upstream": "DEL-02-02",
+      "basis": "DAG-002-E0554"
+    },
+    {
+      "consumer": "DEL-10-01",
+      "upstream": "DEL-02-03",
+      "basis": "DAG-002-E0555"
+    },
+    {
+      "consumer": "DEL-10-01",
+      "upstream": "DEL-02-05",
+      "basis": "DEV-001-STAGE2-DEL-10-01-PKG02-005"
+    },
+    {
+      "consumer": "DEL-10-02",
+      "upstream": "DEL-00-03",
+      "basis": "DEP-010-02-006"
+    },
+    {
+      "consumer": "DEL-10-02",
+      "upstream": "DEL-00-04",
+      "basis": "DEP-010-02-007"
+    },
+    {
+      "consumer": "DEL-10-02",
+      "upstream": "DEL-00-06",
+      "basis": "DEP-010-02-008"
+    },
+    {
+      "consumer": "DEL-10-02",
+      "upstream": "DEL-00-07",
+      "basis": "DEP-010-02-009"
+    },
+    {
+      "consumer": "DEL-10-02",
+      "upstream": "DEL-00-08",
+      "basis": "DEP-010-02-010"
+    },
+    {
+      "consumer": "DEL-10-02",
+      "upstream": "DEL-02-04",
+      "basis": "DEP-010-02-011"
+    },
+    {
+      "consumer": "DEL-10-02",
+      "upstream": "DEL-03-07",
+      "basis": "DEP-010-02-012"
+    },
+    {
+      "consumer": "DEL-10-02",
+      "upstream": "DEL-12-01",
+      "basis": "DEP-010-02-013"
+    },
+    {
+      "consumer": "DEL-10-02",
+      "upstream": "DEL-02-01",
+      "basis": "DEV-001-STAGE2-DEL-10-02-PKG02-001"
+    },
+    {
+      "consumer": "DEL-10-02",
+      "upstream": "DEL-02-02",
+      "basis": "DEV-001-STAGE2-DEL-10-02-PKG02-002"
+    },
+    {
+      "consumer": "DEL-10-02",
+      "upstream": "DEL-02-03",
+      "basis": "DEV-001-STAGE2-DEL-10-02-PKG02-003"
+    },
+    {
+      "consumer": "DEL-10-02",
+      "upstream": "DEL-02-05",
+      "basis": "DEV-001-STAGE2-DEL-10-02-PKG02-005"
+    },
+    {
+      "consumer": "DEL-10-03",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0308"
+    },
+    {
+      "consumer": "DEL-10-03",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0309"
+    },
+    {
+      "consumer": "DEL-10-03",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0310"
+    },
+    {
+      "consumer": "DEL-10-03",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0311"
+    },
+    {
+      "consumer": "DEL-10-03",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0312"
+    },
+    {
+      "consumer": "DEL-10-03",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0313"
+    },
+    {
+      "consumer": "DEL-10-03",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0314"
+    },
+    {
+      "consumer": "DEL-10-03",
+      "upstream": "DEL-10-01",
+      "basis": "DAG-002-E0561"
+    },
+    {
+      "consumer": "DEL-10-03",
+      "upstream": "DEL-04-01",
+      "basis": "DAG-002-E0562"
+    },
+    {
+      "consumer": "DEL-10-03",
+      "upstream": "DEL-05-03",
+      "basis": "DAG-002-E0563"
+    },
+    {
+      "consumer": "DEL-10-03",
+      "upstream": "DEL-01-04",
+      "basis": "DAG-002-E0564"
+    },
+    {
+      "consumer": "DEL-10-03",
+      "upstream": "DEL-02-01",
+      "basis": "DEV-001-STAGE2-DEL-10-03-PKG02-001"
+    },
+    {
+      "consumer": "DEL-10-03",
+      "upstream": "DEL-02-02",
+      "basis": "DEV-001-STAGE2-DEL-10-03-PKG02-002"
+    },
+    {
+      "consumer": "DEL-10-03",
+      "upstream": "DEL-02-03",
+      "basis": "DEV-001-STAGE2-DEL-10-03-PKG02-003"
+    },
+    {
+      "consumer": "DEL-10-03",
+      "upstream": "DEL-02-05",
+      "basis": "DEV-001-STAGE2-DEL-10-03-PKG02-005"
+    },
+    {
+      "consumer": "DEL-10-04",
+      "upstream": "DEL-00-01",
+      "basis": "DEP-10-04-E001"
+    },
+    {
+      "consumer": "DEL-10-04",
+      "upstream": "DEL-00-02",
+      "basis": "DEP-10-04-E002"
+    },
+    {
+      "consumer": "DEL-10-04",
+      "upstream": "DEL-00-03",
+      "basis": "DEP-10-04-E003"
+    },
+    {
+      "consumer": "DEL-10-04",
+      "upstream": "DEL-00-04",
+      "basis": "DEP-10-04-E004"
+    },
+    {
+      "consumer": "DEL-10-04",
+      "upstream": "DEL-00-06",
+      "basis": "DEP-10-04-E005"
+    },
+    {
+      "consumer": "DEL-10-04",
+      "upstream": "DEL-00-07",
+      "basis": "DEP-10-04-E006"
+    },
+    {
+      "consumer": "DEL-10-04",
+      "upstream": "DEL-00-08",
+      "basis": "DEP-10-04-E007"
+    },
+    {
+      "consumer": "DEL-10-05",
+      "upstream": "DEL-00-03",
+      "basis": "DEP-10-05-E001"
+    },
+    {
+      "consumer": "DEL-10-05",
+      "upstream": "DEL-00-06",
+      "basis": "DEP-10-05-E002"
+    },
+    {
+      "consumer": "DEL-10-05",
+      "upstream": "DEL-08-04::base-result-envelope",
+      "basis": "DEP-10-05-E003"
+    },
+    {
+      "consumer": "DEL-10-05",
+      "upstream": "DEL-10-04",
+      "basis": "DEP-10-05-E004"
+    },
+    {
+      "consumer": "DEL-10-05",
+      "upstream": "DEL-02-02",
+      "basis": "DEP-10-05-E005"
+    },
+    {
+      "consumer": "DEL-10-05",
+      "upstream": "DEL-02-05",
+      "basis": "DEP-10-05-E006"
+    },
+    {
+      "consumer": "DEL-10-05",
+      "upstream": "DEL-08-02",
+      "basis": "DEP-10-05-E007"
+    },
+    {
+      "consumer": "DEL-10-05",
+      "upstream": "DEL-04-06",
+      "basis": "DEP-10-05-E008"
+    },
+    {
+      "consumer": "DEL-10-05",
+      "upstream": "DEL-02-01",
+      "basis": "DEV-001-STAGE2-DEL-10-05-PKG02-001"
+    },
+    {
+      "consumer": "DEL-10-05",
+      "upstream": "DEL-02-03",
+      "basis": "DEV-001-STAGE2-DEL-10-05-PKG02-003"
+    },
+    {
+      "consumer": "DEL-11-01",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0329"
+    },
+    {
+      "consumer": "DEL-11-01",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0330"
+    },
+    {
+      "consumer": "DEL-11-01",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0331"
+    },
+    {
+      "consumer": "DEL-11-01",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0332"
+    },
+    {
+      "consumer": "DEL-11-01",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0333"
+    },
+    {
+      "consumer": "DEL-11-01",
+      "upstream": "DEL-07-01::palette-implementation",
+      "basis": "DAG-002-E0575"
+    },
+    {
+      "consumer": "DEL-11-01",
+      "upstream": "DEL-07-03",
+      "basis": "DAG-002-E0576"
+    },
+    {
+      "consumer": "DEL-11-01",
+      "upstream": "DEL-07-05",
+      "basis": "DAG-002-E0577"
+    },
+    {
+      "consumer": "DEL-11-01",
+      "upstream": "DEL-08-01",
+      "basis": "DAG-002-E0578"
+    },
+    {
+      "consumer": "DEL-11-01",
+      "upstream": "DEL-01-04",
+      "basis": "DAG-002-E0579"
+    },
+    {
+      "consumer": "DEL-11-01",
+      "upstream": "DEL-01-02",
+      "basis": "DEL-11-01-E001"
+    },
+    {
+      "consumer": "DEL-11-01",
+      "upstream": "DEL-05-04",
+      "basis": "DEL-11-01-E002"
+    },
+    {
+      "consumer": "DEL-11-01",
+      "upstream": "DEL-06-03",
+      "basis": "DEL-11-01-E003"
+    },
+    {
+      "consumer": "DEL-11-01",
+      "upstream": "DEL-07-04",
+      "basis": "DEL-11-01-E004"
+    },
+    {
+      "consumer": "DEL-11-01",
+      "upstream": "DEL-07-07",
+      "basis": "DEL-11-01-E005"
+    },
+    {
+      "consumer": "DEL-11-01",
+      "upstream": "DEL-08-02",
+      "basis": "DEL-11-01-E006"
+    },
+    {
+      "consumer": "DEL-11-01",
+      "upstream": "DEL-08-03",
+      "basis": "DEL-11-01-E007"
+    },
+    {
+      "consumer": "DEL-11-02",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-004-R0605"
+    },
+    {
+      "consumer": "DEL-11-02",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-004-R0606"
+    },
+    {
+      "consumer": "DEL-11-02",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-004-R0607"
+    },
+    {
+      "consumer": "DEL-11-02",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-004-R0608"
+    },
+    {
+      "consumer": "DEL-11-02",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-004-R0609"
+    },
+    {
+      "consumer": "DEL-11-02",
+      "upstream": "DEL-01-02",
+      "basis": "DAG-004-R0610"
+    },
+    {
+      "consumer": "DEL-11-02",
+      "upstream": "DEL-02-01",
+      "basis": "DAG-004-R0611"
+    },
+    {
+      "consumer": "DEL-11-02",
+      "upstream": "DEL-02-02",
+      "basis": "DAG-004-R0612"
+    },
+    {
+      "consumer": "DEL-11-02",
+      "upstream": "DEL-04-01",
+      "basis": "DAG-004-R0613"
+    },
+    {
+      "consumer": "DEL-11-02",
+      "upstream": "DEL-06-01",
+      "basis": "DAG-004-R0614"
+    },
+    {
+      "consumer": "DEL-11-02",
+      "upstream": "DEL-10-01",
+      "basis": "DAG-004-R0615"
+    },
+    {
+      "consumer": "DEL-11-03",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0339"
+    },
+    {
+      "consumer": "DEL-11-03",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0340"
+    },
+    {
+      "consumer": "DEL-11-03",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0341"
+    },
+    {
+      "consumer": "DEL-11-03",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0342"
+    },
+    {
+      "consumer": "DEL-11-03",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0343"
+    },
+    {
+      "consumer": "DEL-11-03",
+      "upstream": "DEL-04-01",
+      "basis": "DAG-002-E0586"
+    },
+    {
+      "consumer": "DEL-11-03",
+      "upstream": "DEL-04-02",
+      "basis": "DAG-002-E0587"
+    },
+    {
+      "consumer": "DEL-11-03",
+      "upstream": "DEL-09-01",
+      "basis": "DAG-002-E0588"
+    },
+    {
+      "consumer": "DEL-11-03",
+      "upstream": "DEL-01-02",
+      "basis": "DAG-002-E0589"
+    },
+    {
+      "consumer": "DEL-11-04",
+      "upstream": "DEL-02-01",
+      "basis": "DEP-11-04-E001"
+    },
+    {
+      "consumer": "DEL-11-04",
+      "upstream": "DEL-02-05",
+      "basis": "DEP-11-04-E002"
+    },
+    {
+      "consumer": "DEL-11-04",
+      "upstream": "DEL-06-01",
+      "basis": "DEP-11-04-E003"
+    },
+    {
+      "consumer": "DEL-11-04",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0344"
+    },
+    {
+      "consumer": "DEL-11-04",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0345"
+    },
+    {
+      "consumer": "DEL-11-04",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0346"
+    },
+    {
+      "consumer": "DEL-11-04",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0347"
+    },
+    {
+      "consumer": "DEL-11-04",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0348"
+    },
+    {
+      "consumer": "DEL-11-04",
+      "upstream": "DEL-06-05",
+      "basis": "DAG-002-E0590"
+    },
+    {
+      "consumer": "DEL-11-04",
+      "upstream": "DEL-09-01",
+      "basis": "DAG-002-E0591"
+    },
+    {
+      "consumer": "DEL-11-04",
+      "upstream": "DEL-09-02",
+      "basis": "DAG-002-E0592"
+    },
+    {
+      "consumer": "DEL-11-04",
+      "upstream": "DEL-08-05",
+      "basis": "DAG-002-E0593"
+    },
+    {
+      "consumer": "DEL-11-04",
+      "upstream": "DEL-01-02",
+      "basis": "DAG-002-E0594"
+    },
+    {
+      "consumer": "DEL-11-05",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0349"
+    },
+    {
+      "consumer": "DEL-11-05",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0350"
+    },
+    {
+      "consumer": "DEL-11-05",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0351"
+    },
+    {
+      "consumer": "DEL-11-05",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0352"
+    },
+    {
+      "consumer": "DEL-11-05",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0353"
+    },
+    {
+      "consumer": "DEL-11-05",
+      "upstream": "DEL-01-01",
+      "basis": "DAG-002-E0595"
+    },
+    {
+      "consumer": "DEL-11-05",
+      "upstream": "DEL-01-02",
+      "basis": "DAG-002-E0596"
+    },
+    {
+      "consumer": "DEL-11-05",
+      "upstream": "DEL-01-03",
+      "basis": "DAG-002-E0597"
+    },
+    {
+      "consumer": "DEL-12-01",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0354"
+    },
+    {
+      "consumer": "DEL-12-01",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0355"
+    },
+    {
+      "consumer": "DEL-12-01",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0356"
+    },
+    {
+      "consumer": "DEL-12-01",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0357"
+    },
+    {
+      "consumer": "DEL-12-01",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0358"
+    },
+    {
+      "consumer": "DEL-12-01",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0359"
+    },
+    {
+      "consumer": "DEL-12-01",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0360"
+    },
+    {
+      "consumer": "DEL-12-01",
+      "upstream": "DEL-02-05",
+      "basis": "DAG-002-E0601"
+    },
+    {
+      "consumer": "DEL-12-01",
+      "upstream": "DEL-12-05",
+      "basis": "DAG-002-E0602"
+    },
+    {
+      "consumer": "DEL-12-01",
+      "upstream": "DEL-01-02",
+      "basis": "DAG-002-E0603"
+    },
+    {
+      "consumer": "DEL-12-02",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0361"
+    },
+    {
+      "consumer": "DEL-12-02",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0362"
+    },
+    {
+      "consumer": "DEL-12-02",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0363"
+    },
+    {
+      "consumer": "DEL-12-02",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0364"
+    },
+    {
+      "consumer": "DEL-12-02",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0365"
+    },
+    {
+      "consumer": "DEL-12-02",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0366"
+    },
+    {
+      "consumer": "DEL-12-02",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0367"
+    },
+    {
+      "consumer": "DEL-12-02",
+      "upstream": "DEL-12-05",
+      "basis": "DAG-002-E0610"
+    },
+    {
+      "consumer": "DEL-12-02",
+      "upstream": "DEL-12-01",
+      "basis": "DAG-002-E0611"
+    },
+    {
+      "consumer": "DEL-12-02",
+      "upstream": "DEL-08-01",
+      "basis": "DAG-002-E0612"
+    },
+    {
+      "consumer": "DEL-12-02",
+      "upstream": "DEL-08-04::base-result-envelope",
+      "basis": "DAG-002-E0613"
+    },
+    {
+      "consumer": "DEL-12-02",
+      "upstream": "DEL-06-04",
+      "basis": "DAG-002-E0614"
+    },
+    {
+      "consumer": "DEL-12-02",
+      "upstream": "DEL-03-07",
+      "basis": "DAG-002-E0615"
+    },
+    {
+      "consumer": "DEL-12-03",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0368"
+    },
+    {
+      "consumer": "DEL-12-03",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0369"
+    },
+    {
+      "consumer": "DEL-12-03",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0370"
+    },
+    {
+      "consumer": "DEL-12-03",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0371"
+    },
+    {
+      "consumer": "DEL-12-03",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0372"
+    },
+    {
+      "consumer": "DEL-12-03",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0373"
+    },
+    {
+      "consumer": "DEL-12-03",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0374"
+    },
+    {
+      "consumer": "DEL-12-03",
+      "upstream": "DEL-12-05",
+      "basis": "DAG-002-E0604"
+    },
+    {
+      "consumer": "DEL-12-03",
+      "upstream": "DEL-01-02",
+      "basis": "DAG-002-E0605"
+    },
+    {
+      "consumer": "DEL-12-03",
+      "upstream": "DEL-01-04",
+      "basis": "DEL-12-03-E001"
+    },
+    {
+      "consumer": "DEL-12-03",
+      "upstream": "DEL-05-04",
+      "basis": "DEL-12-03-E002"
+    },
+    {
+      "consumer": "DEL-12-04",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0375"
+    },
+    {
+      "consumer": "DEL-12-04",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0376"
+    },
+    {
+      "consumer": "DEL-12-04",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0377"
+    },
+    {
+      "consumer": "DEL-12-04",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0378"
+    },
+    {
+      "consumer": "DEL-12-04",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0379"
+    },
+    {
+      "consumer": "DEL-12-04",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0380"
+    },
+    {
+      "consumer": "DEL-12-04",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0381"
+    },
+    {
+      "consumer": "DEL-12-04",
+      "upstream": "DEL-12-05",
+      "basis": "DAG-002-E0606"
+    },
+    {
+      "consumer": "DEL-12-04",
+      "upstream": "DEL-12-01",
+      "basis": "DAG-002-E0607"
+    },
+    {
+      "consumer": "DEL-12-04",
+      "upstream": "DEL-03-07",
+      "basis": "DAG-002-E0608"
+    },
+    {
+      "consumer": "DEL-12-04",
+      "upstream": "DEL-06-04",
+      "basis": "DAG-002-E0609"
+    },
+    {
+      "consumer": "DEL-12-04",
+      "upstream": "DEL-12-02",
+      "basis": "DEL-12-04-E001"
+    },
+    {
+      "consumer": "DEL-12-04",
+      "upstream": "DEL-12-03",
+      "basis": "DEL-12-04-E002"
+    },
+    {
+      "consumer": "DEL-12-05",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0382"
+    },
+    {
+      "consumer": "DEL-12-05",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0383"
+    },
+    {
+      "consumer": "DEL-12-05",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0384"
+    },
+    {
+      "consumer": "DEL-12-05",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0385"
+    },
+    {
+      "consumer": "DEL-12-05",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0386"
+    },
+    {
+      "consumer": "DEL-12-05",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0387"
+    },
+    {
+      "consumer": "DEL-12-05",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0388"
+    },
+    {
+      "consumer": "DEL-12-05",
+      "upstream": "DEL-01-02",
+      "basis": "DAG-002-E0598"
+    },
+    {
+      "consumer": "DEL-12-05",
+      "upstream": "DEL-02-04",
+      "basis": "DAG-002-E0599"
+    },
+    {
+      "consumer": "DEL-12-05",
+      "upstream": "DEL-01-04",
+      "basis": "DAG-002-E0600"
+    },
+    {
+      "consumer": "DEL-13-01",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0639"
+    },
+    {
+      "consumer": "DEL-13-01",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0640"
+    },
+    {
+      "consumer": "DEL-13-01",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0641"
+    },
+    {
+      "consumer": "DEL-13-01",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0642"
+    },
+    {
+      "consumer": "DEL-13-01",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0643"
+    },
+    {
+      "consumer": "DEL-13-01",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0644"
+    },
+    {
+      "consumer": "DEL-13-01",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0645"
+    },
+    {
+      "consumer": "DEL-13-01",
+      "upstream": "DEL-02-01",
+      "basis": "DAG-002-E0758"
+    },
+    {
+      "consumer": "DEL-13-01",
+      "upstream": "DEL-02-02",
+      "basis": "DAG-002-E0759"
+    },
+    {
+      "consumer": "DEL-13-01",
+      "upstream": "DEL-02-05",
+      "basis": "DEV-001-PKG13-DEL1301-DEL0205"
+    },
+    {
+      "consumer": "DEL-13-01",
+      "upstream": "DEL-01-02",
+      "basis": "DAG-002-E0760"
+    },
+    {
+      "consumer": "DEL-13-01",
+      "upstream": "DEL-01-04",
+      "basis": "DAG-002-E0761"
+    },
+    {
+      "consumer": "DEL-13-02",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0646"
+    },
+    {
+      "consumer": "DEL-13-02",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0647"
+    },
+    {
+      "consumer": "DEL-13-02",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0648"
+    },
+    {
+      "consumer": "DEL-13-02",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0649"
+    },
+    {
+      "consumer": "DEL-13-02",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0650"
+    },
+    {
+      "consumer": "DEL-13-02",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0651"
+    },
+    {
+      "consumer": "DEL-13-02",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0652"
+    },
+    {
+      "consumer": "DEL-13-02",
+      "upstream": "DEL-13-01",
+      "basis": "DAG-002-E0762"
+    },
+    {
+      "consumer": "DEL-13-02",
+      "upstream": "DEL-02-01",
+      "basis": "DAG-002-E0763"
+    },
+    {
+      "consumer": "DEL-13-02",
+      "upstream": "DEL-02-02",
+      "basis": "DAG-002-E0764"
+    },
+    {
+      "consumer": "DEL-13-02",
+      "upstream": "DEL-02-05",
+      "basis": "DAG-002-E0765"
+    },
+    {
+      "consumer": "DEL-13-02",
+      "upstream": "DEL-01-04",
+      "basis": "DAG-002-E0766"
+    },
+    {
+      "consumer": "DEL-13-03",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0653"
+    },
+    {
+      "consumer": "DEL-13-03",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0654"
+    },
+    {
+      "consumer": "DEL-13-03",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0655"
+    },
+    {
+      "consumer": "DEL-13-03",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0656"
+    },
+    {
+      "consumer": "DEL-13-03",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0657"
+    },
+    {
+      "consumer": "DEL-13-03",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0658"
+    },
+    {
+      "consumer": "DEL-13-03",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0659"
+    },
+    {
+      "consumer": "DEL-13-03",
+      "upstream": "DEL-13-01",
+      "basis": "DAG-002-E0767"
+    },
+    {
+      "consumer": "DEL-13-03",
+      "upstream": "DEL-13-02",
+      "basis": "DAG-002-E0768"
+    },
+    {
+      "consumer": "DEL-13-03",
+      "upstream": "DEL-02-02",
+      "basis": "DAG-002-E0769"
+    },
+    {
+      "consumer": "DEL-13-03",
+      "upstream": "DEL-04-06",
+      "basis": "DAG-002-E0770"
+    },
+    {
+      "consumer": "DEL-13-03",
+      "upstream": "DEL-02-05",
+      "basis": "DAG-002-E0771"
+    },
+    {
+      "consumer": "DEL-13-04",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0660"
+    },
+    {
+      "consumer": "DEL-13-04",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0661"
+    },
+    {
+      "consumer": "DEL-13-04",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0662"
+    },
+    {
+      "consumer": "DEL-13-04",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0663"
+    },
+    {
+      "consumer": "DEL-13-04",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0664"
+    },
+    {
+      "consumer": "DEL-13-04",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0665"
+    },
+    {
+      "consumer": "DEL-13-04",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0666"
+    },
+    {
+      "consumer": "DEL-13-04",
+      "upstream": "DEL-02-01",
+      "basis": "DAG-002-E0772"
+    },
+    {
+      "consumer": "DEL-13-04",
+      "upstream": "DEL-02-05",
+      "basis": "DEV-001-PKG13-DEL1304-DEL0205"
+    },
+    {
+      "consumer": "DEL-13-04",
+      "upstream": "DEL-13-01",
+      "basis": "DAG-002-E0773"
+    },
+    {
+      "consumer": "DEL-13-04",
+      "upstream": "DEL-13-02",
+      "basis": "DAG-002-E0774"
+    },
+    {
+      "consumer": "DEL-13-04",
+      "upstream": "DEL-13-03",
+      "basis": "DAG-002-E0775"
+    },
+    {
+      "consumer": "DEL-13-04",
+      "upstream": "DEL-04-01",
+      "basis": "DAG-002-E0776"
+    },
+    {
+      "consumer": "DEL-13-04",
+      "upstream": "DEL-04-03",
+      "basis": "DAG-002-E0777"
+    },
+    {
+      "consumer": "DEL-13-04",
+      "upstream": "DEL-05-01",
+      "basis": "DAG-002-E0778"
+    },
+    {
+      "consumer": "DEL-07-08",
+      "upstream": "DEL-13-04",
+      "basis": "DEL-13-04-D003"
+    },
+    {
+      "consumer": "DEL-14-01",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0667"
+    },
+    {
+      "consumer": "DEL-14-01",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0668"
+    },
+    {
+      "consumer": "DEL-14-01",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0669"
+    },
+    {
+      "consumer": "DEL-14-01",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0670"
+    },
+    {
+      "consumer": "DEL-14-01",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0671"
+    },
+    {
+      "consumer": "DEL-14-01",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0672"
+    },
+    {
+      "consumer": "DEL-14-01",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0673"
+    },
+    {
+      "consumer": "DEL-14-01",
+      "upstream": "DEL-02-01",
+      "basis": "DAG-002-E0779"
+    },
+    {
+      "consumer": "DEL-14-01",
+      "upstream": "DEL-02-05",
+      "basis": "DAG-002-E0780"
+    },
+    {
+      "consumer": "DEL-14-01",
+      "upstream": "DEL-08-02",
+      "basis": "DAG-002-E0781"
+    },
+    {
+      "consumer": "DEL-14-01",
+      "upstream": "DEL-05-04",
+      "basis": "DAG-002-E0782"
+    },
+    {
+      "consumer": "DEL-14-02",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0674"
+    },
+    {
+      "consumer": "DEL-14-02",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0675"
+    },
+    {
+      "consumer": "DEL-14-02",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0676"
+    },
+    {
+      "consumer": "DEL-14-02",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0677"
+    },
+    {
+      "consumer": "DEL-14-02",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0678"
+    },
+    {
+      "consumer": "DEL-14-02",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0679"
+    },
+    {
+      "consumer": "DEL-14-02",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0680"
+    },
+    {
+      "consumer": "DEL-14-02",
+      "upstream": "DEL-14-01",
+      "basis": "DAG-002-E0783"
+    },
+    {
+      "consumer": "DEL-14-02",
+      "upstream": "DEL-05-04",
+      "basis": "DAG-002-E0784"
+    },
+    {
+      "consumer": "DEL-14-02",
+      "upstream": "DEL-08-02",
+      "basis": "DAG-002-E0785"
+    },
+    {
+      "consumer": "DEL-14-02",
+      "upstream": "DEL-08-04::base-result-envelope",
+      "basis": "DAG-002-E0786"
+    },
+    {
+      "consumer": "DEL-14-02",
+      "upstream": "DEL-02-05",
+      "basis": "DAG-002-E0787"
+    },
+    {
+      "consumer": "DEL-14-03",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0681"
+    },
+    {
+      "consumer": "DEL-14-03",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0682"
+    },
+    {
+      "consumer": "DEL-14-03",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0683"
+    },
+    {
+      "consumer": "DEL-14-03",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0684"
+    },
+    {
+      "consumer": "DEL-14-03",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0685"
+    },
+    {
+      "consumer": "DEL-14-03",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0686"
+    },
+    {
+      "consumer": "DEL-14-03",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0687"
+    },
+    {
+      "consumer": "DEL-14-03",
+      "upstream": "DEL-14-01",
+      "basis": "DAG-002-E0792"
+    },
+    {
+      "consumer": "DEL-14-03",
+      "upstream": "DEL-14-05::comparison-contract",
+      "basis": "DAG-002-E0793"
+    },
+    {
+      "consumer": "DEL-14-03",
+      "upstream": "DEL-02-02",
+      "basis": "DAG-002-E0794"
+    },
+    {
+      "consumer": "DEL-14-04",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0688"
+    },
+    {
+      "consumer": "DEL-14-04",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0689"
+    },
+    {
+      "consumer": "DEL-14-04",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0690"
+    },
+    {
+      "consumer": "DEL-14-04",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0691"
+    },
+    {
+      "consumer": "DEL-14-04",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0692"
+    },
+    {
+      "consumer": "DEL-14-04",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0693"
+    },
+    {
+      "consumer": "DEL-14-04",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0694"
+    },
+    {
+      "consumer": "DEL-14-04",
+      "upstream": "DEL-14-02",
+      "basis": "DAG-002-E0795"
+    },
+    {
+      "consumer": "DEL-14-04",
+      "upstream": "DEL-14-05::comparison-contract",
+      "basis": "DAG-002-E0796"
+    },
+    {
+      "consumer": "DEL-14-04",
+      "upstream": "DEL-08-04::base-result-envelope",
+      "basis": "DAG-002-E0797"
+    },
+    {
+      "consumer": "DEL-14-04",
+      "upstream": "DEL-02-02",
+      "basis": "DAG-002-E0798"
+    },
+    {
+      "consumer": "DEL-14-05::comparison-contract",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0695"
+    },
+    {
+      "consumer": "DEL-14-05::comparison-contract",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0696"
+    },
+    {
+      "consumer": "DEL-14-05::comparison-contract",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0697"
+    },
+    {
+      "consumer": "DEL-14-05::comparison-contract",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0698"
+    },
+    {
+      "consumer": "DEL-14-05::comparison-contract",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0699"
+    },
+    {
+      "consumer": "DEL-14-05::comparison-contract",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0700"
+    },
+    {
+      "consumer": "DEL-14-05::comparison-contract",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0701"
+    },
+    {
+      "consumer": "DEL-14-05::comparison-contract",
+      "upstream": "DEL-14-01",
+      "basis": "DAG-002-E0788"
+    },
+    {
+      "consumer": "DEL-14-05::comparison-contract",
+      "upstream": "DEL-14-02",
+      "basis": "DAG-002-E0789"
+    },
+    {
+      "consumer": "DEL-14-05::comparison-contract",
+      "upstream": "DEL-08-04::base-result-envelope",
+      "basis": "DAG-002-E0790"
+    },
+    {
+      "consumer": "DEL-14-05::comparison-contract",
+      "upstream": "DEL-02-02",
+      "basis": "DAG-002-E0791"
+    },
+    {
+      "consumer": "DEL-15-01",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0702"
+    },
+    {
+      "consumer": "DEL-15-01",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0703"
+    },
+    {
+      "consumer": "DEL-15-01",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0704"
+    },
+    {
+      "consumer": "DEL-15-01",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0705"
+    },
+    {
+      "consumer": "DEL-15-01",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0706"
+    },
+    {
+      "consumer": "DEL-15-01",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0707"
+    },
+    {
+      "consumer": "DEL-15-01",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0708"
+    },
+    {
+      "consumer": "DEL-15-01",
+      "upstream": "DEL-10-03",
+      "basis": "DAG-002-E0799"
+    },
+    {
+      "consumer": "DEL-15-01",
+      "upstream": "DEL-08-04::base-result-envelope",
+      "basis": "DAG-002-E0800"
+    },
+    {
+      "consumer": "DEL-15-01",
+      "upstream": "DEL-08-02",
+      "basis": "DAG-002-E0801"
+    },
+    {
+      "consumer": "DEL-15-01",
+      "upstream": "DEL-14-01",
+      "basis": "DAG-002-E0802"
+    },
+    {
+      "consumer": "DEL-15-01",
+      "upstream": "DEL-14-02",
+      "basis": "DAG-002-E0803"
+    },
+    {
+      "consumer": "DEL-15-01",
+      "upstream": "DEL-02-01",
+      "basis": "DAG-002-E0804"
+    },
+    {
+      "consumer": "DEL-15-02",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0709"
+    },
+    {
+      "consumer": "DEL-15-02",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0710"
+    },
+    {
+      "consumer": "DEL-15-02",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0711"
+    },
+    {
+      "consumer": "DEL-15-02",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0712"
+    },
+    {
+      "consumer": "DEL-15-02",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0713"
+    },
+    {
+      "consumer": "DEL-15-02",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0714"
+    },
+    {
+      "consumer": "DEL-15-02",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0715"
+    },
+    {
+      "consumer": "DEL-15-02",
+      "upstream": "DEL-15-01",
+      "basis": "DAG-002-E0805"
+    },
+    {
+      "consumer": "DEL-15-02",
+      "upstream": "DEL-10-02",
+      "basis": "DAG-002-E0806"
+    },
+    {
+      "consumer": "DEL-15-02",
+      "upstream": "DEL-10-03",
+      "basis": "DAG-002-E0807"
+    },
+    {
+      "consumer": "DEL-15-02",
+      "upstream": "DEL-12-02",
+      "basis": "DAG-002-E0808"
+    },
+    {
+      "consumer": "DEL-15-02",
+      "upstream": "DEL-13-04",
+      "basis": "DAG-002-E0809"
+    },
+    {
+      "consumer": "DEL-15-02",
+      "upstream": "DEL-14-05::comparison-contract",
+      "basis": "DAG-002-E0810"
+    },
+    {
+      "consumer": "DEL-15-03",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0716"
+    },
+    {
+      "consumer": "DEL-15-03",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0717"
+    },
+    {
+      "consumer": "DEL-15-03",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0718"
+    },
+    {
+      "consumer": "DEL-15-03",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0719"
+    },
+    {
+      "consumer": "DEL-15-03",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0720"
+    },
+    {
+      "consumer": "DEL-15-03",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0721"
+    },
+    {
+      "consumer": "DEL-15-03",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0722"
+    },
+    {
+      "consumer": "DEL-15-03",
+      "upstream": "DEL-15-01",
+      "basis": "DAG-002-E0811"
+    },
+    {
+      "consumer": "DEL-15-03",
+      "upstream": "DEL-15-02",
+      "basis": "DAG-002-E0812"
+    },
+    {
+      "consumer": "DEL-15-03",
+      "upstream": "DEL-10-02",
+      "basis": "DAG-002-E0813"
+    },
+    {
+      "consumer": "DEL-15-03",
+      "upstream": "DEL-10-03",
+      "basis": "DAG-002-E0814"
+    },
+    {
+      "consumer": "DEL-15-03",
+      "upstream": "DEL-12-02",
+      "basis": "DAG-002-E0815"
+    },
+    {
+      "consumer": "DEL-15-03",
+      "upstream": "DEL-13-04",
+      "basis": "DAG-002-E0816"
+    },
+    {
+      "consumer": "DEL-15-03",
+      "upstream": "DEL-14-05::comparison-contract",
+      "basis": "DAG-002-E0817"
+    },
+    {
+      "consumer": "DEL-15-04",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0723"
+    },
+    {
+      "consumer": "DEL-15-04",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0724"
+    },
+    {
+      "consumer": "DEL-15-04",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0725"
+    },
+    {
+      "consumer": "DEL-15-04",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0726"
+    },
+    {
+      "consumer": "DEL-15-04",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0727"
+    },
+    {
+      "consumer": "DEL-15-04",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0728"
+    },
+    {
+      "consumer": "DEL-15-04",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0729"
+    },
+    {
+      "consumer": "DEL-15-04",
+      "upstream": "DEL-01-04",
+      "basis": "DAG-002-E0818"
+    },
+    {
+      "consumer": "DEL-15-04",
+      "upstream": "DEL-15-01",
+      "basis": "DAG-002-E0819"
+    },
+    {
+      "consumer": "DEL-15-04",
+      "upstream": "DEL-15-02",
+      "basis": "DAG-002-E0820"
+    },
+    {
+      "consumer": "DEL-15-04",
+      "upstream": "DEL-15-03",
+      "basis": "DAG-002-E0821"
+    },
+    {
+      "consumer": "DEL-15-04",
+      "upstream": "DEL-14-01",
+      "basis": "DAG-002-E0822"
+    },
+    {
+      "consumer": "DEL-16-01",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0730"
+    },
+    {
+      "consumer": "DEL-16-01",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0731"
+    },
+    {
+      "consumer": "DEL-16-01",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0732"
+    },
+    {
+      "consumer": "DEL-16-01",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0733"
+    },
+    {
+      "consumer": "DEL-16-01",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0734"
+    },
+    {
+      "consumer": "DEL-16-01",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0735"
+    },
+    {
+      "consumer": "DEL-16-01",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0736"
+    },
+    {
+      "consumer": "DEL-16-01",
+      "upstream": "DEL-02-01",
+      "basis": "DAG-002-E0823"
+    },
+    {
+      "consumer": "DEL-16-01",
+      "upstream": "DEL-13-01",
+      "basis": "DAG-002-E0824"
+    },
+    {
+      "consumer": "DEL-16-01",
+      "upstream": "DEL-02-05",
+      "basis": "DAG-002-E0825"
+    },
+    {
+      "consumer": "DEL-16-01",
+      "upstream": "DEL-01-04",
+      "basis": "DAG-002-E0826"
+    },
+    {
+      "consumer": "DEL-16-02",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0737"
+    },
+    {
+      "consumer": "DEL-16-02",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0738"
+    },
+    {
+      "consumer": "DEL-16-02",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0739"
+    },
+    {
+      "consumer": "DEL-16-02",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0740"
+    },
+    {
+      "consumer": "DEL-16-02",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0741"
+    },
+    {
+      "consumer": "DEL-16-02",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0742"
+    },
+    {
+      "consumer": "DEL-16-02",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0743"
+    },
+    {
+      "consumer": "DEL-16-02",
+      "upstream": "DEL-16-01",
+      "basis": "DAG-002-E0827"
+    },
+    {
+      "consumer": "DEL-16-02",
+      "upstream": "DEL-13-03",
+      "basis": "DAG-002-E0828"
+    },
+    {
+      "consumer": "DEL-16-02",
+      "upstream": "DEL-14-03",
+      "basis": "DAG-002-E0829"
+    },
+    {
+      "consumer": "DEL-16-02",
+      "upstream": "DEL-14-05::comparison-contract",
+      "basis": "DAG-002-E0830"
+    },
+    {
+      "consumer": "DEL-16-02",
+      "upstream": "DEL-04-06",
+      "basis": "DAG-002-E0831"
+    },
+    {
+      "consumer": "DEL-16-03::acceptance-decision",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0744"
+    },
+    {
+      "consumer": "DEL-16-03::acceptance-decision",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0745"
+    },
+    {
+      "consumer": "DEL-16-03::acceptance-decision",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0746"
+    },
+    {
+      "consumer": "DEL-16-03::acceptance-decision",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0747"
+    },
+    {
+      "consumer": "DEL-16-03::acceptance-decision",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0748"
+    },
+    {
+      "consumer": "DEL-16-03::acceptance-decision",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0749"
+    },
+    {
+      "consumer": "DEL-16-03::acceptance-decision",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0750"
+    },
+    {
+      "consumer": "DEL-16-03::acceptance-decision",
+      "upstream": "DEL-16-01",
+      "basis": "DAG-002-E0832"
+    },
+    {
+      "consumer": "DEL-16-03::acceptance-decision",
+      "upstream": "DEL-16-02",
+      "basis": "DAG-002-E0833"
+    },
+    {
+      "consumer": "DEL-16-03::acceptance-decision",
+      "upstream": "DEL-14-01",
+      "basis": "DAG-002-E0834"
+    },
+    {
+      "consumer": "DEL-16-03::acceptance-decision",
+      "upstream": "DEL-08-02",
+      "basis": "DAG-002-E0835"
+    },
+    {
+      "consumer": "DEL-16-03::acceptance-decision",
+      "upstream": "DEL-02-05",
+      "basis": "DAG-002-E0836"
+    },
+    {
+      "consumer": "DEL-16-04",
+      "upstream": "DEL-00-01",
+      "basis": "DAG-002-E0751"
+    },
+    {
+      "consumer": "DEL-16-04",
+      "upstream": "DEL-00-02",
+      "basis": "DAG-002-E0752"
+    },
+    {
+      "consumer": "DEL-16-04",
+      "upstream": "DEL-00-03",
+      "basis": "DAG-002-E0753"
+    },
+    {
+      "consumer": "DEL-16-04",
+      "upstream": "DEL-00-04",
+      "basis": "DAG-002-E0754"
+    },
+    {
+      "consumer": "DEL-16-04",
+      "upstream": "DEL-00-06",
+      "basis": "DAG-002-E0755"
+    },
+    {
+      "consumer": "DEL-16-04",
+      "upstream": "DEL-00-07",
+      "basis": "DAG-002-E0756"
+    },
+    {
+      "consumer": "DEL-16-04",
+      "upstream": "DEL-00-08",
+      "basis": "DAG-002-E0757"
+    },
+    {
+      "consumer": "DEL-16-04",
+      "upstream": "DEL-01-04",
+      "basis": "DAG-002-E0837"
+    },
+    {
+      "consumer": "DEL-16-04",
+      "upstream": "DEL-16-03::acceptance-decision",
+      "basis": "DAG-002-E0838"
+    },
+    {
+      "consumer": "DEL-16-04",
+      "upstream": "DEL-12-05",
+      "basis": "DAG-002-E0839"
+    },
+    {
+      "consumer": "DEL-17-02",
+      "upstream": "DEL-17-01",
+      "basis": "DEL-17-01-D001"
+    },
+    {
+      "consumer": "DEL-17-01",
+      "upstream": "DEL-00-01",
+      "basis": "DEL-17-01-AB-01"
+    },
+    {
+      "consumer": "DEL-17-01",
+      "upstream": "DEL-00-02",
+      "basis": "DEL-17-01-AB-02"
+    },
+    {
+      "consumer": "DEL-17-01",
+      "upstream": "DEL-00-03",
+      "basis": "DEL-17-01-AB-03"
+    },
+    {
+      "consumer": "DEL-17-01",
+      "upstream": "DEL-00-04",
+      "basis": "DEL-17-01-AB-04"
+    },
+    {
+      "consumer": "DEL-17-01",
+      "upstream": "DEL-00-06",
+      "basis": "DEL-17-01-AB-06"
+    },
+    {
+      "consumer": "DEL-17-01",
+      "upstream": "DEL-00-07",
+      "basis": "DEL-17-01-AB-07"
+    },
+    {
+      "consumer": "DEL-17-01",
+      "upstream": "DEL-00-08",
+      "basis": "DEL-17-01-AB-08"
+    },
+    {
+      "consumer": "DEL-17-03",
+      "upstream": "DEL-17-02",
+      "basis": "DEL-17-02-D001"
+    },
+    {
+      "consumer": "DEL-17-04",
+      "upstream": "DEL-17-02",
+      "basis": "DEL-17-02-D002"
+    },
+    {
+      "consumer": "DEL-17-02",
+      "upstream": "DEL-00-01",
+      "basis": "DEL-17-02-AB-01"
+    },
+    {
+      "consumer": "DEL-17-02",
+      "upstream": "DEL-00-02",
+      "basis": "DEL-17-02-AB-02"
+    },
+    {
+      "consumer": "DEL-17-02",
+      "upstream": "DEL-00-03",
+      "basis": "DEL-17-02-AB-03"
+    },
+    {
+      "consumer": "DEL-17-02",
+      "upstream": "DEL-00-04",
+      "basis": "DEL-17-02-AB-04"
+    },
+    {
+      "consumer": "DEL-17-02",
+      "upstream": "DEL-00-06",
+      "basis": "DEL-17-02-AB-06"
+    },
+    {
+      "consumer": "DEL-17-02",
+      "upstream": "DEL-00-07",
+      "basis": "DEL-17-02-AB-07"
+    },
+    {
+      "consumer": "DEL-17-02",
+      "upstream": "DEL-00-08",
+      "basis": "DEL-17-02-AB-08"
+    },
+    {
+      "consumer": "DEL-17-03",
+      "upstream": "DEL-17-01",
+      "basis": "DEL-17-03-E002"
+    },
+    {
+      "consumer": "DEL-17-03",
+      "upstream": "DEL-00-01",
+      "basis": "DEL-17-03-AB-01"
+    },
+    {
+      "consumer": "DEL-17-03",
+      "upstream": "DEL-00-02",
+      "basis": "DEL-17-03-AB-02"
+    },
+    {
+      "consumer": "DEL-17-03",
+      "upstream": "DEL-00-03",
+      "basis": "DEL-17-03-AB-03"
+    },
+    {
+      "consumer": "DEL-17-03",
+      "upstream": "DEL-00-04",
+      "basis": "DEL-17-03-AB-04"
+    },
+    {
+      "consumer": "DEL-17-03",
+      "upstream": "DEL-00-06",
+      "basis": "DEL-17-03-AB-06"
+    },
+    {
+      "consumer": "DEL-17-03",
+      "upstream": "DEL-00-07",
+      "basis": "DEL-17-03-AB-07"
+    },
+    {
+      "consumer": "DEL-17-03",
+      "upstream": "DEL-00-08",
+      "basis": "DEL-17-03-AB-08"
+    },
+    {
+      "consumer": "DEL-17-04",
+      "upstream": "DEL-17-01",
+      "basis": "DEL-17-04-E002"
+    },
+    {
+      "consumer": "DEL-17-04",
+      "upstream": "DEL-00-01",
+      "basis": "DEL-17-04-AB-01"
+    },
+    {
+      "consumer": "DEL-17-04",
+      "upstream": "DEL-00-02",
+      "basis": "DEL-17-04-AB-02"
+    },
+    {
+      "consumer": "DEL-17-04",
+      "upstream": "DEL-00-03",
+      "basis": "DEL-17-04-AB-03"
+    },
+    {
+      "consumer": "DEL-17-04",
+      "upstream": "DEL-00-04",
+      "basis": "DEL-17-04-AB-04"
+    },
+    {
+      "consumer": "DEL-17-04",
+      "upstream": "DEL-00-06",
+      "basis": "DEL-17-04-AB-06"
+    },
+    {
+      "consumer": "DEL-17-04",
+      "upstream": "DEL-00-07",
+      "basis": "DEL-17-04-AB-07"
+    },
+    {
+      "consumer": "DEL-17-04",
+      "upstream": "DEL-00-08",
+      "basis": "DEL-17-04-AB-08"
+    },
+    {
+      "consumer": "DEL-17-05",
+      "upstream": "DEL-17-04",
+      "basis": "DEP-017-05-009"
+    },
+    {
+      "consumer": "DEL-17-05",
+      "upstream": "DEL-17-01",
+      "basis": "DEP-017-05-010"
+    },
+    {
+      "consumer": "DEL-17-05",
+      "upstream": "DEL-17-02",
+      "basis": "DEP-017-05-011"
+    },
+    {
+      "consumer": "DEL-17-05",
+      "upstream": "DEL-00-01",
+      "basis": "DEL-17-05-AB-01"
+    },
+    {
+      "consumer": "DEL-17-05",
+      "upstream": "DEL-00-02",
+      "basis": "DEL-17-05-AB-02"
+    },
+    {
+      "consumer": "DEL-17-05",
+      "upstream": "DEL-00-03",
+      "basis": "DEL-17-05-AB-03"
+    },
+    {
+      "consumer": "DEL-17-05",
+      "upstream": "DEL-00-04",
+      "basis": "DEL-17-05-AB-04"
+    },
+    {
+      "consumer": "DEL-17-05",
+      "upstream": "DEL-00-06",
+      "basis": "DEL-17-05-AB-06"
+    },
+    {
+      "consumer": "DEL-17-05",
+      "upstream": "DEL-00-07",
+      "basis": "DEL-17-05-AB-07"
+    },
+    {
+      "consumer": "DEL-17-05",
+      "upstream": "DEL-00-08",
+      "basis": "DEL-17-05-AB-08"
+    },
+    {
+      "consumer": "DEL-17-06",
+      "upstream": "DEL-17-01",
+      "basis": "DEL-17-06-D001"
+    },
+    {
+      "consumer": "DEL-17-06",
+      "upstream": "DEL-17-02",
+      "basis": "DEL-17-06-D002"
+    },
+    {
+      "consumer": "DEL-17-06",
+      "upstream": "DEL-08-04::base-result-envelope",
+      "basis": "DEL-17-06-D003"
+    },
+    {
+      "consumer": "DEL-17-06",
+      "upstream": "DEL-14-02",
+      "basis": "DEL-17-06-D004"
+    },
+    {
+      "consumer": "DEL-17-06",
+      "upstream": "DEL-14-05::comparison-contract",
+      "basis": "DEL-17-06-D005"
+    },
+    {
+      "consumer": "DEL-17-06",
+      "upstream": "DEL-00-01",
+      "basis": "DEL-17-06-AB-01"
+    },
+    {
+      "consumer": "DEL-17-06",
+      "upstream": "DEL-00-02",
+      "basis": "DEL-17-06-AB-02"
+    },
+    {
+      "consumer": "DEL-17-06",
+      "upstream": "DEL-00-03",
+      "basis": "DEL-17-06-AB-03"
+    },
+    {
+      "consumer": "DEL-17-06",
+      "upstream": "DEL-00-04",
+      "basis": "DEL-17-06-AB-04"
+    },
+    {
+      "consumer": "DEL-17-06",
+      "upstream": "DEL-00-06",
+      "basis": "DEL-17-06-AB-06"
+    },
+    {
+      "consumer": "DEL-17-06",
+      "upstream": "DEL-00-07",
+      "basis": "DEL-17-06-AB-07"
+    },
+    {
+      "consumer": "DEL-17-06",
+      "upstream": "DEL-00-08",
+      "basis": "DEL-17-06-AB-08"
+    },
+    {
+      "consumer": "DEL-17-07",
+      "upstream": "DEL-17-02",
+      "basis": "DEP-17-07-007"
+    },
+    {
+      "consumer": "DEL-17-07",
+      "upstream": "DEL-03-02",
+      "basis": "DEP-17-07-008"
+    },
+    {
+      "consumer": "DEL-17-07",
+      "upstream": "DEL-13-04",
+      "basis": "DEP-17-07-009"
+    },
+    {
+      "consumer": "DEL-17-07",
+      "upstream": "DEL-15-02",
+      "basis": "DEP-17-07-010"
+    },
+    {
+      "consumer": "DEL-17-07",
+      "upstream": "DEL-17-01",
+      "basis": "DEP-17-07-011"
+    },
+    {
+      "consumer": "DEL-17-07",
+      "upstream": "DEL-00-01",
+      "basis": "DEL-17-07-AB-01"
+    },
+    {
+      "consumer": "DEL-17-07",
+      "upstream": "DEL-00-02",
+      "basis": "DEL-17-07-AB-02"
+    },
+    {
+      "consumer": "DEL-17-07",
+      "upstream": "DEL-00-03",
+      "basis": "DEL-17-07-AB-03"
+    },
+    {
+      "consumer": "DEL-17-07",
+      "upstream": "DEL-00-04",
+      "basis": "DEL-17-07-AB-04"
+    },
+    {
+      "consumer": "DEL-17-07",
+      "upstream": "DEL-00-06",
+      "basis": "DEL-17-07-AB-06"
+    },
+    {
+      "consumer": "DEL-17-07",
+      "upstream": "DEL-00-07",
+      "basis": "DEL-17-07-AB-07"
+    },
+    {
+      "consumer": "DEL-17-07",
+      "upstream": "DEL-00-08",
+      "basis": "DEL-17-07-AB-08"
+    },
+    {
+      "consumer": "DEL-17-08",
+      "upstream": "DEL-17-02",
+      "basis": "DEP-17-08-006"
+    },
+    {
+      "consumer": "DEL-17-08",
+      "upstream": "DEL-02-01",
+      "basis": "DEP-17-08-007"
+    },
+    {
+      "consumer": "DEL-17-08",
+      "upstream": "DEL-07-01::palette-implementation",
+      "basis": "DEP-17-08-008"
+    },
+    {
+      "consumer": "DEL-17-08",
+      "upstream": "DEL-13-04",
+      "basis": "DEP-17-08-009"
+    },
+    {
+      "consumer": "DEL-17-08",
+      "upstream": "DEL-15-01",
+      "basis": "DEP-17-08-010"
+    },
+    {
+      "consumer": "DEL-17-08",
+      "upstream": "DEL-17-01",
+      "basis": "DEP-17-08-011"
+    },
+    {
+      "consumer": "DEL-17-08",
+      "upstream": "DEL-00-01",
+      "basis": "DEL-17-08-AB-01"
+    },
+    {
+      "consumer": "DEL-17-08",
+      "upstream": "DEL-00-02",
+      "basis": "DEL-17-08-AB-02"
+    },
+    {
+      "consumer": "DEL-17-08",
+      "upstream": "DEL-00-03",
+      "basis": "DEL-17-08-AB-03"
+    },
+    {
+      "consumer": "DEL-17-08",
+      "upstream": "DEL-00-04",
+      "basis": "DEL-17-08-AB-04"
+    },
+    {
+      "consumer": "DEL-17-08",
+      "upstream": "DEL-00-06",
+      "basis": "DEL-17-08-AB-06"
+    },
+    {
+      "consumer": "DEL-17-08",
+      "upstream": "DEL-00-07",
+      "basis": "DEL-17-08-AB-07"
+    },
+    {
+      "consumer": "DEL-17-08",
+      "upstream": "DEL-00-08",
+      "basis": "DEL-17-08-AB-08"
+    },
+    {
+      "consumer": "DEL-17-09",
+      "upstream": "DEL-17-02",
+      "basis": "DEL-17-09-E001"
+    },
+    {
+      "consumer": "DEL-17-09",
+      "upstream": "DEL-02-04",
+      "basis": "DEL-17-09-E002"
+    },
+    {
+      "consumer": "DEL-17-09",
+      "upstream": "DEL-10-01",
+      "basis": "DEL-17-09-E003"
+    },
+    {
+      "consumer": "DEL-17-09",
+      "upstream": "DEL-10-02",
+      "basis": "DEL-17-09-E004"
+    },
+    {
+      "consumer": "DEL-17-09",
+      "upstream": "DEL-00-01",
+      "basis": "DEL-17-09-AB-01"
+    },
+    {
+      "consumer": "DEL-17-09",
+      "upstream": "DEL-00-02",
+      "basis": "DEL-17-09-AB-02"
+    },
+    {
+      "consumer": "DEL-17-09",
+      "upstream": "DEL-00-03",
+      "basis": "DEL-17-09-AB-03"
+    },
+    {
+      "consumer": "DEL-17-09",
+      "upstream": "DEL-00-04",
+      "basis": "DEL-17-09-AB-04"
+    },
+    {
+      "consumer": "DEL-17-09",
+      "upstream": "DEL-00-06",
+      "basis": "DEL-17-09-AB-06"
+    },
+    {
+      "consumer": "DEL-17-09",
+      "upstream": "DEL-00-07",
+      "basis": "DEL-17-09-AB-07"
+    },
+    {
+      "consumer": "DEL-17-09",
+      "upstream": "DEL-00-08",
+      "basis": "DEL-17-09-AB-08"
+    },
+    {
+      "consumer": "DEL-07-09::coverage-assessment",
+      "upstream": "DEL-16-01",
+      "basis": "DAG-010-DEL-07-09-E001"
+    },
+    {
+      "consumer": "DEL-07-09::coverage-assessment",
+      "upstream": "DEL-07-01::palette-implementation",
+      "basis": "DAG-010-DEL-07-09-E002"
+    },
+    {
+      "consumer": "DEL-07-09::coverage-assessment",
+      "upstream": "DEL-07-02",
+      "basis": "DAG-010-DEL-07-09-E003"
+    },
+    {
+      "consumer": "DEL-04-07",
+      "upstream": "DEL-02-01",
+      "basis": "SCA011-E023"
+    },
+    {
+      "consumer": "DEL-04-07",
+      "upstream": "DEL-02-02",
+      "basis": "SCA011-E024"
+    },
+    {
+      "consumer": "DEL-04-07",
+      "upstream": "DEL-02-03",
+      "basis": "SCA011-E025"
+    },
+    {
+      "consumer": "DEL-04-07",
+      "upstream": "DEL-03-08",
+      "basis": "SCA011-E026"
+    },
+    {
+      "consumer": "DEL-04-07",
+      "upstream": "DEL-04-01",
+      "basis": "SCA011-E027"
+    },
+    {
+      "consumer": "DEL-04-07",
+      "upstream": "DEL-04-03",
+      "basis": "SCA011-E028"
+    },
+    {
+      "consumer": "DEL-04-07",
+      "upstream": "DEL-04-04",
+      "basis": "SCA011-E029"
+    },
+    {
+      "consumer": "DEL-04-07",
+      "upstream": "DEL-04-06",
+      "basis": "SCA011-E030"
+    },
+    {
+      "consumer": "DEL-04-07",
+      "upstream": "DEL-05-01",
+      "basis": "SCA011-E031"
+    },
+    {
+      "consumer": "DEL-04-07",
+      "upstream": "DEL-05-02",
+      "basis": "SCA011-E032"
+    },
+    {
+      "consumer": "DEL-04-07",
+      "upstream": "DEL-05-03",
+      "basis": "SCA011-E033"
+    },
+    {
+      "consumer": "DEL-04-07",
+      "upstream": "DEL-05-04",
+      "basis": "SCA011-E034"
+    },
+    {
+      "consumer": "DEL-04-07",
+      "upstream": "DEL-00-02",
+      "basis": "SCA011-E035"
+    },
+    {
+      "consumer": "DEL-04-07",
+      "upstream": "DEL-00-03",
+      "basis": "SCA011-E036"
+    },
+    {
+      "consumer": "DEL-04-07",
+      "upstream": "DEL-00-06",
+      "basis": "SCA011-E037"
+    },
+    {
+      "consumer": "DEL-04-07",
+      "upstream": "DEL-00-08",
+      "basis": "SCA011-E038"
+    },
+    {
+      "consumer": "DEL-07-11",
+      "upstream": "DEL-00-03",
+      "basis": "SCA011-E039"
+    },
+    {
+      "consumer": "DEL-07-11",
+      "upstream": "DEL-00-05",
+      "basis": "SCA011-E040"
+    },
+    {
+      "consumer": "DEL-07-11",
+      "upstream": "DEL-00-07",
+      "basis": "SCA011-E041"
+    },
+    {
+      "consumer": "DEL-07-11",
+      "upstream": "DEL-02-05",
+      "basis": "SCA011-E042"
+    },
+    {
+      "consumer": "DEL-07-11",
+      "upstream": "DEL-07-06",
+      "basis": "SCA011-E043"
+    },
+    {
+      "consumer": "DEL-07-11",
+      "upstream": "DEL-14-02",
+      "basis": "SCA011-E044"
+    },
+    {
+      "consumer": "DEL-07-11",
+      "upstream": "DEL-16-06::application",
+      "basis": "SCA011-E045"
+    },
+    {
+      "consumer": "DEL-16-06::application",
+      "upstream": "DEL-16-01",
+      "basis": "SCA011-E046"
+    },
+    {
+      "consumer": "DEL-16-06::application",
+      "upstream": "DEL-16-02",
+      "basis": "SCA011-E047"
+    },
+    {
+      "consumer": "DEL-16-06::application",
+      "upstream": "DEL-16-03::acceptance-decision",
+      "basis": "SCA011-E048"
+    },
+    {
+      "consumer": "DEL-16-06::application",
+      "upstream": "DEL-02-01",
+      "basis": "SCA011-E049"
+    },
+    {
+      "consumer": "DEL-16-06::application",
+      "upstream": "DEL-02-02",
+      "basis": "SCA011-E050"
+    },
+    {
+      "consumer": "DEL-16-06::application",
+      "upstream": "DEL-02-05",
+      "basis": "SCA011-E051"
+    },
+    {
+      "consumer": "DEL-16-06::application",
+      "upstream": "DEL-00-03",
+      "basis": "SCA011-E052"
+    },
+    {
+      "consumer": "DEL-16-06::application",
+      "upstream": "DEL-00-07",
+      "basis": "SCA011-E053"
+    },
+    {
+      "consumer": "DEL-07-12",
+      "upstream": "DEL-15-01",
+      "basis": "SCA011-E054"
+    },
+    {
+      "consumer": "DEL-07-12",
+      "upstream": "DEL-15-02",
+      "basis": "SCA011-E055"
+    },
+    {
+      "consumer": "DEL-07-12",
+      "upstream": "DEL-15-03",
+      "basis": "SCA011-E056"
+    },
+    {
+      "consumer": "DEL-07-12",
+      "upstream": "DEL-15-04",
+      "basis": "SCA011-E057"
+    },
+    {
+      "consumer": "DEL-07-12",
+      "upstream": "DEL-17-01",
+      "basis": "SCA011-E058"
+    },
+    {
+      "consumer": "DEL-07-12",
+      "upstream": "DEL-17-02",
+      "basis": "SCA011-E059"
+    },
+    {
+      "consumer": "DEL-07-12",
+      "upstream": "DEL-17-03",
+      "basis": "SCA011-E060"
+    },
+    {
+      "consumer": "DEL-07-12",
+      "upstream": "DEL-17-04",
+      "basis": "SCA011-E061"
+    },
+    {
+      "consumer": "DEL-07-12",
+      "upstream": "DEL-17-05",
+      "basis": "SCA011-E062"
+    },
+    {
+      "consumer": "DEL-07-12",
+      "upstream": "DEL-17-06",
+      "basis": "SCA011-E063"
+    },
+    {
+      "consumer": "DEL-07-12",
+      "upstream": "DEL-17-07",
+      "basis": "SCA011-E064"
+    },
+    {
+      "consumer": "DEL-07-12",
+      "upstream": "DEL-17-08",
+      "basis": "SCA011-E065"
+    },
+    {
+      "consumer": "DEL-07-12",
+      "upstream": "DEL-17-09",
+      "basis": "SCA011-E066"
+    },
+    {
+      "consumer": "DEL-07-12",
+      "upstream": "DEL-10-02",
+      "basis": "SCA011-E067"
+    },
+    {
+      "consumer": "DEL-07-12",
+      "upstream": "DEL-10-03",
+      "basis": "SCA011-E068"
+    },
+    {
+      "consumer": "DEL-07-12",
+      "upstream": "DEL-10-05",
+      "basis": "SCA011-E069"
+    },
+    {
+      "consumer": "DEL-07-12",
+      "upstream": "DEL-09-04",
+      "basis": "SCA011-E070"
+    },
+    {
+      "consumer": "DEL-07-12",
+      "upstream": "DEL-12-02",
+      "basis": "SCA011-E071"
+    },
+    {
+      "consumer": "DEL-07-12",
+      "upstream": "DEL-00-05",
+      "basis": "SCA011-E072"
+    },
+    {
+      "consumer": "DEL-07-12",
+      "upstream": "DEL-00-06",
+      "basis": "SCA011-E073"
+    },
+    {
+      "consumer": "DEL-07-12",
+      "upstream": "DEL-00-07",
+      "basis": "SCA011-E074"
+    },
+    {
+      "consumer": "DEL-07-01::palette-implementation",
+      "upstream": "DEL-16-06::application",
+      "basis": "SCA011-E075"
+    },
+    {
+      "consumer": "DEL-07-03",
+      "upstream": "DEL-05-01",
+      "basis": "SCA011-E076"
+    },
+    {
+      "consumer": "DEL-07-03",
+      "upstream": "DEL-05-02",
+      "basis": "SCA011-E077"
+    },
+    {
+      "consumer": "DEL-07-03",
+      "upstream": "DEL-16-06::application",
+      "basis": "SCA011-E078"
+    },
+    {
+      "consumer": "DEL-07-04",
+      "upstream": "DEL-06-02",
+      "basis": "SCA011-E079"
+    },
+    {
+      "consumer": "DEL-07-04",
+      "upstream": "DEL-02-02",
+      "basis": "SCA011-E080"
+    },
+    {
+      "consumer": "DEL-07-08",
+      "upstream": "DEL-16-06::application",
+      "basis": "SCA011-E081"
+    },
+    {
+      "consumer": "DEL-07-01::palette-implementation",
+      "upstream": "DEL-07-09::organization-contract",
+      "basis": "SCA011-E082"
+    },
+    {
+      "consumer": "DEL-08-04::comparison-export-mapping",
+      "upstream": "DEL-14-05::comparison-contract",
+      "basis": "SCA011-E083"
+    },
+    {
+      "consumer": "DEL-16-03::final-audit",
+      "upstream": "DEL-16-06::application",
+      "basis": "SCA011-E084"
+    },
+    {
+      "consumer": "DEL-07-09::organization-contract",
+      "upstream": "DEL-16-01",
+      "basis": "Organization contract binds operation taxonomy; DAG-010-DEL-07-09-E001"
+    },
+    {
+      "consumer": "DEL-07-09::coverage-assessment",
+      "upstream": "DEL-07-09::organization-contract",
+      "basis": "Coverage tests the already-defined organization contract"
+    },
+    {
+      "consumer": "DEL-08-04::comparison-export-mapping",
+      "upstream": "DEL-08-04::base-result-envelope",
+      "basis": "Comparison mapping extends base export; does not redefine the base"
+    },
+    {
+      "consumer": "DEL-16-03::final-audit",
+      "upstream": "DEL-16-03::acceptance-decision",
+      "basis": "Final audit links the actual pre-application acceptance decision"
+    }
+  ]
+}

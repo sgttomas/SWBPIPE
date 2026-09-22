@@ -1,0 +1,15 @@
+# SCA-011 — Piping ownership amendment candidate
+
+Status: group-2 preparation; no canonical application. Source revision: `008ef6a4e370822c65eb26ddd792752b4267c7ab`. Software variant; context root `projects/chirality-piping/execution`; decomposition `execution/_Decomposition/SOFTWARE_DECOMP.md`; stable IDs preserved; no removals or renumbering.
+
+The accepted group-1 snapshot is `../checkpoint_snapshots/SCA-011_GROUP-1_2026-09-22/`. It binds the actual owner words and previously supplied proposal; it does not backdate acceptance of this new package.
+
+Selected method: `bundled:chirality-root/scope-change` (WORKFLOW.md, execution.json, resources/contract.md, resources/method.md). Parent checked project/user collisions; the catalog identifies this bundled origin. Instruction and consulted-source identities are retained in evidence manifests. Root HELP_HUMAN delegated this undertaking to WORKING_ITEMS via Codex-native collaboration, which delegated bounded TASK instances. Full-history context is wider than a selective brief; intended TASK role and disjoint write scope were explicitly supplied. Host permissions enforce filesystem access, not semantic scope; semantic write restrictions are brief-enforced and backchecked. No claim of Chirality-managed delegate_agent execution is made.
+
+Plan: (1) preserve accepted direction and baseline; (2) independently prepare decomposition/carriers, interfaces/panel bindings, and graph candidate; (3) integrate exact action/supersession/propagation records; (4) freeze and validate the complete candidate with fresh independent review; (5) return the concrete group-2 decision package to HELP_HUMAN. Audit-decomp supplies a separate accepted-baseline check. TASKs do not delegate. Parent owns Git integration.
+
+Write boundary: this candidate run; its amendment-qualified group-1 checkpoint snapshot/pointer; current reconciliation graph continuation. All proposed canonical changes are mirror postimages beneath `candidate/` with an apply manifest. Canonical decomposition, registers, SoWs, statuses, dependencies, accepted pointers, production code, other projects and historical snapshots remain unchanged. New control postimages are not live deliverable scaffolds.
+
+Four delivery homes: DEL-04-07 solve integration; DEL-07-11 desktop workspace/host; DEL-07-12 interoperability/evidence-review GUI; DEL-16-06 controlled operation application. SOW-078/079 are finite GUI additions. Existing domain, editor, schema, persistence, audit, acceptance and vocabulary owners retain their obligations. Result schema drafts are reviewed preparation; ownership acceptance alone cannot declare new wire bytes authoritative.
+
+Exclusions: engineering/professional acceptance, protected numerical tolerances, external/licensed activation, private-data and secret/encrypted-storage policy, compatibility windows, candidate-generator ownership, plugin/runtime selection, ISSUED content, release/stage/lifecycle acts, DEL-07-09 promotion. Preserve original R6 rows and unresolved implementation/verification work.

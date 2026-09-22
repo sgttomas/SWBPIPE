@@ -1,0 +1,9 @@
+Consumer,Upstream,PreservedDependencyID,Treatment,Reason
+DEL-07-03,DEL-03-01,DAG-002-E0489,EXISTING_ROW_UNCHANGED,load/self-weight interaction dispatches to existing generators and controlled application; existing library contracts are retained.
+DEL-07-03,DEL-03-02,DAG-002-E0490,EXISTING_ROW_UNCHANGED,load/self-weight interaction dispatches to existing generators and controlled application; existing library contracts are retained.
+DEL-07-03,DEL-03-07,DAG-002-E0491,EXISTING_ROW_UNCHANGED,load/self-weight interaction dispatches to existing generators and controlled application; existing library contracts are retained.
+DEL-07-04,DEL-06-03,DAG-002-E0497,EXISTING_ROW_UNCHANGED,rule-check interaction preserves runner/required-input/status/unit-aware diagnostic contracts.
+DEL-07-04,DEL-05-04,DAG-002-E0496,EXISTING_ROW_UNCHANGED,rule-check interaction preserves runner/required-input/status/unit-aware diagnostic contracts.
+DEL-07-08,DEL-14-05,DAG-002-E0850,EXISTING_ROW_UNCHANGED,operation outcomes and common comparison envelope; existing scope remains.
+DEL-14-03,DEL-14-05,DAG-002-E0793,EXISTING_ROW_UNCHANGED,comparison producer uses the shared mapping/tolerance/export contract.
+DEL-14-04,DEL-14-05,DAG-002-E0796,EXISTING_ROW_UNCHANGED,comparison producer uses the shared mapping/tolerance/export contract.

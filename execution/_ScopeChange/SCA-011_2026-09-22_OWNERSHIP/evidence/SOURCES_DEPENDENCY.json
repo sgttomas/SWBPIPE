@@ -1,0 +1,375 @@
+{
+  "agent": "/root/piping_scope_manager/piping_dependency_candidate",
+  "parent": "/root/piping_scope_manager",
+  "mechanism": "native Codex collaboration TASK",
+  "role": "TASK",
+  "delegation": "none",
+  "workflow": "chirality-root/dependency-extract consulted; project graph candidate prepared under parent ad hoc brief, not falsely executed as deliverable-local extraction",
+  "write_boundary": [
+    "dependencies/**",
+    "evidence/DEPENDENCY_RETURN.md",
+    "evidence/SOURCES_DEPENDENCY.json"
+  ],
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "1bb670ca339a990b153cf033dac2d8e29ca71bdea0accee4200e6dd1feed3d57",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-20260922-DECISION-FOLLOWUP/PIPING_REVIEW.md",
+      "sha256": "a55dec0f4d406fdbb26fe48969d55f48bf9ba1ae43701d6b1ac930331d32a314",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d8a1f4380962efcd258571c6fb563722be9e2e89d4fa5898b7f6d24dc61ab879",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/Dependencies.csv",
+      "sha256": "f9ca09f503126374b8c3645b054f66da373008e1c9d4d90bc970a12b5dbd2128",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_DEPENDENCIES.md",
+      "sha256": "aca9b0fd630d087a80fef307c3e7a649fd8c122c506b9304547d3d395560c77b",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/Dependencies.csv",
+      "sha256": "c511f8ea8ec13ac94133d6f5d8c98bbece580a216ace03c269fdfd15ed4c2457",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_DEPENDENCIES.md",
+      "sha256": "3c4f690336d4887915eff36de009667b238049f6d657bbdb6c5bf97a3b6e73c8",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/Dependencies.csv",
+      "sha256": "0b307842d3b209a95a7f492daa15977e963e31534bb6fc3fa01ebbd383cec388",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_DEPENDENCIES.md",
+      "sha256": "ab51030b0600335328f87186c6a4283e6b94640f3d7ef0df0506c08be7694065",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/Dependencies.csv",
+      "sha256": "32e03014d98267609eae94c680b02968308bbabf1f8651f1afcb4a83ac19712b",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_DEPENDENCIES.md",
+      "sha256": "bd4c05544afba6bebeef652bfb3c41e758b914f022aada18358b44a3d6369500",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/Dependencies.csv",
+      "sha256": "c56771246ea1fdadd5a25d567386118e1b34eef6d394942fbae4171191841a85",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/ScopeOfWork.md",
+      "sha256": "09801fa7cce4236796564ef72e02444e15d1455b1608418704ccc3229e9d0dc7",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_DEPENDENCIES.md",
+      "sha256": "a4d30ec617ed95dc37d92ec256fefddaddeee64d0820c3158d2aa848b845d8d5",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/ScopeOfWork.md",
+      "sha256": "9b19965b79b3923fe92a89c84c040245a2cd2b9392a28ecaced20138ff6baa73",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/Dependencies.csv",
+      "sha256": "3f9a2038f2fe330d13bf4c3d16cd31e557f0c70ec0e2081b25716fbfb16a04af",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/ScopeOfWork.md",
+      "sha256": "8e29df53945f768bbfe831d7c376446e19ee242493936b4d4f98f2bdae41b2fb",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_DEPENDENCIES.md",
+      "sha256": "d000578237e3935a433bc881721c1c0fc8c1fff1f058279a898bf2ca86df222a",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md",
+      "sha256": "e9b0d14daf75205d6b796f6082d9f389ca1a017652266aaef834415bacb1d1fe",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-010/APPROVAL_RECORD.md",
+      "sha256": "54a5adcbe97735ccc92362080a4ff9324bab879f700599c50d864c8b8dc80bbd",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-010/DAG_Audit.json",
+      "sha256": "91dc0781f28d78dfadb432ba3be461c04f654c22b010f765e47bd4f6936e55a4",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-010/DeliverableNodes.csv",
+      "sha256": "18df1de555edd2c0a6231c54d9e9cb9846b060f8320842361e80b4c6f1004132",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-010/DependencyEdges.csv",
+      "sha256": "1892d2e7295d936b1dbf57104ab00df149fe17f8afbab4dc8b7e1c8b95082d28",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/_LATEST.md",
+      "sha256": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-009_2026-08-20_0000/Vocabulary_Annex.md",
+      "sha256": "f005abbc0d55b047ee7c34628e169aeb3646cd139a9c2c214a33760df4d63c7c",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/docs/_Registers/Deliverables.csv",
+      "sha256": "d4b96c0c4e499252a7845db9dd135e43f40e2acb10f077aba3a3866e8317d5cf",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/ComparisonResult.v0.1.draft.schema.json",
+      "sha256": "62bf0b30b5e2173c49cbcdac8e80cae99660261de3023af39133715c06c2c59d",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/INTERFACE_CONTRACTS.md",
+      "sha256": "0a5c0651ab9a9b44ec5d913881536123fccb0af9b98123110002dcb5863b9a3d",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "tools/coordination/analyze_dep_closure.py",
+      "sha256": "fe546d0f18aac3ab44866d55d6e6ca39c2b6d323ee0355e923b01106a1698ccd",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "tools/coordination/audit_dag.py",
+      "sha256": "f258bd4899f15d04e40d89fe36d399a5769e75026f92f1e053a9502e601f12c4",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "tools/validation/validate_dependencies_schema.py",
+      "sha256": "75cd74768cc8edf91c6f40b582f0fb570d2427894e6c2236ea2fe7d384291f5f",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "workflows/dependency-extract/WORKFLOW.md",
+      "sha256": "b79b011c44f21a311e1ffa49295ef50ea6b3644ca6c52a2aacfbfc393d26b18f",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "workflows/dependency-extract/execution.json",
+      "sha256": "ddbd595eeae1ccefff345da02973d876ff1db00d0244d8b40921495315a70a41",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "workflows/dependency-extract/resources/checks.md",
+      "sha256": "6801fe2d037b624e7017690eced948c35e334022012e877d2eb456cfdc817256",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    },
+    {
+      "path": "workflows/index.json",
+      "sha256": "7e3f3f5de13c6627b0b907e786e54a2433ce9c735be8983b3baa4d8fe230bee6",
+      "consultation": "Targeted content/structural consultation; not a whole-corpus or source-owner implementation review."
+    }
+  ],
+  "outputs": [
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/DAG011_PROPAGATION_PLAN.md",
+      "sha256": "cc62b7bde2c612e669c45b98b5bf715e2aedd92547b4a08a30676918870d9d60"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/DAG_Audit.json",
+      "sha256": "6998288424463380d96110c78d7e85e514714e960152fad632ee771feab1e43f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/DAG_Audit.md",
+      "sha256": "d2ea653b83cd013d06d20848e4cd2b628dbc3d4953317f9a4b2e0023fef9accb"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/DeliverableNodes.csv",
+      "sha256": "91eb889930f4e97594a4b8627708d667473f066e9cde7e5fca0bf9a2b053613f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/DependencyEdges.additions.csv",
+      "sha256": "8401de3c483c0b6a4d2d904cda5e2bbcbb8dda3e8a2ae939162d789c12f1b524"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/DependencyEdges.csv",
+      "sha256": "23165358e5e3e75c2fb90beb353714cbb43bc85858cabb9081b2de899cca2464"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/ExistingRelations.csv",
+      "sha256": "8f041a174b89e47db928aa06b970b5a8419499758d731219d0484988e232d646"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/LOCAL_MIRRORS_MANIFEST.json",
+      "sha256": "9f81bb3aa7075d690584b116f0c758df3ea0cf5409ab02520828c9c5a5bf3230"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/LOCAL_MIRRORS_PROMOTION.json",
+      "sha256": "9eee5351f39e0623446333a79ad63d4d73fd47ee37e30db4afb34955dee217e0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/LOCAL_MIRRORS_PROMOTION_VALIDATION.json",
+      "sha256": "da6c128c702e27f413161acecc50851e102e9ced572d79f011dee8537f4d89f9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/MANIFEST.json",
+      "sha256": "22b4a47e8f3f1842d2f07b77c38c1c75d06e78811a8b07d4b50a88e4e292de39"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/SCHEMA_CHECKS.json",
+      "sha256": "b53dd045b73fb09ea95e62f044f51d3f72b20f3526bf249c9eaa557c8197619e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/STAGED_INTERFACE_RATIONALE.md",
+      "sha256": "a66ba991125e813f5a63135decbd4f3e8f13eb43a3a8df32f71ae84cb32e3998"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/StageGraph.json",
+      "sha256": "1544138f5e80fcd38d7b8f70387423126a2564214ad38b633f070b0e3847c201"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/StagedInterfaces.json",
+      "sha256": "ac91cb9841651cb1a83a011865699c1a79849ee222a1156d9f3ab8be591d1b94"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/VALIDATION.json",
+      "sha256": "5602c4423710c22139803fb29ba1dae6de5c34b873e6b877db3e9327e50b39e5"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/build_candidate.py",
+      "sha256": "a614974085acb520cf45aa3cbff814728f8e12bbb3a427c4972a6e428cd67423"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/build_local_previews.py",
+      "sha256": "68614e5156a09894e5a218cea7da8597cd8ac63b422a378bc2dd7617d237df5e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-04-07/Dependencies.csv",
+      "sha256": "33991044b75f09fc40726f271cbce0ba5c6f2678c11eb9e10f3e1a05494ef633"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-04-07/_DEPENDENCIES.md",
+      "sha256": "2cde7ad5955c17c26aa86747e87c77768a4b8138a9453410f438efa775a76c56"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-01/Dependencies.csv",
+      "sha256": "96ffe738a7255e2e1473350ae83990bbf158f25a7a2eb74db1909026e7acf675"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-01/_DEPENDENCIES.md",
+      "sha256": "8951875e30f11f5ff96eec124465fac13c8e48696fab5ca7a10af1d03db57f78"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-03/Dependencies.csv",
+      "sha256": "235fdd05a69b1ef2dddf4896861a80ba72f79b26cf1267347a8b37d0ab7545da"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-03/_DEPENDENCIES.md",
+      "sha256": "924dd5457a682447199445421c3c744b6a6a35c4da8917cea0d00d086b533a1f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-04/Dependencies.csv",
+      "sha256": "b703f15c4b5537b1c1d282c633e6d15f0b401f5afbd9d765fe01049413d6fc0a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-04/_DEPENDENCIES.md",
+      "sha256": "d0c053fb3fff385b0a133b6314b676feffa4893034b38ba09a40d0bb7bb2c7fe"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-08/Dependencies.csv",
+      "sha256": "f86596be336d47ec64e010d9d0877034e86922f089e50a56317a86b4d96937fc"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-08/_DEPENDENCIES.md",
+      "sha256": "39f866255ac2d405ed1d8fa3139d0a121251457c3f3e67eafa606f49726e80fb"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-11/Dependencies.csv",
+      "sha256": "32ab9b56319a60ba1daade4eb6e9b674943b52acecdc1be2f5aa3a8a5c6087e9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-11/_DEPENDENCIES.md",
+      "sha256": "df44f0ca3ef1c9a5963ed265c5c0458a3bb2525067f8e5b0da1c7f974c3c2e0f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-12/Dependencies.csv",
+      "sha256": "fc0913c55445110c0622ba6cf8941dd71d5d0c6ae0910c3af57ee5ee99141112"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-07-12/_DEPENDENCIES.md",
+      "sha256": "208897b25226d7ee44b26a8e60d18161d60edff1b698706de86e1a01aa559ed8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-08-04/Dependencies.csv",
+      "sha256": "2c85a3bcec76f691c959e2fd4d97f3f23263f32fd44f7112f764a031cc42c2d4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-08-04/_DEPENDENCIES.md",
+      "sha256": "3e3af5af61356717281689ce6309eaf84094bf172bdfca178ce3fd2176d807ba"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-16-03/Dependencies.csv",
+      "sha256": "52db83caf551c046b66de8380d4fdac9cd08aae3f3b4a2dbaa6b13b4c610af32"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-16-03/_DEPENDENCIES.md",
+      "sha256": "98ff87e4626113da264a7d60a084b9948463319aa681c3c63dfe4b32dab3d0e7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-16-06/Dependencies.csv",
+      "sha256": "187cc2f09189c80c1ea18ea32e92e2d6fbaae98e4df13bd07daf7179100f94aa"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/local-mirrors/DEL-16-06/_DEPENDENCIES.md",
+      "sha256": "1a0fd4e587c5f2726963b9c9f5459523ebea74e258d4d52f9fa6fc8bec3227d7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/staged-contracts/APPLICATION_OUTCOME.md",
+      "sha256": "7308e6ee3e469ac493a3c8cf3b868763895d3e79dcd7bcca376959d91c2dc600"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/staged-contracts/COMPARISON_EXPORT.md",
+      "sha256": "24341aa39bcefa2c2d929fa39ab0f54b112c183b406b3525b8208e4a51806879"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/staged-contracts/PALETTE_ORGANIZATION.md",
+      "sha256": "ad3ddd62ed69b313b829d6e2d66893c7479ec92a41699b5a532827fa4ec05b78"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/validate_candidate.py",
+      "sha256": "403ab94263c969bd1d308ba5a677e5b674cf803a690f7bdd3aebfc3ca70702cc"
+    }
+  ],
+  "no_git_mutation": true,
+  "live_dependency_or_pointer_writes": false,
+  "limits": "Shared filesystem and actual host permissions; narrower write/read scope is instruction enforced. No product execution or source-owner acceptance. Sibling candidate identities checked; external contract source draft may change before parent freeze.",
+  "independent_review_correction": {
+    "subject": "Canonical local-index references and exact conditional Group 2/3 metadata transforms",
+    "output_hash_count": 42,
+    "aggregate_or_csv_semantics_changed": false,
+    "live_application_executed": false,
+    "source_hash_policy": "Original consulted input hashes retained; sibling changes require parent freeze/backcheck."
+  }
+}

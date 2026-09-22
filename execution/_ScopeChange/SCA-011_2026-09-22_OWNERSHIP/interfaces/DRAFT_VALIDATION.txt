@@ -1,0 +1,8 @@
+Command: python3 projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/check_drafts.py
+Python 3.13.7
+ValidationResult: draft metaschema and positive shape PASS; 4 negative witnesses rejected
+TransformResult: draft metaschema and positive shape PASS; 4 negative witnesses rejected
+ComparisonResult: draft metaschema and positive shape PASS; 4 negative witnesses rejected
+Only structural draft preparation checked; IF-001..007 semantic/producer witnesses remain outstanding.
+Exit: 0
+No product code executed.
