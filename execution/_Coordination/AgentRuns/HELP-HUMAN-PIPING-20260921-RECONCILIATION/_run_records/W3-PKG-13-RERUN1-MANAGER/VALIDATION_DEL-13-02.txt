@@ -1,0 +1,4 @@
+# Validator transcript DEL-13-02 (rerun cycle 1)
+$ PYTHONDONTWRITEBYTECODE=1 python3 RUN/tools/validate_ledger_v2.py --run-dir RUN --repo-root . --deliverable DEL-13-02 --forward projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-13/DEL-13-02/DEL-13-02_forward.csv --reverse projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-13/DEL-13-02/DEL-13-02_reverse.csv --inventory RUN/ROUTING/PKG-13_capabilities.csv --notes-gap
+PASS DEL-13-02: 114 forward rows, 73 required keys, 8 canonical, 0 findings
+exit=0

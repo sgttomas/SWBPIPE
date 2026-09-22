@@ -1,0 +1,8 @@
+# Batch transcript PKG-13 (rerun cycle 1; fresh DEL-13-02 ledger)
+3161f00b6084f59eaa30bed8e8aa121ea3ce6e2bb238af7e671f49a5ba0cb09e  projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-13/DEL-13-01/DEL-13-01_forward.csv
+637db6f46ddb7fd7f546e51c6712c9d4e7cf9316ef173a6d12e8f4d8348aab02  projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-13/DEL-13-02/DEL-13-02_forward.csv
+02c5366df9ce622ee04e1d5d4226977946d64ec7cff7a6cef99317b1f91e96ac  projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-13/DEL-13-03/DEL-13-03_forward.csv
+fcbd1656ca76a227f03992c87d35cd82f1c808d6f029a67ed018fd5f997935d6  projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-13/DEL-13-04/DEL-13-04_forward.csv
+$ PYTHONDONTWRITEBYTECODE=1 python3 RUN/tools/validate_ledger_v2.py --run-dir RUN --repo-root . --batch <four forward files above>
+PASS batch of 4 ledgers: 0 consistency findings
+exit=0
