@@ -1,0 +1,15 @@
+## Single-mode validator (forward+reverse+inventory+notes-gap)
+PASS DEL-15-02: 134 forward rows, 70 required keys, 9 canonical, 0 findings
+exit=0
+
+## Seal check
+SEALED DEL-15-02 989d1fc922891cccc05dcaaeb0f5dfcf65ba6383213c7545d66e773851b13d75 2026-09-22T02:43:43Z
+989d1fc922891cccc05dcaaeb0f5dfcf65ba6383213c7545d66e773851b13d75  projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-15/DEL-15-02/DEL-15-02_forward.csv
+4f4630265b8657a6d84c9d440d111224297f0c418099d49ee20072d88eb1ff99  projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-15/DEL-15-02/DEL-15-02_reverse.csv
+30bee450a7c3f940c5a3c2b3f72ddd9076b3ad9f38b82243b4e221b75cbfee88  projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-15/DEL-15-02/DEL-15-02_notes.md
+worker-reported forward=989d1fc922891cccc05dcaaeb0f5dfcf65ba6383213c7545d66e773851b13d75
+#END,,,,,,,,,,,,,,,,,,,,,,,,,,,,,134,
+#END,,,290
+## superseded_1 integrity
+SEALED DEL-15-02 86d7e398d26bd21afca629325f1be86892db40bce5b5fe5590d8f21a88b3ac73 2026-09-22T01:51:01Z
+86d7e398d26bd21afca629325f1be86892db40bce5b5fe5590d8f21a88b3ac73  projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-15/DEL-15-02/superseded_1/DEL-15-02_forward.csv

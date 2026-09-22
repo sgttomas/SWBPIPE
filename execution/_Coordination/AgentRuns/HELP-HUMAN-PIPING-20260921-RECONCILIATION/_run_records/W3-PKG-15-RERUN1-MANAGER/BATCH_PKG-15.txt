@@ -1,0 +1,3 @@
+## Batch over all four PKG-15 forward ledgers (fresh DEL-15-02)
+PASS batch of 4 ledgers: 0 consistency findings
+exit=0
