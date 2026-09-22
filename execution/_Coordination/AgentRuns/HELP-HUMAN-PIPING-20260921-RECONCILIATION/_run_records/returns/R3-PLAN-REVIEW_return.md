@@ -150,3 +150,60 @@ The convention-level R3 obligations in C6(e) and F7 are also missing (finding 3)
 - **Tool behaviour.** It writes only `RUN/R3/`, and in `--check` mode it writes nothing.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+
+## Backcheck 1
+
+**Backcheck verdict: PASS.** Every original finding is resolved. The changes introduce three MINOR items (B1-1 to B1-3). None needs to change before dispatch, so Agent 0 may fold them into the launch messages.
+
+Scope: commit `b3bfd0ebc` (`f4967ad04..HEAD`). Reviewed bytes:
+- `tools/synthesize_r3.py`, sha256 `bf3487d6ae537bedc335173ad69ee27a109f8172449931d4de3081d01c428eab`
+- `R3_PLAN.md`, sha256 `ee80d371ac3b1f709ba0a79823201385fe1af6c6584fe009f45e3b4c24573cdb`
+- `briefs/R3-TASK_brief.md`, sha256 `4463e540cb71c212816dfd02897391e4f81f7ca9134867989039f0f737f6a309`
+
+The diff also carries this return file, committed unchanged at sha256 `2f03902f…`, and three RUN_STATE lines: LAUNCH, RETURN and FIX. Nothing else outside RUN or AR changed.
+
+### Tool
+
+- **Reproduction.** `--check` prints "CHECK PASS". Only three outputs changed: CORPUS_CLAIMS, CAPABILITY_COVERAGE and SYNTHESIS_STATS. PACKAGE_SUMMARY, CLUSTER_MATRIX and REMAINING_CENSUS hashes are unchanged, and the divergent count is still 3,299.
+- **`OtherCorrections`.** My script rebuilt it for all 9,889 rows (`[Class] text`, joined with ` || `, in resolution-file order) with 0 mismatches. 580 claim rows carry it: 582 resolution rows minus the two duplicate keys. No correction text contains `||`, so the separator is unambiguous.
+- **`ProductCallerNone`.** 666 rows, 0 mismatches against a substring search of the sealed Notes. 25 of them are divergent, so the "641 not divergent" in the plan and SYNTHESIS_STATS is right. (My earlier "646 ALIGNED" counted sealed dispositions; effective resolutions account for the difference.)
+- **`OwnerKeys`.** Entries are now separated by ` | `, and a single owner's keys stay `;`-joined. The brief states this.
+
+### Original findings
+
+1. **Counts:** RESOLVED. The plan now gives 781, 625, 576 and 583, which match my effective counts. It states the filter as `Divergent = YES` by effective CauseTag.
+2. **`OtherCorrections`:** RESOLVED, in both the tool and the brief. The brief states exactly which five fields are substituted, says every other correction is not applied, and tells tasks to take it into account, including for AuthorityNeeded.
+3. **Unassigned obligations:** RESOLVED.
+   - (a) T4B now keeps the 86 RENAME_OR_IDENTITY rows as one class under C6(e).
+   - (b) T12 covers all 666 `PRODUCT_CALLER: NONE` rows, one CSV row each.
+4. **Method gaps:** RESOLVED. T11 covers dependencies, terminology and decisions, reused evidence, `.sNN` splits and shared surfaces. Each has a `Check` value.
+5. **OWNED exclusion:** RESOLVED. The plan now gives the reason (a single owner affirmed in a verified reverse pass). The 137 OWNED capabilities with relations go to T11. My count confirms 137.
+6. **Routes:** RESOLVED. The vocabulary now has seven routes, including REVIEW and NO_ACTION, and applies to "every Route or routing field". The plan's class contents match.
+7. **Partial ownership class:** RESOLVED. PARTIAL_UNOWNED_REMAINDER is added.
+8. **Reading other tasks' files:** RESOLVED. Rule 8 forbids it and keeps the July material to T10.
+9. **OwnerKeys delimiter:** RESOLVED.
+10. **Brief hygiene:** RESOLVED. The brief now says to ignore draft files, sets PYTHONDONTWRITEBYTECODE and states the exact divergent filter. One gap remains in the draft pattern (B1-1).
+11. **T8 wording:** RESOLVED. T8's reading "shapes Agent 0's R4 decision packets. It changes no row value."
+
+### New items
+
+- **B1-1 MINOR — The draft-file pattern misses one file.** The brief says to ignore `RESOLUTIONS_DRAFT_*.csv`. The W2 draft is named `WAVES/W2/RESOLUTIONS_DRAFT.csv`, with no suffix, so the pattern does not match it. The risk is low, because the brief also lists the four adopted files explicitly and says "ignore the draft … files". Suggest `RESOLUTIONS_DRAFT*.csv`.
+- **B1-2 MINOR — T11's inputs need their locations stated.**
+  - The plan names "DAG-010" without a path. It is `projects/chirality-piping/execution/_DAG/DAG-010/`, under the freeze.
+  - Only 94 `Dependencies.csv` files exist in the piping tree for 102 deliverables. I counted in the working tree, which RUN_STATE records as having no piping product change since the freeze. T11 should be told to report deliverables with no dependency file rather than treat the absence as an error.
+  - T11 carries five checks. It is workable because it has no exactly-once duty, but the launch message should say that REUSED_EVIDENCE and SUBCLAIM_SPLIT are scripted candidate screens that report their method and limits, not exhaustive proofs.
+  - T12's `Engine` and `Area` columns are not defined. Suggest `Area` = the IMPLEMENTATION_SURFACES area, and `Engine` = the module or crate path at the freeze.
+- **B1-3 MINOR — Stale plan wording.**
+  - The heading "Agent 0 integration (after T1–T10)" should read T1–T12. Step 1's output checks should include T11 and T12.
+  - The concurrency paragraph now reserves a single slot but still ends "no further independent work to fill them". 15 live agents under the owner's 16 maximum, with one slot held for re-runs and review, is consistent with Direction 6.
+
+### Brief sufficiency for all 14 tasks
+
+- **T1–T3:** population, statuses, classification set and CSV format are all given.
+- **T4A–T7:** filter, class contents, routes and exactly-once check are all given.
+- **T8:** cluster list (plan), CSV format and route vocabulary.
+- **T9:** scope (plan), CSV format and routes.
+- **T10:** July path limited to T10, a cross-check only, with a CSV format.
+- **T11 and T12:** checks, CSV formats and routes. Only B1-2 is missing.
+
+The common rules (authority, observations, visibility, evidence, DEC-043, claim fence, writes, independence) apply to every task. The brief is sufficient for a context-free agent, provided each launch message states the task's exact filter and count, and supplies `{REPO}` and `{FREEZE}`.

@@ -92,10 +92,10 @@ agents. Once they are running, the remaining slot is kept for:
 - a re-run of a failed task;
 - the independent review, once the tasks finish.
 
-There is no further independent work to fill them (Direction 6: a stated
+There is no further independent work to use it for (Direction 6: a stated
 reason).
 
-## Agent 0 integration (after T1–T10)
+## Agent 0 integration (after T1–T12)
 
 1. Check each task output: exactly-once coverage, keys exist in
    `CORPUS_CLAIMS.csv`, and counts reproduce.
