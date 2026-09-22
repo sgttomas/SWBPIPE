@@ -1,0 +1,8 @@
+# DEL-13-04 validation (manager recheck) 2026-09-22T02:24:35Z
+forward_sha256=fcbd1656ca76a227f03992c87d35cd82f1c808d6f029a67ed018fd5f997935d6
+reverse_sha256=40c5306737ef318a06ee1e8c7e791bfd1fe29d782d3bd277f568d090ba712f83
+seal: SEALED DEL-13-04 fcbd1656ca76a227f03992c87d35cd82f1c808d6f029a67ed018fd5f997935d6 2026-09-22T02:20:35Z
+rows: #END,,,,,,,,,,,,,,,,,,,,,,,,,,,,,110,
+--- validator ---
+PASS DEL-13-04: 110 forward rows, 92 required keys, 9 canonical, 0 findings
+exit=0

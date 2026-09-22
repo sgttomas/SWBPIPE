@@ -1,0 +1,8 @@
+# DEL-13-02 validation (manager recheck) 2026-09-22T02:24:35Z
+forward_sha256=5b5ab108e7f6e3b69120152a981f4643037267ad7624f9a2522aedc879858d76
+reverse_sha256=2c01f6a53f2e729e71e5a6aa07e950b3ceabfb80777dfe69befa6d087cbd42f1
+seal: SEALED DEL-13-02 5b5ab108e7f6e3b69120152a981f4643037267ad7624f9a2522aedc879858d76 2026-09-22T00:43:54Z
+rows: #END,,,,,,,,,,,,,,,,,,,,,,,,,,,,,85,
+--- validator ---
+PASS DEL-13-02: 85 forward rows, 73 required keys, 8 canonical, 0 findings
+exit=0
