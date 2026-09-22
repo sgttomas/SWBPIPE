@@ -1,0 +1,11 @@
+# Validation DEL-17-04 (manager, W3 PKG-17)
+forward_sha256=6d3b3906ecf4eccc8d1f3d04de7937262d72f4bd13b577ed408467b4362ac68d
+reverse_sha256=bcb01884821931fdaccb13885bf96e398a9d768c2185f6485d7d6362d2b4dee3
+seal: SEALED DEL-17-04 6d3b3906ecf4eccc8d1f3d04de7937262d72f4bd13b577ed408467b4362ac68d 2026-09-22T02:27:29Z
+sentinel_forward: 1  sentinel_reverse: 1
+notes_present: yes
+files: DEL-17-04_SEAL.txt DEL-17-04_forward.csv DEL-17-04_notes.md DEL-17-04_reverse.csv 
+--- validator: --forward --reverse --inventory --notes-gap
+PASS DEL-17-04: 97 forward rows, 76 required keys, 5 canonical, 0 findings
+exit=0
+--- seal check: recomputed=6d3b3906ecf4eccc8d1f3d04de7937262d72f4bd13b577ed408467b4362ac68d seal=6d3b3906ecf4eccc8d1f3d04de7937262d72f4bd13b577ed408467b4362ac68d worker_reported=6d3b3906ecf4eccc8d1f3d04de7937262d72f4bd13b577ed408467b4362ac68d result=MATCH
