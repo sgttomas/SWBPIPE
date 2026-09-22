@@ -27,10 +27,10 @@ code-compliance claims, or final governance decisions.
 
 | Field | Current value |
 |---|---|
-| Project intent | Source-available noncommercial piping stress analysis platform |
+| Project intent | Free and open-source (MIT) piping stress analysis platform |
 | Decomposition authority | `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` |
 | Coordination graph authority | `execution/_DAG/DAG-007/` active edge set; candidate rows remain non-gating |
-| License | `PolyForm-Noncommercial-1.0.0`; see `LICENSE.md` and `https://polyformproject.org/licenses/noncommercial/1.0.0` |
+| License | `MIT`; see `LICENSE.md` |
 | Contributor certification mechanism | Interim project certification template in `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md`; final DCO/CLA/other mechanism remains `TBD` |
 | Maintainer roster | `TBD` |
 | Release authority | `TBD` |
@@ -41,7 +41,7 @@ code-compliance claims, or final governance decisions.
 | Jurisdiction-specific professional-practice wording | `TBD` |
 | Human project authority record | `TBD` |
 
-No contributor, maintainer, agent, or release note may state a final governance authority until the corresponding `TBD` is resolved by the human project authority. The project license has been selected by human project authority as `PolyForm-Noncommercial-1.0.0`.
+No contributor, maintainer, agent, or release note may state a final governance authority until the corresponding `TBD` is resolved by the human project authority. The project license has been selected by human project authority as `MIT` (`D-74`, 2026-09-22).
 
 ## 2. Maintainer Responsibilities
 
@@ -95,7 +95,7 @@ A public release must not be published until maintainers complete a release revi
 
 - an explicit human release decision and a recorded governance authority basis;
 - release scope, changed surfaces, and any excluded or deferred work;
-- selected license and notices, including `PolyForm-Noncommercial-1.0.0` and the corresponding `LICENSE.md` notice;
+- selected license and notices, including `MIT` and the corresponding `LICENSE.md` notice;
 - validation status and known limitations;
 - data-boundary constraints and professional-responsibility notices;
 - protected-content and provenance review for public examples, templates, and bundled data;
@@ -123,7 +123,7 @@ The ADR location and numbering convention remain `TBD`.
 
 | ID | Question | Status |
 |---|---|---|
-| GOV-DEC-001 | Which project license will the project use? | Resolved 2026-06-03: `PolyForm-Noncommercial-1.0.0` |
+| GOV-DEC-001 | Which project license will the project use? | Resolved 2026-06-03: `PolyForm-Noncommercial-1.0.0`; superseded 2026-09-22 by `D-74`: `MIT` |
 | GOV-TBD-002 | Will the project use a Developer Certificate of Origin, contributor license agreement, or another contributor certification mechanism? | `TBD` |
 | GOV-TBD-003 | Who are the initial maintainers and what quorum is required for policy changes? | `TBD` |
 | GOV-TBD-004 | What release signing and artifact-retention process will be used? | `TBD` |

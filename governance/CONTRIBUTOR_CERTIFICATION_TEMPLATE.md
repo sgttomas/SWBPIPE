@@ -25,7 +25,7 @@ standards-body endorsement, or a code-compliance determination.
 This draft template is aligned to
 `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved
 `DAG-007` coordination authority. The project license has been selected as
-`PolyForm-Noncommercial-1.0.0`; source-license and redistribution fields below
+`MIT`; source-license and redistribution fields below
 record the submitted material's basis and do not replace that project license
 notice.
 
@@ -74,7 +74,7 @@ Contributor statement:
 | Contributor signature / account affirmation | `TBD` |
 | Certification date | `TBD` |
 
-The project license is `PolyForm-Noncommercial-1.0.0`. The final project-wide
+The project license is `MIT`. The final project-wide
 contributor mechanism, such as DCO, CLA, or another legal instrument, remains
 `TBD`.
 

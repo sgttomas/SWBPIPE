@@ -70,7 +70,7 @@ Public safety, professional responsibility, evidence, auditability, and respect 
 
 ### 4.1 In scope
 
-- Source-available noncommercial global piping flexibility and stress analysis.
+- Free and open-source (MIT) global piping flexibility and stress analysis.
 - 3D centerline/frame solver.
 - Piping-specific component and support models.
 - User-defined rule-pack system.
@@ -104,8 +104,9 @@ Agents and software must stop and escalate to a human when:
 
 ## 6. Governance baseline
 
-OpenPipeStress is licensed under `PolyForm-Noncommercial-1.0.0`, selected by
-the human project authority on 2026-06-03. The contributor certification
+SWBPIPE is licensed under `MIT`, selected by the human project authority on
+2026-09-22 (`D-74`), superseding the 2026-06-03 selection of
+`PolyForm-Noncommercial-1.0.0`. The contributor certification
 mechanism, release signing process, maintainer roster, and maintainer quorum
 remain `TBD` until the human project authority records those decisions.
 

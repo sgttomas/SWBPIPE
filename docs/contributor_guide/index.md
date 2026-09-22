@@ -192,7 +192,7 @@ Route these issues instead of resolving them inside a bounded contribution:
 | License, contributor mechanism, release authority, maintainer quorum, CI provider, or release-label decision | Human project-authority path. |
 | Professional reliance, code interpretation, or project-specific engineering acceptance wording | Professional-boundary review path. |
 
-The project license has been selected as `PolyForm-Noncommercial-1.0.0`.
+The project license has been selected as `MIT`.
 Preserve existing `TBD`s for the final contributor legal mechanism, maintainer
 quorum, release authority, CI policy, dependency versions, and other unsettled
 professional or legal decisions unless the assignment explicitly grants

@@ -25,7 +25,7 @@ preserved. Boundary-statement vocabulary for all other surfaces is governed by
 This draft notice template is aligned to
 `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved
 `DAG-007` coordination authority. The project license has been selected as
-`PolyForm-Noncommercial-1.0.0`; report notices may cite that project license
+`MIT`; report notices may cite that project license
 notice, but it is not legal advice, professional approval, or code-compliance
 evidence.
 
@@ -66,7 +66,7 @@ metadata:
 | Field | Requirement |
 |---|---|
 | Software version | SWBPIPE version or commit basis used to generate the report. |
-| Project license notice | `PolyForm-Noncommercial-1.0.0` where report packaging includes project governance notices. |
+| Project license notice | `MIT` where report packaging includes project governance notices. |
 | Model hash | Hash of the model basis used for the reported results. |
 | Input manifest hash | Hash or reference for the input manifest where implemented. |
 | Rule-pack reference | Rule-pack ID, version, checksum, source note, and public/private marker when rule checks are included. |

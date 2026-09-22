@@ -21,8 +21,8 @@ SWBPIPE is decision-support software for open, auditable piping
 mechanics. Users supply project data, private libraries, rule packs, owner
 requirements, protected or licensed design-basis values, and professional
 judgment. Public guide content uses invented examples or placeholders only.
-The project license is `PolyForm-Noncommercial-1.0.0` as selected by the human
-project authority on 2026-06-03; this is a project governance notice, not legal
+The project license is `MIT`, as selected by the human project authority on
+2026-09-22 (`D-74`, superseding the 2026-06-03 selection); this is a project governance notice, not legal
 advice or an engineering acceptance claim.
 
 ## 1. Current Scope And Authority Boundary

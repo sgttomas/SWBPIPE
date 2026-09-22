@@ -335,7 +335,7 @@ rule packs, company design bases, credentials, or real secrets.
 Maintainer acceptance of a repository contribution is project governance
 only. It is not professional engineering approval of a piping calculation.
 
-The project license has been selected as `PolyForm-Noncommercial-1.0.0`.
+The project license has been selected as `MIT`.
 The final contributor legal mechanism, maintainer roster/quorum, release
 authority, legal-review authority, security contact, release-label vocabulary,
 human-acceptance workflow, jurisdiction-specific professional-practice wording,

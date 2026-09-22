@@ -38,7 +38,7 @@ code-compliance determination.
 This draft contributor workflow is aligned to
 `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved
 `DAG-007` coordination authority. The project license has been selected as
-`PolyForm-Noncommercial-1.0.0`; this is a project governance notice, not legal
+`MIT`; this is a project governance notice, not legal
 advice or a contributor legal mechanism.
 
 The final contributor legal mechanism, such as DCO, CLA, or another
@@ -89,7 +89,7 @@ At minimum, the contributor must record:
 | Protected-content screen | Confirmation that protected standards/proprietary content was not copied, or an escalation note. |
 | Private-data screen | Confirmation that private project, rule-pack, material, component, owner-standard, and company data are excluded unless intentionally submitted with documented rights. |
 
-The project license is `PolyForm-Noncommercial-1.0.0`. The final project-wide
+The project license is `MIT`. The final project-wide
 contributor legal mechanism, such as DCO, CLA, or another legal instrument,
 remains `TBD` until the human project authority records a decision.
 
