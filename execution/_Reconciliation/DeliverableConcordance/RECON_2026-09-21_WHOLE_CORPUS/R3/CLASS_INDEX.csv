@@ -1,0 +1,57 @@
+ClassID,Task,Name,Rows,Authority,Route
+T4A-C01,T4A,"Keyed `_CONTEXT.md` setup-block drift (CS-01, CS-04, CS-06)",198,NONE,R5_RECORD_REPAIR
+T4A-C02,T4A,"D-41-era ""current declaration"" blocks pinning rev 0.8 and DAG-007",213,OWNER (treatment choice),R5_RECORD_REPAIR
+T4A-C03,T4A,"Other revision, graph and amendment pins (SOW, AB, CONTEXT `.sNN`)",190,NONE,R5_RECORD_REPAIR
+T4A-C04,T4A,`_CONTEXT.md` SURFACE rows restating the keyed pins (contested split),68,REVIEW,R5_RECORD_REPAIR
+T4A-C05,T4A,"Removed-file, renumbered-section and relocated-anchor pointers",86,NONE,R5_RECORD_REPAIR
+T4A-C06,T4A,"Pointer rows tied to open owner clusters (DEC-009, export plan, release-label floor)",14,OWNER,OWNER_DECISION
+T4A-C07,T4A,Product documents carrying the dead or stale pointer,3,NONE,CODE_FIX_CANDIDATE
+T4A-C08,T4A,Pins on the ISSUED DEL-01-01,9,OWNER,OWNER_DECISION
+T4B-C01,T4B,Rename and identity residue (single R4 ruling),86,OWNER,OWNER_DECISION
+T4B-C02,T4B,ISSUED and baseline-bearing record drift,5,OWNER,OWNER_DECISION
+T4B-C03,T4B,PKG-00 SEMANTIC_READY injection sub-claims (SR-1),42,OWNER,OWNER_DECISION
+T4B-C04,T4B,Declarations citing evidence absent from the freeze (CP-08),17,OWNER,OWNER_DECISION
+T4B-C05,T4B,Four-document residue (CP-01),336,NONE,R5_RECORD_REPAIR
+T4B-C06,T4B,Stale status and memory surfaces (CP-05 and analogues),59,NONE,R5_RECORD_REPAIR
+T4B-C07,T4B,Remaining items overtaken by rulings or events,21,NONE,R5_RECORD_REPAIR
+T4B-C08,T4B,Other declarations overtaken by later records or rulings,59,NONE,R5_RECORD_REPAIR
+T5A-C01,T5A,Setup-session framing overtaken,205,REVIEW,R5_RECORD_REPAIR
+T5A-C02,T5A,Setup-era TBDs and future-tense product text answered by implementation,207,REVIEW,R5_RECORD_REPAIR
+T5A-C03,T5A,Post-migration declarations overtaken,94,REVIEW,R5_RECORD_REPAIR
+T5A-C04,T5A,Model-operation records omit the ruled runtime seam,19,REVIEW,R5_RECORD_REPAIR
+T5A-C05,T5A,Code departs from text on owner-reserved points,17,OWNER,OWNER_DECISION
+T5A-C06,T5A,Local semantic departures (adopt or restore),10,REVIEW,REVIEW
+T5A-C07,T5A,Stale Remaining items,6,REVIEW,R5_RECORD_REPAIR
+T5A-C08,T5A,Cause or vehicle contested in adopted resolutions,18,REVIEW,REVIEW
+T5B-C01,T5B,SOW parity and verification-method records no longer bind the frozen SOW (CP-09),175,REVIEW,REVIEW
+T5B-C02,T5B,Protected-content and boundary review records predate later changes,12,REVIEW,REVIEW
+T5B-C03,T5B,Review-pending declarations and test-count snapshots overtaken,15,NONE,R5_RECORD_REPAIR
+T5B-C04,T5B,"SR-1: ""PKG-00 at SEMANTIC_READY supplies the architecture basis""",40,OWNER,OWNER_DECISION
+T5B-C05,T5B,"Injected `_CONTEXT.md` blocks overtaken by rulings (Still-TBD lists, architecture gate rule)",71,NONE,R5_RECORD_REPAIR
+T5B-C06,T5B,"Deliverable TBDs, holds and open questions settled by later rulings",226,NONE,R5_RECORD_REPAIR
+T5B-C07,T5B,PROJECT_BASELINE claims overtaken by rulings (ISSUED DEL-01-01 group and four holds),22,OWNER,OWNER_DECISION
+T5B-C08,T5B,Write scope and boundary text outgrown under recorded direction,9,NONE,R5_RECORD_REPAIR
+T5B-C09,T5B,Scope grown on owner records or awaiting an owner boundary,5,OWNER,OWNER_DECISION
+T5B-C10,T5B,Contract version advanced: analysis-record 0.2 and the schema dispatcher,8,NONE,R5_RECORD_REPAIR
+T6-C01,T6,Deliverable-local implementation remainder,180,NONE,CODE_FIX_CANDIDATE
+T6-C02,T6,Baseline-bound implementation remainder,116,NONE,CODE_FIX_CANDIDATE
+T6-C03,T6,Protected-subject implementation remainder,34,REVIEW,CODE_FIX_CANDIDATE
+T6-C04,T6,Gap blocked on a held owner selection,87,OWNER,OWNER_DECISION
+T6-C05,T6,Human review disposition pending,35,REVIEW,REVIEW
+T6-C06,T6,Engineering convention or qualification pending,4,ENGINEERING,ENGINEERING_AUTHORITY
+T6-C07,T6,"Behaviour landed elsewhere, placement unresolved",17,SCOPE_CHANGE,SCOPE_CHANGE_HANDOFF
+T6-C08,T6,Gap held by a named ruling,36,OWNER,NO_ACTION
+T6-C09,T6,Sanctioned SCA-009 re-point (exception: CONTESTED),9,OWNER,NO_ACTION
+T6-C10,T6,Conditional example rules met by absence (exception),3,NONE,NO_ACTION
+T7-C01,T7,CP-10 holds settled in code without a ruling,50,OWNER,OWNER_DECISION
+T7-C02,T7,JSON hash-basis departure from AB-00-04 (JCS),11,OWNER,OWNER_DECISION
+T7-C03,T7,DEC-009 Rust-core baseline vs Python engines,7,OWNER,OWNER_DECISION
+T7-C04,T7,Authority silent or in conflict (non-CP-10),5,OWNER,OWNER_DECISION
+T7-C05,T7,Behaviour contradicts SOW; owner rules intent before fix,27,OWNER,OWNER_DECISION
+T7-C06,T7,Code/test fix candidates (no ruling needed),42,REVIEW,CODE_FIX_CANDIDATE
+T7-C07,T7,Engineering validation and reference-model authority,7,ENGINEERING,ENGINEERING_AUTHORITY
+T7-C08,T7,"Owner-held independent validation, accurately recorded",10,OWNER,NO_ACTION
+T7-C09,T7,Protected-content / IP-data review record not located,31,REVIEW,REVIEW
+T7-C10,T7,Other evidence not located (smallest checks),14,REVIEW,REVIEW
+T7-C11,T7,Record text inaccurate at authoring (OTHER),9,NONE,R5_RECORD_REPAIR
+#END,,,,,55
