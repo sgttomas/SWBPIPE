@@ -1,0 +1,8 @@
+== DEL-15-01
+forward sha: 25dc9cc513493062de12df103a298158b67dad2d707e1baf988fbcb19b377ec1
+reverse sha: d9d1959f8f46007785c2f2bf0b7563ee5c20995c4052e9713cf9de61dc9dab69
+seal: SEALED DEL-15-01 25dc9cc513493062de12df103a298158b67dad2d707e1baf988fbcb19b377ec1 2026-09-22T00:48:11Z
+sentinel: #END,,,,,,,,,,,,,,,,,,,,,,,,,,,,,93,
+scratch: 0
+PASS DEL-15-01: 93 forward rows, 68 required keys, 9 canonical, 0 findings
+exit=0

@@ -1,0 +1,8 @@
+== DEL-15-04
+forward sha: 474bd64ad670c19c6ed48c46b260322654c8fc8078fa29cfdaaf504c9bc9b7f4
+reverse sha: dc8a8ef8121fcb3adbfb4594e55119d9cc6bd6c2f3572b9208dee4f0fc98300b
+seal: SEALED DEL-15-04 474bd64ad670c19c6ed48c46b260322654c8fc8078fa29cfdaaf504c9bc9b7f4 2026-09-22T01:57:13Z
+sentinel: #END,,,,,,,,,,,,,,,,,,,,,,,,,,,,,87,
+scratch: 0
+PASS DEL-15-04: 87 forward rows, 56 required keys, 9 canonical, 0 findings
+exit=0

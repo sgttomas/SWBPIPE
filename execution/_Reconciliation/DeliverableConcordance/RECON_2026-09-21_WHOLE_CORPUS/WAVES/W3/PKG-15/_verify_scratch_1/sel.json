@@ -1,0 +1,235 @@
+{
+ "01": {
+  "counts": {
+   "NA": 22,
+   "Q": 24,
+   "F7": 31,
+   "AN": 4,
+   "F24": 2,
+   "SH": 10
+  },
+  "sel": {
+   "NA": [
+    "DEL-15-01:SOW#CLM-004",
+    "DEL-15-01:SOW#output-and-evaluation-matrix/OUT-001",
+    "DEL-15-01:SOW#production-and-verification-method-praxeology/VER-001",
+    "DEL-15-01:SOW#CLM-013/V-05",
+    "DEL-15-01:CONTEXT",
+    "DEL-15-01:SOW#CLM-016"
+   ],
+   "Q": [
+    "DEL-15-01:CONTEXT#anticipated-artifacts",
+    "DEL-15-01:SOW#CLM-022",
+    "DEL-15-01:SOW#CLM-007"
+   ],
+   "F7": [
+    "DEL-15-01:CONTEXT#description",
+    "DEL-15-01:SOW#CLM-024",
+    "DEL-15-01:SOW#purpose-and-objective-traceability/OUT-001",
+    "DEL-15-01:SOW#CLM-025",
+    "DEL-15-01:SOW#CLM-006",
+    "DEL-15-01:SOW#CLM-011.r09",
+    "DEL-15-01:CONTEXT#d-41-e1-canonicalization-vocabulary-boundary",
+    "DEL-15-01:SOW#CLM-006.r09"
+   ],
+   "AN": [
+    "DEL-15-01:SOW#CLM-013/V-06"
+   ],
+   "F24": [
+    "DEL-15-01:SOW#completion-and-reliance-basis-epistemology/AC-001",
+    "DEL-15-01:SOW#CLM-029"
+   ],
+   "SH": [
+    "DEL-15-01:CONTEXT#scope-coverage",
+    "DEL-15-01:CONTEXT#scope-detail",
+    "DEL-15-01:CONTEXT#objective-support",
+    "DEL-15-01:CONTEXT#package-reference",
+    "DEL-15-01:CONTEXT#decomposition-reference",
+    "DEL-15-01:CONTEXT#architecture-basis-injection",
+    "DEL-15-01:CONTEXT#architecture-basis-injection.s01",
+    "DEL-15-01:CONTEXT#architecture-basis-injection.s02",
+    "DEL-15-01:CONTEXT#sca-002-control-surface-refresh-note",
+    "DEL-15-01:CONTEXT#preparation-notes"
+   ]
+  }
+ },
+ "02": {
+  "counts": {
+   "NA": 19,
+   "Q": 23,
+   "F7": 30,
+   "F24": 2,
+   "C100": 4,
+   "AN": 1,
+   "SH": 12
+  },
+  "sel": {
+   "NA": [
+    "DEL-15-02:CONTEXT",
+    "DEL-15-02:STATUS",
+    "DEL-15-02:SOW#CLM-017",
+    "DEL-15-02:SOW#CLM-020",
+    "DEL-15-02:SOW#CLM-021.r06"
+   ],
+   "Q": [
+    "DEL-15-02:CONTEXT#context-budget-qa",
+    "DEL-15-02:SOW#CLM-011",
+    "DEL-15-02:STATUS#history"
+   ],
+   "F7": [
+    "DEL-15-02:SOW#CLM-018",
+    "DEL-15-02:SOW#CLM-011.r06",
+    "DEL-15-02:SOW#CLM-013/V-003",
+    "DEL-15-02:SOW#CLM-013/V-004",
+    "DEL-15-02:SOW#CLM-011.r09",
+    "DEL-15-02:SOW#CLM-011.r01",
+    "DEL-15-02:SOW#CLM-030",
+    "DEL-15-02:SOW#CLM-011.r10"
+   ],
+   "F24": [
+    "DEL-15-02:SOW#CLM-005",
+    "DEL-15-02:SOW#CLM-011.r04"
+   ],
+   "C100": [
+    "DEL-15-02:SOW#CLM-011.r05",
+    "DEL-15-02:SOW#CLM-011.r07",
+    "DEL-15-02:SOW#completion-and-reliance-basis-epistemology/AC-001",
+    "DEL-15-02:SOW#CLM-021.r03"
+   ],
+   "AN": [
+    "DEL-15-02:SOW#CLM-021.r02"
+   ],
+   "SH": [
+    "DEL-15-02:SOW#output-and-evaluation-matrix",
+    "DEL-15-02:SOW#output-and-evaluation-matrix/OUT-001",
+    "DEL-15-02:CONTEXT#scope-coverage",
+    "DEL-15-02:CONTEXT#scope-detail",
+    "DEL-15-02:CONTEXT#objective-support",
+    "DEL-15-02:CONTEXT#package-reference",
+    "DEL-15-02:CONTEXT#decomposition-reference",
+    "DEL-15-02:CONTEXT#architecture-basis-injection",
+    "DEL-15-02:CONTEXT#architecture-basis-injection.s01",
+    "DEL-15-02:CONTEXT#architecture-basis-injection.s02",
+    "DEL-15-02:CONTEXT#sca-002-control-surface-refresh-note",
+    "DEL-15-02:CONTEXT#preparation-notes"
+   ]
+  }
+ },
+ "03": {
+  "counts": {
+   "NA": 34,
+   "Q": 26,
+   "C100": 6,
+   "F7": 15,
+   "AN": 2,
+   "F24": 5,
+   "SH": 9
+  },
+  "sel": {
+   "NA": [
+    "DEL-15-03:SOW#CLM-024",
+    "DEL-15-03:SOW#CLM-022",
+    "DEL-15-03:SOW#CLM-011/DEL-15-03-REQ-001",
+    "DEL-15-03:SOW#CLM-008",
+    "DEL-15-03:SOW#completion-and-reliance-basis-epistemology/AC-001",
+    "DEL-15-03:SOW#CLM-002",
+    "DEL-15-03:SOW#CLM-031",
+    "DEL-15-03:CONTEXT#description",
+    "DEL-15-03:SOW#CLM-013.r03"
+   ],
+   "Q": [
+    "DEL-15-03:CONTEXT#register-references",
+    "DEL-15-03:SOW#CLM-014",
+    "DEL-15-03:SOW#CLM-009"
+   ],
+   "C100": [
+    "DEL-15-03:SOW#CLM-005",
+    "DEL-15-03:SOW#CLM-011/DEL-15-03-REQ-004",
+    "DEL-15-03:SOW#CLM-011/DEL-15-03-REQ-005",
+    "DEL-15-03:SOW#CLM-013.r02",
+    "DEL-15-03:SOW#CLM-020.r03",
+    "DEL-15-03:SOW#CLM-025"
+   ],
+   "F7": [
+    "DEL-15-03:SOW#CLM-011/DEL-15-03-REQ-006",
+    "DEL-15-03:SOW#CLM-011/DEL-15-03-REQ-003",
+    "DEL-15-03:SOW#CLM-006.r03",
+    "DEL-15-03:SOW#CLM-027"
+   ],
+   "AN": [
+    "DEL-15-03:SOW#CLM-011/DEL-15-03-REQ-007"
+   ],
+   "F24": [
+    "DEL-15-03:SOW#CLM-020.r04",
+    "DEL-15-03:SOW#CLM-029/DEL-15-03-TBD-001",
+    "DEL-15-03:SOW#CLM-029/DEL-15-03-TBD-002",
+    "DEL-15-03:SOW#CLM-029/DEL-15-03-TBD-003",
+    "DEL-15-03:SOW#CLM-029/DEL-15-03-TBD-004"
+   ],
+   "SH": [
+    "DEL-15-03:SOW#output-and-evaluation-matrix",
+    "DEL-15-03:SOW#output-and-evaluation-matrix/OUT-001",
+    "DEL-15-03:CONTEXT#scope-coverage",
+    "DEL-15-03:CONTEXT#scope-detail",
+    "DEL-15-03:CONTEXT#objective-support",
+    "DEL-15-03:CONTEXT#package-reference",
+    "DEL-15-03:CONTEXT#decomposition-reference",
+    "DEL-15-03:CONTEXT#sca-002-control-surface-refresh-note",
+    "DEL-15-03:CONTEXT#preparation-notes"
+   ]
+  }
+ },
+ "04": {
+  "counts": {
+   "NA": 19,
+   "Q": 29,
+   "F24": 1,
+   "F7": 27,
+   "C100": 2,
+   "AN": 2,
+   "SH": 7
+  },
+  "sel": {
+   "NA": [
+    "DEL-15-04:SOW#CLM-006",
+    "DEL-15-04:SOW#CLM-012.r01",
+    "DEL-15-04:SOW#CLM-017",
+    "DEL-15-04:STATUS#remaining/R01",
+    "DEL-15-04:SOW#output-and-evaluation-matrix/OUT-001"
+   ],
+   "Q": [
+    "DEL-15-04:CONTEXT#context-budget-qa",
+    "DEL-15-04:SOW#CLM-008",
+    "DEL-15-04:SOW#governing-values-and-decisions-axiology"
+   ],
+   "F24": [
+    "DEL-15-04:SOW#purpose-and-objective-traceability/OUT-001"
+   ],
+   "F7": [
+    "DEL-15-04:SOW#CLM-015",
+    "DEL-15-04:SOW#CLM-004.r03",
+    "DEL-15-04:SOW#CLM-010.r01",
+    "DEL-15-04:SOW#CLM-009",
+    "DEL-15-04:SOW#CLM-004.r07",
+    "DEL-15-04:SOW#CLM-012.r04",
+    "DEL-15-04:SOW#CLM-013"
+   ],
+   "C100": [
+    "DEL-15-04:SOW#CLM-010.r07",
+    "DEL-15-04:SOW#CLM-012.r03"
+   ],
+   "AN": [
+    "DEL-15-04:SOW#CLM-012.r05"
+   ],
+   "SH": [
+    "DEL-15-04:CONTEXT#package-reference",
+    "DEL-15-04:CONTEXT#decomposition-reference",
+    "DEL-15-04:CONTEXT#architecture-basis-injection",
+    "DEL-15-04:CONTEXT#architecture-basis-injection.s01",
+    "DEL-15-04:CONTEXT#architecture-basis-injection.s02",
+    "DEL-15-04:CONTEXT#sca-002-control-surface-refresh-note",
+    "DEL-15-04:CONTEXT#preparation-notes"
+   ]
+  }
+ }
+}

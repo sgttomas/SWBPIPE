@@ -1,0 +1,383 @@
+CapabilityID,Answer,ClaimKey,Reason
+RC-12-0001,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0002,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0003,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0004,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Creates, opens (latest or by id), lists and saves local projects, persisting the model with review context, re...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0005,COVERS,DEL-12-02:SOW#CLM-012/REXC-REQ-003,Report export blocking on protected-content findings supports REXC-REQ-003; report emission is reporting work.
+RC-12-0006,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0007,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0008,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0009,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0010,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0011,CLAIMED_BY,DEL-12-02:SOW#CLM-012/REXC-REQ-014,Shared parity corpus is this deliverable's test fixture (TP-E4).
+RC-12-0012,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0013,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0014,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0015,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/atomic_report_package_save.rs only as evidence that the DEC-028 package container exists (REXC-OI-006). The capability ('Writes a file atomically through a temporary sibling, flush, sync and rename, rejecting symlink destinations a...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0016,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Loads the invented preview model and design-knowledge fixtures at startup, natively from the fixtures folder o...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0017,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0018,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0019,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0020,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0021,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0022,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0023,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0024,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0025,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0026,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0027,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0028,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0029,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0030,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0031,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0032,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0033,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0034,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0035,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0036,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0037,NOT_MINE,,"F5: this ledger cites tools/validation/validate_dependencies_schema.py only as the tool named by REXC-VER-002. The capability ('Validates a dependency register CSV against the canonical column set, enumerations and row rules, reporting VA...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0038,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0039,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0040,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0041,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0042,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Renders the hash-bound calculation report from controlled input through the linked report renderer') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0043,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0044,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Refuses to store a library import unless validation accepted it as private local-only data; rejected or suspec...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0045,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Computes model and project-envelope hashes when a project is saved and reports whether stored hashes still mat...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0046,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0047,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0048,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0049,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0050,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0051,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0052,PARTIAL,DEL-12-02:SOW#CLM-012/REXC-REQ-006,Explicit local-private intent and redaction summary are DEL-12-02 controls inside a reporting panel.
+RC-12-0053,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0054,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0055,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Runs a user rule pack's checks against a solved model, binding solver results, user values and private-library...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0056,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0057,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0058,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0059,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0060,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0061,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Accepts a wire-format report-package request, maps its DTOs to domain records with the linked solver identity,...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0062,COVERS,DEL-12-02:SOW#CLM-012/REXC-REQ-006,Report package save checks redaction evidence before native save; the save command is reporting work.
+RC-12-0063,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0064,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0065,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0066,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0067,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0068,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0069,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0070,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Publishes the accepted unit catalogue with dimensions, transform kinds and provenance, and lets the UI look up...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0071,COVERS,DEL-12-02:SOW#CLM-012/REXC-REQ-012,Native download admits only screened exports; route ownership stays with result export.
+RC-12-0072,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0073,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0074,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0075,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0076,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0077,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0078,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0079,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0080,CLAIMED_BY,DEL-12-02:SOW#CLM-012/REXC-REQ-004;DEL-12-02:SOW#CLM-012/REXC-REQ-005,Core metadata-only redaction helper is this deliverable's implementation.
+RC-12-0081,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0082,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0083,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0084,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Synchronises native window title (project name and edited marker) and native menu checked/enabled states with ...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0085,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0086,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0087,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0088,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0089,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0090,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0091,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0092,NOT_MINE,,"F5: this ledger cites core/adapters/framework/plugin_verification.py only as adapter-declaration no-bypass evidence (DEL-10-02) for REXC-REQ-012. The capability ('Verifies fail-closed controls on an already-loaded plugin manifest and composes it with adapter declaration ch...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0093,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0094,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0095,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0096,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0097,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0098,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0099,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0100,CLAIMED_BY,DEL-12-02:SOW#purpose-and-objective-traceability/OUT-001,Redaction/export-controls document is this deliverable's product documentation.
+RC-12-0101,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0102,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0103,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0104,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0105,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0106,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0107,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0108,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0109,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0110,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0111,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0112,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0113,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0114,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0115,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0116,PARTIAL,DEL-12-02:SOW#CLM-012/REXC-REQ-012,Report-route redaction projector applies this deliverable's controls; report rendering itself is reporting work.
+RC-12-0117,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Validates a rule-pack document and computes or stamps its document checksum') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0118,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0119,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0120,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0121,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0122,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Evaluates model-document schema versions, migrates older documents in memory, refuses newer or unsupported one...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0123,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0124,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0125,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0126,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0127,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Solves the current model for preview mechanics in a sparse or dense solver mode through the linked physics eng...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0128,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0129,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0130,CLAIMED_BY,DEL-12-02:SOW#CLM-012/REXC-REQ-004,TypeScript mirror of the redaction classifier (TP-E4).
+RC-12-0131,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0132,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0133,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0134,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0135,COVERS,DEL-12-02:SOW#CLM-012/REXC-REQ-012,Native JSON writer is route-controlled (R15 breadth); the exporter belongs to handoff work.
+RC-12-0136,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0137,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0138,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0139,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0140,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0141,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0142,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0143,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0144,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0145,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Generates a self-weight operation plan proposal after authenticating the canonical model hash and validating t...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0146,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0147,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0148,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0149,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs, core/reporting/report_renderer/src/lib.rs only as evidence that public report text passes the protected-content linter (REXC-REQ-003); evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Renders a validated calculation report, disclosure sections and result rows into one self-contained scriptless...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0150,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0151,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0152,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0153,COVERS,DEL-12-02:SOW#CLM-012/REXC-REQ-012,MBF writer writes only when redaction is lossless; exporter belongs to handoff work.
+RC-12-0154,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0155,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0156,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0157,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0158,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0159,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0160,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0161,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0162,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0163,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0164,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0165,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Reports local storage capability: bundled SQLite, full-text search availability, no network, daemon or telemet...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0166,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0167,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0168,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0169,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0170,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0171,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0172,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0173,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0174,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0175,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0176,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Runs a solve as a background job that the UI can poll and cancel with a token; cancellation is cooperative at ...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0177,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Saves, opens, lists and deletes accepted private libraries per project in the local store') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0178,CLAIMED_BY,DEL-12-02:SOW#CLM-012/REXC-REQ-006,The Redaction and Export Controls panel is the TP-E4 user-facing binding.
+RC-12-0179,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0180,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0181,COVERS,DEL-12-02:SOW#CLM-012/REXC-REQ-012,Stress-neutral writer writes CSV only when redaction is lossless; exporter belongs to handoff work.
+RC-12-0182,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0183,NOT_MINE,,"F5: this ledger cites core/adapters/framework/adapter_framework.py only as adapter-declaration no-bypass evidence (DEL-10-02) for REXC-REQ-012. The capability ('Validates format-neutral adapter declarations and invented fixtures for no-bypass controls, provenance, unit m...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0184,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0185,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0186,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0187,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0188,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0189,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0190,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0191,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0192,CLAIMED_BY,DEL-12-02:SOW#CLM-012/REXC-REQ-001;DEL-12-02:SOW#CLM-012/REXC-REQ-012,Fixed-context route wrapper is the R15 redaction route binding.
+RC-12-0193,NOT_MINE,,"F5: this ledger cites docs/IP_AND_DATA_BOUNDARY.md only as a governing source for the data boundary. The capability ('Defines what the public repository may and must not contain, required provenance fields, the quarantine rule, ...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0194,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0195,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0196,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Generates a reviewable self-weight load operation plan for selected pipes, natively or through a separate self...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0197,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0198,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0199,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0200,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0201,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0202,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0203,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0204,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0205,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0206,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0207,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0208,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0209,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0210,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0211,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Runs every check in a rule pack end to end (completeness, formula decode and evaluation, ratio-versus-limit ac...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0212,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0213,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0214,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0215,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0216,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0217,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0218,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0219,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0220,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0221,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0222,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0223,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0224,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0225,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0226,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0227,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0228,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0229,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0230,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0231,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Generates a sample review-only agent proposal from a mechanics result and selected target without changing the...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0232,NOT_MINE,,"F5: this ledger cites docs/CONTRACT.md only as a governing source for the data boundary. The capability ('Catalogues project invariants with an enforcement map showing where each is checked, plus retired invariants') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0233,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0234,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Validates or applies an ordered batch of model operations atomically against a claimed model hash, natively or...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0235,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0236,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0237,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0238,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0239,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0240,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0241,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0242,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0243,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Carries a project store forward from the app's former data folder on first launch by a consistent SQLite copy,...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0244,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0245,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0246,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0247,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0248,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0249,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Builds the native macOS menu bar and forwards each menu choice to the web view as a DOM event for the shared c...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0250,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0251,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0252,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0253,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0254,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0255,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0256,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0257,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0258,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0259,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0260,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0261,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0262,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0263,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0264,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0265,PARTIAL,DEL-12-02:SOW#CLM-012/REXC-REQ-006,Route allow-list and lossy-redaction withholding are DEL-12-02's; the local-first admission part is DEL-12-01's.
+RC-12-0266,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0267,COVERS,DEL-12-02:SOW#CLM-012/REXC-REQ-012,Export safety review lists redaction posture per export; the panel is export-review work.
+RC-12-0268,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0269,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0270,NOT_MINE,,"F5: this ledger cites docs/SPEC.md only as a governing source for the data boundary. The capability ('Specifies the technical design: architecture, repository layout, domain objects, units, material/section/compo...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0271,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0272,NOT_MINE,,"F5: this ledger cites core/adapters/framework/adapter_framework.py only as adapter-declaration no-bypass evidence (DEL-10-02) for REXC-REQ-012. The capability ('Gates the declaration-to-runtime adapter dispatch seam, stopping invalid or quarantined declarations and also ...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0273,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0274,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0275,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0276,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0277,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0278,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Computes a rule-pack checksum as SHA-256 over the RFC 8785 canonical document with the checksums member exclud...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0279,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0280,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0281,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0282,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0283,COVERS,DEL-12-02:SOW#CLM-012/REXC-REQ-003,Protected-content linter satisfies the template guard this SOW names; the linter is report-domain code.
+RC-12-0284,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0285,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0286,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0287,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0288,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0289,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0290,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0291,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0292,NOT_MINE,,"F5: this ledger cites docs/_Registers/ContextBudgetQA.csv, docs/_Registers/Deliverables.csv, docs/_Registers/ScopeLedger.csv only as a governing source for the data boundary. The capability ('Holds planning registers as CSV tables recording scope items, planned work items and per-item context budget a...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0293,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0294,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0295,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0296,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0297,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0298,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0299,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0300,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0301,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0302,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0303,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0304,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0305,CLAIMED_BY,DEL-12-02:SOW#CLM-012/REXC-REQ-012,Controlled export link wraps every panel download through the redaction route contract (R15).
+RC-12-0306,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0307,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0308,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0309,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0310,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Validates a rule-pack document and surfaces lifecycle, grammar, formula and checksum findings for the desktop ...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0311,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0312,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0313,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0314,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0315,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0316,NOT_MINE,,"F5: this ledger cites AGENTS.md only as a governing instruction source. The capability ('Gives agents project-specific instructions: path anchors, knowledge sources, project boundaries, execution att...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0317,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0318,NOT_MINE,,"F5: this ledger cites core/security/local_first_storage/route_control.py only as the local-first guard that route control composes (DEL-12-01). The capability ('Admits a governed export route from route metadata only, requiring wrapper-owned intent for local-private rout...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0319,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0320,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0321,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0322,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0323,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0324,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0325,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0326,NOT_MINE,,"F5: this ledger cites core/reporting/report_renderer/src/lib.rs only as evidence that public report text passes the protected-content linter (REXC-REQ-003). The capability ('Produces a derived print-oriented view of the canonical HTML report that carries the canonical hash and is mar...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0327,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0328,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0329,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0330,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0331,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0332,COVERS,DEL-12-02:SOW#CLM-012/REXC-REQ-012,Handoff export envelope runs through the controlled route (R15 breadth).
+RC-12-0333,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0334,COVERS,DEL-12-02:SOW#CLM-012/REXC-REQ-012,PCF writer is route-controlled (R15 breadth); the exporter belongs to handoff work.
+RC-12-0335,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0336,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0337,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0338,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0339,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0340,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0341,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0342,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0343,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0344,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0345,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0346,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0347,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Migrates the local SQLite store schema through ordered versions (projects, review columns, hashes, migration l...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0348,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0349,COVERS,DEL-12-02:SOW#CLM-012/REXC-REQ-006,Native result save admits only exact local-private requests after screening.
+RC-12-0350,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0351,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0352,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0353,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0354,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0355,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0356,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0357,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0358,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0359,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0360,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0361,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Validates a material, section, component or hanger library import, classifying it as accepted, rejected or qua...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0362,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Saves, opens, lists and deletes user rule packs per project in the local store, allowing drafts with findings ...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0363,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0364,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0365,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0366,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0367,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0368,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0369,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Converts quantities between units for display, natively or through the wasm engine, surfacing engine errors') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0370,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Runs a packaged-binary self-test from a command-line flag that saves an edited load in a disposable store, reo...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0371,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0372,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0373,NOT_MINE,,"F5: this ledger cites apps/desktop/src-tauri/src/lib.rs only as evidence of the DEL-02-05 app-local store root (REXC-OI-010). The capability ('Validates or applies one model edit operation against a claimed model hash, natively through the operation eng...') is not redaction/export-control behaviour, so its owner is elsewhere."
+RC-12-0374,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0375,CLAIMED_BY,DEL-12-02:SOW#CLM-012/REXC-REQ-004,Redaction/export-control schema is this deliverable's contract.
+RC-12-0376,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0377,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0378,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0379,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0380,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+RC-12-0381,NOT_MINE,,No redaction/export-control behaviour; no path of this capability is cited by the DEL-12-02 ledger.
+#END,,,381

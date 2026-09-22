@@ -1,0 +1,10 @@
+# Validation DEL-12-02 (manager, W3 PKG-12)
+forward_sha256=b24c5042add02c82d111d58b20ec4c08c2ca11bfa14bb6105289919ed1a29f12
+reverse_sha256=11182de2cd40078e8fd43adf29a9041c374813634d03bae87e41ae291034fde9
+seal: SEALED DEL-12-02 b24c5042add02c82d111d58b20ec4c08c2ca11bfa14bb6105289919ed1a29f12 2026-09-22T01:01:30Z
+sentinel_forward: 1  sentinel_reverse: 1
+notes_present: yes
+--- validator: --forward --reverse --inventory --notes-gap
+PASS DEL-12-02: 147 forward rows, 101 required keys, 7 canonical, 0 findings
+exit=0
+--- seal check: recomputed=b24c5042add02c82d111d58b20ec4c08c2ca11bfa14bb6105289919ed1a29f12 seal=b24c5042add02c82d111d58b20ec4c08c2ca11bfa14bb6105289919ed1a29f12 worker_reported=b24c5042add02c82d111d58b20ec4c08c2ca11bfa14bb6105289919ed1a29f12 result=MATCH
