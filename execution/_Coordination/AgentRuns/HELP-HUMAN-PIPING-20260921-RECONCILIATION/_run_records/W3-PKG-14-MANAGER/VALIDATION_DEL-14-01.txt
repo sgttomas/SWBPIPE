@@ -1,0 +1,6 @@
+$ validate_ledger_v2.py --deliverable DEL-14-01 --forward --reverse --inventory --notes-gap
+PASS DEL-14-01: 78 forward rows, 64 required keys, 9 canonical, 0 findings
+exit=0
+forward_sha256=6db9d10a7e5714bb0fa60c396f91e323f2d4944ccba13fd540efae6263235346
+reverse_sha256=37fff184a014d6d6622118bcb1c2accb7c9ba2274b06ff54f99a1cfea1a3e277
+seal: SEALED DEL-14-01 6db9d10a7e5714bb0fa60c396f91e323f2d4944ccba13fd540efae6263235346 2026-09-22T00:39:46Z
