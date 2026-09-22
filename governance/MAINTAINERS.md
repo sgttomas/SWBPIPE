@@ -10,15 +10,15 @@ refs:
     to: OPS-DIRECTIVE
 ---
 
-# MAINTAINERS - OpenPipeStress Governance Baseline
+# MAINTAINERS - SWBPIPE Governance Baseline
 
-This file defines the initial maintainer policy skeleton for OpenPipeStress. It is a governance artifact, not a legal opinion, professional engineering approval, certification, sealing, or code-compliance claim.
+This file defines the current maintainer policy for SWBPIPE. It is a governance artifact, not a legal opinion, professional engineering approval, certification, sealing, or code-compliance claim.
 
 ## Authority Basis
 
 This draft maintainer policy is aligned to
-`execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved
-`DAG-007` coordination authority. Those artifacts define current package and
+the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md` and the approved
+graph selected by `execution/_DAG/_LATEST.md`. Those artifacts define current package and
 deliverable scope and active dependency relationships; they do not by
 themselves approve releases, lifecycle transitions, professional reliance,
 code-compliance claims, or final governance decisions.
@@ -27,21 +27,25 @@ code-compliance claims, or final governance decisions.
 
 | Field | Current value |
 |---|---|
-| Project intent | Source-available noncommercial piping stress analysis platform |
-| Decomposition authority | `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` |
-| Coordination graph authority | `execution/_DAG/DAG-007/` active edge set; candidate rows remain non-gating |
-| License | `PolyForm-Noncommercial-1.0.0`; see `LICENSE.md` and `https://polyformproject.org/licenses/noncommercial/1.0.0` |
+| Project intent | Free and open-source (MIT) piping stress analysis platform |
+| Decomposition authority | Accepted `execution/_Decomposition/SOFTWARE_DECOMP.md` |
+| Coordination graph authority | Approved graph selected by `execution/_DAG/_LATEST.md`; candidate rows remain non-gating |
+| License | `MIT`; see `LICENSE.md` |
 | Contributor certification mechanism | Interim project certification template in `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md`; final DCO/CLA/other mechanism remains `TBD` |
-| Maintainer roster | `TBD` |
-| Release authority | `TBD` |
+| Maintainer roster and quorum | Sole human project authority is sole developer and maintainer; quorum one (DEC-027) |
+| Release authority | Sole human project authority (DEC-027); no release is approved by this record |
 | Legal-review authority | `TBD` |
 | Security contact | `TBD` |
 | Release-label vocabulary | `TBD` |
 | Human-acceptance workflow | `TBD` |
 | Jurisdiction-specific professional-practice wording | `TBD` |
-| Human project authority record | `TBD` |
+| Human project authority record | DEC-027 and DEC-079 in `execution/_Decomposition/SOFTWARE_DECOMP.md` |
 
-No contributor, maintainer, agent, or release note may state a final governance authority until the corresponding `TBD` is resolved by the human project authority. The project license has been selected by human project authority as `PolyForm-Noncommercial-1.0.0`.
+The project license is `MIT` under D-74 (2026-09-22). DEC-027 records sole
+maintainer and release authority with quorum one; DEC-079 keeps external
+contribution intake closed and defers the final legal instrument to an owner
+activation decision with legal advice. Other `TBD` fields remain open. None
+of these rulings approves a product release or professional reliance.
 
 ## 2. Maintainer Responsibilities
 
@@ -54,7 +58,7 @@ Maintainers must:
 - enforce the open-mechanics/private-code-data boundary;
 - require source, provenance, license or redistribution status, contributor certification, and review disposition for public data contributions;
 - quarantine suspected protected standards content, proprietary data, or private project data before merge or release;
-- keep missing engineering, legal, governance, or release choices as `TBD`, except for the selected project license;
+- keep genuinely missing engineering, legal, governance, or release choices as `TBD` without reopening DEC-027, DEC-079, or D-74;
 - require tests, validation evidence, or explicit deferrals appropriate to the changed surface;
 - prevent product claims that imply certification, endorsement, sealing, authentication, or automatic code compliance;
 - record accepted governance decisions in public artifacts or decision records.
@@ -95,7 +99,7 @@ A public release must not be published until maintainers complete a release revi
 
 - an explicit human release decision and a recorded governance authority basis;
 - release scope, changed surfaces, and any excluded or deferred work;
-- selected license and notices, including `PolyForm-Noncommercial-1.0.0` and the corresponding `LICENSE.md` notice;
+- selected license and notices, including `MIT` and the corresponding `LICENSE.md` notice;
 - validation status and known limitations;
 - data-boundary constraints and professional-responsibility notices;
 - protected-content and provenance review for public examples, templates, and bundled data;
@@ -123,9 +127,9 @@ The ADR location and numbering convention remain `TBD`.
 
 | ID | Question | Status |
 |---|---|---|
-| GOV-DEC-001 | Which project license will the project use? | Resolved 2026-06-03: `PolyForm-Noncommercial-1.0.0` |
+| GOV-DEC-001 | Which project license will the project use? | Resolved 2026-06-03: `PolyForm-Noncommercial-1.0.0`; superseded 2026-09-22 by `D-74`: `MIT` |
 | GOV-TBD-002 | Will the project use a Developer Certificate of Origin, contributor license agreement, or another contributor certification mechanism? | `TBD` |
-| GOV-TBD-003 | Who are the initial maintainers and what quorum is required for policy changes? | `TBD` |
+| GOV-TBD-003 | Who are the initial maintainers and what quorum is required for policy changes? | Resolved by DEC-027: sole human project authority, quorum one; intake closed |
 | GOV-TBD-004 | What release signing and artifact-retention process will be used? | `TBD` |
 | GOV-TBD-005 | What security disclosure channel and response process will be used? | `TBD` |
 | GOV-TBD-006 | What public-data sources, if any, are acceptable beyond invented, original, public-domain, or permissively licensed examples? | `TBD` |

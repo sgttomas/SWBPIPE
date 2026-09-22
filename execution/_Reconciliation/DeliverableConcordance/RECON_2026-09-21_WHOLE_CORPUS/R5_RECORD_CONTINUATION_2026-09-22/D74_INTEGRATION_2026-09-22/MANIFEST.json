@@ -1,0 +1,181 @@
+{
+  "amended_authority_carriers": [
+    "projects/chirality-piping/docs/AGENTIC_DEVELOPMENT_WORKFLOW.md",
+    "projects/chirality-piping/docs/DIRECTIVE.md",
+    "projects/chirality-piping/governance/MAINTAINERS.md"
+  ],
+  "baseline_commit": "1b5adbf50142a4c01c454c62a31dfcdc60da1894",
+  "candidate_commit": "a89b5ddecfb6d1ea8cca1b68d4895ab511e5c370",
+  "current_carrier_corrections": {
+    "projects/chirality-piping/docs/BUILD_AND_RELEASE.md": {
+      "candidate_preimage_sha256": "5ff4e8108bf0dbac6f3630f45914b6b3a422684b0fd2961eb705df1338dc0226",
+      "main_source_sha256": "5ff4e8108bf0dbac6f3630f45914b6b3a422684b0fd2961eb705df1338dc0226",
+      "postimage_sha256": "e42625160832436dcf61c2ff994d2020a724031aeb972270367d2fcfedb7bcc3"
+    }
+  },
+  "d74_commit": "67e4738b2f276e3623cb16be6f8c2d7803f51521",
+  "files": {
+    "projects/chirality-piping/CONTRIBUTING.md": {
+      "candidate_after_sha256": "f274712d06e0909e6d4e668c757ca6ea409f8be9f12043560f854196267c8238",
+      "d74_source_sha256": "2b73ddeb1a9ee7912dd5ec0133fd040bf7e830d80784aefbe2c38b554d6bb1bd",
+      "postimage_sha256": "3c9d0d6ea6d8cf5ca7ec525018513c909b6054189328292b789d4a7d066f4d13"
+    },
+    "projects/chirality-piping/LICENSE.md": {
+      "candidate_after_sha256": null,
+      "d74_source_sha256": "495c4cd17baafde07be4c358bd47237f259bb2e01914e94114efc97d7fa721da",
+      "postimage_sha256": "495c4cd17baafde07be4c358bd47237f259bb2e01914e94114efc97d7fa721da"
+    },
+    "projects/chirality-piping/apps/desktop/src/features/report-lint/ReportLintPanel.tsx": {
+      "candidate_after_sha256": null,
+      "d74_source_sha256": "8f948277289f2fdfd1e0834835f1c6dc96790b6cb91628140ec3b0e1c1a0448b",
+      "postimage_sha256": "8f948277289f2fdfd1e0834835f1c6dc96790b6cb91628140ec3b0e1c1a0448b"
+    },
+    "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx": {
+      "candidate_after_sha256": null,
+      "d74_source_sha256": "db1882e56dda3be622c696ac358bcc4e4d071f0baef2e461fb9e1361d1b16f74",
+      "postimage_sha256": "db1882e56dda3be622c696ac358bcc4e4d071f0baef2e461fb9e1361d1b16f74"
+    },
+    "projects/chirality-piping/docs/AGENTIC_DEVELOPMENT_WORKFLOW.md": {
+      "candidate_after_sha256": null,
+      "d74_source_sha256": "0f9678bca560c849c2bd618d6815b17a2e1c4bd782f7e17c50a6ff181d969bb5",
+      "postimage_sha256": "57cd32f6262a00854018d23576c271be52f53de4070f5980b45e0ee54c374c35"
+    },
+    "projects/chirality-piping/docs/CONTRACT.md": {
+      "candidate_after_sha256": null,
+      "d74_source_sha256": "24d6d02bf3ccf93e59fc5cc91205d888a87a8eb6d489ffb2c167de8317ee2774",
+      "postimage_sha256": "24d6d02bf3ccf93e59fc5cc91205d888a87a8eb6d489ffb2c167de8317ee2774"
+    },
+    "projects/chirality-piping/docs/DIRECTIVE.md": {
+      "candidate_after_sha256": null,
+      "d74_source_sha256": "2bf474d8b586e3e1f491291fdb143a0ffa68482fe7f6fa56229586895a45d651",
+      "postimage_sha256": "60fa6215625c5b37d4a4bb2862f99265004d8aac6f8fdeca7d703282c099c8d1"
+    },
+    "projects/chirality-piping/docs/IP_AND_DATA_BOUNDARY.md": {
+      "candidate_after_sha256": "a3d3cafe43065119cc480553ca4422bf3278de357be9538d1c5b698d2820f636",
+      "d74_source_sha256": "338681c3f839b1b617c89ad089c97bb447b254b510dfc77dfa9679bd2e0f4b87",
+      "postimage_sha256": "080d6718a7f0acdb056bf2b276aba10b029e092c5f354018aff19f62e3962d89"
+    },
+    "projects/chirality-piping/docs/PROFESSIONAL_BOUNDARY.md": {
+      "candidate_after_sha256": "3e0c1ab5d8a2dd9737a342292ecd7e5a912d937a4726d7265414a6922aec4744",
+      "d74_source_sha256": "bebeefaa34df6f465c39d8da0547316b9115bdb02835e70e110d20b513ca8c2f",
+      "postimage_sha256": "104ed16a8f00baca6b6b37e22f5c0519f186f87304efc6eb74682bb2e776684e"
+    },
+    "projects/chirality-piping/docs/README.md": {
+      "candidate_after_sha256": "300fecbe5ffa090d9ebb567e9fbe8c00c46cee40937b4d102d70b13b85e8f029",
+      "d74_source_sha256": "d814033783e2a52cab0e5674ae039cc546d7b06f5db81353f2e834636063dca2",
+      "postimage_sha256": "43b00309e7c21238b83d9979f4cbe65bb544bd456f5f27fa670820fe3fff5137"
+    },
+    "projects/chirality-piping/docs/_Registers/ScopeLedger.csv": {
+      "candidate_after_sha256": null,
+      "d74_source_sha256": "d844f5c4a226249fc8a327c2dd989d5e5457c844d955025f097f89fd960637b3",
+      "postimage_sha256": "d844f5c4a226249fc8a327c2dd989d5e5457c844d955025f097f89fd960637b3"
+    },
+    "projects/chirality-piping/docs/contributor_guide/index.md": {
+      "candidate_after_sha256": "e819328893dcbffa1ccc482dec22bb4665142783238870303514a4c7a28590f5",
+      "d74_source_sha256": "1b543f97d87cdd168f08f9def63ea497185c6e324479e30210bf7141b23140d3",
+      "postimage_sha256": "436b1aced0a9f862c5cab14a0047f14447bc35fa375da7fde3c3d8a01ad86c51"
+    },
+    "projects/chirality-piping/docs/report_notice_template.md": {
+      "candidate_after_sha256": "183e910f4ce83d974c41cecdbf888d749d8422ff1b81e426a6c6ce61979cb55d",
+      "d74_source_sha256": "3505c56fb5548bcc90598c6d86f3c5925ce73572fdcddc2a1e9254edcc16061b",
+      "postimage_sha256": "fbddbcc3eddabe0d8d2572e2336473e82eb516d529e1188981415abfa9e27d24"
+    },
+    "projects/chirality-piping/docs/user_guide/index.md": {
+      "candidate_after_sha256": "72db131b37c89fbdb24c40445b7f6d45d5c8306c366391321075dccafeb4c48a",
+      "d74_source_sha256": "498953ed9b517c8909107dcf239697d0c1eaff0eba5441f20c37080d67c2197d",
+      "postimage_sha256": "f03249066dcf529b8cec2cd23427462132df0ee9233695abf866b768d491d3fe"
+    },
+    "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-74_RULING_2026-09-22.md": {
+      "candidate_after_sha256": null,
+      "d74_source_sha256": "e833b604d07d318308209a9b700ec63dde8ce725b98e330cbd3f1dd4f339fdc2",
+      "postimage_sha256": "e833b604d07d318308209a9b700ec63dde8ce725b98e330cbd3f1dd4f339fdc2"
+    },
+    "projects/chirality-piping/execution/_Coordination/_DECISIONS/_REGISTER.md": {
+      "candidate_after_sha256": null,
+      "d74_source_sha256": "e179aa1064d97777db840d097263c6ae19954042d5659cce9c7d3d6a1cfb23a1",
+      "postimage_sha256": "e179aa1064d97777db840d097263c6ae19954042d5659cce9c7d3d6a1cfb23a1"
+    },
+    "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md": {
+      "candidate_after_sha256": null,
+      "d74_source_sha256": "e1b9b3434111859f1189ef1df65c0e62cef707c972fc801546b76d504cd3dbeb",
+      "postimage_sha256": "e1b9b3434111859f1189ef1df65c0e62cef707c972fc801546b76d504cd3dbeb"
+    },
+    "projects/chirality-piping/governance/CONTRIBUTION_REVIEW_CHECKLIST.md": {
+      "candidate_after_sha256": "9f0134363f586f21528d7f2adaa809d26e73a8b390ad4853503f852c36fbc4d3",
+      "d74_source_sha256": "2e624b42a83a0dccefc68f82eac43b3c4a5465fd51993714b0cdcfd2e8de2123",
+      "postimage_sha256": "bc1517b7db50516afa7cf187d91afa4442ae99a53eab2954c26366dc440b4137"
+    },
+    "projects/chirality-piping/governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md": {
+      "candidate_after_sha256": "0f92bb1eff43436d13e17e8eba8ee4f909b15c50fdc718cc3a216fe7507088ab",
+      "d74_source_sha256": "4f18a2ec1cfd24d898089e539fe84ecf43ee18f1e507500adc33f94ffb5e002e",
+      "postimage_sha256": "d803a6e2c51852518ec76822bbd9db0c670865108f272b8ed5fbc24c3fa0755c"
+    },
+    "projects/chirality-piping/governance/MAINTAINERS.md": {
+      "candidate_after_sha256": null,
+      "d74_source_sha256": "aa25a35510467f07af93ae0da9b51175a60531e38d6bcfdb410037e3fb90bf3e",
+      "postimage_sha256": "2740ee656838d751c5be50fbe19ef017f8d8284db746d6b64db6e6e6d9d46337"
+    }
+  },
+  "incoming_only_paths": [
+    "projects/chirality-piping/LICENSE.md",
+    "projects/chirality-piping/apps/desktop/src/features/report-lint/ReportLintPanel.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+    "projects/chirality-piping/docs/AGENTIC_DEVELOPMENT_WORKFLOW.md",
+    "projects/chirality-piping/docs/CONTRACT.md",
+    "projects/chirality-piping/docs/DIRECTIVE.md",
+    "projects/chirality-piping/docs/_Registers/ScopeLedger.csv",
+    "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-74_RULING_2026-09-22.md",
+    "projects/chirality-piping/execution/_Coordination/_DECISIONS/_REGISTER.md",
+    "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+    "projects/chirality-piping/governance/MAINTAINERS.md"
+  ],
+  "merge_base": "0fb42b36df5c93c34c02e209670f3cede937ce84",
+  "overlap_paths": [
+    "projects/chirality-piping/CONTRIBUTING.md",
+    "projects/chirality-piping/docs/IP_AND_DATA_BOUNDARY.md",
+    "projects/chirality-piping/docs/PROFESSIONAL_BOUNDARY.md",
+    "projects/chirality-piping/docs/README.md",
+    "projects/chirality-piping/docs/contributor_guide/index.md",
+    "projects/chirality-piping/docs/report_notice_template.md",
+    "projects/chirality-piping/docs/user_guide/index.md",
+    "projects/chirality-piping/governance/CONTRIBUTION_REVIEW_CHECKLIST.md",
+    "projects/chirality-piping/governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md"
+  ],
+  "preserved_r5_files": {
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/ACCOUNTING.csv": "d344e3dc4b8e672907f64e67438402b30958bdfbbcd13565accc6b556d23323d",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/CHANGED_CLAIM_REEXTRACTION.csv": "8bdb5c1512002ab7777826a0339b60242b1e7103afe566b849a1cd65066c4039",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/CHECK_RESULT.json": "cd0d8aa72705014e988b2b69f1bb7e8a1e82ee815c5c3a3b3a7a2251f9eaa6df",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/CURRENT_DERIVATIVE_BINDING_DELTA.json": "29f61af55b0cc2eb29b11a592705d13f94615e3ca2f1ee88b86f39c8e95c67bd",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/HANDOFF.md": "78d2b5c2fa9efdbb3efc8114f055903ddf3a5114fc7728fb1e33096ce29f42ac",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/INDEPENDENT_REVIEW.md": "11687605353b7ca840078d4ebc43db6e13f634621fa9e72d6873d87c4c60a83b",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/INTEGRATION_EDITS.json": "1da7fb9be62d18b75e1bdb21a5238379a53386f966d13d5984895b9224dfd949",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG00_06/ACCOUNTING.csv": "2c77bf2ef89a10df88abae9bc54500fb6f583f68a4e969d212dfb411df975aab",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG00_06/PHYSICAL_EDITS.json": "e5dc58169ba9c1d9a99ea3602b9c7a9e7cecafd43c320dafc95cb021dc361c0f",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG00_06/RETURN.md": "132103f739fd3dc913a9005cc292e2ddbb40da36ffa8f448b09a15fe18ddecad",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG00_06/SOURCE_HASHES.json": "6042dc65689ee4b81c76ed9e784d5abd44f52277f8a770337b447bedcef86c64",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG00_06/SUPPLEMENTAL_ACCOUNTING.csv": "89b326fbfdf6787b0acf0069a8bc801a729d4a09438716b3e1e954a0ea6ac7fe",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG00_06/SUPPLEMENTAL_SCREEN.md": "01b0df76c0da0753e3d496b061f697588feb0732a5952b996cf5302343959e94",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG00_06/consulted.json": "a4e5c3e5759aad510ed5e941e4be6c6ee9f5d6a520c1184b40bcf61fb8039e7d",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG07_12/ACCOUNTING.csv": "1f76f4339e6a87974e125e0eb355f047b572f9454095e15dfe63981c06383e09",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG07_12/PHYSICAL_EDITS.json": "19827561b7171496234793643723572215851f6afc031024b4b606bca5248518",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG07_12/RETURN.md": "7881619021cefc933229f1c03b19c7834a6463c851451e84cc240608bd34c2b3",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG07_12/SOURCE_HASHES.json": "007246cd724b312ee4bd47f7f32ddbaa319099d00d5f4226e82b6052bb0c9cea",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG07_12/SUPPLEMENTAL_ACCOUNTING.csv": "81a2eebe7c658acf52589d0e75ff65ab2d60e053842b3b9a22036f3da2535163",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG07_12/SUPPLEMENTAL_SCREEN.md": "1cdf729709663dcb3c3d03cd5701cccccb217df8cd945d44f6dfbda7c7973d9f",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG13_17/ACCOUNTING.csv": "72f4da39604c0cf475c471a7442b9994480a84cdc217b352751516c9c09a69ce",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG13_17/CHECKS.json": "ff8cd21d9db27d71b64f5f619c8b44904b6dca6fdb3abc9fdf691176070f6a6c",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG13_17/PHYSICAL_EDITS.json": "7e0c20fc888bf030202e6de9ef2e243f1d1bd43078a26b8f542a3e5cff43bee3",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG13_17/RETURN.md": "22a595aeb9dd35320b3bd8a67637a59c943f504e178f7af548e69db421102d3f",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG13_17/SEMANTIC_REVIEW_REPAIR.md": "af16823f7a430e0dcfc9e4491e03242fecb78494285c67d9ca32eef4edb4b36e",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG13_17/SOURCE_HASHES.json": "c1029348dce02fe639783e875d6e453504cfd17fafba31ad1f6f55862ba666bb",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG13_17/SUPPLEMENTAL_ACCOUNTING.csv": "39e39e4bc415ecdef139e04de1477d94e68ecd2b109b2926e2d6dbf95a6abb1f",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG13_17/SUPPLEMENTAL_SCREENING.md": "d2b3b804a8fb07a3447b3edc11d8ab9599d5c7b8fc6c7dcfb53adb0cd0d7adc1",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PLAN.md": "91f39480a5f2aae9e459f8b57e32a20ad1968b19e6ab70612ceb72cc67752f21",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/REMAINING_WORK_CENSUS.csv": "646470f87ea916b939bdbf1d66877ae8181fcd61bd1922b27f63900b30e70551",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/SOURCE_BASIS.json": "8c1ae3f3e84924969c86188c81740115e25e78bf7b8df4e6a2458f5face123a9",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/SOURCE_BINDINGS.csv": "63b26534f0451e533e59c4614fbd6ce1bdc801df2cf3cdf05b323f2963d203af",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/backcheck.py": "26492dc05b9c83329562349079b088e25a871a3ef5882a0639e2298cde41c8f4",
+    "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/review/SOURCE_HASHES.json": "98e2856df288720ce9a6781962829ad4d98a28b3328effd28e9e4d35fa46c3d6"
+  },
+  "schema": "d74-integration-manifest-v1"
+}

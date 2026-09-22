@@ -37,7 +37,7 @@ code-compliance determination.
 This draft policy is aligned to
 the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md` and the approved
 graph selected by `execution/_DAG/_LATEST.md`. The project license has been selected as
-`PolyForm-Noncommercial-1.0.0`; this is a project governance notice and not
+`MIT`; this is a project governance notice and not
 legal advice, professional approval, or code-compliance evidence.
 
 DEC-027 records a quorum of one: the sole human project authority is the sole

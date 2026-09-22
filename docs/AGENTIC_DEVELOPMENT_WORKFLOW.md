@@ -335,13 +335,16 @@ rule packs, company design bases, credentials, or real secrets.
 Maintainer acceptance of a repository contribution is project governance
 only. It is not professional engineering approval of a piping calculation.
 
-The project license has been selected as `PolyForm-Noncommercial-1.0.0`.
-The final contributor legal mechanism, maintainer roster/quorum, release
-authority, legal-review authority, security contact, release-label vocabulary,
+The project license has been selected as `MIT`.
+DEC-027 records the sole human project authority as sole maintainer and release
+authority with quorum one. DEC-079 keeps external contribution intake closed;
+the final contributor legal instrument awaits a future owner activation decision
+with legal advice. CI selection and the local evidence gate follow DEC-025/059/093;
+coverage tooling and future floor promotion follow DEC-060, with no numeric floor
+adopted. Legal-review authority, security contact, release-label vocabulary,
 human-acceptance workflow, jurisdiction-specific professional-practice wording,
-CI provider/coverage thresholds, and exact dependency versions remain `TBD`
-unless recorded by the human project authority or qualified reviewer in the
-proper governance surface.
+and exact dependency versions retain their unresolved routes. None of these
+statements authorizes a release or professional reliance.
 
 ## Stop And Route
 

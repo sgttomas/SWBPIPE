@@ -19,8 +19,8 @@ refs:
 
 This guide defines the provider-neutral build, packaging, and release-evidence
 skeleton for SWBPIPE. It gives maintainers a reproducible local path for
-collecting software-quality evidence before a future CI provider, release
-matrix, signing process, and publishing workflow are selected.
+collecting software-quality evidence under the ruled CI and v0.1 release
+postures. Publication and later signing decisions retain their own gates.
 
 This guide is not a live CI workflow or a release publication authorization.
 
@@ -28,12 +28,13 @@ This guide is not a live CI workflow or a release publication authorization.
 
 The current implementation lane is provider-neutral:
 
-- hosted CI is deferred by human ruling (`DEC-025`, 2026-06-11, recorded in
-  `execution/_Decomposition/SOFTWARE_DECOMP.md` §12): the five-surface local
-  evidence sweep (§5.1) is the commit-bound merge gate for parallel agent
-  development branches; hosted CI is re-decided at the named follow-up
-  `D-05b` (public sanitized-export CI, prepared with D-06). GitHub Actions on
-  the private monorepo remains prohibited absent an explicitly recorded §7
+- the `DEC-025` five-surface evidence sweep (§5.1) remains the commit-bound
+  merge gate for parallel agent development branches. DEC-059 conditionally
+  selects GitHub Actions for the public sanitized-export repository after its
+  named prerequisites; it does not activate that repository or replace the
+  local gate. DEC-093 permits bound CI evidence for surface 4 when its
+  implementation requirements are met. GitHub Actions on the private
+  monorepo remains prohibited absent an explicitly recorded §7
   private-data-handling authorization;
 - no `.github/` or other live workflow file is created by this deliverable;
 - the v0.1 release matrix, installer format, and signing posture are ruled
@@ -50,10 +51,11 @@ The current implementation lane is provider-neutral:
   Releases on the prospective public sanitized-export repository,
   `DEC-057`/`DEC-059`) does not exist yet, and any publication is a separate
   human release-authority act;
-- no final numerical tolerance, coverage, performance, or maintainer-quorum
-  threshold is selected.
+- DEC-027 records the sole human project authority as sole maintainer and
+  release authority with quorum one; this does not approve a release;
+- no final numerical tolerance, coverage, or performance threshold is selected.
 
-Those decisions remain `TBD` until a human project authority records them.
+Those numerical thresholds remain `TBD` until the applicable human decision.
 
 ## 3. Repository Baseline
 
@@ -229,13 +231,14 @@ Producing a package under this path is packaging mechanics, not a release:
 an actual release additionally requires the `D-20` scan record, gate
 records, and the human release authority's acceptance.
 
-## 7. Future CI Mapping
+## 7. Conditional CI Mapping
 
-Hosted CI is deferred (`DEC-025`; re-decided at `D-05b` with D-06). When a
-hosted location is later selected, its workflow should map to the stable
-phases below. This is a provider-neutral command map, not an activated
-workflow. The commit-bound five-surface sweep (§5.1) remains the authoritative
-local aggregate command and must retain its sequential, F-4-safe ordering.
+DEC-059 conditionally selects GitHub Actions for the public sanitized-export
+repository after its named prerequisites. This is a provider-neutral command
+map for that future activation, not an activated workflow. The commit-bound
+five-surface sweep (§5.1) remains the merge gate and must retain its
+sequential, F-4-safe ordering; DEC-093 supplies only its bounded surface-4
+CI-evidence alternative.
 
 | Sequence | Provider-neutral phase | Command basis and ordering constraint |
 |---:|---|---|
@@ -333,9 +336,9 @@ Release labels describe software maturity and validation evidence.
 
 ## 9. Open Decisions
 
-- Decided 2026-06-11 (`DEC-025`): hosted CI deferred; the five-surface local
-  sweep (§5.1) is the commit-bound merge gate; hosted workflow location is
-  re-decided at `D-05b` (public sanitized-export CI, prepared with D-06).
+- Decided 2026-06-11 (`DEC-025`): the five-surface sweep (§5.1) is the
+  commit-bound merge gate. DEC-059 conditionally selects public-export CI;
+  DEC-093 provides a bounded surface-4 CI-evidence alternative.
 - Decided 2026-07-04 (`DEC-057`, D-06 Option O-A): v0.1 release matrix is
   macOS Apple Silicon (`aarch64-apple-darwin`) only; installer format is the
   Tauri `.app` bundle zipped with a published SHA-256 checksum (§6.1);
@@ -346,7 +349,9 @@ Release labels describe software maturity and validation evidence.
   with local §8 recording and direct owner distribution until it exists.
   Windows/Linux matrix growth is evidence-gated (new register rows).
 - TBD: coverage, performance, tolerance, and permitted-variance thresholds.
-- TBD: maintainer quorum and release authority.
+- Decided by DEC-027: sole human maintainer and release authority, quorum one;
+  future signing/notarization beyond the unsigned v0.1 posture is re-decided
+  at D-06b. Artifact retention remains a separate delivery matter.
 - Decided: desktop project container is the multi-member archive per the
   PKG-17 contracts (`DEC-028`, 2026-06-11), named `.opsproj` /
   "OpenPipeStress Project Package" by the `DEC-057` naming rider.

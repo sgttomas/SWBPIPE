@@ -25,7 +25,7 @@ Use this checklist before accepting contributions that add or modify public data
 This draft checklist is aligned to
 the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md` and the approved
 graph selected by `execution/_DAG/_LATEST.md`. The project license has been selected as
-`PolyForm-Noncommercial-1.0.0`; this checklist records contribution-source
+`MIT`; this checklist records contribution-source
 rights and redistribution evidence separately from that project license notice.
 
 DEC-027 records a quorum of one: the sole human project authority is the sole
@@ -54,7 +54,7 @@ Blank per-contribution fields remain unfilled evidence slots.
 | Related deliverable / issue / PR | `TBD` |
 | Changed paths | `TBD` |
 | Contribution type | `code`, `schema`, `documentation`, `example`, `benchmark`, `data`, `template`, `other` |
-| Project license notice | `PolyForm-Noncommercial-1.0.0` |
+| Project license notice | `MIT` |
 | Contributor certification record | `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md` or equivalent |
 | Review date | `TBD` |
 
@@ -76,7 +76,7 @@ Acceptance requires a recorded source, redistribution basis, contributor certifi
 Use `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md` for the default
 contributor certification record unless a maintainer-approved form preserves
 the same source, rights, redistribution, protected-content, private-data, and
-review fields. The project license is `PolyForm-Noncommercial-1.0.0`; the final
+review fields. The project license is `MIT`; the final
 project-wide contributor legal mechanism remains `TBD`.
 
 ## 3. Protected-Content Screen

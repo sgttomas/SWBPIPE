@@ -963,7 +963,7 @@ function previewProvenance() {
   return {
     source_name: "SWBPIPE desktop",
     source_location: "apps/desktop/src/features/report-lint/ReportLintPanel.tsx",
-    source_license: "PolyForm-Noncommercial-1.0.0 project license context",
+    source_license: "MIT project license context",
     contributor: "SWBPIPE app integration tranche",
     contributor_certification: "Invented preview metadata only; no protected standards or private project payloads.",
     redistribution_status: "invented_non_engineering_example",

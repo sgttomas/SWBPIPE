@@ -192,7 +192,7 @@ Route these issues instead of resolving them inside a bounded contribution:
 | License, contributor mechanism, release authority, maintainer quorum, CI provider, or release-label decision | Human project-authority path. |
 | Professional reliance, code interpretation, or project-specific engineering acceptance wording | Professional-boundary review path. |
 
-The project license has been selected as `PolyForm-Noncommercial-1.0.0`.
+The project license has been selected as `MIT` by D-74 (2026-09-22).
 DEC-027 records the sole human project authority as sole maintainer and release
 authority with quorum one; external intake stays closed. DEC-079 adopts the
 review/screening skeleton with the contributor legal instrument deliberately

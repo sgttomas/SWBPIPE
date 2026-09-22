@@ -7,7 +7,7 @@ created: 2026-04-30
 
 # SWBPIPE Agentic Development Docs
 
-This `docs/` package is a seed governance and decomposition set for agentic development of **SWBPIPE**: a source-available noncommercial, code-neutral piping flexibility and stress-analysis platform.
+This `docs/` package is a seed governance and decomposition set for agentic development of **SWBPIPE**: a free and open-source, code-neutral piping flexibility and stress-analysis platform.
 
 The central project stance is:
 
@@ -47,8 +47,8 @@ amendments. Resolve approved graph coordination and its approval record through
 historical reach. Current coordination does not advance deliverable lifecycle,
 select implementation work, or establish engineering or release acceptance.
 
-The project license selected by human governance decision is
-`PolyForm-Noncommercial-1.0.0`; see `../LICENSE.md`.
+The project license selected by human governance decision is `MIT`
+(`D-74`, 2026-09-22); see `../LICENSE.md`.
 
 This docs package remains a governance and coordination index for
 SWBPIPE, which computes open, auditable piping mechanics.
