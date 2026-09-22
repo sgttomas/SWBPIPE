@@ -136,4 +136,24 @@ question the owner adopted; the owner did not choose that number separately.
 subagents at any depth) whenever work is available; run fewer only for a
 stated reason such as a reserved review slot or a sequencing dependency.
 
+## Direction 8 — 2026-09-22T00:09:59.138Z (transcript entry 3208)
+
+SHA-256 `4bb2eaab60c5b38d9fd17b83c0aa89c34be4fa31bf0a6321f955c38356a51992` (153 bytes):
+
+~~~~
+I confirm the SEMANTIC_READY reading, but also that it is outdated as a status and should be advanced upon my subsequent approval in the proper workflow.
+~~~~
+
+Agent 0's reading:
+1. The Agent 0 reading of the F3 exception is confirmed. The SEMANTIC_READY
+   architecture-basis sub-claims (9 in W1, 23 in W2, and any later ones) are
+   `STALE_REVIEW_OR_EVIDENCE`. The resolutions class changes from
+   `AGENT_READING` to `OWNER_CONFIRMED`.
+2. The SEMANTIC_READY status is outdated. Advancing it is a lifecycle change
+   that needs the owner's later approval through the proper workflow. It is
+   outside this run (D-73: no deliverable, lifecycle or DAG writes through
+   R4), so it goes to R4 as a routing item: the status advance, on owner
+   approval, through the proper lifecycle workflow. This run does not change
+   any status.
+
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

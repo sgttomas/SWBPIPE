@@ -433,7 +433,11 @@ migration later re-declared it. `STALE_REVIEW_OR_EVIDENCE` is for text first
 declared after the initial migration. Two exceptions keep C6(c) and the
 canonical table intact: keyed CS rows keep their assigned class, and revision
 pins, review states and metadata (such as dates) stay
-`STALE_REVIEW_OR_EVIDENCE` whatever their origin.
+`STALE_REVIEW_OR_EVIDENCE` whatever their origin. Readiness and lifecycle states such
+as "PKG-00 at SEMANTIC_READY" count as review states (owner-confirmed,
+OWNER_DIRECTIONS Direction 8). That status is itself outdated; advancing it
+is a lifecycle change for the owner's later approval in the proper workflow,
+routed to R4, and never made by this run.
 
 **F4. Notes-gap check.** Before sealing, the worker runs the validator with
 `--notes-gap`. It lists `ALIGNED` rows whose `RemainingWork` or Notes (path
