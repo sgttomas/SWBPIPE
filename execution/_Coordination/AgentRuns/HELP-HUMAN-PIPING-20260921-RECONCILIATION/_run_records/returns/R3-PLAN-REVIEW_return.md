@@ -317,3 +317,53 @@ Not complete; see I3 and I4. NO_ACTION needs no handoff but should be recorded e
 - No ledger, resolution, inventory, deliverable, code or DAG file changed. The working tree was clean before this append.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+
+## Integration backcheck 1
+
+**Backcheck verdict: FINDINGS.** Every original finding (I1–I8) is resolved. The changes introduce one SHOULD-FIX (B2-1), a contradiction between two rules the writers will read. It is small, so a one-sentence fix in the topic file or the launch messages would clear it. There are also three MINOR items.
+
+Scope: commits `cd7feac01` and `ab39f5712` (`5e89655fd..ab39f5712`). Reviewed bytes:
+- `tools/index_r3_classes.py`, sha256 `12093c22ac7a0cec240dd6c7299ce3f3165e0d4bc5740273f369de2da531848b`
+- `R3_INTEGRATION_TOPICS.md`, sha256 `804365fed61b88cb8b175354c0d705196d683f6ec72bd311080fa6ededb01dad`
+- `briefs/R3-INTEGRATION_brief.md`, sha256 `7db21ce45a4e091e5f29eef8a7cc6559cb3a830ad2d16fb528ed15a232236958`
+
+`--check` prints "CHECK PASS". The diff touches only RUN (`R3/`, the tool, the topics file, `RUN_STATE.jsonl`) and AR (the brief, and this file committed unchanged at `2cc3302c…`).
+
+### Original findings
+
+- **I1 (crosswalk): RESOLVED.** Every candidate I listed now has exactly one placement. PHYS-007, the product section and mass routine, SS-02, SS-03, T9-C12, the W2 convention questions and the draft-policy question are placed in topic text. The remaining items are placed in the crosswalk (H1 for the T1/T2/T3 ownership items; H2 for the W3 product/code items). For `openpipestress_jcs_ijson_v1`, A2 takes the contract version and A4 the rename residue, a stated boundary. Writers still report anything else as UNASSIGNED.
+- **I2 (double assignment): RESOLVED.** A6 owns `DEL-01-01:SOW` and A4 only cross-references it. A5 and C7 divide SR-1, and B12 and C7 divide the acceptance workflow. The split classes are listed with a portion rule, and Agent 0 checks that portions sum to class counts. See B2-1 for one contradiction this rule creates.
+- **I3 (handoff coverage): RESOLVED.** H2 gains the T8 and T12 code-fix rows. H3 gains T8, and correctly notes that T1–T3 carry no route column. H4 gains the T8, T9, T11 and T12 record-repair rows. `T8_ROUTE_DISAGREEMENTS.csv` has 113 rows, matching my independent count. My earlier I3 overstated the T12 record-repair gap: that row (`DEL-00-03:AB#realized-artifacts.r02`) was already class-routed R5.
+- **I4 (authority): RESOLVED.** H3 now takes one item per class with REVIEW or ENGINEERING authority on a repair or code-fix route. H2 and H4 carry an `Authority` column, and brief rule 6 requires a `BlockedOnPacket`. T6-C09 goes to C7.
+- **I5 (brief): RESOLVED.** The brief now:
+  - (a) replaces full class counts with split portions;
+  - (b) defines `{OUT}`;
+  - (c) adds `Key`/`KeyKind` to the H4 CSV;
+  - (d) says T10 is never evidence or authority;
+  - (e) adds the blocker rule.
+- **I6 (NO_ACTION): RESOLVED.** `NO_ACTION_ROWS.csv` has 408 rows: CLASS 58, T8 18, T9 80, T11 134, T12 118. That equals the sum I gave. No reason text contains an embedded newline, so the line-based register counts in CLASS_ROUTE_TOTALS are safe. `CAPABILITY_DISPOSITIONS.csv` has 296 rows, exactly the set of non-OWNED capabilities.
+- **I7 (routing gaps): RESOLVED.** Among 239 PRIMARY links, 30 of the 44 ROUTING_GAP capabilities were never routed to the primary owner's package. I recomputed both numbers. COVERAGE_AND_QA.md §2 quotes them with the `Rank = PRIMARY` basis.
+- **I8 (header reset): RESOLVED.** The header resets at the first non-table line after the class rows.
+
+### New items
+
+- **B2-1 SHOULD-FIX — The split-class rule contradicts the H2 and H3 scopes.**
+  - "Boundaries and split classes" lists T7-C06 as split between C2 and H2, and T7-C07 between C3 and H3. It requires the portions to sum to the class count.
+  - But the H2 scope still says "every row routed CODE_FIX_CANDIDATE … (T7-C06)", and the H3 scope says "every row or class routed ENGINEERING_AUTHORITY", which is all of T7-C07.
+  - Elsewhere the intended pattern is overlap with a blocker, not a partition. For example, the 81 SR-1 rows sit in A5 and also in H4 with `BlockedOnPacket A5`. T4A-C02 sits in A9 and also in H4.
+  - Read literally, the portion-sum check fails for T7-C06 and T7-C07, or writers drop the DEL-04-04 row from one side.
+  - Fix: apply the portion rule among packets only. A handoff covers every row on its route, marked `BlockedOnPacket` for rows a packet decides. Alternatively, take T7-C06 and T7-C07 off the split list and have H2 and H3 block the relevant rows on C2 and C3.
+- **B2-2 MINOR — The NO_ACTION register carries 15 rows that have another route.** They are the T8 NO_ACTION rows whose class route is OWNER_DECISION (9), CODE_FIX_CANDIDATE (4) or R5_RECORD_REPAIR (2), so they are also in P packets, H2 or H4. The register has no `ClassRoute` column, so R6 could count these rows as both "no-repair" and "repair". Suggest adding `ClassRoute`, or cross-referencing `T8_ROUTE_DISAGREEMENTS.csv` when Agent 0 writes R3_SYNTHESIS. (Three keys appear under more than one source, which is harmless.)
+- **B2-3 MINOR — The H2 inputs overlap, and some H2 items have no claim key.**
+  - All 17 T12 code-fix rows and 12 of the 17 T8 code-fix rows are already code-fix rows in `CLASS_ASSIGNMENTS`. The phrase "one row per code-fix row" implies deduplication, but say so.
+  - The W3 product and code items (PCF zero coordinate, millimetre assumption, and so on) do not appear by those terms in any R3 task output. They may have no claim key. `CODE_FIX_ROWS.csv` has only `ClaimKey`, so give it the same `Key`/`KeyKind` as H4.
+- **B2-4 MINOR — "PRIMARY" is a heuristic.** It means the first deliverable named in free text. Some rows begin with a candidate list ("No existing GUI owner; candidates DEL-07-04 or DEL-06-02 …; else CREATE") or a nearest-existing note ("CREATE …; nearest existing: DEL-07-01"). The summary line's "primary = first named" is honest. Writers should still read `ProposedOwner` rather than treat `Rank` as the task's decision.
+
+### Assessment
+
+- The tool, the topic file and the brief are otherwise sufficient and safe.
+- Topic coverage is now complete, as far as I can check against the task outputs and the W2/W3 lists.
+- The handoffs cover every non-owner route. NO_ACTION is recorded explicitly.
+- Containment is clean.
+
+Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

@@ -60,12 +60,16 @@ come from `R3/TASKS/T8_CLUSTERS.md`.
   table text above names the owner: A6 owns `DEL-01-01:SOW`; A5 owns the
   SEMANTIC_READY lifecycle target and C7 owns the SR-1 cause reading; B12 owns
   selecting the acceptance workflow and C7 owns its cause reading.
-- **Split classes.** Some classes feed more than one topic: T4A-C06 (A1, A7,
-  A10), T5B-C07 (A6, A10), T5A-C05 (B6, C1), T6-C04 (B10, B12), T7-C06
-  (C2 and H2) and T7-C07 (C3 and H3). A packet or handoff lists **exactly the
-  keys of its portion**, never the whole class count. At integration, Agent 0
-  checks that the portions of each split class add up to the class count and
-  reports any row that no packet or handoff claims.
+- **Split classes among packets.** Some classes feed more than one packet:
+  T4A-C06 (A1, A7, A10), T5B-C07 (A6, A10), T5A-C05 (B6, C1) and T6-C04 (B10,
+  B12). A packet lists **exactly the keys of its portion**, never the whole
+  class count. At integration, Agent 0 checks that the packet portions of each
+  split class add up to the class count, and reports any row no packet claims.
+- **Handoffs cover their whole route.** Handoffs (H1–H4) take every row on
+  their route, including rows that a packet also discusses (for example the
+  DEL-04-04 row of T7-C06, decided in C2, or the SR-1 rows, decided in A5).
+  Such rows carry `BlockedOnPacket` naming that packet; the portion rule does
+  not apply between packets and handoffs.
 - **T8 against class routes.** `R3/T8_ROUTE_DISAGREEMENTS.csv` lists the 113
   T8 rows whose route differs from the class route, or that are not
   divergent. Packet and handoff writers show both views for these rows.

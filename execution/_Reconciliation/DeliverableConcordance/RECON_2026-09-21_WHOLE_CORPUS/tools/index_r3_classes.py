@@ -154,6 +154,7 @@ def extra_tables(run, assign, index):
     """NO_ACTION register (method R6: no-repair rows recorded explicitly), final capability dispositions,
     and the rows where T8's route differs from the class route."""
     t = f"{run}/R3/TASKS"
+    class_route = {a["ClaimKey"]: a["Route"] for a in assign}
     na = [{"Source": "CLASS", "Key": a["ClaimKey"], "DeliverableID": a["DeliverableID"], "Group": a["ClassID"],
            "Reason": index[a["ClassID"]]["Name"]} for a in assign if a["Route"] == "NO_ACTION"]
     for r in read(f"{t}/T8_ROWS.csv"):
@@ -188,7 +189,8 @@ def extra_tables(run, assign, index):
             dis.append({"ClaimKey": r["ClaimKey"], "DeliverableID": r["DeliverableID"], "Cluster": r["Cluster"],
                         "T8Route": r["Route"], "ClassRoute": croute, "ClassID": a["ClassID"] if a else ""})
     return {
-        "NO_ACTION_ROWS.csv": to_csv(["Source", "Key", "DeliverableID", "Group", "Reason"], na),
+        "NO_ACTION_ROWS.csv": to_csv(["Source", "Key", "DeliverableID", "Group", "ClassRoute", "Reason"],
+                                     [dict(r, ClassRoute=class_route.get(r["Key"], "")) for r in na]),
         "CAPABILITY_DISPOSITIONS.csv": to_csv(["CapabilityID", "Area", "Status", "Source", "Classification",
                                                "ProposedOwner", "Confidence"], caps),
         "T8_ROUTE_DISAGREEMENTS.csv": to_csv(["ClaimKey", "DeliverableID", "Cluster", "T8Route", "ClassRoute", "ClassID"], dis),

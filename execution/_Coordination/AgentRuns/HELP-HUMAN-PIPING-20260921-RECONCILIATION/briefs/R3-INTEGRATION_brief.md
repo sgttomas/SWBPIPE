@@ -26,8 +26,9 @@ deliverable, code, lifecycle state, DAG or instruction.
   - `NO_ACTION_ROWS.csv`, `CAPABILITY_DISPOSITIONS.csv` and
     `T8_ROUTE_DISAGREEMENTS.csv` (the 113 T8 rows whose route differs from
     the class route: show both views for them);
-  - `CAPABILITY_COVERAGE.csv`, `ROUTING_GAPS.csv` (use `Rank = PRIMARY` for
-    proposed owners), `REMAINING_CENSUS.csv`,
+  - `CAPABILITY_COVERAGE.csv`, `ROUTING_GAPS.csv` (`Rank = PRIMARY` is only
+    the first deliverable named; read the task's `ProposedOwner` text itself
+    before relying on it), `REMAINING_CENSUS.csv`,
     `PACKAGE_SUMMARY.csv`, `CLUSTER_MATRIX.csv`, `CLASS_ROUTE_TOTALS.md`,
     `SYNTHESIS_STATS.md`.
 - **R3 task outputs,** all in `RUN/R3/TASKS/`:
@@ -143,8 +144,10 @@ and the holder.
   Deliverables, Proposal, BlockedOnPacket, Evidence`. `Kind` is one of
   CREATE, ASSIGN, REASSIGN, MERGE, RETIRE, KEY_ISSUE or DUPLICATE_RESOLVE.
 - **H2 code-fix candidates.** `{OUT}/CODE_FIX_CANDIDATES.md`,
-  `{OUT}/CODE_FIX_ROWS.csv` (columns `ClaimKey, DeliverableID, ClassID,
-  Authority, CFB, BlockedOnPacket`, one row per code-fix row in scope), and
+  `{OUT}/CODE_FIX_ROWS.csv` (columns `Key, KeyKind, DeliverableID, ClassID,
+  Authority, CFB, BlockedOnPacket`, one row per code-fix row or item in scope,
+  deduplicated: a claim key that is both a class row and a T8/T12 row appears
+  once; `KeyKind` is `CLAIM` or `ITEM` as in H4), and
   one `{OUT}/CFB-<nn>_<short-name>.md` per candidate brief. Each brief gives
   scope, affected claims, evidence, acceptance checks, the protected-content
   status, and `BlockedOnPacket`. None is executed. Group by engine or area.
