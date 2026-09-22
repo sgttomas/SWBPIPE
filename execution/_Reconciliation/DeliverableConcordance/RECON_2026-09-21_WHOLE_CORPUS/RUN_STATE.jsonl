@@ -243,3 +243,6 @@
 {"t": "2026-09-22T00:34:41Z", "event": "LIVE", "count": 14, "cap": 16, "note": "rolling queue"}
 {"t": "2026-09-22T00:34:41Z", "event": "LAUNCH", "node": "W3-PKG-15-MANAGER", "agent": "aa623d46f548e1a44", "role": "WORKING_ITEMS", "parent": "ROOT (Agent 0)", "mechanism": "harness-native Agent tool, general-purpose, background (D-GOV-35); workers nested foreground", "model": "opus", "reasoning": "assumed inherited (not verifiable)", "launch_message": "_run_records/launches/W3-PKG-15-MANAGER_LAUNCH.md", "launch_sha256": "a66b9655103f01e36642849e4dcecae016c797bd0d245b35191f09fdad588763", "worker_budget": 1}
 {"t": "2026-09-22T00:34:41Z", "event": "LIVE", "count": 16, "cap": 16}
+{"t": "2026-09-22T00:37:32Z", "event": "RETURN", "node": "W3-PKG-10-VERIFIER", "agent": "a17af3c901aab38f0", "file": "WAVES/W3/PKG-10/PKG-10_VERIFICATION.md", "sha256": "d4fab405afb90e636e908c19309591b56dbff1158d07f1830c519e2df95d9b2a", "verdict": "ACCEPT WITH CONTESTED ROWS", "firm_false_alignment": "0.0% (0/21)", "firm": 1, "weak": 3, "field": 118}
+{"t": "2026-09-22T00:37:32Z", "event": "LIVE", "count": 15, "cap": 16}
+{"t": "2026-09-22T00:37:32Z", "event": "SLOT_HOLD", "note": "1 free slot; next queued PKG-17 needs 2 (manager + worker); launches on the next free slot"}
