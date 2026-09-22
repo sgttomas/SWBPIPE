@@ -12,8 +12,8 @@ holder whose act must come first; under method R4 the affected repair paths
 (the H2 code-fix briefs and the H4 R5 tranches that touch the same rows) stop
 until that holder acts. R5 needs its own owner authorisation (D-73).
 
-The machine-readable companion is `ENGINEERING_AND_REVIEW_ITEMS.csv` (34
-items, `#END` row gives the item count).
+The machine-readable companion is `ENGINEERING_AND_REVIEW_ITEMS.csv` (35
+items, CRLF line endings, `#END` row gives the item count).
 
 ## 1. Scope and how it was drawn
 
@@ -25,6 +25,7 @@ from the accepted R3 tables, not by hand.
 | Class rows routed REVIEW or ENGINEERING_AUTHORITY | `R3/CLASS_ASSIGNMENTS.csv` | `Route in {REVIEW, ENGINEERING_AUTHORITY}` | 306 |
 | Class rows whose authority is REVIEW or ENGINEERING on a repair route | `R3/CLASS_ASSIGNMENTS.csv` | `Authority in {REVIEW, ENGINEERING}` and `Route in {R5_RECORD_REPAIR, CODE_FIX_CANDIDATE}` | 675 |
 | Task rows routed REVIEW or ENGINEERING_AUTHORITY | `R3/TASKS/T8_ROWS.csv`, `T9_LIFECYCLE.csv`, `T11_METHOD.csv`, `T12_UNREACHED.csv` (`#END` rows excluded) | `Route in {REVIEW, ENGINEERING_AUTHORITY}` | T8 1, T9 12, T11 12, T12 94 |
+| T1 capabilities routed REVIEW (added at review, RV5 finding 2) | `R3/TASKS/T1_UNMAPPED.csv` | Notes route REVIEW; H1 items H1-017, H1-110, H1-116, H1-117 | 4 capabilities |
 
 The class part is 17 classes and 981 claim rows:
 
@@ -67,10 +68,13 @@ scope from the files above and compared it with the item definitions:
   every class count matches `CLASS_INDEX.csv`;
 - T8: expected 1, covered 1; T9: expected 12, covered 12; T11: expected 12,
   covered 12; T12: expected 94, covered 94; no duplicates, none missing;
-- 34 items; the CSV `Rows` column sums to 1,090 = 981 class rows + 1 T8 row
+- T1: 4 capabilities routed REVIEW (CAP-COREC-053, CAP-FEATB-029,
+  CAP-FEATB-030, CAP-PHYS-021), all in ER-35;
+- 35 items; the CSV `Rows` column sums to 1,094 = 981 class rows + 1 T8 row
   + 3 T9 rows that have no in-scope class row (ER-24 2, ER-25 1) + 12 T11 rows
   + 94 T12 rows, less 1 T12 key that is also a T7-C06 class row
-  (`DEL-13-01:SOW#CLM-005.r05`, counted once in ER-22).
+  (`DEL-13-01:SOW#CLM-005.r05`, counted once in ER-22), + 4 T1 capabilities
+  (ER-35; capabilities, not claim rows).
 
 How the 12 T9 rows and the T12 REVIEW row are carried:
 
@@ -146,8 +150,11 @@ task output and not re-opened here.
 
 #### ER-02 — Cause or vehicle contested in adopted resolutions (T5A-C08, 18 rows)
 
-- **Holder.** WORKING_ITEMS (workflow: review), with Agent 0's R3 integration
-  harmonising causes; one element is an owner convention question (below).
+- **Holder.** WORKING_ITEMS (workflow: review). T5A proposed that Agent 0
+  harmonise these causes at R3 integration; that harmonisation was not
+  performed at integration (no R3 or R4 record shows it). It passes to the
+  ER-02 reviewer, who applies the C7 readings where C7 covers the row (SR-1
+  cause, `.s02` rows). One element is an owner convention question (below).
 - **Rows.** All 18 T5A-C08 keys (`T5A_CLASSES.md` T5A-C08 Population); 16
   deliverables.
 - **Question.** Which cause (and, for `DEL-06-04:MEMORY` and `DEL-06-05:MEMORY`,
@@ -164,7 +171,8 @@ task output and not re-opened here.
   T5A (T5A observation 1) and would need a key minted in a later ledger
   revision.
 - **BlockedOnPacket (partial).**
-  - C7 (SR-1 cause reading): `DEL-03-04`, `DEL-03-05`,
+  - C7 (SR-1 cause reading): `DEL-03-04:CONTEXT#architecture-basis-injection.s02`,
+    `DEL-03-05:CONTEXT#architecture-basis-injection.s02`,
     `DEL-03-06:CONTEXT#architecture-basis-injection.s02`,
     `DEL-10-01:SOW#CLM-004`, `DEL-10-03:SOW#CLM-004`.
   - A5 (SEMANTIC_READY lifecycle target): `DEL-10-01:SOW#CLM-004`,
@@ -252,12 +260,21 @@ task output and not re-opened here.
   record work afterwards. Where a review asks for added fixture provenance
   records or tests (DEL-17-07), those are H2 candidates, not part of the act.
 - **BlockedOnPacket (partial).**
-  - C5 (PCF/glTF fixture provenance): the 8 DEL-17-07 rows
-    (`SOW#CLM-007`, `SOW#CLM-017/DEL-17-07-REQ-040`, `SOW#CLM-025`,
-    `SOW#CLM-031`, `SOW#CLM-034`, `SOW#…/AC-001`, `SOW#…/VER-001`,
-    `STATUS#remaining/R01`) and `DEL-17-08:SOW#…/VER-001`.
-  - C6 (CP-09 on VER-001): `DEL-04-04`, `DEL-04-05` (OBSERVED) and `DEL-04-06`
-    (CONTESTED) `SOW#production-and-verification-method-praxeology/VER-001`. If
+  - C5 (PCF/glTF fixture provenance): 7 DEL-17-07 rows
+    (`DEL-17-07:SOW#CLM-007`, `DEL-17-07:SOW#CLM-017/DEL-17-07-REQ-040`,
+    `DEL-17-07:SOW#CLM-025`, `DEL-17-07:SOW#CLM-031`, `DEL-17-07:SOW#CLM-034`,
+    `DEL-17-07:SOW#completion-and-reliance-basis-epistemology/AC-001`,
+    `DEL-17-07:SOW#production-and-verification-method-praxeology/VER-001`) and
+    `DEL-17-08:SOW#production-and-verification-method-praxeology/VER-001`.
+    `DEL-17-07:STATUS#remaining/R01` is not C5's: its finding RF-001 concerns
+    DAG-006 wording, not fixture provenance, and C5 does not list it; it waits
+    on the ER-05 review alone.
+  - C6 (CP-09 on VER-001):
+    `DEL-04-04:SOW#production-and-verification-method-praxeology/VER-001`,
+    `DEL-04-05:SOW#production-and-verification-method-praxeology/VER-001`
+    (both OBSERVED) and
+    `DEL-04-06:SOW#production-and-verification-method-praxeology/VER-001`
+    (CONTESTED). If
     the CP-09 reading is adopted these three leave the class for the T5B
     partition (task proposal).
 
@@ -313,7 +330,7 @@ only that a basis is absent from the records.
 | ER-11 | `DEL-17-06:STATUS#remaining/R01` | Disposition of the two withheld diagnostic-work unit witnesses in the accepted 830-row fixture | Ledger: the test asserts 830 rows, 828 witnesses and two withheld-witness diagnostics | - |
 | ER-12 | `DEL-05-03:CONTEXT#description`, `DEL-05-03:SOW#CLM-011/DEL-05-03-RQ-001.s01` | Pressure reference model (thin-wall membrane against exact annulus) and its companion decisions | T7-C07; the 2026-09-08 investigation lists seven decisions; `_REGISTER.md` D-67 adopted only a private dormant pressure kernel (accepted register). BaselineClass OWNER_HOLD | C3 (the owner lifts the D01–D06 hold first) |
 | ER-13 | `DEL-02-02:STATUS#remaining/R05` | Independent conversion and normalisation witness under DEC-018 | Ledger: no independent witness found | - |
-| ER-14 | `DEL-13-04:SOW#CLM-017/DEL-13-04-REQ-007`, `DEL-14-04:SOW#CLM-008.r02`, `DEL-14-04:SOW#CLM-017.s02`, `DEL-14-05:STATUS#remaining/R01` | Validation basis for tolerance suitability, comparison mechanics and the transform 3D frame target; the section-property oracle does not qualify | T7-C07; T9-C11b; T9 census DEL-14-05 | C3 (partial: `DEL-14-04:SOW#CLM-017.s02`, PDU-047 held) |
+| ER-14 | `DEL-13-04:SOW#CLM-017/DEL-13-04-REQ-007`, `DEL-14-04:SOW#CLM-008.r02`, `DEL-14-04:SOW#CLM-017.s02`, `DEL-14-05:STATUS#remaining/R01` | Validation basis for tolerance suitability, comparison mechanics and the transform 3D frame target; the section-property oracle does not qualify | T7-C07; T9-C11b; T9 census DEL-14-05 | C3 (context only: C3 records these engineering holds as needing no owner act; the owner may only reprioritise) |
 
 **Split portions.** T6-C06 (4 rows) = ER-08 + ER-09 + ER-10 + ER-11; T7-C07
 (7 rows) = ER-12 (2) + ER-13 (1) + ER-14 (4). Keys as in the table.
@@ -461,9 +478,11 @@ for its briefs.
   over `synthetic_markers()` (freeze-checked). FIELD tier correction to
   INVARIANT on `DEL-12-04:SOW#CLM-011.r05`; FIELD DEC-058 scan evidence on
   `DEL-08-04:SOW#CLM-013/V-7`; CONTESTED on `DEL-03-04:SOW#CLM-011/DEL-03-04-RQ-005`
-  and `DEL-08-05:SOW#…/AC-001` (`OtherCorrections`).
+  and `DEL-08-05:SOW#completion-and-reliance-basis-epistemology/AC-001`
+  (`OtherCorrections`).
 - **BlockedOnPacket (partial).**
-  - B7: `DEL-15-02:SOW#CLM-005.r01`, `.r02`, `.r03` (PRODUCT_CALLER NONE; the
+  - B7: `DEL-15-02:SOW#CLM-005.r01`, `DEL-15-02:SOW#CLM-011.r05`,
+    `DEL-15-02:SOW#CLM-027.r02` (the three T6-C03 rows of DEL-15-02; the
     DEL-15-02 defaults wait on B7 per H2).
   - B10 (plugin/adapter runtime; CP-11 no-bypass holds only by absence):
     `DEL-06-02:SOW#CLM-006.r05`, `DEL-06-02:SOW#CLM-013/REQ-06-02-010`,
@@ -494,14 +513,19 @@ for its briefs.
   `T7_CLASSES.md` T7-C06 (as cited).
 - **BlockedOnPacket (partial).**
   - C7 (unit-vocabulary tier reading): the 8 CONTESTED DEL-13-02 rows
-    (`SOW#CLM-003.r13`, `CLM-009`, `CLM-010/R-13-02-005`, `CLM-012/R-13-02-005`,
-    `CLM-013`, `CLM-018`, `CLM-019.r04`, `CLM-024`) and DEL-13-01
-    `SOW#CLM-005.r05`, `SOW#CLM-009/REQ-13-01-006`.
+    (`DEL-13-02:SOW#CLM-003.r13`, `DEL-13-02:SOW#CLM-009`,
+    `DEL-13-02:SOW#CLM-010/R-13-02-005`, `DEL-13-02:SOW#CLM-012/R-13-02-005`,
+    `DEL-13-02:SOW#CLM-013`, `DEL-13-02:SOW#CLM-018`,
+    `DEL-13-02:SOW#CLM-019.r04`, `DEL-13-02:SOW#CLM-024`) and
+    `DEL-13-01:SOW#CLM-005.r05`, `DEL-13-01:SOW#CLM-009/REQ-13-01-006`.
   - B9 (PKG-13 product status): the same 10 DEL-13-01/13-02 rows.
-  - B7: the 13 DEL-15-02 rows of the class (`CONTEXT#context-envelope`,
-    `MEMORY`, `SOW#CLM-011.r05/.r06/.r07`, `SOW#CLM-020`, `SOW#CLM-020.s01`,
-    `SOW#CLM-021.r03`, `SOW#CLM-026`, `SOW#CLM-027.r01/.r02/.r03`,
-    `SOW#…/AC-001`).
+  - B7: the 13 T7-C06 rows of DEL-15-02: `DEL-15-02:CONTEXT#context-envelope`,
+    `DEL-15-02:MEMORY`, `DEL-15-02:SOW#CLM-005.r02`, `DEL-15-02:SOW#CLM-005.r03`,
+    `DEL-15-02:SOW#CLM-011.r06`, `DEL-15-02:SOW#CLM-011.r07`,
+    `DEL-15-02:SOW#CLM-020`, `DEL-15-02:SOW#CLM-020.s01`,
+    `DEL-15-02:SOW#CLM-021.r03`, `DEL-15-02:SOW#CLM-026`,
+    `DEL-15-02:SOW#CLM-027.r01`, `DEL-15-02:SOW#CLM-027.r03`,
+    `DEL-15-02:SOW#completion-and-reliance-basis-epistemology/AC-001`.
   - C2 (PR #787's removed protected check): `DEL-04-04:SOW#CLM-010/DEL-04-04-REQ-08`.
   - The W3 product items on DEL-17-02/03/04/07 are H2's; they carry no packet.
 
@@ -594,6 +618,12 @@ for its briefs.
 - **Source rows (7 T11 rows).** SS-01; R-03 (`apps/desktop/src/types.ts`
   Diagnostic type); per-capability TENSION rows CAP-COREB-029, CAP-DATA-013,
   CAP-DATA-016, CAP-DATA-023, CAP-WSUI-032.
+- **Deliverables (16).** Filter: the union of the `DEL-xx-yy` identifiers in the
+  `Deliverables` column of those 7 rows of `R3/TASKS/T11_METHOD.csv`
+  (Subject starting `SS-01` or `R-03`, or equal to one of the five CAP IDs):
+  DEL-00-03, DEL-00-05, DEL-00-06, DEL-00-07, DEL-04-01, DEL-05-04, DEL-06-02,
+  DEL-07-04, DEL-07-06, DEL-07-07, DEL-07-08, DEL-08-03, DEL-08-04, DEL-10-05,
+  DEL-14-02, DEL-14-04.
 - **Question.** Must the runner solve-to-export binding and the desktop export
   writer carry every diagnostic field except class (then an H2 candidate), or
   are the mappings accepted and AB-00-06 REQ-06-02 refined (then R5)?
@@ -622,12 +652,38 @@ the chosen status in each SOW. The 94th T12-C06 row,
 |---|---|---:|---|---|
 | ER-32 | `core/section_properties/calculator.py` (DEL-03-08) | 52 | `derive_pipe_section`, `core/product_physics/src/lib.rs:6321` (freeze-checked; calculator entry at `calculator.py:63`, freeze-checked) | A1 (whether a Python engine under `core/` may stand against the Rust core, including as an oracle) |
 | ER-33 | `core/loads/user_loads` (DEL-05-05) | 38 | primitive_loads and straight_pipe; the crate's only non-test caller is `validation/benchmarks/mechanics/Cargo.toml:19` (freeze-checked) | C6 (partial: the corpus-level F7 reading) for the 4 CONTESTED rows `SOW#CLM-010.r06`, `SOW#CLM-010.r08`, `SOW#CLM-010.r10`, `SOW#completion-and-reliance-basis-epistemology/AC-001` |
-| ER-34 | `core/library_import/provenance_checker.py` (DEL-03-07: `SOW#CLM-005.s01`, `SOW#CLM-012.s01`, `SOW#CLM-023`) | 3 | The Rust library-import port the product calls (T12, as cited) | A1 |
+| ER-34 | `core/library_import/provenance_checker.py` (`DEL-03-07:SOW#CLM-005.s01`, `DEL-03-07:SOW#CLM-012.s01`, `DEL-03-07:SOW#CLM-023`) | 3 | The Rust library-import port the product calls (T12, as cited) | A1 |
 
 **Both views on the 4 DEL-05-05 CONTESTED rows.** Effective ALIGNED (F7 engine
 reading) against PARTIALLY_IMPLEMENTED · PROJECT_BASELINE (as DEL-05-02
 REQ-05-02-008 and DEL-05-03 RQ-005 read the same shape) or VERIFIED_NOT_VALIDATED
 · VALIDATION_GAP (agent-produced TP-PHYS witnesses). Not chosen here.
+
+### 4.5 T1 capabilities routed REVIEW
+
+#### ER-35 — Four routing-gap capabilities awaiting a reverse pass (T1; REVIEW)
+
+- **Holder.** WORKING_ITEMS (workflow: review): a reverse pass by each proposed
+  owner deliverable.
+- **Rows.** 4 capabilities (not claim rows): CAP-COREC-053, CAP-FEATB-029,
+  CAP-FEATB-030, CAP-PHYS-021. H1 carries them as ASSIGN items H1-110, H1-116,
+  H1-117 and H1-017, whose `BlockedOnPacket` names ER-35. T1–T3 carry no route
+  column; the REVIEW route is in the T1 Notes text.
+- **Question.** Does the proposed owner accept each capability as within its
+  scope, before the H1 assignment and an R5 record repair?
+
+| Capability | T1 classification, confidence | Proposed owner | Evidence (T1, as cited) |
+|---|---|---|---|
+| CAP-COREC-053 (plugin manifest verification) | ROUTING_GAP, MEDIUM | DEL-02-04 | `core/adapters/framework/plugin_verification.py` and its test; DEL-02-04 REQ-14 (`ScopeOfWork.md:183`); COREC area routing omitted PKG-02 |
+| CAP-FEATB-029 (project validation preflight) | ROUTING_GAP, MEDIUM | DEL-02-05 | `apps/desktop/src/features/project-validation/ProjectValidationPanel.tsx:275`; `DEL-02-05:CONTEXT#description`; FEATB area routing omitted PKG-02 |
+| CAP-FEATB-030 (project storage audit) | ROUTING_GAP, LOW | DEL-02-05 (alternative DEL-12-01 for the local-only boundary element) | `apps/desktop/src/features/project-storage/ProjectStorageAuditPanel.tsx:205`; DEL-12-01 `SOW#CLM-003.r01` COVERS relation |
+| CAP-PHYS-021 (expansion-joint macro-element) | ROUTING_GAP, MEDIUM | DEL-03-06 | `core/product_physics/src/lib.rs` `build_expansion_joint_user_stiffness_elements`; DEL-03-06 `MEMORY.md:120-158` (tranches landed under DEC-045); scope fit needs a check because DEL-03-06 CONTEXT names EJ fields only |
+
+- **What the review act authorises.** An accept or decline per capability; an
+  accept feeds H1's ASSIGN and a later R5 record repair; a decline returns the
+  capability to H1 for another owner.
+- **BlockedOnPacket (partial).** B1 for CAP-PHYS-021 (product solve path in
+  `core/product_physics`), as H1-017 records. The other three carry no packet.
 
 ## 5. Disagreements between tasks left open
 
@@ -671,13 +727,14 @@ Neither is drafted here.
 | A5 | ER-02, ER-15, ER-16 (partial); ER-30 |
 | A7 | ER-17 (partial) |
 | A8 | ER-25 |
+| B1 | ER-35 (partial) |
 | B3 | ER-28 (partial); dependency of ER-19 |
 | B7 | ER-03, ER-21, ER-22 (partial) |
 | B9 | ER-22 (partial), ER-24 |
 | B10 | ER-21 (partial) |
 | C1 | ER-19 (partial), ER-31 |
 | C2 | ER-04, ER-06; ER-22 (partial) |
-| C3 | ER-12; ER-14 (partial) |
+| C3 | ER-12 (ER-14 context only) |
 | C4 | ER-21 (partial) |
 | C5 | ER-05, ER-06 (partial) |
 | C6 | ER-03, ER-05, ER-33 (partial) |
