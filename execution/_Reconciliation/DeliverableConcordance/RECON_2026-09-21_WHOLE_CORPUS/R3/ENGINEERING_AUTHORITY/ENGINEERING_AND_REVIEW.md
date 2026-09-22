@@ -185,7 +185,8 @@ task output and not re-opened here.
     block).
 - **Owner element not on any topic list.** `DEL-12-02:SOW#CLM-037/REXC-OI-002`
   turns on the CONVENTIONS F3 origin test (item identity against the assessed
-  sentence), a RULED convention. Reported as UNASSIGNED (§6).
+  sentence), a RULED convention. Reported as UNASSIGNED (§6); Agent 0 placed
+  it with C6 as U4, so this row is blocked on C6 (partial).
 
 #### ER-03 — SOW parity and claim-map re-review against current bytes (T5B-C01, 175 rows)
 
@@ -737,7 +738,7 @@ Neither is drafted here.
 | C3 | ER-12 (ER-14 context only) |
 | C4 | ER-21 (partial) |
 | C5 | ER-05, ER-06 (partial) |
-| C6 | ER-03, ER-05, ER-33 (partial) |
+| C6 | ER-03, ER-05; ER-02, ER-33 (partial) |
 | C7 | ER-23, ER-24, ER-30; ER-02, ER-15, ER-16, ER-22, ER-28 (partial) |
 
 H4 should mark every R5 row of T4A-C04, T5A-C01–C04 and T5A-C07 as waiting on

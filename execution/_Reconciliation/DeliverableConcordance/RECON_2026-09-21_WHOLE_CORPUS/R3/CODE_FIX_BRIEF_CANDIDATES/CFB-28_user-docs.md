@@ -19,7 +19,7 @@ Reproducing filter: `CODE_FIX_ROWS.csv` where `CFB == "CFB-28"`. Each key below 
 | `DEL-11-01:SOW#CLM-006.r07` | T6-C01 | NONE | — | — | Add an equipment-load slot to guide section 9 or drop it from the outline row. |
 | `DEL-11-01:SOW#completion-and-reliance-basis-epistemology/AC-001` | T6-C01 | NONE | — | — | Add the accessibility intent to the contract (and guide), and refresh the PDU-055 current declarations. |
 | `DEL-11-01:SOW#production-and-verification-method-praxeology/VER-001.s02` | T6-C01 | NONE | — | — | Add accessibility content to the contract, then review it. |
-| `DEL-11-03:SOW#CLM-004.r01` | T6-C01 | NONE | — | — | OC: as CLM-010.s02. |
+| `DEL-11-03:SOW#CLM-004.r01` | T6-C01 | NONE | C4 (U8) | — | OC: as CLM-010.s02. |
 | `DEL-11-03:SOW#CLM-010.s02` | T6-C01 | NONE | C4 | — | Select public/permissive sources for the three deferred scopes (history, formula-level frame, local-FEA practice) or have the owner discharge them. |
 | `DEL-11-03:SOW#completion-and-reliance-basis-epistemology/AC-001` | T6-C01 | NONE | — | — | Add to the contract the verification-versus-validation distinction and an explicit bar on presenting unverified extracted equations or narrative as a design basis. |
 | `DEL-11-04:CONTEXT#anticipated-artifacts` | T6-C01 | NONE | — | — | Author a tutorial that walks through the invented examples, or record a decision that DEL-11-04 tutorials are out of scope. |
@@ -49,7 +49,7 @@ This brief quotes no protected, private or third-party content. Execution uses i
 
 ## BlockedOnPacket
 
-2 of 8 claim rows carry a block: C4 (2); H3[T6-C03] (1). `H3[<class>]` names the H3 register item for that class (review before repair; mapped in `H3_TOKEN_MAP.csv`). Unblocked rows may proceed separately once selected.
+3 of 8 claim rows carry a block: C4 (3); H3[T6-C03] (1). `H3[<class>]` names the H3 register item for that class (review before repair; mapped in `H3_TOKEN_MAP.csv`). Unblocked rows may proceed separately once selected.
 
 ## Notes and open views
 

@@ -71,7 +71,7 @@ The classes here belong wholly to H2. None of them is a packet split class.
   H3 reviewer choice (DEL-12-01 LFSP-REQ-011).
 - A dependency marked "context" in a brief is related but not blocking.
 
-Blocked rows: **155 of 380 claim rows**, plus 5 of the 6 items (revised after the RV6/RV7 reviews; previously 140).
+Blocked rows: **156 of 380 claim rows**, plus 5 of the 6 items (revised after the RV6/RV7 reviews; previously 140).
 
 | Blocker | Rows |
 |---|---|
@@ -90,7 +90,7 @@ Blocked rows: **155 of 380 claim rows**, plus 5 of the 6 items (revised after th
 | A7 | 4 |
 | A6 | 3 |
 | B3 | 3 |
-| C4 | 2 |
+| C4 | 3 |
 | A3 | 1 |
 | C2 | 1 |
 | C5 | 1 |
@@ -181,7 +181,7 @@ scope-change), and it runs only as a separately authorized R5 record repair
 
 | CFB | Change | Rows | Classes | BlockedOnPacket (rows) | Protected subject |
 |---|---|---:|---|---|---|
-| [CFB-28](CFB-28_user-docs.md) | User guide, theory note and examples: missing slots and non-claim notices | 8 | T6-C01 7, T6-C03 1 | C4 (2), H3[T6-C03] (1) | yes |
+| [CFB-28](CFB-28_user-docs.md) | User guide, theory note and examples: missing slots and non-claim notices | 8 | T6-C01 7, T6-C03 1 | C4 (3), H3[T6-C03] (1) | yes |
 
 ### Local-first storage, privacy and telemetry
 
