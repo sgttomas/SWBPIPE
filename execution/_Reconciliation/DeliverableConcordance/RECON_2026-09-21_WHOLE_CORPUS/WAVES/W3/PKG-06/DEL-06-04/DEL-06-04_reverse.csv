@@ -1,0 +1,294 @@
+CapabilityID,Answer,ClaimKey,Reason
+RC-06-0001,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0002,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0003,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0004,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0005,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0006,NOT_MINE,,Rule-check runner belongs to the C4 rule-check work (DEL-06-03 completeness plus evaluator); this ledger cites it only as where data-gap findings are emitted (R-06-04-007 gap).
+RC-06-0007,CONSTRAINS,DEL-06-04:SOW#CLM-010/R-06-04-012,"Plugin boundary no-bypass, private-data and checksum rules constrain any future rule-pack plugin path (Remaining R02)."
+RC-06-0008,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0009,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0010,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0011,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0012,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0013,NOT_MINE,,Local-first storage classification is PKG-12 security work; R-06-04-011 defers storage and access policy there.
+RC-06-0014,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0015,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0016,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0017,COVERS,DEL-06-04:SOW#CLM-010/R-06-04-008,Renderable report input sends rule_pack_refs []; evidence for the R-06-04-008 report-reference gap; report assembly is DEL-08 work.
+RC-06-0018,COVERS,DEL-06-04:SOW#CLM-010/R-06-04-008,"Report package request refuses rule-check binding and sends rule_pack_refs []; this is the product gap recorded on R-06-04-008, not a capability this deliverable owns."
+RC-06-0019,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0020,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0021,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0022,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0023,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0024,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0025,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0026,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0027,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0028,COVERS,DEL-06-04:SOW#CLM-010/R-06-04-008,"Audit manifest accepts rule-pack references (id, version, checksum, source note) downstream of this deliverable's audit hook; DEL-08-02 owns the manifest."
+RC-06-0029,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0030,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0031,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0032,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0033,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0034,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0035,NOT_MINE,,CONTRACT.md invariant catalogue is governing text whose OPS-K rows this SOW restates (CLM-011); not owned here.
+RC-06-0036,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0037,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0038,NOT_MINE,,Grammar version declaration and support set belong to the DEL-06-02 evaluator; the lifecycle crate only binds the declared version inside the checksum payload.
+RC-06-0039,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0040,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0041,PARTIAL,DEL-06-04:SOW#CLM-010/R-06-04-004,The checksum_binding payloads and MANIFEST.tsv are the lifecycle crate's golden checksum corpus; the conformance corpus in the same folder belongs to DEL-06-02.
+RC-06-0042,COVERS,DEL-06-04:SOW#CLM-010/R-06-04-012,Deny-by-default plugin manifests are the DEL-10-02 declaration gate cited as bounded no-bypass evidence (PDU-028); no rule-pack plugin runtime exists.
+RC-06-0043,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0044,NOT_MINE,,Secret and private-library handling is PKG-12's (R-06-04-011 deferral).
+RC-06-0045,CONSTRAINS,DEL-06-04:SOW#CLM-010/R-06-04-004;DEL-06-04:SOW#CLM-010/R-06-04-005;DEL-06-04:SOW#CLM-010/R-06-04-006,"Persistence contract hash rules are the stated source basis for the JCS, manifest-hash and payload-boundary requirements."
+RC-06-0046,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0047,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0048,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0049,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0050,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0051,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0052,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0053,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0054,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0055,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0056,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0057,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0058,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0059,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0060,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0061,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0062,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0063,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0064,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0065,CLAIMED_BY,DEL-06-04:SOW#CLM-010/R-06-04-004;DEL-06-04:SOW#CLM-010/R-06-04-006,JCS SHA-256 rule-pack checksum with payload_excludes is the JSON-payload hashing R-06-04-004/006 require; built as the first production consumer of the lifecycle crate (TP-C2-RPLIFE-001).
+RC-06-0066,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0067,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0068,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0069,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0070,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0071,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0072,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0073,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0074,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0075,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0076,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0077,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0078,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0079,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0080,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0081,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0082,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0083,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0084,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0085,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0086,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0087,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0088,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0089,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0090,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0091,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0092,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0093,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0094,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0095,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0096,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0097,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0098,NOT_MINE,,"IP and data boundary is a governing invariant document this deliverable restates (R-06-04-002/003), not a capability it owns."
+RC-06-0099,COVERS,DEL-06-04:SOW#CLM-003.r04;DEL-06-04:SOW#CLM-003.r05,"The schema's Checksum, ChecksumSet and RedistributionStatus definitions carry this deliverable's checksum and redistribution metadata, but the SOW assigns schema and enum ownership to DEL-06-01."
+RC-06-0100,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0101,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0102,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0103,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0104,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0105,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0106,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0107,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0108,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0109,CONSTRAINS,DEL-06-04:SOW#CLM-010/R-06-04-012,Extension domain contracts supply the no-bypass rules R-06-04-012 restates.
+RC-06-0110,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0111,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0112,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0113,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0114,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0115,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0116,COVERS,DEL-06-04:SOW#CLM-010/R-06-04-012,Adapter framework declaration validation is the DEL-10-02 evidence recorded for PDU-028 no-bypass; owned by PKG-10.
+RC-06-0117,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0118,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0119,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0120,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0121,NOT_MINE,,"HTML report renderer (PKG-08); this ledger cites the desktop shell file only for rule-pack commands, not the render command."
+RC-06-0122,NOT_MINE,,Canonical-JSON hash parity fixtures belong to the serialization/persistence owner; this deliverable consumes the JCS form only.
+RC-06-0123,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0124,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0125,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0126,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0127,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0128,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0129,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0130,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0131,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0132,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0133,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0134,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0135,NOT_MINE,,Dependency register validator is a governance tool; cited only as the tool behind V-06-04-004's recorded VALID result.
+RC-06-0136,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0137,COVERS,DEL-06-04:SOW#CLM-010/R-06-04-008,Manifest validation raises missing rule-pack checksum/source-notice findings for refs this deliverable supplies; ownership stays with DEL-08-02.
+RC-06-0138,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0139,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0140,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0141,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0142,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0143,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0144,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0145,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0146,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0147,COVERS,DEL-06-04:SOW#CLM-010/R-06-04-008,Report-package wire DTO carries RulePackAuditRef fields the lifecycle hook would supply; the report package itself belongs to PKG-08.
+RC-06-0148,NOT_MINE,,Completeness checker is DEL-06-03's; cited here only as the owner of rule-check-required data-gap and missing-unit findings (PDU-044).
+RC-06-0149,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0150,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0151,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0152,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0153,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0154,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0155,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0156,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0157,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0158,NOT_MINE,,Unit catalog command in the desktop shell; this ledger cites that file only for its rule-pack storage and validation commands.
+RC-06-0159,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0160,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0161,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0162,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0163,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0164,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0165,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0166,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0167,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0168,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0169,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0170,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0171,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0172,COVERS,DEL-06-04:SOW#CLM-010/R-06-04-004;DEL-06-04:SOW#CLM-010/R-06-04-007,Panel displays this deliverable's lifecycle findings and stamps its JCS checksum through the service; the GUI panel itself is not a backend lifecycle capability.
+RC-06-0173,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0174,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0175,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0176,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0177,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0178,NOT_MINE,,Sandboxed expression evaluator is DEL-06-02's; cited only as the home of unit-metadata enforcement (R-06-04-010).
+RC-06-0179,NOT_MINE,,Invented rule-pack example notice belongs to DEL-06-05.
+RC-06-0180,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0181,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0182,PARTIAL,DEL-06-04:SOW#CLM-010/R-06-04-007;DEL-06-04:SOW#CLM-010/R-06-04-001,"Owns the lifecycle, privacy-export and checksum-match findings this validator surfaces; grammar and formula decoding belong to DEL-06-01/DEL-06-02."
+RC-06-0183,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0184,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0185,CONSTRAINS,DEL-06-04:SOW#CLM-010/R-06-04-007;DEL-06-04:SOW#CLM-010/R-06-04-009,Code-neutral analysis boundary is the cited basis for lifecycle diagnostics and status separation.
+RC-06-0186,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0187,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0188,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0189,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0190,NOT_MINE,,Declarations editor is rule-pack GUI work; its private-by-default placeholders echo R-06-04-002 but the editor is not this backend slice.
+RC-06-0191,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0192,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0193,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0194,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0195,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0196,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0197,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0198,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0199,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0200,NOT_MINE,,The invented demo rule pack is DEL-06-05's example; cited here only as evidence that committed rule-pack content is invented.
+RC-06-0201,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0202,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0203,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0204,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0205,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0206,NOT_MINE,,"Professional boundary policy is governing text restated by R-06-04-009; owned by governance, not this deliverable."
+RC-06-0207,CLAIMED_BY,DEL-06-04:SOW#CLM-010/R-06-04-001;DEL-06-04:SOW#CLM-010/R-06-04-007;DEL-06-04:SOW#CLM-010/R-06-04-009;DEL-06-04:CONTEXT#description,"The rule_pack_lifecycle crate is this deliverable's implemented slice: lifecycle record, privacy/redistribution/review state, checksum records, grammar-version binding and lifecycle findings."
+RC-06-0208,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0209,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0210,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0211,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0212,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0213,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0214,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0215,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0216,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0217,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0218,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0219,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0220,NOT_MINE,,Project AGENTS.md is agent instruction text cited only as the INIT.md successor context; not a rule-pack capability.
+RC-06-0221,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0222,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0223,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0224,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0225,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0226,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0227,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0228,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0229,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0230,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0231,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0232,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0233,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0234,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0235,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0236,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0237,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0238,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0239,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0240,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0241,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0242,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0243,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0244,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0245,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0246,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0247,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0248,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0249,NOT_MINE,,Planning registers are cited only to check identification fields; not a product capability.
+RC-06-0250,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0251,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0252,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0253,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0254,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0255,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0256,NOT_MINE,,Expression codec in rule_pack_document serves DEL-06-01/DEL-06-02 grammar handling; this deliverable claims only the checksum and lifecycle-validation functions of that crate.
+RC-06-0257,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0258,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0259,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0260,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0261,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0262,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0263,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0264,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0265,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0266,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0267,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0268,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0269,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0270,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0271,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0272,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0273,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0274,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0275,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0276,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0277,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0278,NOT_MINE,,Secret/private-library reference controls are PKG-12's (R-06-04-011 deferral).
+RC-06-0279,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0280,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0281,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0282,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0283,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0284,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0285,COVERS,DEL-06-04:SOW#CLM-010/R-06-04-002,New drafts are private_user_data/private_only by default (R-06-04-002 evidence); the panel and local store are storage/GUI work that this SOW defers elsewhere.
+RC-06-0286,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0287,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0288,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0289,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0290,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0291,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+RC-06-0292,NOT_MINE,,Outside DEL-06-04 scope (private rule-pack lifecycle metadata and checksum handling); no issued key covers this capability and none of its entry points is cited by this ledger.
+#END,,,292

@@ -1,0 +1,10 @@
+# Validation DEL-06-04 (manager, W3 PKG-06)
+forward_sha256=220ad850d7fa39bcce28757d796beb849c336fb7cb91c48968d177c9015373d6
+reverse_sha256=acace4f632291d7c6237ae5459c77e45a6b22db138a5abcf6f298f91c1d85964
+seal: SEALED DEL-06-04 220ad850d7fa39bcce28757d796beb849c336fb7cb91c48968d177c9015373d6 2026-09-22T00:11:38Z
+sentinel_forward: 1  sentinel_reverse: 1
+notes_present: yes
+--- validator: --forward --reverse --inventory --notes-gap
+PASS DEL-06-04: 116 forward rows, 80 required keys, 7 canonical, 0 findings
+exit=0
+--- seal check: recomputed=220ad850d7fa39bcce28757d796beb849c336fb7cb91c48968d177c9015373d6 seal=220ad850d7fa39bcce28757d796beb849c336fb7cb91c48968d177c9015373d6 worker_reported=220ad850d7fa39bcce28757d796beb849c336fb7cb91c48968d177c9015373d6 result=MATCH

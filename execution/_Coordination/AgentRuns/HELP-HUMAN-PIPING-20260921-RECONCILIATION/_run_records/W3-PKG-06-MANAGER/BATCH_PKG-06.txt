@@ -1,0 +1,4 @@
+# Batch PKG-06 (manager, W3) over all 5 forward ledgers
+resolutions: ls: projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/RESOLUTIONS.csv: No such file or directory
+PASS batch of 5 ledgers: 0 consistency findings
+exit=0
