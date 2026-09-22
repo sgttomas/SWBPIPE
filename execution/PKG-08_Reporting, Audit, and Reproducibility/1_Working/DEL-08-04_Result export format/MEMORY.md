@@ -481,3 +481,7 @@ Versioned canonical result derivatives use strict supported-version contracts an
 ## 2026-09-15 — Versioned result export foundation
 
 Accepted source `8ad37207cf088025623aa1e777a97a6fcb802f48` adds strict source-preserving 0.2 result derivatives and guarded local-private browser/native delivery while retaining 0.1 dispatch. For 0.2, raw rows remain unchanged and semantic qualification supplies derivative interpretation; legacy dimension binding remains 0.1-only. Target-format numerical conversion remains open. Acceptance: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/FINAL_ACCEPTANCE_V1.md` (SHA-256 `e894ddf341a99bfea72270deb89a31d2d321068209b7399db3217bc5b08b851d`).
+
+## 2026-09-22 — SCA-011 interface responsibility
+
+Consumes and maps the DEL-14-05 common comparison-result/export interface into general result exports; does not own comparison mathematics or tolerance policy. Existing accepted 0.1/0.2 result contracts and raw-source preservation remain governing. Bind comparison mapping/export round trips to the accepted version of the DEL-14-05 interface before claiming comparison-envelope conformance. Preserve source identity, diagnostics, units, raw rows, unmatched records, hashes and professional boundaries. Drafts and semantic checks: `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/INTERFACE_CONTRACTS.md`. This records responsibility, not implemented contract conformance or lifecycle promotion.

@@ -2,7 +2,7 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-16-02
 package_id: PKG-16
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577
 project_scope_refs: [SOW-069]
 package_objective_refs: [OBJ-015]
 ---
@@ -127,7 +127,7 @@ This Scope of Work defines `DEL-16-02` in service of project scope [SOW-069] and
 > | REQ-16-02-004 | The slice must create deterministic diff previews before controlled application for supported operation/change inputs. | SOW-069; `_CONTEXT.md#Description`; `Dependencies.csv` rows `DAG-002-E0829`, `DAG-002-E0830`; `core/model_operations/validation_preview/engine.py` | `test_valid_operation_generates_stable_preview_without_mutating_state` compares canonical JSON for repeated preview output and checks before/after fixture values; final diff payload contract beyond current fixture-backed rows remains TBD. |
 > | REQ-16-02-005 | Invalid operations must be blocked before application and accepted model state must remain unchanged. | `_CONTEXT.md#Context Envelope`; `execution/_Decomposition/SOFTWARE_DECOMP.md#PKG-16`; `core/model_operations/validation_preview/engine.py` | Current output reports `application_status: not_applied`, `accepted_model_state_unchanged`, blocked preview status for validation failures, and no mutation of the accepted input state. Controlled persistence/application API remains outside this slice. |
 > | REQ-16-02-006 | Validation and preview outcomes must use structured diagnostics/result-envelope conventions and must not claim certification, sealing, approval, authentication, professional approval, or code compliance (PRD §21.2). | `execution/_Decomposition/SOFTWARE_DECOMP.md#8`; `docs/SPEC.md#4.3`; `docs/CONTRACT.md#Invariant index`; `schemas/model_operation.schema.json` | Current engine returns structured diagnostics, provenance, and professional-boundary booleans; `test_output_boundary_language_does_not_make_prohibited_claims` and schema tests check prohibited claim boundaries. Final cross-package diagnostic/result-envelope schema mapping remains TBD. |
-> | REQ-16-02-007 | The implementation must preserve layer/module boundaries: GUI, application services, domain core, schemas, validation, diagnostics, persistence, and tests must not be bypassed by adapters, plugins, or agents. | `execution/_Decomposition/SOFTWARE_DECOMP.md#8`; `docs/SPEC.md#4.4`; `core/model_operations/validation_preview/engine.py` | Current slice is a backend validation/preview module with read-only fixture tests and no GUI, persistence, approval, or application behavior; downstream application/user acceptance remains DEL-16-03. |
+> | REQ-16-02-007 | The implementation must preserve layer/module boundaries: GUI, application services, domain core, schemas, validation, diagnostics, persistence, and tests must not be bypassed by adapters, plugins, or agents. | `execution/_Decomposition/SOFTWARE_DECOMP.md#8`; `docs/SPEC.md#4.4`; `core/model_operations/validation_preview/engine.py` | Current slice is a backend validation/preview module with read-only fixture tests and no GUI, persistence, approval, or application behavior; downstream user acceptance remains DEL-16-03 and application execution is assigned to DEL-16-06 by SCA-011. |
 > | REQ-16-02-008 | The slice must be covered by validation tests aligned with the approved layered testing baseline. | `_CONTEXT.md#Anticipated Artifacts`; `execution/_Decomposition/SOFTWARE_DECOMP.md#8` | Focused tests cover schema failure, constraint failure, canonical dimension blocking, preview determinism, model-basis/current-hash checks, no-apply/no-mutation behavior, and professional-boundary cases. |
 >
 
@@ -348,8 +348,19 @@ This Scope of Work defines `DEL-16-02` in service of project scope [SOW-069] and
 > |---|---|---|---|---|---|---|
 > | None | No source conflict identified in the accessible slices. Current implementation evidence resolves earlier generic implementation-path/schema-path/test-fixture TBDs, while downstream APIs, final diff contract, persistence/application behavior, and human dispositions remain TBD. | N/A | N/A | N/A | N/A | N/A |
 
+### CLM-027 — SCA-011 Validation-to-application handoff
+
+**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
+
+Retain schema/constraint validation and deterministic preview with accepted-state nonmutation. DEL-16-03 owns explicit user acceptance and audit policy; DEL-16-06 owns application execution. Neither key-presence checks nor preview tests substitute for schema conformance or actual product application evidence.
+
+- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.
+- **AC-002** — The named boundary is honored, its witness is bound to the tested candidate, and missing or held results remain explicit. Ownership assignment alone is not a pass.
+- **VER-002** — Verify schema-invalid, blocked, stale-basis and direct-mutation cases, then trace valid preview/acceptance handoff to DEL-16-06 without making this preview module mutating.
+
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-069 OBJ-015 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+| OUT-002 | OBJ-015 | CLM-027 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |

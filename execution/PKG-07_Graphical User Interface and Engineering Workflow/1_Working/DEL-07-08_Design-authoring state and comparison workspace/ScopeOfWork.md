@@ -2,7 +2,7 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-07-08
 package_id: PKG-07
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577
 project_scope_refs: [SOW-076]
 package_objective_refs: [OBJ-015, OBJ-016]
 ---
@@ -341,8 +341,19 @@ This Scope of Work defines `DEL-07-08` in service of project scope [SOW-076] and
 > |---|---|---|---|---|---|---|
 > | None observed in production-document drafting | No cross-document content conflict was found during four-doc Pass 2. | TBD | TBD | TBD | N/A | TBD |
 
+### CLM-030 — SCA-011 Feature interaction and shared shell boundary
+
+**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
+
+Retain operation review/apply interaction and ledger presentation (CAP-WSUI-027/028/029), offline/agent proposal review and comparison workflows. DEL-07-11 owns common shell/session coordination (CAP-WSUI-011/012), DEL-16-06 execution, and DEL-14-05 the common comparison interface. Existing extraction/run evidence remains here as historical provenance.
+
+- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.
+- **AC-002** — The named boundary is honored, its witness is bound to the tested candidate, and missing or held results remain explicit. Ownership assignment alone is not a pass.
+- **VER-002** — Trace explicit review/apply through acceptance and application with truthful receipt and comparison identity. Shared session extraction does not erase feature obligations or establish durable acceptance-history closure.
+
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-076 OBJ-015 OBJ-016 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+| OUT-002 | OBJ-015 OBJ-016 | CLM-030 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |

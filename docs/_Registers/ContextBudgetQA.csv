@@ -40,10 +40,10 @@ DEL-06-02,PKG-06,L,WATCH,Confirm scope and split if it expands,"Evaluator must r
 DEL-06-03,PKG-06,M,OK,Proceed with bounded Type 2 brief,Connects user data to rule-pack gating.
 DEL-06-04,PKG-06,M,OK,Proceed with bounded Type 2 brief,Checksum handling must align with SCA-001 canonical JSON/JCS hash basis where payloads are JSON.
 DEL-06-05,PKG-06,S,OK,Proceed with bounded Type 2 brief,Example only; no proprietary content.
-DEL-07-01,PKG-07,L,WATCH,Confirm scope and split if it expands,Viewport baseline is Tauri/React/Vite with Three.js; component/state details remain TBD.
-DEL-07-02,PKG-07,M,OK,Proceed with bounded Type 2 brief,Single UI work surface.
-DEL-07-03,PKG-07,L,WATCH,Confirm scope and split if it expands,Multiple editors but same GUI domain; may split later.
-DEL-07-04,PKG-07,M,OK,Proceed with bounded Type 2 brief,High-value UX slice.
+DEL-07-01,PKG-07,L,WATCH,Confirm scope and split if it expands,"Palette implementation has keyed ownership; vocabulary and coverage remain DEL-07-09. No shell, storage or solver ownership transfer."
+DEL-07-02,PKG-07,M,WATCH,Keep existing envelope; dispatch one finite interaction family per bounded brief and review expansion,Generic selected-load inspection belongs here; load-manager editing belongs to DEL-07-03. Dedicated support-editor slice is not activated.
+DEL-07-03,PKG-07,L,WATCH,Confirm scope and split if it expands,"Finite editor surfaces only; support/restraint implementation is DEL-07-02. Generation mathematics, schema and provenance contracts stay with their owners."
+DEL-07-04,PKG-07,M,WATCH,Keep existing envelope; dispatch one finite interaction family per bounded brief and review expansion,"GUI consumes PKG-06 runner, DEL-05-04 status and DEL-02-02 units; no numerical or rule-policy ownership transfer."
 DEL-07-05,PKG-07,L,WATCH,Confirm scope and split if it expands,Results surface is substantial but one domain.
 DEL-07-06,PKG-07,M,OK,Proceed with bounded Type 2 brief,May refine once GUI framework chosen.
 DEL-07-07,PKG-07,M,OK,Proceed with bounded Type 2 brief,Solve UX must use command/job cancellation/progress and diagnostics/result-envelope contracts.
@@ -72,7 +72,7 @@ DEL-12-02,PKG-12,M,OK,Proceed with bounded Type 2 brief,Security-sensitive but b
 DEL-12-03,PKG-12,S,OK,Proceed with bounded Type 2 brief,May be no-op in MVP.
 DEL-12-04,PKG-12,M,OK,Proceed with bounded Type 2 brief,Avoids cloud assumptions.
 DEL-12-05,PKG-12,M,OK,Proceed with bounded Type 2 brief,Document now; update as architecture matures.
-DEL-07-08,PKG-07,L,WATCH,Confirm scope and split if it expands,Adds design-authoring and comparison workspace to the GUI workflow.
+DEL-07-08,PKG-07,L,WATCH,Confirm scope and split if it expands,"Feature interaction remains here; shared shell/session coordination is DEL-07-11, execution DEL-16-06, comparison interface DEL-14-05."
 DEL-08-06,PKG-08,M,OK,Proceed with bounded Type 2 brief,Reports draw from state/run/comparison/handoff records and preserve professional-boundary wording.
 DEL-13-01,PKG-13,M,OK,Proceed with bounded Type 2 brief,No protected owner standards or project data in public examples.
 DEL-13-02,PKG-13,M,OK,Proceed with bounded Type 2 brief,Constraint records must identify user/project/import/agent/source provenance where known.
@@ -100,4 +100,8 @@ DEL-17-06,PKG-17,M,OK,Proceed with bounded Type 2 brief,Result/export assurance 
 DEL-17-07,PKG-17,L,WATCH,Confirm scope and split if it expands,PCF is useful for interoperability but not the first validation backbone; translator behavior remains explicitly bounded.
 DEL-17-08,PKG-17,M,OK,Proceed with bounded Type 2 brief,"Review geometry is visual handoff support only, not solver geometry or professional validation."
 DEL-17-09,PKG-17,L,WATCH,Confirm scope and split if it expands,Adapter extensibility target sequenced after common profile and package contracts.
-DEL-07-09,PKG-07,L,WATCH,Confirm scope and split if it expands,Contract/coverage slice owning the SCA-009 ratified operation vocabulary and single palette surface; envelope L per owner ruling; watch scope if editor implementation (R-005/R-006 successors) lands here rather than in sibling slices.
+DEL-07-09,PKG-07,L,WATCH,Confirm scope and split if it expands,"R-005/R-006 are coverage-accountability landings only: load/combination editing DEL-07-03, support editing DEL-07-02, palette rendering/routing DEL-07-01. OPEN lifecycle preserved."
+DEL-04-07,PKG-04,L,WATCH,One bounded interface/interaction tranche per TASK; reassess envelope before expanding inventory,"Finite integration boundary; mathematical primitives, convergence policy and engineering acceptance remain with their owners."
+DEL-07-11,PKG-07,L,WATCH,One bounded interface/interaction tranche per TASK; reassess envelope before expanding inventory,"Own common hosting and coordination only; feature-panel semantics, storage, solve UX and architecture remain with their owners."
+DEL-07-12,PKG-07,L,WATCH,One bounded interface/interaction tranche per TASK; reassess envelope before expanding inventory,"Consumption, rendering and explicit dispatch only; no exporters, schema semantics, licensed process invocation or new adapter families."
+DEL-16-06,PKG-16,M,OK,One bounded interface/interaction tranche per TASK; reassess envelope before expanding inventory,"One mutation seam; schema, preview, user acceptance, audit policy and durable persistence remain separate responsibilities."

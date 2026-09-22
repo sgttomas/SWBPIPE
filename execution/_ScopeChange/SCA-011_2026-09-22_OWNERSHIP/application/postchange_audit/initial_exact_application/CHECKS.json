@@ -1,0 +1,28 @@
+{
+  "python": "3.13.7 (v3.13.7:bcee1c32211, Aug 14 2025, 19:10:51) [Clang 16.0.0 (clang-1600.0.26.6)]",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "raw_check_count": 25,
+  "failed_raw_checks": [],
+  "matrix_rows": 106,
+  "artifact_sha256": {
+    "register_validation.txt": "0ffc06960f46a8e023d313545c9bd8f43e5394014b56d0dd7cb4978f46571a62",
+    "audit_poststate.py": "d202a53c018c468b168055f7db13ff16f80a924733e43329daf96ec9278b592b",
+    "SOURCES.json": "9ab13039385506ec9402f7fa70e593dba9f80796691fc9e4f0faa24458a56bcd",
+    "register_validation.json": "504e8654c9aadae18228597beb7fe166b76d066d9e657fb3f7d510e085fa26ec",
+    "artifact_inventory.json": "d0caf98df3eb825d86818b8e622e90fc9a0136085f28e416f5541158fc2c92bd",
+    "RUN_SUMMARY.md": "d822376466eb7e1d675dde806198e7b15c345610a3565b90d1b711cb95f10283",
+    "Decomp_Coverage_IssueLog.csv": "7ea6aa9aa7fa0956fb0f6a254aba1d8269c521d7a73a8058ddcef0f9257ebeb1",
+    "Decomp_Coverage_Matrix.csv": "4929303733222ab4a8799d2f95ff09064f4cea5fc226b6d43b5ae75c7ba98322",
+    "Decomp_Coverage_Report.md": "dace969a26ef8c8795658fe6485014c4c22ade25c85a1f257ca35f1ff3bd5b1c",
+    "audit_stdout.json.txt": "7016d558eee6b79cb9f81788ad339c104129fac0977c12a5f70be7a2950cfc89",
+    "sow_validation.json": "d048531d2971e629e39866041eea9f65ab6eb7092b0b19cb3c64891df2fb4c2e",
+    "Decision_Log.md": "0e87f84720ef447a3ef9303fb5cbbb83da40d6861d37412fc4e3a7dd42ea27a7",
+    "raw_checks.json": "35bc123acb7ccc1273d9b9a671ec3519b238388d5fd66e515fec8c63b055ce96",
+    "inventory.json": "4dbbbd37fdbbfadef196ddeb820ce5fca497c22d7b03726ba4e2c7aa09305963",
+    "Brief.md": "2121433da5fc72a3b3e2a696a3985af41b0bfd6e6f708017ee76b905f0eea794",
+    "register_comparison.json": "8903cfb66fe14f8abbd86dd2b2274f294e4e43ecc2b98bbc5797694d48e10e2c",
+    "coverage_summary.json": "6a0a3be5666c1d0c3e7ed58b31a804fcb79ef368cd087f45c7db98fa1325ca1b",
+    "QA_Report.md": "b1c88c53f235c16ff89cc1e5c715200f4527459d966fae1d6987d92766b939f2",
+    "assemble_report.py": "63c56114404d1e7ccda5e19ec3352e9e0c991593af58569bb6540df237b260b0"
+  }
+}

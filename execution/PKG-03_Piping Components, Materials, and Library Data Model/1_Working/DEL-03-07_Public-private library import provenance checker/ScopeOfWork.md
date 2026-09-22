@@ -2,8 +2,8 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-03-07
 package_id: PKG-03
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
-project_scope_refs: [SOW-019, SOW-044]
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577
+project_scope_refs: [SOW-019,SOW-044]
 package_objective_refs: [OBJ-002, OBJ-004]
 ---
 
@@ -323,8 +323,19 @@ This Scope of Work defines `DEL-03-07` in service of project scope [SOW-019, SOW
 > | DEL-03-07-C3 | Public source catalog and policy | The checker gates on metadata values, but no approved public source catalog or legal/license policy is defined locally. | TBD |
 > | DEL-03-07-C4 | Fixture-value authority | Tests use invented minimal values; no fixture value is approved for engineering reliance. | TBD |
 
+### CLM-027 — SCA-011 DEC-103 hanger provenance
+
+**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
+
+Retain provenance checking and rights-safe fixture responsibilities for user-imported hanger libraries under DEL-03-07; DEL-03-02 owns schema, DEL-07-03 UI and DEL-07-09 coverage.
+
+- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.
+- **AC-002** — The named boundary is honored, its witness is bound to the tested candidate, and missing or held results remain explicit. Ownership assignment alone is not a pass.
+- **VER-002** — Exercise accepted/private/rejected/quarantined hanger input paths under the owned provenance contract; no source-license authority is inferred from a passing parser.
+
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-019 SOW-044 OBJ-002 OBJ-004 | CLM-007 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+| OUT-002 | OBJ-002 OBJ-004 | CLM-027 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |

@@ -4,7 +4,8 @@
 **Last Updated:** 2026-09-22
 
 ## Remaining
-- Hold PDU-023 continuation from analytical field-scalar trace paths into a runtime result envelope until an accepted producer/home binds those existing contracts (source: D-41 R5 T2C E6, 2026-07-12)
+- SCA-011 interface follow-through: PDU-023 now has the DEL-13-04 responsibility home through SCA-011; accepted envelope binding and wider scalar/runtime trace evidence remain outstanding. REQ-012 remains unchanged: the internal solver-boundary adapter is not a public API, GUI/runtime path, external prover path or final solver-acceptance claim.
+- Hold PDU-023 continuation from analytical field-scalar trace paths into a runtime result envelope until the SCA-011 DEL-13-04 producer responsibility is realized by an accepted binding of those existing contracts (source: D-41 R5 T2C E6, 2026-07-12)
 - Hold PDU-047 broader 3D centerline/frame mechanics suitability validation; the bounded section-property oracle does not independently validate the transform target boundary (source: D-41 R5 T2B E2/E4/E8 evidence-only backcheck, 2026-07-12)
 - Preserve PDU-036 as verification-only evidence: the invented trace-gap fixture links one omitted unsupported component to its `ASSUMPTION_WARNING` diagnostic and emits no invalid scalar trace, but independent validation and broader field/runtime-result trace coverage remain open.
 
@@ -24,3 +25,5 @@
 - 2026-07-12 - D-41 R5 T4 PDU-036 added a bounded invented omission/warning/assumption trace-gap fixture and focused test; evidence remains verification-only and lifecycle remains IN_PROGRESS.
 - 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).
 - 2026-09-22 - R5 concordance record repair applied under current owner direction and Agent 0's bounded brief; corrected declared-state/Remaining facts or amendment metadata against the recorded basis. Exact before/after operations and evidence are in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5/TASKS/STATUS_REPAIR/operations.json`. Lifecycle state, human/reviewer holds and release/engineering-acceptance boundaries are unchanged.
+
+- 2026-09-22 — SCA-011 interface allocation: Owns the TransformResult production contract and its authoritative versioned schema, preserving physical source identity, analytical derivation, units, diagnostics and traceability. Named schema remains a review-only draft; lifecycle and unrelated holds unchanged.

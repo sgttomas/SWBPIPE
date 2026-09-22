@@ -1,0 +1,32 @@
+Register validation — projects/chirality-piping/execution
+  Families: SCH, EVQ, XRG, DRB
+  Registers scanned: 98  Dependency rows: 1571  Deliverables declared: 0
+  SKIPPED: XRG family (Deliverables.csv and/or ScopeLedger.csv absent)
+
+Evidence-cell metrics by row class
+  class         rows  well-formed  locus=quote  quoted-locus  empty-quote  ph-locus  waived  file-pop  file-res
+  ANCHOR         404           99            0             0           22         0       0       404       121
+  EXECUTION     1167          686            0             0           62         1       0      1167       749
+
+Findings
+  ERROR EVQ-006 PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-01_Project governance baseline/Dependencies.csv:6 [DEL-01-01-A001] — EvidenceFile does not resolve under projects/chirality-piping: 'execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-01_Project governance baseline/Datasheet.md'
+  ERROR EVQ-006 PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-01_Project governance baseline/Dependencies.csv:7 [DEL-01-01-A002] — EvidenceFile does not resolve under projects/chirality-piping: 'execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-01_Project governance baseline/Datasheet.md'
+  ERROR DRB-006 PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-01_Project governance baseline/Dependencies.csv:2 [DAG-002-E0001] — DependencyID does not start with 'DEP-01-01'
+  ERROR DRB-006 PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-01_Project governance baseline/Dependencies.csv:3 [DAG-002-E0002] — DependencyID does not start with 'DEP-01-01'
+  ERROR EVQ-003 PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv:2 [SCA011-E001] — EvidenceQuote is blank; the row asserts a dependency with no quoted source text
+  ERROR EVQ-003 PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv:3 [SCA011-E002] — EvidenceQuote is blank; the row asserts a dependency with no quoted source text
+  ERROR EVQ-004 PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-02_Stress recovery benchmark suite/Dependencies.csv:11 [DAG-002-E0539] — SourceRef is a placeholder, not a citable locus: 'location TBD'
+  ... DRB-006: 1477 further occurrence(s) suppressed (--max-per-code 2; full list in --json)
+  ... EVQ-003: 82 further occurrence(s) suppressed (--max-per-code 2; full list in --json)
+  ... EVQ-006: 699 further occurrence(s) suppressed (--max-per-code 2; full list in --json)
+
+Summary by check code
+  ERROR   DRB-006   1479  DependencyID prefix disagrees with FromDeliverableID
+  ERROR   EVQ-003     84  Empty-evidence row: EvidenceQuote is blank
+  ERROR   EVQ-004      1  Placeholder locus: SourceRef is blank or a placeholder token (e.g. 'location TBD')
+  ERROR   EVQ-006    701  EvidenceFile path does not resolve on disk
+
+  ERROR findings:   2265
+  WARNING findings: 0
+
+  JSON report: /private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/postchange_audit/register_validation.json

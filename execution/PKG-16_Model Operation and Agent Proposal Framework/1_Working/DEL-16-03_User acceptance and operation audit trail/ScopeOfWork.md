@@ -2,8 +2,8 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-16-03
 package_id: PKG-16
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
-project_scope_refs: [SOW-069, SOW-070]
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577
+project_scope_refs: [SOW-069,SOW-070]
 package_objective_refs: [OBJ-015]
 ---
 
@@ -78,7 +78,7 @@ This Scope of Work defines `DEL-16-03` in service of project scope [SOW-069, SOW
 > | Long-term retention policy | TBD; rejected operations are recorded in the current payload, but durable retention duration and disposal rules are not defined. |
 > | Final actor identity model beyond current fields | TBD; current fields include `actor_type`, `actor_ref`, and `source_role`, but final identity/authentication semantics are not defined. |
 > | Timestamp precision policy beyond current fixture evidence | TBD; current fixture/test evidence uses ISO-like UTC strings, but project-wide precision/clock policy is not defined. |
-> | Operation application outside this slice | TBD; this slice records audit decisions and explicitly does not apply operations. |
+> | Operation application outside this slice | DEL-16-06 under SCA-011; this slice records acceptance/audit decisions and explicitly does not apply operations. Outcome and durable-history conformance remain to be demonstrated. |
 > | Human review dispositions | TBD; review finding disposition fields remain subject to the human disposition gate. |
 > | Exact dependency versions | TBD per `_CONTEXT.md` architecture basis injection. |
 > | Protected or proprietary engineering data in public examples | Not permitted by `docs/DIRECTIVE.md` section 3 and `docs/IP_AND_DATA_BOUNDARY.md` sections 3-5. |
@@ -336,7 +336,7 @@ This Scope of Work defines `DEL-16-03` in service of project scope [SOW-069, SOW
 > | Rejected-operation retention | Current payload records rejected operations without mutating state; durable retention duration and storage remain TBD. |
 > | Agent autonomy | Keep explicit user acceptance as the accepted-record gate; do not infer autonomous acceptance from agent proposal capability. |
 > | Blocked validation | Treat blocking validation or preview evidence as preventing accepted status; record diagnostics visibly instead of upgrading status. |
-> | Accepted-state handling | Treat audit recording as nonmutating; operation application belongs outside this slice until separately resolved. |
+> | Accepted-state handling | Treat audit recording as nonmutating; DEL-16-06 owns application and its actual-outcome handoff, while acceptance/audit policy remains here. |
 > | Professional wording | Use audit/review/development acceptance language; avoid professional approval or code-compliance wording (PRD §21.2). |
 > | Dependency mirror handling | Preserve approved DAG-006 rows as ACTIVE; do not reinterpret the mirror as a fresh extraction result. |
 >
@@ -358,8 +358,19 @@ This Scope of Work defines `DEL-16-03` in service of project scope [SOW-069, SOW
 > |---|---|---|---|---|---|---|
 > | TBD | Durable persistence container, long-term retention policy, final actor identity model beyond `actor_type`/`actor_ref`/`source_role`, timestamp precision policy beyond current fixture evidence, operation application outside this slice, and human review dispositions are not resolved by the current implementation evidence. | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md`; `core/model_operations/audit_trail/engine.py`; focused tests | No persistence container, retention policy, final identity policy, timestamp policy, application workflow, or human disposition ruling present | Datasheet Conditions; Specification Documentation; Procedure Records | Future sealed Type 2 implementation brief or human governance ruling | TBD |
 
+### CLM-029 — SCA-011 Acceptance-to-application handoff
+
+**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
+
+Retain acceptance and audit record policy without applying operations or mutating accepted state. DEL-16-06 owns controlled application and returns actual outcomes; DEL-02-05 owns durable persistence. Pre-application accepted decisions and post-application outcome receipts are distinct. Actor type alone is not identity evidence; retention, actor policy and durable history remain open.
+
+- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.
+- **AC-002** — The named boundary is honored, its witness is bound to the tested candidate, and missing or held results remain explicit. Ownership assignment alone is not a pass.
+- **VER-002** — Verify acceptance on nonblocking hash-bound preview/current basis and truthful receipt handoff, including rejected/held nonmutation and absent actual outcome; preserve the existing durable accepted/rejected-history residual.
+
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-069 SOW-070 OBJ-015 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+| OUT-002 | OBJ-015 | CLM-029 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |

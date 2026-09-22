@@ -2,8 +2,8 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-07-01
 package_id: PKG-07
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
-project_scope_refs: [SOW-020]
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577
+project_scope_refs: [SOW-020,SOW-077]
 package_objective_refs: [OBJ-006]
 ---
 
@@ -407,8 +407,19 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 > - This setup document intentionally does not implement product UI.
 > - Future work should escalate if the viewport/editor slice needs to exceed `DEL-07-01` scope or introduce protected/private data.
 
+### CLM-033 — SCA-011 Palette implementation
+
+**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
+
+Own palette rendering and routing under DEL-07-09 vocabulary coverage and single organization contract, including CAP-VIEW-025/026. Commands use the PKG-16 seam, whose application owner is DEL-16-06; no reverse execution prerequisite to the coverage consumer is implied.
+
+- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.
+- **AC-002** — The named boundary is honored, its witness is bound to the tested candidate, and missing or held results remain explicit. Ownership assignment alone is not a pass.
+- **VER-002** — Map accepted annex rows to UI/operation routes, held and unsupported states; verify no alternate mutation path. Menu visibility alone is not functional completion.
+
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-020 OBJ-006 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+| OUT-002 | OBJ-006 | CLM-033 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |

@@ -2,8 +2,8 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-07-03
 package_id: PKG-07
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
-project_scope_refs: [SOW-021]
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577
+project_scope_refs: [SOW-021,SOW-077]
 package_objective_refs: [OBJ-006]
 ---
 
@@ -128,8 +128,8 @@ This Scope of Work defines `DEL-07-03` in service of project scope [SOW-021] and
 >
 > | Requirement | DEL-07-03 current state |
 > |---|---|
-> | `DEL-07-03-R-005` | Load-case editor remains documented unimplemented in this owner; adjacent authoring is not an ownership binding. |
-> | `DEL-07-03-R-006` | Support/restraint editor remains documented unimplemented in this owner; unsupported-kind evidence blocks mutation. |
+> | `DEL-07-03-R-005` | SCA-011 assigns load-case/combination editor implementation to DEL-07-03, with coverage accountability at DEL-07-09; historical implementation findings retain their source binding. |
+> | `DEL-07-03-R-006` | SCA-011 assigns support/restraint implementation to DEL-07-02, with coverage accountability at DEL-07-09; unsupported-kind evidence continues to block mutation. |
 >
 
 ### CLM-009 — D-41 R5 T7 PDU-054 current declaration
@@ -179,7 +179,7 @@ This Scope of Work defines `DEL-07-03` in service of project scope [SOW-021] and
 > | DEL-07-03-R-003 | The material editor shall require provenance/source status for material records and shall not provide protected public material allowables or code tables. | `docs/TYPES.md` sections 7 and 8; `docs/CONTRACT.md` `OPS-K-DATA-1`, `OPS-K-DATA-3`, `OPS-K-IP-1` |
 > | DEL-07-03-R-004 | The section and component editors shall treat dimensions, weights, centers of gravity, SIFs, flexibility factors, stiffnesses, and proprietary catalog values as user-supplied or lawfully imported data with provenance. | `docs/SPEC.md` sections 3 and 4.3; `docs/DIRECTIVE.md` section 3 |
 > | DEL-07-03-R-005 | The load-case editor shall support unit-aware editor input for load cases while leaving code-specific load combinations to user project inputs or rule packs. | `docs/SPEC.md` sections 3 and 5; `docs/CONTRACT.md` `OPS-K-UNIT-1`, `OPS-K-DATA-1` |
-> | DEL-07-03-R-006 | The support/restraint editor shall surface fields needed to represent support/restraint behavior and shall not hide nonlinear active-state uncertainty or non-convergence findings. | `docs/SPEC.md` sections 3, 4.4, and 7 |
+> | DEL-07-03-R-006 | The support/restraint editor implemented by DEL-07-02 shall surface fields needed to represent support/restraint behavior and shall not hide nonlinear active-state uncertainty or non-convergence findings; DEL-07-09 records its R-006 coverage. | `docs/SPEC.md` sections 3, 4.4, and 7 |
 > | DEL-07-03-R-007 | The rule-pack reference editor shall expose rule-pack identity, version, checksum, source notice, redistribution status, required inputs, and missing required-input findings. | `docs/SPEC.md` section 6; `docs/CONTRACT.md` `OPS-K-RULE-1`, `OPS-K-RULE-2`, `OPS-K-RULE-3` |
 > | DEL-07-03-R-008 | Editor mutations shall be modeled as application-service command interactions, not direct bypasses of domain validation, unit checks, provenance checks, or public/private data boundaries. | `docs/SPEC.md` section 1; `execution/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-02`, `AB-00-03`, `AB-00-07` |
 > | DEL-07-03-R-009 | Editor state shall separate durable project/model data from transient session, selection, validation, and job-progress state; exact state-management library remains TBD. | `_CONTEXT.md` "Still TBD"; `execution/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-05` |
@@ -553,13 +553,21 @@ This Scope of Work defines `DEL-07-03` in service of project scope [SOW-021] and
 
 > ##### D-41 R5 T5 PDU-041 guidance
 >
-> Do not treat adjacent load-case or support authoring surfaces as DEL-07-03
-> implementation without an accepted ownership binding. Preserve the local
-> unsupported-kind behavior and documented GUI absence; no new editor kind,
-> feature attribution, or scope is selected here.
+> SCA-011 supplies the forward ownership binding: DEL-07-03 owns load-case/combination editing and self-weight-plan interaction; DEL-07-02 owns support/restraint creation and editing; DEL-07-09 retains R-005/R-006 coverage accountability. Historical PDU-041 observations remain source-bound evidence, not a continuing absence-of-owner rule. Existing unsupported behavior and unmet verification remain visible.
+
+### CLM-042 — SCA-011 Load, library and self-weight interaction
+
+**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
+
+Own load-case/combination editing, self-weight-plan interaction and material/section/component/library editors through PKG-16. R-005 implementation lands here; R-006 support implementation lands in DEL-07-02; DEL-07-09 retains coverage accountability. Hanger libraries remain user-imported under DEC-103, with schema/provenance DEL-03-02/07.
+
+- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.
+- **AC-002** — The named boundary is honored, its witness is bound to the tested candidate, and missing or held results remain explicit. Ownership assignment alone is not a pass.
+- **VER-002** — Exercise each named UI route through owned operations and valid/invalid unit/provenance cases; distinguish DEL-05-01 generation, DEL-03-08 mass and DEL-04-07 integration. Retain unmet coverage and independent usability/security holds.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-021 OBJ-006 | CLM-010 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+| OUT-002 | OBJ-006 | CLM-042 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |

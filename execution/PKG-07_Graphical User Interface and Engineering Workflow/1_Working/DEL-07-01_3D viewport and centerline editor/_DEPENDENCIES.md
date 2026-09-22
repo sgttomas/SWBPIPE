@@ -1,3 +1,44 @@
+# Dependency mirror — DEL-07-01
+
+**APPLIED; GROUP 3 PENDING.** SCA-011 Group 2 applied this local mirror. DAG-010 remains the accepted graph authority; the added rows await Group 3 audited poststate acceptance and DAG-011 adoption. No source lifecycle, contract readiness or dependency satisfaction is promoted.
+
+## Declared upstream/downstream lists
+
+No new human-declared list is created. Existing declared lists, if any, are preserved in the quoted historical index below. Added relations are EXTRACTED from the ownership amendment. Their Group 2 application is recorded; their adoption into graph authority awaits Group 3. Origin=EXTRACTED records provenance and is not a human declaration.
+
+## Extracted Dependency Register
+
+20 rows: {'ACTIVE': 20}. Classes: {'ANCHOR': 3, 'EXECUTION': 17}. Preserved local rows: 18; additive rows: 2; changed/retired rows: zero.
+
+| Added edge | Type | Target | Satisfaction |
+|---|---|---|---|
+| DEP-07-01-001 | EXECUTION/PREREQUISITE | DEL-16-06 | PENDING |
+| DEP-07-01-002 | EXECUTION/CONSTRAINT | SCA011-IF-PALETTE-ORGANIZATION | PENDING |
+
+## Run Notes
+
+Historical preparation method: ad hoc project graph preparation with candidate-only local previews; dependency-extract was consulted for canonical schema/provenance rules, not executed outside its deliverable-local scope. Mode UPDATE-equivalent additive preview; strictness CONSERVATIVE; source documents explicitly limited to P-OWN-01–06 and its dependency table plus the preserved prior mirrors. The preparation used the SCA-011 candidate decomposition and preserved its earlier accepted basis. That preparation step did not change source documents, live local mirrors or the approved DAG. The current application/adoption state is stated at the top of this index; extraction-time candidate wording in CSV Notes is retained provenance, not a later authority claim.
+
+New execution rows use RequiredMaturity=SEMANTIC_READY, ProposedMaturity=TBD, SatisfactionStatus=PENDING. They require actual named contract/source-owner evidence before a production dependency may be called satisfied. Existing satisfaction fields are preserved historical evidence and were not revalidated by this preparation. DOCUMENT stage bindings use repository-root-anchored evidence paths: `projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/STAGED_INTERFACE_RATIONALE.md` and `projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/StageGraph.json`. These paths remain valid from the live deliverable landing; they are not relative to this preview directory.
+
+## Run History
+
+- 2026-09-22: SCA-011 candidate-only additive preview; 2 added rows. Earlier local history is quoted below without rewriting its historical claims.
+- SCA-011 Group 2: applied these exact additive rows under the recorded application authorization; Group 3 remains pending.
+
+## Lifecycle Summary
+
+Local row status: {'ACTIVE': 20}. Local satisfaction counts: {'NOT_APPLICABLE': 3, 'SATISFIED': 7, 'TBD': 8, 'PENDING': 2}. Exactly one active parent anchor is required and checked. These are dependency row states, not deliverable lifecycle changes.
+
+## Downstream Handoff Notes
+
+Group 2 applied this local mirror against the recorded source documents and baseline hashes. Group 3 must audit the poststate and record the DAG-011 authority propagation before the new relations become graph authority. No source-witness/readiness conclusion follows from application. All added execution relations remain PENDING with actual maturity TBD; baseline satisfaction evidence was preserved, not revalidated.
+
+## Quoted historical index (not current candidate counts or graph pointer)
+
+The following source bytes are retained as historical context; all counts and current-pointer statements inside this fence belong to their earlier record.
+
+```markdown
 # Dependencies: DEL-07-01 3D viewport and centerline editor
 
 ## Coordination Mode
@@ -71,3 +112,9 @@
 
 ## Downstream Handoff Notes
 - Consume this register as a deliverable-local semantic refresh shard only. It is not graph authority and does not update `_DAG/_LATEST.md`.
+
+```
+
+## Group-2 metadata correction
+
+Root SPEC §6.8 canonical DEP-owner identities and §6.5 verbatim local evidence have been applied to the added rows. Original SCA011 identities and proposal citations remain in CSV Notes and the ID crosswalk. The accepted ownership relations, prior rows and pending maturity are unchanged. Correction authority and exact field deltas: `projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/CORRECTNESS_REPAIR.md`. At correction time, graph adoption remained subject to Group 3.

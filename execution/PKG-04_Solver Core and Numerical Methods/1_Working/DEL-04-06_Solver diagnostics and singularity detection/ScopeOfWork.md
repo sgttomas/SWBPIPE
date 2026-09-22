@@ -2,8 +2,8 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-04-06
 package_id: PKG-04
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
-project_scope_refs: [SOW-053, SOW-035]
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577
+project_scope_refs: [SOW-053,SOW-035]
 package_objective_refs: [OBJ-003, OBJ-008, OBJ-012]
 ---
 
@@ -371,8 +371,19 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 >
 > No new source conflicts were found during this document/evidence alignment. Numerical threshold policy, sparse solver selection, nonlinear support warning finalization, final result-envelope integration, release claims, and professional/code-compliance claims remain deferrals, not conflicts.
 
+### CLM-034 — SCA-011 Diagnostic production and integration
+
+**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
+
+Retain diagnostic-production semantics. DEL-04-07 composes and preserves those diagnostics through product solve entrypoints; GUI and export owners present or map them without inventing successful outcomes.
+
+- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.
+- **AC-002** — The named boundary is honored, its witness is bound to the tested candidate, and missing or held results remain explicit. Ownership assignment alone is not a pass.
+- **VER-002** — Trace singularity, nonconvergence and unavailable observations through product integration with source and diagnostic identity preserved.
+
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-053 SOW-035 OBJ-003 OBJ-008 OBJ-012 | CLM-010 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+| OUT-002 | OBJ-003 OBJ-008 OBJ-012 | CLM-034 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |

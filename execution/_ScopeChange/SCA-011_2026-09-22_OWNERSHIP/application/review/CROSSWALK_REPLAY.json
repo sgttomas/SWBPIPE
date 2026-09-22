@@ -1,0 +1,36 @@
+{
+  "command": [
+    "python3",
+    "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/reconciliation/build_crosswalk.py",
+    "--check"
+  ],
+  "exit_code": 0,
+  "result": {
+    "result": "PASS",
+    "mode": "check",
+    "counts": {
+      "original_capability_denominator": 598,
+      "targeted_capability_facets": 120,
+      "outside_targeted_derivative": 478,
+      "original_claim_denominator": 9889,
+      "targeted_original_claims": 121,
+      "claims_outside_targeted_derivative": 9768,
+      "gui_panel_bindings": 13,
+      "new_delivery_homes": 4,
+      "new_product_tests": 0,
+      "implementation_remainders_closed": 0,
+      "current_conformance_proved": 0,
+      "whole_corpus_owned_claim": false
+    },
+    "negative_probes": [
+      "capability:missing:REJECTED",
+      "capability:duplicate:REJECTED",
+      "capability:invalid:REJECTED",
+      "claim:missing:REJECTED",
+      "claim:duplicate:REJECTED",
+      "claim:invalid:REJECTED"
+    ],
+    "limitations": "Structural/source-bound ownership derivative only. No runtime, schema-conformance, native, engineering, operator acceptance or lifecycle result."
+  },
+  "stderr": ""
+}

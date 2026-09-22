@@ -1,0 +1,758 @@
+[
+  {
+    "DependencyID": "DEP-04-07-001",
+    "OriginalDependencyID": "SCA011-E001",
+    "EvidenceFile": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md # frontmatter/deliverable_id",
+    "source_sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2",
+    "quote_words": 2,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-04-07-002",
+    "OriginalDependencyID": "SCA011-E002",
+    "EvidenceFile": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md # frontmatter/project_scope_refs",
+    "source_sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2",
+    "quote_words": 2,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-04-07-003",
+    "OriginalDependencyID": "SCA011-E003",
+    "EvidenceFile": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md # frontmatter/project_scope_refs",
+    "source_sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2",
+    "quote_words": 2,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-04-07-004",
+    "OriginalDependencyID": "SCA011-E004",
+    "EvidenceFile": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md # frontmatter/project_scope_refs",
+    "source_sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2",
+    "quote_words": 2,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-04-07-005",
+    "OriginalDependencyID": "SCA011-E005",
+    "EvidenceFile": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md # frontmatter/project_scope_refs",
+    "source_sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2",
+    "quote_words": 2,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-04-07-006",
+    "OriginalDependencyID": "SCA011-E006",
+    "EvidenceFile": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md # frontmatter/project_scope_refs",
+    "source_sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2",
+    "quote_words": 2,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-04-07-007",
+    "OriginalDependencyID": "SCA011-E007",
+    "EvidenceFile": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md # frontmatter/package_objective_refs",
+    "source_sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2",
+    "quote_words": 2,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-04-07-008",
+    "OriginalDependencyID": "SCA011-E008",
+    "EvidenceFile": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md # frontmatter/package_objective_refs",
+    "source_sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2",
+    "quote_words": 2,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-11-001",
+    "OriginalDependencyID": "SCA011-E009",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md # frontmatter/deliverable_id",
+    "source_sha256": "0511c07f4d741c59b7cffa1fd7c080d754200237bc537bb137882d8b582c79ef",
+    "quote_words": 2,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-11-002",
+    "OriginalDependencyID": "SCA011-E010",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md # frontmatter/project_scope_refs",
+    "source_sha256": "0511c07f4d741c59b7cffa1fd7c080d754200237bc537bb137882d8b582c79ef",
+    "quote_words": 2,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-11-003",
+    "OriginalDependencyID": "SCA011-E011",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md # frontmatter/package_objective_refs",
+    "source_sha256": "0511c07f4d741c59b7cffa1fd7c080d754200237bc537bb137882d8b582c79ef",
+    "quote_words": 2,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-11-004",
+    "OriginalDependencyID": "SCA011-E012",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md # frontmatter/package_objective_refs",
+    "source_sha256": "0511c07f4d741c59b7cffa1fd7c080d754200237bc537bb137882d8b582c79ef",
+    "quote_words": 2,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-11-005",
+    "OriginalDependencyID": "SCA011-E013",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md # frontmatter/package_objective_refs",
+    "source_sha256": "0511c07f4d741c59b7cffa1fd7c080d754200237bc537bb137882d8b582c79ef",
+    "quote_words": 2,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-12-001",
+    "OriginalDependencyID": "SCA011-E014",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md # frontmatter/deliverable_id",
+    "source_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+    "quote_words": 2,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-12-002",
+    "OriginalDependencyID": "SCA011-E015",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md # frontmatter/project_scope_refs",
+    "source_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+    "quote_words": 2,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-12-003",
+    "OriginalDependencyID": "SCA011-E016",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md # frontmatter/package_objective_refs",
+    "source_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+    "quote_words": 2,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-12-004",
+    "OriginalDependencyID": "SCA011-E017",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md # frontmatter/package_objective_refs",
+    "source_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+    "quote_words": 2,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-12-005",
+    "OriginalDependencyID": "SCA011-E018",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md # frontmatter/package_objective_refs",
+    "source_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+    "quote_words": 2,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-16-06-001",
+    "OriginalDependencyID": "SCA011-E019",
+    "EvidenceFile": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md # frontmatter/deliverable_id",
+    "source_sha256": "541df636affcd119072051128a2b98b483791a94b181b3ef38e023030287391a",
+    "quote_words": 2,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-16-06-002",
+    "OriginalDependencyID": "SCA011-E020",
+    "EvidenceFile": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md # frontmatter/project_scope_refs",
+    "source_sha256": "541df636affcd119072051128a2b98b483791a94b181b3ef38e023030287391a",
+    "quote_words": 2,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-16-06-003",
+    "OriginalDependencyID": "SCA011-E021",
+    "EvidenceFile": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md # frontmatter/project_scope_refs",
+    "source_sha256": "541df636affcd119072051128a2b98b483791a94b181b3ef38e023030287391a",
+    "quote_words": 2,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-16-06-004",
+    "OriginalDependencyID": "SCA011-E022",
+    "EvidenceFile": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md # frontmatter/package_objective_refs",
+    "source_sha256": "541df636affcd119072051128a2b98b483791a94b181b3ef38e023030287391a",
+    "quote_words": 2,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-04-07-009",
+    "OriginalDependencyID": "SCA011-E023",
+    "EvidenceFile": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md # CLM-001",
+    "source_sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2",
+    "quote_words": 11,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-04-07-010",
+    "OriginalDependencyID": "SCA011-E024",
+    "EvidenceFile": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md # CLM-001",
+    "source_sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2",
+    "quote_words": 11,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-04-07-011",
+    "OriginalDependencyID": "SCA011-E025",
+    "EvidenceFile": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md # CLM-001",
+    "source_sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2",
+    "quote_words": 11,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-04-07-012",
+    "OriginalDependencyID": "SCA011-E026",
+    "EvidenceFile": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md # CLM-003",
+    "source_sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2",
+    "quote_words": 5,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-04-07-013",
+    "OriginalDependencyID": "SCA011-E027",
+    "EvidenceFile": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md # CLM-002",
+    "source_sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2",
+    "quote_words": 10,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-04-07-014",
+    "OriginalDependencyID": "SCA011-E028",
+    "EvidenceFile": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md # CLM-001",
+    "source_sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2",
+    "quote_words": 11,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-04-07-015",
+    "OriginalDependencyID": "SCA011-E029",
+    "EvidenceFile": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md # CLM-002",
+    "source_sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2",
+    "quote_words": 10,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-04-07-016",
+    "OriginalDependencyID": "SCA011-E030",
+    "EvidenceFile": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md # CLM-004",
+    "source_sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2",
+    "quote_words": 13,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-04-07-017",
+    "OriginalDependencyID": "SCA011-E031",
+    "EvidenceFile": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md # CLM-001",
+    "source_sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2",
+    "quote_words": 11,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-04-07-018",
+    "OriginalDependencyID": "SCA011-E032",
+    "EvidenceFile": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md # CLM-001",
+    "source_sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2",
+    "quote_words": 11,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-04-07-019",
+    "OriginalDependencyID": "SCA011-E033",
+    "EvidenceFile": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md # CLM-001",
+    "source_sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2",
+    "quote_words": 11,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-04-07-020",
+    "OriginalDependencyID": "SCA011-E034",
+    "EvidenceFile": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md # CLM-004",
+    "source_sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2",
+    "quote_words": 13,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-04-07-021",
+    "OriginalDependencyID": "SCA011-E035",
+    "EvidenceFile": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md # CLM-001",
+    "source_sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2",
+    "quote_words": 11,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-04-07-022",
+    "OriginalDependencyID": "SCA011-E036",
+    "EvidenceFile": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md # CLM-001",
+    "source_sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2",
+    "quote_words": 11,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-04-07-023",
+    "OriginalDependencyID": "SCA011-E037",
+    "EvidenceFile": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md # CLM-001",
+    "source_sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2",
+    "quote_words": 11,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-04-07-024",
+    "OriginalDependencyID": "SCA011-E038",
+    "EvidenceFile": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md # CLM-001",
+    "source_sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2",
+    "quote_words": 11,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-11-006",
+    "OriginalDependencyID": "SCA011-E039",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md # Governing Values and Decisions",
+    "source_sha256": "0511c07f4d741c59b7cffa1fd7c080d754200237bc537bb137882d8b582c79ef",
+    "quote_words": 3,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-11-007",
+    "OriginalDependencyID": "SCA011-E040",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md # Governing Values and Decisions",
+    "source_sha256": "0511c07f4d741c59b7cffa1fd7c080d754200237bc537bb137882d8b582c79ef",
+    "quote_words": 3,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-11-008",
+    "OriginalDependencyID": "SCA011-E041",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md # Governing Values and Decisions",
+    "source_sha256": "0511c07f4d741c59b7cffa1fd7c080d754200237bc537bb137882d8b582c79ef",
+    "quote_words": 3,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-11-009",
+    "OriginalDependencyID": "SCA011-E042",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md # CLM-002",
+    "source_sha256": "0511c07f4d741c59b7cffa1fd7c080d754200237bc537bb137882d8b582c79ef",
+    "quote_words": 11,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-11-010",
+    "OriginalDependencyID": "SCA011-E043",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md # CLM-004",
+    "source_sha256": "0511c07f4d741c59b7cffa1fd7c080d754200237bc537bb137882d8b582c79ef",
+    "quote_words": 9,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-11-011",
+    "OriginalDependencyID": "SCA011-E044",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md # CLM-002",
+    "source_sha256": "0511c07f4d741c59b7cffa1fd7c080d754200237bc537bb137882d8b582c79ef",
+    "quote_words": 11,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-11-012",
+    "OriginalDependencyID": "SCA011-E045",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md # Governing Values and Decisions",
+    "source_sha256": "0511c07f4d741c59b7cffa1fd7c080d754200237bc537bb137882d8b582c79ef",
+    "quote_words": 4,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-16-06-005",
+    "OriginalDependencyID": "SCA011-E046",
+    "EvidenceFile": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md # Governing Values and Decisions",
+    "source_sha256": "541df636affcd119072051128a2b98b483791a94b181b3ef38e023030287391a",
+    "quote_words": 10,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-16-06-006",
+    "OriginalDependencyID": "SCA011-E047",
+    "EvidenceFile": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md # Governing Values and Decisions",
+    "source_sha256": "541df636affcd119072051128a2b98b483791a94b181b3ef38e023030287391a",
+    "quote_words": 10,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-16-06-007",
+    "OriginalDependencyID": "SCA011-E048",
+    "EvidenceFile": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md # Governing Values and Decisions",
+    "source_sha256": "541df636affcd119072051128a2b98b483791a94b181b3ef38e023030287391a",
+    "quote_words": 10,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-16-06-008",
+    "OriginalDependencyID": "SCA011-E049",
+    "EvidenceFile": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md # CLM-001",
+    "source_sha256": "541df636affcd119072051128a2b98b483791a94b181b3ef38e023030287391a",
+    "quote_words": 17,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-16-06-009",
+    "OriginalDependencyID": "SCA011-E050",
+    "EvidenceFile": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md # CLM-001",
+    "source_sha256": "541df636affcd119072051128a2b98b483791a94b181b3ef38e023030287391a",
+    "quote_words": 17,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-16-06-010",
+    "OriginalDependencyID": "SCA011-E051",
+    "EvidenceFile": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md # Governing Values and Decisions",
+    "source_sha256": "541df636affcd119072051128a2b98b483791a94b181b3ef38e023030287391a",
+    "quote_words": 10,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-16-06-011",
+    "OriginalDependencyID": "SCA011-E052",
+    "EvidenceFile": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md # CLM-001",
+    "source_sha256": "541df636affcd119072051128a2b98b483791a94b181b3ef38e023030287391a",
+    "quote_words": 17,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-16-06-012",
+    "OriginalDependencyID": "SCA011-E053",
+    "EvidenceFile": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md # CLM-001",
+    "source_sha256": "541df636affcd119072051128a2b98b483791a94b181b3ef38e023030287391a",
+    "quote_words": 17,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-12-006",
+    "OriginalDependencyID": "SCA011-E054",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md # Governing Values and Decisions",
+    "source_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+    "quote_words": 12,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-12-007",
+    "OriginalDependencyID": "SCA011-E055",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md # Governing Values and Decisions",
+    "source_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+    "quote_words": 12,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-12-008",
+    "OriginalDependencyID": "SCA011-E056",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md # Governing Values and Decisions",
+    "source_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+    "quote_words": 12,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-12-009",
+    "OriginalDependencyID": "SCA011-E057",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md # Governing Values and Decisions",
+    "source_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+    "quote_words": 12,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-12-010",
+    "OriginalDependencyID": "SCA011-E058",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md # Governing Values and Decisions",
+    "source_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+    "quote_words": 15,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-12-011",
+    "OriginalDependencyID": "SCA011-E059",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md # Governing Values and Decisions",
+    "source_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+    "quote_words": 15,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-12-012",
+    "OriginalDependencyID": "SCA011-E060",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md # Governing Values and Decisions",
+    "source_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+    "quote_words": 15,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-12-013",
+    "OriginalDependencyID": "SCA011-E061",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md # Governing Values and Decisions",
+    "source_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+    "quote_words": 15,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-12-014",
+    "OriginalDependencyID": "SCA011-E062",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md # Governing Values and Decisions",
+    "source_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+    "quote_words": 15,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-12-015",
+    "OriginalDependencyID": "SCA011-E063",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md # Governing Values and Decisions",
+    "source_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+    "quote_words": 15,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-12-016",
+    "OriginalDependencyID": "SCA011-E064",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md # Governing Values and Decisions",
+    "source_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+    "quote_words": 15,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-12-017",
+    "OriginalDependencyID": "SCA011-E065",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md # Governing Values and Decisions",
+    "source_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+    "quote_words": 15,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-12-018",
+    "OriginalDependencyID": "SCA011-E066",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md # Governing Values and Decisions",
+    "source_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+    "quote_words": 12,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-12-019",
+    "OriginalDependencyID": "SCA011-E067",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md # Governing Values and Decisions",
+    "source_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+    "quote_words": 12,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-12-020",
+    "OriginalDependencyID": "SCA011-E068",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md # Governing Values and Decisions",
+    "source_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+    "quote_words": 12,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-12-021",
+    "OriginalDependencyID": "SCA011-E069",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md # Governing Values and Decisions",
+    "source_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+    "quote_words": 12,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-12-022",
+    "OriginalDependencyID": "SCA011-E070",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md # Governing Values and Decisions",
+    "source_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+    "quote_words": 12,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-12-023",
+    "OriginalDependencyID": "SCA011-E071",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md # CLM-004",
+    "source_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+    "quote_words": 14,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-12-024",
+    "OriginalDependencyID": "SCA011-E072",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md # CLM-001",
+    "source_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+    "quote_words": 14,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-12-025",
+    "OriginalDependencyID": "SCA011-E073",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md # CLM-002",
+    "source_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+    "quote_words": 14,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-12-026",
+    "OriginalDependencyID": "SCA011-E074",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md # CLM-004",
+    "source_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+    "quote_words": 14,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-01-001",
+    "OriginalDependencyID": "SCA011-E075",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/ScopeOfWork.md # CLM-033",
+    "source_sha256": "f577d714fb911697f58f13d777ea38321150d47fcb93edb59b0fa0174505f080",
+    "quote_words": 10,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-03-001",
+    "OriginalDependencyID": "SCA011-E076",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/ScopeOfWork.md # VER-002",
+    "source_sha256": "93fdb46065397d7955612a0352fb0ed93ebb87aa66bdb097d11afb8e614abda0",
+    "quote_words": 8,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-03-002",
+    "OriginalDependencyID": "SCA011-E077",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/ScopeOfWork.md # CLM-042",
+    "source_sha256": "93fdb46065397d7955612a0352fb0ed93ebb87aa66bdb097d11afb8e614abda0",
+    "quote_words": 10,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-03-003",
+    "OriginalDependencyID": "SCA011-E078",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/ScopeOfWork.md # CLM-042",
+    "source_sha256": "93fdb46065397d7955612a0352fb0ed93ebb87aa66bdb097d11afb8e614abda0",
+    "quote_words": 10,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-04-001",
+    "OriginalDependencyID": "SCA011-E079",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/ScopeOfWork.md # CLM-033",
+    "source_sha256": "c83c2cb287e9b188f0795621db8c0edac1c668fdebaa7282534ea10e8291f693",
+    "quote_words": 11,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-04-002",
+    "OriginalDependencyID": "SCA011-E080",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/ScopeOfWork.md # CLM-033",
+    "source_sha256": "c83c2cb287e9b188f0795621db8c0edac1c668fdebaa7282534ea10e8291f693",
+    "quote_words": 11,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-08-001",
+    "OriginalDependencyID": "SCA011-E081",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/ScopeOfWork.md # CLM-030",
+    "source_sha256": "c70e5d0fcdf37eb794ac448c47692869a81caca8107421f14365b066a605f3f6",
+    "quote_words": 8,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-07-01-002",
+    "OriginalDependencyID": "SCA011-E082",
+    "EvidenceFile": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/ScopeOfWork.md # CLM-033",
+    "source_sha256": "f577d714fb911697f58f13d777ea38321150d47fcb93edb59b0fa0174505f080",
+    "quote_words": 13,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-08-04-001",
+    "OriginalDependencyID": "SCA011-E083",
+    "EvidenceFile": "execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/ScopeOfWork.md # DEL-08-04-SCA011-REQ-001",
+    "source_sha256": "922a5c64e067ccec6c391a7144c436dc56e5f80cac1630e8b01f263e4e9ea3fe",
+    "quote_words": 12,
+    "verbatim": "PASS"
+  },
+  {
+    "DependencyID": "DEP-16-03-001",
+    "OriginalDependencyID": "SCA011-E084",
+    "EvidenceFile": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/ScopeOfWork.md",
+    "SourceRef": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/ScopeOfWork.md # CLM-029",
+    "source_sha256": "65008a246f9efe66578ef72a7abe52d49c77ffb667b66f7b4ac1ebc5575dbbbc",
+    "quote_words": 8,
+    "verbatim": "PASS"
+  }
+]

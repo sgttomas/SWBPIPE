@@ -1,0 +1,5705 @@
+{
+  "checks": [
+    {
+      "check": "unique_source_ids",
+      "pass": true,
+      "detail": "Deliverables, scope and context registers; markdown tables"
+    },
+    {
+      "check": "forward_reverse_unit_coverage",
+      "pass": true,
+      "detail": {
+        "declared": 106,
+        "folders": 106
+      }
+    },
+    {
+      "check": "package_coverage",
+      "pass": true,
+      "detail": 18
+    },
+    {
+      "check": "expected_topology",
+      "pass": true,
+      "detail": [
+        18,
+        106,
+        79
+      ]
+    },
+    {
+      "check": "manifest_binds_accepted_commit",
+      "pass": true,
+      "detail": {
+        "Path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/APPLY_MANIFEST.csv",
+        "SHA256": "b96c0adc2b588429a1311606072bc22ee9c5f3c303be2c6701422dcdecbcce7a",
+        "SourceCommit": "3e18334eca72509475684cc86786b3eeade83572",
+        "Role": "accepted exact application basis; conditional Group-3 transforms remain future preview"
+      }
+    },
+    {
+      "check": "draft_wire_schemas_excluded",
+      "pass": true,
+      "detail": "No wire-schema canonical promotion"
+    },
+    {
+      "check": "exact_83_postimages",
+      "pass": true,
+      "detail": {
+        "targets": 83,
+        "mismatches": []
+      }
+    },
+    {
+      "check": "all_context_identity_and_envelopes",
+      "pass": true,
+      "detail": [
+        {
+          "id": "DEL-00-01",
+          "fields_checked": {
+            "Name": "Architecture decision record baseline",
+            "Package ID": "PKG-00",
+            "Type": "DOC_UPDATE",
+            "Deliverable ID": "DEL-00-01",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-00-02",
+          "fields_checked": {
+            "Name": "Repository and module boundary architecture",
+            "Package ID": "PKG-00",
+            "Type": "API_CONTRACT",
+            "Deliverable ID": "DEL-00-02",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-00-03",
+          "fields_checked": {
+            "Name": "Application service command-query-job model",
+            "Package ID": "PKG-00",
+            "Type": "API_CONTRACT",
+            "Deliverable ID": "DEL-00-03",
+            "Envelope": "L"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-00-04",
+          "fields_checked": {
+            "Name": "Persistence and schema versioning architecture",
+            "Package ID": "PKG-00",
+            "Type": "DATA_MODEL_CHANGE",
+            "Deliverable ID": "DEL-00-04",
+            "Envelope": "L"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-00-05",
+          "fields_checked": {
+            "Name": "GUI state and interaction architecture",
+            "Package ID": "PKG-00",
+            "Type": "UX_UI_SLICE",
+            "Deliverable ID": "DEL-00-05",
+            "Envelope": "L"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-00-06",
+          "fields_checked": {
+            "Name": "Diagnostics, warning, and result-envelope contract",
+            "Package ID": "PKG-00",
+            "Type": "DATA_MODEL_CHANGE",
+            "Deliverable ID": "DEL-00-06",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-00-07",
+          "fields_checked": {
+            "Name": "API boundary and adapter contract map",
+            "Package ID": "PKG-00",
+            "Type": "API_CONTRACT",
+            "Deliverable ID": "DEL-00-07",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-00-08",
+          "fields_checked": {
+            "Name": "Layered software test and acceptance strategy",
+            "Package ID": "PKG-00",
+            "Type": "TEST_SUITE",
+            "Deliverable ID": "DEL-00-08",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-01-01",
+          "fields_checked": {
+            "Name": "Project governance baseline",
+            "Package ID": "PKG-01",
+            "Type": "DOC_UPDATE",
+            "Deliverable ID": "DEL-01-01",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-01-02",
+          "fields_checked": {
+            "Name": "Copyright and protected-data boundary policy",
+            "Package ID": "PKG-01",
+            "Type": "DOC_UPDATE",
+            "Deliverable ID": "DEL-01-02",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-01-03",
+          "fields_checked": {
+            "Name": "Contributor certification workflow",
+            "Package ID": "PKG-01",
+            "Type": "DOC_UPDATE",
+            "Deliverable ID": "DEL-01-03",
+            "Envelope": "S"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-01-04",
+          "fields_checked": {
+            "Name": "Professional responsibility and product-claims policy",
+            "Package ID": "PKG-01",
+            "Type": "DOC_UPDATE",
+            "Deliverable ID": "DEL-01-04",
+            "Envelope": "S"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-02-01",
+          "fields_checked": {
+            "Name": "Canonical domain model schema",
+            "Package ID": "PKG-02",
+            "Type": "DATA_MODEL_CHANGE",
+            "Deliverable ID": "DEL-02-01",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-02-02",
+          "fields_checked": {
+            "Name": "Unit system and dimensional-analysis core contract",
+            "Package ID": "PKG-02",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-02-02",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-02-03",
+          "fields_checked": {
+            "Name": "Code-neutral analysis boundary model",
+            "Package ID": "PKG-02",
+            "Type": "DATA_MODEL_CHANGE",
+            "Deliverable ID": "DEL-02-03",
+            "Envelope": "S"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-02-04",
+          "fields_checked": {
+            "Name": "Plugin and extension domain contracts",
+            "Package ID": "PKG-02",
+            "Type": "API_CONTRACT",
+            "Deliverable ID": "DEL-02-04",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-02-05",
+          "fields_checked": {
+            "Name": "Project persistence and round-trip serialization",
+            "Package ID": "PKG-02",
+            "Type": "DATA_MODEL_CHANGE",
+            "Deliverable ID": "DEL-02-05",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-03-01",
+          "fields_checked": {
+            "Name": "Material library schema with provenance",
+            "Package ID": "PKG-03",
+            "Type": "DATA_MODEL_CHANGE",
+            "Deliverable ID": "DEL-03-01",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-03-02",
+          "fields_checked": {
+            "Name": "Pipe section and component library schema",
+            "Package ID": "PKG-03",
+            "Type": "DATA_MODEL_CHANGE",
+            "Deliverable ID": "DEL-03-02",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-03-03",
+          "fields_checked": {
+            "Name": "Bend and elbow component model fields",
+            "Package ID": "PKG-03",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-03-03",
+            "Envelope": "S"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-03-04",
+          "fields_checked": {
+            "Name": "Branch connection component model fields",
+            "Package ID": "PKG-03",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-03-04",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-03-05",
+          "fields_checked": {
+            "Name": "Rigid component models for valves, flanges, reducers, and specialty items",
+            "Package ID": "PKG-03",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-03-05",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-03-06",
+          "fields_checked": {
+            "Name": "Expansion joint component model",
+            "Package ID": "PKG-03",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-03-06",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-03-07",
+          "fields_checked": {
+            "Name": "Public/private library import provenance checker",
+            "Package ID": "PKG-03",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-03-07",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-03-08",
+          "fields_checked": {
+            "Name": "Pipe section property and mass-property calculator",
+            "Package ID": "PKG-03",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-03-08",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-04-01",
+          "fields_checked": {
+            "Name": "3D frame stiffness kernel",
+            "Package ID": "PKG-04",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-04-01",
+            "Envelope": "L"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-04-02",
+          "fields_checked": {
+            "Name": "Straight pipe element",
+            "Package ID": "PKG-04",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-04-02",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-04-03",
+          "fields_checked": {
+            "Name": "Linear support and restraint models",
+            "Package ID": "PKG-04",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-04-03",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-04-04",
+          "fields_checked": {
+            "Name": "Nonlinear support active-set solver",
+            "Package ID": "PKG-04",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-04-04",
+            "Envelope": "L"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-04-05",
+          "fields_checked": {
+            "Name": "Sparse solver performance harness",
+            "Package ID": "PKG-04",
+            "Type": "TEST_SUITE",
+            "Deliverable ID": "DEL-04-05",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-04-06",
+          "fields_checked": {
+            "Name": "Solver diagnostics and singularity detection",
+            "Package ID": "PKG-04",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-04-06",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-05-01",
+          "fields_checked": {
+            "Name": "Primitive load case engine",
+            "Package ID": "PKG-05",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-05-01",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-05-02",
+          "fields_checked": {
+            "Name": "Load-case algebra engine",
+            "Package ID": "PKG-05",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-05-02",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-05-03",
+          "fields_checked": {
+            "Name": "Fundamental stress recovery module",
+            "Package ID": "PKG-05",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-05-03",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-05-04",
+          "fields_checked": {
+            "Name": "Analysis status semantics",
+            "Package ID": "PKG-05",
+            "Type": "DATA_MODEL_CHANGE",
+            "Deliverable ID": "DEL-05-04",
+            "Envelope": "S"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-05-05",
+          "fields_checked": {
+            "Name": "Concentrated and distributed user load application",
+            "Package ID": "PKG-05",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-05-05",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-06-01",
+          "fields_checked": {
+            "Name": "Rule-pack schema",
+            "Package ID": "PKG-06",
+            "Type": "DATA_MODEL_CHANGE",
+            "Deliverable ID": "DEL-06-01",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-06-02",
+          "fields_checked": {
+            "Name": "Sandboxed unit-aware expression evaluator",
+            "Package ID": "PKG-06",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-06-02",
+            "Envelope": "L"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-06-03",
+          "fields_checked": {
+            "Name": "Required-input completeness checker",
+            "Package ID": "PKG-06",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-06-03",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-06-04",
+          "fields_checked": {
+            "Name": "Private rule-pack lifecycle and checksum handling",
+            "Package ID": "PKG-06",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-06-04",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-06-05",
+          "fields_checked": {
+            "Name": "Invented non-code example rule pack",
+            "Package ID": "PKG-06",
+            "Type": "DOC_UPDATE",
+            "Deliverable ID": "DEL-06-05",
+            "Envelope": "S"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-07-01",
+          "fields_checked": {
+            "Name": "3D viewport and centerline editor",
+            "Package ID": "PKG-07",
+            "Type": "UX_UI_SLICE",
+            "Deliverable ID": "DEL-07-01",
+            "Envelope": "L"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-07-02",
+          "fields_checked": {
+            "Name": "Model tree and property inspector",
+            "Package ID": "PKG-07",
+            "Type": "UX_UI_SLICE",
+            "Deliverable ID": "DEL-07-02",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-07-03",
+          "fields_checked": {
+            "Name": "Material, component, and rule-pack editors",
+            "Package ID": "PKG-07",
+            "Type": "UX_UI_SLICE",
+            "Deliverable ID": "DEL-07-03",
+            "Envelope": "L"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-07-04",
+          "fields_checked": {
+            "Name": "Missing-data warning and blocking UX",
+            "Package ID": "PKG-07",
+            "Type": "UX_UI_SLICE",
+            "Deliverable ID": "DEL-07-04",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-07-05",
+          "fields_checked": {
+            "Name": "Results viewer",
+            "Package ID": "PKG-07",
+            "Type": "UX_UI_SLICE",
+            "Deliverable ID": "DEL-07-05",
+            "Envelope": "L"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-07-06",
+          "fields_checked": {
+            "Name": "Accessibility and usability baseline",
+            "Package ID": "PKG-07",
+            "Type": "UX_UI_SLICE",
+            "Deliverable ID": "DEL-07-06",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-07-07",
+          "fields_checked": {
+            "Name": "Solve execution UX: progress, cancellation, and diagnostics",
+            "Package ID": "PKG-07",
+            "Type": "UX_UI_SLICE",
+            "Deliverable ID": "DEL-07-07",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-08-01",
+          "fields_checked": {
+            "Name": "Calculation report generator",
+            "Package ID": "PKG-08",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-08-01",
+            "Envelope": "L"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-08-02",
+          "fields_checked": {
+            "Name": "Audit manifest and model hash",
+            "Package ID": "PKG-08",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-08-02",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-08-03",
+          "fields_checked": {
+            "Name": "Warnings, assumptions, and provenance report section",
+            "Package ID": "PKG-08",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-08-03",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-08-04",
+          "fields_checked": {
+            "Name": "Result export format",
+            "Package ID": "PKG-08",
+            "Type": "API_CONTRACT",
+            "Deliverable ID": "DEL-08-04",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-08-05",
+          "fields_checked": {
+            "Name": "Report protected-content linter",
+            "Package ID": "PKG-08",
+            "Type": "TEST_SUITE",
+            "Deliverable ID": "DEL-08-05",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-09-01",
+          "fields_checked": {
+            "Name": "Mechanics benchmark suite",
+            "Package ID": "PKG-09",
+            "Type": "TEST_SUITE",
+            "Deliverable ID": "DEL-09-01",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-09-02",
+          "fields_checked": {
+            "Name": "Stress recovery benchmark suite",
+            "Package ID": "PKG-09",
+            "Type": "TEST_SUITE",
+            "Deliverable ID": "DEL-09-02",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-09-03",
+          "fields_checked": {
+            "Name": "Nonlinear support regression suite",
+            "Package ID": "PKG-09",
+            "Type": "TEST_SUITE",
+            "Deliverable ID": "DEL-09-03",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-09-04",
+          "fields_checked": {
+            "Name": "Validation manual skeleton",
+            "Package ID": "PKG-09",
+            "Type": "DOC_UPDATE",
+            "Deliverable ID": "DEL-09-04",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-09-05",
+          "fields_checked": {
+            "Name": "Release quality gate checklist",
+            "Package ID": "PKG-09",
+            "Type": "CI_CD_CHANGE",
+            "Deliverable ID": "DEL-09-05",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-10-01",
+          "fields_checked": {
+            "Name": "Public API and plugin boundary",
+            "Package ID": "PKG-10",
+            "Type": "API_CONTRACT",
+            "Deliverable ID": "DEL-10-01",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-10-02",
+          "fields_checked": {
+            "Name": "Import/export adapter framework",
+            "Package ID": "PKG-10",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-10-02",
+            "Envelope": "L"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-10-03",
+          "fields_checked": {
+            "Name": "Local FEA handoff data contract",
+            "Package ID": "PKG-10",
+            "Type": "API_CONTRACT",
+            "Deliverable ID": "DEL-10-03",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-10-04",
+          "fields_checked": {
+            "Name": "Build, packaging, and CI/CD pipeline",
+            "Package ID": "PKG-10",
+            "Type": "CI_CD_CHANGE",
+            "Deliverable ID": "DEL-10-04",
+            "Envelope": "L"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-10-05",
+          "fields_checked": {
+            "Name": "Headless CLI and structured I/O analysis runner",
+            "Package ID": "PKG-10",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-10-05",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-11-01",
+          "fields_checked": {
+            "Name": "User guide skeleton",
+            "Package ID": "PKG-11",
+            "Type": "DOC_UPDATE",
+            "Deliverable ID": "DEL-11-01",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-11-02",
+          "fields_checked": {
+            "Name": "Developer guide for solver and rule packs",
+            "Package ID": "PKG-11",
+            "Type": "DOC_UPDATE",
+            "Deliverable ID": "DEL-11-02",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-11-03",
+          "fields_checked": {
+            "Name": "Theory notes: classical to modern centerline analysis",
+            "Package ID": "PKG-11",
+            "Type": "DOC_UPDATE",
+            "Deliverable ID": "DEL-11-03",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-11-04",
+          "fields_checked": {
+            "Name": "Invented educational example models",
+            "Package ID": "PKG-11",
+            "Type": "DOC_UPDATE",
+            "Deliverable ID": "DEL-11-04",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-11-05",
+          "fields_checked": {
+            "Name": "Contributor tutorial and onboarding",
+            "Package ID": "PKG-11",
+            "Type": "DOC_UPDATE",
+            "Deliverable ID": "DEL-11-05",
+            "Envelope": "S"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-12-01",
+          "fields_checked": {
+            "Name": "Local-first storage and private data paths",
+            "Package ID": "PKG-12",
+            "Type": "SECURITY_CONTROL",
+            "Deliverable ID": "DEL-12-01",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-12-02",
+          "fields_checked": {
+            "Name": "Private data redaction and export controls",
+            "Package ID": "PKG-12",
+            "Type": "SECURITY_CONTROL",
+            "Deliverable ID": "DEL-12-02",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-12-03",
+          "fields_checked": {
+            "Name": "Telemetry off-by-default design",
+            "Package ID": "PKG-12",
+            "Type": "SECURITY_CONTROL",
+            "Deliverable ID": "DEL-12-03",
+            "Envelope": "S"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-12-04",
+          "fields_checked": {
+            "Name": "Secret and private-library handling",
+            "Package ID": "PKG-12",
+            "Type": "SECURITY_CONTROL",
+            "Deliverable ID": "DEL-12-04",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-12-05",
+          "fields_checked": {
+            "Name": "Security threat model",
+            "Package ID": "PKG-12",
+            "Type": "DOC_UPDATE",
+            "Deliverable ID": "DEL-12-05",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-07-08",
+          "fields_checked": {
+            "Name": "Design-authoring state and comparison workspace",
+            "Package ID": "PKG-07",
+            "Type": "UX_UI_SLICE",
+            "Deliverable ID": "DEL-07-08",
+            "Envelope": "L"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-08-06",
+          "fields_checked": {
+            "Name": "State, comparison, and handoff report sections",
+            "Package ID": "PKG-08",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-08-06",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-13-01",
+          "fields_checked": {
+            "Name": "Design knowledge schema and provenance model",
+            "Package ID": "PKG-13",
+            "Type": "DATA_MODEL_CHANGE",
+            "Deliverable ID": "DEL-13-01",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-13-02",
+          "fields_checked": {
+            "Name": "Constraint entity and provenance model",
+            "Package ID": "PKG-13",
+            "Type": "DATA_MODEL_CHANGE",
+            "Deliverable ID": "DEL-13-02",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-13-03",
+          "fields_checked": {
+            "Name": "Constraint validation engine",
+            "Package ID": "PKG-13",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-13-03",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-13-04",
+          "fields_checked": {
+            "Name": "Physical-to-analytical transformation contract",
+            "Package ID": "PKG-13",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-13-04",
+            "Envelope": "L"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-14-01",
+          "fields_checked": {
+            "Name": "Immutable model state records",
+            "Package ID": "PKG-14",
+            "Type": "DATA_MODEL_CHANGE",
+            "Deliverable ID": "DEL-14-01",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-14-02",
+          "fields_checked": {
+            "Name": "Analysis run records",
+            "Package ID": "PKG-14",
+            "Type": "DATA_MODEL_CHANGE",
+            "Deliverable ID": "DEL-14-02",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-14-03",
+          "fields_checked": {
+            "Name": "Model-state comparison engine",
+            "Package ID": "PKG-14",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-14-03",
+            "Envelope": "L"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-14-04",
+          "fields_checked": {
+            "Name": "Analysis-run comparison engine",
+            "Package ID": "PKG-14",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-14-04",
+            "Envelope": "L"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-14-05",
+          "fields_checked": {
+            "Name": "Comparison mapping, tolerance, and export contracts",
+            "Package ID": "PKG-14",
+            "Type": "API_CONTRACT",
+            "Deliverable ID": "DEL-14-05",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-15-01",
+          "fields_checked": {
+            "Name": "Canonical handoff package schema and manifest",
+            "Package ID": "PKG-15",
+            "Type": "API_CONTRACT",
+            "Deliverable ID": "DEL-15-01",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-15-02",
+          "fields_checked": {
+            "Name": "Target mapping and unsupported-behavior contract",
+            "Package ID": "PKG-15",
+            "Type": "API_CONTRACT",
+            "Deliverable ID": "DEL-15-02",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-15-03",
+          "fields_checked": {
+            "Name": "Downstream modeling export workflow",
+            "Package ID": "PKG-15",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-15-03",
+            "Envelope": "L"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-15-04",
+          "fields_checked": {
+            "Name": "External prover boundary metadata",
+            "Package ID": "PKG-15",
+            "Type": "DATA_MODEL_CHANGE",
+            "Deliverable ID": "DEL-15-04",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-16-01",
+          "fields_checked": {
+            "Name": "Structured model operation schema",
+            "Package ID": "PKG-16",
+            "Type": "DATA_MODEL_CHANGE",
+            "Deliverable ID": "DEL-16-01",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-16-02",
+          "fields_checked": {
+            "Name": "Operation validation and diff preview",
+            "Package ID": "PKG-16",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-16-02",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-16-03",
+          "fields_checked": {
+            "Name": "User acceptance and operation audit trail",
+            "Package ID": "PKG-16",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-16-03",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-16-04",
+          "fields_checked": {
+            "Name": "Agent rationale and professional-boundary controls",
+            "Package ID": "PKG-16",
+            "Type": "SECURITY_CONTROL",
+            "Deliverable ID": "DEL-16-04",
+            "Envelope": "S"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-17-01",
+          "fields_checked": {
+            "Name": "CAEPIPE and export-format source basis",
+            "Package ID": "PKG-17",
+            "Type": "DOC_UPDATE",
+            "Deliverable ID": "DEL-17-01",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-17-02",
+          "fields_checked": {
+            "Name": "Export package, profile, and stable ID map contracts",
+            "Package ID": "PKG-17",
+            "Type": "API_CONTRACT",
+            "Deliverable ID": "DEL-17-02",
+            "Envelope": "L"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-17-03",
+          "fields_checked": {
+            "Name": "Native open JSON export package",
+            "Package ID": "PKG-17",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-17-03",
+            "Envelope": "L"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-17-04",
+          "fields_checked": {
+            "Name": "CAEPIPE MBF export profile and deterministic writer",
+            "Package ID": "PKG-17",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-17-04",
+            "Envelope": "L"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-17-05",
+          "fields_checked": {
+            "Name": "CAEPIPE external run harness and CSV parser",
+            "Package ID": "PKG-17",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-17-05",
+            "Envelope": "L"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-17-06",
+          "fields_checked": {
+            "Name": "Stress-neutral CSV/JSON package",
+            "Package ID": "PKG-17",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-17-06",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-17-07",
+          "fields_checked": {
+            "Name": "Conservative PCF subset exporter",
+            "Package ID": "PKG-17",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-17-07",
+            "Envelope": "L"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-17-08",
+          "fields_checked": {
+            "Name": "GLB/glTF review geometry export",
+            "Package ID": "PKG-17",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-17-08",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-17-09",
+          "fields_checked": {
+            "Name": "Export adapter SDK and additional targets",
+            "Package ID": "PKG-17",
+            "Type": "API_CONTRACT",
+            "Deliverable ID": "DEL-17-09",
+            "Envelope": "L"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-07-09",
+          "fields_checked": {
+            "Name": "Interactive operation vocabulary and tool palette contract",
+            "Package ID": "PKG-07",
+            "Type": "UX_UI_SLICE",
+            "Deliverable ID": "DEL-07-09",
+            "Envelope": "L"
+          },
+          "mismatches": [],
+          "description_parity": "not_comprehensively_adjudicated"
+        },
+        {
+          "id": "DEL-04-07",
+          "fields_checked": {
+            "Name": "Product solve integration and nonlinear orchestration",
+            "Package ID": "PKG-04",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-04-07",
+            "Envelope": "L"
+          },
+          "mismatches": [],
+          "description_parity": true
+        },
+        {
+          "id": "DEL-07-11",
+          "fields_checked": {
+            "Name": "Desktop workspace shell and host integration",
+            "Package ID": "PKG-07",
+            "Type": "UX_UI_SLICE",
+            "Deliverable ID": "DEL-07-11",
+            "Envelope": "L"
+          },
+          "mismatches": [],
+          "description_parity": true
+        },
+        {
+          "id": "DEL-07-12",
+          "fields_checked": {
+            "Name": "Interoperability and evidence-review workspace",
+            "Package ID": "PKG-07",
+            "Type": "UX_UI_SLICE",
+            "Deliverable ID": "DEL-07-12",
+            "Envelope": "L"
+          },
+          "mismatches": [],
+          "description_parity": true
+        },
+        {
+          "id": "DEL-16-06",
+          "fields_checked": {
+            "Name": "Controlled model operation application",
+            "Package ID": "PKG-16",
+            "Type": "BACKEND_FEATURE_SLICE",
+            "Deliverable ID": "DEL-16-06",
+            "Envelope": "M"
+          },
+          "mismatches": [],
+          "description_parity": true
+        }
+      ]
+    },
+    {
+      "check": "lifecycle_preserved_new_open",
+      "pass": true,
+      "detail": [
+        {
+          "id": "DEL-00-01",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-00-02",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-00-03",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-00-04",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-00-05",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-00-06",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-00-07",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-00-08",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-01-01",
+          "before": "ISSUED",
+          "after": "ISSUED",
+          "pass": true
+        },
+        {
+          "id": "DEL-01-02",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-01-03",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-01-04",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-02-01",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-02-02",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-02-03",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-02-04",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-02-05",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-03-01",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-03-02",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-03-03",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-03-04",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-03-05",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-03-06",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-03-07",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-03-08",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-04-01",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-04-02",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-04-03",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-04-04",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-04-05",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-04-06",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-05-01",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-05-02",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-05-03",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-05-04",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-05-05",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-06-01",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-06-02",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-06-03",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-06-04",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-06-05",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-07-01",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-07-02",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-07-03",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-07-04",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-07-05",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-07-06",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-07-07",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-08-01",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-08-02",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-08-03",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-08-04",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-08-05",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-09-01",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-09-02",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-09-03",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-09-04",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-09-05",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-10-01",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-10-02",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-10-03",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-10-04",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-10-05",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-11-01",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-11-02",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-11-03",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-11-04",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-11-05",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-12-01",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-12-02",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-12-03",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-12-04",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-12-05",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-07-08",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-08-06",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-13-01",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-13-02",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-13-03",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-13-04",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-14-01",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-14-02",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-14-03",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-14-04",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-14-05",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-15-01",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-15-02",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-15-03",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-15-04",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-16-01",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-16-02",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-16-03",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-16-04",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-17-01",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-17-02",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-17-03",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-17-04",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-17-05",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-17-06",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-17-07",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-17-08",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-17-09",
+          "before": "IN_PROGRESS",
+          "after": "IN_PROGRESS",
+          "pass": true
+        },
+        {
+          "id": "DEL-07-09",
+          "before": "OPEN",
+          "after": "OPEN",
+          "pass": true
+        },
+        {
+          "id": "DEL-04-07",
+          "before": "ABSENT",
+          "after": "OPEN",
+          "pass": true
+        },
+        {
+          "id": "DEL-07-11",
+          "before": "ABSENT",
+          "after": "OPEN",
+          "pass": true
+        },
+        {
+          "id": "DEL-07-12",
+          "before": "ABSENT",
+          "after": "OPEN",
+          "pass": true
+        },
+        {
+          "id": "DEL-16-06",
+          "before": "ABSENT",
+          "after": "OPEN",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "check": "all_core_contracts",
+      "pass": true,
+      "detail": {
+        "sows": 97,
+        "other_contracts": 9
+      }
+    },
+    {
+      "check": "24_sow_claim_ids_hooks",
+      "pass": true,
+      "detail": [
+        {
+          "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/ScopeOfWork.md",
+          "existing": true,
+          "stable_ids_retained": [
+            "AC-001",
+            "CLM-001",
+            "CLM-002",
+            "CLM-003",
+            "CLM-004",
+            "CLM-005",
+            "CLM-006",
+            "CLM-007",
+            "CLM-008",
+            "CLM-009",
+            "CLM-010",
+            "CLM-011",
+            "CLM-012",
+            "CLM-013",
+            "CLM-014",
+            "CLM-015",
+            "CLM-016",
+            "CLM-017",
+            "CLM-018",
+            "CLM-019",
+            "CLM-020",
+            "CLM-021",
+            "CLM-022",
+            "CLM-023",
+            "CLM-024",
+            "CLM-025",
+            "CLM-026",
+            "CLM-027",
+            "CLM-028",
+            "CLM-029",
+            "OUT-001",
+            "VER-001"
+          ],
+          "removed_ids": [],
+          "new_ids": [
+            "AC-002",
+            "CLM-030",
+            "OUT-002",
+            "VER-002"
+          ],
+          "pass": true,
+          "validator_pass": true
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/ScopeOfWork.md",
+          "existing": true,
+          "stable_ids_retained": [
+            "AC-001",
+            "CLM-001",
+            "CLM-002",
+            "CLM-003",
+            "CLM-004",
+            "CLM-005",
+            "CLM-006",
+            "CLM-007",
+            "CLM-008",
+            "CLM-009",
+            "CLM-010",
+            "CLM-011",
+            "CLM-012",
+            "CLM-013",
+            "CLM-014",
+            "CLM-015",
+            "CLM-016",
+            "CLM-017",
+            "CLM-018",
+            "CLM-019",
+            "CLM-020",
+            "CLM-021",
+            "CLM-022",
+            "CLM-023",
+            "CLM-024",
+            "CLM-025",
+            "CLM-026",
+            "OUT-001",
+            "VER-001"
+          ],
+          "removed_ids": [],
+          "new_ids": [
+            "AC-002",
+            "CLM-027",
+            "OUT-002",
+            "VER-002"
+          ],
+          "pass": true,
+          "validator_pass": true
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/ScopeOfWork.md",
+          "existing": true,
+          "stable_ids_retained": [
+            "AC-001",
+            "CLM-001",
+            "CLM-002",
+            "CLM-003",
+            "CLM-004",
+            "CLM-005",
+            "CLM-006",
+            "CLM-007",
+            "CLM-008",
+            "CLM-009",
+            "CLM-010",
+            "CLM-011",
+            "CLM-012",
+            "CLM-013",
+            "CLM-014",
+            "CLM-015",
+            "CLM-016",
+            "CLM-017",
+            "CLM-018",
+            "CLM-019",
+            "CLM-020",
+            "CLM-021",
+            "CLM-022",
+            "CLM-023",
+            "CLM-024",
+            "CLM-025",
+            "CLM-026",
+            "CLM-027",
+            "CLM-028",
+            "CLM-029",
+            "CLM-030",
+            "CLM-031",
+            "CLM-032",
+            "OUT-001",
+            "VER-001"
+          ],
+          "removed_ids": [],
+          "new_ids": [
+            "AC-002",
+            "CLM-033",
+            "OUT-002",
+            "VER-002"
+          ],
+          "pass": true,
+          "validator_pass": true
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/ScopeOfWork.md",
+          "existing": true,
+          "stable_ids_retained": [
+            "AC-001",
+            "CLM-001",
+            "CLM-003",
+            "CLM-004",
+            "CLM-005",
+            "CLM-006",
+            "CLM-007",
+            "CLM-008",
+            "CLM-009",
+            "CLM-010",
+            "CLM-011",
+            "CLM-012",
+            "CLM-013",
+            "CLM-014",
+            "CLM-015",
+            "CLM-016",
+            "CLM-017",
+            "CLM-018",
+            "CLM-019",
+            "CLM-020",
+            "CLM-021",
+            "CLM-022",
+            "CLM-024",
+            "CLM-025",
+            "CLM-026",
+            "CLM-027",
+            "CLM-028",
+            "CLM-029",
+            "OUT-001",
+            "VER-001"
+          ],
+          "removed_ids": [],
+          "new_ids": [
+            "AC-002",
+            "CLM-030",
+            "OUT-002",
+            "VER-002"
+          ],
+          "pass": true,
+          "validator_pass": true
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/ScopeOfWork.md",
+          "existing": true,
+          "stable_ids_retained": [
+            "AC-001",
+            "CLM-001",
+            "CLM-002",
+            "CLM-003",
+            "CLM-004",
+            "CLM-005",
+            "CLM-006",
+            "CLM-007",
+            "CLM-008",
+            "CLM-009",
+            "CLM-010",
+            "CLM-011",
+            "CLM-012",
+            "CLM-013",
+            "CLM-014",
+            "CLM-015",
+            "CLM-016",
+            "CLM-017",
+            "CLM-018",
+            "CLM-019",
+            "CLM-020",
+            "CLM-021",
+            "CLM-022",
+            "CLM-023",
+            "CLM-024",
+            "CLM-025",
+            "CLM-026",
+            "CLM-027",
+            "OUT-001",
+            "VER-001"
+          ],
+          "removed_ids": [],
+          "new_ids": [
+            "AC-002",
+            "CLM-028",
+            "OUT-002",
+            "VER-002"
+          ],
+          "pass": true,
+          "validator_pass": true
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/ScopeOfWork.md",
+          "existing": true,
+          "stable_ids_retained": [
+            "AC-001",
+            "CLM-001",
+            "CLM-003",
+            "CLM-004",
+            "CLM-005",
+            "CLM-006",
+            "CLM-007",
+            "CLM-008",
+            "CLM-009",
+            "CLM-010",
+            "CLM-012",
+            "CLM-013",
+            "CLM-014",
+            "CLM-015",
+            "CLM-016",
+            "CLM-017",
+            "CLM-018",
+            "CLM-019",
+            "CLM-020",
+            "CLM-021",
+            "CLM-022",
+            "CLM-023",
+            "CLM-024",
+            "CLM-025",
+            "CLM-027",
+            "CLM-028",
+            "CLM-029",
+            "CLM-030",
+            "CLM-031",
+            "CLM-032",
+            "CLM-033",
+            "OUT-001",
+            "VER-001"
+          ],
+          "removed_ids": [],
+          "new_ids": [
+            "AC-002",
+            "CLM-034",
+            "OUT-002",
+            "VER-002"
+          ],
+          "pass": true,
+          "validator_pass": true
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+          "existing": false,
+          "stable_ids_retained": [],
+          "removed_ids": [],
+          "new_ids": [
+            "AC-001",
+            "AC-002",
+            "AC-003",
+            "AC-004",
+            "CLM-001",
+            "CLM-002",
+            "CLM-003",
+            "CLM-004",
+            "OUT-001",
+            "OUT-002",
+            "OUT-003",
+            "OUT-004",
+            "VER-001",
+            "VER-002",
+            "VER-003",
+            "VER-004"
+          ],
+          "pass": true,
+          "validator_pass": true
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/ScopeOfWork.md",
+          "existing": true,
+          "stable_ids_retained": [
+            "AC-001",
+            "CLM-001",
+            "CLM-003",
+            "CLM-004",
+            "CLM-005",
+            "CLM-006",
+            "CLM-007",
+            "CLM-008",
+            "CLM-009",
+            "CLM-010",
+            "CLM-011",
+            "CLM-013",
+            "CLM-014",
+            "CLM-015",
+            "CLM-016",
+            "CLM-017",
+            "CLM-018",
+            "CLM-019",
+            "CLM-020",
+            "CLM-021",
+            "CLM-022",
+            "CLM-023",
+            "CLM-024",
+            "CLM-025",
+            "CLM-026",
+            "CLM-027",
+            "CLM-028",
+            "CLM-029",
+            "CLM-030",
+            "CLM-031",
+            "CLM-032",
+            "CLM-033",
+            "CLM-034",
+            "OUT-001",
+            "VER-001"
+          ],
+          "removed_ids": [],
+          "new_ids": [
+            "AC-002",
+            "CLM-035",
+            "OUT-002",
+            "VER-002"
+          ],
+          "pass": true,
+          "validator_pass": true
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/ScopeOfWork.md",
+          "existing": true,
+          "stable_ids_retained": [
+            "AC-001",
+            "CLM-001",
+            "CLM-003",
+            "CLM-004",
+            "CLM-005",
+            "CLM-006",
+            "CLM-007",
+            "CLM-008",
+            "CLM-010",
+            "CLM-011",
+            "CLM-012",
+            "CLM-013",
+            "CLM-014",
+            "CLM-015",
+            "CLM-016",
+            "CLM-018",
+            "CLM-019",
+            "CLM-020",
+            "CLM-021",
+            "CLM-022",
+            "CLM-023",
+            "CLM-024",
+            "CLM-026",
+            "CLM-027",
+            "CLM-028",
+            "CLM-029",
+            "CLM-030",
+            "CLM-031",
+            "CLM-032",
+            "OUT-001",
+            "VER-001",
+            "VER-01",
+            "VER-02",
+            "VER-03",
+            "VER-04",
+            "VER-05",
+            "VER-06",
+            "VER-07"
+          ],
+          "removed_ids": [],
+          "new_ids": [
+            "AC-002",
+            "CLM-033",
+            "OUT-002",
+            "VER-002"
+          ],
+          "pass": true,
+          "validator_pass": true
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/ScopeOfWork.md",
+          "existing": true,
+          "stable_ids_retained": [
+            "AC-001",
+            "CLM-001",
+            "CLM-003",
+            "CLM-004",
+            "CLM-005",
+            "CLM-006",
+            "CLM-007",
+            "CLM-008",
+            "CLM-009",
+            "CLM-010",
+            "CLM-011",
+            "CLM-013",
+            "CLM-014",
+            "CLM-015",
+            "CLM-016",
+            "CLM-017",
+            "CLM-018",
+            "CLM-019",
+            "CLM-020",
+            "CLM-021",
+            "CLM-022",
+            "CLM-023",
+            "CLM-024",
+            "CLM-025",
+            "CLM-026",
+            "CLM-027",
+            "CLM-028",
+            "CLM-029",
+            "CLM-030",
+            "CLM-031",
+            "CLM-032",
+            "CLM-033",
+            "CLM-034",
+            "CLM-035",
+            "CLM-036",
+            "CLM-037",
+            "OUT-001",
+            "VER-001"
+          ],
+          "removed_ids": [],
+          "new_ids": [
+            "AC-002",
+            "CLM-038",
+            "OUT-002",
+            "VER-002"
+          ],
+          "pass": true,
+          "validator_pass": true
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/ScopeOfWork.md",
+          "existing": true,
+          "stable_ids_retained": [
+            "AC-001",
+            "CLM-001",
+            "CLM-002",
+            "CLM-003",
+            "CLM-004",
+            "CLM-005",
+            "CLM-006",
+            "CLM-007",
+            "CLM-008",
+            "CLM-009",
+            "CLM-010",
+            "CLM-011",
+            "CLM-012",
+            "CLM-013",
+            "CLM-014",
+            "CLM-015",
+            "CLM-016",
+            "CLM-017",
+            "CLM-018",
+            "CLM-019",
+            "CLM-020",
+            "CLM-021",
+            "CLM-022",
+            "CLM-023",
+            "CLM-024",
+            "CLM-025",
+            "CLM-026",
+            "CLM-027",
+            "CLM-028",
+            "CLM-029",
+            "CLM-030",
+            "CLM-031",
+            "CLM-032",
+            "CLM-033",
+            "CLM-034",
+            "CLM-035",
+            "CLM-036",
+            "CLM-037",
+            "CLM-038",
+            "CLM-039",
+            "CLM-040",
+            "CLM-041",
+            "OUT-001",
+            "VER-001"
+          ],
+          "removed_ids": [],
+          "new_ids": [
+            "AC-002",
+            "CLM-042",
+            "OUT-002",
+            "VER-002"
+          ],
+          "pass": true,
+          "validator_pass": true
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/ScopeOfWork.md",
+          "existing": true,
+          "stable_ids_retained": [
+            "AC-001",
+            "CLM-001",
+            "CLM-002",
+            "CLM-003",
+            "CLM-004",
+            "CLM-005",
+            "CLM-006",
+            "CLM-007",
+            "CLM-008",
+            "CLM-009",
+            "CLM-010",
+            "CLM-011",
+            "CLM-012",
+            "CLM-013",
+            "CLM-014",
+            "CLM-015",
+            "CLM-016",
+            "CLM-017",
+            "CLM-018",
+            "CLM-019",
+            "CLM-020",
+            "CLM-021",
+            "CLM-022",
+            "CLM-023",
+            "CLM-024",
+            "CLM-025",
+            "CLM-026",
+            "CLM-027",
+            "CLM-028",
+            "CLM-029",
+            "CLM-030",
+            "CLM-031",
+            "CLM-032",
+            "OUT-001",
+            "VER-001"
+          ],
+          "removed_ids": [],
+          "new_ids": [
+            "AC-002",
+            "CLM-033",
+            "OUT-002",
+            "VER-002"
+          ],
+          "pass": true,
+          "validator_pass": true
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/ScopeOfWork.md",
+          "existing": true,
+          "stable_ids_retained": [
+            "AC-001",
+            "CLM-001",
+            "CLM-003",
+            "CLM-004",
+            "CLM-005",
+            "CLM-006",
+            "CLM-007",
+            "CLM-008",
+            "CLM-010",
+            "CLM-011",
+            "CLM-012",
+            "CLM-013",
+            "CLM-014",
+            "CLM-015",
+            "CLM-017",
+            "CLM-018",
+            "CLM-019",
+            "CLM-020",
+            "CLM-021",
+            "CLM-022",
+            "CLM-024",
+            "CLM-025",
+            "CLM-026",
+            "CLM-027",
+            "CLM-028",
+            "CLM-029",
+            "OUT-001",
+            "VER-001"
+          ],
+          "removed_ids": [],
+          "new_ids": [
+            "AC-002",
+            "CLM-030",
+            "OUT-002",
+            "VER-002"
+          ],
+          "pass": true,
+          "validator_pass": true
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+          "existing": false,
+          "stable_ids_retained": [],
+          "removed_ids": [],
+          "new_ids": [
+            "AC-001",
+            "AC-002",
+            "AC-003",
+            "AC-004",
+            "CLM-001",
+            "CLM-002",
+            "CLM-003",
+            "CLM-004",
+            "OUT-001",
+            "OUT-002",
+            "OUT-003",
+            "OUT-004",
+            "VER-001",
+            "VER-002",
+            "VER-003",
+            "VER-004"
+          ],
+          "pass": true,
+          "validator_pass": true
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+          "existing": false,
+          "stable_ids_retained": [],
+          "removed_ids": [],
+          "new_ids": [
+            "AC-001",
+            "AC-002",
+            "AC-003",
+            "AC-004",
+            "CLM-001",
+            "CLM-002",
+            "CLM-003",
+            "CLM-004",
+            "OUT-001",
+            "OUT-002",
+            "OUT-003",
+            "OUT-004",
+            "VER-001",
+            "VER-002",
+            "VER-003",
+            "VER-004"
+          ],
+          "pass": true,
+          "validator_pass": true
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/ScopeOfWork.md",
+          "existing": true,
+          "stable_ids_retained": [
+            "AC-001",
+            "CLM-001",
+            "CLM-003",
+            "CLM-004",
+            "CLM-005",
+            "CLM-006",
+            "CLM-007",
+            "CLM-008",
+            "CLM-010",
+            "CLM-011",
+            "CLM-012",
+            "CLM-013",
+            "CLM-014",
+            "CLM-015",
+            "CLM-017",
+            "CLM-018",
+            "CLM-019",
+            "CLM-020",
+            "CLM-021",
+            "CLM-022",
+            "CLM-023",
+            "CLM-024",
+            "CLM-025",
+            "CLM-026",
+            "CLM-027",
+            "CLM-028",
+            "OUT-001",
+            "VER-001"
+          ],
+          "removed_ids": [],
+          "new_ids": [],
+          "pass": true,
+          "validator_pass": true
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/ScopeOfWork.md",
+          "existing": true,
+          "stable_ids_retained": [
+            "AC-001",
+            "CLM-001",
+            "CLM-003",
+            "CLM-004",
+            "CLM-005",
+            "CLM-006",
+            "CLM-007",
+            "CLM-008",
+            "CLM-009",
+            "CLM-011",
+            "CLM-012",
+            "CLM-013",
+            "CLM-014",
+            "CLM-015",
+            "CLM-016",
+            "CLM-017",
+            "CLM-018",
+            "CLM-020",
+            "CLM-021",
+            "CLM-022",
+            "CLM-023",
+            "CLM-024",
+            "CLM-025",
+            "CLM-026",
+            "CLM-027",
+            "CLM-028",
+            "CLM-029",
+            "CLM-030",
+            "CLM-031",
+            "CLM-032",
+            "CLM-033",
+            "OUT-001",
+            "VER-001"
+          ],
+          "removed_ids": [],
+          "new_ids": [],
+          "pass": true,
+          "validator_pass": true
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/ScopeOfWork.md",
+          "existing": true,
+          "stable_ids_retained": [
+            "AC-001",
+            "CLM-001",
+            "CLM-002",
+            "CLM-003",
+            "CLM-004",
+            "CLM-005",
+            "CLM-006",
+            "CLM-007",
+            "CLM-008",
+            "CLM-009",
+            "CLM-010",
+            "CLM-011",
+            "CLM-012",
+            "CLM-013",
+            "CLM-014",
+            "CLM-015",
+            "CLM-016",
+            "CLM-017",
+            "CLM-018",
+            "CLM-019",
+            "CLM-020",
+            "CLM-021",
+            "CLM-022",
+            "CLM-023",
+            "CLM-024",
+            "CLM-025",
+            "CLM-026",
+            "CLM-027",
+            "CLM-028",
+            "CLM-029",
+            "CLM-030",
+            "CLM-031",
+            "CLM-032",
+            "CLM-033",
+            "CLM-034",
+            "CLM-035",
+            "CLM-036",
+            "CLM-037",
+            "CLM-038",
+            "CLM-039",
+            "CLM-040",
+            "CLM-041",
+            "CLM-042",
+            "CLM-043",
+            "CLM-044",
+            "CLM-045",
+            "CLM-046",
+            "CLM-047",
+            "CLM-048",
+            "OUT-001",
+            "VER-001"
+          ],
+          "removed_ids": [],
+          "new_ids": [],
+          "pass": true,
+          "validator_pass": true
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine/ScopeOfWork.md",
+          "existing": true,
+          "stable_ids_retained": [
+            "AC-001",
+            "CLM-001",
+            "CLM-003",
+            "CLM-004",
+            "CLM-005",
+            "CLM-006",
+            "CLM-007",
+            "CLM-008",
+            "CLM-009",
+            "CLM-011",
+            "CLM-012",
+            "CLM-013",
+            "CLM-014",
+            "CLM-015",
+            "CLM-016",
+            "CLM-017",
+            "CLM-019",
+            "CLM-020",
+            "CLM-021",
+            "CLM-022",
+            "CLM-023",
+            "CLM-024",
+            "CLM-025",
+            "CLM-027",
+            "CLM-028",
+            "CLM-029",
+            "CLM-030",
+            "CLM-031",
+            "CLM-032",
+            "CLM-033",
+            "OUT-001",
+            "VER-001"
+          ],
+          "removed_ids": [],
+          "new_ids": [],
+          "pass": true,
+          "validator_pass": true
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/ScopeOfWork.md",
+          "existing": true,
+          "stable_ids_retained": [
+            "AC-001",
+            "CLM-001",
+            "CLM-002",
+            "CLM-003",
+            "CLM-004",
+            "CLM-005",
+            "CLM-006",
+            "CLM-007",
+            "CLM-008",
+            "CLM-009",
+            "CLM-010",
+            "CLM-011",
+            "CLM-012",
+            "CLM-013",
+            "CLM-014",
+            "CLM-015",
+            "CLM-016",
+            "CLM-017",
+            "CLM-018",
+            "CLM-019",
+            "CLM-020",
+            "CLM-021",
+            "CLM-022",
+            "CLM-023",
+            "CLM-024",
+            "CLM-025",
+            "CLM-026",
+            "CLM-027",
+            "CLM-028",
+            "CLM-029",
+            "CLM-030",
+            "CLM-031",
+            "CLM-032",
+            "CLM-033",
+            "CLM-034",
+            "CLM-035",
+            "CLM-036",
+            "CLM-037",
+            "CLM-038",
+            "OUT-001",
+            "VER-001"
+          ],
+          "removed_ids": [],
+          "new_ids": [],
+          "pass": true,
+          "validator_pass": true
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/ScopeOfWork.md",
+          "existing": true,
+          "stable_ids_retained": [
+            "AC-001",
+            "CLM-001",
+            "CLM-003",
+            "CLM-004",
+            "CLM-005",
+            "CLM-006",
+            "CLM-007",
+            "CLM-008",
+            "CLM-010",
+            "CLM-011",
+            "CLM-012",
+            "CLM-013",
+            "CLM-014",
+            "CLM-015",
+            "CLM-017",
+            "CLM-018",
+            "CLM-019",
+            "CLM-020",
+            "CLM-021",
+            "CLM-022",
+            "CLM-024",
+            "CLM-025",
+            "CLM-026",
+            "CLM-027",
+            "CLM-028",
+            "CLM-029",
+            "OUT-001",
+            "VER-001"
+          ],
+          "removed_ids": [],
+          "new_ids": [],
+          "pass": true,
+          "validator_pass": true
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/ScopeOfWork.md",
+          "existing": true,
+          "stable_ids_retained": [
+            "AC-001",
+            "CLM-001",
+            "CLM-003",
+            "CLM-004",
+            "CLM-005",
+            "CLM-006",
+            "CLM-007",
+            "CLM-008",
+            "CLM-009",
+            "CLM-010",
+            "CLM-011",
+            "CLM-012",
+            "CLM-013",
+            "CLM-014",
+            "CLM-015",
+            "CLM-016",
+            "CLM-017",
+            "CLM-018",
+            "CLM-019",
+            "CLM-020",
+            "CLM-021",
+            "CLM-022",
+            "CLM-023",
+            "CLM-024",
+            "CLM-025",
+            "CLM-026",
+            "OUT-001",
+            "VER-001"
+          ],
+          "removed_ids": [],
+          "new_ids": [
+            "AC-002",
+            "CLM-027",
+            "OUT-002",
+            "VER-002"
+          ],
+          "pass": true,
+          "validator_pass": true
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/ScopeOfWork.md",
+          "existing": true,
+          "stable_ids_retained": [
+            "AC-001",
+            "CLM-001",
+            "CLM-003",
+            "CLM-004",
+            "CLM-005",
+            "CLM-006",
+            "CLM-007",
+            "CLM-008",
+            "CLM-009",
+            "CLM-010",
+            "CLM-011",
+            "CLM-012",
+            "CLM-013",
+            "CLM-014",
+            "CLM-016",
+            "CLM-017",
+            "CLM-018",
+            "CLM-019",
+            "CLM-020",
+            "CLM-021",
+            "CLM-023",
+            "CLM-024",
+            "CLM-025",
+            "CLM-026",
+            "CLM-027",
+            "CLM-028",
+            "OUT-001",
+            "VER-001"
+          ],
+          "removed_ids": [],
+          "new_ids": [
+            "AC-002",
+            "CLM-029",
+            "OUT-002",
+            "VER-002"
+          ],
+          "pass": true,
+          "validator_pass": true
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+          "existing": false,
+          "stable_ids_retained": [],
+          "removed_ids": [],
+          "new_ids": [
+            "AC-001",
+            "AC-002",
+            "AC-003",
+            "AC-004",
+            "CLM-001",
+            "CLM-002",
+            "CLM-003",
+            "CLM-004",
+            "OUT-001",
+            "OUT-002",
+            "OUT-003",
+            "OUT-004",
+            "VER-001",
+            "VER-002",
+            "VER-003",
+            "VER-004"
+          ],
+          "pass": true,
+          "validator_pass": true
+        }
+      ]
+    },
+    {
+      "check": "explicit_docs_register_ledger_parity",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "check": "objective_support_summary_parity",
+      "pass": true,
+      "detail": [
+        {
+          "objective": "OBJ-001",
+          "support_ids": [
+            "DEL-01-01",
+            "DEL-02-01",
+            "DEL-02-02",
+            "DEL-02-03",
+            "DEL-02-05",
+            "DEL-11-01",
+            "DEL-11-02",
+            "DEL-11-03",
+            "DEL-11-04",
+            "DEL-11-05"
+          ],
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "objective": "OBJ-002",
+          "support_ids": [
+            "DEL-01-01",
+            "DEL-01-02",
+            "DEL-01-03",
+            "DEL-03-07",
+            "DEL-06-03",
+            "DEL-06-04",
+            "DEL-08-05",
+            "DEL-11-02",
+            "DEL-11-05"
+          ],
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "objective": "OBJ-003",
+          "support_ids": [
+            "DEL-04-01",
+            "DEL-04-02",
+            "DEL-04-03",
+            "DEL-04-04",
+            "DEL-04-05",
+            "DEL-04-06",
+            "DEL-04-07",
+            "DEL-05-01",
+            "DEL-05-02",
+            "DEL-05-03",
+            "DEL-05-05",
+            "DEL-11-03"
+          ],
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "objective": "OBJ-004",
+          "support_ids": [
+            "DEL-03-01",
+            "DEL-03-02",
+            "DEL-03-03",
+            "DEL-03-04",
+            "DEL-03-05",
+            "DEL-03-06",
+            "DEL-03-07",
+            "DEL-03-08"
+          ],
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "objective": "OBJ-005",
+          "support_ids": [
+            "DEL-05-02",
+            "DEL-05-04",
+            "DEL-06-01",
+            "DEL-06-02",
+            "DEL-06-03",
+            "DEL-06-04",
+            "DEL-06-05"
+          ],
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "objective": "OBJ-006",
+          "support_ids": [
+            "DEL-07-01",
+            "DEL-07-02",
+            "DEL-07-03",
+            "DEL-07-04",
+            "DEL-07-05",
+            "DEL-07-06",
+            "DEL-07-07",
+            "DEL-07-09",
+            "DEL-07-11",
+            "DEL-07-12"
+          ],
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "objective": "OBJ-007",
+          "support_ids": [
+            "DEL-07-05",
+            "DEL-07-07",
+            "DEL-07-12",
+            "DEL-08-01",
+            "DEL-08-02",
+            "DEL-08-03",
+            "DEL-08-04",
+            "DEL-08-05",
+            "DEL-08-06",
+            "DEL-17-05",
+            "DEL-17-06"
+          ],
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "objective": "OBJ-008",
+          "support_ids": [
+            "DEL-04-05",
+            "DEL-04-06",
+            "DEL-09-01",
+            "DEL-09-02",
+            "DEL-09-03",
+            "DEL-09-04",
+            "DEL-09-05",
+            "DEL-10-04",
+            "DEL-10-05",
+            "DEL-11-04"
+          ],
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "objective": "OBJ-009",
+          "support_ids": [
+            "DEL-02-04",
+            "DEL-08-04",
+            "DEL-10-01",
+            "DEL-10-02",
+            "DEL-10-03",
+            "DEL-10-04",
+            "DEL-10-05",
+            "DEL-17-01",
+            "DEL-17-02",
+            "DEL-17-03",
+            "DEL-17-04",
+            "DEL-17-05",
+            "DEL-17-07",
+            "DEL-17-08",
+            "DEL-17-09"
+          ],
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "objective": "OBJ-010",
+          "support_ids": [
+            "DEL-07-11",
+            "DEL-12-01",
+            "DEL-12-02",
+            "DEL-12-03",
+            "DEL-12-04",
+            "DEL-12-05"
+          ],
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "objective": "OBJ-011",
+          "support_ids": [
+            "DEL-01-04",
+            "DEL-02-03",
+            "DEL-05-04",
+            "DEL-06-05",
+            "DEL-07-04",
+            "DEL-08-03",
+            "DEL-09-04",
+            "DEL-11-01"
+          ],
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "objective": "OBJ-012",
+          "support_ids": [
+            "DEL-02-01",
+            "DEL-02-02",
+            "DEL-02-05",
+            "DEL-03-08",
+            "DEL-04-06",
+            "DEL-04-07",
+            "DEL-05-05",
+            "DEL-08-02",
+            "DEL-10-05"
+          ],
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "objective": "OBJ-013",
+          "support_ids": [
+            "DEL-00-01",
+            "DEL-00-02",
+            "DEL-00-03",
+            "DEL-00-04",
+            "DEL-00-05",
+            "DEL-00-06",
+            "DEL-00-07",
+            "DEL-00-08"
+          ],
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "objective": "OBJ-014",
+          "support_ids": [
+            "DEL-02-01",
+            "DEL-13-01",
+            "DEL-13-02",
+            "DEL-13-03",
+            "DEL-13-04"
+          ],
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "objective": "OBJ-015",
+          "support_ids": [
+            "DEL-07-08",
+            "DEL-07-09",
+            "DEL-07-11",
+            "DEL-16-01",
+            "DEL-16-02",
+            "DEL-16-03",
+            "DEL-16-04",
+            "DEL-16-06"
+          ],
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "objective": "OBJ-016",
+          "support_ids": [
+            "DEL-07-08",
+            "DEL-08-06",
+            "DEL-14-01",
+            "DEL-14-02",
+            "DEL-14-03",
+            "DEL-14-04",
+            "DEL-14-05"
+          ],
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "objective": "OBJ-017",
+          "support_ids": [
+            "DEL-08-06",
+            "DEL-15-01",
+            "DEL-15-02",
+            "DEL-15-03",
+            "DEL-15-04",
+            "DEL-17-01",
+            "DEL-17-02",
+            "DEL-17-03",
+            "DEL-17-04",
+            "DEL-17-05",
+            "DEL-17-06",
+            "DEL-17-07",
+            "DEL-17-08",
+            "DEL-17-09"
+          ],
+          "missing": [],
+          "extra": [],
+          "pass": true
+        },
+        {
+          "objective": "OBJ-018",
+          "support_ids": [
+            "DEL-01-04",
+            "DEL-07-12",
+            "DEL-08-06",
+            "DEL-13-02",
+            "DEL-15-04",
+            "DEL-16-04",
+            "DEL-17-01",
+            "DEL-17-04",
+            "DEL-17-05",
+            "DEL-17-06",
+            "DEL-17-07",
+            "DEL-17-09"
+          ],
+          "missing": [],
+          "extra": [],
+          "pass": true
+        }
+      ]
+    },
+    {
+      "check": "no_objective_statement_change",
+      "pass": true,
+      "detail": {
+        "count": 18,
+        "mapping_only_updates": true
+      }
+    },
+    {
+      "check": "four_finite_control_sets",
+      "pass": true,
+      "detail": [
+        {
+          "id": "DEL-04-07",
+          "all_controls_present": true,
+          "envelope": "L",
+          "description_in_context": true,
+          "finite_envelope_notes": "Finite integration boundary; mathematical primitives, convergence policy and engineering acceptance remain with their owners.",
+          "semantic_placeholder": true
+        },
+        {
+          "id": "DEL-07-11",
+          "all_controls_present": true,
+          "envelope": "L",
+          "description_in_context": true,
+          "finite_envelope_notes": "Own common hosting and coordination only; feature-panel semantics, storage, solve UX and architecture remain with their owners.",
+          "semantic_placeholder": true
+        },
+        {
+          "id": "DEL-07-12",
+          "all_controls_present": true,
+          "envelope": "L",
+          "description_in_context": true,
+          "finite_envelope_notes": "Consumption, rendering and explicit dispatch only; no exporters, schema semantics, licensed process invocation or new adapter families.",
+          "semantic_placeholder": true
+        },
+        {
+          "id": "DEL-16-06",
+          "all_controls_present": true,
+          "envelope": "M",
+          "description_in_context": true,
+          "finite_envelope_notes": "One mutation seam; schema, preview, user acceptance, audit policy and durable persistence remain separate responsibilities.",
+          "semantic_placeholder": true
+        }
+      ]
+    },
+    {
+      "check": "preserve_pointer:projects/chirality-piping/execution/_ScopeChange/_LATEST.md",
+      "pass": true,
+      "detail": "projects/chirality-piping/execution/_ScopeChange/_LATEST.md"
+    },
+    {
+      "check": "preserve_pointer:projects/chirality-piping/execution/_DAG/_LATEST.md",
+      "pass": true,
+      "detail": "projects/chirality-piping/execution/_DAG/_LATEST.md"
+    },
+    {
+      "check": "pending_group3_status",
+      "pass": true,
+      "detail": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md"
+    },
+    {
+      "check": "truthful_pending_handoff",
+      "pass": true,
+      "detail": "# SCA-011 applied poststate \u2014 Group 3 preparation\n\nActual Group 2 acceptance: `../checkpoint_snapshots/SCA-011_GROUP-2_2026-09-22/`. Exact source package: commit `3e18334eca72509475684cc86786b3eeade83572`. Candidate snapshot: this SCA-011 folder. Pointer posture: **ACCEPTED_PREDECESSOR**; accepted predecessor is `../SCA-010_2026-09-18_1400/`. `_ScopeChange/_LATEST.md` still selects SCA-010; `_DAG/_LATEST.md` still selects DAG-010.\n\nThe 83 authorized canonical postimages are applied and hash-verified. Decomposition is 0.13, `applied_group3_pending`; companion registers, four new OPEN homes, named existing carriers and local dependency mirrors agree with the exact accepted amendment. DAG-011 is staged and remains unapproved. Group-3 transformations and active-pointer promotion have not run.\n\n| Field | State | Evidence / boundary |\n|---|---|---|\n| DecompositionTruthState | COMPLETE | Exact Group-2 decomposition and companion-register application; final poststate acceptance pending |\n| DerivativePackageState | INCOMPLETE | Targeted reconciliation and applied audit are completing |\n| ContentRemediationState | NOT_REQUIRED | SOFTWARE amendment; no DOMAIN content lane |\n| DownstreamRerunState | IN_PROGRESS | Required local extraction, staged graph, targeted reconciliation and audit |\n| MetadataAlignmentState | COMPLETE | Exact controls/carriers applied; 4 new OPEN homes, existing lifecycle unchanged |\n| AuditState | NOT_RUN | Fresh post-change audit and independent complete-poststate review underway; no final verdict yet |\n| ReadyForNextPhase | NO | Await reviewed Group-3 poststate; no production-readiness or release implication |\n\n## Derivative and scope disposition\n\n| Surface / owner | Current state | Next action |\n|---|---|---|\n| Decomposition and companion registers / WORKING_ITEMS | Applied exact Group-2 hashes | Independent actual-poststate audit; conditional Group-3 promotion only on acceptance |\n| New controls and existing carriers / TASK + preparation | 58/58 carrier hashes, 24 SoWs and 4 minimum control sets pass | Preserve OPEN/new and existing lifecycle; implementation witnesses remain open |\n| Local mirrors and DAG-011 / dependency TASK | 20 local mirrors applied, exact successor graph staged | Complete actual-source/audit records; include graph adoption in Group 3 |\n| Ownership/reconciliation derivative / bounded TASK | In progress | Original R6 keys and residuals must remain preserved |\n| Estimate/schedule / estimate-snapshot and project-setup | Not used or recomputed in this amendment | Refresh before forward planning relies on old estimates/schedules; no human deferral or fresh estimate is invented |\n| Result wire schemas / DEL-13-03/04, DEL-14-05 | Review-only drafts, excluded from canonical application | Accepted contract/binding and semantic/producer evidence before production conformance |\n| Product/native/engineering/privacy/external evidence / owning implementation and acceptance tranches | Prior state unchanged | Fulfil existing criteria; ownership and graph construction provide no new conformance witness |\n\nActive surface treatment: decomposition/registers/authorized controls/carriers DIRECT_EDIT completed; local mirrors DIRECT_EDIT and graph/reconciliation RECOMPUTE in their owning lanes; historical SCA/R6/DAG-010 and all production code/schema/test paths NO_CHANGE. No partition removal/reclassification or child retirement occurred; four new identities remain under their accepted existing parents.\n\nCurrent closure: **OPEN_PENDING_DERIVATIVE_CLOSURE** while final derivative/audit work completes. Proposed final closure will be stated in the Group-3 package after independent review. Final human poststate acceptance remains outstanding; no further ownership election is requested.\n\nNext safe action: complete the source-keyed derivative, fresh audit and independent poststate review; present the fully prepared Group-3 result. Parent HELP_HUMAN owns the human interface and Git integration.\n"
+    },
+    {
+      "check": "identities_retained_four_new",
+      "pass": true,
+      "detail": {
+        "before": 102,
+        "after": 106,
+        "added": [
+          "DEL-04-07",
+          "DEL-07-11",
+          "DEL-07-12",
+          "DEL-16-06"
+        ]
+      }
+    },
+    {
+      "check": "scope_ids_retained_two_new",
+      "pass": true,
+      "detail": {
+        "before": 77,
+        "after": 79,
+        "added": [
+          "SOW-078",
+          "SOW-079"
+        ]
+      }
+    },
+    {
+      "check": "staged_dag_accepted_bytes",
+      "pass": true,
+      "detail": [
+        {
+          "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/DependencyEdges.csv",
+          "sha256": "23165358e5e3e75c2fb90beb353714cbb43bc85858cabb9081b2de899cca2464",
+          "proposed_target": "projects/chirality-piping/execution/_DAG/DAG-011/DependencyEdges.csv",
+          "application": "GROUP2_STAGE_GROUP3_ADOPT"
+        },
+        {
+          "candidate": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/DeliverableNodes.csv",
+          "sha256": "91eb889930f4e97594a4b8627708d667473f066e9cde7e5fca0bf9a2b053613f",
+          "proposed_target": "projects/chirality-piping/execution/_DAG/DAG-011/DeliverableNodes.csv",
+          "application": "GROUP2_STAGE_GROUP3_ADOPT"
+        }
+      ]
+    },
+    {
+      "check": "protected_piping_bytes_unchanged",
+      "pass": true,
+      "detail": {
+        "changed": [],
+        "paths": [
+          "projects/chirality-piping/core",
+          "projects/chirality-piping/apps",
+          "projects/chirality-piping/schemas",
+          "projects/chirality-piping/tests",
+          "projects/chirality-piping/execution/_DAG/DAG-010",
+          "projects/chirality-piping/execution/_ScopeChange/SCA-009_2026-08-20_0000",
+          "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS"
+        ]
+      }
+    },
+    {
+      "check": "84_actual_local_quotes_and_hashes",
+      "pass": true,
+      "detail": [
+        {
+          "id": "SCA011-E001",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E002",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E003",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E004",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E005",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E006",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E007",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E008",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E009",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E010",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E011",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E012",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E013",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E014",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E015",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E016",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E017",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E018",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E019",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E020",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E021",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E022",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E023",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E024",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E025",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E026",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E027",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E028",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E029",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E030",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E031",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E032",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E033",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E034",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E035",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E036",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E037",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E038",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E039",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E040",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E041",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E042",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E043",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E044",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E045",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E046",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E047",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E048",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E049",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E050",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E051",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E052",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E053",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E054",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E055",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E056",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E057",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E058",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E059",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E060",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E061",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E062",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E063",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E064",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E065",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E066",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E067",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E068",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E069",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E070",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E071",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E072",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E073",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E074",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E075",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E076",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E077",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E078",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E079",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E080",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E081",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E082",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E083",
+          "pass": true
+        },
+        {
+          "id": "SCA011-E084",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "check": "stock_delta_enumerated",
+      "pass": true,
+      "detail": {
+        "EVQ-003": 84,
+        "DRB-006": 84
+      }
+    }
+  ],
+  "application": [
+    {
+      "target": "projects/chirality-piping/docs/_Registers/ContextBudgetQA.csv",
+      "expected_sha256": "292c0dc6fd53e4f982b77938927cd0a467b4b35cf708956a8ba9ba12211a0be6",
+      "observed_sha256": "292c0dc6fd53e4f982b77938927cd0a467b4b35cf708956a8ba9ba12211a0be6",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/docs/_Registers/Deliverables.csv",
+      "expected_sha256": "d4b96c0c4e499252a7845db9dd135e43f40e2acb10f077aba3a3866e8317d5cf",
+      "observed_sha256": "d4b96c0c4e499252a7845db9dd135e43f40e2acb10f077aba3a3866e8317d5cf",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/docs/_Registers/ScopeLedger.csv",
+      "expected_sha256": "a408a3b9ea0caccc3c4a410fb5a2caa5c5add4fd8460b0daac82cbf1c8f7aab4",
+      "observed_sha256": "a408a3b9ea0caccc3c4a410fb5a2caa5c5add4fd8460b0daac82cbf1c8f7aab4",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/ScopeOfWork.md",
+      "expected_sha256": "5a78bd781c9eb2541d471da206de7957319dfffa91cceef202628003eb362cf7",
+      "observed_sha256": "5a78bd781c9eb2541d471da206de7957319dfffa91cceef202628003eb362cf7",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/ScopeOfWork.md",
+      "expected_sha256": "e8ebb6fae82aabe3afee115a2eb42301d3948caf1f3c6a8c5cecab68da34af2a",
+      "observed_sha256": "e8ebb6fae82aabe3afee115a2eb42301d3948caf1f3c6a8c5cecab68da34af2a",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/ScopeOfWork.md",
+      "expected_sha256": "f604589d87e56074090351b46bfcb4c2bed221c6999788c8ff06beb023aa016d",
+      "observed_sha256": "f604589d87e56074090351b46bfcb4c2bed221c6999788c8ff06beb023aa016d",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/ScopeOfWork.md",
+      "expected_sha256": "2d6249879496a0daaaf06ea4dfe69c7e1190e54ecdf22e7154f591ef0b39645d",
+      "observed_sha256": "2d6249879496a0daaaf06ea4dfe69c7e1190e54ecdf22e7154f591ef0b39645d",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/ScopeOfWork.md",
+      "expected_sha256": "76265d7548e4035b43598715b2344f35f8de2c177d5e5969bd53ca712d237a10",
+      "observed_sha256": "76265d7548e4035b43598715b2344f35f8de2c177d5e5969bd53ca712d237a10",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/ScopeOfWork.md",
+      "expected_sha256": "581d78e65f46f9a0e12ef05fbcb1a6ae0a6b2a8ce943cc58fc7a3849a6d3ae0d",
+      "observed_sha256": "581d78e65f46f9a0e12ef05fbcb1a6ae0a6b2a8ce943cc58fc7a3849a6d3ae0d",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+      "expected_sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2",
+      "observed_sha256": "4ede61127ae6f3f0c8d1d607f8983e533b4b98a6cc8c2286df2a92eed2766fd2",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_CONTEXT.md",
+      "expected_sha256": "1d23c2e57d3ed8fa8c20d4374ac022d9cbe13cc5abe391ca9874f29a911730f3",
+      "observed_sha256": "1d23c2e57d3ed8fa8c20d4374ac022d9cbe13cc5abe391ca9874f29a911730f3",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_REFERENCES.md",
+      "expected_sha256": "008cd4031142eed135a31859a7faff498f97da655ff6f33e000412c17df01dbe",
+      "observed_sha256": "008cd4031142eed135a31859a7faff498f97da655ff6f33e000412c17df01dbe",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_SEMANTIC.md",
+      "expected_sha256": "0d556a76f60dadb4b20161f5efe708778d5071ec79ccec4c4541791b198edfa1",
+      "observed_sha256": "0d556a76f60dadb4b20161f5efe708778d5071ec79ccec4c4541791b198edfa1",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_STATUS.md",
+      "expected_sha256": "f7a657328b0650935ac8a5955b69ac82c0405170d66e650180e3303460148294",
+      "observed_sha256": "f7a657328b0650935ac8a5955b69ac82c0405170d66e650180e3303460148294",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/ScopeOfWork.md",
+      "expected_sha256": "18de37bb54197d67023d654401bb5adfa848d2dca1fcd44f5e81afd97ef90577",
+      "observed_sha256": "18de37bb54197d67023d654401bb5adfa848d2dca1fcd44f5e81afd97ef90577",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/ScopeOfWork.md",
+      "expected_sha256": "f577d714fb911697f58f13d777ea38321150d47fcb93edb59b0fa0174505f080",
+      "observed_sha256": "f577d714fb911697f58f13d777ea38321150d47fcb93edb59b0fa0174505f080",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_CONTEXT.md",
+      "expected_sha256": "3c13bcf8b97e7c3d6404446bb784cdd82338e631b16378003b92f226f69db92c",
+      "observed_sha256": "3c13bcf8b97e7c3d6404446bb784cdd82338e631b16378003b92f226f69db92c",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/ScopeOfWork.md",
+      "expected_sha256": "3de34f4b6f0d12aaa7fa8796d55556a8348c40a1806ffef0f8dc8be1962e85b8",
+      "observed_sha256": "3de34f4b6f0d12aaa7fa8796d55556a8348c40a1806ffef0f8dc8be1962e85b8",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_CONTEXT.md",
+      "expected_sha256": "2bfa27e5682e9598558b9b52e9e5f98e6794514d1d5ff8ae56e439d9e8838319",
+      "observed_sha256": "2bfa27e5682e9598558b9b52e9e5f98e6794514d1d5ff8ae56e439d9e8838319",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/ScopeOfWork.md",
+      "expected_sha256": "93fdb46065397d7955612a0352fb0ed93ebb87aa66bdb097d11afb8e614abda0",
+      "observed_sha256": "93fdb46065397d7955612a0352fb0ed93ebb87aa66bdb097d11afb8e614abda0",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_CONTEXT.md",
+      "expected_sha256": "5002561fb8f4ca434c7a846d6d0f25e71debf3bcf2652321bcbdf328f0c4f144",
+      "observed_sha256": "5002561fb8f4ca434c7a846d6d0f25e71debf3bcf2652321bcbdf328f0c4f144",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/ScopeOfWork.md",
+      "expected_sha256": "c83c2cb287e9b188f0795621db8c0edac1c668fdebaa7282534ea10e8291f693",
+      "observed_sha256": "c83c2cb287e9b188f0795621db8c0edac1c668fdebaa7282534ea10e8291f693",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_CONTEXT.md",
+      "expected_sha256": "49c9ae1e7005abf4e127c82b9773ccf832ac2ac37d956cb445d7d18ecb901fd2",
+      "observed_sha256": "49c9ae1e7005abf4e127c82b9773ccf832ac2ac37d956cb445d7d18ecb901fd2",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/ScopeOfWork.md",
+      "expected_sha256": "c70e5d0fcdf37eb794ac448c47692869a81caca8107421f14365b066a605f3f6",
+      "observed_sha256": "c70e5d0fcdf37eb794ac448c47692869a81caca8107421f14365b066a605f3f6",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_CONTEXT.md",
+      "expected_sha256": "ed3517118ef225d30b237031de2259a02f602dcc5bfef547e420a091f42f7aa6",
+      "observed_sha256": "ed3517118ef225d30b237031de2259a02f602dcc5bfef547e420a091f42f7aa6",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_CONTEXT.md",
+      "expected_sha256": "3d45abefed4d97693ef87f4068e1b3ed99aff4219ec750a50e63b9c1a46595fd",
+      "observed_sha256": "3d45abefed4d97693ef87f4068e1b3ed99aff4219ec750a50e63b9c1a46595fd",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+      "expected_sha256": "0511c07f4d741c59b7cffa1fd7c080d754200237bc537bb137882d8b582c79ef",
+      "observed_sha256": "0511c07f4d741c59b7cffa1fd7c080d754200237bc537bb137882d8b582c79ef",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_CONTEXT.md",
+      "expected_sha256": "5ab3d03e0f21b48c34f4e616107ee17abf3badd3bb8db370724661738e5d1428",
+      "observed_sha256": "5ab3d03e0f21b48c34f4e616107ee17abf3badd3bb8db370724661738e5d1428",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_REFERENCES.md",
+      "expected_sha256": "63e893e3c570cb796bef55159322c3b375f6156814e971ff6b2927bc394d1459",
+      "observed_sha256": "63e893e3c570cb796bef55159322c3b375f6156814e971ff6b2927bc394d1459",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_SEMANTIC.md",
+      "expected_sha256": "c857f5c43808cd4dee74d2f71644cef4a6af6b2d9c082ef35f508144a17c437a",
+      "observed_sha256": "c857f5c43808cd4dee74d2f71644cef4a6af6b2d9c082ef35f508144a17c437a",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_STATUS.md",
+      "expected_sha256": "1af3a408c611dab61ac3be092ff1053cc48bd2cbe3639f4c84626939d69c0327",
+      "observed_sha256": "1af3a408c611dab61ac3be092ff1053cc48bd2cbe3639f4c84626939d69c0327",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+      "expected_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+      "observed_sha256": "6bf61d042b9064bd1232f5290580d868a005ea8b258e851550eb261dcd4e3f1b",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_CONTEXT.md",
+      "expected_sha256": "7d0c0e74fb9b68953871a999a3a7d5248f9d4a06b4a6534c0f2a129b056a55d8",
+      "observed_sha256": "7d0c0e74fb9b68953871a999a3a7d5248f9d4a06b4a6534c0f2a129b056a55d8",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_REFERENCES.md",
+      "expected_sha256": "7f3f5ef675d9afcfb9765ccc3b71deffda5190ad603f302c5cce09c42c1473ec",
+      "observed_sha256": "7f3f5ef675d9afcfb9765ccc3b71deffda5190ad603f302c5cce09c42c1473ec",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_SEMANTIC.md",
+      "expected_sha256": "837983d799a8c818db10994235d273b79ade1d6ec6ed808a0bcf5c4551d55dda",
+      "observed_sha256": "837983d799a8c818db10994235d273b79ade1d6ec6ed808a0bcf5c4551d55dda",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_STATUS.md",
+      "expected_sha256": "d179f97739a36081d6ce722f3023cb730da31114f9da910f5df3f4d66bdf018f",
+      "observed_sha256": "d179f97739a36081d6ce722f3023cb730da31114f9da910f5df3f4d66bdf018f",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/MEMORY.md",
+      "expected_sha256": "0935b7e5274c148508b530b9971374218ffa04820985237cf8d763f988204ade",
+      "observed_sha256": "0935b7e5274c148508b530b9971374218ffa04820985237cf8d763f988204ade",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/ScopeOfWork.md",
+      "expected_sha256": "922a5c64e067ccec6c391a7144c436dc56e5f80cac1630e8b01f263e4e9ea3fe",
+      "observed_sha256": "922a5c64e067ccec6c391a7144c436dc56e5f80cac1630e8b01f263e4e9ea3fe",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_STATUS.md",
+      "expected_sha256": "615e6b5b1541de9853d4e386b6dfeb77929093be993d6875894a986e045be88c",
+      "observed_sha256": "615e6b5b1541de9853d4e386b6dfeb77929093be993d6875894a986e045be88c",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/MEMORY.md",
+      "expected_sha256": "9e9120de17b38fff1e91d58bffdb304bb6ae19f0b2786cf444097c72c0e64fa0",
+      "observed_sha256": "9e9120de17b38fff1e91d58bffdb304bb6ae19f0b2786cf444097c72c0e64fa0",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/ScopeOfWork.md",
+      "expected_sha256": "8a273182ca2994682fb61ad36e95f840d367bb925218d4129be38b3497506601",
+      "observed_sha256": "8a273182ca2994682fb61ad36e95f840d367bb925218d4129be38b3497506601",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/_STATUS.md",
+      "expected_sha256": "bfce9dec61790f9a04ce91e202522c77329a5f702eebe01cfd80477efe033b20",
+      "observed_sha256": "bfce9dec61790f9a04ce91e202522c77329a5f702eebe01cfd80477efe033b20",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/MEMORY.md",
+      "expected_sha256": "7f4b0c0088b0bb92a3be4bb2606b615a363f378a5f3b222e082851b9937604ce",
+      "observed_sha256": "7f4b0c0088b0bb92a3be4bb2606b615a363f378a5f3b222e082851b9937604ce",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/ScopeOfWork.md",
+      "expected_sha256": "4c7922a7cffaa3c8b0b8a60e100afacc9c90a1eb7297e88e19356746432fdea0",
+      "observed_sha256": "4c7922a7cffaa3c8b0b8a60e100afacc9c90a1eb7297e88e19356746432fdea0",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/_STATUS.md",
+      "expected_sha256": "1e98417eb47d88504d141b620af532e37bc3d626e466a6af1d4dbd0eb20f5c66",
+      "observed_sha256": "1e98417eb47d88504d141b620af532e37bc3d626e466a6af1d4dbd0eb20f5c66",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine/MEMORY.md",
+      "expected_sha256": "47ea7fef2c3bd88ae3e936dcb9170923644f9a7ac767d7755bd29371846909d9",
+      "observed_sha256": "47ea7fef2c3bd88ae3e936dcb9170923644f9a7ac767d7755bd29371846909d9",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine/ScopeOfWork.md",
+      "expected_sha256": "87cc15ec3db1bc6fcd19616d29ed67728c32f8d1c1d3efadec9d5e0150b70d63",
+      "observed_sha256": "87cc15ec3db1bc6fcd19616d29ed67728c32f8d1c1d3efadec9d5e0150b70d63",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine/_STATUS.md",
+      "expected_sha256": "8c1c3ffb7ea9cee13e93dac1727a2b67c4af52369f5b4bd11410823a295524f8",
+      "observed_sha256": "8c1c3ffb7ea9cee13e93dac1727a2b67c4af52369f5b4bd11410823a295524f8",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/MEMORY.md",
+      "expected_sha256": "16a271999953f1cd260d11129cd541d290281c3b50c08f2a8fa30797d052d32e",
+      "observed_sha256": "16a271999953f1cd260d11129cd541d290281c3b50c08f2a8fa30797d052d32e",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/ScopeOfWork.md",
+      "expected_sha256": "fc0d225c342b848103322ec39926521b959f3d97d9690e7eee3efd4e8e035548",
+      "observed_sha256": "fc0d225c342b848103322ec39926521b959f3d97d9690e7eee3efd4e8e035548",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/_STATUS.md",
+      "expected_sha256": "2e341c354159d50dcf7c0775197e8e1c007220779e4c457e964ff90e8dfaacf6",
+      "observed_sha256": "2e341c354159d50dcf7c0775197e8e1c007220779e4c457e964ff90e8dfaacf6",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/MEMORY.md",
+      "expected_sha256": "291b8b685d56ea48fc9546fb4e5ef65ed4406d539e450d7b04cd7d0a5c69231e",
+      "observed_sha256": "291b8b685d56ea48fc9546fb4e5ef65ed4406d539e450d7b04cd7d0a5c69231e",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/ScopeOfWork.md",
+      "expected_sha256": "6c6eed448e62cb01578a96d2cc27a65b2bbd5e035276133b6827f85864eae2f9",
+      "observed_sha256": "6c6eed448e62cb01578a96d2cc27a65b2bbd5e035276133b6827f85864eae2f9",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/_STATUS.md",
+      "expected_sha256": "b013f91b7a87924b1ee5c66b8571e564db467fad82328528a9c1fb6f4f21730c",
+      "observed_sha256": "b013f91b7a87924b1ee5c66b8571e564db467fad82328528a9c1fb6f4f21730c",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/ScopeOfWork.md",
+      "expected_sha256": "490c023a1d52e9087cf9cf6cdd7b9293942619272be6019b825d78271452ea13",
+      "observed_sha256": "490c023a1d52e9087cf9cf6cdd7b9293942619272be6019b825d78271452ea13",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/ScopeOfWork.md",
+      "expected_sha256": "65008a246f9efe66578ef72a7abe52d49c77ffb667b66f7b4ac1ebc5575dbbbc",
+      "observed_sha256": "65008a246f9efe66578ef72a7abe52d49c77ffb667b66f7b4ac1ebc5575dbbbc",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+      "expected_sha256": "541df636affcd119072051128a2b98b483791a94b181b3ef38e023030287391a",
+      "observed_sha256": "541df636affcd119072051128a2b98b483791a94b181b3ef38e023030287391a",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_CONTEXT.md",
+      "expected_sha256": "a66bf834f218c877155d9f8faece9be00f8cbae7b97eb8d119439ab01d82cfeb",
+      "observed_sha256": "a66bf834f218c877155d9f8faece9be00f8cbae7b97eb8d119439ab01d82cfeb",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_REFERENCES.md",
+      "expected_sha256": "e4707919fca8b377453f2317529901d9974914a869a543648c557e8ee682818c",
+      "observed_sha256": "e4707919fca8b377453f2317529901d9974914a869a543648c557e8ee682818c",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_SEMANTIC.md",
+      "expected_sha256": "44e8bc3ae2d3a6bb6489018e151b4dbb19b4058a4927952c342ea1ac7dc573e9",
+      "observed_sha256": "44e8bc3ae2d3a6bb6489018e151b4dbb19b4058a4927952c342ea1ac7dc573e9",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_STATUS.md",
+      "expected_sha256": "0c6a18ff854e766d8d05292109978422d68d1175fcae894bbec7f5741418cffe",
+      "observed_sha256": "0c6a18ff854e766d8d05292109978422d68d1175fcae894bbec7f5741418cffe",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+      "expected_sha256": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+      "observed_sha256": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/Vocabulary_Annex.md",
+      "expected_sha256": "248ce3ed1c5b92c6fcfbc392219bae2a71ed6ef6452f1fcfc18de5a7128ddca6",
+      "observed_sha256": "248ce3ed1c5b92c6fcfbc392219bae2a71ed6ef6452f1fcfc18de5a7128ddca6",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+      "expected_sha256": "33991044b75f09fc40726f271cbce0ba5c6f2678c11eb9e10f3e1a05494ef633",
+      "observed_sha256": "33991044b75f09fc40726f271cbce0ba5c6f2678c11eb9e10f3e1a05494ef633",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_DEPENDENCIES.md",
+      "expected_sha256": "41fb1fd8582391fab88f4e411647ba6e2581e747cb1b7453f659f765e3790137",
+      "observed_sha256": "41fb1fd8582391fab88f4e411647ba6e2581e747cb1b7453f659f765e3790137",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/Dependencies.csv",
+      "expected_sha256": "96ffe738a7255e2e1473350ae83990bbf158f25a7a2eb74db1909026e7acf675",
+      "observed_sha256": "96ffe738a7255e2e1473350ae83990bbf158f25a7a2eb74db1909026e7acf675",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_DEPENDENCIES.md",
+      "expected_sha256": "aa3259fe8008ebb5d296f493df4ca3db38f2eccd4191788fb59f9924c6b197bb",
+      "observed_sha256": "aa3259fe8008ebb5d296f493df4ca3db38f2eccd4191788fb59f9924c6b197bb",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/Dependencies.csv",
+      "expected_sha256": "235fdd05a69b1ef2dddf4896861a80ba72f79b26cf1267347a8b37d0ab7545da",
+      "observed_sha256": "235fdd05a69b1ef2dddf4896861a80ba72f79b26cf1267347a8b37d0ab7545da",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_DEPENDENCIES.md",
+      "expected_sha256": "3f762c2476601232f60e7d8cfb65823adf6949f4910f3482ff25909a505eb5b0",
+      "observed_sha256": "3f762c2476601232f60e7d8cfb65823adf6949f4910f3482ff25909a505eb5b0",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/Dependencies.csv",
+      "expected_sha256": "b703f15c4b5537b1c1d282c633e6d15f0b401f5afbd9d765fe01049413d6fc0a",
+      "observed_sha256": "b703f15c4b5537b1c1d282c633e6d15f0b401f5afbd9d765fe01049413d6fc0a",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_DEPENDENCIES.md",
+      "expected_sha256": "ebff060030a7677540715c72dcf3a0cc3eeead13c64456d7828214c00facb07a",
+      "observed_sha256": "ebff060030a7677540715c72dcf3a0cc3eeead13c64456d7828214c00facb07a",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/Dependencies.csv",
+      "expected_sha256": "f86596be336d47ec64e010d9d0877034e86922f089e50a56317a86b4d96937fc",
+      "observed_sha256": "f86596be336d47ec64e010d9d0877034e86922f089e50a56317a86b4d96937fc",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_DEPENDENCIES.md",
+      "expected_sha256": "b70001828d35be35c361986d25e1eedb18fe7c65761f21de1cdf9da0befd1242",
+      "observed_sha256": "b70001828d35be35c361986d25e1eedb18fe7c65761f21de1cdf9da0befd1242",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+      "expected_sha256": "32ab9b56319a60ba1daade4eb6e9b674943b52acecdc1be2f5aa3a8a5c6087e9",
+      "observed_sha256": "32ab9b56319a60ba1daade4eb6e9b674943b52acecdc1be2f5aa3a8a5c6087e9",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_DEPENDENCIES.md",
+      "expected_sha256": "9c48a6692db909a1b89e61db60e88ef414bf63dec5909865df8b38d3057cca01",
+      "observed_sha256": "9c48a6692db909a1b89e61db60e88ef414bf63dec5909865df8b38d3057cca01",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+      "expected_sha256": "fc0913c55445110c0622ba6cf8941dd71d5d0c6ae0910c3af57ee5ee99141112",
+      "observed_sha256": "fc0913c55445110c0622ba6cf8941dd71d5d0c6ae0910c3af57ee5ee99141112",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_DEPENDENCIES.md",
+      "expected_sha256": "7a7c03dd009217bdec795333a7bed20f45ad7c95002e9f7a378e2ace8c86188b",
+      "observed_sha256": "7a7c03dd009217bdec795333a7bed20f45ad7c95002e9f7a378e2ace8c86188b",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/Dependencies.csv",
+      "expected_sha256": "2c85a3bcec76f691c959e2fd4d97f3f23263f32fd44f7112f764a031cc42c2d4",
+      "observed_sha256": "2c85a3bcec76f691c959e2fd4d97f3f23263f32fd44f7112f764a031cc42c2d4",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_DEPENDENCIES.md",
+      "expected_sha256": "0d483a701df6dc616dd503838236d435e3353851ffd8199944122782d262ffbb",
+      "observed_sha256": "0d483a701df6dc616dd503838236d435e3353851ffd8199944122782d262ffbb",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/Dependencies.csv",
+      "expected_sha256": "52db83caf551c046b66de8380d4fdac9cd08aae3f3b4a2dbaa6b13b4c610af32",
+      "observed_sha256": "52db83caf551c046b66de8380d4fdac9cd08aae3f3b4a2dbaa6b13b4c610af32",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_DEPENDENCIES.md",
+      "expected_sha256": "70668671184a110eb1a5d5f9f44eff34c95c38c703918f2b620ce3fdcce818ae",
+      "observed_sha256": "70668671184a110eb1a5d5f9f44eff34c95c38c703918f2b620ce3fdcce818ae",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+      "expected_sha256": "187cc2f09189c80c1ea18ea32e92e2d6fbaae98e4df13bd07daf7179100f94aa",
+      "observed_sha256": "187cc2f09189c80c1ea18ea32e92e2d6fbaae98e4df13bd07daf7179100f94aa",
+      "pass": true
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_DEPENDENCIES.md",
+      "expected_sha256": "7094b81f5372449e25e867fbaa42f123fd422cac5744b67b919868df87b41769",
+      "observed_sha256": "7094b81f5372449e25e867fbaa42f123fd422cac5744b67b919868df87b41769",
+      "pass": true
+    }
+  ],
+  "sow_claims": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/ScopeOfWork.md",
+      "existing": true,
+      "stable_ids_retained": [
+        "AC-001",
+        "CLM-001",
+        "CLM-002",
+        "CLM-003",
+        "CLM-004",
+        "CLM-005",
+        "CLM-006",
+        "CLM-007",
+        "CLM-008",
+        "CLM-009",
+        "CLM-010",
+        "CLM-011",
+        "CLM-012",
+        "CLM-013",
+        "CLM-014",
+        "CLM-015",
+        "CLM-016",
+        "CLM-017",
+        "CLM-018",
+        "CLM-019",
+        "CLM-020",
+        "CLM-021",
+        "CLM-022",
+        "CLM-023",
+        "CLM-024",
+        "CLM-025",
+        "CLM-026",
+        "CLM-027",
+        "CLM-028",
+        "CLM-029",
+        "OUT-001",
+        "VER-001"
+      ],
+      "removed_ids": [],
+      "new_ids": [
+        "AC-002",
+        "CLM-030",
+        "OUT-002",
+        "VER-002"
+      ],
+      "pass": true,
+      "validator_pass": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/ScopeOfWork.md",
+      "existing": true,
+      "stable_ids_retained": [
+        "AC-001",
+        "CLM-001",
+        "CLM-002",
+        "CLM-003",
+        "CLM-004",
+        "CLM-005",
+        "CLM-006",
+        "CLM-007",
+        "CLM-008",
+        "CLM-009",
+        "CLM-010",
+        "CLM-011",
+        "CLM-012",
+        "CLM-013",
+        "CLM-014",
+        "CLM-015",
+        "CLM-016",
+        "CLM-017",
+        "CLM-018",
+        "CLM-019",
+        "CLM-020",
+        "CLM-021",
+        "CLM-022",
+        "CLM-023",
+        "CLM-024",
+        "CLM-025",
+        "CLM-026",
+        "OUT-001",
+        "VER-001"
+      ],
+      "removed_ids": [],
+      "new_ids": [
+        "AC-002",
+        "CLM-027",
+        "OUT-002",
+        "VER-002"
+      ],
+      "pass": true,
+      "validator_pass": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/ScopeOfWork.md",
+      "existing": true,
+      "stable_ids_retained": [
+        "AC-001",
+        "CLM-001",
+        "CLM-002",
+        "CLM-003",
+        "CLM-004",
+        "CLM-005",
+        "CLM-006",
+        "CLM-007",
+        "CLM-008",
+        "CLM-009",
+        "CLM-010",
+        "CLM-011",
+        "CLM-012",
+        "CLM-013",
+        "CLM-014",
+        "CLM-015",
+        "CLM-016",
+        "CLM-017",
+        "CLM-018",
+        "CLM-019",
+        "CLM-020",
+        "CLM-021",
+        "CLM-022",
+        "CLM-023",
+        "CLM-024",
+        "CLM-025",
+        "CLM-026",
+        "CLM-027",
+        "CLM-028",
+        "CLM-029",
+        "CLM-030",
+        "CLM-031",
+        "CLM-032",
+        "OUT-001",
+        "VER-001"
+      ],
+      "removed_ids": [],
+      "new_ids": [
+        "AC-002",
+        "CLM-033",
+        "OUT-002",
+        "VER-002"
+      ],
+      "pass": true,
+      "validator_pass": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/ScopeOfWork.md",
+      "existing": true,
+      "stable_ids_retained": [
+        "AC-001",
+        "CLM-001",
+        "CLM-003",
+        "CLM-004",
+        "CLM-005",
+        "CLM-006",
+        "CLM-007",
+        "CLM-008",
+        "CLM-009",
+        "CLM-010",
+        "CLM-011",
+        "CLM-012",
+        "CLM-013",
+        "CLM-014",
+        "CLM-015",
+        "CLM-016",
+        "CLM-017",
+        "CLM-018",
+        "CLM-019",
+        "CLM-020",
+        "CLM-021",
+        "CLM-022",
+        "CLM-024",
+        "CLM-025",
+        "CLM-026",
+        "CLM-027",
+        "CLM-028",
+        "CLM-029",
+        "OUT-001",
+        "VER-001"
+      ],
+      "removed_ids": [],
+      "new_ids": [
+        "AC-002",
+        "CLM-030",
+        "OUT-002",
+        "VER-002"
+      ],
+      "pass": true,
+      "validator_pass": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/ScopeOfWork.md",
+      "existing": true,
+      "stable_ids_retained": [
+        "AC-001",
+        "CLM-001",
+        "CLM-002",
+        "CLM-003",
+        "CLM-004",
+        "CLM-005",
+        "CLM-006",
+        "CLM-007",
+        "CLM-008",
+        "CLM-009",
+        "CLM-010",
+        "CLM-011",
+        "CLM-012",
+        "CLM-013",
+        "CLM-014",
+        "CLM-015",
+        "CLM-016",
+        "CLM-017",
+        "CLM-018",
+        "CLM-019",
+        "CLM-020",
+        "CLM-021",
+        "CLM-022",
+        "CLM-023",
+        "CLM-024",
+        "CLM-025",
+        "CLM-026",
+        "CLM-027",
+        "OUT-001",
+        "VER-001"
+      ],
+      "removed_ids": [],
+      "new_ids": [
+        "AC-002",
+        "CLM-028",
+        "OUT-002",
+        "VER-002"
+      ],
+      "pass": true,
+      "validator_pass": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/ScopeOfWork.md",
+      "existing": true,
+      "stable_ids_retained": [
+        "AC-001",
+        "CLM-001",
+        "CLM-003",
+        "CLM-004",
+        "CLM-005",
+        "CLM-006",
+        "CLM-007",
+        "CLM-008",
+        "CLM-009",
+        "CLM-010",
+        "CLM-012",
+        "CLM-013",
+        "CLM-014",
+        "CLM-015",
+        "CLM-016",
+        "CLM-017",
+        "CLM-018",
+        "CLM-019",
+        "CLM-020",
+        "CLM-021",
+        "CLM-022",
+        "CLM-023",
+        "CLM-024",
+        "CLM-025",
+        "CLM-027",
+        "CLM-028",
+        "CLM-029",
+        "CLM-030",
+        "CLM-031",
+        "CLM-032",
+        "CLM-033",
+        "OUT-001",
+        "VER-001"
+      ],
+      "removed_ids": [],
+      "new_ids": [
+        "AC-002",
+        "CLM-034",
+        "OUT-002",
+        "VER-002"
+      ],
+      "pass": true,
+      "validator_pass": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+      "existing": false,
+      "stable_ids_retained": [],
+      "removed_ids": [],
+      "new_ids": [
+        "AC-001",
+        "AC-002",
+        "AC-003",
+        "AC-004",
+        "CLM-001",
+        "CLM-002",
+        "CLM-003",
+        "CLM-004",
+        "OUT-001",
+        "OUT-002",
+        "OUT-003",
+        "OUT-004",
+        "VER-001",
+        "VER-002",
+        "VER-003",
+        "VER-004"
+      ],
+      "pass": true,
+      "validator_pass": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/ScopeOfWork.md",
+      "existing": true,
+      "stable_ids_retained": [
+        "AC-001",
+        "CLM-001",
+        "CLM-003",
+        "CLM-004",
+        "CLM-005",
+        "CLM-006",
+        "CLM-007",
+        "CLM-008",
+        "CLM-009",
+        "CLM-010",
+        "CLM-011",
+        "CLM-013",
+        "CLM-014",
+        "CLM-015",
+        "CLM-016",
+        "CLM-017",
+        "CLM-018",
+        "CLM-019",
+        "CLM-020",
+        "CLM-021",
+        "CLM-022",
+        "CLM-023",
+        "CLM-024",
+        "CLM-025",
+        "CLM-026",
+        "CLM-027",
+        "CLM-028",
+        "CLM-029",
+        "CLM-030",
+        "CLM-031",
+        "CLM-032",
+        "CLM-033",
+        "CLM-034",
+        "OUT-001",
+        "VER-001"
+      ],
+      "removed_ids": [],
+      "new_ids": [
+        "AC-002",
+        "CLM-035",
+        "OUT-002",
+        "VER-002"
+      ],
+      "pass": true,
+      "validator_pass": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/ScopeOfWork.md",
+      "existing": true,
+      "stable_ids_retained": [
+        "AC-001",
+        "CLM-001",
+        "CLM-003",
+        "CLM-004",
+        "CLM-005",
+        "CLM-006",
+        "CLM-007",
+        "CLM-008",
+        "CLM-010",
+        "CLM-011",
+        "CLM-012",
+        "CLM-013",
+        "CLM-014",
+        "CLM-015",
+        "CLM-016",
+        "CLM-018",
+        "CLM-019",
+        "CLM-020",
+        "CLM-021",
+        "CLM-022",
+        "CLM-023",
+        "CLM-024",
+        "CLM-026",
+        "CLM-027",
+        "CLM-028",
+        "CLM-029",
+        "CLM-030",
+        "CLM-031",
+        "CLM-032",
+        "OUT-001",
+        "VER-001",
+        "VER-01",
+        "VER-02",
+        "VER-03",
+        "VER-04",
+        "VER-05",
+        "VER-06",
+        "VER-07"
+      ],
+      "removed_ids": [],
+      "new_ids": [
+        "AC-002",
+        "CLM-033",
+        "OUT-002",
+        "VER-002"
+      ],
+      "pass": true,
+      "validator_pass": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/ScopeOfWork.md",
+      "existing": true,
+      "stable_ids_retained": [
+        "AC-001",
+        "CLM-001",
+        "CLM-003",
+        "CLM-004",
+        "CLM-005",
+        "CLM-006",
+        "CLM-007",
+        "CLM-008",
+        "CLM-009",
+        "CLM-010",
+        "CLM-011",
+        "CLM-013",
+        "CLM-014",
+        "CLM-015",
+        "CLM-016",
+        "CLM-017",
+        "CLM-018",
+        "CLM-019",
+        "CLM-020",
+        "CLM-021",
+        "CLM-022",
+        "CLM-023",
+        "CLM-024",
+        "CLM-025",
+        "CLM-026",
+        "CLM-027",
+        "CLM-028",
+        "CLM-029",
+        "CLM-030",
+        "CLM-031",
+        "CLM-032",
+        "CLM-033",
+        "CLM-034",
+        "CLM-035",
+        "CLM-036",
+        "CLM-037",
+        "OUT-001",
+        "VER-001"
+      ],
+      "removed_ids": [],
+      "new_ids": [
+        "AC-002",
+        "CLM-038",
+        "OUT-002",
+        "VER-002"
+      ],
+      "pass": true,
+      "validator_pass": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/ScopeOfWork.md",
+      "existing": true,
+      "stable_ids_retained": [
+        "AC-001",
+        "CLM-001",
+        "CLM-002",
+        "CLM-003",
+        "CLM-004",
+        "CLM-005",
+        "CLM-006",
+        "CLM-007",
+        "CLM-008",
+        "CLM-009",
+        "CLM-010",
+        "CLM-011",
+        "CLM-012",
+        "CLM-013",
+        "CLM-014",
+        "CLM-015",
+        "CLM-016",
+        "CLM-017",
+        "CLM-018",
+        "CLM-019",
+        "CLM-020",
+        "CLM-021",
+        "CLM-022",
+        "CLM-023",
+        "CLM-024",
+        "CLM-025",
+        "CLM-026",
+        "CLM-027",
+        "CLM-028",
+        "CLM-029",
+        "CLM-030",
+        "CLM-031",
+        "CLM-032",
+        "CLM-033",
+        "CLM-034",
+        "CLM-035",
+        "CLM-036",
+        "CLM-037",
+        "CLM-038",
+        "CLM-039",
+        "CLM-040",
+        "CLM-041",
+        "OUT-001",
+        "VER-001"
+      ],
+      "removed_ids": [],
+      "new_ids": [
+        "AC-002",
+        "CLM-042",
+        "OUT-002",
+        "VER-002"
+      ],
+      "pass": true,
+      "validator_pass": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/ScopeOfWork.md",
+      "existing": true,
+      "stable_ids_retained": [
+        "AC-001",
+        "CLM-001",
+        "CLM-002",
+        "CLM-003",
+        "CLM-004",
+        "CLM-005",
+        "CLM-006",
+        "CLM-007",
+        "CLM-008",
+        "CLM-009",
+        "CLM-010",
+        "CLM-011",
+        "CLM-012",
+        "CLM-013",
+        "CLM-014",
+        "CLM-015",
+        "CLM-016",
+        "CLM-017",
+        "CLM-018",
+        "CLM-019",
+        "CLM-020",
+        "CLM-021",
+        "CLM-022",
+        "CLM-023",
+        "CLM-024",
+        "CLM-025",
+        "CLM-026",
+        "CLM-027",
+        "CLM-028",
+        "CLM-029",
+        "CLM-030",
+        "CLM-031",
+        "CLM-032",
+        "OUT-001",
+        "VER-001"
+      ],
+      "removed_ids": [],
+      "new_ids": [
+        "AC-002",
+        "CLM-033",
+        "OUT-002",
+        "VER-002"
+      ],
+      "pass": true,
+      "validator_pass": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/ScopeOfWork.md",
+      "existing": true,
+      "stable_ids_retained": [
+        "AC-001",
+        "CLM-001",
+        "CLM-003",
+        "CLM-004",
+        "CLM-005",
+        "CLM-006",
+        "CLM-007",
+        "CLM-008",
+        "CLM-010",
+        "CLM-011",
+        "CLM-012",
+        "CLM-013",
+        "CLM-014",
+        "CLM-015",
+        "CLM-017",
+        "CLM-018",
+        "CLM-019",
+        "CLM-020",
+        "CLM-021",
+        "CLM-022",
+        "CLM-024",
+        "CLM-025",
+        "CLM-026",
+        "CLM-027",
+        "CLM-028",
+        "CLM-029",
+        "OUT-001",
+        "VER-001"
+      ],
+      "removed_ids": [],
+      "new_ids": [
+        "AC-002",
+        "CLM-030",
+        "OUT-002",
+        "VER-002"
+      ],
+      "pass": true,
+      "validator_pass": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+      "existing": false,
+      "stable_ids_retained": [],
+      "removed_ids": [],
+      "new_ids": [
+        "AC-001",
+        "AC-002",
+        "AC-003",
+        "AC-004",
+        "CLM-001",
+        "CLM-002",
+        "CLM-003",
+        "CLM-004",
+        "OUT-001",
+        "OUT-002",
+        "OUT-003",
+        "OUT-004",
+        "VER-001",
+        "VER-002",
+        "VER-003",
+        "VER-004"
+      ],
+      "pass": true,
+      "validator_pass": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+      "existing": false,
+      "stable_ids_retained": [],
+      "removed_ids": [],
+      "new_ids": [
+        "AC-001",
+        "AC-002",
+        "AC-003",
+        "AC-004",
+        "CLM-001",
+        "CLM-002",
+        "CLM-003",
+        "CLM-004",
+        "OUT-001",
+        "OUT-002",
+        "OUT-003",
+        "OUT-004",
+        "VER-001",
+        "VER-002",
+        "VER-003",
+        "VER-004"
+      ],
+      "pass": true,
+      "validator_pass": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/ScopeOfWork.md",
+      "existing": true,
+      "stable_ids_retained": [
+        "AC-001",
+        "CLM-001",
+        "CLM-003",
+        "CLM-004",
+        "CLM-005",
+        "CLM-006",
+        "CLM-007",
+        "CLM-008",
+        "CLM-010",
+        "CLM-011",
+        "CLM-012",
+        "CLM-013",
+        "CLM-014",
+        "CLM-015",
+        "CLM-017",
+        "CLM-018",
+        "CLM-019",
+        "CLM-020",
+        "CLM-021",
+        "CLM-022",
+        "CLM-023",
+        "CLM-024",
+        "CLM-025",
+        "CLM-026",
+        "CLM-027",
+        "CLM-028",
+        "OUT-001",
+        "VER-001"
+      ],
+      "removed_ids": [],
+      "new_ids": [],
+      "pass": true,
+      "validator_pass": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/ScopeOfWork.md",
+      "existing": true,
+      "stable_ids_retained": [
+        "AC-001",
+        "CLM-001",
+        "CLM-003",
+        "CLM-004",
+        "CLM-005",
+        "CLM-006",
+        "CLM-007",
+        "CLM-008",
+        "CLM-009",
+        "CLM-011",
+        "CLM-012",
+        "CLM-013",
+        "CLM-014",
+        "CLM-015",
+        "CLM-016",
+        "CLM-017",
+        "CLM-018",
+        "CLM-020",
+        "CLM-021",
+        "CLM-022",
+        "CLM-023",
+        "CLM-024",
+        "CLM-025",
+        "CLM-026",
+        "CLM-027",
+        "CLM-028",
+        "CLM-029",
+        "CLM-030",
+        "CLM-031",
+        "CLM-032",
+        "CLM-033",
+        "OUT-001",
+        "VER-001"
+      ],
+      "removed_ids": [],
+      "new_ids": [],
+      "pass": true,
+      "validator_pass": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/ScopeOfWork.md",
+      "existing": true,
+      "stable_ids_retained": [
+        "AC-001",
+        "CLM-001",
+        "CLM-002",
+        "CLM-003",
+        "CLM-004",
+        "CLM-005",
+        "CLM-006",
+        "CLM-007",
+        "CLM-008",
+        "CLM-009",
+        "CLM-010",
+        "CLM-011",
+        "CLM-012",
+        "CLM-013",
+        "CLM-014",
+        "CLM-015",
+        "CLM-016",
+        "CLM-017",
+        "CLM-018",
+        "CLM-019",
+        "CLM-020",
+        "CLM-021",
+        "CLM-022",
+        "CLM-023",
+        "CLM-024",
+        "CLM-025",
+        "CLM-026",
+        "CLM-027",
+        "CLM-028",
+        "CLM-029",
+        "CLM-030",
+        "CLM-031",
+        "CLM-032",
+        "CLM-033",
+        "CLM-034",
+        "CLM-035",
+        "CLM-036",
+        "CLM-037",
+        "CLM-038",
+        "CLM-039",
+        "CLM-040",
+        "CLM-041",
+        "CLM-042",
+        "CLM-043",
+        "CLM-044",
+        "CLM-045",
+        "CLM-046",
+        "CLM-047",
+        "CLM-048",
+        "OUT-001",
+        "VER-001"
+      ],
+      "removed_ids": [],
+      "new_ids": [],
+      "pass": true,
+      "validator_pass": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine/ScopeOfWork.md",
+      "existing": true,
+      "stable_ids_retained": [
+        "AC-001",
+        "CLM-001",
+        "CLM-003",
+        "CLM-004",
+        "CLM-005",
+        "CLM-006",
+        "CLM-007",
+        "CLM-008",
+        "CLM-009",
+        "CLM-011",
+        "CLM-012",
+        "CLM-013",
+        "CLM-014",
+        "CLM-015",
+        "CLM-016",
+        "CLM-017",
+        "CLM-019",
+        "CLM-020",
+        "CLM-021",
+        "CLM-022",
+        "CLM-023",
+        "CLM-024",
+        "CLM-025",
+        "CLM-027",
+        "CLM-028",
+        "CLM-029",
+        "CLM-030",
+        "CLM-031",
+        "CLM-032",
+        "CLM-033",
+        "OUT-001",
+        "VER-001"
+      ],
+      "removed_ids": [],
+      "new_ids": [],
+      "pass": true,
+      "validator_pass": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/ScopeOfWork.md",
+      "existing": true,
+      "stable_ids_retained": [
+        "AC-001",
+        "CLM-001",
+        "CLM-002",
+        "CLM-003",
+        "CLM-004",
+        "CLM-005",
+        "CLM-006",
+        "CLM-007",
+        "CLM-008",
+        "CLM-009",
+        "CLM-010",
+        "CLM-011",
+        "CLM-012",
+        "CLM-013",
+        "CLM-014",
+        "CLM-015",
+        "CLM-016",
+        "CLM-017",
+        "CLM-018",
+        "CLM-019",
+        "CLM-020",
+        "CLM-021",
+        "CLM-022",
+        "CLM-023",
+        "CLM-024",
+        "CLM-025",
+        "CLM-026",
+        "CLM-027",
+        "CLM-028",
+        "CLM-029",
+        "CLM-030",
+        "CLM-031",
+        "CLM-032",
+        "CLM-033",
+        "CLM-034",
+        "CLM-035",
+        "CLM-036",
+        "CLM-037",
+        "CLM-038",
+        "OUT-001",
+        "VER-001"
+      ],
+      "removed_ids": [],
+      "new_ids": [],
+      "pass": true,
+      "validator_pass": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/ScopeOfWork.md",
+      "existing": true,
+      "stable_ids_retained": [
+        "AC-001",
+        "CLM-001",
+        "CLM-003",
+        "CLM-004",
+        "CLM-005",
+        "CLM-006",
+        "CLM-007",
+        "CLM-008",
+        "CLM-010",
+        "CLM-011",
+        "CLM-012",
+        "CLM-013",
+        "CLM-014",
+        "CLM-015",
+        "CLM-017",
+        "CLM-018",
+        "CLM-019",
+        "CLM-020",
+        "CLM-021",
+        "CLM-022",
+        "CLM-024",
+        "CLM-025",
+        "CLM-026",
+        "CLM-027",
+        "CLM-028",
+        "CLM-029",
+        "OUT-001",
+        "VER-001"
+      ],
+      "removed_ids": [],
+      "new_ids": [],
+      "pass": true,
+      "validator_pass": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/ScopeOfWork.md",
+      "existing": true,
+      "stable_ids_retained": [
+        "AC-001",
+        "CLM-001",
+        "CLM-003",
+        "CLM-004",
+        "CLM-005",
+        "CLM-006",
+        "CLM-007",
+        "CLM-008",
+        "CLM-009",
+        "CLM-010",
+        "CLM-011",
+        "CLM-012",
+        "CLM-013",
+        "CLM-014",
+        "CLM-015",
+        "CLM-016",
+        "CLM-017",
+        "CLM-018",
+        "CLM-019",
+        "CLM-020",
+        "CLM-021",
+        "CLM-022",
+        "CLM-023",
+        "CLM-024",
+        "CLM-025",
+        "CLM-026",
+        "OUT-001",
+        "VER-001"
+      ],
+      "removed_ids": [],
+      "new_ids": [
+        "AC-002",
+        "CLM-027",
+        "OUT-002",
+        "VER-002"
+      ],
+      "pass": true,
+      "validator_pass": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/ScopeOfWork.md",
+      "existing": true,
+      "stable_ids_retained": [
+        "AC-001",
+        "CLM-001",
+        "CLM-003",
+        "CLM-004",
+        "CLM-005",
+        "CLM-006",
+        "CLM-007",
+        "CLM-008",
+        "CLM-009",
+        "CLM-010",
+        "CLM-011",
+        "CLM-012",
+        "CLM-013",
+        "CLM-014",
+        "CLM-016",
+        "CLM-017",
+        "CLM-018",
+        "CLM-019",
+        "CLM-020",
+        "CLM-021",
+        "CLM-023",
+        "CLM-024",
+        "CLM-025",
+        "CLM-026",
+        "CLM-027",
+        "CLM-028",
+        "OUT-001",
+        "VER-001"
+      ],
+      "removed_ids": [],
+      "new_ids": [
+        "AC-002",
+        "CLM-029",
+        "OUT-002",
+        "VER-002"
+      ],
+      "pass": true,
+      "validator_pass": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+      "existing": false,
+      "stable_ids_retained": [],
+      "removed_ids": [],
+      "new_ids": [
+        "AC-001",
+        "AC-002",
+        "AC-003",
+        "AC-004",
+        "CLM-001",
+        "CLM-002",
+        "CLM-003",
+        "CLM-004",
+        "OUT-001",
+        "OUT-002",
+        "OUT-003",
+        "OUT-004",
+        "VER-001",
+        "VER-002",
+        "VER-003",
+        "VER-004"
+      ],
+      "pass": true,
+      "validator_pass": true
+    }
+  ],
+  "objective_support": [
+    {
+      "objective": "OBJ-001",
+      "support_ids": [
+        "DEL-01-01",
+        "DEL-02-01",
+        "DEL-02-02",
+        "DEL-02-03",
+        "DEL-02-05",
+        "DEL-11-01",
+        "DEL-11-02",
+        "DEL-11-03",
+        "DEL-11-04",
+        "DEL-11-05"
+      ],
+      "missing": [],
+      "extra": [],
+      "pass": true
+    },
+    {
+      "objective": "OBJ-002",
+      "support_ids": [
+        "DEL-01-01",
+        "DEL-01-02",
+        "DEL-01-03",
+        "DEL-03-07",
+        "DEL-06-03",
+        "DEL-06-04",
+        "DEL-08-05",
+        "DEL-11-02",
+        "DEL-11-05"
+      ],
+      "missing": [],
+      "extra": [],
+      "pass": true
+    },
+    {
+      "objective": "OBJ-003",
+      "support_ids": [
+        "DEL-04-01",
+        "DEL-04-02",
+        "DEL-04-03",
+        "DEL-04-04",
+        "DEL-04-05",
+        "DEL-04-06",
+        "DEL-04-07",
+        "DEL-05-01",
+        "DEL-05-02",
+        "DEL-05-03",
+        "DEL-05-05",
+        "DEL-11-03"
+      ],
+      "missing": [],
+      "extra": [],
+      "pass": true
+    },
+    {
+      "objective": "OBJ-004",
+      "support_ids": [
+        "DEL-03-01",
+        "DEL-03-02",
+        "DEL-03-03",
+        "DEL-03-04",
+        "DEL-03-05",
+        "DEL-03-06",
+        "DEL-03-07",
+        "DEL-03-08"
+      ],
+      "missing": [],
+      "extra": [],
+      "pass": true
+    },
+    {
+      "objective": "OBJ-005",
+      "support_ids": [
+        "DEL-05-02",
+        "DEL-05-04",
+        "DEL-06-01",
+        "DEL-06-02",
+        "DEL-06-03",
+        "DEL-06-04",
+        "DEL-06-05"
+      ],
+      "missing": [],
+      "extra": [],
+      "pass": true
+    },
+    {
+      "objective": "OBJ-006",
+      "support_ids": [
+        "DEL-07-01",
+        "DEL-07-02",
+        "DEL-07-03",
+        "DEL-07-04",
+        "DEL-07-05",
+        "DEL-07-06",
+        "DEL-07-07",
+        "DEL-07-09",
+        "DEL-07-11",
+        "DEL-07-12"
+      ],
+      "missing": [],
+      "extra": [],
+      "pass": true
+    },
+    {
+      "objective": "OBJ-007",
+      "support_ids": [
+        "DEL-07-05",
+        "DEL-07-07",
+        "DEL-07-12",
+        "DEL-08-01",
+        "DEL-08-02",
+        "DEL-08-03",
+        "DEL-08-04",
+        "DEL-08-05",
+        "DEL-08-06",
+        "DEL-17-05",
+        "DEL-17-06"
+      ],
+      "missing": [],
+      "extra": [],
+      "pass": true
+    },
+    {
+      "objective": "OBJ-008",
+      "support_ids": [
+        "DEL-04-05",
+        "DEL-04-06",
+        "DEL-09-01",
+        "DEL-09-02",
+        "DEL-09-03",
+        "DEL-09-04",
+        "DEL-09-05",
+        "DEL-10-04",
+        "DEL-10-05",
+        "DEL-11-04"
+      ],
+      "missing": [],
+      "extra": [],
+      "pass": true
+    },
+    {
+      "objective": "OBJ-009",
+      "support_ids": [
+        "DEL-02-04",
+        "DEL-08-04",
+        "DEL-10-01",
+        "DEL-10-02",
+        "DEL-10-03",
+        "DEL-10-04",
+        "DEL-10-05",
+        "DEL-17-01",
+        "DEL-17-02",
+        "DEL-17-03",
+        "DEL-17-04",
+        "DEL-17-05",
+        "DEL-17-07",
+        "DEL-17-08",
+        "DEL-17-09"
+      ],
+      "missing": [],
+      "extra": [],
+      "pass": true
+    },
+    {
+      "objective": "OBJ-010",
+      "support_ids": [
+        "DEL-07-11",
+        "DEL-12-01",
+        "DEL-12-02",
+        "DEL-12-03",
+        "DEL-12-04",
+        "DEL-12-05"
+      ],
+      "missing": [],
+      "extra": [],
+      "pass": true
+    },
+    {
+      "objective": "OBJ-011",
+      "support_ids": [
+        "DEL-01-04",
+        "DEL-02-03",
+        "DEL-05-04",
+        "DEL-06-05",
+        "DEL-07-04",
+        "DEL-08-03",
+        "DEL-09-04",
+        "DEL-11-01"
+      ],
+      "missing": [],
+      "extra": [],
+      "pass": true
+    },
+    {
+      "objective": "OBJ-012",
+      "support_ids": [
+        "DEL-02-01",
+        "DEL-02-02",
+        "DEL-02-05",
+        "DEL-03-08",
+        "DEL-04-06",
+        "DEL-04-07",
+        "DEL-05-05",
+        "DEL-08-02",
+        "DEL-10-05"
+      ],
+      "missing": [],
+      "extra": [],
+      "pass": true
+    },
+    {
+      "objective": "OBJ-013",
+      "support_ids": [
+        "DEL-00-01",
+        "DEL-00-02",
+        "DEL-00-03",
+        "DEL-00-04",
+        "DEL-00-05",
+        "DEL-00-06",
+        "DEL-00-07",
+        "DEL-00-08"
+      ],
+      "missing": [],
+      "extra": [],
+      "pass": true
+    },
+    {
+      "objective": "OBJ-014",
+      "support_ids": [
+        "DEL-02-01",
+        "DEL-13-01",
+        "DEL-13-02",
+        "DEL-13-03",
+        "DEL-13-04"
+      ],
+      "missing": [],
+      "extra": [],
+      "pass": true
+    },
+    {
+      "objective": "OBJ-015",
+      "support_ids": [
+        "DEL-07-08",
+        "DEL-07-09",
+        "DEL-07-11",
+        "DEL-16-01",
+        "DEL-16-02",
+        "DEL-16-03",
+        "DEL-16-04",
+        "DEL-16-06"
+      ],
+      "missing": [],
+      "extra": [],
+      "pass": true
+    },
+    {
+      "objective": "OBJ-016",
+      "support_ids": [
+        "DEL-07-08",
+        "DEL-08-06",
+        "DEL-14-01",
+        "DEL-14-02",
+        "DEL-14-03",
+        "DEL-14-04",
+        "DEL-14-05"
+      ],
+      "missing": [],
+      "extra": [],
+      "pass": true
+    },
+    {
+      "objective": "OBJ-017",
+      "support_ids": [
+        "DEL-08-06",
+        "DEL-15-01",
+        "DEL-15-02",
+        "DEL-15-03",
+        "DEL-15-04",
+        "DEL-17-01",
+        "DEL-17-02",
+        "DEL-17-03",
+        "DEL-17-04",
+        "DEL-17-05",
+        "DEL-17-06",
+        "DEL-17-07",
+        "DEL-17-08",
+        "DEL-17-09"
+      ],
+      "missing": [],
+      "extra": [],
+      "pass": true
+    },
+    {
+      "objective": "OBJ-018",
+      "support_ids": [
+        "DEL-01-04",
+        "DEL-07-12",
+        "DEL-08-06",
+        "DEL-13-02",
+        "DEL-15-04",
+        "DEL-16-04",
+        "DEL-17-01",
+        "DEL-17-04",
+        "DEL-17-05",
+        "DEL-17-06",
+        "DEL-17-07",
+        "DEL-17-09"
+      ],
+      "missing": [],
+      "extra": [],
+      "pass": true
+    }
+  ]
+}

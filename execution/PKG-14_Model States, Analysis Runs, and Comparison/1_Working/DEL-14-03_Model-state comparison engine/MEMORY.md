@@ -95,3 +95,7 @@ Durable context preserved after reconciliation review:
 - Explicitly bounded DEL-14-03 as structural comparison with no built-in conversion.
 - Added positive/negative evidence for metadata, dimension, unit, and no-bare-delta behavior.
 - This is software verification only; no numeric suitability or engineering validation outcome is asserted.
+
+## 2026-09-22 — SCA-011 interface responsibility
+
+Produces model-state comparison outputs against the common versioned comparison-result/export interface owned by DEL-14-05, retaining structural stable-ID/manual mapping semantics and no built-in conversion. Demonstrate valid/invalid schema witnesses, deterministic source-preserving mapping and export round trips after the DEL-14-05 output schema is accepted. Existing human-review dispositions remain open. Drafts and semantic checks: `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/INTERFACE_CONTRACTS.md`. This records responsibility, not implemented contract conformance or lifecycle promotion.

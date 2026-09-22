@@ -226,3 +226,7 @@ Durable context preserved after reconciliation review:
 - Confirmed the TP-PHYS-015 section-property oracle cannot validate unit-normalized comparison mechanics and `section_property` is outside the current supported result-family set. PDU-047 remains held at the engineering-suitability grain.
 - Evidence is in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T2B-PDU011-PDU047.md`.
 - No schema, comparison behavior, threshold, validation outcome, review disposition, lifecycle, dependency, DAG/register state, or engineering-validation claim changed.
+
+## 2026-09-22 — SCA-011 interface responsibility
+
+Produces analysis-run comparison outputs against the common versioned comparison-result/export interface owned by DEL-14-05; unit-normalization mathematics and comparison execution remain here. PDU-011 has a named output-schema owner at DEL-14-05, but output-schema acceptance and producer conformance remain outstanding. PDU-047 engineering suitability and governed tolerance values remain held; a schema draft or structural check does not discharge either. Drafts and semantic checks: `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/INTERFACE_CONTRACTS.md`. This records responsibility, not implemented contract conformance or lifecycle promotion.

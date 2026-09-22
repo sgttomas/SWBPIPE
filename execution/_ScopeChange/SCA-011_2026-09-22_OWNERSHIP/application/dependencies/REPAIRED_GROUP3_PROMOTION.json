@@ -1,0 +1,377 @@
+{
+  "status": "PREPARED_FUTURE_GROUP3_TRANSFORMS_NOT_EXECUTED",
+  "condition": "Execute only after an actual Group-3 audited-poststate decision and recorded DAG-011 adoption. No transformation creates acceptance.",
+  "original_transforms": "dependencies/LOCAL_MIRRORS_PROMOTION.json#/group3_files",
+  "group3_files": [
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_DEPENDENCIES.md",
+      "applied_sha256": "d88faab27331b5547c7302659d2706a93c0e3a8ba069a51420cf5a3d49640874",
+      "operations": [
+        {
+          "operation": "replace_exact",
+          "old": "**APPLIED; GROUP 3 PENDING.** SCA-011 Group 2 applied this local mirror. DAG-010 remains the accepted graph authority; the added rows await Group 3 audited poststate acceptance and DAG-011 adoption. No source lifecycle, contract readiness or dependency satisfaction is promoted.",
+          "new": "**ACCEPTED DEPENDENCY MIRROR.** SCA-011 Group 3 audited the poststate and recorded DAG-011 adoption. Current graph authority is DAG-011; DAG-010 is the preserved predecessor. All added execution relations remain PENDING with actual maturity TBD; adoption does not promote source lifecycle, contract readiness or dependency satisfaction.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "Added relations are EXTRACTED from the ownership amendment. Their Group 2 application is recorded; their adoption into graph authority awaits Group 3. Origin=EXTRACTED records provenance and is not a human declaration.",
+          "new": "Added relations are EXTRACTED from the ownership amendment and adopted into DAG-011 through the recorded Group 3 propagation. Origin=EXTRACTED records provenance and is not a human declaration.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "- SCA-011 Group 2: applied these exact additive rows under the recorded application authorization; Group 3 remains pending.",
+          "new": "- SCA-011 Group 2: applied these exact additive rows under the recorded application authorization.\n- SCA-011 Group 3: audited poststate accepted and DAG-011 adopted through the recorded authority propagation; execution satisfaction remains pending.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "Group 2 applied this local mirror against the recorded source documents and baseline hashes. Group 3 must audit the poststate and record the DAG-011 authority propagation before the new relations become graph authority. No source-witness/readiness conclusion follows from application. All added execution relations remain PENDING with actual maturity TBD; baseline satisfaction evidence was preserved, not revalidated.",
+          "new": "Group 3 audited this local mirror against the recorded applied poststate and adopted DAG-011 as current graph authority. The accepted DAG-010 predecessor remains immutable. All added execution relations remain PENDING with actual maturity TBD; baseline satisfaction evidence was preserved, not revalidated. Future satisfaction changes require actual source-owner and consumer evidence; no hold, lifecycle, engineering or release acceptance follows from graph adoption.",
+          "expected_occurrences": 1
+        }
+      ],
+      "accepted_sha256": "3596ac8a1921b98a53c1ccf91f3cf625fe8b109da7c42084d215131d132bba53"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+      "applied_sha256": "c9c90753d0d76249b4bd4f041c22902bbf7c3062bf119ff77966a199b12ce19d",
+      "operations": [],
+      "accepted_sha256": "c9c90753d0d76249b4bd4f041c22902bbf7c3062bf119ff77966a199b12ce19d"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_DEPENDENCIES.md",
+      "applied_sha256": "ad9234bf3b10d24b43b4b79d9207a24b2aad0947f5c55d61f1881fc4591ab796",
+      "operations": [
+        {
+          "operation": "replace_exact",
+          "old": "**APPLIED; GROUP 3 PENDING.** SCA-011 Group 2 applied this local mirror. DAG-010 remains the accepted graph authority; the added rows await Group 3 audited poststate acceptance and DAG-011 adoption. No source lifecycle, contract readiness or dependency satisfaction is promoted.",
+          "new": "**ACCEPTED DEPENDENCY MIRROR.** SCA-011 Group 3 audited the poststate and recorded DAG-011 adoption. Current graph authority is DAG-011; DAG-010 is the preserved predecessor. All added execution relations remain PENDING with actual maturity TBD; adoption does not promote source lifecycle, contract readiness or dependency satisfaction.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "Added relations are EXTRACTED from the ownership amendment. Their Group 2 application is recorded; their adoption into graph authority awaits Group 3. Origin=EXTRACTED records provenance and is not a human declaration.",
+          "new": "Added relations are EXTRACTED from the ownership amendment and adopted into DAG-011 through the recorded Group 3 propagation. Origin=EXTRACTED records provenance and is not a human declaration.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "- SCA-011 Group 2: applied these exact additive rows under the recorded application authorization; Group 3 remains pending.",
+          "new": "- SCA-011 Group 2: applied these exact additive rows under the recorded application authorization.\n- SCA-011 Group 3: audited poststate accepted and DAG-011 adopted through the recorded authority propagation; execution satisfaction remains pending.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "Group 2 applied this local mirror against the recorded source documents and baseline hashes. Group 3 must audit the poststate and record the DAG-011 authority propagation before the new relations become graph authority. No source-witness/readiness conclusion follows from application. All added execution relations remain PENDING with actual maturity TBD; baseline satisfaction evidence was preserved, not revalidated.",
+          "new": "Group 3 audited this local mirror against the recorded applied poststate and adopted DAG-011 as current graph authority. The accepted DAG-010 predecessor remains immutable. All added execution relations remain PENDING with actual maturity TBD; baseline satisfaction evidence was preserved, not revalidated. Future satisfaction changes require actual source-owner and consumer evidence; no hold, lifecycle, engineering or release acceptance follows from graph adoption.",
+          "expected_occurrences": 1
+        }
+      ],
+      "accepted_sha256": "eaa1e8a522d7933c757a97c6cec7197ba37939eb2da119e4fdab3a8e9d3167fc"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/Dependencies.csv",
+      "applied_sha256": "a35d33ddbd465df61ba1344a4522d1aa2129737a51f96151e209cb9f0a1943db",
+      "operations": [],
+      "accepted_sha256": "a35d33ddbd465df61ba1344a4522d1aa2129737a51f96151e209cb9f0a1943db"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_DEPENDENCIES.md",
+      "applied_sha256": "10f33d2b87c7b6ffed939b2975752ce2c9ff6fd53f9f6859d03f912763ce893c",
+      "operations": [
+        {
+          "operation": "replace_exact",
+          "old": "**APPLIED; GROUP 3 PENDING.** SCA-011 Group 2 applied this local mirror. DAG-010 remains the accepted graph authority; the added rows await Group 3 audited poststate acceptance and DAG-011 adoption. No source lifecycle, contract readiness or dependency satisfaction is promoted.",
+          "new": "**ACCEPTED DEPENDENCY MIRROR.** SCA-011 Group 3 audited the poststate and recorded DAG-011 adoption. Current graph authority is DAG-011; DAG-010 is the preserved predecessor. All added execution relations remain PENDING with actual maturity TBD; adoption does not promote source lifecycle, contract readiness or dependency satisfaction.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "Added relations are EXTRACTED from the ownership amendment. Their Group 2 application is recorded; their adoption into graph authority awaits Group 3. Origin=EXTRACTED records provenance and is not a human declaration.",
+          "new": "Added relations are EXTRACTED from the ownership amendment and adopted into DAG-011 through the recorded Group 3 propagation. Origin=EXTRACTED records provenance and is not a human declaration.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "- SCA-011 Group 2: applied these exact additive rows under the recorded application authorization; Group 3 remains pending.",
+          "new": "- SCA-011 Group 2: applied these exact additive rows under the recorded application authorization.\n- SCA-011 Group 3: audited poststate accepted and DAG-011 adopted through the recorded authority propagation; execution satisfaction remains pending.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "Group 2 applied this local mirror against the recorded source documents and baseline hashes. Group 3 must audit the poststate and record the DAG-011 authority propagation before the new relations become graph authority. No source-witness/readiness conclusion follows from application. All added execution relations remain PENDING with actual maturity TBD; baseline satisfaction evidence was preserved, not revalidated.",
+          "new": "Group 3 audited this local mirror against the recorded applied poststate and adopted DAG-011 as current graph authority. The accepted DAG-010 predecessor remains immutable. All added execution relations remain PENDING with actual maturity TBD; baseline satisfaction evidence was preserved, not revalidated. Future satisfaction changes require actual source-owner and consumer evidence; no hold, lifecycle, engineering or release acceptance follows from graph adoption.",
+          "expected_occurrences": 1
+        }
+      ],
+      "accepted_sha256": "bb88083a5541dcdb5f33a3f881ae505a7fc9afe47fc5daa1298b2563183c85b7"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/Dependencies.csv",
+      "applied_sha256": "694cd5c4db774f24c9f4606e76f833bd783e6e7bd8d3d91877e200b2a35a3fc8",
+      "operations": [],
+      "accepted_sha256": "694cd5c4db774f24c9f4606e76f833bd783e6e7bd8d3d91877e200b2a35a3fc8"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_DEPENDENCIES.md",
+      "applied_sha256": "a66b22005629c9630c4321319f50dfe41f57b6c0c9a60777faea1413e426101e",
+      "operations": [
+        {
+          "operation": "replace_exact",
+          "old": "**APPLIED; GROUP 3 PENDING.** SCA-011 Group 2 applied this local mirror. DAG-010 remains the accepted graph authority; the added rows await Group 3 audited poststate acceptance and DAG-011 adoption. No source lifecycle, contract readiness or dependency satisfaction is promoted.",
+          "new": "**ACCEPTED DEPENDENCY MIRROR.** SCA-011 Group 3 audited the poststate and recorded DAG-011 adoption. Current graph authority is DAG-011; DAG-010 is the preserved predecessor. All added execution relations remain PENDING with actual maturity TBD; adoption does not promote source lifecycle, contract readiness or dependency satisfaction.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "Added relations are EXTRACTED from the ownership amendment. Their Group 2 application is recorded; their adoption into graph authority awaits Group 3. Origin=EXTRACTED records provenance and is not a human declaration.",
+          "new": "Added relations are EXTRACTED from the ownership amendment and adopted into DAG-011 through the recorded Group 3 propagation. Origin=EXTRACTED records provenance and is not a human declaration.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "- SCA-011 Group 2: applied these exact additive rows under the recorded application authorization; Group 3 remains pending.",
+          "new": "- SCA-011 Group 2: applied these exact additive rows under the recorded application authorization.\n- SCA-011 Group 3: audited poststate accepted and DAG-011 adopted through the recorded authority propagation; execution satisfaction remains pending.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "Group 2 applied this local mirror against the recorded source documents and baseline hashes. Group 3 must audit the poststate and record the DAG-011 authority propagation before the new relations become graph authority. No source-witness/readiness conclusion follows from application. All added execution relations remain PENDING with actual maturity TBD; baseline satisfaction evidence was preserved, not revalidated.",
+          "new": "Group 3 audited this local mirror against the recorded applied poststate and adopted DAG-011 as current graph authority. The accepted DAG-010 predecessor remains immutable. All added execution relations remain PENDING with actual maturity TBD; baseline satisfaction evidence was preserved, not revalidated. Future satisfaction changes require actual source-owner and consumer evidence; no hold, lifecycle, engineering or release acceptance follows from graph adoption.",
+          "expected_occurrences": 1
+        }
+      ],
+      "accepted_sha256": "a431e8309d21a68126c168830b98bfaa8dfe58c06785df9d71d7e878c2290079"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/Dependencies.csv",
+      "applied_sha256": "b8f54c1db189565f03bf2fc76a490c5621b12a3d7a281a1dc9b201749b5a0d15",
+      "operations": [],
+      "accepted_sha256": "b8f54c1db189565f03bf2fc76a490c5621b12a3d7a281a1dc9b201749b5a0d15"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_DEPENDENCIES.md",
+      "applied_sha256": "b60a1dab385028c3ed803efc68562940773a447e715fd5fc51a64535706d81f1",
+      "operations": [
+        {
+          "operation": "replace_exact",
+          "old": "**APPLIED; GROUP 3 PENDING.** SCA-011 Group 2 applied this local mirror. DAG-010 remains the accepted graph authority; the added rows await Group 3 audited poststate acceptance and DAG-011 adoption. No source lifecycle, contract readiness or dependency satisfaction is promoted.",
+          "new": "**ACCEPTED DEPENDENCY MIRROR.** SCA-011 Group 3 audited the poststate and recorded DAG-011 adoption. Current graph authority is DAG-011; DAG-010 is the preserved predecessor. All added execution relations remain PENDING with actual maturity TBD; adoption does not promote source lifecycle, contract readiness or dependency satisfaction.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "Added relations are EXTRACTED from the ownership amendment. Their Group 2 application is recorded; their adoption into graph authority awaits Group 3. Origin=EXTRACTED records provenance and is not a human declaration.",
+          "new": "Added relations are EXTRACTED from the ownership amendment and adopted into DAG-011 through the recorded Group 3 propagation. Origin=EXTRACTED records provenance and is not a human declaration.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "- SCA-011 Group 2: applied these exact additive rows under the recorded application authorization; Group 3 remains pending.",
+          "new": "- SCA-011 Group 2: applied these exact additive rows under the recorded application authorization.\n- SCA-011 Group 3: audited poststate accepted and DAG-011 adopted through the recorded authority propagation; execution satisfaction remains pending.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "Group 2 applied this local mirror against the recorded source documents and baseline hashes. Group 3 must audit the poststate and record the DAG-011 authority propagation before the new relations become graph authority. No source-witness/readiness conclusion follows from application. All added execution relations remain PENDING with actual maturity TBD; baseline satisfaction evidence was preserved, not revalidated.",
+          "new": "Group 3 audited this local mirror against the recorded applied poststate and adopted DAG-011 as current graph authority. The accepted DAG-010 predecessor remains immutable. All added execution relations remain PENDING with actual maturity TBD; baseline satisfaction evidence was preserved, not revalidated. Future satisfaction changes require actual source-owner and consumer evidence; no hold, lifecycle, engineering or release acceptance follows from graph adoption.",
+          "expected_occurrences": 1
+        }
+      ],
+      "accepted_sha256": "06cd636cd0e6bc85cc178ccb71407eb98efb287f66210e8936ef0c8e24dd7e99"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/Dependencies.csv",
+      "applied_sha256": "41d0a23373f70fdc4ebe2e66e4230e077bb1172a3be40451518946cca9376bf7",
+      "operations": [],
+      "accepted_sha256": "41d0a23373f70fdc4ebe2e66e4230e077bb1172a3be40451518946cca9376bf7"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_DEPENDENCIES.md",
+      "applied_sha256": "01f612c50cbf04b46d73ecdd823b7dfe7a41084be69fdf91dad8451db229634a",
+      "operations": [
+        {
+          "operation": "replace_exact",
+          "old": "**APPLIED; GROUP 3 PENDING.** SCA-011 Group 2 applied this local mirror. DAG-010 remains the accepted graph authority; the added rows await Group 3 audited poststate acceptance and DAG-011 adoption. No source lifecycle, contract readiness or dependency satisfaction is promoted.",
+          "new": "**ACCEPTED DEPENDENCY MIRROR.** SCA-011 Group 3 audited the poststate and recorded DAG-011 adoption. Current graph authority is DAG-011; DAG-010 is the preserved predecessor. All added execution relations remain PENDING with actual maturity TBD; adoption does not promote source lifecycle, contract readiness or dependency satisfaction.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "Added relations are EXTRACTED from the ownership amendment. Their Group 2 application is recorded; their adoption into graph authority awaits Group 3. Origin=EXTRACTED records provenance and is not a human declaration.",
+          "new": "Added relations are EXTRACTED from the ownership amendment and adopted into DAG-011 through the recorded Group 3 propagation. Origin=EXTRACTED records provenance and is not a human declaration.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "- SCA-011 Group 2: applied these exact additive rows under the recorded application authorization; Group 3 remains pending.",
+          "new": "- SCA-011 Group 2: applied these exact additive rows under the recorded application authorization.\n- SCA-011 Group 3: audited poststate accepted and DAG-011 adopted through the recorded authority propagation; execution satisfaction remains pending.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "Group 2 applied this local mirror against the recorded source documents and baseline hashes. Group 3 must audit the poststate and record the DAG-011 authority propagation before the new relations become graph authority. No source-witness/readiness conclusion follows from application. All added execution relations remain PENDING with actual maturity TBD; baseline satisfaction evidence was preserved, not revalidated.",
+          "new": "Group 3 audited this local mirror against the recorded applied poststate and adopted DAG-011 as current graph authority. The accepted DAG-010 predecessor remains immutable. All added execution relations remain PENDING with actual maturity TBD; baseline satisfaction evidence was preserved, not revalidated. Future satisfaction changes require actual source-owner and consumer evidence; no hold, lifecycle, engineering or release acceptance follows from graph adoption.",
+          "expected_occurrences": 1
+        }
+      ],
+      "accepted_sha256": "e0f3cba6faf2ab13e10ce7195cc766e98b393becd5deed919c24360a957c1e5f"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+      "applied_sha256": "d2bd542d9900446af4bf94b0596931aa9650a290fcd173d572537294d24712d5",
+      "operations": [],
+      "accepted_sha256": "d2bd542d9900446af4bf94b0596931aa9650a290fcd173d572537294d24712d5"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_DEPENDENCIES.md",
+      "applied_sha256": "b7d294f8b56df60a128bd6df1b55a280de3639ddec1214a9c772628cc99e5942",
+      "operations": [
+        {
+          "operation": "replace_exact",
+          "old": "**APPLIED; GROUP 3 PENDING.** SCA-011 Group 2 applied this local mirror. DAG-010 remains the accepted graph authority; the added rows await Group 3 audited poststate acceptance and DAG-011 adoption. No source lifecycle, contract readiness or dependency satisfaction is promoted.",
+          "new": "**ACCEPTED DEPENDENCY MIRROR.** SCA-011 Group 3 audited the poststate and recorded DAG-011 adoption. Current graph authority is DAG-011; DAG-010 is the preserved predecessor. All added execution relations remain PENDING with actual maturity TBD; adoption does not promote source lifecycle, contract readiness or dependency satisfaction.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "Added relations are EXTRACTED from the ownership amendment. Their Group 2 application is recorded; their adoption into graph authority awaits Group 3. Origin=EXTRACTED records provenance and is not a human declaration.",
+          "new": "Added relations are EXTRACTED from the ownership amendment and adopted into DAG-011 through the recorded Group 3 propagation. Origin=EXTRACTED records provenance and is not a human declaration.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "- SCA-011 Group 2: applied these exact additive rows under the recorded application authorization; Group 3 remains pending.",
+          "new": "- SCA-011 Group 2: applied these exact additive rows under the recorded application authorization.\n- SCA-011 Group 3: audited poststate accepted and DAG-011 adopted through the recorded authority propagation; execution satisfaction remains pending.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "Group 2 applied this local mirror against the recorded source documents and baseline hashes. Group 3 must audit the poststate and record the DAG-011 authority propagation before the new relations become graph authority. No source-witness/readiness conclusion follows from application. All added execution relations remain PENDING with actual maturity TBD; baseline satisfaction evidence was preserved, not revalidated.",
+          "new": "Group 3 audited this local mirror against the recorded applied poststate and adopted DAG-011 as current graph authority. The accepted DAG-010 predecessor remains immutable. All added execution relations remain PENDING with actual maturity TBD; baseline satisfaction evidence was preserved, not revalidated. Future satisfaction changes require actual source-owner and consumer evidence; no hold, lifecycle, engineering or release acceptance follows from graph adoption.",
+          "expected_occurrences": 1
+        }
+      ],
+      "accepted_sha256": "53cebc0cda607cfc4c2b3544be732dfe113506bac4e611414ca37721e09c1389"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+      "applied_sha256": "9a1182c3cb88ccbf18466f2fb87b259d83920f7c4a4f3598e3f41dc85b4ef42f",
+      "operations": [],
+      "accepted_sha256": "9a1182c3cb88ccbf18466f2fb87b259d83920f7c4a4f3598e3f41dc85b4ef42f"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_DEPENDENCIES.md",
+      "applied_sha256": "e50976deede1d669c76979c8832b5ea4c96541e227943f352bc7f029c56a5607",
+      "operations": [
+        {
+          "operation": "replace_exact",
+          "old": "**APPLIED; GROUP 3 PENDING.** SCA-011 Group 2 applied this local mirror. DAG-010 remains the accepted graph authority; the added rows await Group 3 audited poststate acceptance and DAG-011 adoption. No source lifecycle, contract readiness or dependency satisfaction is promoted.",
+          "new": "**ACCEPTED DEPENDENCY MIRROR.** SCA-011 Group 3 audited the poststate and recorded DAG-011 adoption. Current graph authority is DAG-011; DAG-010 is the preserved predecessor. All added execution relations remain PENDING with actual maturity TBD; adoption does not promote source lifecycle, contract readiness or dependency satisfaction.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "Added relations are EXTRACTED from the ownership amendment. Their Group 2 application is recorded; their adoption into graph authority awaits Group 3. Origin=EXTRACTED records provenance and is not a human declaration.",
+          "new": "Added relations are EXTRACTED from the ownership amendment and adopted into DAG-011 through the recorded Group 3 propagation. Origin=EXTRACTED records provenance and is not a human declaration.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "- SCA-011 Group 2: applied these exact additive rows under the recorded application authorization; Group 3 remains pending.",
+          "new": "- SCA-011 Group 2: applied these exact additive rows under the recorded application authorization.\n- SCA-011 Group 3: audited poststate accepted and DAG-011 adopted through the recorded authority propagation; execution satisfaction remains pending.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "Group 2 applied this local mirror against the recorded source documents and baseline hashes. Group 3 must audit the poststate and record the DAG-011 authority propagation before the new relations become graph authority. No source-witness/readiness conclusion follows from application. All added execution relations remain PENDING with actual maturity TBD; baseline satisfaction evidence was preserved, not revalidated.",
+          "new": "Group 3 audited this local mirror against the recorded applied poststate and adopted DAG-011 as current graph authority. The accepted DAG-010 predecessor remains immutable. All added execution relations remain PENDING with actual maturity TBD; baseline satisfaction evidence was preserved, not revalidated. Future satisfaction changes require actual source-owner and consumer evidence; no hold, lifecycle, engineering or release acceptance follows from graph adoption.",
+          "expected_occurrences": 1
+        }
+      ],
+      "accepted_sha256": "ec7b569eb0df7bd5ecd8acd967a10f4ed3a16b36b73bf63d51609beec5b73a6d"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/Dependencies.csv",
+      "applied_sha256": "bd857ecf51d3e04d719cd91adcf918ac93acd59a704b85704a238fdff4553046",
+      "operations": [],
+      "accepted_sha256": "bd857ecf51d3e04d719cd91adcf918ac93acd59a704b85704a238fdff4553046"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_DEPENDENCIES.md",
+      "applied_sha256": "149a573972639907c9a6b794527363d5453a36a763d1b3b726a92f2bc3a075ba",
+      "operations": [
+        {
+          "operation": "replace_exact",
+          "old": "**APPLIED; GROUP 3 PENDING.** SCA-011 Group 2 applied this local mirror. DAG-010 remains the accepted graph authority; the added rows await Group 3 audited poststate acceptance and DAG-011 adoption. No source lifecycle, contract readiness or dependency satisfaction is promoted.",
+          "new": "**ACCEPTED DEPENDENCY MIRROR.** SCA-011 Group 3 audited the poststate and recorded DAG-011 adoption. Current graph authority is DAG-011; DAG-010 is the preserved predecessor. All added execution relations remain PENDING with actual maturity TBD; adoption does not promote source lifecycle, contract readiness or dependency satisfaction.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "Added relations are EXTRACTED from the ownership amendment. Their Group 2 application is recorded; their adoption into graph authority awaits Group 3. Origin=EXTRACTED records provenance and is not a human declaration.",
+          "new": "Added relations are EXTRACTED from the ownership amendment and adopted into DAG-011 through the recorded Group 3 propagation. Origin=EXTRACTED records provenance and is not a human declaration.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "- SCA-011 Group 2: applied these exact additive rows under the recorded application authorization; Group 3 remains pending.",
+          "new": "- SCA-011 Group 2: applied these exact additive rows under the recorded application authorization.\n- SCA-011 Group 3: audited poststate accepted and DAG-011 adopted through the recorded authority propagation; execution satisfaction remains pending.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "Group 2 applied this local mirror against the recorded source documents and baseline hashes. Group 3 must audit the poststate and record the DAG-011 authority propagation before the new relations become graph authority. No source-witness/readiness conclusion follows from application. All added execution relations remain PENDING with actual maturity TBD; baseline satisfaction evidence was preserved, not revalidated.",
+          "new": "Group 3 audited this local mirror against the recorded applied poststate and adopted DAG-011 as current graph authority. The accepted DAG-010 predecessor remains immutable. All added execution relations remain PENDING with actual maturity TBD; baseline satisfaction evidence was preserved, not revalidated. Future satisfaction changes require actual source-owner and consumer evidence; no hold, lifecycle, engineering or release acceptance follows from graph adoption.",
+          "expected_occurrences": 1
+        }
+      ],
+      "accepted_sha256": "687c582ab4e317fde3a780093ec28f56a8213dc1494b1e4e5e700fa38c205747"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/Dependencies.csv",
+      "applied_sha256": "d8be711eec39756341d925d56fa86882d60dc630aabe39c3d7374f689cbb74f5",
+      "operations": [],
+      "accepted_sha256": "d8be711eec39756341d925d56fa86882d60dc630aabe39c3d7374f689cbb74f5"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_DEPENDENCIES.md",
+      "applied_sha256": "1914eff5eb4b78b83d5fcaea3f2fb7362101a9a472ad1ceacf84c2fcc8f0546e",
+      "operations": [
+        {
+          "operation": "replace_exact",
+          "old": "**APPLIED; GROUP 3 PENDING.** SCA-011 Group 2 applied this local mirror. DAG-010 remains the accepted graph authority; the added rows await Group 3 audited poststate acceptance and DAG-011 adoption. No source lifecycle, contract readiness or dependency satisfaction is promoted.",
+          "new": "**ACCEPTED DEPENDENCY MIRROR.** SCA-011 Group 3 audited the poststate and recorded DAG-011 adoption. Current graph authority is DAG-011; DAG-010 is the preserved predecessor. All added execution relations remain PENDING with actual maturity TBD; adoption does not promote source lifecycle, contract readiness or dependency satisfaction.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "Added relations are EXTRACTED from the ownership amendment. Their Group 2 application is recorded; their adoption into graph authority awaits Group 3. Origin=EXTRACTED records provenance and is not a human declaration.",
+          "new": "Added relations are EXTRACTED from the ownership amendment and adopted into DAG-011 through the recorded Group 3 propagation. Origin=EXTRACTED records provenance and is not a human declaration.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "- SCA-011 Group 2: applied these exact additive rows under the recorded application authorization; Group 3 remains pending.",
+          "new": "- SCA-011 Group 2: applied these exact additive rows under the recorded application authorization.\n- SCA-011 Group 3: audited poststate accepted and DAG-011 adopted through the recorded authority propagation; execution satisfaction remains pending.",
+          "expected_occurrences": 1
+        },
+        {
+          "operation": "replace_exact",
+          "old": "Group 2 applied this local mirror against the recorded source documents and baseline hashes. Group 3 must audit the poststate and record the DAG-011 authority propagation before the new relations become graph authority. No source-witness/readiness conclusion follows from application. All added execution relations remain PENDING with actual maturity TBD; baseline satisfaction evidence was preserved, not revalidated.",
+          "new": "Group 3 audited this local mirror against the recorded applied poststate and adopted DAG-011 as current graph authority. The accepted DAG-010 predecessor remains immutable. All added execution relations remain PENDING with actual maturity TBD; baseline satisfaction evidence was preserved, not revalidated. Future satisfaction changes require actual source-owner and consumer evidence; no hold, lifecycle, engineering or release acceptance follows from graph adoption.",
+          "expected_occurrences": 1
+        }
+      ],
+      "accepted_sha256": "ce581562bdb82534dff703489f89a808693b4231ea452b9edc022a886ce368a8"
+    },
+    {
+      "target": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+      "applied_sha256": "4902039323b9691e1386d0fbc812e74b0a8c98da69af7239c5744d7bc81f9512",
+      "operations": [],
+      "accepted_sha256": "4902039323b9691e1386d0fbc812e74b0a8c98da69af7239c5744d7bc81f9512"
+    }
+  ]
+}

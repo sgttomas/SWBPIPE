@@ -7,13 +7,15 @@
 **Type:** UX_UI_SLICE
 
 ## Description
-Implement warning classes for solve-required, code-check-required, provenance-missing, and assumption states.
+
+Implement missing-data warning/blocking UX, rule-check run interaction and aggregate status, with unit-aware warning presentation preserving owned rule/status semantics.
 
 ## Anticipated Artifacts
 - warning system UI
 - UX tests
 
 ## Scope Coverage
+
 - SOW-022
 
 ## Objective Support
@@ -22,17 +24,17 @@ Implement warning classes for solve-required, code-check-required, provenance-mi
 
 ## Context Envelope
 - **Envelope:** M
-- **Envelope Notes:** High-value UX slice.
+- **Envelope Notes:** GUI consumes PKG-06 runner, DEL-05-04 status and DEL-02-02 units; no numerical or rule-policy ownership transfer.
 
 ## Context Budget QA
-- **Risk:** OK
-- **Recommended Action:** Proceed with bounded Type 2 brief
+- **Risk:** WATCH
+- **Recommended Action:** Keep existing envelope; dispatch one finite interaction family per bounded brief and review expansion
 - **Notes:** High-value UX slice.
 
 ## Package Reference
 - **Package:** PKG-07 Graphical User Interface and Engineering Workflow
 - **Package Scope:** Implements the interactive modeler, editors, warning UX, solve-execution UX, and results views.
-- **Package Assigned Scope Items:** SOW-020, SOW-021, SOW-022, SOW-023, SOW-036, SOW-055
+- **Package Assigned Scope Items:** SOW-020, SOW-021, SOW-022, SOW-023, SOW-036, SOW-055, SOW-076, SOW-077, SOW-078, SOW-079
 - **Package Exclusions:** Does not silently supply missing code data.
 
 ## Decomposition Reference
@@ -58,3 +60,8 @@ Implement warning classes for solve-required, code-check-required, provenance-mi
 ## PREPARATION Notes
 - Structural scaffold only.
 - No Type 2 implementation artifacts are drafted in this folder by PREPARATION.
+
+## SCA-011 responsibility
+
+Applied under the SCA-011 Group 2 decision; audited poststate acceptance remains pending Group 3. GUI consumes PKG-06 runner, DEL-05-04 status and DEL-02-02 units; no numerical or rule-policy ownership transfer.
+The amended Deliverables and ContextBudgetQA rows govern this allocation; existing state and implementation evidence remain separately bound.

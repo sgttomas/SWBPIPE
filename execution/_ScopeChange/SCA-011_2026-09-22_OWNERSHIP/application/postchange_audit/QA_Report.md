@@ -1,0 +1,9 @@
+# QA and limits
+
+All12 workflow checks are stated:DOMAIN parity is skipped with variant reason; full anticipated artifact realization is INCOMPLETE while core-contract structural checks pass. Final raw checks verify106 unique materialized deliverables,18 packages,79 scope items,18 unchanged objective statements,83 original manifest targets with20 disclosed authorized local corrections,25 repair hashes,84 metadata-only row corrections and quote loci,1,487 unchanged baseline aggregate rows,all10 affected local CSVs,24 affected SoWs,97 whole-corpus SoWs,102 unchanged lifecycle records andfour OPEN controls.
+
+All current canonical SoW validators exit0. The stock validator exits1,with all2,097 baseline findings and zero new findings; skipped companion discovery is supplemented by independent actual-file parity. Initial2,265-result evidence is preserved. No product checks or engineering claims were made.
+
+Source hashes bind actual consulted bytes. Status/memory pairs were read,memory not as authority. Full descriptions outside the four new controls and every anticipated production artifact were not comprehensively adjudicated. No measured context-budget capacity claim is made. This audit’s explicit output location overrides the workflow’s default _Evaluation pointer; no pointer update is authorized. Shared filesystem scopes are instruction-enforced,not claimed as isolated sandbox enforcement. Exact model/effort not exposed; no override requested. Parent owns final complete-package review and Git.
+
+Rerun from repository root:audit_poststate.py then assemble_report.py under this folder. Those helpers write only this audit root; initial_exact_application is immutable and is not overwritten. If a new audited state is adopted,save a new immutable snapshot before rerunning. Canonical inputs must be stable. Root manager navigation metadata may change after this return and is covered by the separate final review.

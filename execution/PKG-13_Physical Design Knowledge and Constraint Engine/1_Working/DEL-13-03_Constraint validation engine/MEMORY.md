@@ -81,3 +81,7 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - The accepted result schema now constrains optional field-scalar paths as a required pair on existing `ResultTraceLink` records, with positive/negative schema tests.
 - DEL-13-03 still has only `ValidationResult.to_dict()` diagnostics and no accepted runtime result-envelope producer/home. No application service was invented; that continuation remains held.
 - Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T2C-PDU023.md`. Lifecycle remains `IN_PROGRESS`.
+
+## 2026-09-22 — SCA-011 interface responsibility
+
+Owns the ValidationResult production contract and its authoritative versioned schema. Available Python diagnostics remain evidence of the current mechanism, not a substitute for the accepted production envelope. PDU-023 now has the DEL-13-03 responsibility home through SCA-011; schema acceptance, application-service binding and per-value/runtime trace production remain outstanding. No GUI/runtime activation or geometric solving is inferred. Drafts and semantic checks: `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/INTERFACE_CONTRACTS.md`. This records responsibility, not implemented contract conformance or lifecycle promotion.

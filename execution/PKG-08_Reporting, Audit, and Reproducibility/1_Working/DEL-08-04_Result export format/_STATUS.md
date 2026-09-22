@@ -4,6 +4,7 @@
 **Last Updated:** 2026-09-22
 
 ## Remaining
+- SCA-011 interface follow-through: Bind comparison mapping/export round trips to the accepted version of the DEL-14-05 interface before claiming comparison-envelope conformance. Preserve source identity, diagnostics, units, raw rows, unmatched records, hashes and professional boundaries.
 - Add remaining target-format unit-conversion witnesses outside the already-covered export boundaries (residual hardening) (source: PRD plan §3 Phase B-tail row / FR-002)
 
 ## History
@@ -23,3 +24,5 @@
 - 2026-07-11 - Remaining seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
 - 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).
 - 2026-09-22 - R5 concordance record repair applied under current owner direction and Agent 0's bounded brief; corrected declared-state/Remaining facts or amendment metadata against the recorded basis. Exact before/after operations and evidence are in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5/TASKS/STATUS_REPAIR/operations.json`. Lifecycle state, human/reviewer holds and release/engineering-acceptance boundaries are unchanged.
+
+- 2026-09-22 — SCA-011 interface allocation: Consumes and maps the DEL-14-05 common comparison-result/export interface into general result exports; does not own comparison mathematics or tolerance policy. Existing accepted 0.1/0.2 result contracts and raw-source preservation remain governing. Named schema remains a review-only draft; lifecycle and unrelated holds unchanged.

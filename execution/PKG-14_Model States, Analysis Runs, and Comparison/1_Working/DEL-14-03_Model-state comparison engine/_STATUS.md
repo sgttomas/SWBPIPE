@@ -4,6 +4,7 @@
 **Last Updated:** 2026-09-22
 
 ## Remaining
+- SCA-011 interface follow-through: Demonstrate valid/invalid schema witnesses, deterministic source-preserving mapping and export round trips after the DEL-14-05 output schema is accepted. Existing human-review dispositions remain open.
 - Obtain owning human-review dispositions for open `RF-001` (dependency-closure visibility) and `RF-002` (documentation currentness). Preserve prerequisite authority and defer any document refresh to its authorized tranche; do not infer closure from current defensive consumers or fixtures (PDU-060).
 
 ## History
@@ -21,3 +22,5 @@
 - 2026-07-11 - Remaining section added and seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
 - 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).
 - 2026-09-22 - R5 concordance record repair applied under current owner direction and Agent 0's bounded brief; corrected declared-state/Remaining facts or amendment metadata against the recorded basis. Exact before/after operations and evidence are in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5/TASKS/STATUS_REPAIR/operations.json`. Lifecycle state, human/reviewer holds and release/engineering-acceptance boundaries are unchanged.
+
+- 2026-09-22 — SCA-011 interface allocation: Produces model-state comparison outputs against the common versioned comparison-result/export interface owned by DEL-14-05, retaining structural stable-ID/manual mapping semantics and no built-in conversion. Named schema remains a review-only draft; lifecycle and unrelated holds unchanged.

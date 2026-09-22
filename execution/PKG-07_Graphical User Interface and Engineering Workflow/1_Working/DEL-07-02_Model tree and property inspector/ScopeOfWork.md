@@ -2,8 +2,8 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-07-02
 package_id: PKG-07
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
-project_scope_refs: [SOW-020, SOW-021]
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577
+project_scope_refs: [SOW-020,SOW-021,SOW-077]
 package_objective_refs: [OBJ-006]
 ---
 
@@ -397,8 +397,19 @@ This Scope of Work defines `DEL-07-02` in service of project scope [SOW-020, SOW
 >
 > Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The model tree, property inspector, selection flow, and command-backed edits are implemented in the bounded GUI slice. Broader product integration and ownership gaps remain only where explicitly recorded; lifecycle remains `IN_PROGRESS`.
 
+### CLM-038 — SCA-011 Generic and support editing
+
+**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
+
+Own generic tree/table/inspector create/edit/delete interaction with unit/provenance preservation, including support/restraint creation and editing and generic selected-load inspection. DEL-07-03 owns load-manager editing. DEL-07-09 remains R-006 coverage-accountability owner; no dedicated support-editor slice is activated.
+
+- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.
+- **AC-002** — The named boundary is honored, its witness is bound to the tested candidate, and missing or held results remain explicit. Ownership assignment alone is not a pass.
+- **VER-002** — Exercise generic and support routes through validation/preview/explicit acceptance and DEL-16-06 application; retain nonconvergence/unknown-state visibility and all native-only/unsupported limitations.
+
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-020 SOW-021 OBJ-006 | CLM-011 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+| OUT-002 | OBJ-006 | CLM-038 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |

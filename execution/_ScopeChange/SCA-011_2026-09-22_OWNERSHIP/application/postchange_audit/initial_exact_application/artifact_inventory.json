@@ -1,0 +1,1064 @@
+[
+  {
+    "id": "DEL-00-01",
+    "contract": "ARCHITECTURE_BASIS_REFERENCE",
+    "core_expected": [
+      "ArchitectureBasis.md"
+    ],
+    "core_found": 1,
+    "anticipated": "ArchitectureBasis.md; docs/architecture/adr/index.md; docs/architecture/adr/template.md",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-00-02",
+    "contract": "ARCHITECTURE_BASIS_REFERENCE",
+    "core_expected": [
+      "ArchitectureBasis.md"
+    ],
+    "core_found": 1,
+    "anticipated": "ArchitectureBasis.md; architecture dependency rules (module_boundaries.md is a permitted deferral per the SOW-057 note and DEC-012)",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-00-03",
+    "contract": "ARCHITECTURE_BASIS_REFERENCE",
+    "core_expected": [
+      "ArchitectureBasis.md"
+    ],
+    "core_found": 1,
+    "anticipated": "ArchitectureBasis.md; service interface contracts realized as schemas/operation_outcome.schema.json and schemas/analysis_run.schema.json",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-00-04",
+    "contract": "ARCHITECTURE_BASIS_REFERENCE",
+    "core_expected": [
+      "ArchitectureBasis.md"
+    ],
+    "core_found": 1,
+    "anticipated": "ArchitectureBasis.md; persistence contract realized as docs/architecture/persistence_contract.md (owned by DEL-02-05) and the D-08 migration packet",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-00-05",
+    "contract": "ARCHITECTURE_BASIS_REFERENCE",
+    "core_expected": [
+      "ArchitectureBasis.md"
+    ],
+    "core_found": 1,
+    "anticipated": "ArchitectureBasis.md; interaction architecture realized in the implemented GUI slice (apps/desktop/src/features, core/gui)",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-00-06",
+    "contract": "ARCHITECTURE_BASIS_REFERENCE",
+    "core_expected": [
+      "ArchitectureBasis.md"
+    ],
+    "core_found": 1,
+    "anticipated": "ArchitectureBasis.md; realized as docs/architecture/analysis_status_semantics.md (owned by DEL-05-04) and schemas/operation_outcome.schema.json (owned by DEL-10-03)",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-00-07",
+    "contract": "ARCHITECTURE_BASIS_REFERENCE",
+    "core_expected": [
+      "ArchitectureBasis.md"
+    ],
+    "core_found": 1,
+    "anticipated": "ArchitectureBasis.md; realized as api/api_boundary_contract.yaml (owned by DEL-10-01), docs/architecture/plugin_boundary.md, docs/architecture/extension_domain_contracts.md",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-00-08",
+    "contract": "ARCHITECTURE_BASIS_REFERENCE",
+    "core_expected": [
+      "ArchitectureBasis.md"
+    ],
+    "core_found": 1,
+    "anticipated": "ArchitectureBasis.md; realized as tools/release/run_evidence_sweep.py and docs/RELEASE_QUALITY_GATES.md",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-01-01",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "docs/CONTRACT.md; docs/DIRECTIVE.md; governance/MAINTAINERS.md",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-01-02",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "docs/IP_AND_DATA_BOUNDARY.md; contribution review checklist",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-01-03",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "CONTRIBUTING.md section; contributor certification template",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-01-04",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "docs/PROFESSIONAL_BOUNDARY.md; report notice template",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-02-01",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "schemas/model.schema.yaml; docs/TYPES.md update",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-02-02",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "core/units module contract; unit tests; docs/SPEC.md section",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-02-03",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "analysis_status enum; docs/SPEC.md state model",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-02-04",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "plugin interface spec; sandbox/permission model notes",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-02-05",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "project file schema; round-trip tests; persistence service contract",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-03-01",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "schemas/material.schema.yaml; material editor fixtures",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-03-02",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "schemas/component.schema.yaml; schemas/section.schema.yaml",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-03-03",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "bend component model; validation tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-03-04",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "branch component model; validation tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-03-05",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "rigid component models; reducer/flange/valve fixtures",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-03-06",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "expansion joint model; validation tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-03-07",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "library import validator; provenance tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-03-08",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "section property calculator; mass property tests; schema hooks",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-04-01",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "core/solver/frame_kernel; unit tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-04-02",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "straight pipe element; solver tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-04-03",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "support model; linear restraint tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-04-04",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "nonlinear solver loop; convergence tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-04-05",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "performance tests; benchmark harness",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-04-06",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "solver diagnostics module; singular-model tests; conditioning warnings",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-05-01",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "load case model; load application tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-05-02",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "combination engine; expression tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-05-03",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "stress recovery module; hand-calc tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-05-04",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "analysis status enum; API/result fields; tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-05-05",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "load application module; load tests; result hooks",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-06-01",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "schemas/rule_pack.schema.yaml; docs/SPEC.md update",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-06-02",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "rule evaluator module; evaluator tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-06-03",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "rule completeness checker; tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-06-04",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "rule pack registry; checksum tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-06-05",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "examples/rule_packs/invented_demo.yaml; docs/example notice",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-07-01",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "GUI viewport; interaction tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-07-02",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "model tree; property inspector; UI tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-07-03",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "editor panels; validation UI tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-07-04",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "warning system UI; UX tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-07-05",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "results panels; visual overlays; UI tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-07-06",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "accessibility checklist; UI fixes; tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-07-07",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "solve run panel; progress/cancel controls; diagnostics UI tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-08-01",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "report renderer; report template; tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-08-02",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "audit manifest; hash tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-08-03",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "report provenance section; tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-08-04",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "schemas/results.schema.yaml; exporter; tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-08-05",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "report linter; CI guard",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-09-01",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "validation/benchmarks/mechanics; hand-calc notes",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-09-02",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "validation/benchmarks/stress; hand-calc notes",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-09-03",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "validation/benchmarks/nonlinear; regression tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-09-04",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "docs/VALIDATION_STRATEGY.md; validation manual outline",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-09-05",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "release QA checklist; CI quality gates",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-10-01",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "api/openapi.yaml or equivalent; plugin boundary doc",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-10-02",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "adapter interfaces; sample invented adapter",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-10-03",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "local FEA handoff schema; docs/local-analysis notes",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-10-04",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "CI workflows; packaging scripts; release notes template",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-10-05",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "CLI runner; structured input/output fixtures; automation docs",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-11-01",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "docs/user_guide/index.md",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-11-02",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "docs/developer_guide/index.md",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-11-03",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "docs/theory/centerline_analysis.md",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-11-04",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "examples/models/invented/*; tutorials",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-11-05",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "CONTRIBUTING tutorial; execution/_Coordination/_COORDINATION.md",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-12-01",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "storage policy; private path conventions; tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-12-02",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "redaction config; export tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-12-03",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "telemetry policy; config defaults; tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-12-04",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "private library registry; secret handling tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-12-05",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "docs/security/threat_model.md",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-07-08",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "GUI design knowledge panel; operation diff review; state/run browser; comparison overlays",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-08-06",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "state/run report sections; comparison report section; handoff manifest report section",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-13-01",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "schemas/design_knowledge.schema.json; design knowledge provenance model",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-13-02",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "schemas/constraint.schema.json; constraint provenance model",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-13-03",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "constraint validation module; validation diagnostics tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-13-04",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "physical-to-analytical transform contract; transform warning tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-14-01",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "schemas/model_state.schema.json; model state persistence tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-14-02",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "schemas/analysis_run.schema.json; run reproducibility tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-14-03",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "state comparison engine; state diff tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-14-04",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "run comparison engine; result delta tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-14-05",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "comparison mapping schema; tolerance profile schema; comparison exporters",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-15-01",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "schemas/handoff_package.schema.json; handoff manifest schema",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-15-02",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "target mapping schema; unsupported behavior taxonomy",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-15-03",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "handoff exporter; export validation tests; invented target fixture",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-15-04",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "external reference fields; boundary validation tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-16-01",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "schemas/model_operation.schema.json; operation fixtures",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-16-02",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "operation validator; diff preview service; validation tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-16-03",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "operation audit log; acceptance workflow tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-16-04",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "agent rationale record; professional-boundary guard tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-17-01",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "source basis dossier; CAEPIPE question dossier; public reference index",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-17-02",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "export package schema; export profile schema; id map schema; loss report schema",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-17-03",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "exports/native_json package; package writer; validation fixtures; schema round-trip tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-17-04",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "CAEPIPE MBF export profile; deterministic MBF writer; invented fixtures; loss report tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-17-05",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "external CAEPIPE harness; run directory contract; CSV parser; skip-without-executable tests",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-17-06",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "stress-neutral CSV schema; stress-neutral JSON schema; export writer; comparison fixtures",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-17-07",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "PCF subset profile; PCF writer; unsupported behavior report; invented fixtures",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-17-08",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "glTF/GLB export profile; review geometry writer; ID sidecar; geometry fixtures",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-17-09",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "export adapter SDK contract; adapter template; target registry contract; validation checklist",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-07-09",
+    "contract": "ACCEPTED_OPEN_CUSTOM_CONTRACT",
+    "core_expected": [
+      "Vocabulary_Coverage.csv",
+      "Palette_Organization_Contract.md",
+      "Palette_Operation_Routing.md"
+    ],
+    "core_found": 3,
+    "anticipated": "vocabulary coverage ledger; palette organization contract; palette-to-operation routing map",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-04-07",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "product solve service; nonlinear orchestration; adapter conformance evidence",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-07-11",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "workspace shell; session coordinator; native-host route and recovery evidence",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-07-12",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "record-family review panels; explicit handoff interactions; provenance and preview-state evidence",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  },
+  {
+    "id": "DEL-16-06",
+    "contract": "SOW_V1",
+    "core_expected": [
+      "ScopeOfWork.md"
+    ],
+    "core_found": 1,
+    "anticipated": "controlled operation application; native/wasm conformance; audit and persistence handoff evidence",
+    "production_realization": "INCOMPLETE_NOT_RECOUNTED"
+  }
+]

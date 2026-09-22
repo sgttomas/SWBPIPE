@@ -2,8 +2,8 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-04-01
 package_id: PKG-04
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
-project_scope_refs: [SOW-005, SOW-035]
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577
+project_scope_refs: [SOW-005,SOW-035]
 package_objective_refs: [OBJ-003]
 ---
 
@@ -339,8 +339,19 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 > |---|---|---|---|---|---|---|
 > | None | No source conflict found in setup sources. | N/A | N/A | N/A | N/A | N/A |
 
+### CLM-030 — SCA-011 DEC-044 primitive boundary
+
+**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
+
+Retain frame assembly and linear solving, including CAP-PHYS-022. DEL-04-07 composes the product solve and assembled nonlinear orchestration; DEL-04-04 retains the classifier. File location or a product caller cannot transfer mathematical ownership.
+
+- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.
+- **AC-002** — The named boundary is honored, its witness is bound to the tested candidate, and missing or held results remain explicit. Ownership assignment alone is not a pass.
+- **VER-002** — Check primitive assembly/solve contracts separately from product route parity; preserve all existing protected numerical criteria and Remaining items.
+
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-005 SOW-035 OBJ-003 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+| OUT-002 | OBJ-003 | CLM-030 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |

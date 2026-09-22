@@ -8,7 +8,7 @@
 
 ## Description
 
-Own the ratified two-class interactive operation vocabulary coverage contract and the single tool-palette surface organization over the viewport and tree/inspector surfaces, routed through the structured model operation layer.
+Own the ratified two-class interactive operation vocabulary coverage contract and single-palette organization; route implementation accountability to the named sibling owners through the PKG-16 seam.
 
 ## Anticipated Artifacts
 
@@ -33,14 +33,14 @@ Own the ratified two-class interactive operation vocabulary coverage contract an
 
 - **Envelope:** L
 - **Risk:** WATCH
-- **Recommended Action:** Confirm scope and split if it expands.
+- **Recommended Action:** Confirm scope and split if it expands
 - **Notes:** Contract/coverage slice only. Implementation lands in the deliverables named in the SCA-009 Vocabulary Annex; editor implementation does not land here.
 
 ## Package Reference
 
 - **Package:** PKG-07 Graphical User Interface and Engineering Workflow
 - **Package Scope:** Implements the interactive modeler, editors, warning UX, solve-execution UX, and results views.
-- **Package Assigned Scope Items:** SOW-020, SOW-021, SOW-022, SOW-023, SOW-036, SOW-055, SOW-076, SOW-077
+- **Package Assigned Scope Items:** SOW-020, SOW-021, SOW-022, SOW-023, SOW-036, SOW-055, SOW-076, SOW-077, SOW-078, SOW-079
 - **Package Exclusions:** Does not silently supply missing code data.
 
 ## Accepted Authority
@@ -62,3 +62,7 @@ Own the ratified two-class interactive operation vocabulary coverage contract an
 
 - Structural scaffold and source-grounded metadata only.
 - Lifecycle is OPEN; no production document or implementation artifact is created by PREPARATION.
+
+## SCA-011 responsibility
+
+Applied under the SCA-011 Group 2 decision; audited poststate acceptance remains pending Group 3. R-005/R-006 are coverage-accountability landings only: load/combination editing DEL-07-03, support editing DEL-07-02, palette rendering/routing DEL-07-01. OPEN lifecycle preserved. Coverage and palette organization remain here; implementation follows the successor `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/Vocabulary_Annex.md`. The historical SCA-009 annex and acceptance record remain unchanged. No SoW, implementation dispatch or lifecycle promotion is created for this OPEN contract.

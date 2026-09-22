@@ -7,7 +7,8 @@
 **Type:** UX_UI_SLICE
 
 ## Description
-Implement GUI panels and overlays for design knowledge, operation/diff review, state/run browsing, comparison tables, and graphical comparison review.
+
+Implement design knowledge, operation review/apply interaction and ledger presentation, state/run browsing, comparison tables and graphical comparison review.
 
 ## Anticipated Artifacts
 - GUI design knowledge panel
@@ -16,6 +17,7 @@ Implement GUI panels and overlays for design knowledge, operation/diff review, s
 - comparison overlays
 
 ## Scope Coverage
+
 - SOW-076
 
 ## Scope Detail
@@ -26,7 +28,7 @@ Implement GUI panels and overlays for design knowledge, operation/diff review, s
 
 ## Context Envelope
 - **Envelope:** L
-- **Envelope Notes:** Adds design-authoring and comparison workspace to the GUI workflow.
+- **Envelope Notes:** Feature interaction remains here; shared shell/session coordination is DEL-07-11, execution DEL-16-06, comparison interface DEL-14-05.
 
 ## Context Budget QA
 - **Risk:** WATCH
@@ -36,7 +38,7 @@ Implement GUI panels and overlays for design knowledge, operation/diff review, s
 ## Package Reference
 - **Package:** PKG-07 Graphical User Interface and Engineering Workflow
 - **Package Scope:** Implements the interactive modeler, editors, warning UX, solve-execution UX, and results views.
-- **Package Assigned Scope Items:** SOW-020, SOW-021, SOW-022, SOW-023, SOW-036, SOW-055, SOW-076
+- **Package Assigned Scope Items:** SOW-020, SOW-021, SOW-022, SOW-023, SOW-036, SOW-055, SOW-076, SOW-077, SOW-078, SOW-079
 - **Package Exclusions:** Does not silently supply missing code data.
 
 ## Decomposition Reference
@@ -65,3 +67,8 @@ Implement GUI panels and overlays for design knowledge, operation/diff review, s
 ## PREPARATION Notes
 - Structural scaffold and metadata context only.
 - No Type 2 implementation artifacts are drafted in this folder by PREPARATION.
+
+## SCA-011 responsibility
+
+Applied under the SCA-011 Group 2 decision; audited poststate acceptance remains pending Group 3. Feature interaction remains here; shared shell/session coordination is DEL-07-11, execution DEL-16-06, comparison interface DEL-14-05.
+The amended Deliverables and ContextBudgetQA rows govern this allocation; existing state and implementation evidence remain separately bound.

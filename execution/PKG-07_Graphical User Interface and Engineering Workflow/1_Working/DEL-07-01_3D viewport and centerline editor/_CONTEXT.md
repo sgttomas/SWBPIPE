@@ -7,21 +7,24 @@
 **Type:** UX_UI_SLICE
 
 ## Description
-Implement initial viewport interactions for nodes, pipe runs, bends, and simple component symbols.
+
+Implement viewport and centerline editing plus palette rendering and operation routing under the DEL-07-09 organization contract.
 
 ## Anticipated Artifacts
 - GUI viewport
 - interaction tests
 
 ## Scope Coverage
+
 - SOW-020
+- SOW-077
 
 ## Objective Support
 - OBJ-006
 
 ## Context Envelope
 - **Envelope:** L
-- **Envelope Notes:** GUI surface is broad but bounded to viewport/editor.
+- **Envelope Notes:** Palette implementation has keyed ownership; vocabulary and coverage remain DEL-07-09. No shell, storage or solver ownership transfer.
 
 ## Context Budget QA
 - **Risk:** WATCH
@@ -31,7 +34,7 @@ Implement initial viewport interactions for nodes, pipe runs, bends, and simple 
 ## Package Reference
 - **Package:** PKG-07 Graphical User Interface and Engineering Workflow
 - **Package Scope:** Implements the interactive modeler, editors, warning UX, solve-execution UX, and results views.
-- **Package Assigned Scope Items:** SOW-020, SOW-021, SOW-022, SOW-023, SOW-036, SOW-055
+- **Package Assigned Scope Items:** SOW-020, SOW-021, SOW-022, SOW-023, SOW-036, SOW-055, SOW-076, SOW-077, SOW-078, SOW-079
 - **Package Exclusions:** Does not silently supply missing code data.
 
 ## Decomposition Reference
@@ -57,3 +60,8 @@ Implement initial viewport interactions for nodes, pipe runs, bends, and simple 
 ## PREPARATION Notes
 - Structural scaffold only.
 - No Type 2 implementation artifacts are drafted in this folder by PREPARATION.
+
+## SCA-011 responsibility
+
+Applied under the SCA-011 Group 2 decision; audited poststate acceptance remains pending Group 3. Palette implementation has keyed ownership; vocabulary and coverage remain DEL-07-09. No shell, storage or solver ownership transfer.
+The amended Deliverables and ContextBudgetQA rows govern this allocation; existing state and implementation evidence remain separately bound.

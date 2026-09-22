@@ -2,7 +2,7 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-13-04
 package_id: PKG-13
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577
 project_scope_refs: [SOW-066]
 package_objective_refs: [OBJ-014]
 ---
@@ -646,3 +646,10 @@ This candidate defines `DEL-13-04` in service of project scope [SOW-066] and pac
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-066 OBJ-014 | CLM-011 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## SCA-011 — Interface responsibility and verification hook
+
+- **DEL-13-04-SCA011-REQ-001** — Owns the TransformResult production contract and its authoritative versioned schema, preserving physical source identity, analytical derivation, units, diagnostics and traceability.
+- **DEL-13-04-SCA011-VER-001** — PDU-023 now has the DEL-13-04 responsibility home through SCA-011; accepted envelope binding and wider scalar/runtime trace evidence remain outstanding. DEL-13-04-REQ-012 remains unchanged: the internal solver-boundary adapter is not a public API, GUI/runtime path, external prover path or final solver-acceptance claim.
+
+Named preparation artifact: `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/TransformResult.v0.1.draft.schema.json`, with field decisions and semantic checks in `INTERFACE_CONTRACTS.md`. This identifies an accountable contract preparation surface; its wire fields/version are unaccepted design deltas, not deployed schemas. Scope adoption alone neither validates existing preview payloads nor activates a new API, runtime, persistence format, external process or compatibility window. Existing requirements, exclusions and lifecycle remain in force.

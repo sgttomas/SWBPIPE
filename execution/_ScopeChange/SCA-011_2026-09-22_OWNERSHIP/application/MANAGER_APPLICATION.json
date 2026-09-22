@@ -1,0 +1,63 @@
+{
+  "source_commit": "3e18334eca72509475684cc86786b3eeade83572",
+  "authority": "projects/chirality-piping/execution/_ScopeChange/checkpoint_snapshots/SCA-011_GROUP-2_2026-09-22/",
+  "preflight": "all83 canonical preimages and candidate hashes matched before first write",
+  "actor": "WORKING_ITEMS /root/piping_scope_manager",
+  "files": [
+    {
+      "CanonicalTarget": "projects/chirality-piping/docs/_Registers/ContextBudgetQA.csv",
+      "CandidatePath": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/docs/_Registers/ContextBudgetQA.csv",
+      "BeforeSHA256": "84497efb81d4b31b085e016d37a285aed3755be7740a632794e355dad259468d",
+      "CandidateSHA256": "292c0dc6fd53e4f982b77938927cd0a467b4b35cf708956a8ba9ba12211a0be6",
+      "AppliedSHA256": "292c0dc6fd53e4f982b77938927cd0a467b4b35cf708956a8ba9ba12211a0be6",
+      "ApplicationLane": "GROUP2_APPLICATION",
+      "TransformationReference": "evidence/SOURCES_DECOMPOSITION.json#/application_metadata",
+      "observed_sha256": "292c0dc6fd53e4f982b77938927cd0a467b4b35cf708956a8ba9ba12211a0be6",
+      "result": "APPLIED_EXACT_GROUP2"
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/docs/_Registers/Deliverables.csv",
+      "CandidatePath": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/docs/_Registers/Deliverables.csv",
+      "BeforeSHA256": "f46ea92ab5e5896e86f6b0b8ecbec4e98158886def5d0cf0d7b80d0200f03539",
+      "CandidateSHA256": "d4b96c0c4e499252a7845db9dd135e43f40e2acb10f077aba3a3866e8317d5cf",
+      "AppliedSHA256": "d4b96c0c4e499252a7845db9dd135e43f40e2acb10f077aba3a3866e8317d5cf",
+      "ApplicationLane": "GROUP2_APPLICATION",
+      "TransformationReference": "evidence/SOURCES_DECOMPOSITION.json#/application_metadata",
+      "observed_sha256": "d4b96c0c4e499252a7845db9dd135e43f40e2acb10f077aba3a3866e8317d5cf",
+      "result": "APPLIED_EXACT_GROUP2"
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/docs/_Registers/ScopeLedger.csv",
+      "CandidatePath": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/docs/_Registers/ScopeLedger.csv",
+      "BeforeSHA256": "97f5a113739e193f07f6d1dfac36f43e08642e12c983f3a3b597a31abe553238",
+      "CandidateSHA256": "2d600ac45fb3cc03743e4be69f772eb22d71fd8fdeea18979ae524ef2c2d7bcc",
+      "AppliedSHA256": "a408a3b9ea0caccc3c4a410fb5a2caa5c5add4fd8460b0daac82cbf1c8f7aab4",
+      "ApplicationLane": "GROUP2_APPLICATION",
+      "TransformationReference": "evidence/SOURCES_DECOMPOSITION.json#/application_metadata",
+      "observed_sha256": "a408a3b9ea0caccc3c4a410fb5a2caa5c5add4fd8460b0daac82cbf1c8f7aab4",
+      "result": "APPLIED_EXACT_GROUP2"
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+      "CandidatePath": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+      "BeforeSHA256": "fe328b7b8440dde9a94ae2ed2b85a6cb55db66653fe5adf56de8f33e3c6c60c2",
+      "CandidateSHA256": "0581fd5fec1f56ef08d958bc0895557d4fd7ca3d66d2579b70fea03d81e074f8",
+      "AppliedSHA256": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+      "ApplicationLane": "GROUP2_APPLICATION",
+      "TransformationReference": "evidence/SOURCES_DECOMPOSITION.json#/application_metadata",
+      "observed_sha256": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577",
+      "result": "APPLIED_EXACT_GROUP2"
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/Vocabulary_Annex.md",
+      "CandidatePath": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/candidate/projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/Vocabulary_Annex.md",
+      "BeforeSHA256": "ABSENT",
+      "CandidateSHA256": "cd8ab68dd51e739ea872041562ffe378ebc5a9fff7e94b412a46202ab1d65698",
+      "AppliedSHA256": "248ce3ed1c5b92c6fcfbc392219bae2a71ed6ef6452f1fcfc18de5a7128ddca6",
+      "ApplicationLane": "GROUP2_APPLICATION",
+      "TransformationReference": "evidence/SOURCES_DECOMPOSITION.json#/application_metadata",
+      "observed_sha256": "248ce3ed1c5b92c6fcfbc392219bae2a71ed6ef6452f1fcfc18de5a7128ddca6",
+      "result": "APPLIED_EXACT_GROUP2"
+    }
+  ]
+}

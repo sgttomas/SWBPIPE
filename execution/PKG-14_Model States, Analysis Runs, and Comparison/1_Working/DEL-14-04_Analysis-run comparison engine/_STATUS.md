@@ -1,9 +1,10 @@
 # Status: DEL-14-04 Analysis-run comparison engine
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-08-19
+**Last Updated:** 2026-09-22
 
 ## Remaining
+- SCA-011 interface follow-through: PDU-011 has a named output-schema owner at DEL-14-05, but output-schema acceptance and producer conformance remain outstanding. PDU-047 engineering suitability and governed tolerance values remain held; a schema draft or structural check does not discharge either.
 - Hold PDU-011 comparison-output schema conformance until an authoritative analysis-run comparison-result/export schema is accepted; current mapping and tolerance schemas govern inputs only (source: D-41 R5 T2B bounded schema check, 2026-07-12)
 - Hold PDU-047 engineering-validation/suitability of unit-normalized comparison mechanics; the section-property witness is not an authorized tolerance or comparison-validation basis and section-property results are outside the engine's current supported result families (source: D-41 R5 T2B E2/E4/E8 evidence-only backcheck, 2026-07-12)
 
@@ -23,3 +24,5 @@
 - 2026-07-12 - D-41 R5 T2B recorded the PDU-011 output-schema and PDU-047 comparison-validation gaps as held residuals. No schema, conformance result, new result family, conversion, tolerance, outcome, review disposition, or lifecycle state was introduced.
 - 2026-07-12 - D-41 R5 T2C completed PDU-030 at the bounded mapping grain: automatic mapping is produced only for unique exact result IDs with matching family/object/basis/dimension, while different or ambiguous IDs remain manual-only; both paths have JSON round-trip identity evidence. Existing PDU-011/PDU-047 holds, D-41 bootstrap, and IN_PROGRESS lifecycle remain unchanged.
 - 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).
+
+- 2026-09-22 — SCA-011 interface allocation: Produces analysis-run comparison outputs against the common versioned comparison-result/export interface owned by DEL-14-05; unit-normalization mathematics and comparison execution remain here. Named schema remains a review-only draft; lifecycle and unrelated holds unchanged.

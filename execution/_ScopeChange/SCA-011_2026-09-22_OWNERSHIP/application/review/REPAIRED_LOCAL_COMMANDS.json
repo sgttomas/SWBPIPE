@@ -1,0 +1,102 @@
+[
+  {
+    "command": [
+      "python3",
+      "tools/validation/validate_dependencies_schema.py",
+      "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv"
+    ],
+    "exit_code": 0,
+    "stdout": "VALID: projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv\n  Columns: 31 (29 required + 2 extension)\n  Data rows: 24\n  Extensions: EstimateImpactClass, ConsumerHint\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "tools/validation/validate_dependencies_schema.py",
+      "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/Dependencies.csv"
+    ],
+    "exit_code": 0,
+    "stdout": "VALID: projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/Dependencies.csv\n  Columns: 29 (29 required + 0 extension)\n  Data rows: 20\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "tools/validation/validate_dependencies_schema.py",
+      "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/Dependencies.csv"
+    ],
+    "exit_code": 0,
+    "stdout": "VALID: projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/Dependencies.csv\n  Columns: 29 (29 required + 0 extension)\n  Data rows: 20\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "tools/validation/validate_dependencies_schema.py",
+      "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/Dependencies.csv"
+    ],
+    "exit_code": 0,
+    "stdout": "VALID: projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/Dependencies.csv\n  Columns: 29 (29 required + 0 extension)\n  Data rows: 18\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "tools/validation/validate_dependencies_schema.py",
+      "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/Dependencies.csv"
+    ],
+    "exit_code": 0,
+    "stdout": "VALID: projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/Dependencies.csv\n  Columns: 29 (29 required + 0 extension)\n  Data rows: 30\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "tools/validation/validate_dependencies_schema.py",
+      "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv"
+    ],
+    "exit_code": 0,
+    "stdout": "VALID: projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv\n  Columns: 31 (29 required + 2 extension)\n  Data rows: 12\n  Extensions: EstimateImpactClass, ConsumerHint\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "tools/validation/validate_dependencies_schema.py",
+      "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv"
+    ],
+    "exit_code": 0,
+    "stdout": "VALID: projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv\n  Columns: 31 (29 required + 2 extension)\n  Data rows: 26\n  Extensions: EstimateImpactClass, ConsumerHint\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "tools/validation/validate_dependencies_schema.py",
+      "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/Dependencies.csv"
+    ],
+    "exit_code": 0,
+    "stdout": "VALID: projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/Dependencies.csv\n  Columns: 29 (29 required + 0 extension)\n  Data rows: 23\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "tools/validation/validate_dependencies_schema.py",
+      "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/Dependencies.csv"
+    ],
+    "exit_code": 0,
+    "stdout": "VALID: projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/Dependencies.csv\n  Columns: 29 (29 required + 0 extension)\n  Data rows: 17\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "tools/validation/validate_dependencies_schema.py",
+      "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv"
+    ],
+    "exit_code": 0,
+    "stdout": "VALID: projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv\n  Columns: 31 (29 required + 2 extension)\n  Data rows: 12\n  Extensions: EstimateImpactClass, ConsumerHint\n",
+    "stderr": ""
+  }
+]

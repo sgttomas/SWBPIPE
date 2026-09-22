@@ -519,3 +519,7 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Added deterministic paired source/target field paths for valid component geometry quantity scalars copied through the current transform.
 - Tightened quantity-shape validation so incomplete scalar metadata is diagnosed and cannot emit a trace link.
 - Full runtime result-envelope continuation remains held because no accepted producer/home binds it. Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T2C-PDU023.md`.
+
+## 2026-09-22 — SCA-011 interface responsibility
+
+Owns the TransformResult production contract and its authoritative versioned schema, preserving physical source identity, analytical derivation, units, diagnostics and traceability. PDU-023 now has the DEL-13-04 responsibility home through SCA-011; accepted envelope binding and wider scalar/runtime trace evidence remain outstanding. REQ-012 remains unchanged: the internal solver-boundary adapter is not a public API, GUI/runtime path, external prover path or final solver-acceptance claim. Drafts and semantic checks: `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/INTERFACE_CONTRACTS.md`. This records responsibility, not implemented contract conformance or lifecycle promotion.

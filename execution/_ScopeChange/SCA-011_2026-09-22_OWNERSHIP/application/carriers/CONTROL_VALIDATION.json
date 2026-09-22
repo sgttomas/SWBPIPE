@@ -1,0 +1,165 @@
+{
+  "status": "PASS",
+  "new_deliverable_count": 4,
+  "sources": [
+    {
+      "path": "projects/chirality-piping/docs/_Registers/Deliverables.csv",
+      "sha256": "d4b96c0c4e499252a7845db9dd135e43f40e2acb10f077aba3a3866e8317d5cf"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+      "sha256": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577"
+    }
+  ],
+  "results": [
+    {
+      "deliverable_id": "DEL-04-07",
+      "metadata_parity": "PASS",
+      "state": "OPEN",
+      "semantic": "PLACEHOLDER",
+      "command": [
+        "zsh",
+        "tools/validation/check_min_viable_fileset.sh",
+        "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS: DEL-04-07 \u2014 all 5 minimum viable files present\n",
+      "stderr": "",
+      "files": [
+        {
+          "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_STATUS.md",
+          "sha256": "f7a657328b0650935ac8a5955b69ac82c0405170d66e650180e3303460148294"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_CONTEXT.md",
+          "sha256": "1d23c2e57d3ed8fa8c20d4374ac022d9cbe13cc5abe391ca9874f29a911730f3"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_REFERENCES.md",
+          "sha256": "008cd4031142eed135a31859a7faff498f97da655ff6f33e000412c17df01dbe"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_SEMANTIC.md",
+          "sha256": "0d556a76f60dadb4b20161f5efe708778d5071ec79ccec4c4541791b198edfa1"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_DEPENDENCIES.md",
+          "sha256": "41fb1fd8582391fab88f4e411647ba6e2581e747cb1b7453f659f765e3790137"
+        }
+      ]
+    },
+    {
+      "deliverable_id": "DEL-07-11",
+      "metadata_parity": "PASS",
+      "state": "OPEN",
+      "semantic": "PLACEHOLDER",
+      "command": [
+        "zsh",
+        "tools/validation/check_min_viable_fileset.sh",
+        "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS: DEL-07-11 \u2014 all 5 minimum viable files present\n",
+      "stderr": "",
+      "files": [
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_STATUS.md",
+          "sha256": "1af3a408c611dab61ac3be092ff1053cc48bd2cbe3639f4c84626939d69c0327"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_CONTEXT.md",
+          "sha256": "5ab3d03e0f21b48c34f4e616107ee17abf3badd3bb8db370724661738e5d1428"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_REFERENCES.md",
+          "sha256": "63e893e3c570cb796bef55159322c3b375f6156814e971ff6b2927bc394d1459"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_SEMANTIC.md",
+          "sha256": "c857f5c43808cd4dee74d2f71644cef4a6af6b2d9c082ef35f508144a17c437a"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_DEPENDENCIES.md",
+          "sha256": "9c48a6692db909a1b89e61db60e88ef414bf63dec5909865df8b38d3057cca01"
+        }
+      ]
+    },
+    {
+      "deliverable_id": "DEL-07-12",
+      "metadata_parity": "PASS",
+      "state": "OPEN",
+      "semantic": "PLACEHOLDER",
+      "command": [
+        "zsh",
+        "tools/validation/check_min_viable_fileset.sh",
+        "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS: DEL-07-12 \u2014 all 5 minimum viable files present\n",
+      "stderr": "",
+      "files": [
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_STATUS.md",
+          "sha256": "d179f97739a36081d6ce722f3023cb730da31114f9da910f5df3f4d66bdf018f"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_CONTEXT.md",
+          "sha256": "7d0c0e74fb9b68953871a999a3a7d5248f9d4a06b4a6534c0f2a129b056a55d8"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_REFERENCES.md",
+          "sha256": "7f3f5ef675d9afcfb9765ccc3b71deffda5190ad603f302c5cce09c42c1473ec"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_SEMANTIC.md",
+          "sha256": "837983d799a8c818db10994235d273b79ade1d6ec6ed808a0bcf5c4551d55dda"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_DEPENDENCIES.md",
+          "sha256": "7a7c03dd009217bdec795333a7bed20f45ad7c95002e9f7a378e2ace8c86188b"
+        }
+      ]
+    },
+    {
+      "deliverable_id": "DEL-16-06",
+      "metadata_parity": "PASS",
+      "state": "OPEN",
+      "semantic": "PLACEHOLDER",
+      "command": [
+        "zsh",
+        "tools/validation/check_min_viable_fileset.sh",
+        "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS: DEL-16-06 \u2014 all 5 minimum viable files present\n",
+      "stderr": "",
+      "files": [
+        {
+          "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_STATUS.md",
+          "sha256": "0c6a18ff854e766d8d05292109978422d68d1175fcae894bbec7f5741418cffe"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_CONTEXT.md",
+          "sha256": "a66bf834f218c877155d9f8faece9be00f8cbae7b97eb8d119439ab01d82cfeb"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_REFERENCES.md",
+          "sha256": "e4707919fca8b377453f2317529901d9974914a869a543648c557e8ee682818c"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_SEMANTIC.md",
+          "sha256": "44e8bc3ae2d3a6bb6489018e151b4dbb19b4058a4927952c342ea1ac7dc573e9"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_DEPENDENCIES.md",
+          "sha256": "7094b81f5372449e25e867fbaa42f123fd422cac5744b67b919868df87b41769"
+        }
+      ]
+    }
+  ],
+  "prior_probe": {
+    "result": "INVALID_CHECK_ASSUMPTION",
+    "detail": "An exploratory assertion expected full Description prose in SOFTWARE_DECOMP.md and stopped at DEL-04-07. The main decomposition table contains identity, type, scope and objective columns; accepted full descriptions reside in Deliverables.csv. Corrected metadata parity verifies each field against its actual source without changing any canonical or candidate bytes."
+  },
+  "limitations": "Structural minimum-fileset and accepted metadata parity only; not product or semantic readiness."
+}

@@ -2,7 +2,7 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-04-04
 package_id: PKG-04
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577
 project_scope_refs: [SOW-012]
 package_objective_refs: [OBJ-003]
 ---
@@ -115,7 +115,7 @@ This Scope of Work defines `DEL-04-04` in service of project scope [SOW-012] and
 > nonlinear support behavior: one-way supports, gaps, lift-off, friction, and
 > convergence reporting. Per `DEC-044`, the assembled nonlinear loop that wraps
 > frame assembly/solve around this classifier is owned by the PKG-04 integration
-> tranche `core/solver/nonlinear_integration`. This deliverable does not set
+> deliverable `DEL-04-07` (`core/solver/nonlinear_integration`). This deliverable does not set
 > numerical tolerances, choose friction defaults, or make certification/compliance
 > claims.
 >
@@ -308,8 +308,19 @@ This Scope of Work defines `DEL-04-04` in service of project scope [SOW-012] and
 >
 > Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The nonlinear support slice and DEC-067 Coulomb-friction basis (`±mu*N`) are implemented and evidenced. Broader nonlinear policies and validation thresholds survive only where explicitly recorded; this currentness declaration is not an engineering acceptance.
 
+### CLM-028 — SCA-011 DEC-044 keyed integration owner
+
+**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
+
+Retain per-iteration active-set classification and its state/diagnostic contract. DEL-04-07 owns the assembled nonlinear loop in core/solver/nonlinear_integration and product orchestration under DEC-044 and DEC-046.
+
+- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.
+- **AC-002** — The named boundary is honored, its witness is bound to the tested candidate, and missing or held results remain explicit. Ownership assignment alone is not a pass.
+- **VER-002** — Verify classifier inputs/outputs independently and through the named integration seam; no convergence-tolerance or engineering-review hold is lifted.
+
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-012 OBJ-003 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+| OUT-002 | OBJ-003 | CLM-028 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |

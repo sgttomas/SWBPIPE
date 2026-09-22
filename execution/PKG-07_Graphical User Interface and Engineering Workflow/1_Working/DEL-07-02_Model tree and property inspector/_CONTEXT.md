@@ -7,7 +7,8 @@
 **Type:** UX_UI_SLICE
 
 ## Description
-Implement tree navigation and property panels for selected model entities.
+
+Implement generic tree/table/selected-entity inspection and create/edit/delete interactions, including support/restraint creation and editing, through the PKG-16 operation seam.
 
 ## Anticipated Artifacts
 - model tree
@@ -15,25 +16,27 @@ Implement tree navigation and property panels for selected model entities.
 - UI tests
 
 ## Scope Coverage
+
 - SOW-020
 - SOW-021
+- SOW-077
 
 ## Objective Support
 - OBJ-006
 
 ## Context Envelope
 - **Envelope:** M
-- **Envelope Notes:** Single UI work surface.
+- **Envelope Notes:** Generic selected-load inspection belongs here; load-manager editing belongs to DEL-07-03. Dedicated support-editor slice is not activated.
 
 ## Context Budget QA
-- **Risk:** OK
-- **Recommended Action:** Proceed with bounded Type 2 brief
+- **Risk:** WATCH
+- **Recommended Action:** Keep existing envelope; dispatch one finite interaction family per bounded brief and review expansion
 - **Notes:** Single UI work surface.
 
 ## Package Reference
 - **Package:** PKG-07 Graphical User Interface and Engineering Workflow
 - **Package Scope:** Implements the interactive modeler, editors, warning UX, solve-execution UX, and results views.
-- **Package Assigned Scope Items:** SOW-020, SOW-021, SOW-022, SOW-023, SOW-036, SOW-055
+- **Package Assigned Scope Items:** SOW-020, SOW-021, SOW-022, SOW-023, SOW-036, SOW-055, SOW-076, SOW-077, SOW-078, SOW-079
 - **Package Exclusions:** Does not silently supply missing code data.
 
 ## Decomposition Reference
@@ -59,3 +62,8 @@ Implement tree navigation and property panels for selected model entities.
 ## PREPARATION Notes
 - Structural scaffold only.
 - No Type 2 implementation artifacts are drafted in this folder by PREPARATION.
+
+## SCA-011 responsibility
+
+Applied under the SCA-011 Group 2 decision; audited poststate acceptance remains pending Group 3. Generic selected-load inspection belongs here; load-manager editing belongs to DEL-07-03. Dedicated support-editor slice is not activated.
+The amended Deliverables and ContextBudgetQA rows govern this allocation; existing state and implementation evidence remain separately bound.
