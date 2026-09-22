@@ -256,3 +256,5 @@
 {"t": "2026-09-22T00:41:43Z", "event": "RETURN", "node": "W3-PKG-06-VERIFIER", "agent": "a53ed51581c742361", "file": "WAVES/W3/PKG-06/PKG-06_VERIFICATION.md", "sha256": "d39488330568b2fe962455b981032fff31b08cc9568916a861e2a5e3ac1a0546", "verdict": "ACCEPT WITH CONTESTED ROWS", "firm_false_alignment": "0.0% (0/56); 1.8% counting out-of-sample DEL-06-05 CLM-020.r05", "firm": 0, "weak": 4, "field": 1}
 {"t": "2026-09-22T00:41:43Z", "event": "LIVE", "count": 15, "cap": 16}
 {"t": "2026-09-22T00:41:43Z", "event": "BUDGET_RAISE", "node": "W3-PKG-17-MANAGER", "agent": "a757c2c4453512367", "worker_budget": 3, "via": "SendMessage", "note": "applies from the manager next launch; planned live 16"}
+{"t": "2026-09-22T00:43:47Z", "event": "RETURN", "node": "W3-PKG-09-VERIFIER", "agent": "ab42649ab06ceca81", "file": "WAVES/W3/PKG-09/PKG-09_VERIFICATION.md", "sha256": "5a4359d2f8cf7c6442f99488d2f2fa12919b3402cd72af7989af68404a149577", "verdict": "ACCEPT WITH CONTESTED ROWS", "firm_false_alignment": "0.0% (0/29)", "firm": 0, "weak": 3, "field": 1}
+{"t": "2026-09-22T00:43:47Z", "event": "LIVE", "count": 14, "cap": 16}
