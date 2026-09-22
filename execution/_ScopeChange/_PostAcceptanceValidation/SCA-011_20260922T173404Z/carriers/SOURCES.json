@@ -1,0 +1,604 @@
+{
+  "actor": "/root/piping_scope_manager/piping_apply_carriers",
+  "parent": "/root/piping_scope_manager",
+  "role": "TASK",
+  "mechanism": "Codex native collaboration followup_task",
+  "model_effort": "Inherited; no override or diversity claim",
+  "brief": "Apply 51 reviewed Group-3 carrier rows only; no dependency files, pointers, original evidence, code, schema, Git mutation or delegation",
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "1bb670ca339a990b153cf033dac2d8e29ca71bdea0accee4200e6dd1feed3d57"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d8a1f4380962efcd258571c6fb563722be9e2e89d4fa5898b7f6d24dc61ab879"
+    },
+    {
+      "path": "tools/scope_of_work/validate_scope_of_work.py",
+      "sha256": "f0f10590538b5aab788c120a0993a66addba6e106b352959fe11ee97511fecfe"
+    },
+    {
+      "path": "tools/scope_of_work/common.py",
+      "sha256": "61a3472216fc1c6e42730e99952670e2a02a806810cbbc67a382f4a3eb220389"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/evidence/SOURCES_DECOMPOSITION.json",
+      "sha256": "46a038bcaf374f89b757c8916562494b3928c2135a576f11559f7223179268a0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/INTERFACE_PROMOTION.json",
+      "sha256": "573cef366a537369da687186332a664d09c609e417efac25f40811c238d9b80a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/OWNER_DECISION.md",
+      "sha256": "6797151ce24132d0c6cf4fa4d1976bc4a3b73557e6cc7d52e268140fc346c9d3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/PLAN.md",
+      "sha256": "0531b3f5479c11293954fbf2748f0fe7bdc142fb371fd11183479f5fda7cb6e8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/_STATUS.md",
+      "sha256": "de08d24130fcc1a1ddb73cc49ea3af0ac735897f0cc7f4a2089426cbf1e21c3d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/MEMORY.md",
+      "sha256": "9a20c6e37649ef8fff1c65f42669f7728fd6ab754dc7d16cc69909510d8749b9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/_STATUS.md",
+      "sha256": "b302450a2595365b77a36f95753a4818f634fdcb179cdb02ba9134639b218e66"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/MEMORY.md",
+      "sha256": "5aa972d0f1f1377bada11fc388fd30f87bc3a29bac28dbcf3fc6abad0386d547"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/_STATUS.md",
+      "sha256": "388cb86faf5a1feddad1d5435fb69b8f8403edabfafb00626c593de0c4dca75a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/MEMORY.md",
+      "sha256": "d96739c0ce33d8115057a3489a9c1bb7cbf7a750f2e81f2470da5ef141001acd"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/_STATUS.md",
+      "sha256": "ac89330b7448c1321600967c41421ac403076f00bdd366c9efb655b927486700"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/MEMORY.md",
+      "sha256": "2ef37078d39cd7f1f22d2a86311226a4f20848e0db1fb3e022a948f09b70d351"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_STATUS.md",
+      "sha256": "d44d32d78a50283c0c5e05dc732914db8b13c0739a84ba1a9e573af7e6a13a6c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/MEMORY.md",
+      "sha256": "2fcc98ad5f2f8d02cc78e934e5d9e367fcbb5032f0a6b2ba781383ccd775b612"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/_STATUS.md",
+      "sha256": "e203e00bfd3faf4ebaa0899f71be13cf4fdf72c7431c29cd587e9954233da49b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/MEMORY.md",
+      "sha256": "f7536e243870f8bfa2e821680abff5bb16bbaeec1b9a0a9645c48b7e0461c60b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_STATUS.md",
+      "sha256": "f7a657328b0650935ac8a5955b69ac82c0405170d66e650180e3303460148294"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/_STATUS.md",
+      "sha256": "0e85d9e6a51b626a3cd799604ea7d835ebff47abaab68fe2c4a5128bb4d82621"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/MEMORY.md",
+      "sha256": "1cfb82acb6de44de51c4c1cffee3bc3ab37a2b8a97b74ca81641966d9bce8bea"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_STATUS.md",
+      "sha256": "0608b08af9fe8bf6ce5c9d57826018e0489e4da57e1b3edf03cea015af05d42b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/MEMORY.md",
+      "sha256": "2aad93cc158e42bae3d59efd729db6ea11117a8cfd3cdb981439c5a21ad79ed3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_STATUS.md",
+      "sha256": "6961425bbe6559a0235771d597746021557453b7ffb7b9be9ddc928b149e5850"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/MEMORY.md",
+      "sha256": "3f964e6558fa01a89e00eda76d744bbcf2c9ac05c94b912838c7345f8e928a0f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_STATUS.md",
+      "sha256": "a9cef058db84f630efe7c51ad32877cb0d460fd7784f2454133f6cc9bc40358d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/MEMORY.md",
+      "sha256": "25f2ea7e8e5a4b91ee505d339fea4edf322cb239766ca97c9863228c36ed50ff"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_STATUS.md",
+      "sha256": "2d6e69c965296621a766add1ee9f3c353726019a88b9b9d0f8f058526b1e48ee"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/MEMORY.md",
+      "sha256": "9741ef61afca026404d77a9772ae16f45205de8ee8c24c299cafb1dd28c63f76"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_STATUS.md",
+      "sha256": "854a3e4b4428a38b7f19ffce86413a2c6d766631ebe1d6cf1c06c9466945f3b1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/MEMORY.md",
+      "sha256": "273d3e29498b08b4bbdaf39d0a9112eb38f3f941a30f69557c90efeb05c4f30a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_STATUS.md",
+      "sha256": "bf3e7749e179ea7d666881d4097f19586e3af28429b0ae23e06d5ce2aa2d3ecc"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_STATUS.md",
+      "sha256": "1af3a408c611dab61ac3be092ff1053cc48bd2cbe3639f4c84626939d69c0327"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_STATUS.md",
+      "sha256": "d179f97739a36081d6ce722f3023cb730da31114f9da910f5df3f4d66bdf018f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_STATUS.md",
+      "sha256": "615e6b5b1541de9853d4e386b6dfeb77929093be993d6875894a986e045be88c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/MEMORY.md",
+      "sha256": "0935b7e5274c148508b530b9971374218ffa04820985237cf8d763f988204ade"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/_STATUS.md",
+      "sha256": "bfce9dec61790f9a04ce91e202522c77329a5f702eebe01cfd80477efe033b20"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/MEMORY.md",
+      "sha256": "9e9120de17b38fff1e91d58bffdb304bb6ae19f0b2786cf444097c72c0e64fa0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/_STATUS.md",
+      "sha256": "1e98417eb47d88504d141b620af532e37bc3d626e466a6af1d4dbd0eb20f5c66"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/MEMORY.md",
+      "sha256": "7f4b0c0088b0bb92a3be4bb2606b615a363f378a5f3b222e082851b9937604ce"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine/_STATUS.md",
+      "sha256": "8c1c3ffb7ea9cee13e93dac1727a2b67c4af52369f5b4bd11410823a295524f8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine/MEMORY.md",
+      "sha256": "47ea7fef2c3bd88ae3e936dcb9170923644f9a7ac767d7755bd29371846909d9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/_STATUS.md",
+      "sha256": "2e341c354159d50dcf7c0775197e8e1c007220779e4c457e964ff90e8dfaacf6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/MEMORY.md",
+      "sha256": "16a271999953f1cd260d11129cd541d290281c3b50c08f2a8fa30797d052d32e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/_STATUS.md",
+      "sha256": "b013f91b7a87924b1ee5c66b8571e564db467fad82328528a9c1fb6f4f21730c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/MEMORY.md",
+      "sha256": "291b8b685d56ea48fc9546fb4e5ef65ed4406d539e450d7b04cd7d0a5c69231e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_STATUS.md",
+      "sha256": "cca642576aa7364945cd4b3917a4732b9a17d109b3796983b28740067342f3dc"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/MEMORY.md",
+      "sha256": "4d17f0f2976ece12a3433ea15628c68f9ec45bad2ea8b90c36649875a000118f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_STATUS.md",
+      "sha256": "60ceeb8eef85c03980c7aae302096c841689cd69fabed52b110253e3db5c54a5"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/MEMORY.md",
+      "sha256": "44aa9d313d36cc9168a6627098842062c0ed5d19d7639afe0c44c64abea7f244"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_STATUS.md",
+      "sha256": "0c6a18ff854e766d8d05292109978422d68d1175fcae894bbec7f5741418cffe"
+    }
+  ],
+  "paired_continuity": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/_STATUS.md",
+      "sha256_before": "de08d24130fcc1a1ddb73cc49ea3af0ac735897f0cc7f4a2089426cbf1e21c3d",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/MEMORY.md",
+      "sha256_before": "9a20c6e37649ef8fff1c65f42669f7728fd6ab754dc7d16cc69909510d8749b9",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/_MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/_STATUS.md",
+      "sha256_before": "b302450a2595365b77a36f95753a4818f634fdcb179cdb02ba9134639b218e66",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/MEMORY.md",
+      "sha256_before": "5aa972d0f1f1377bada11fc388fd30f87bc3a29bac28dbcf3fc6abad0386d547",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/_MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/_STATUS.md",
+      "sha256_before": "388cb86faf5a1feddad1d5435fb69b8f8403edabfafb00626c593de0c4dca75a",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/MEMORY.md",
+      "sha256_before": "d96739c0ce33d8115057a3489a9c1bb7cbf7a750f2e81f2470da5ef141001acd",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/_MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/_STATUS.md",
+      "sha256_before": "ac89330b7448c1321600967c41421ac403076f00bdd366c9efb655b927486700",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/MEMORY.md",
+      "sha256_before": "2ef37078d39cd7f1f22d2a86311226a4f20848e0db1fb3e022a948f09b70d351",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/_MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_STATUS.md",
+      "sha256_before": "d44d32d78a50283c0c5e05dc732914db8b13c0739a84ba1a9e573af7e6a13a6c",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/MEMORY.md",
+      "sha256_before": "2fcc98ad5f2f8d02cc78e934e5d9e367fcbb5032f0a6b2ba781383ccd775b612",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/_STATUS.md",
+      "sha256_before": "e203e00bfd3faf4ebaa0899f71be13cf4fdf72c7431c29cd587e9954233da49b",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/MEMORY.md",
+      "sha256_before": "f7536e243870f8bfa2e821680abff5bb16bbaeec1b9a0a9645c48b7e0461c60b",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/_MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_STATUS.md",
+      "sha256_before": "f7a657328b0650935ac8a5955b69ac82c0405170d66e650180e3303460148294",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/_STATUS.md",
+      "sha256_before": "0e85d9e6a51b626a3cd799604ea7d835ebff47abaab68fe2c4a5128bb4d82621",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/MEMORY.md",
+      "sha256_before": "1cfb82acb6de44de51c4c1cffee3bc3ab37a2b8a97b74ca81641966d9bce8bea",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/_MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_STATUS.md",
+      "sha256_before": "0608b08af9fe8bf6ce5c9d57826018e0489e4da57e1b3edf03cea015af05d42b",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/MEMORY.md",
+      "sha256_before": "2aad93cc158e42bae3d59efd729db6ea11117a8cfd3cdb981439c5a21ad79ed3",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_STATUS.md",
+      "sha256_before": "6961425bbe6559a0235771d597746021557453b7ffb7b9be9ddc928b149e5850",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/MEMORY.md",
+      "sha256_before": "3f964e6558fa01a89e00eda76d744bbcf2c9ac05c94b912838c7345f8e928a0f",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_STATUS.md",
+      "sha256_before": "a9cef058db84f630efe7c51ad32877cb0d460fd7784f2454133f6cc9bc40358d",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/MEMORY.md",
+      "sha256_before": "25f2ea7e8e5a4b91ee505d339fea4edf322cb239766ca97c9863228c36ed50ff",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_STATUS.md",
+      "sha256_before": "2d6e69c965296621a766add1ee9f3c353726019a88b9b9d0f8f058526b1e48ee",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/MEMORY.md",
+      "sha256_before": "9741ef61afca026404d77a9772ae16f45205de8ee8c24c299cafb1dd28c63f76",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_STATUS.md",
+      "sha256_before": "854a3e4b4428a38b7f19ffce86413a2c6d766631ebe1d6cf1c06c9466945f3b1",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/MEMORY.md",
+      "sha256_before": "273d3e29498b08b4bbdaf39d0a9112eb38f3f941a30f69557c90efeb05c4f30a",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_STATUS.md",
+      "sha256_before": "bf3e7749e179ea7d666881d4097f19586e3af28429b0ae23e06d5ce2aa2d3ecc",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_STATUS.md",
+      "sha256_before": "1af3a408c611dab61ac3be092ff1053cc48bd2cbe3639f4c84626939d69c0327",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_STATUS.md",
+      "sha256_before": "d179f97739a36081d6ce722f3023cb730da31114f9da910f5df3f4d66bdf018f",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_STATUS.md",
+      "sha256_before": "615e6b5b1541de9853d4e386b6dfeb77929093be993d6875894a986e045be88c",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/MEMORY.md",
+      "sha256_before": "0935b7e5274c148508b530b9971374218ffa04820985237cf8d763f988204ade",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/_STATUS.md",
+      "sha256_before": "bfce9dec61790f9a04ce91e202522c77329a5f702eebe01cfd80477efe033b20",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/MEMORY.md",
+      "sha256_before": "9e9120de17b38fff1e91d58bffdb304bb6ae19f0b2786cf444097c72c0e64fa0",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/_MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/_STATUS.md",
+      "sha256_before": "1e98417eb47d88504d141b620af532e37bc3d626e466a6af1d4dbd0eb20f5c66",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/MEMORY.md",
+      "sha256_before": "7f4b0c0088b0bb92a3be4bb2606b615a363f378a5f3b222e082851b9937604ce",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/_MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine/_STATUS.md",
+      "sha256_before": "8c1c3ffb7ea9cee13e93dac1727a2b67c4af52369f5b4bd11410823a295524f8",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine/MEMORY.md",
+      "sha256_before": "47ea7fef2c3bd88ae3e936dcb9170923644f9a7ac767d7755bd29371846909d9",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine/_MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/_STATUS.md",
+      "sha256_before": "2e341c354159d50dcf7c0775197e8e1c007220779e4c457e964ff90e8dfaacf6",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/MEMORY.md",
+      "sha256_before": "16a271999953f1cd260d11129cd541d290281c3b50c08f2a8fa30797d052d32e",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/_MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/_STATUS.md",
+      "sha256_before": "b013f91b7a87924b1ee5c66b8571e564db467fad82328528a9c1fb6f4f21730c",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/MEMORY.md",
+      "sha256_before": "291b8b685d56ea48fc9546fb4e5ef65ed4406d539e450d7b04cd7d0a5c69231e",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/_MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_STATUS.md",
+      "sha256_before": "cca642576aa7364945cd4b3917a4732b9a17d109b3796983b28740067342f3dc",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/MEMORY.md",
+      "sha256_before": "4d17f0f2976ece12a3433ea15628c68f9ec45bad2ea8b90c36649875a000118f",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_STATUS.md",
+      "sha256_before": "60ceeb8eef85c03980c7aae302096c841689cd69fabed52b110253e3db5c54a5",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/MEMORY.md",
+      "sha256_before": "44aa9d313d36cc9168a6627098842062c0ed5d19d7639afe0c44c64abea7f244",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_STATUS.md",
+      "sha256_before": "0c6a18ff854e766d8d05292109978422d68d1175fcae894bbec7f5741418cffe",
+      "reading": "Prior paired status/Remaining and memory continuity retained; current bytes verified unchanged from the already-read Group-2 application source. Four new status files reread for Group 3."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_MEMORY.md",
+      "state": "ABSENT",
+      "action": "Preserved absence"
+    }
+  ],
+  "context_reuse": "Root/TASK/Piping instructions already read in this task; current hashes verified unchanged. No new skill or workflow body selected for this bounded metadata application."
+}

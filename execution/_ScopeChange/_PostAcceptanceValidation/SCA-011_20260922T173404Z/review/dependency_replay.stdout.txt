@@ -1,0 +1,2 @@
+{"status": "PASS", "rows": 1571, "nodes": 106, "repaired_rows": 84, "quote_checks": 84, "stock_evq_drb_findings_on_repaired_rows": 0, "stage_edges": 1041}
+{"source_currency": "CURRENT_ACCEPTED_BYTES", "named_locus_quotes": 84, "unchanged_graph_bytes": true}

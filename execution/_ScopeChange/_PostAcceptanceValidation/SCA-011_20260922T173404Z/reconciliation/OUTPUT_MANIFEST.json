@@ -1,0 +1,74 @@
+[
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/reconciliation/BEFORE_AFTER_COMPARISON.json",
+    "sha256": "6b7e280398b881a725c9bee273a2c98eb6e58c643c1d4d44019ddfa7ae009a1b"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/reconciliation/BOUNDARY_RELATIONS.csv",
+    "sha256": "c74b43ea649db6b2ea20a59728e0d4430c24a5c87dd2a1e79d43d57ab8180366"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/reconciliation/BUILDER_ADAPTATION.patch",
+    "sha256": "f67e34d461be8626ed5e0786fe266c1025fd44294b6a06e746bea182e0071a92"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/reconciliation/BUILDER_IDENTITIES.json",
+    "sha256": "41d3c80e753273947fbbe697443b70d338d303f01cad60f90314df287b8039b3"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/reconciliation/CAPABILITY_FORWARD_CROSSWALK.csv",
+    "sha256": "f062cfd0eb740a3b2a37190b36d137bb5c64330f23302e266461aa5618d721d2"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/reconciliation/CLAIM_FORWARD_CROSSWALK.csv",
+    "sha256": "6cb3348c5ed1ae256225ac5b9a926b15cd27a892c043e756f198ca2706123f63"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/reconciliation/CURRENT_HOOK_BINDINGS.csv",
+    "sha256": "16dde75898bf07c2b56a7a4cc698c570ab9b98de2fd157ad51c8315eac3f428b"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/reconciliation/FROZEN_ORIGINALS.json",
+    "sha256": "f3ca73609ddc8fd23191bd67dda48c6d18abf0a6aa17cf4174985c6e703cf182"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/reconciliation/GUI_PANEL_FORWARD_BINDINGS.csv",
+    "sha256": "832cdfdb6366fb82df7d388dc64426fccd11d6532e8ef8b8a6046dc6747e0a72"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/reconciliation/PROVENANCE.json",
+    "sha256": "0af944f8a2a987b7e31ddcbd1996786c0ebc1a29c2bfdaf8838265d5352f1ad0"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/reconciliation/RESIDUAL_FACET_BINDINGS.csv",
+    "sha256": "a067e30e388dae4df4c3d151586e0bf8deae1a8d8c02262d09b4774b1943408f"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/reconciliation/RETURN.md",
+    "sha256": "6da33497e1ffcdf05e95d303cbc74a8049ed73a38a818af052bbce56eeb03cad"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/reconciliation/SOURCES_RECONCILIATION_ACCEPTED.json",
+    "sha256": "94e983d62eda856668eba80efda927e9839f92b29984572e2251587e34ab5a1c"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/reconciliation/SOURCE_BINDING_COMPARISON.json",
+    "sha256": "89d6033e0f71b4c0269d0a0dc1f511e05363754e41fbfec3030524d8dbe8fd03"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/reconciliation/SUMMARY.json",
+    "sha256": "d2d55a3acff97f341e7c999e3038e29bd7fde30f174839ead16eb2fd94e4c98c"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/reconciliation/UNRESOLVED_BOUNDARIES.csv",
+    "sha256": "5aa733fc8205fa68d065fc63f6d114440880399eccfcaf5474d92634dc1f3e47"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/reconciliation/VALIDATION.json",
+    "sha256": "ed28dbc44e2097a80913b9588678dd9acf25b53aaee23a73c1fa23294fd26474"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/reconciliation/build_crosswalk_accepted.py",
+    "sha256": "c9c6e7d722fdb6fb8e883032070f704f76998d711e0d6feba5f41eacb7c8e433"
+  }
+]

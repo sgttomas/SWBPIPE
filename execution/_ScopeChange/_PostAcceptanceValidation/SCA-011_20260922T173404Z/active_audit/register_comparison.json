@@ -1,0 +1,23 @@
+{
+  "command": [
+    "python3",
+    "tools/validation/validate_decomposition_registers.py",
+    "projects/chirality-piping/execution",
+    "--evidence-root",
+    "projects/chirality-piping",
+    "--json",
+    "/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/active_audit/register_validation.json",
+    "--max-per-code",
+    "2"
+  ],
+  "exit_code": 1,
+  "before_errors": 2097,
+  "after_errors": 2097,
+  "unchanged_findings": 2097,
+  "resolved": 0,
+  "new_findings": [],
+  "skipped": [
+    "XRG family (Deliverables.csv and/or ScopeLedger.csv absent)"
+  ],
+  "limit": "Stock validator excludes docs/_Registers; explicit parity checks above cover canonical companions."
+}

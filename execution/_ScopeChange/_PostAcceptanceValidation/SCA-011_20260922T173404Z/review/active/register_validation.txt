@@ -1,0 +1,28 @@
+Register validation — projects/chirality-piping/execution
+  Families: SCH, EVQ, XRG, DRB
+  Registers scanned: 98  Dependency rows: 1571  Deliverables declared: 0
+  SKIPPED: XRG family (Deliverables.csv and/or ScopeLedger.csv absent)
+
+Evidence-cell metrics by row class
+  class         rows  well-formed  locus=quote  quoted-locus  empty-quote  ph-locus  waived  file-pop  file-res
+  ANCHOR         404          121            0             0            0         0       0       404       121
+  EXECUTION     1167          748            0             0            0         1       0      1167       749
+
+Findings
+  ERROR EVQ-006 PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-01_Project governance baseline/Dependencies.csv:6 [DEL-01-01-A001] — EvidenceFile does not resolve under projects/chirality-piping: 'execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-01_Project governance baseline/Datasheet.md'
+  ERROR EVQ-006 PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-01_Project governance baseline/Dependencies.csv:7 [DEL-01-01-A002] — EvidenceFile does not resolve under projects/chirality-piping: 'execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-01_Project governance baseline/Datasheet.md'
+  ERROR DRB-006 PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-01_Project governance baseline/Dependencies.csv:2 [DAG-002-E0001] — DependencyID does not start with 'DEP-01-01'
+  ERROR DRB-006 PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-01_Project governance baseline/Dependencies.csv:3 [DAG-002-E0002] — DependencyID does not start with 'DEP-01-01'
+  ERROR EVQ-004 PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-02_Stress recovery benchmark suite/Dependencies.csv:11 [DAG-002-E0539] — SourceRef is a placeholder, not a citable locus: 'location TBD'
+  ... DRB-006: 1393 further occurrence(s) suppressed (--max-per-code 2; full list in --json)
+  ... EVQ-006: 699 further occurrence(s) suppressed (--max-per-code 2; full list in --json)
+
+Summary by check code
+  ERROR   DRB-006   1395  DependencyID prefix disagrees with FromDeliverableID
+  ERROR   EVQ-004      1  Placeholder locus: SourceRef is blank or a placeholder token (e.g. 'location TBD')
+  ERROR   EVQ-006    701  EvidenceFile path does not resolve on disk
+
+  ERROR findings:   2097
+  WARNING findings: 0
+
+  JSON report: /private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/review/active/register_validation.json

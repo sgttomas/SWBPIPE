@@ -1,0 +1,11 @@
+--- projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/dependencies/validate_accepted.py
++++ projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/review/dependency_replay.py
+@@ -6,7 +6,7 @@
+ """
+ import hashlib,json,re
+ from pathlib import Path
+-ROOT=Path(__file__).resolve().parents[7];POST=Path(__file__).resolve().parents[1];POST_OUT=POST/'dependencies'
++ROOT=Path(__file__).resolve().parents[7];POST=Path(__file__).resolve().parents[1];POST_OUT=POST/'review/dependencies'
+ SCA=ROOT/'projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP';HIST=SCA/'application/dependencies';DAG=ROOT/'projects/chirality-piping/execution/_DAG/DAG-011'
+ def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+ def rel(p):return str(p.relative_to(ROOT))

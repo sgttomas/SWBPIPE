@@ -1,13 +1,17 @@
-# DAG-011 — staged; not approved
+# DAG-011 — accepted graph authority
 
-The owner accepted the exact SCA-011 Group-2 amendment and instructed its application and preparation of an audited result. The actual words and accepted source identity are recorded in `execution/_ScopeChange/checkpoint_snapshots/SCA-011_GROUP-2_2026-09-22/DECISION.md`.
+On 2026-09-22 the owner answered the reviewed Group-3 question:
 
-That decision authorizes this staged successor and local-mirror application. It does **not** accept the future audited Group-3 poststate or adopt DAG-011 as active graph authority. No Group-3 ruling has been recorded here. DAG-010 remains authoritative and `execution/_DAG/_LATEST.md` is unchanged.
+> Accept the audited result and adopt DAG-011
 
-`PROVENANCE.json` binds the current 106-node, 1,571-row staged content and fresh validation. The 102 predecessor nodes and 1,487 predecessor rows remain exact byte prefixes. All 62 added execution relations remain PENDING with ProposedMaturity=TBD. No baseline satisfaction has been freshly revalidated.
+The complete question, verbatim answer and actual relay provenance are recorded in `execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/OWNER_DECISION.md`. The accepted audited state is commit `d6cc1482eee78ce860ff18658f11157f7efbd401`, including the disclosed dependency identity/source-quotation corrections and the retained open obligations. This is the actual owner disposition, not an inferred approval from tests or an agent's proposal.
 
-Group 3 must examine the audited applied state and record its actual disposition before graph adoption or pointer promotion. Source/lifecycle, engineering, privacy, native behavior, protected criteria and release decisions remain separate. This file is a truthful nonapproval record, not a prepared affirmative ruling.
+DAG-011 is adopted as current dependency graph authority. DAG-010 is its immutable predecessor. The accepted graph has 106 nodes and 1,571 rows; its 102 predecessor nodes and 1,487 predecessor rows remain exact byte prefixes. All 84 added canonical identities and all row/node bytes are unchanged from the audited accepted state. The reviewed 20 local metadata transitions have been applied with guarded before/after hashes.
 
-## Metadata correction before Group 3
+`PROVENANCE.json` binds the unchanged graph content, actual decision, final accepted decomposition and fresh current-source/strict/stage checks in the single postacceptance evidence home. `MANIFEST.sha256` binds this graph snapshot and its current adoption metadata. Earlier unapproved/application records are preserved as historical evidence in that home's `dependencies/preacceptance/` and at the reviewed commit.
 
-The added rows now use canonical DEP-owner IDs and actual quoted local evidence under Root SPEC §6.5/§6.8. Only identity/evidence metadata changed; original accepted bytes, crosswalk and field-level deviations are preserved in `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/CORRECTNESS_REPAIR.md` and its linked evidence. Agent 0 authorized this routine correction for audited presentation; this does not constitute Group-3 acceptance.
+## Reliance boundary
+
+All 62 added execution relations remain PENDING with ProposedMaturity=TBD. Current source quotes and loci have been checked against final accepted claim bytes; that currency check is not satisfaction or implementation evidence. Historical baseline satisfaction remains preserved, not newly recertified. The three named stage contracts retain their outstanding exact production-contract, source-owner and consumer witnesses.
+
+This adoption does not promote deliverable lifecycle, lift engineering/privacy/external/native/release holds, accept draft wire wrappers as production schemas or issue a product. No additional human checkpoint is created for completing these already-authorized final metadata and pointer changes.

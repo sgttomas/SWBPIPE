@@ -70,5 +70,5 @@ Implement design knowledge, operation review/apply interaction and ledger presen
 
 ## SCA-011 responsibility
 
-Applied under the SCA-011 Group 2 decision; audited poststate acceptance remains pending Group 3. Feature interaction remains here; shared shell/session coordination is DEL-07-11, execution DEL-16-06, comparison interface DEL-14-05.
+Applied under the SCA-011 Group 2 decision; audited poststate acceptance is recorded in the SCA-011 Group 3 closure. Feature interaction remains here; shared shell/session coordination is DEL-07-11, execution DEL-16-06, comparison interface DEL-14-05.
 The amended Deliverables and ContextBudgetQA rows govern this allocation; existing state and implementation evidence remain separately bound.

@@ -1,0 +1,107 @@
+--- projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/reconciliation/build_crosswalk.py
++++ projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/reconciliation/build_crosswalk_accepted.py
+@@ -5,7 +5,9 @@
+ HERE=Path(__file__).resolve().parent
+ ROOT=next(p for p in HERE.parents if (p/'projects/chirality-piping/AGENTS.md').exists())
+ PROJECT=ROOT/'projects/chirality-piping'
+-SCA=HERE.parent.parent
++SCA=PROJECT/'execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP'
++ORIGINAL=SCA/'application/reconciliation'
++POST=HERE.parent
+ RECON=PROJECT/'execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS'
+ R6=RECON/'BACKCHECK/R6_2026-09-22'
+ READS={}
+@@ -15,7 +17,22 @@
+ def csvtext(rs):
+     out=io.StringIO(); w=csv.DictWriter(out,fieldnames=list(rs[0]),lineterminator='\n');w.writeheader();w.writerows(rs);return out.getvalue()
+ def hook(d,c): return f'{d}:SOW#{c}'
++def accepted_carriers():
++    read(POST/'OWNER_DECISION.md'); read(POST/'PLAN.md')
++    decomp=json.loads(read(SCA/'evidence/SOURCES_DECOMPOSITION.json'))['group3_promotion_metadata']['files']
++    interface=json.loads(read(SCA/'interfaces/INTERFACE_PROMOTION.json'))['group3_files']
++    accepted={r['target']:r['accepted_sha256'] for r in decomp+interface}
++    actual=json.loads(read(POST/'carriers/FINAL_TARGET_MANIFEST.json'))
++    assert actual['status']=='PASS'
++    assert {r['target']:r['actual_sha256'] for r in actual['targets']}==accepted, 'Final carrier manifest differs from reviewed accepted transformations'
++    assert len(accepted)==51, 'Final carrier denominator changed'
++    for path,expected in accepted.items():
++        read(ROOT/path)
++        assert READS[path]==expected, f'Accepted carrier mismatch: {path}'
++    return accepted
++
+ def build():
++    accepted=accepted_carriers()
+     for p in ['AGENTS.md','agents/AGENT_TASK.md','projects/chirality-piping/AGENTS.md','workflows/index.json','workflows/bounded-reconciliation/WORKFLOW.md'] :read(ROOT/p)
+     for p in ['Propagation_Plan.md','DECISION_PACKAGE.md','Amendment_Actions.csv','interfaces/SOURCE_OWNER_ASSESSMENT.md']:read(SCA/p)
+     read(PROJECT/'execution/_ScopeChange/checkpoint_snapshots/SCA-011_GROUP-2_2026-09-22/DECISION.md')
+@@ -33,7 +50,7 @@
+     for m in manifests:
+         p=ROOT/m['CanonicalTarget']
+         if p.name=='ScopeOfWork.md':
+-            txt=read(p); assert hashlib.sha256(txt.encode()).hexdigest()==m['AppliedSHA256'],f'Postimage differs: {p}'
++            txt=read(p); assert hashlib.sha256(txt.encode()).hexdigest()==accepted[m['CanonicalTarget']],f'Postimage differs: {p}'
+             d=re.search(r'deliverable_id: (DEL-\d\d-\d\d)',txt)[1];sows[d]=(p,txt)
+             for name in ['_STATUS.md','MEMORY.md']:
+                 q=p.parent/name
+@@ -179,12 +196,59 @@
+     parser=argparse.ArgumentParser();parser.add_argument('--check',action='store_true');args=parser.parse_args()
+     caps,claims,panels,boundaries,unresolved,residual_facets,summary=build()
+     artifacts={'CAPABILITY_FORWARD_CROSSWALK.csv':csvtext(caps),'CLAIM_FORWARD_CROSSWALK.csv':csvtext(claims),'GUI_PANEL_FORWARD_BINDINGS.csv':csvtext(panels),'BOUNDARY_RELATIONS.csv':csvtext(boundaries),'UNRESOLVED_BOUNDARIES.csv':csvtext(unresolved),'RESIDUAL_FACET_BINDINGS.csv':csvtext(residual_facets),'SUMMARY.json':json.dumps(summary,indent=2)+'\n'}
++    comparison=[]
++    for name,data in artifacts.items():
++        original=(ORIGINAL/name).read_text()
++        if name=='BOUNDARY_RELATIONS.csv':
++            previous=list(csv.DictReader(io.StringIO(original)))
++            current=list(csv.DictReader(io.StringIO(data)))
++            assert len(previous)==len(current)
++            for old,new in zip(previous,current):
++                assert {k:v for k,v in old.items() if k!='SourceSHA256'}=={k:v for k,v in new.items() if k!='SourceSHA256'}, 'Semantic boundary mapping changed'
++        else: assert original==data, f'Semantic derivative changed: {name}'
++        comparison.append({'path':name,'original_sha256':hashlib.sha256(original.encode()).hexdigest(),'accepted_sha256':hashlib.sha256(data.encode()).hexdigest(),'change':'source hashes only' if name=='BOUNDARY_RELATIONS.csv' else 'byte-identical'})
++    comparison_path=HERE/'BEFORE_AFTER_COMPARISON.json'
++    if args.check:assert json.loads(comparison_path.read_text())==comparison
++    else:comparison_path.write_text(json.dumps(comparison,indent=2)+'\n')
+     for name,data in artifacts.items():
+         p=HERE/name
+         if args.check:assert p.read_text()==data,f'Derivative drift: {name}'
+         else:p.write_text(data)
+-    bindings={'schema':'sca011-reconciliation-source-bindings/v1','selected_workflow':'bundled:chirality-root/bounded-reconciliation','role':'TASK','parent':'/root/piping_scope_manager','agent':'/root/piping_scope_manager/piping_applied_reconciliation','delegation':'Codex native collaboration TASK; no children; filesystem brief boundary, not OS subtree isolation','basis_commit':'3e18334eca72509475684cc86786b3eeade83572','inputs':[{'path':p,'sha256':v} for p,v in sorted(READS.items())]}
+-    p=HERE.parent/'SOURCES_RECONCILIATION_APPLICATION.json'
++    all_hooks=set()
++    for collection,field in [(caps,'ForwardClaimHook'),(claims,'ForwardClaimHooks'),(boundaries,'CurrentHook'),(residual_facets,'ForwardHook')]:
++        for row in collection:all_hooks.update(h for h in row[field].split(';') if h)
++    quotes=[]
++    for h in sorted(all_hooks):
++        d=h.split(':')[0];frag=h.split('#')[1]
++        filename='_CONTEXT.md' if ':CONTEXT#' in h else 'ScopeOfWork.md'
++        paths=list((PROJECT/'execution').glob(f'PKG-*/1_Working/{d}_*/{filename}'))
++        assert len(paths)==1,h
++        path=paths[0];lines=read(path).splitlines()
++        starts=[i for i,line in enumerate(lines) if (line.startswith('### '+frag+' ') or line.startswith('- **'+frag+'**') or (':CONTEXT#' in h and line=='## SCA-011 responsibility'))]
++        assert len(starts)==1, f'Nonunique current hook: {h}'
++        start=starts[0];quote='\n'.join(lines[start:start+7])
++        quotes.append({'Hook':h,'SourcePath':str(path.relative_to(ROOT)),'SourceSHA256':READS[str(path.relative_to(ROOT))],'FirstLine':str(start+1),'ExactCurrentExcerpt':quote,'ExcerptSHA256':hashlib.sha256(quote.encode()).hexdigest()})
++    quote_path=HERE/'CURRENT_HOOK_BINDINGS.csv'
++    if args.check:assert quote_path.read_text()==csvtext(quotes)
++    else:quote_path.write_text(csvtext(quotes))
++    bindings={'schema':'sca011-reconciliation-accepted-source-bindings/v2','selected_workflow':'bundled:chirality-root/bounded-reconciliation','role':'TASK','parent':'/root/piping_scope_manager','agent':'/root/piping_scope_manager/piping_applied_reconciliation','delegation':'Codex native collaboration TASK; no children; filesystem brief boundary, not OS subtree isolation','reviewed_applied_commit':'d6cc1482eee78ce860ff18658f11157f7efbd401','actual_group3_decision':str((POST/'OWNER_DECISION.md').relative_to(ROOT)),'inputs':[{'path':p,'sha256':v} for p,v in sorted(READS.items())]}
++    original_bindings=json.loads((SCA/'application/SOURCES_RECONCILIATION_APPLICATION.json').read_text())
++    original_inputs={r['path']:r['sha256'] for r in original_bindings['inputs']}
++    changes=[]
++    accepted=accepted_carriers()
++    for path,old_hash in original_inputs.items():
++        assert path in READS, f'Original supplied source omitted: {path}'
++        new_hash=READS[path]
++        if old_hash!=new_hash:
++            assert path in accepted, f'Unreviewed source change: {path}'
++            assert new_hash==accepted[path]
++            changes.append({'path':path,'reviewed_applied_sha256':old_hash,'accepted_sha256':new_hash})
++    changes_path=HERE/'SOURCE_BINDING_COMPARISON.json'
++    if args.check:assert json.loads(changes_path.read_text())==changes
++    else:changes_path.write_text(json.dumps(changes,indent=2)+'\n')
++    for record in json.loads((HERE/'FROZEN_ORIGINALS.json').read_text()):
++        assert hashlib.sha256((ROOT/record['path']).read_bytes()).hexdigest()==record['sha256'], 'Historical reconciliation evidence changed'
++    p=HERE/'SOURCES_RECONCILIATION_ACCEPTED.json' 
+     if args.check:assert json.loads(p.read_text())==bindings,'Input source hash drift'
+     else:p.write_text(json.dumps(bindings,indent=2)+'\n')
+     probes=[]

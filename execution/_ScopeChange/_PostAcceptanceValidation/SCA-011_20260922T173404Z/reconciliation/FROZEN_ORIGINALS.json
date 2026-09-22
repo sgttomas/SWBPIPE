@@ -1,0 +1,50 @@
+[
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/reconciliation/BOUNDARY_RELATIONS.csv",
+    "sha256": "fc62d0e456da68face9eca1f8b3a91e743f5ac85eea8420110d9fc84a72d8b22"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/reconciliation/CAPABILITY_FORWARD_CROSSWALK.csv",
+    "sha256": "f062cfd0eb740a3b2a37190b36d137bb5c64330f23302e266461aa5618d721d2"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/reconciliation/CLAIM_FORWARD_CROSSWALK.csv",
+    "sha256": "6cb3348c5ed1ae256225ac5b9a926b15cd27a892c043e756f198ca2706123f63"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/reconciliation/GUI_PANEL_FORWARD_BINDINGS.csv",
+    "sha256": "832cdfdb6366fb82df7d388dc64426fccd11d6532e8ef8b8a6046dc6747e0a72"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/reconciliation/README.md",
+    "sha256": "c43f79ab78b901a17ebef37ef503a2b5592f82237bd6a58a26337fee14c6dff7"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/reconciliation/RESIDUAL_FACET_BINDINGS.csv",
+    "sha256": "a067e30e388dae4df4c3d151586e0bf8deae1a8d8c02262d09b4774b1943408f"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/reconciliation/RESIDUAL_SCOPE_CHECK.md",
+    "sha256": "67a81540b460d6c93634618d98047cdd9d9f040b85d5d6b69837dafc48233d37"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/reconciliation/SUMMARY.json",
+    "sha256": "d2d55a3acff97f341e7c999e3038e29bd7fde30f174839ead16eb2fd94e4c98c"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/reconciliation/UNRESOLVED_BOUNDARIES.csv",
+    "sha256": "5aa733fc8205fa68d065fc63f6d114440880399eccfcaf5474d92634dc1f3e47"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/reconciliation/VALIDATION.json",
+    "sha256": "ed28dbc44e2097a80913b9588678dd9acf25b53aaee23a73c1fa23294fd26474"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/reconciliation/build_crosswalk.py",
+    "sha256": "14684d8b78a9040d8c563f66f7399d99e762d8f5adb6f1468ac7f0df8e5c9a4a"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/SOURCES_RECONCILIATION_APPLICATION.json",
+    "sha256": "a8dc8e4db80af5f82efdb8ecea92e79d1fbbbe617a238120a88115afc9ef21c7"
+  }
+]

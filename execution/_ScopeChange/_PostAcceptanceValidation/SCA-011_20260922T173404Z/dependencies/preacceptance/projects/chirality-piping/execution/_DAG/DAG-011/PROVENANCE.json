@@ -1,0 +1,149 @@
+{
+  "status": "STAGED_METADATA_CORRECTED_NOT_APPROVED_GROUP3_PENDING",
+  "authority": "DAG-010 remains current",
+  "group2_decision": {
+    "path": "projects/chirality-piping/execution/_ScopeChange/checkpoint_snapshots/SCA-011_GROUP-2_2026-09-22/DECISION.md",
+    "sha256": "c025fa2636a03d2284995b8351ff6eee19af2dcf271c5688d3381cad11b9a9d4"
+  },
+  "exact_snapshot_manifest": {
+    "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/DEPENDENCY_SNAPSHOT_MANIFEST.json",
+    "sha256": "b30704cbfcd378c5e6cf8922ff9e1035513e1a01fdf1ac5604acfad457998dd3"
+  },
+  "applied_decomposition": {
+    "path": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+    "sha256": "f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577"
+  },
+  "predecessor": [
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-010/DependencyEdges.csv",
+      "sha256": "1892d2e7295d936b1dbf57104ab00df149fe17f8afbab4dc8b7e1c8b95082d28"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-010/DeliverableNodes.csv",
+      "sha256": "18df1de555edd2c0a6231c54d9e9cb9846b060f8320842361e80b4c6f1004132"
+    }
+  ],
+  "staged_content": [
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-011/DependencyEdges.csv",
+      "sha256": "5c056c2538026f62276a86d88aa9d95f24e262d4d7e38dcdc2f11e1705dc5c47"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-011/DeliverableNodes.csv",
+      "sha256": "91eb889930f4e97594a4b8627708d667473f066e9cde7e5fca0bf9a2b053613f"
+    }
+  ],
+  "delta": {
+    "preserved_nodes": 102,
+    "preserved_rows": 1487,
+    "added_nodes": 4,
+    "added_rows": 84,
+    "added_anchors": 22,
+    "added_execution_rows": 62,
+    "new_execution_satisfaction": "PENDING",
+    "new_execution_actual_maturity": "TBD"
+  },
+  "staged_interface_sources": [
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/StagedInterfaces.json",
+      "sha256": "ac91cb9841651cb1a83a011865699c1a79849ee222a1156d9f3ab8be591d1b94"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/STAGED_INTERFACE_RATIONALE.md",
+      "sha256": "a66ba991125e813f5a63135decbd4f3e8f13eb43a3a8df32f71ae84cb32e3998"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/StageGraph.json",
+      "sha256": "1544138f5e80fcd38d7b8f70387423126a2564214ad38b633f070b0e3847c201"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/staged-contracts/APPLICATION_OUTCOME.md",
+      "sha256": "7308e6ee3e469ac493a3c8cf3b868763895d3e79dcd7bcca376959d91c2dc600"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/staged-contracts/COMPARISON_EXPORT.md",
+      "sha256": "24341aa39bcefa2c2d929fa39ab0f54b112c183b406b3525b8208e4a51806879"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/staged-contracts/PALETTE_ORGANIZATION.md",
+      "sha256": "ad3ddd62ed69b313b829d6e2d66893c7479ec92a41699b5a532827fa4ec05b78"
+    }
+  ],
+  "fresh_validation": [
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/REPAIRED_VALIDATION.json",
+      "sha256": "99af41c3f14aead02cfc2c6198fa63162a936031c6708a1219732495a77c1f73"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/REPAIRED_QUOTE_CHECKS.json",
+      "sha256": "dcb4491cfe023df14e2422c673de0e73ebf3a241fe8410d5134b8742e1f659b9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/REPAIRED_DAG_Audit.json",
+      "sha256": "486b531fb21e98d45b58e2c95ce3317dee07afe29a192b8352de23bb10274952"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/FIELD_LEVEL_DELTA.csv",
+      "sha256": "762f3a9421e4b8761dfa8f32ecb223f711972bf5ab80642e21695f3c25ced3b0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/ID_CROSSWALK.csv",
+      "sha256": "7cfafd9cc4b84ae06c8dffa61aeaf2042b1e8f566b06df8c79057ea29db2f7b3"
+    }
+  ],
+  "application_sources": {
+    "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/SOURCES_DEPENDENCY_APPLICATION.json",
+    "sha256": "44a643d256de9663f29338c33ed3799823eab8b9bb5d0a595001e507c15c6cc7"
+  },
+  "limits": [
+    "No current graph authority, dependency satisfaction, lifecycle, product, engineering or release acceptance is recorded.",
+    "Historical baseline maturity and satisfaction fields are preserved, not revalidated.",
+    "The three staged contracts remain named preparation artifacts with outstanding exact production artifact/source-owner/consumer witnesses."
+  ],
+  "original_applied_provenance": {
+    "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/repair_preimages/projects/chirality-piping/execution/_DAG/DAG-011/PROVENANCE.json",
+    "sha256": "4d2559b9da349bd62d670b046e4dcb4e1f7eefd9884084d14ab9ad54257f8d30"
+  },
+  "metadata_correction": {
+    "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/CORRECTNESS_REPAIR.md",
+    "sha256": "52dbb8fdfed1286a3d5fa4757bb76d874d6e58e0425ee28dbad3805faf596794"
+  },
+  "repair_sources": {
+    "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/REPAIR_SOURCES.json",
+    "sha256": "1349f903f7a6f3f7e680d665826a7f4a341e569c3f2167de8d09ed97626371ab"
+  },
+  "initial_validation": [
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/DAG_Audit.json",
+      "sha256": "486b531fb21e98d45b58e2c95ce3317dee07afe29a192b8352de23bb10274952"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/STAGED_VALIDATION.json",
+      "sha256": "a5bc29e3daf5a83f55d138a35ede21a36187ecd5e770b09d907e0fc14027e395"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/LOCAL_EXTRACTION_VALIDATION.json",
+      "sha256": "2c8ac7446f81e3b3511a74252d85a0b58af66582499b6d4bd929c2e3228db9e5"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/LOCAL_SOURCE_BACKCHECK.csv",
+      "sha256": "865ca8d1bb5ef2637fee85064bc2a3d04f49111ec7b001122632908ca81f6cab"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/APPLICATION_FILE_CHECKS.json",
+      "sha256": "25a7fda8095b8bdd7a8ec462bf0ea3588437810f528f8d1c7a8d88428ac00e05"
+    }
+  ],
+  "current_stage_references": [
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/REPAIRED_StageGraph.json",
+      "sha256": "3068f419d952a823b7ce04389bab8f4e36a2b87d7b79bcf201da4b1fd058b527"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/REPAIRED_StagedInterfaces.json",
+      "sha256": "30d044329c6c1626abb7d314501fa77328a3f1eddc6c4e403e12aae43f624d76"
+    }
+  ],
+  "postimage_deviations": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/POSTIMAGE_DEVIATIONS.json",
+  "exact_snapshot_manifest_role": "Original accepted Group-2 bytes, preserved as history; only added-row identity/evidence metadata differs as explicitly recorded."
+}

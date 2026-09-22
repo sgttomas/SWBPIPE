@@ -1,0 +1,76 @@
+{
+  "executor": "/root/piping_scope_manager/piping_apply_dependencies",
+  "parent": "/root/piping_scope_manager",
+  "role": "TASK",
+  "mechanism": "existing delegated-harness-native collaboration child",
+  "reviewed_state_commit": "d6cc1482eee78ce860ff18658f11157f7efbd401",
+  "model_and_effort": "Inherited host configuration; exact model/effort identifier not exposed to this executor; no override requested.",
+  "scope": "20 exact repaired Group3 local transforms; DAG011 approval/provenance/handoff/manifest and _DAG/_LATEST.md; new dependency acceptance/current-source evidence solely in this postacceptance home.",
+  "prohibitions": "No Git/delegation, original evidence writes, product tests, new relation/identity/satisfaction/lifecycle changes or SCA pointer edits.",
+  "instruction_origins": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "1bb670ca339a990b153cf033dac2d8e29ca71bdea0accee4200e6dd1feed3d57"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d8a1f4380962efcd258571c6fb563722be9e2e89d4fa5898b7f6d24dc61ab879"
+    },
+    {
+      "path": "docs/SPEC.md",
+      "sha256": "2ed0680b458754e4493ad6dc69aa2d883e5fef1434b13bb947bb6aeb0f1485af"
+    }
+  ],
+  "method": "Exact accepted metadata finalization and current-source rebinding; no full dependency re-extraction or R1\u2013R6 rerun. Earlier selected bundled dependency-extract rules retained for provenance; graph checks are assigned ad hoc aggregation checks.",
+  "consulted_method_origins": [
+    {
+      "path": "workflows/dependency-extract/WORKFLOW.md",
+      "sha256": "b79b011c44f21a311e1ffa49295ef50ea6b3644ca6c52a2aacfbfc393d26b18f"
+    },
+    {
+      "path": "workflows/dependency-extract/resources/checks.md",
+      "sha256": "6801fe2d037b624e7017690eced948c35e334022012e877d2eb456cfdc817256"
+    },
+    {
+      "path": "tools/coordination/audit_dag.py",
+      "sha256": "f258bd4899f15d04e40d89fe36d399a5769e75026f92f1e053a9502e601f12c4"
+    },
+    {
+      "path": "tools/validation/validate_decomposition_registers.py",
+      "sha256": "590d9aa368c84230533d84819c53e52b441f48904f602446ec174f68cfe08818"
+    }
+  ],
+  "actual_decision": {
+    "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/OWNER_DECISION.md",
+    "sha256": "6797151ce24132d0c6cf4fa4d1976bc4a3b73557e6cc7d52e268140fc346c9d3"
+  },
+  "plan": {
+    "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/PLAN.md",
+    "sha256": "0531b3f5479c11293954fbf2748f0fe7bdc142fb371fd11183479f5fda7cb6e8"
+  },
+  "carrier_stable_source_manifest": {
+    "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/carriers/FINAL_TARGET_MANIFEST.json",
+    "sha256": "0fcecd06b5feb48baaa1063b66d8cfb3ca50e1d04f7681fd9c6c45fd46861e6c"
+  },
+  "reviewed_transform": {
+    "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/REPAIRED_GROUP3_PROMOTION.json",
+    "sha256": "ea5433049bc4d7c287e24e99b67b0871cee12c9a3471cf8e5894e689f61c81f6"
+  },
+  "reviewed_check_source": {
+    "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/validate_repaired.py",
+    "sha256": "bf2504c486bc88df9512bcbedf255926f4682f3cfbccfbba9fab7b337c36a30c"
+  },
+  "status_memory_pairs": {
+    "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/dependencies/STATUS_MEMORY_PAIRS.json",
+    "sha256": "fe7fef34c9c8babcf59e77c2cfe58471434ec782a23c8994d188c91ca5b18bc9"
+  },
+  "current_sources": {
+    "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/dependencies/CURRENT_SOURCE_BINDINGS.json",
+    "sha256": "cef64bad15aad0f49112d2e3168cc55e9427707acfe0aa801a4bf579b154d215"
+  },
+  "enforcement": "Shared checkout; bounded script assertions and instructed write scope, not claimed as an isolated per-file host sandbox."
+}

@@ -1,0 +1,56 @@
+{
+  "role": "TASK",
+  "task": "/root/piping_scope_manager/piping_activation_review",
+  "parent": "/root/piping_scope_manager",
+  "mechanism": "Codex delegated-harness-native descendant; no descendants",
+  "method": "bounded finalization review under bundled:chirality-root/scope-change final acceptance method",
+  "model_effort": "Inherited host; no override. Exact model/effort not exposed by executor.",
+  "enforcement": "Shared checkout, write-bound instructions; not an isolated filesystem sandbox.",
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "1bb670ca339a990b153cf033dac2d8e29ca71bdea0accee4200e6dd1feed3d57"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d8a1f4380962efcd258571c6fb563722be9e2e89d4fa5898b7f6d24dc61ab879"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "295ee9e892ea9b572b1be52218ad3ee823c82c4739eefabcab31f4fac97c83c0"
+    },
+    {
+      "path": "workflows/scope-change/WORKFLOW.md",
+      "sha256": "58f5d1d53c655fdc5668d928f6087003590f40e321e25e3d9447805ee64a7a90"
+    },
+    {
+      "path": "workflows/scope-change/resources/method.md",
+      "sha256": "34187e83856853f655389625e3465e3c2cb9ff8ad38be1f4d138ee7470d167f5"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/REVIEW_BRIEF.md",
+      "sha256": "7740d170bf6363e9698e146977c0cea7b5bfac8dfc324fd815a481468cfb510c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/OWNER_DECISION.md",
+      "sha256": "6797151ce24132d0c6cf4fa4d1976bc4a3b73557e6cc7d52e268140fc346c9d3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/CURRENT_STATE.md",
+      "sha256": "ef651598007c25ad73396509cb2d9c7cf614c39217085c9f1fb452873f962af2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/PLAN.md",
+      "sha256": "0531b3f5479c11293954fbf2748f0fe7bdc142fb371fd11183479f5fda7cb6e8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/FINAL_REVIEW_MANIFEST.csv",
+      "sha256": "223b75d751013855369d8ed26cf2f7579337b81335d0046f3d354525e672999c"
+    }
+  ],
+  "additional_reads": "review/active/SOURCES.json records replay source origins and historical commit-qualified reads. STATUS_MEMORY_READS.json records paired context; no memory creates authority."
+}

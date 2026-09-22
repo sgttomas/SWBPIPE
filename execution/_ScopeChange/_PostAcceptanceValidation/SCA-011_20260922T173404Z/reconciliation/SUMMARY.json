@@ -1,0 +1,14 @@
+{
+  "original_capability_denominator": 598,
+  "targeted_capability_facets": 120,
+  "outside_targeted_derivative": 478,
+  "original_claim_denominator": 9889,
+  "targeted_original_claims": 121,
+  "claims_outside_targeted_derivative": 9768,
+  "gui_panel_bindings": 13,
+  "new_delivery_homes": 4,
+  "new_product_tests": 0,
+  "implementation_remainders_closed": 0,
+  "current_conformance_proved": 0,
+  "whole_corpus_owned_claim": false
+}

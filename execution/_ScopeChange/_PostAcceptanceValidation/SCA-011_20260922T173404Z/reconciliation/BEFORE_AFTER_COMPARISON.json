@@ -1,0 +1,44 @@
+[
+  {
+    "path": "CAPABILITY_FORWARD_CROSSWALK.csv",
+    "original_sha256": "f062cfd0eb740a3b2a37190b36d137bb5c64330f23302e266461aa5618d721d2",
+    "accepted_sha256": "f062cfd0eb740a3b2a37190b36d137bb5c64330f23302e266461aa5618d721d2",
+    "change": "byte-identical"
+  },
+  {
+    "path": "CLAIM_FORWARD_CROSSWALK.csv",
+    "original_sha256": "6cb3348c5ed1ae256225ac5b9a926b15cd27a892c043e756f198ca2706123f63",
+    "accepted_sha256": "6cb3348c5ed1ae256225ac5b9a926b15cd27a892c043e756f198ca2706123f63",
+    "change": "byte-identical"
+  },
+  {
+    "path": "GUI_PANEL_FORWARD_BINDINGS.csv",
+    "original_sha256": "832cdfdb6366fb82df7d388dc64426fccd11d6532e8ef8b8a6046dc6747e0a72",
+    "accepted_sha256": "832cdfdb6366fb82df7d388dc64426fccd11d6532e8ef8b8a6046dc6747e0a72",
+    "change": "byte-identical"
+  },
+  {
+    "path": "BOUNDARY_RELATIONS.csv",
+    "original_sha256": "fc62d0e456da68face9eca1f8b3a91e743f5ac85eea8420110d9fc84a72d8b22",
+    "accepted_sha256": "c74b43ea649db6b2ea20a59728e0d4430c24a5c87dd2a1e79d43d57ab8180366",
+    "change": "source hashes only"
+  },
+  {
+    "path": "UNRESOLVED_BOUNDARIES.csv",
+    "original_sha256": "5aa733fc8205fa68d065fc63f6d114440880399eccfcaf5474d92634dc1f3e47",
+    "accepted_sha256": "5aa733fc8205fa68d065fc63f6d114440880399eccfcaf5474d92634dc1f3e47",
+    "change": "byte-identical"
+  },
+  {
+    "path": "RESIDUAL_FACET_BINDINGS.csv",
+    "original_sha256": "a067e30e388dae4df4c3d151586e0bf8deae1a8d8c02262d09b4774b1943408f",
+    "accepted_sha256": "a067e30e388dae4df4c3d151586e0bf8deae1a8d8c02262d09b4774b1943408f",
+    "change": "byte-identical"
+  },
+  {
+    "path": "SUMMARY.json",
+    "original_sha256": "d2d55a3acff97f341e7c999e3038e29bd7fde30f174839ead16eb2fd94e4c98c",
+    "accepted_sha256": "d2d55a3acff97f341e7c999e3038e29bd7fde30f174839ead16eb2fd94e4c98c",
+    "change": "byte-identical"
+  }
+]

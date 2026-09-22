@@ -1,0 +1,7 @@
+{
+  "original": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/dependencies/validate_accepted.py",
+  "original_sha256": "97c7c81391ad728aa548d250be9551e081c89ce7333583e5abdfb8d3b8ecf81b",
+  "adapted_sha256": "76d8b601bb04fd6c8dcd909b42cebe9812ceba76a22be1389f0da77fe1503f5f",
+  "adaptation": "Only POST_OUT destination redirected; execute with original __file__ for unchanged input resolution. Predicates unchanged.",
+  "status": "PASS"
+}

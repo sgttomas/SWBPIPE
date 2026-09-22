@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "reason": "Root live validation treated the copied _LATEST.md as an active pointer and attempted to resolve its historical DAG-010 sibling. Evidence packaging is corrected without changing its bytes or any live pointer.",
+  "prior_evidence": {
+    "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/dependencies/preacceptance/projects/chirality-piping/execution/_DAG/_LATEST.md",
+    "sha256": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3"
+  },
+  "renamed_evidence": {
+    "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/dependencies/preacceptance/projects/chirality-piping/execution/_DAG/latest-pointer-before.txt",
+    "sha256": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3"
+  },
+  "bytes_preserved": true,
+  "live_pointer_unchanged": {
+    "path": "projects/chirality-piping/execution/_DAG/_LATEST.md",
+    "sha256": "6335bc5cb1b0d1c13c41181b0fbd3e3ab4547fa355b6c9ddc49513307b721422"
+  },
+  "scope": "Rename copied pointer evidence and refresh this posthome return/output manifest only; no graph, source, harness or sealed SCA snapshot changes.",
+  "script_reference_check": "No stored script references the copied pointer path. Canonical live-pointer references and quotations within frozen historical content remain unchanged."
+}

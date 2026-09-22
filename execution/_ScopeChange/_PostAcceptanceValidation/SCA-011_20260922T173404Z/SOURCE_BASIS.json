@@ -1,0 +1,75 @@
+{
+  "agent": "/root/piping_scope_manager",
+  "role": "WORKING_ITEMS",
+  "parent": "/root",
+  "mechanism": "Codex native collaboration; inherited model/effort; no override",
+  "reviewed_commit": "d6cc1482eee78ce860ff18658f11157f7efbd401",
+  "workflow": "bundled:chirality-root/scope-change",
+  "write_boundary": "Piping final acceptance/metadata and single postacceptance home; no Git/App/Root mutations",
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "1bb670ca339a990b153cf033dac2d8e29ca71bdea0accee4200e6dd1feed3d57"
+    },
+    {
+      "path": "agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d8a1f4380962efcd258571c6fb563722be9e2e89d4fa5898b7f6d24dc61ab879"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "295ee9e892ea9b572b1be52218ad3ee823c82c4739eefabcab31f4fac97c83c0"
+    },
+    {
+      "path": "workflows/scope-change/WORKFLOW.md",
+      "sha256": "58f5d1d53c655fdc5668d928f6087003590f40e321e25e3d9447805ee64a7a90"
+    },
+    {
+      "path": "workflows/scope-change/resources/contract.md",
+      "sha256": "4453a719f1588c4eba08bdb4a979140ff3541ed5a29f04477ea58a844f344d02"
+    },
+    {
+      "path": "workflows/scope-change/resources/method.md",
+      "sha256": "34187e83856853f655389625e3465e3c2cb9ff8ad38be1f4d138ee7470d167f5"
+    },
+    {
+      "path": "docs/SPEC.md",
+      "sha256": "2ed0680b458754e4493ad6dc69aa2d883e5fef1434b13bb947bb6aeb0f1485af"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/Handoff_State.md",
+      "sha256": "3d29e970c76c40f042b0404873785b49544b797a937e634f7594d2aa150eaf4d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/GROUP3_PACKAGE.md",
+      "sha256": "f648d48f3771670432e90f64f5dd8c7749bea9f986cc67c1902a46f09f171dc8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/APPLIED_REVIEW_MANIFEST.csv",
+      "sha256": "0d0d1d4700bc41e7ec3e5fe88cec4a24af9b2f71b7dde5017bf0c4f48345e2d3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/INDEPENDENT_POSTSTATE_REVIEW.md",
+      "sha256": "f9ffe8b5eefe66c59969b284935688b679e887b26e38435359f10b377d90aa9a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/evidence/SOURCES_DECOMPOSITION.json",
+      "sha256": "46a038bcaf374f89b757c8916562494b3928c2135a576f11559f7223179268a0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/INTERFACE_PROMOTION.json",
+      "sha256": "573cef366a537369da687186332a664d09c609e417efac25f40811c238d9b80a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/REPAIRED_GROUP3_PROMOTION.json",
+      "sha256": "ea5433049bc4d7c287e24e99b67b0871cee12c9a3471cf8e5894e689f61c81f6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/OWNER_DECISION.md",
+      "sha256": "6797151ce24132d0c6cf4fa4d1976bc4a3b73557e6cc7d52e268140fc346c9d3"
+    }
+  ]
+}

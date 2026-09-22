@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "timestamp": "2026-09-22T17:46:35.787519+00:00",
+  "old_noncurrent_pointer_copy": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/dependencies/preacceptance/projects/chirality-piping/execution/_DAG/_LATEST.md",
+  "old_path_absent": true,
+  "new_historical_evidence_path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/dependencies/preacceptance/projects/chirality-piping/execution/_DAG/latest-pointer-before.txt",
+  "original_and_new_sha256": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3",
+  "affected_prior_input_bindings": [
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/dependencies/RETURN.md",
+      "before": "9bad9cb931e1c48ec2a4b2730b0445ae717d858ab37fe229a43675c30714a003",
+      "after": "67f17bff7c101978985b9e716ebf58c2ee2910fcdf1d778e293c24a34251ef40"
+    }
+  ],
+  "other_consulted_current_inputs_unchanged": true,
+  "canonical_current_pointer_and_graph_unchanged": true,
+  "scope": "Historical evidence-file rename and dependency return/output-manifest update only; retain unaffected active-audit checks."
+}

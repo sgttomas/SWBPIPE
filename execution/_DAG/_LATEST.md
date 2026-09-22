@@ -1,11 +1,17 @@
 # Latest DAG Pointer
 
-- Latest DAG artifact: `DAG-010`
-- Latest DAG artifact path: `execution/_DAG/DAG-010/`
-- Latest DAG artifact created: 2026-08-21
+- Latest DAG artifact: `DAG-011`
+- Latest DAG artifact path: `execution/_DAG/DAG-011/`
+- Latest DAG artifact created: 2026-09-22
 - Latest DAG artifact status: approved_active_graph_authority
-- Approved graph authority: `execution/_DAG/DAG-010/`
-- Approved graph record: `execution/_DAG/DAG-010/APPROVAL_RECORD.md`
+- Approved graph authority: `execution/_DAG/DAG-011/`
+- Approved graph record: `execution/_DAG/DAG-011/APPROVAL_RECORD.md`
+- Actual adoption decision: `execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/OWNER_DECISION.md`
+- Current validation/source bindings: `execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/dependencies/RETURN.md`
+- Basis scope change: accepted SCA-011 ownership amendment; 106 nodes and 1,571 rows. DAG-010's 102 nodes and 1,487 rows remain exact byte prefixes. The 84 added canonical ID/source-quotation repairs were disclosed in the accepted audited state.
+- Approval boundary: the actual Group-3 owner direction adopts DAG-011 dependency authority. All 62 added execution dependencies remain PENDING with ProposedMaturity=TBD. Existing product, source-contract, engineering, privacy/external, native, lifecycle and release holds remain; no draft wire schema is published by graph adoption.
+- Superseded approved graph: `execution/_DAG/DAG-010/` dependency authority
+- Superseded approved graph record: `execution/_DAG/DAG-010/APPROVAL_RECORD.md`
 - Superseded approved graph: `execution/_DAG/DAG-009/` satisfaction-currency authority
 - Superseded approved graph record: `execution/_DAG/DAG-009/APPROVAL_RECORD.md`
 - Superseded approved graph: `execution/_DAG/DAG-008/` revision `0.7` satisfaction-currency authority
@@ -24,6 +30,6 @@
 - Historical approved graph record: `execution/_DAG/DAG-002/APPROVAL_RECORD.md`
 - Historical approved graph: `execution/_DAG/DAG-001/` revision `0.4` evidence
 - Historical approval record: `execution/_DAG/DAG-001/APPROVAL_RECORD.md`
-- Basis scope change: `DAG-010` is the accepted immutable successor to `DAG-009` on SOFTWARE_DECOMP revision 0.12 / SCA-009. It preserves every DAG-009 node and row, adds DEL-07-09 carrying SOW-077, four decomposition anchors, and exactly three active upstream execution edges from DEL-07-09 to DEL-16-01, DEL-07-01, and DEL-07-02.
-- Basis correction: SCA-009's historical obligation named DAG-008, but this branch's live pointer already named approved DAG-009; HELP_HUMAN amended the run to create DAG-010 and preserve immutable DAG-008/009.
-- Approval boundary: owner direction and pointer authorization apply to DAG-010 dependency authority only. Deliverable lifecycle, coverage closure, work selection, implementation dispatch, product work, estimate/schedule recomputation, and release remain separate governed acts. Standard claim fence applies (F-PIP-2; DEC-081 claims taxonomy).
+- Historical DAG-010 basis scope change: `DAG-010` is the accepted immutable successor to `DAG-009` on SOFTWARE_DECOMP revision 0.12 / SCA-009. It preserves every DAG-009 node and row, adds DEL-07-09 carrying SOW-077, four decomposition anchors, and exactly three active upstream execution edges from DEL-07-09 to DEL-16-01, DEL-07-01, and DEL-07-02.
+- Historical DAG-010 basis correction: SCA-009's historical obligation named DAG-008, but this branch's live pointer already named approved DAG-009; HELP_HUMAN amended the run to create DAG-010 and preserve immutable DAG-008/009.
+- Historical DAG-010 approval boundary: owner direction and pointer authorization apply to DAG-010 dependency authority only. Deliverable lifecycle, coverage closure, work selection, implementation dispatch, product work, estimate/schedule recomputation, and release remain separate governed acts. Standard claim fence applies (F-PIP-2; DEC-081 claims taxonomy).

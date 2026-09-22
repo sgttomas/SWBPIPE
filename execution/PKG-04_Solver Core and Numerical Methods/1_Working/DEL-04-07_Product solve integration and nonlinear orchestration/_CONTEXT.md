@@ -1,6 +1,6 @@
 # Context: DEL-04-07
 
-**Application basis:** SCA-011 Group 2 amendment; audited poststate acceptance remains pending Group 3. Basis: `projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577`.
+**Application basis:** SCA-011 Group 2 amendment; audited poststate acceptance is recorded in the SCA-011 Group 3 closure. Basis: `projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984`.
 
 **Deliverable ID:** DEL-04-07
 **Name:** Product solve integration and nonlinear orchestration
@@ -41,7 +41,7 @@ Compose accepted model, units, section/load/support contracts and kernel outputs
 
 ## Decomposition and Registers
 
-- Decomposition: `projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577`
+- Decomposition: `projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984`
 - Deliverables: `docs/_Registers/Deliverables.csv` row DEL-04-07
 - Context budget: `docs/_Registers/ContextBudgetQA.csv` row DEL-04-07
 - Scope: `docs/_Registers/ScopeLedger.csv` rows SOW-005,SOW-011,SOW-012,SOW-052,SOW-053

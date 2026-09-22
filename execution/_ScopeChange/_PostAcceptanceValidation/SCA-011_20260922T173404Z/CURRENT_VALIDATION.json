@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "reviewed_source_commit": "d6cc1482eee78ce860ff18658f11157f7efbd401",
+  "accepted_snapshot_bindings": 418,
+  "accepted_snapshot_manifest_sha256": "f3f63a34d4b01307724068966f12f5a6b14d9a594556eb6a0bdd53548c2170bd",
+  "final_canonical_targets": 83,
+  "conditional_targets": 71,
+  "graph_semantic_bytes_unchanged": true,
+  "current_sca": "SCA-011",
+  "current_dag": "DAG-011",
+  "historical_evidence_and_product_unchanged": true,
+  "errors": [],
+  "limit": "Identity/authority/preservation check; source currency and semantic audit use separate owning returns."
+}

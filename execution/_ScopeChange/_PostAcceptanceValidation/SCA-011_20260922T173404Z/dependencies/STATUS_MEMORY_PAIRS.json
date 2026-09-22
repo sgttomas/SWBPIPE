@@ -1,0 +1,196 @@
+{
+  "status": "READ_ONLY_CONTEXT",
+  "pairs": [
+    {
+      "owner": "DEL-04-07",
+      "files": [
+        {
+          "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_STATUS.md",
+          "sha256": "3f2c7ed7da4571b58418955dab427e4e82e0196eb18e213316f404a621e74fb7",
+          "bytes": 1052,
+          "scope": "read-only current state/history context; no lifecycle operation"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_MEMORY.md",
+          "state": "ABSENT"
+        }
+      ],
+      "memory_absence": "Neither _MEMORY.md nor MEMORY.md exists in this accepted new control set; no memory file invented."
+    },
+    {
+      "owner": "DEL-07-01",
+      "files": [
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_STATUS.md",
+          "sha256": "0608b08af9fe8bf6ce5c9d57826018e0489e4da57e1b3edf03cea015af05d42b",
+          "bytes": 10749,
+          "scope": "read-only current state/history context; no lifecycle operation"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_MEMORY.md",
+          "state": "ABSENT"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/MEMORY.md",
+          "sha256": "2aad93cc158e42bae3d59efd729db6ea11117a8cfd3cdb981439c5a21ad79ed3",
+          "bytes": 41994,
+          "scope": "actual compatibility memory source read in full; no mutation"
+        }
+      ]
+    },
+    {
+      "owner": "DEL-07-03",
+      "files": [
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_STATUS.md",
+          "sha256": "a9cef058db84f630efe7c51ad32877cb0d460fd7784f2454133f6cc9bc40358d",
+          "bytes": 5785,
+          "scope": "read-only current state/history context; no lifecycle operation"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_MEMORY.md",
+          "state": "ABSENT"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/MEMORY.md",
+          "sha256": "25f2ea7e8e5a4b91ee505d339fea4edf322cb239766ca97c9863228c36ed50ff",
+          "bytes": 30945,
+          "scope": "actual compatibility memory source read in full; no mutation"
+        }
+      ]
+    },
+    {
+      "owner": "DEL-07-04",
+      "files": [
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_STATUS.md",
+          "sha256": "2d6e69c965296621a766add1ee9f3c353726019a88b9b9d0f8f058526b1e48ee",
+          "bytes": 3597,
+          "scope": "read-only current state/history context; no lifecycle operation"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_MEMORY.md",
+          "state": "ABSENT"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/MEMORY.md",
+          "sha256": "9741ef61afca026404d77a9772ae16f45205de8ee8c24c299cafb1dd28c63f76",
+          "bytes": 11776,
+          "scope": "actual compatibility memory source read in full; no mutation"
+        }
+      ]
+    },
+    {
+      "owner": "DEL-07-08",
+      "files": [
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_STATUS.md",
+          "sha256": "854a3e4b4428a38b7f19ffce86413a2c6d766631ebe1d6cf1c06c9466945f3b1",
+          "bytes": 4072,
+          "scope": "read-only current state/history context; no lifecycle operation"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_MEMORY.md",
+          "state": "ABSENT"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/MEMORY.md",
+          "sha256": "273d3e29498b08b4bbdaf39d0a9112eb38f3f941a30f69557c90efeb05c4f30a",
+          "bytes": 13167,
+          "scope": "actual compatibility memory source read in full; no mutation"
+        }
+      ]
+    },
+    {
+      "owner": "DEL-07-11",
+      "files": [
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_STATUS.md",
+          "sha256": "3ad5d5e5e1948ff5d8d2e35825bf6b98e2b036813553e60f4028793774150e37",
+          "bytes": 1043,
+          "scope": "read-only current state/history context; no lifecycle operation"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_MEMORY.md",
+          "state": "ABSENT"
+        }
+      ],
+      "memory_absence": "Neither _MEMORY.md nor MEMORY.md exists in this accepted new control set; no memory file invented."
+    },
+    {
+      "owner": "DEL-07-12",
+      "files": [
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_STATUS.md",
+          "sha256": "504e60192dd08b470e449ea84a425b26b1374fc557181714467fd3a0c4b805be",
+          "bytes": 1045,
+          "scope": "read-only current state/history context; no lifecycle operation"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_MEMORY.md",
+          "state": "ABSENT"
+        }
+      ],
+      "memory_absence": "Neither _MEMORY.md nor MEMORY.md exists in this accepted new control set; no memory file invented."
+    },
+    {
+      "owner": "DEL-08-04",
+      "files": [
+        {
+          "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_STATUS.md",
+          "sha256": "615e6b5b1541de9853d4e386b6dfeb77929093be993d6875894a986e045be88c",
+          "bytes": 3939,
+          "scope": "read-only current state/history context; no lifecycle operation"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_MEMORY.md",
+          "state": "ABSENT"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/MEMORY.md",
+          "sha256": "0935b7e5274c148508b530b9971374218ffa04820985237cf8d763f988204ade",
+          "bytes": 34569,
+          "scope": "actual compatibility memory source read in full; no mutation"
+        }
+      ]
+    },
+    {
+      "owner": "DEL-16-03",
+      "files": [
+        {
+          "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_STATUS.md",
+          "sha256": "60ceeb8eef85c03980c7aae302096c841689cd69fabed52b110253e3db5c54a5",
+          "bytes": 3412,
+          "scope": "read-only current state/history context; no lifecycle operation"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_MEMORY.md",
+          "state": "ABSENT"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/MEMORY.md",
+          "sha256": "44aa9d313d36cc9168a6627098842062c0ed5d19d7639afe0c44c64abea7f244",
+          "bytes": 43234,
+          "scope": "actual compatibility memory source read in full; no mutation"
+        }
+      ]
+    },
+    {
+      "owner": "DEL-16-06",
+      "files": [
+        {
+          "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_STATUS.md",
+          "sha256": "52e5b6763d67afd240ca9bfbec54e14e8c65567591704c333a0f6ce48c448ced",
+          "bytes": 1037,
+          "scope": "read-only current state/history context; no lifecycle operation"
+        },
+        {
+          "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_MEMORY.md",
+          "state": "ABSENT"
+        }
+      ],
+      "memory_absence": "Neither _MEMORY.md nor MEMORY.md exists in this accepted new control set; no memory file invented."
+    }
+  ],
+  "limits": "No lifecycle or maturity inference; carrier role may finalize accepted scope/pin metadata separately."
+}

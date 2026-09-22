@@ -1,0 +1,276 @@
+{
+  "run_label": "SCA-011_ACCEPTED_ACTIVE_STATE_20260922",
+  "timestamp": "2026-09-22T17:43:00.450338+00:00",
+  "decomp_variant": "SOFTWARE",
+  "expected_source_snapshot": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/OWNER_DECISION.md",
+  "accepted_package_commit": "d6cc1482eee78ce860ff18658f11157f7efbd401",
+  "original_amendment_commit": "3e18334eca72509475684cc86786b3eeade83572",
+  "expected_handoff_phase": "ACCEPTED_ACTIVE_STATE",
+  "decomposition_path": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+  "decomposition_revision": "0.13",
+  "scope": "ALL",
+  "repository_topology": {
+    "packages": 18,
+    "deliverables": 106,
+    "objectives": 18,
+    "scope_items": 79,
+    "ledger_rows": 79
+  },
+  "partitions_declared": 18,
+  "partitions_found": 18,
+  "production_units_declared": 106,
+  "production_units_found": 106,
+  "forward_coverage_partitions_pct": 100.0,
+  "forward_coverage_production_units_pct": 100.0,
+  "reverse_coverage_pct": 100.0,
+  "context_fidelity_pct": 100.0,
+  "artifact_presence_pct": null,
+  "artifact_presence_limit": "Core contracts inventoried and validated; anticipated production artifact realization not recounted.",
+  "objective_coverage_pct": 100.0,
+  "deliverables_without_objective_mapping": 0,
+  "in_ledger_rows_without_objective_mapping": 0,
+  "package_shape_conformance": "WARN",
+  "derivative_package_status": "SKIPPED",
+  "active_snapshot_status": "PASS",
+  "handoff_state_status": "PASS",
+  "objective_evidence_integrity": "PASS",
+  "issues_blocker": 0,
+  "issues_warning": 1,
+  "issues_info": 3,
+  "check_count": 12,
+  "lifecycle_distribution": {
+    "IN_PROGRESS": 100,
+    "ISSUED": 1,
+    "OPEN": 5
+  },
+  "overall_status": "WARNINGS",
+  "closure_readiness": "WARN",
+  "concrete_labels": {
+    "partition": "Package",
+    "production_unit": "Deliverable"
+  },
+  "semantic_bindings": {
+    "Ledger": {
+      "heading": "9. Scope ledger summary",
+      "line": 471,
+      "normalized": "scope ledger summary",
+      "match_mode": "prefix",
+      "ambiguity": false
+    },
+    "Objectives_reference": {
+      "heading": "5. Objectives",
+      "line": 191,
+      "normalized": "objectives",
+      "match_mode": "exact",
+      "ambiguity": false
+    },
+    "Partitions": {
+      "heading": "6. Packages",
+      "line": 215,
+      "normalized": "packages",
+      "match_mode": "exact",
+      "ambiguity": false
+    },
+    "Production Units": {
+      "heading": "7. Deliverables",
+      "line": 239,
+      "normalized": "deliverables",
+      "match_mode": "exact",
+      "ambiguity": false
+    }
+  },
+  "comparison": {
+    "baseline": {
+      "packages": 18,
+      "deliverables": 102,
+      "objectives": 18,
+      "scope_items": 77,
+      "ledger_rows": 77
+    },
+    "actual": {
+      "packages": 18,
+      "deliverables": 106,
+      "objectives": 18,
+      "scope_items": 79
+    },
+    "baseline_matrix_scope": [
+      "PKG-02",
+      "PKG-03",
+      "PKG-04",
+      "PKG-05",
+      "PKG-07",
+      "PKG-08",
+      "PKG-09",
+      "PKG-10",
+      "PKG-12",
+      "PKG-13",
+      "PKG-14",
+      "PKG-15",
+      "PKG-16",
+      "PKG-17"
+    ],
+    "baseline_matrix_units": 80,
+    "actual_matrix_units": 106,
+    "methodology_change": "Expanded 14-package/80-unit baseline audit to all 18 packages/106 units, recognizing the existing eight D-43 architecture reference contracts. Compare whole-topology and shared-unit results, not raw lifecycle totals.",
+    "resolved_baseline_warning": "OBJ-018 summary support parity restored",
+    "retained_baseline_warning": "Companion inventory/package shape",
+    "stock_validator": {
+      "command": [
+        "python3",
+        "tools/validation/validate_decomposition_registers.py",
+        "projects/chirality-piping/execution",
+        "--evidence-root",
+        "projects/chirality-piping",
+        "--json",
+        "/private/tmp/chirality-piping-ownership-20260922/projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/active_audit/register_validation.json",
+        "--max-per-code",
+        "2"
+      ],
+      "exit_code": 1,
+      "before_errors": 2097,
+      "after_errors": 2097,
+      "unchanged_findings": 2097,
+      "resolved": 0,
+      "new_findings": [],
+      "skipped": [
+        "XRG family (Deliverables.csv and/or ScopeLedger.csv absent)"
+      ],
+      "limit": "Stock validator excludes docs/_Registers; explicit parity checks above cover canonical companions."
+    }
+  },
+  "group3_acceptance": true,
+  "core_contracts": {
+    "ARCHITECTURE_BASIS_REFERENCE": 8,
+    "SOW_V1": 97,
+    "ACCEPTED_OPEN_CUSTOM_CONTRACT": 1
+  },
+  "new_control_sets": [
+    {
+      "id": "DEL-04-07",
+      "all_controls_present": true,
+      "envelope": "L",
+      "description_in_context": true,
+      "finite_envelope_notes": "Finite integration boundary; mathematical primitives, convergence policy and engineering acceptance remain with their owners.",
+      "semantic_placeholder": true
+    },
+    {
+      "id": "DEL-07-11",
+      "all_controls_present": true,
+      "envelope": "L",
+      "description_in_context": true,
+      "finite_envelope_notes": "Own common hosting and coordination only; feature-panel semantics, storage, solve UX and architecture remain with their owners.",
+      "semantic_placeholder": true
+    },
+    {
+      "id": "DEL-07-12",
+      "all_controls_present": true,
+      "envelope": "L",
+      "description_in_context": true,
+      "finite_envelope_notes": "Consumption, rendering and explicit dispatch only; no exporters, schema semantics, licensed process invocation or new adapter families.",
+      "semantic_placeholder": true
+    },
+    {
+      "id": "DEL-16-06",
+      "all_controls_present": true,
+      "envelope": "M",
+      "description_in_context": true,
+      "finite_envelope_notes": "One mutation seam; schema, preview, user acceptance, audit policy and durable persistence remain separate responsibilities.",
+      "semantic_placeholder": true
+    }
+  ],
+  "limitations": [
+    "No product tests, engineering acceptance, lifecycle advancement or original evidence recertification.",
+    "Memory read as continuity only, not authority.",
+    "Description intent and all anticipated implementation artifact realization not comprehensively adjudicated."
+  ],
+  "per_check_verdicts": [
+    {
+      "check": "1",
+      "name": "Forward packages",
+      "verdict": "PASS",
+      "detail": "18 declared and materialized packages."
+    },
+    {
+      "check": "2",
+      "name": "Forward deliverables",
+      "verdict": "PASS",
+      "detail": "106 declared and materialized deliverables."
+    },
+    {
+      "check": "3",
+      "name": "Reverse folders",
+      "verdict": "PASS",
+      "detail": "No orphan folders or undeclared IDs."
+    },
+    {
+      "check": "4",
+      "name": "ID consistency",
+      "verdict": "PASS",
+      "detail": "Accepted deliverable/scope identities and parent coupling retained; exact reviewed metadata transforms checked."
+    },
+    {
+      "check": "5",
+      "name": "Context fidelity",
+      "verdict": "PASS",
+      "detail": "All106 identity/name/package/type/envelope rows agree; four new finite controls remain3L+1M."
+    },
+    {
+      "check": "6",
+      "name": "Artifact presence",
+      "verdict": "INCOMPLETE",
+      "detail": "All97 SoWs validate; eight architecture references and one accepted custom OPEN contract present. Full anticipated production-artifact realization remains unassessed."
+    },
+    {
+      "check": "7",
+      "name": "Objectives",
+      "verdict": "PASS",
+      "detail": "All18 objective statements unchanged; displayed support sets agree,including corrected OBJ018."
+    },
+    {
+      "check": "8",
+      "name": "Ledger integrity",
+      "verdict": "WARNING",
+      "detail": "79 scope rows and companion mappings resolve. Stock tool retains2,097 historical findings;zero new findings."
+    },
+    {
+      "check": "9",
+      "name": "DOMAIN derivative parity",
+      "verdict": "SKIPPED",
+      "detail": "SOFTWARE variant; explicit accepted-source derivative currency checked separately."
+    },
+    {
+      "check": "9b",
+      "name": "Package shape",
+      "verdict": "WARNING",
+      "detail": "Pre-existing missing explicit companion inventory/heavy inline duplication retained; current machine truth parity passes."
+    },
+    {
+      "check": "10",
+      "name": "Active snapshot/handoff",
+      "verdict": "PASS",
+      "detail": "Actual owner Group3 decision,418 manifest bindings,accepted SCA011 and adopted DAG011 authority verified. Sealed handoff truthfully points to append-only completion evidence."
+    },
+    {
+      "check": "11",
+      "name": "Lifecycle distribution",
+      "verdict": "PASS",
+      "detail": "100 IN_PROGRESS,one ISSUED,five OPEN;four new homes remain OPEN and all prior lifecycle states preserved."
+    }
+  ],
+  "active_finalization": {
+    "reviewed_applied_commit": "d6cc1482eee78ce860ff18658f11157f7efbd401",
+    "owner_decision": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/OWNER_DECISION.md",
+    "raw_checks_passed": 56,
+    "reviewed_final_targets": 71,
+    "unchanged_other_targets": 12,
+    "accepted_manifest_bindings": 418,
+    "new_dependency_quotes_checked": 84,
+    "current_derivative_source_bindings_checked": 246,
+    "current_derivative_hooks_checked": 31,
+    "active_scope_snapshot": "SCA-011",
+    "active_graph": "DAG-011",
+    "product_or_engineering_acceptance": false,
+    "new_human_checkpoint": false,
+    "packaging_backcheck": "PACKAGING_BACKCHECK.json"
+  }
+}

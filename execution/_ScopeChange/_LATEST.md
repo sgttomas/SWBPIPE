@@ -2,12 +2,13 @@
 
 |Field|Value|
 |---|---|
-|AmendmentID|SCA-010|
-|Snapshot|`execution/_ScopeChange/SCA-010_2026-09-18_1400/`|
+|AmendmentID|SCA-011|
+|Snapshot|`execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/`|
 |Status|accepted|
-|Created|2026-09-18|
-|Summary|PRD name amendment: the product is SWBPIPE. Amend the adopted PRD v0.3 to v0.4 by replacing the product name "OpenPipeStress" with "SWBPIPE" at 23 of its 24 occurrences (the 24th, on line 15, is part of a historical file path and stays), including the §19.3 required report notice and its appendix copy, retitling the document, and adding a `**Formerly:**` header line recording the former name; propagate the same replacement into `docs/report_notice_template.md` (three occurrences, including the metadata slot). No requirement, section number, claim, non-goal, or notice wording other than the name changes; no scope item, package, deliverable, dependency, lifecycle, stage, or release change; no decomposition revision advance and no DAG rebuild. Authority: D-71 item 3, ruled by the owner on 2026-09-18 as option B with amendment, codified as DEC-101 in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12.|
+|Created|2026-09-22|
+|Decision|`execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/DECISION.md`|
+|Closure|CLOSED_FOR_SCOPE_CHANGE_ONLY|
+|Summary|Four added delivery homes, two scope statements, named existing-owner clarifications and OBJ-018 summary parity; decomposition0.13 and adopted DAG-011. Existing dependency meanings, unsatisfied prerequisites, delivery states and protected holds remain.|
+|Postacceptance evidence|`execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/`|
 
-Historical residue: SCA-009 remains immutable and complete under its own
-snapshot contract. SCA-010 replaces it only as the active current snapshot;
-it does not rewrite SCA-009 or its closure record.
+SCA-010 and earlier snapshots remain immutable historical authority under their own contracts. This pointer selects only the accepted SCA-011 amendment; it does not certify implementation, engineering, qualification or release.

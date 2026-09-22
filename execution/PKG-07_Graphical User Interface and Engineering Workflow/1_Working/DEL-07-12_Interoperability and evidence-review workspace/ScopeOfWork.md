@@ -2,14 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-07-12
 package_id: PKG-07
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984
 project_scope_refs: [SOW-079]
 package_objective_refs: [OBJ-006,OBJ-007,OBJ-018]
 ---
 
 # Scope of Work — DEL-07-12
 
-**Application basis:** SCA-011 Group 2 amendment; audited poststate acceptance remains pending Group 3. Basis: `projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:f1d6474e35d0fd42800ff8acfbb3148e7ade9b43aef72f9cab2df69a26786577`.
+**Application basis:** SCA-011 Group 2 amendment; audited poststate acceptance is recorded in the SCA-011 Group 3 closure. Basis: `projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984`.
 
 ## Purpose and Objective Traceability
 

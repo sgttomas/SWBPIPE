@@ -190,7 +190,7 @@
   "authority": "D-73 execution addendum 2026-09-22; current owner R5/R6 instruction",
   "repaired_revision": "0407cb978a960f600bd5f933835f45f49f05b1c8",
   "upstream_instruction_basis": "9b7ac5fb3c7f06cec35f24de8ebba8331bb95ac8",
-  "status": "Bounded R5/R6 merged in PR #847; accepted SCA011 amendment applied with explicit dependency metadata correction; preparing audited Group3 decision. Current ownership_amendment entry controls recovery.",
+  "status": "SCA-011 accepted and active; DAG-011 adopted and current; accepted-source finalization checks complete. Read the postacceptance current-state and independent review records for integration.",
   "phase_cursor": "execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/BACKCHECK/R6_2026-09-22/HANDOFF.md",
   "integration_record_repo_relative": "execution/_Coordination/AgentRuns/HELP-HUMAN-20260922-CROSS-PROJECT-R5R6/UPSTREAM_INTEGRATION.md",
   "integration_pr": "https://github.com/sgttomas/chirality/pull/847",
@@ -217,18 +217,20 @@
   },
   "ownership_amendment": {
    "recorded": "2026-09-22",
-   "state": "group_2_applied_group_3_review",
+   "state": "group_3_accepted_current_state_validated",
    "owner_direction": "P-OWN-01..06 responsibility direction accepted in current chat; exact words in group-1 snapshot",
    "basis": "008ef6a4e370822c65eb26ddd792752b4267c7ab",
    "candidate_project_relative": "execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/",
    "group_1_snapshot_project_relative": "execution/_ScopeChange/checkpoint_snapshots/SCA-011_GROUP-1_2026-09-22/",
-   "current_authority": "Exact Group-2 application authorized; decomposition0.13 applied_pending_Group3; active SCA010/DAG010 pointers preserved",
+   "current_authority": "Actual Group-3 acceptance; SCA-011 accepted snapshot and DAG-011 adoption. No implementation/lifecycle/engineering/release closure.",
    "mechanism": "Codex native HELP_HUMAN -> WORKING_ITEMS -> bounded TASK collaboration",
-   "next_safe_action": "Read GROUP3_PACKAGE and final audit/independent review. Present audited poststate; activate neither pointer before actual Group3 acceptance.",
+   "next_safe_action": "Read postacceptance CURRENT_STATE and final independent review, then parent combined Git/CI integration. No further owner checkpoint.",
    "accepted_package_commit": "3e18334eca72509475684cc86786b3eeade83572",
    "group_2_snapshot_project_relative": "execution/_ScopeChange/checkpoint_snapshots/SCA-011_GROUP-2_2026-09-22/",
    "application_project_relative": "execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/",
-   "group_3_package_project_relative": "execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/GROUP3_PACKAGE.md"
+   "group_3_package_project_relative": "execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/GROUP3_PACKAGE.md",
+   "reviewed_applied_commit": "d6cc1482eee78ce860ff18658f11157f7efbd401",
+   "postacceptance_project_relative": "execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/"
   }
  }
 }

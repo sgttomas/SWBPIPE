@@ -1,6 +1,6 @@
 ---
 doc_id: PIP-SCA011-VOCABULARY-LANDING
-status: applied_group3_pending
+status: accepted
 amendment_id: SCA-011
 ---
 

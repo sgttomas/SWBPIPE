@@ -66,5 +66,5 @@ Implement material, section, component, private-library and rule-pack-reference 
 
 ## SCA-011 responsibility
 
-Applied under the SCA-011 Group 2 decision; audited poststate acceptance remains pending Group 3. Finite editor surfaces only; support/restraint implementation is DEL-07-02. Generation mathematics, schema and provenance contracts stay with their owners.
+Applied under the SCA-011 Group 2 decision; audited poststate acceptance is recorded in the SCA-011 Group 3 closure. Finite editor surfaces only; support/restraint implementation is DEL-07-02. Generation mathematics, schema and provenance contracts stay with their owners.
 The amended Deliverables and ContextBudgetQA rows govern this allocation; existing state and implementation evidence remain separately bound.

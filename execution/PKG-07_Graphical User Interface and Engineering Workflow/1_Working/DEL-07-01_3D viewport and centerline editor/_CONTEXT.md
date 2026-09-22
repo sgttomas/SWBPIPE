@@ -63,5 +63,5 @@ Implement viewport and centerline editing plus palette rendering and operation r
 
 ## SCA-011 responsibility
 
-Applied under the SCA-011 Group 2 decision; audited poststate acceptance remains pending Group 3. Palette implementation has keyed ownership; vocabulary and coverage remain DEL-07-09. No shell, storage or solver ownership transfer.
+Applied under the SCA-011 Group 2 decision; audited poststate acceptance is recorded in the SCA-011 Group 3 closure. Palette implementation has keyed ownership; vocabulary and coverage remain DEL-07-09. No shell, storage or solver ownership transfer.
 The amended Deliverables and ContextBudgetQA rows govern this allocation; existing state and implementation evidence remain separately bound.

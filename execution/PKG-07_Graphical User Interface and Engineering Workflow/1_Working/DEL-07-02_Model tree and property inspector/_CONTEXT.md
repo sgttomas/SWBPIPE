@@ -65,5 +65,5 @@ Implement generic tree/table/selected-entity inspection and create/edit/delete i
 
 ## SCA-011 responsibility
 
-Applied under the SCA-011 Group 2 decision; audited poststate acceptance remains pending Group 3. Generic selected-load inspection belongs here; load-manager editing belongs to DEL-07-03. Dedicated support-editor slice is not activated.
+Applied under the SCA-011 Group 2 decision; audited poststate acceptance is recorded in the SCA-011 Group 3 closure. Generic selected-load inspection belongs here; load-manager editing belongs to DEL-07-03. Dedicated support-editor slice is not activated.
 The amended Deliverables and ContextBudgetQA rows govern this allocation; existing state and implementation evidence remain separately bound.

@@ -1,11 +1,11 @@
-# DAG-011 staged handoff
+# DAG-011 accepted handoff
 
-**Group 2 applied; Group 3 pending.** The reviewed nodes and dependency relations are staged with an explicit added-row metadata correction. Current authority remains DAG-010. Do not infer readiness from the graph's structural pass.
+**Current dependency graph authority: DAG-011.** The actual Group-3 owner disposition and unchanged graph content are bound by `APPROVAL_RECORD.md` and `PROVENANCE.json`; `_DAG/_LATEST.md` now names this snapshot. DAG-010 remains the immutable predecessor.
 
-The canonical application evidence is `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/CORRECTNESS_REPAIR.md`; local-source backchecks, command outcomes, strict graph audit, stage expansion and negative probes live beside that return. `PROVENANCE.json` binds their hashes. No duplicate validation copy is maintained here.
+The single current evidence home is `execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/dependencies/`. Read `RETURN.md`, `LOCAL_ACCEPTANCE_APPLICATION.json`, `CURRENT_SOURCE_BINDINGS.json`, `VALIDATION.json` and `DAG_Audit.json`. Earlier SCA-011 candidate/application/review records remain historical and were not overwritten to conceal the changed source pins or actual acceptance.
 
-The stage model retains the palette organization/implementation/coverage sequence, base envelope/comparison contract/export mapping sequence, and acceptance/application/final audit sequence. Their original reviewed artifact references remain in the SCA-011 dependency package. Named drafts are not accepted production contracts; source-owner/consumer witnesses remain outstanding.
+All 20 repaired Group-3 local transformations have been executed: ten index authority transitions and ten CSV no-ops. All 84 added canonical IDs, all 1,571 rows and 106 nodes are unchanged from the accepted reviewed graph. The earlier SCA011-to-DEP crosswalk remains historical lineage, not another current identity scheme.
 
-Only a later actual Group-3 act may adopt this graph, execute conditional Group-3 local-index transformations, and update active pointers. Preserve predecessor snapshots, historical notes and unrelated local drift. This handoff supplies no product, native, engineering, lifecycle or release acceptance.
+The palette organization/implementation/coverage, base-envelope/comparison-contract/export-mapping and acceptance/application/final-audit stage distinctions are retained. Current source bindings and stage checks are refreshed against final accepted claim files. All 62 added execution relations remain PENDING with actual proposed maturity TBD; baseline satisfaction was not recertified.
 
-The original application return remains historical. Use REPAIRED_VALIDATION.json, ID_CROSSWALK.csv and POSTIMAGE_DEVIATIONS.json for current bytes. Future local-index promotion must use REPAIRED_GROUP3_PROMOTION.json, never the stale original applied-hash expectations. These conditional transformations remain unexecuted.
+Future implementation uses the owning claims and evidence requirements. Graph adoption supplies no product, native, engineering, lifecycle or release acceptance and publishes no draft wire schema. No further transformation or owner decision is pending merely to activate this accepted graph.

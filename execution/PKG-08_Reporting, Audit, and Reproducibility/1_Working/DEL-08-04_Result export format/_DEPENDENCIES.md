@@ -1,10 +1,10 @@
 # Dependency mirror — DEL-08-04
 
-**APPLIED; GROUP 3 PENDING.** SCA-011 Group 2 applied this local mirror. DAG-010 remains the accepted graph authority; the added rows await Group 3 audited poststate acceptance and DAG-011 adoption. No source lifecycle, contract readiness or dependency satisfaction is promoted.
+**ACCEPTED DEPENDENCY MIRROR.** SCA-011 Group 3 audited the poststate and recorded DAG-011 adoption. Current graph authority is DAG-011; DAG-010 is the preserved predecessor. All added execution relations remain PENDING with actual maturity TBD; adoption does not promote source lifecycle, contract readiness or dependency satisfaction.
 
 ## Declared upstream/downstream lists
 
-No new human-declared list is created. Existing declared lists, if any, are preserved in the quoted historical index below. Added relations are EXTRACTED from the ownership amendment. Their Group 2 application is recorded; their adoption into graph authority awaits Group 3. Origin=EXTRACTED records provenance and is not a human declaration.
+No new human-declared list is created. Existing declared lists, if any, are preserved in the quoted historical index below. Added relations are EXTRACTED from the ownership amendment and adopted into DAG-011 through the recorded Group 3 propagation. Origin=EXTRACTED records provenance and is not a human declaration.
 
 ## Extracted Dependency Register
 
@@ -23,7 +23,8 @@ New execution rows use RequiredMaturity=SEMANTIC_READY, ProposedMaturity=TBD, Sa
 ## Run History
 
 - 2026-09-22: SCA-011 candidate-only additive preview; 1 added rows. Earlier local history is quoted below without rewriting its historical claims.
-- SCA-011 Group 2: applied these exact additive rows under the recorded application authorization; Group 3 remains pending.
+- SCA-011 Group 2: applied these exact additive rows under the recorded application authorization.
+- SCA-011 Group 3: audited poststate accepted and DAG-011 adopted through the recorded authority propagation; execution satisfaction remains pending.
 
 ## Lifecycle Summary
 
@@ -31,7 +32,7 @@ Local row status: {'ACTIVE': 20, 'RETIRED': 3}. Local satisfaction counts: {'SAT
 
 ## Downstream Handoff Notes
 
-Group 2 applied this local mirror against the recorded source documents and baseline hashes. Group 3 must audit the poststate and record the DAG-011 authority propagation before the new relations become graph authority. No source-witness/readiness conclusion follows from application. All added execution relations remain PENDING with actual maturity TBD; baseline satisfaction evidence was preserved, not revalidated.
+Group 3 audited this local mirror against the recorded applied poststate and adopted DAG-011 as current graph authority. The accepted DAG-010 predecessor remains immutable. All added execution relations remain PENDING with actual maturity TBD; baseline satisfaction evidence was preserved, not revalidated. Future satisfaction changes require actual source-owner and consumer evidence; no hold, lifecycle, engineering or release acceptance follows from graph adoption.
 
 ## Quoted historical index (not current candidate counts or graph pointer)
 

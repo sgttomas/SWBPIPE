@@ -1,0 +1,160 @@
+{
+  "status": "PASS",
+  "owner_decision": {
+    "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/OWNER_DECISION.md",
+    "sha256": "6797151ce24132d0c6cf4fa4d1976bc4a3b73557e6cc7d52e268140fc346c9d3"
+  },
+  "reviewed_commit": "d6cc1482eee78ce860ff18658f11157f7efbd401",
+  "transform": {
+    "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/application/dependencies/REPAIRED_GROUP3_PROMOTION.json",
+    "sha256": "ea5433049bc4d7c287e24e99b67b0871cee12c9a3471cf8e5894e689f61c81f6"
+  },
+  "targets": [
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/_DEPENDENCIES.md",
+      "ReviewedSHA256": "d88faab27331b5547c7302659d2706a93c0e3a8ba069a51420cf5a3d49640874",
+      "AcceptedSHA256": "3596ac8a1921b98a53c1ccf91f3cf625fe8b109da7c42084d215131d132bba53",
+      "OperationCount": 4,
+      "BytesChanged": true
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/Dependencies.csv",
+      "ReviewedSHA256": "c9c90753d0d76249b4bd4f041c22902bbf7c3062bf119ff77966a199b12ce19d",
+      "AcceptedSHA256": "c9c90753d0d76249b4bd4f041c22902bbf7c3062bf119ff77966a199b12ce19d",
+      "OperationCount": 0,
+      "BytesChanged": false
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_DEPENDENCIES.md",
+      "ReviewedSHA256": "ad9234bf3b10d24b43b4b79d9207a24b2aad0947f5c55d61f1881fc4591ab796",
+      "AcceptedSHA256": "eaa1e8a522d7933c757a97c6cec7197ba37939eb2da119e4fdab3a8e9d3167fc",
+      "OperationCount": 4,
+      "BytesChanged": true
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/Dependencies.csv",
+      "ReviewedSHA256": "a35d33ddbd465df61ba1344a4522d1aa2129737a51f96151e209cb9f0a1943db",
+      "AcceptedSHA256": "a35d33ddbd465df61ba1344a4522d1aa2129737a51f96151e209cb9f0a1943db",
+      "OperationCount": 0,
+      "BytesChanged": false
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_DEPENDENCIES.md",
+      "ReviewedSHA256": "10f33d2b87c7b6ffed939b2975752ce2c9ff6fd53f9f6859d03f912763ce893c",
+      "AcceptedSHA256": "bb88083a5541dcdb5f33a3f881ae505a7fc9afe47fc5daa1298b2563183c85b7",
+      "OperationCount": 4,
+      "BytesChanged": true
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/Dependencies.csv",
+      "ReviewedSHA256": "694cd5c4db774f24c9f4606e76f833bd783e6e7bd8d3d91877e200b2a35a3fc8",
+      "AcceptedSHA256": "694cd5c4db774f24c9f4606e76f833bd783e6e7bd8d3d91877e200b2a35a3fc8",
+      "OperationCount": 0,
+      "BytesChanged": false
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_DEPENDENCIES.md",
+      "ReviewedSHA256": "a66b22005629c9630c4321319f50dfe41f57b6c0c9a60777faea1413e426101e",
+      "AcceptedSHA256": "a431e8309d21a68126c168830b98bfaa8dfe58c06785df9d71d7e878c2290079",
+      "OperationCount": 4,
+      "BytesChanged": true
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/Dependencies.csv",
+      "ReviewedSHA256": "b8f54c1db189565f03bf2fc76a490c5621b12a3d7a281a1dc9b201749b5a0d15",
+      "AcceptedSHA256": "b8f54c1db189565f03bf2fc76a490c5621b12a3d7a281a1dc9b201749b5a0d15",
+      "OperationCount": 0,
+      "BytesChanged": false
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_DEPENDENCIES.md",
+      "ReviewedSHA256": "b60a1dab385028c3ed803efc68562940773a447e715fd5fc51a64535706d81f1",
+      "AcceptedSHA256": "06cd636cd0e6bc85cc178ccb71407eb98efb287f66210e8936ef0c8e24dd7e99",
+      "OperationCount": 4,
+      "BytesChanged": true
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/Dependencies.csv",
+      "ReviewedSHA256": "41d0a23373f70fdc4ebe2e66e4230e077bb1172a3be40451518946cca9376bf7",
+      "AcceptedSHA256": "41d0a23373f70fdc4ebe2e66e4230e077bb1172a3be40451518946cca9376bf7",
+      "OperationCount": 0,
+      "BytesChanged": false
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/_DEPENDENCIES.md",
+      "ReviewedSHA256": "01f612c50cbf04b46d73ecdd823b7dfe7a41084be69fdf91dad8451db229634a",
+      "AcceptedSHA256": "e0f3cba6faf2ab13e10ce7195cc766e98b393becd5deed919c24360a957c1e5f",
+      "OperationCount": 4,
+      "BytesChanged": true
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+      "ReviewedSHA256": "d2bd542d9900446af4bf94b0596931aa9650a290fcd173d572537294d24712d5",
+      "AcceptedSHA256": "d2bd542d9900446af4bf94b0596931aa9650a290fcd173d572537294d24712d5",
+      "OperationCount": 0,
+      "BytesChanged": false
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/_DEPENDENCIES.md",
+      "ReviewedSHA256": "b7d294f8b56df60a128bd6df1b55a280de3639ddec1214a9c772628cc99e5942",
+      "AcceptedSHA256": "53cebc0cda607cfc4c2b3544be732dfe113506bac4e611414ca37721e09c1389",
+      "OperationCount": 4,
+      "BytesChanged": true
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/Dependencies.csv",
+      "ReviewedSHA256": "9a1182c3cb88ccbf18466f2fb87b259d83920f7c4a4f3598e3f41dc85b4ef42f",
+      "AcceptedSHA256": "9a1182c3cb88ccbf18466f2fb87b259d83920f7c4a4f3598e3f41dc85b4ef42f",
+      "OperationCount": 0,
+      "BytesChanged": false
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_DEPENDENCIES.md",
+      "ReviewedSHA256": "e50976deede1d669c76979c8832b5ea4c96541e227943f352bc7f029c56a5607",
+      "AcceptedSHA256": "ec7b569eb0df7bd5ecd8acd967a10f4ed3a16b36b73bf63d51609beec5b73a6d",
+      "OperationCount": 4,
+      "BytesChanged": true
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/Dependencies.csv",
+      "ReviewedSHA256": "bd857ecf51d3e04d719cd91adcf918ac93acd59a704b85704a238fdff4553046",
+      "AcceptedSHA256": "bd857ecf51d3e04d719cd91adcf918ac93acd59a704b85704a238fdff4553046",
+      "OperationCount": 0,
+      "BytesChanged": false
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_DEPENDENCIES.md",
+      "ReviewedSHA256": "149a573972639907c9a6b794527363d5453a36a763d1b3b726a92f2bc3a075ba",
+      "AcceptedSHA256": "687c582ab4e317fde3a780093ec28f56a8213dc1494b1e4e5e700fa38c205747",
+      "OperationCount": 4,
+      "BytesChanged": true
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/Dependencies.csv",
+      "ReviewedSHA256": "d8be711eec39756341d925d56fa86882d60dc630aabe39c3d7374f689cbb74f5",
+      "AcceptedSHA256": "d8be711eec39756341d925d56fa86882d60dc630aabe39c3d7374f689cbb74f5",
+      "OperationCount": 0,
+      "BytesChanged": false
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/_DEPENDENCIES.md",
+      "ReviewedSHA256": "1914eff5eb4b78b83d5fcaea3f2fb7362101a9a472ad1ceacf84c2fcc8f0546e",
+      "AcceptedSHA256": "ce581562bdb82534dff703489f89a808693b4231ea452b9edc022a886ce368a8",
+      "OperationCount": 4,
+      "BytesChanged": true
+    },
+    {
+      "CanonicalTarget": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/Dependencies.csv",
+      "ReviewedSHA256": "4902039323b9691e1386d0fbc812e74b0a8c98da69af7239c5744d7bc81f9512",
+      "AcceptedSHA256": "4902039323b9691e1386d0fbc812e74b0a8c98da69af7239c5744d7bc81f9512",
+      "OperationCount": 0,
+      "BytesChanged": false
+    }
+  ],
+  "summary": {
+    "targets": 20,
+    "changed_indexes": 10,
+    "unchanged_csvs": 10
+  },
+  "limits": "Authority metadata only; no dependency semantic bytes, satisfaction, lifecycle or product changes."
+}

@@ -46,9 +46,9 @@ Own the ratified two-class interactive operation vocabulary coverage contract an
 ## Accepted Authority
 
 - **Decomposition:** `execution/_Decomposition/SOFTWARE_DECOMP.md`
-- **Accepted Revision:** 0.12
-- **Scope Change:** `execution/_ScopeChange/SCA-009_2026-08-20_0000/`
-- **Decision:** DEC-094
+- **Accepted Revision:** 0.13
+- **Scope Change:** `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/`; accepted SCA-009 vocabulary content retained
+- **Decision:** DEC-094 with DEC-111 ownership clarification
 - **Vocabulary Contract:** `execution/_ScopeChange/SCA-009_2026-08-20_0000/Vocabulary_Annex.md`
 - **Boundary:** DEL-07-09 owns the coverage contract and palette organization only; it never dispatches or receives the implementation routed by the annex.
 
@@ -65,4 +65,4 @@ Own the ratified two-class interactive operation vocabulary coverage contract an
 
 ## SCA-011 responsibility
 
-Applied under the SCA-011 Group 2 decision; audited poststate acceptance remains pending Group 3. R-005/R-006 are coverage-accountability landings only: load/combination editing DEL-07-03, support editing DEL-07-02, palette rendering/routing DEL-07-01. OPEN lifecycle preserved. Coverage and palette organization remain here; implementation follows the successor `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/Vocabulary_Annex.md`. The historical SCA-009 annex and acceptance record remain unchanged. No SoW, implementation dispatch or lifecycle promotion is created for this OPEN contract.
+Applied under the SCA-011 Group 2 decision; audited poststate acceptance is recorded in the SCA-011 Group 3 closure. R-005/R-006 are coverage-accountability landings only: load/combination editing DEL-07-03, support editing DEL-07-02, palette rendering/routing DEL-07-01. OPEN lifecycle preserved. Coverage and palette organization remain here; implementation follows the successor `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/Vocabulary_Annex.md`. The historical SCA-009 annex and acceptance record remain unchanged. No SoW, implementation dispatch or lifecycle promotion is created for this OPEN contract.

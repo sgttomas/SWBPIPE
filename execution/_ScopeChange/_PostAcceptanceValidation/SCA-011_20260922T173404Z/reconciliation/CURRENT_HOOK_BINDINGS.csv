@@ -1,0 +1,196 @@
+Hook,SourcePath,SourceSHA256,FirstLine,ExactCurrentExcerpt,ExcerptSHA256
+DEL-03-02:SOW#CLM-030,"projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/ScopeOfWork.md",6cfdc7947bd25619fc4c51134d3b040194a474d3939f8a7d8515c78cf9c1c9c3,389,"### CLM-030 — SCA-011 DEC-103 hanger schema
+
+**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
+
+Retain the user-imported hanger schema contract under DEL-03-02. DEL-03-07 owns provenance/fixture checking, DEL-07-03 the library editor, and DEL-07-09 coverage. No catalog is bundled and schema ownership does not move to coverage.
+
+- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.",f337df5ccece77c26bc301258fa0f3a11b8b94f995566e754a5c67031c561acf
+DEL-03-07:SOW#CLM-027,"projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/ScopeOfWork.md",7157d0669363e27fc0ed593b109c2c535fbf5d7f0048894014d0815b5009d796,326,"### CLM-027 — SCA-011 DEC-103 hanger provenance
+
+**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
+
+Retain provenance checking and rights-safe fixture responsibilities for user-imported hanger libraries under DEL-03-07; DEL-03-02 owns schema, DEL-07-03 UI and DEL-07-09 coverage.
+
+- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.",5675a0b7cee0db5c118cbbb4ddb0fb396ff3c59ae5feb21c9a5389e9d86d714c
+DEL-04-01:SOW#CLM-030,projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/ScopeOfWork.md,93455ce772f5a39855e5d011aaa1897511cc6e584c7fe12c43610d10ae6faa18,342,"### CLM-030 — SCA-011 DEC-044 primitive boundary
+
+**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
+
+Retain frame assembly and linear solving, including CAP-PHYS-022. DEL-04-07 composes the product solve and assembled nonlinear orchestration; DEL-04-04 retains the classifier. File location or a product caller cannot transfer mathematical ownership.
+
+- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.",3ebf8a3743adcb93d58041ac90a179e3d94ac6ff517903190365f34691580ca8
+DEL-04-04:SOW#CLM-028,projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/ScopeOfWork.md,66351fe6118bcabc70c56c7557f814d514ebe6c93b65b33138dd9ac7f53617d6,311,"### CLM-028 — SCA-011 DEC-044 keyed integration owner
+
+**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
+
+Retain per-iteration active-set classification and its state/diagnostic contract. DEL-04-07 owns the assembled nonlinear loop in core/solver/nonlinear_integration and product orchestration under DEC-044 and DEC-046.
+
+- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.",bff128acafe73a66f461ae8d23a7f1b9712d0be3ced6996d1198b8a3ea67f25b
+DEL-04-07:SOW#CLM-001,projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md,2631a2fedc5f95723201f10c87ba66367800fd771ebbc86844f25020ca3c3150,25,"### CLM-001 — DEL-04-07-REQ-001
+
+Compose the accepted model, unit, boundary, section, load and kernel contracts into linear/desktop/headless solve entrypoints while preserving source identity and explicit missing-data diagnostics.
+
+### CLM-002 — DEL-04-07-REQ-002
+
+Execute the DEC-044 assembled nonlinear loop while DEL-04-01 retains frame assembly/linear solving and DEL-04-04 retains per-iteration classification; preserve DEC-046 convergence controls and nonconvergence reporting.",84478605367941fda6a2f47e9821401402e5a777ccc0562da7da87858f49ba1f
+DEL-04-07:SOW#CLM-002,projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md,2631a2fedc5f95723201f10c87ba66367800fd771ebbc86844f25020ca3c3150,29,"### CLM-002 — DEL-04-07-REQ-002
+
+Execute the DEC-044 assembled nonlinear loop while DEL-04-01 retains frame assembly/linear solving and DEL-04-04 retains per-iteration classification; preserve DEC-046 convergence controls and nonconvergence reporting.
+
+### CLM-003 — DEL-04-07-REQ-003
+
+Own the product adapter implementation of section/mass conversion against DEL-03-08 contracts, including an explicit corrosion-allowance difference assessment and rejection or disclosure of unsupported inputs.",952c9967a2cdf16965adcc843095389b0b3cd63ad12ca6be8c999c4f9e57a118
+DEL-04-07:SOW#CLM-003,projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md,2631a2fedc5f95723201f10c87ba66367800fd771ebbc86844f25020ca3c3150,33,"### CLM-003 — DEL-04-07-REQ-003
+
+Own the product adapter implementation of section/mass conversion against DEL-03-08 contracts, including an explicit corrosion-allowance difference assessment and rejection or disclosure of unsupported inputs.
+
+### CLM-004 — DEL-04-07-REQ-004
+
+Preserve typed diagnostic, unit and provenance information across product composition and result handoff.",b46ccc3f525afb8da812305c734ecd73349e42b09b8a8ffe72cd2958e8edd071
+DEL-04-07:SOW#CLM-004,projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md,2631a2fedc5f95723201f10c87ba66367800fd771ebbc86844f25020ca3c3150,37,"### CLM-004 — DEL-04-07-REQ-004
+
+Preserve typed diagnostic, unit and provenance information across product composition and result handoff.
+
+## Completion and Reliance Basis — Epistemology
+
+Each requirement needs named candidate-bound evidence. Existing code, route visibility or historical tests alone do not establish current conformance.",894c0e8377f78932c8d3e236966dc4b14b5643b945bb8dc9c2eefebc4e89473f
+DEL-07-01:SOW#CLM-033,projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/ScopeOfWork.md,c6925679b25ce87c0ce22ae2beb1f9d5113e50b0dd2d2224c52c0f10ca6445f5,410,"### CLM-033 — SCA-011 Palette implementation
+
+**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
+
+Own palette rendering and routing under DEL-07-09 vocabulary coverage and single organization contract, including CAP-VIEW-025/026. Commands use the PKG-16 seam, whose application owner is DEL-16-06; no reverse execution prerequisite to the coverage consumer is implied.
+
+- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.",31141b360d13eed04cac0728607163e2b60802f14a5d566e690561ae03f6dbdc
+DEL-07-02:SOW#CLM-038,projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/ScopeOfWork.md,c5dfbee5a2f135c72a88eff2be772972f025d629951265dfe444f3c6ff53b3ca,400,"### CLM-038 — SCA-011 Generic and support editing
+
+**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
+
+Own generic tree/table/inspector create/edit/delete interaction with unit/provenance preservation, including support/restraint creation and editing and generic selected-load inspection. DEL-07-03 owns load-manager editing. DEL-07-09 remains R-006 coverage-accountability owner; no dedicated support-editor slice is activated.
+
+- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.",5ded6326aa8d47db3f67dedf8a5370a5b22987f6c981a7c6c52c11622888d462
+DEL-07-03:SOW#CLM-042,"projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/ScopeOfWork.md",c1ba81658e3e0a2d5f77db447dddbde03410975f2dbe6d000941ae572a0eda15,558,"### CLM-042 — SCA-011 Load, library and self-weight interaction
+
+**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
+
+Own load-case/combination editing, self-weight-plan interaction and material/section/component/library editors through PKG-16. R-005 implementation lands here; R-006 support implementation lands in DEL-07-02; DEL-07-09 retains coverage accountability. Hanger libraries remain user-imported under DEC-103, with schema/provenance DEL-03-02/07.
+
+- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.",8ae81f808d57b1bb3b6bead11c9b411bbe6c8dfbb2377615191ea3efb55abdc0
+DEL-07-04:SOW#CLM-033,projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/ScopeOfWork.md,f87b2e7144cc9779e0b768517fab12b4b67e3d08b009ee969cfc84a95ce88907,376,"### CLM-033 — SCA-011 Rule-check and unit-aware warning interaction
+
+**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
+
+Own rule-check run interaction and aggregate status presentation (CAP-FEATB-008/009, CAP-WSUI-035) and shared unit-aware warning presentation (CAP-COREB-030). PKG-06 retains rule semantics/runner APIs, DEL-05-04 status semantics and DEL-02-02 units.
+
+- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.",5e41e592d4327511bbf09663712d33816608c5defd78a234068ec03badb89def
+DEL-07-08:SOW#CLM-030,projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/ScopeOfWork.md,3215dd14bd6757747dab1d0c17b7485feafc08075b8d5afcc2a3032585037eb3,344,"### CLM-030 — SCA-011 Feature interaction and shared shell boundary
+
+**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
+
+Retain operation review/apply interaction and ledger presentation (CAP-WSUI-027/028/029), offline/agent proposal review and comparison workflows. DEL-07-11 owns common shell/session coordination (CAP-WSUI-011/012), DEL-16-06 execution, and DEL-14-05 the common comparison interface. Existing extraction/run evidence remains here as historical provenance.
+
+- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.",79de29bf12cfeac4ebd16c7dd01a20881f3dbcbdd6c7b17e3d896d3ceacc5397
+DEL-07-09:CONTEXT#sca-011-responsibility,projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_CONTEXT.md,3bd7565c75fcccbaf07dde7c91448a7384223451d6f555a178de0aca9d524997,66,"## SCA-011 responsibility
+
+Applied under the SCA-011 Group 2 decision; audited poststate acceptance is recorded in the SCA-011 Group 3 closure. R-005/R-006 are coverage-accountability landings only: load/combination editing DEL-07-03, support editing DEL-07-02, palette rendering/routing DEL-07-01. OPEN lifecycle preserved. Coverage and palette organization remain here; implementation follows the successor `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/Vocabulary_Annex.md`. The historical SCA-009 annex and acceptance record remain unchanged. No SoW, implementation dispatch or lifecycle promotion is created for this OPEN contract.",7f4c4a49123494fd88fd6aa317d1f5466eec82dfc60a71fc3e7f12f5e4d05c16
+DEL-07-11:SOW#CLM-001,projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md,02d58be021ceac3af30d942d575f0c59d1ae8e5ee1a25e7f6bc8db85a2d2dec7,25,"### CLM-001 — DEL-07-11-REQ-001
+
+Dispatch shell navigation, panel mounting, jobs and explicit file operations to their owning services while preserving source/result identity.
+
+### CLM-002 — DEL-07-11-REQ-002
+
+Coordinate shared selection and session history while separating transient session state from durable state stored by DEL-02-05 and run records owned by DEL-14-02.",447af84cb04228817cb408aa7a88488807e5fa04a08b443cb92cc6166fbe3e9b
+DEL-07-11:SOW#CLM-002,projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md,02d58be021ceac3af30d942d575f0c59d1ae8e5ee1a25e7f6bc8db85a2d2dec7,29,"### CLM-002 — DEL-07-11-REQ-002
+
+Coordinate shared selection and session history while separating transient session state from durable state stored by DEL-02-05 and run records owned by DEL-14-02.
+
+### CLM-003 — DEL-07-11-REQ-003
+
+Preserve native-host security configuration implementation, user-controlled private-data boundaries, cancellation, interruption and recoverable session behavior.",a9ffb392bedd508136a4cf591305b7981408b4140f8e749e66d2aaaba5fc2c91
+DEL-07-11:SOW#CLM-003,projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md,02d58be021ceac3af30d942d575f0c59d1ae8e5ee1a25e7f6bc8db85a2d2dec7,33,"### CLM-003 — DEL-07-11-REQ-003
+
+Preserve native-host security configuration implementation, user-controlled private-data boundaries, cancellation, interruption and recoverable session behavior.
+
+### CLM-004 — DEL-07-11-REQ-004
+
+Conform common focus, keyboard and accessibility behavior to DEL-07-06 while feature panels retain their semantics.",9690ae64be0f8268f7106d6d0a9e5b6c545ff8c0e87cbcc05effd899cb60c78e
+DEL-07-11:SOW#CLM-004,projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md,02d58be021ceac3af30d942d575f0c59d1ae8e5ee1a25e7f6bc8db85a2d2dec7,37,"### CLM-004 — DEL-07-11-REQ-004
+
+Conform common focus, keyboard and accessibility behavior to DEL-07-06 while feature panels retain their semantics.
+
+## Completion and Reliance Basis — Epistemology
+
+Each requirement needs named candidate-bound evidence. Existing code, route visibility or historical tests alone do not establish current conformance.",de4d54dd4edb12850b59e5be23e7f9286cb16d542f2d4395a6debc14a684eb12
+DEL-07-12:SOW#CLM-001,projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md,930296e130c972bfa1b28b0d67f70327c618ae11dab599a808bc31e6cb72f11b,25,"### CLM-001 — DEL-07-12-REQ-001
+
+Show the consumed record family, version and identity; validate against the owning contract before presenting a record as actual current product output.
+
+### CLM-002 — DEL-07-12-REQ-002
+
+Preserve diagnostic, unit, provenance, loss and unsupported-behavior information through presentation and explicit export dispatch.",bbf0fb2e7521ed8bc7a58dc3a483cf50b8930a3ef13bbdf357606b86cff6cb08
+DEL-08-04:SOW#DEL-08-04-SCA011-REQ-001,"projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/ScopeOfWork.md",0dc98d50be37e8a5660f09fd23ea4bb06b753a90a5e0ab4b1062c5b48e43c303,348,"- **DEL-08-04-SCA011-REQ-001** — Consumes and maps the DEL-14-05 common comparison-result/export interface into general result exports; does not own comparison mathematics or tolerance policy. Existing accepted 0.1/0.2 result contracts and raw-source preservation remain governing.
+- **DEL-08-04-SCA011-VER-001** — Bind comparison mapping/export round trips to the accepted version of the DEL-14-05 interface before claiming comparison-envelope conformance. Preserve source identity, diagnostics, units, raw rows, unmatched records, hashes and professional boundaries.
+
+Named preparation artifact: `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/ComparisonResult.v0.1.draft.schema.json`, with field decisions and semantic checks in `INTERFACE_CONTRACTS.md`. This identifies an accountable contract preparation surface; its wire fields/version are unaccepted design deltas, not deployed schemas. Scope adoption alone neither validates existing preview payloads nor activates a new API, runtime, persistence format, external process or compatibility window. Existing requirements, exclusions and lifecycle remain in force.",b46015959a60c157affbd2a6d77501060c1dbc9ac93b73e910942ba6c4756e76
+DEL-13-03:SOW#DEL-13-03-SCA011-REQ-001,projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/ScopeOfWork.md,4ca50c3fbf18e6f3d6f96e3626f717903855b3521b8ea80d4a95b74e140c6332,407,"- **DEL-13-03-SCA011-REQ-001** — Owns the ValidationResult production contract and its authoritative versioned schema. Available Python diagnostics remain evidence of the current mechanism, not a substitute for the accepted production envelope.
+- **DEL-13-03-SCA011-VER-001** — PDU-023 now has the DEL-13-03 responsibility home through SCA-011; schema acceptance, application-service binding and per-value/runtime trace production remain outstanding. No GUI/runtime activation or geometric solving is inferred.
+
+Named preparation artifact: `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/ValidationResult.v0.1.draft.schema.json`, with field decisions and semantic checks in `INTERFACE_CONTRACTS.md`. This identifies an accountable contract preparation surface; its wire fields/version are unaccepted design deltas, not deployed schemas. Scope adoption alone neither validates existing preview payloads nor activates a new API, runtime, persistence format, external process or compatibility window. Existing requirements, exclusions and lifecycle remain in force.",efc2231f24d7de72df046d1af5dc606fd55fc56d31539349ee1e72168fc4e229
+DEL-13-04:SOW#DEL-13-04-SCA011-REQ-001,projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/ScopeOfWork.md,f9e838101d117f51a374450f2555b976dedb415aa97d16331aad338ca2850507,652,"- **DEL-13-04-SCA011-REQ-001** — Owns the TransformResult production contract and its authoritative versioned schema, preserving physical source identity, analytical derivation, units, diagnostics and traceability.
+- **DEL-13-04-SCA011-VER-001** — PDU-023 now has the DEL-13-04 responsibility home through SCA-011; accepted envelope binding and wider scalar/runtime trace evidence remain outstanding. DEL-13-04-REQ-012 remains unchanged: the internal solver-boundary adapter is not a public API, GUI/runtime path, external prover path or final solver-acceptance claim.
+
+Named preparation artifact: `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/TransformResult.v0.1.draft.schema.json`, with field decisions and semantic checks in `INTERFACE_CONTRACTS.md`. This identifies an accountable contract preparation surface; its wire fields/version are unaccepted design deltas, not deployed schemas. Scope adoption alone neither validates existing preview payloads nor activates a new API, runtime, persistence format, external process or compatibility window. Existing requirements, exclusions and lifecycle remain in force.",f32a58ce12c57a020fbb1756122804abc1a7fe97d9a47af0895bd63572ba3772
+DEL-14-03:SOW#DEL-14-03-SCA011-REQ-001,"projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine/ScopeOfWork.md",3d886e600451d7befd7d3379b2b011c539295fc3ea5421d9decad9dfc3bfa297,379,"- **DEL-14-03-SCA011-REQ-001** — Produces model-state comparison outputs against the common versioned comparison-result/export interface owned by DEL-14-05, retaining structural stable-ID/manual mapping semantics and no built-in conversion.
+- **DEL-14-03-SCA011-VER-001** — Demonstrate valid/invalid schema witnesses, deterministic source-preserving mapping and export round trips after the DEL-14-05 output schema is accepted. Existing human-review dispositions remain open.
+
+Named preparation artifact: `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/ComparisonResult.v0.1.draft.schema.json`, with field decisions and semantic checks in `INTERFACE_CONTRACTS.md`. This identifies an accountable contract preparation surface; its wire fields/version are unaccepted design deltas, not deployed schemas. Scope adoption alone neither validates existing preview payloads nor activates a new API, runtime, persistence format, external process or compatibility window. Existing requirements, exclusions and lifecycle remain in force.",f66976d96fea4674b8ebe2c6feb3464d48d6011ba1990c44888ad531960aaff5
+DEL-14-04:SOW#DEL-14-04-SCA011-REQ-001,"projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/ScopeOfWork.md",0500b58cb9d2b28a86285b0baf9c48ccd7bbe102dd8f1d7e6f58c317e13d1008,471,"- **DEL-14-04-SCA011-REQ-001** — Produces analysis-run comparison outputs against the common versioned comparison-result/export interface owned by DEL-14-05; unit-normalization mathematics and comparison execution remain here.
+- **DEL-14-04-SCA011-VER-001** — PDU-011 has a named output-schema owner at DEL-14-05, but output-schema acceptance and producer conformance remain outstanding. PDU-047 engineering suitability and governed tolerance values remain held; a schema draft or structural check does not discharge either.
+
+Named preparation artifact: `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/ComparisonResult.v0.1.draft.schema.json`, with field decisions and semantic checks in `INTERFACE_CONTRACTS.md`. This identifies an accountable contract preparation surface; its wire fields/version are unaccepted design deltas, not deployed schemas. Scope adoption alone neither validates existing preview payloads nor activates a new API, runtime, persistence format, external process or compatibility window. Existing requirements, exclusions and lifecycle remain in force.",5253a0f961b5e60e7f03013732966b5900d3838c3a3a8c0ce6c13d97148f0590
+DEL-14-05:SOW#DEL-14-05-SCA011-REQ-001,"projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/ScopeOfWork.md",cce6e76c745c9bd97874acda9d8d8d8923ba3dfe9333d9ea43020aa9c0e443c1,381,"- **DEL-14-05-SCA011-REQ-001** — Owns the common comparison-result/export interface and authoritative versioned schema, alongside existing mapping/tolerance contracts. DEL-14-03 and DEL-14-04 produce it; DEL-08-04 consumes/maps it.
+- **DEL-14-05-SCA011-VER-001** — Review and accept the named ComparisonResult draft or its explicit successor before producer conformance claims; bind mapping, unmatched accounting, tolerance references, units, diagnostics and reporting handoff without selecting numeric tolerances or report layout.
+
+Named preparation artifact: `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/ComparisonResult.v0.1.draft.schema.json`, with field decisions and semantic checks in `INTERFACE_CONTRACTS.md`. This identifies an accountable contract preparation surface; its wire fields/version are unaccepted design deltas, not deployed schemas. Scope adoption alone neither validates existing preview payloads nor activates a new API, runtime, persistence format, external process or compatibility window. Existing requirements, exclusions and lifecycle remain in force.",0bebcd2a615ae50c7f805a6afb6822ac6350fed5305affa2884306a761c6a6e0
+DEL-16-02:SOW#CLM-027,projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/ScopeOfWork.md,766f9567c9cb8cc8d33ef596392e2df0dc1f7e8ee18397f383b2870c360c38fb,351,"### CLM-027 — SCA-011 Validation-to-application handoff
+
+**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
+
+Retain schema/constraint validation and deterministic preview with accepted-state nonmutation. DEL-16-03 owns explicit user acceptance and audit policy; DEL-16-06 owns application execution. Neither key-presence checks nor preview tests substitute for schema conformance or actual product application evidence.
+
+- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.",b23ff7e804a792c27db4354eb76b5f722c4ae4657d3e58bf47441671783150ac
+DEL-16-03:SOW#CLM-029,projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/ScopeOfWork.md,d6d1b9854ecc98137082b1a2eb1427b0a65d7602b7ec062d36f2db0db98e0bc1,361,"### CLM-029 — SCA-011 Acceptance-to-application handoff
+
+**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
+
+Retain acceptance and audit record policy without applying operations or mutating accepted state. DEL-16-06 owns controlled application and returns actual outcomes; DEL-02-05 owns durable persistence. Pre-application accepted decisions and post-application outcome receipts are distinct. Actor type alone is not identity evidence; retention, actor policy and durable history remain open.
+
+- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.",9f160a212b4440e8a0d6490d688e8c0644e3591b8878d997070c2f1404c14084
+DEL-16-06:SOW#CLM-001,projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md,44f3ae1326a7800cc7aa70a3e00f66ed7d74a2fef2473e1bda28e81f90334568,25,"### CLM-001 — DEL-16-06-REQ-001
+
+Apply only an explicitly accepted, schema/constraint-valid, previewed structured operation whose current model hash matches its accepted basis.
+
+### CLM-002 — DEL-16-06-REQ-002
+
+Preserve rejected, invalid, blocked and stale-basis state without mutation or success-shaped receipts.",92cff26c0fb560f5a836f3be926cee22dd02830e13c6d51a8ef8c9a20743d905
+DEL-16-06:SOW#CLM-002,projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md,44f3ae1326a7800cc7aa70a3e00f66ed7d74a2fef2473e1bda28e81f90334568,29,"### CLM-002 — DEL-16-06-REQ-002
+
+Preserve rejected, invalid, blocked and stale-basis state without mutation or success-shaped receipts.
+
+### CLM-003 — DEL-16-06-REQ-003
+
+Use the sole DEC-020 operation engine with equivalent native/wasm behavior for supported operations; preserve owned schema/taxonomy semantics.",85b293ba9a759315155ddef5cd891c10a70219253fde74edf8f2e48a59502524
+DEL-16-06:SOW#CLM-003,projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md,44f3ae1326a7800cc7aa70a3e00f66ed7d74a2fef2473e1bda28e81f90334568,33,"### CLM-003 — DEL-16-06-REQ-003
+
+Use the sole DEC-020 operation engine with equivalent native/wasm behavior for supported operations; preserve owned schema/taxonomy semantics.
+
+### CLM-004 — DEL-16-06-REQ-004
+
+Return deterministic changed-state/result evidence for the accepted change and hand actual outcomes to DEL-16-03 audit and DEL-02-05 persistence without creating another mutation route.",434a08bf9d0f8dcee354e9adb0f7a8fc516d32aaff2282e15b1eb6d957697218
+DEL-16-06:SOW#CLM-004,projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md,44f3ae1326a7800cc7aa70a3e00f66ed7d74a2fef2473e1bda28e81f90334568,37,"### CLM-004 — DEL-16-06-REQ-004
+
+Return deterministic changed-state/result evidence for the accepted change and hand actual outcomes to DEL-16-03 audit and DEL-02-05 persistence without creating another mutation route.
+
+## Completion and Reliance Basis — Epistemology
+
+Each requirement needs named candidate-bound evidence. Existing code, route visibility or historical tests alone do not establish current conformance.",4247c039273f53ed6739890fe6b9f6dacb005b811c94421b23bbba074ce1a06f

@@ -63,5 +63,5 @@ Implement missing-data warning/blocking UX, rule-check run interaction and aggre
 
 ## SCA-011 responsibility
 
-Applied under the SCA-011 Group 2 decision; audited poststate acceptance remains pending Group 3. GUI consumes PKG-06 runner, DEL-05-04 status and DEL-02-02 units; no numerical or rule-policy ownership transfer.
+Applied under the SCA-011 Group 2 decision; audited poststate acceptance is recorded in the SCA-011 Group 3 closure. GUI consumes PKG-06 runner, DEL-05-04 status and DEL-02-02 units; no numerical or rule-policy ownership transfer.
 The amended Deliverables and ContextBudgetQA rows govern this allocation; existing state and implementation evidence remain separately bound.

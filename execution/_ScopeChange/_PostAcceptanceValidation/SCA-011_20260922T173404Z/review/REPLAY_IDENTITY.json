@@ -1,0 +1,11 @@
+{
+  "original": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/active_audit/audit_active_state.py",
+  "original_sha256": "1c72f295ca48d727b225c2756f8795c9293ba07e990880ec5a189669363c768f",
+  "adapted_sha256": "547dffe111a1f34d6ac493dae700b11cb161cf4352f9f34863c67c95c7cda2f5",
+  "adaptation": "Only output directory and execution task/write-scope attribution changed; predicates unchanged.",
+  "command": [
+    "python3",
+    "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/review/audit_replay.py"
+  ],
+  "exit_code": 0
+}
