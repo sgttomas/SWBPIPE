@@ -184,5 +184,19 @@
   ]
  },
  "claimFence": "Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).",
- "surfaceBoundary": "D-73 packet Item 5a-5d"
+ "surfaceBoundary": "D-73 packet Item 5a-5d",
+ "current_continuation": {
+  "recorded": "2026-09-22",
+  "authority": "D-73 execution addendum 2026-09-22; current owner R5/R6 instruction",
+  "repaired_revision": "0407cb978a960f600bd5f933835f45f49f05b1c8",
+  "upstream_instruction_basis": "9b7ac5fb3c7f06cec35f24de8ebba8331bb95ac8",
+  "status": "Bounded R5/R6 record-repair tranche executed and independently backchecked. PR #847 records the final integrated-candidate CI and Git outcome.",
+  "phase_cursor": "execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/BACKCHECK/R6_2026-09-22/HANDOFF.md",
+  "integration_record_repo_relative": "execution/_Coordination/AgentRuns/HELP-HUMAN-20260922-CROSS-PROJECT-R5R6/UPSTREAM_INTEGRATION.md",
+  "integration_pr": "https://github.com/sgttomas/chirality/pull/847",
+  "earlier_fields": "Original nodes, state, basis, model and mechanism remain historical execution records. This continuation controls current recovery; do not repeat their old activation or R4 permission stops.",
+  "current_execution": "Codex native HELP_HUMAN / WORKING_ITEMS / TASK collaboration, with actual attribution in the linked Root run.",
+  "method": "Existing whole-corpus reconciliation retained, including its recorded prospective Revision 2 rider; no switch to bounded-reconciliation.",
+  "next_safe_action": "Inspect PR #847 and complete actual-candidate CI/merge if pending. If merged, retain this completed bounded tranche and its residuals in the selected graph; do not begin a new development phase or discharge substantive holds."
+ }
 }

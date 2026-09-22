@@ -1,259 +1,107 @@
-# Piping development — recurrent loop
+# Piping development loop
 
-This file holds the recurrent procedure and discovery guidance. Current work
-and status belong in the owning run; priorities and phase transitions come from
-the owner's steering. Historical dated `WORKPLAN_*.md` files remain at their
-cited paths but are not selected or executed as loop instructions.
+Resolve `REPO_ROOT` from the active checkout. `WORKING_ROOT` is
+`{REPO_ROOT}/projects/chirality-piping`; paths below are relative to it.
+Work as HELP_HUMAN within the owner's assignment and applicable project
+instructions. This file locates the work and describes how to continue it.
 
-Resolve `REPO_ROOT` with `git rev-parse --show-toplevel` and `WORKING_ROOT` as
-`{REPO_ROOT}/projects/chirality-piping`. Read root `AGENTS.md`, the active role
-instructions and `{WORKING_ROOT}/AGENTS.md` for project-specific constraints.
+**Current work graph:** `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260921-RECONCILIATION/WORK_GRAPH.json`
 
-## Discovery and steering
+## Project pointers
 
-Use the owner's assignment to identify the owning run. Read its work graph,
-latest handoff, recorded directions and applicable plan/specifications. Inspect
-named branch and worktree state, including unmerged work, before proposing new
-implementation. When no run is identified, validate `loop/LOOP_RECEIPTS.md` with
-`tools/validation/validate_piping_loop_receipts.py --repo-root .`, then use its
-latest applicable pointers to discover the current run records and coordination
-notices. A receipt is navigation and history, not an instruction to repeat its
-completed work. Report the proposed continuation; do not restart historical
-work by default. A failed receipt check blocks reliance on that cursor, not
-independent work with a verified basis.
+- Purpose and scope: `docs/PRD.md`, `execution/_Decomposition/SOFTWARE_DECOMP.md`,
+  and applicable amendments or design specifications cited by the graph.
+- Phase dependency basis: `execution/_DAG/_LATEST.md`.
+- Deliverables: relevant `execution/PKG-*/1_Working/DEL-*/` folders, especially
+  `ScopeOfWork.md`, `_STATUS.md`, `MEMORY.md`, and dependency records.
+- Decisions and constraints: project `AGENTS.md`, applicable entries in
+  `execution/_Coordination/_DECISIONS/_REGISTER.md`, and routed notices.
+- Verification: `software-workflow.json`; use the affected engineering,
+  native-host and product checks identified by project `AGENTS.md`.
 
-Apply the owner's current directions and any per-run steer, including an
-owner-supplied handoff prompt, the launcher's steer or the owning run's direction
-record. Keep specific priorities, lane and worktree identities,
-active handoff paths, pause conditions and next actions in those state or
-steering records, not in these recurrent instructions. Distinguish a recorded
-owner direction from the previous agent's recommendation.
+Follow references when they matter to the assignment. Historical plans, receipts
+and run folders can supply evidence and help locate unfinished work.
 
-Return a short orientation and the proposed next bounded work. Apply the
-project's discovery, strategy, testing, review and integration requirements.
-Continue under existing authority and an applicable approved strategy; bring
-the owner only consequential choices or unresolved authority conflicts. A
-handoff's procedural habit does not create a new owner gate.
+## 0. Orient and recover
 
-## Stable source pointers
+Read the current graph and the owner's latest direction. Follow any phase cursor
+linked by the graph or its handoff; existing runs retain their selected method,
+pinned basis and owner gates until their own adoption. Check its objective,
+basis, ready work, holds and recovery information against the actual branch,
+working tree and referenced evidence, including unmerged work in named worktrees.
+An interrupted node may have produced work after its last graph update; inspect
+that work before repeating or claiming it. Preserve unrelated changes.
+Before reassigning active work, files or shared test resources, verify that the
+prior workers/checks have stopped or explicitly transfer their ownership.
 
-Resolve these paths relative to `WORKING_ROOT` as needed for the assignment:
+A missing or contradictory graph target needs recovery; it does not mean no
+graph exists. If the owner names another graph, establish which undertaking is
+being continued and update the pointer when the selection is settled. An owner
+pause remains a pause until resumed. Report the next useful work concisely.
 
-- Owner decisions: `execution/_Coordination/_DECISIONS/_REGISTER.md` and its
-  cited rulings; coordination notices and run records under
-  `execution/_Coordination/`.
-- Project DAG: the accepted snapshot named by `execution/_DAG/_LATEST.md`.
-- Deliverable basis: `execution/_Decomposition/SOFTWARE_DECOMP.md` and relevant
-  deliverable specifications, contracts and Remaining entries.
-- Product requirements and checks: `docs/PRD.md`, `software-workflow.json`.
-- Session continuity: `loop/LOOP_RECEIPTS.md` and the owning run's work graph
-  and handoff. Receipts and notices are pointers and evidence, not authority.
+Before using a historical receipt as a recovery cursor, run the repository's
+`python3 tools/validation/validate_piping_loop_receipts.py --repo-root .`. A failed
+cursor cannot be relied on; independent work with a verified basis can continue.
 
-## Organise the undertaking
+## 1. Construct or revise the local graph
 
-Begin with the owner's assignment, the owning run's work graph, latest handoff,
-recorded owner directions and relevant specifications. Verify their material
-claims against actual code, branch heads, worktrees and evidence before relying
-on them. Inspect named unmerged lanes: work absent from main may already exist
-there. Preserve unrelated changes and parked work. Do not recreate existing work.
+When the pointer is `none`, use `construct-local-work-graph` from the bundled
+`chirality-root` library to interpret the init steering and subsequent chat,
+clarify material gaps, and select a route through the phase DAG. Develop the
+relevant deliverables and current code into sufficiently detailed work scope.
+Save its graph, replace the pointer above with the project-relative path, and
+begin following it within the agreed scope. If an objective cannot be inferred,
+establish it with the owner. A completed graph does not start another phase.
 
-Give the owner a concise orientation: what exists, what remains, discrepancies
-that matter and the next bounded work. A material conflict in authority, scope
-or candidate identity blocks the affected action. Report minor documentary
-drift and correct it within scope without stopping independent work. Repository
-state establishes what exists; it does not overrule the owner's direction.
+For an existing graph, use the same method when the work needs restructuring.
+Keep the graph's identity and useful completed results; update dependencies,
+verification and reconciliation work as discoveries require. A graph translates
+the phase DAG into executable work; changes to the accepted project basis follow
+their owning decision path.
 
-Maintain a work graph for the undertaking under
-`execution/_Coordination/AgentRuns/<RUN_ID>/`. Choose its structure to suit the
-work. Record each slice's state, dependencies and blockers, named semantic
-changes, departures from specification, deferred work and when it retires, and
-evidence pointers. Derive handoffs from this graph. Keep one canonical copy of
-evidence in the owning run, with hash references where needed.
+## 2. Organize and advance ready work
 
-The project DAG describes project-wide deliverables and dependencies. Its
-structure is expected to remain relatively stable while being rebuilt for each
-project phase under owner direction. The owner steers phase transitions; agents
-do not infer or initiate them from apparent progress.
+Use Agent 0/1/2 responsibilities to coordinate, manage and execute bounded work.
+Each assignment has a clear outcome, applicable basis, write scope and checks.
+Run independent work concurrently; serialize shared writes and test resources.
+Follow work dependencies and existing holds. Bring consequential choices beyond
+the assignment to the owner while independent authorized work continues.
 
-The session work graph translates that broader structure into executable work
-at the detail needed for the undertaking. It replaces the session workplan;
-no separate workplan or dated workplan selector is required. Maintain traceable
-links to the current phase's accepted DAG and relevant deliverables, marking
-uncertain mappings as provisional. Record newly discovered dependencies,
-departures and gaps for the next owner-directed reconciliation. The session
-graph does not silently amend the project DAG or close deliverable commitments.
+## 3. Execute, verify and record the result
 
-Keep run evidence in its owning run rather than guessing a deliverable home.
-Existing deliverables, decisions and approved dependency snapshots remain valid
-in their own domains. Reconcile scope and status, and rebuild the project DAG,
-when the owner directs that phase work. No DAG rebuild is required at session
-entry or merely because a work graph changes.
+Build, investigate, test, review and repair until the node's completion conditions
+are supported. Apply project checks and independent review to the actual
+candidate. Record what changed, the evidence, limitations and remaining work in
+the graph or its linked result. Keep supporting evidence in the undertaking
+folder or an appropriate existing artifact; avoid copying it into several logs.
+Update graph state at meaningful changes so another session can continue.
 
-Discover enough to propose a delegation and model strategy before substantial
-implementation or agent launches. Explain what Agent 0 will do, delegated
-responsibilities, model/effort choices, concurrent work, write scopes and
-integration/review ownership. Use recorded experience where it helps. Obtain
-the owner's agreement to the strategy, then proceed within it; revisit material
-changes. An already approved applicable strategy satisfies this step. Read-only
-discovery, preparation of the proposal and bounded decision packages may proceed
-before that agreement. Cost estimates are not required.
+## 4. Reconcile bounded results
 
-## Delegation and coordination
+Traverse planned `bounded-reconciliation` nodes from the bundled
+`chirality-root` library as coherent results become available. These assignments
+reconcile the actual contents of affected deliverable folders with the code
+and evidence: scope descriptions and requirements, Remaining items, dependencies
+and supporting references as warranted. Update the named sections within the
+assignment, preserving future requirements and unresolved departures.
+Implementation and reconciliation completion remain separately visible.
 
-Choose agent types by responsibility and delegation needs, not task complexity
-or reasoning level. Use managers when coordinated implementation and repair
-cycles benefit from them; dispatch bounded specialists directly where useful.
-No package-by-package manager roster or separate Git-closeout role is mandatory.
-Keep canonical role instructions at root authoritative rather than recreating a
-role hierarchy here.
+Reconciliation can proceed alongside independent implementation. A dependent
+node that needs an updated deliverable record waits for that reconciliation;
+unrelated work need not wait. A larger scope or dependency conflict becomes
+explicit follow-on work or an owner decision.
 
-Seal each delegated brief before launch. It identifies the objective, relevant
-context and hashes, parent, role, tools, write scope, constraints, expected
-output and checks. The parent launches its children, observes progress and
-validates their returns. Retain returns verbatim with hashes and actual model
-and reasoning settings, plus findings, substitutions and dispositions. Record
-host enforcement limits honestly. Type 2 instances do not delegate.
+## 5. Continue, pause or complete
 
-For a small read-only assignment, a launch message retained verbatim before
-dispatch may itself be the sealed brief. Keep the same necessary purpose,
-context identity, parent/role, tools and read-only boundary, expected return and
-checks; no separate elaborate brief file is required. Preserve its hash and
-return in the owning run. Scale the detail to the assignment, not its role type.
+Continue from the graph while ready authorized work remains. At a meaningful
+checkpoint or transfer, refresh its recovery information: source revision and
+uncommitted work, outstanding checks, evidence locations, blockers or owner
+decisions, and the next safe action. Keep necessary evidence recoverable outside
+temporary worktrees. A separate session handoff or receipt is unnecessary when
+the graph already contains the continuation facts.
 
-Parallelise work with clear dependencies and disjoint writes. Give shared files
-one integration owner. Serialize access to native/browser state and other shared
-test resources when concurrent use would invalidate results. Intervene when
-repeated repair attempts yield no new evidence; change the diagnosis or split
-the problem instead of repeating an unproductive approach.
-
-## Decisions
-
-Use engineering judgment inside the authorised scope. Established exemplars
-and consistency in ontology, epistemology, praxeology and axiology inform that
-judgment; they are guides, not mandatory approval gates. Distinguish verified
-exemplar behaviour from inference. Present consequential conflicts or choices
-requiring owner judgment as a bounded package with evidence and a recommendation.
-
-Disclose departures from specification, their rationale and how to reverse them.
-A departure that conflicts with an explicit owner decision or protected criterion
-requires an owner decision before it takes effect. Do not manufacture approvals
-from silence. Record the owner's words verbatim and distinguish them from agent
-interpretations and decisions.
-
-An explicit ruling, a specifically adopted choice or a protected criterion
-cannot be reversed by an agent. Other implementation departures may be decided
-within delegated discretion and disclosed with their rationale and reversal
-method. An approved specification is not automatically optional: read its terms
-and the owner's direction to distinguish fixed requirements from implementation
-discretion. Bring a conflict with a fixed requirement to the owner before acting.
-
-## Build and test through user workflows
-
-Implement bounded slices with explicit observable outcomes. Maintain the work
-graph while implementing, testing, fixing and integrating; record discovered
-gaps and exclusions instead of implying whole-project completion.
-
-Exercise changed user workflows as soon as they are operable. Use actual
-pointer/keyboard interaction, native computer use and suitable automation to
-test what users can accomplish, alongside focused code tests. Do not wait for
-the final appearance pass to find interaction and state defects.
-
-As connected functionality becomes available, extend a reusable scenario set
-covering authoring, selecting, editing, review/apply, solving, inspecting results,
-undo/redo, save and reopen. Include interruptions, cancellation, invalid input,
-recovery, keyboard use and relevant window sizes. Check the resulting model,
-history and result designation as well as visible feedback. Exercise human and
-equivalent typed operation routes where semantic equivalence is involved.
-
-Record candidate and environment, actions, expected and observed outcomes,
-failures and evidence. Fix defects within authority, add useful regression
-coverage and repeat affected scenarios. Repeat connected journeys after the
-visual pass. Report unavailable or blocked scenarios explicitly. Scale the
-scenario set to the slice; it is not a demand to run every scenario on every
-edit. Agent-driven behavioural testing does not substitute for independent
-practitioner usability work or lift its holds.
-
-When changed behaviour depends on native-host integration, verify it in the
-native application; browser evidence alone does not establish that behaviour.
-Identify the affected native scenarios in the slice's verification brief and
-report any unavailable witness explicitly. This does not require a full native
-sweep for every unrelated change.
-
-## Reproducible evidence
-
-For empirical claims, retain sufficient non-secret evidence for another
-person or agent to check and, where feasible, reproduce the result: input and
-candidate identities, relevant tool versions and environment, commands and
-arguments, expected and observed outcomes, and the necessary raw outputs.
-Keep a bounded rerun method and hash references to canonical evidence. Scale
-this record to the claim; ordinary documentation edits do not require a product
-qualification package. If required evidence cannot be retained or reproduced,
-state the limitation and withhold the unsupported claim. Never preserve secrets
-or private user models to satisfy an evidence requirement.
-
-## Protected checks, review and integration
-
-Never weaken a test or move a tolerance, oracle or limit to obtain a pass.
-When a protected check and the design disagree, preserve the check, bring the
-owner the measured conflict and a recommendation, and block the affected
-acceptance or merge. Check delegated changes for this failure mode as well.
-
-Every slice receives independent review of its complete frozen diff before
-merge, by a fresh-context reviewer who did not write it. Give the reviewer
-the requirements, source diff and evidence, with a brief to seek defects and
-unsupported claims. Same-model review must not be described as model diversity.
-Fix actionable findings and obtain backchecks before merge. Any subsequent
-candidate changes require review coverage; earlier review alone cannot cover
-new bytes. Reviews remain independent of the implementer's self-checks.
-
-Here a slice means a proposed mergeable change, including instructions and
-owner-direction records; a read-only dispatch is not itself a slice. Scale review
-depth to what the change can break. Small changes can have small independent
-reviews; backcheck the affected correction and its consequences rather than
-repeating the whole investigation without cause. This does not permit skipping
-required review, leaving a finding unchecked or treating later bytes as reviewed.
-
-Software work uses `software-workflow.json` under the root
-`docs/SOFTWARE_WORKFLOW_PROFILE.md` contract. Preserve the registered DEC-025
-evidence sweep and applicable practitioner-harness, self-check and receipt
-validation obligations. Run the evidence sweep on a clean candidate before
-every merge touching product code. Bind evidence to the actual candidate and
-record skipped, unavailable or failed checks explicitly. Required CI must pass
-on the candidate that merges. Never alter a check merely to accommodate this
-procedure revision; surface an actual contradiction for resolution.
-
-Use the host capabilities actually available. Where a required command needs
-host permission, use the host's supported approval mechanism. Where execution
-is unavailable or declined, record the command and outstanding verification.
-An execution denial or unavailable tool is not a pass; CI is not a substitute
-for a required native witness unless its owning criterion allows that.
-
-Use scoped branches and PRs. Preserve existing unmerged work; check upstream,
-candidate identity and the index before integration. Stage only authorised
-files and evidence. Standing Git authority applies to branch creation, commit,
-push, PR and merge; do not invent a second per-merge permission gate. Integrate
-upstream changes without discarding others' work, review the resulting candidate
-and rerun checks whose applicability changed. Escalate substantive conflicts
-that exceed existing authority. Do not force-push another contributor's branch.
-
-During long work, keep the graph current and create useful recoverable Git
-checkpoints at meaningful boundaries. Label incomplete work and unverified
-checks explicitly; do not weaken a check to make a checkpoint green. After an
-involuntary stop, inspect the branch, index and working tree before resuming:
-a checkpoint or handoff may not include the last edits. This is not a requirement
-to commit after every edit or to discard work that has not yet passed checks.
-
-Keep run state, evidence and a concise handoff current at closure or pause.
-At a meaningful pause or closure, append and validate a short loop receipt
-pointing to the owning run, including work needed for continuation.
-Existing loop receipts remain historical evidence with their append-only and
-validation rules; use a short reference to the run rather than duplicate its
-work graph or numerical evidence. Never rewrite old verdicts, returns or records
-to make them agree with a new procedure.
-
-A merged slice is not an accepted deliverable. Report observed test results
-without claiming usability, conformance, performance or owner acceptance.
-Explicit holds remain until lifted by the owner. Source-control closeout does
-not establish lifecycle issuance or engineering validation.
-
-Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+Complete the undertaking only when its completion conditions, including planned
+reconciliation, are met or remaining scope has an explicit agreed disposition.
+Retain the completed graph and its evidence references. Leave it selected until
+another undertaking is chosen; completion is not authority for a new phase,
+deliverable issuance or release.

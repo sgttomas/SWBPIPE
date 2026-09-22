@@ -1,5 +1,12 @@
 # Coordination Record
 
+> **Current procedure after local-work-graph adoption:** enter through
+> `loop/LOOP_INIT.md` and its selected graph. The graph supplies executable work
+> and recovery state; it does not replace project requirements, deliverable
+> authority or owner decisions. Bounded reconciliation updates affected records
+> within its assignment. Historical workplan, run and receipt procedures below
+> remain readable at their original authority and are not alternate selectors.
+
 **Epistemic status (rewritten 2026-07-10 at owner adoption, K-AUTH-1).** This
 file is now a ruled-record surface and pointer, not the operative protocol.
 The development-loop instructions live in the newest `WORKPLAN_*.md` under
