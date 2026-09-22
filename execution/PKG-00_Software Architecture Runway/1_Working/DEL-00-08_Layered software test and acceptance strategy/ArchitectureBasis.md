@@ -42,7 +42,7 @@ REQ-08-04 remains normative as stated: architecture acceptance gates do not clai
 
 The kit's original TBD slots (CI platform, test runner, coverage thresholds, GUI automation tooling, release matrix) have been resolved by cited human rulings recorded in `execution/_Coordination/_DECISIONS/_REGISTER.md` and codified in SOFTWARE_DECOMP.md §12:
 
-- **CI platform:** hosted CI deferred; the five-surface local evidence sweep is the commit-bound merge gate (with the F-4 atomic-build rider) — D-05 ruling, codified as `DEC-025`. Public sanitized-export repo CI (GitHub Actions) activates conditionally at first public publication behind the export pipeline — D-05b ruling, codified as `DEC-059`.
+- **CI platform:** DEC-093 permits the registered CI-produced surface-4 alternative with exact candidate and run binding; the host alternative remains valid. The historical DEC-025 posture was hosted CI deferred; the five-surface local evidence sweep is the commit-bound merge gate (with the F-4 atomic-build rider) — D-05 ruling, codified as `DEC-025`. Public sanitized-export repo CI (GitHub Actions) activates conditionally at first public publication behind the export pipeline — D-05b ruling, codified as `DEC-059`.
 - **Coverage tooling and thresholds:** `cargo-llvm-cov` / Vitest `--coverage` / `coverage.py`, telemetry recorded and never blocking; floor promotion only via the ruled trigger mechanism, no floor values set — D-04 ruling (`DEC-026`, class-tiered governed tolerance pairs) and D-04b ruling (`DEC-060`).
 - **Release matrix and installer/publication posture:** D-06 ruling, codified as `DEC-057` (including the `.opsproj` naming rider and evidence-gated matrix expansion).
 - **Convergence tolerances:** class-tiered convergence tolerance record by nonlinear support class with relative+absolute residual thresholds and iteration caps; unmeasured entries stay `TBD` — D-19 ruling, codified as `DEC-046`.
@@ -51,7 +51,7 @@ The kit's original TBD slots (CI platform, test runner, coverage thresholds, GUI
 
 | Anticipated (setup era) | Realized | Owner |
 |---|---|---|
-| `docs/architecture/test_strategy.md` | Never created under that name. The layered-test architecture is realized in the configured harness: `projects/chirality-piping/software-workflow.json` and `tools/release/run_evidence_sweep.py` (five-surface sweep), with on the order of 75–100 test files spanning schemas, security, GUI, and adapters (plus inline Rust test modules) | Release/evidence tooling |
+| `docs/architecture/test_strategy.md` | Never created under that name. The layered-test architecture is realized in the configured harness: `projects/chirality-piping/software-workflow.json` and `tools/release/run_evidence_sweep.py` (five-surface sweep), covering schemas, security, GUI, adapters, and Rust modules; exact inventory and results belong to revision-bound sweep evidence | Release/evidence tooling |
 | Acceptance gate matrix | Never created under that name. Realized as `docs/RELEASE_QUALITY_GATES.md` | Release governance docs |
 
 The realized layered-test harness matches this strategy and, per the PDU-054 declaration, is the current verification basis for implemented slices.
@@ -64,4 +64,4 @@ The realized layered-test harness matches this strategy and, per the PDU-054 dec
 
 ## Currency and provenance
 
-Consolidated 2026-07-15 per piping decision D-43 from the four-document kit (`Datasheet.md`, `Specification.md`, `Procedure.md`, `Guidance.md`) as reconciled by D-41 R5 T7 (PDU-054 currentness declarations). Prior wording, including setup-era framing, is preserved in git history; `MEMORY.md` is retained unchanged. Current upstream authority is SOFTWARE_DECOMP revision 0.9 with DAG-007 coordination.
+Consolidated 2026-07-15 per piping decision D-43 from the four-document kit (`Datasheet.md`, `Specification.md`, `Procedure.md`, `Guidance.md`) as reconciled by D-41 R5 T7 (PDU-054 currentness declarations). Prior wording, including setup-era framing, is preserved in git history; `MEMORY.md` is retained unchanged. Current upstream authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` with its accepted decisions; approved graph context is resolved through `execution/_DAG/_LATEST.md`.

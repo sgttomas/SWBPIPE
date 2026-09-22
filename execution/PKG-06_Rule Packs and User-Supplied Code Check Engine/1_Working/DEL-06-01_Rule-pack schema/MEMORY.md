@@ -1,5 +1,7 @@
 # MEMORY - DEL-06-01 Rule-pack schema
 
+Current navigation (2026-09-22 record repair): The undated Open Items below are the original schema-slice snapshot. DEC-022 resolves the grammar; evaluator, completeness, lifecycle and example realizations are recorded by their owners. Current requirements and uncovered integration/review work are in `ScopeOfWork.md` and `_STATUS.md`; the historical ledger is preserved.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-RULEPACKDECLLINTUNITS-001 supporting schema evidence
 
 - Supporting role for DEL-06-01: Report Content Lint now inventories the

@@ -1,0 +1,5 @@
+# Fresh semantic-review repair return
+
+Resumed under parent assignment after independent review. Preserved the current manifest and all manager additions; appended exact sequential edits. Directly inspected each of the 25 nonpin unchanged subjects: 15 remain unchanged with subject-specific warrants; the other10 receive carrier repairs. Also repaired the named storage/application, SDK schema/scope, first-geometry/sidecar, versioned layout and PCF carriers. The PCF Remaining section now carries its actual unresolved profile/source-binding/translator/identity/conformance work alongside RF-001.
+
+Current PRD source presence is distinguished from historical revision parity and accepted scope: no v0.4 Draft adoption is asserted. Centerline JSON-glTF construction does not narrow GLB or broader entity obligations. Metadata/schema presence does not activate loaders, permissions or external execution. No product tests were run. Exact cumulative replay from1b5adbf includes manager edits and passes. Source hashes bind the actual inspected sources; no broad parent change is relied on as implementation closure.

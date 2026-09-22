@@ -6,6 +6,8 @@
 ## Remaining
 - Complete remaining producer bindings outside the landed desktop state/run and comparison report-package seam, including solver/rule-check, handoff/adapter, rendered-report/export and external or non-JSON payload partitioning work. The bounded state/run and comparison binding has implementation evidence in `apps/desktop/src/features/report/reportPackageRequest.ts`, `stateComparisonHandoffSections.ts` beside it, and `core/reporting/report_package/src/lib.rs`. It does not close the other producer or partitioning residuals.
 
+- R5 retained delivery 2026-09-22 — DEL-08-06: retain claim-specific candidate-bound assembly checks and scoped protected/private-content review; source/test existence is not a result or whole-report acceptance. Claim refs: `DEL-08-06:SOW#CLM-014`, `DEL-08-06:SOW#CLM-022.r01`, `DEL-08-06:SOW#CLM-022.r02`, `DEL-08-06:SOW#CLM-022.r03`, `DEL-08-06:SOW#CLM-022.r04`, `DEL-08-06:SOW#CLM-022.r05`, `DEL-08-06:SOW#CLM-022.r06`, `DEL-08-06:SOW#CLM-022.r07`.
+
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T4 PDU-012/PDU-021/PDU-022/PDU-040 bound canonical persisted model-state/analysis-run records to backend report sections with warning/assumption/limitation/provenance/status preservation; no lifecycle or authority outcome changed.

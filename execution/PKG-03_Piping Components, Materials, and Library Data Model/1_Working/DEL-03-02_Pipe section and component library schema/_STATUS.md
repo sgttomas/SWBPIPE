@@ -1,11 +1,13 @@
 # Status: DEL-03-02 Pipe section and component library schema
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-09-22
 
 ## Remaining
+- Bind deterministic library-document persistence compatibility evidence to the implemented library import/serialization boundary or record its owning disposition. (R5 continuation claim references: DEL-03-02:SOW#production-and-verification-method-praxeology/VER-001.)
 
 ## History
+- 2026-09-22 - Added explicit grouped delivery/evidence tasks from the R5 record-continuation screening to Remaining; lifecycle, existing dispositions and acceptance boundaries remain unchanged. Evidence: `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG00_06/`.
 - 2026-07-12 - D-41 R5 T7 final status-only backcheck found no T7 defect outside the completed T1-T6 records; the concordance bootstrap was removed while lifecycle and recorded evidence boundaries remain unchanged.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 — State set to INITIALIZED (TASK+four-documents)

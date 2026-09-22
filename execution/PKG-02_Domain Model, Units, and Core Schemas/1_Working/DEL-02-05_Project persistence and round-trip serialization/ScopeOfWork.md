@@ -50,7 +50,7 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 > | Objectives | OBJ-001, OBJ-012 |
 > | Context envelope | M |
 > | Anticipated artifacts | project file schema; round-trip tests; persistence service contract |
-> | Source basis | `_CONTEXT.md` revision 0.7; `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7; `docs/_Registers/*.csv`; `docs/CONTRACT.md`; SCA-001 basis IDs AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, AB-00-08 |
+> | Source basis | `_CONTEXT.md` current authority references; `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register); `docs/_Registers/*.csv`; `docs/CONTRACT.md`; SCA-001 basis IDs AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, AB-00-08 |
 >
 
 ### CLM-005 — Attributes
@@ -64,8 +64,8 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 > | Schema baseline | JSON Schema 2020-12 is the public schema/interchange baseline. | `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-041 and section 8.2 |
 > | Persistence encoding baseline | Versioned, JSON-schema-governed canonical JSON for JSON payloads. | `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2 |
 > | Hash basis | JSON payload hashes use canonical JSON with JCS-compatible canonicalization. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 and section 8.2 |
-> | Project package/container | TBD; SCA-001 leaves the physical project package/container unresolved. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04, section 8.2, OI-011 |
-> | Migration mechanism | Migration-aware persistence is required; migration framework/tooling is TBD. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04, section 8.2, OI-011 |
+> | Project package/container | DEC-017 / SCA-003 selects local SQLite storage; DEC-028 selects the portable package boundary. Neither changes canonical domain or private-data obligations. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04, section 8.2, OI-011 |
+> | Migration mechanism | Migration-aware persistence is required; migration policy follows DEC-019/033; implementation and unsupported cases require bound evidence. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04, section 8.2, OI-011 |
 > | Core data objects affected | Project, Model, LoadCase, RulePack references, Report/audit metadata, and provenance-bearing domain records. | `docs/SPEC.md` section 3 |
 > | Application boundary | Storage/persistence must preserve domain invariant enforcement; adapters cannot bypass unit, provenance, diagnostics, or public/private data-boundary checks. | `docs/SPEC.md` section 1; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-02 and AB-00-07 |
 > | Diagnostic behavior | Persistence validation, migration, and round-trip failures should be returned through structured diagnostics/result envelopes. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-03 and AB-00-06; `docs/SPEC.md` section 7 |
@@ -91,9 +91,9 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 >
 > | Artifact | Minimum construction expectation | Source |
 > |---|---|---|
-> | Project file schema | Define a versioned project document contract covering project identity, schema version, unit system, model payload, load payloads, rule-pack references, provenance metadata, and validation/migration status. Exact schema file layout is TBD. | `docs/_Registers/Deliverables.csv` row DEL-02-05; `docs/SPEC.md` section 3; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 |
-> | Round-trip tests | Verify parse -> normalize/validate -> serialize -> parse cycles preserve required project content and produce deterministic canonical JSON/hash behavior for JSON payloads. Exact test harness details are TBD. | `docs/PRD.md` section 10 FR-001; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 and AB-00-08 |
-> | Persistence service contract | Define application-service operations for create/open/save/version validation, migration-status reporting, diagnostics/result envelopes, and data-boundary checks. Exact interface language/API shape is TBD. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-02, AB-00-03, AB-00-06, AB-00-07 |
+> | Project file schema | Define a versioned project document contract covering project identity, schema version, unit system, model payload, load payloads, rule-pack references, provenance metadata, and validation/migration status. Current layout is carried by `schemas/project_persistence.schema.yaml`; field compatibility remains governed. | `docs/_Registers/Deliverables.csv` row DEL-02-05; `docs/SPEC.md` section 3; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 |
+> | Round-trip tests | Verify parse -> normalize/validate -> serialize -> parse cycles preserve required project content and produce deterministic canonical JSON/hash behavior for JSON payloads. Harness mechanics belong to bound implementation evidence; required round-trip guarantees are unchanged. | `docs/PRD.md` section 10 FR-001; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 and AB-00-08 |
+> | Persistence service contract | Define application-service operations for create/open/save/version validation, migration-status reporting, diagnostics/result envelopes, and data-boundary checks. The service contract is documented in `docs/architecture/persistence_contract.md`; exact call signatures belong to versioned implementation evidence. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-02, AB-00-03, AB-00-06, AB-00-07 |
 >
 > ASSUMPTION: The persisted project document will be treated as durable project state, while session-only UI state and job-progress state remain outside this deliverable unless later injected by an applicable GUI-state brief.
 >
@@ -102,18 +102,18 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 
 > ###### Persisted Project Envelope Inventory
 >
-> This inventory is a logical schema contract checklist, not the final schema file layout. Exact schema file layout, code-generation tooling, physical container, and migration implementation remain TBD under SCA-001.
+> This inventory is a logical schema contract checklist, not the final schema file layout. Current schema layout is `schemas/project_persistence.schema.yaml`; DEC-017/028 governs storage/package boundaries and DEC-019/033 migration policy. Unselected code-generation tooling remains a local implementation choice.
 >
 > | Logical slot | Minimum persisted meaning | Source | Open detail |
 > |---|---|---|---|
-> | Document identity and schema metadata | Document kind, schema version, project identifier/name, and version-handling metadata. | SOW-050; `docs/PRD.md` section 10 FR-001; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 | Exact field names and schema file layout TBD. |
-> | Project basis and storage policy | Project/design-basis metadata, storage/private-data policy flags, and report settings where present. | `docs/SPEC.md` section 3 `Project`; `docs/PRD.md` Appendix A; `docs/CONTRACT.md` OPS-K-PRIV-1 | Exact local-first enforcement fields TBD. |
+> | Document identity and schema metadata | Document kind, schema version, project identifier/name, and version-handling metadata. | SOW-050; `docs/PRD.md` section 10 FR-001; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 | Current fields and layout are carried by `schemas/project_persistence.schema.yaml`; new interface fields require their governed change path. |
+> | Project basis and storage policy | Project/design-basis metadata, storage/private-data policy flags, and report settings where present. | `docs/SPEC.md` section 3 `Project`; `docs/PRD.md` Appendix A; `docs/CONTRACT.md` OPS-K-PRIV-1 | Read storage/private-data fields from the current persistence schema; their existence does not prove all local-first enforcement paths. |
 > | Unit-system reference | Declared unit system or explicit unit metadata sufficient for downstream unit checks. | `docs/CONTRACT.md` OPS-K-UNIT-1; `docs/PRD.md` section 10 FR-002; SOW-025 | Missing or incompatible unit metadata must become diagnostics, not defaults. |
 > | Model payload | Model objects such as nodes, elements, sections, materials, components, supports, and related references where present. | `docs/SPEC.md` section 3; `docs/PRD.md` Appendix A | Field-level object schemas remain coordinated with DEL-02-01. |
 > | Load payloads | Load cases and load records with units and source/provenance where engineering reliance is affected. | SOW-050; `docs/SPEC.md` section 3 `LoadCase`; `docs/DIRECTIVE.md` section 2.1 | Exact load object schema remains coordinated with load deliverables. |
 > | Rule-pack references | Rule-pack ID/name, version, checksum, source note, redistribution/private status, and required-input linkage where present. | `docs/SPEC.md` section 6; `docs/CONTRACT.md` OPS-K-RULE-3; `docs/PRD.md` section 12.2 | Public fixtures must not embed protected rule formulas or allowables. |
 > | Provenance and redistribution metadata | Source/provenance, license or redistribution status, contributor/review fields where public data records are present. | `docs/IP_AND_DATA_BOUNDARY.md` section 4; `docs/CONTRACT.md` OPS-K-DATA-3 | Private records may use private/source labels; public records need complete review metadata. |
-> | Validation, diagnostics, and migration status | Validation findings, migration status, and structured diagnostics/result-envelope fields. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-03, AB-00-04, AB-00-06; `docs/SPEC.md` section 7 | Status values beyond unsupported, stale, and failed migration are TBD. |
+> | Validation, diagnostics, and migration status | Validation findings, migration status, and structured diagnostics/result-envelope fields. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-03, AB-00-04, AB-00-06; `docs/SPEC.md` section 7 | Use the current persistence schema and DEC-019/033 version evaluator; unsupported behavior must remain explicit. |
 > | Reproducibility metadata | Model hash, input-manifest compatibility, rule-pack checksum references, and canonical JSON/JCS-compatible hash basis for JSON payloads. | `docs/SPEC.md` section 8; `docs/PRD.md` section 15.3; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2 | Exact payload/manifest partition remains TBD. |
 > | Review records, if present | Human review labels and hashes tied to specific model/rule/report content without automatic compliance claims. | `docs/CONTRACT.md` OPS-K-AUTH-1 and OPS-K-AUTH-2; `docs/TYPES.md` section 4 | Review-record schema is optional and final authority labels remain TBD. |
 >
@@ -122,12 +122,12 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 
 > ##### References
 >
-> - `_CONTEXT.md` revision 0.7 for deliverable identity, SOW/objective mapping, accepted architecture basis IDs, and write context.
+> - `_CONTEXT.md` current authority references for deliverable identity, SOW/objective mapping, accepted architecture basis IDs, and write context.
 > - `_DEPENDENCIES.md` for declared dependency status; no human-owned upstream/downstream dependency list was provided.
 > - `docs/_Registers/Deliverables.csv` row DEL-02-05.
 > - `docs/_Registers/ScopeLedger.csv` rows SOW-050 and SOW-041.
 > - `docs/_Registers/ContextBudgetQA.csv` row DEL-02-05.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7, especially SOW-041, SOW-050, PKG-02, DEL-02-05, section 8.1, section 8.2, and OI-011.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register), especially SOW-041, SOW-050, PKG-02, DEL-02-05, section 8.1, section 8.2, and OI-011.
 > - `docs/CONTRACT.md` invariant catalog.
 > - `docs/TYPES.md` sections 3-8.
 > - `docs/SPEC.md` sections 1, 3, 7, 8, 9, and 11.
@@ -160,7 +160,7 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 > Out of scope:
 >
 > - numerical solving, stress recovery, GUI views, report rendering, and rule-pack expression evaluation;
-> - physical project package/container selection, migration framework/tooling, binary asset packaging, exact dependency versions, public API transport, and exact schema file layout, all of which remain TBD under SCA-001;
+> - new storage/package/migration decisions beyond DEC-017/019/028/033, unselected code-generation/tooling choices, and public transport outside this persistence contract;
 > - any bundled protected standards content, code-specific formulas, tables, allowables, or proprietary project examples.
 >
 > Sources: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` PKG-02 and DEL-02-05 rows; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2.
@@ -182,8 +182,8 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 > | REQ-02-05-001 | The persistence surface shall support project create, open, save, and version handling. | SOW-050; `docs/PRD.md` section 10 FR-001 |
 > | REQ-02-05-002 | A project file round trip shall preserve model content, unit metadata, loads, rule-pack references, and provenance metadata without loss. | SOW-050; `docs/PRD.md` section 10 FR-001 |
 > | REQ-02-05-003 | The project file schema shall align with the machine-readable schema scope for project, model, material, component, load, result, and report schemas where this persistence deliverable references those objects. | SOW-041; `docs/SPEC.md` section 3 |
-> | REQ-02-05-004 | Public schemas/interchange for this deliverable shall use JSON Schema 2020-12 as the baseline. Exact schema file layout and code-generation tooling are TBD. | `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-041 and section 8.2 |
-> | REQ-02-05-005 | JSON persistence payloads shall be deterministic and hash-ready using canonical JSON with JCS-compatible canonicalization. Exact canonicalization library/tooling is TBD. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 and section 8.2 |
+> | REQ-02-05-004 | Public schemas/interchange for this deliverable shall use JSON Schema 2020-12 as the baseline. Current schema layout is carried by `schemas/project_persistence.schema.yaml`; unselected code-generation tooling remains a DEC-012 choice. | `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-041 and section 8.2 |
+> | REQ-02-05-005 | JSON persistence payloads shall be deterministic and hash-ready using canonical JSON with JCS-compatible canonicalization. Current Rust implementation evidence is `canonical_json`; reference-only byte profiles must retain truthful labels and cannot replace the JCS contract. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 and section 8.2 |
 > | REQ-02-05-006 | The schema shall include explicit schema/version metadata and migration status sufficient to detect unsupported, stale, or failed migrations. The current DEC-019/DEC-033 runtime contract implements this classification for the accepted `0.2.0` family; additional migration tooling remains TBD. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04, section 8.2, OI-011 |
 > | REQ-02-05-007 | Persisted numerical and engineering-relevant fields shall carry explicit units or references to a declared unit system sufficient for downstream unit checks. Silent unit defaults are not permitted. | `docs/CONTRACT.md` OPS-K-UNIT-1; `docs/PRD.md` section 10 FR-002; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 |
 > | REQ-02-05-008 | Provenance metadata shall be preserved for materials, components, SIF/flexibility values, allowables, rule-pack values, and other engineering-reliance data when those records are present in a project. Missing provenance shall be representable as a warning/finding, not silently accepted as complete. | `docs/CONTRACT.md` OPS-K-DATA-3 and OPS-K-DATA-2; `docs/DIRECTIVE.md` section 3; `docs/IP_AND_DATA_BOUNDARY.md` section 4 |
@@ -198,7 +198,7 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 > | REQ-02-05-017 | The project file schema shall enumerate logical envelope slots for document/schema metadata, project identity, unit-system reference, model payload, load payloads, rule-pack references, provenance/redistribution metadata, diagnostics or migration status, reproducibility metadata, and optional review records. | SOW-050; `docs/SPEC.md` section 3; `docs/IP_AND_DATA_BOUNDARY.md` section 4; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 |
 > | REQ-02-05-018 | Round-trip acceptance criteria shall compare semantic equality for model content, unit metadata, loads, rule-pack references, provenance metadata, and reproducibility metadata after parse -> validate/normalize -> serialize -> parse. | SOW-050; `docs/PRD.md` section 10 FR-001; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 |
 > | REQ-02-05-019 | Unit round-trip criteria shall distinguish explicit units, declared unit-system references, missing units, and incompatible unit metadata; missing or incompatible units shall produce findings instead of silent defaults. | `docs/CONTRACT.md` OPS-K-UNIT-1; `docs/PRD.md` section 10 FR-002; `docs/DIRECTIVE.md` sections 2.2 and 3 |
-> | REQ-02-05-020 | Hash and reproducibility criteria shall identify the compared JSON payload, any input manifest, and any referenced non-JSON or binary manifest; exact payload partitioning remains TBD. | `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2; `docs/SPEC.md` section 8; `docs/PRD.md` section 15.3 |
+> | REQ-02-05-020 | Hash and reproducibility criteria shall identify the compared JSON payload, any input manifest, and any referenced non-JSON or binary manifest; payload partitioning shall follow the declared persistence/hash contract, with any uncovered partition kept explicit. | `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2; `docs/SPEC.md` section 8; `docs/PRD.md` section 15.3 |
 > | REQ-02-05-021 | Migration handling shall define status semantics and diagnostics for unsupported, stale, and failed migrations. The bounded runtime uses the established schema vocabulary and DEC-019/DEC-033 evaluator; additional migration tooling and the compatibility-window size remain TBD. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04, section 8.2, OI-011 |
 > | REQ-02-05-022 | The persistence service contract shall define create, open, save, validate, version-check, and migrate-operation behavior in schema-first command/query/result-envelope terms; exact language/API signatures remain TBD. | SOW-050; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-03 and section 8.2; `docs/SPEC.md` section 1 |
 > | REQ-02-05-023 | Diagnostics emitted by persistence operations shall define deterministic class coverage for schema, migration, unit metadata, provenance, rule-pack reference, IP/data-boundary, private-data, and professional-boundary failures or warnings. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06; `docs/SPEC.md` section 7; `docs/CONTRACT.md` invariant index |
@@ -219,7 +219,7 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 > | Slot | Minimum contract content | Verification note |
 > |---|---|---|
 > | `document_metadata` | Document kind, schema version, project/document identity, and version-handling metadata. | Fixture exposes version fields and migration status or diagnostic behavior. |
-> | `project` | Project identity, design-basis metadata, storage policy/private-data indicators, and report settings where applicable. | Fields align to `Project` object scope in `docs/SPEC.md` section 3; exact field names TBD. |
+> | `project` | Project identity, design-basis metadata, storage policy/private-data indicators, and report settings where applicable. | Fields align to `Project` object scope in `docs/SPEC.md` section 3; current field names are carried by `schemas/project_persistence.schema.yaml`. |
 > | `units` | Declared unit system and/or explicit unit metadata on numerical values. | Missing units and incompatible dimensions fail with deterministic findings. |
 > | `model` | Nodes, elements, sections, materials, components, supports, and references used by the persisted model where present. | Round-trip comparison verifies stable identity and references, not text formatting. |
 > | `loads` | Load cases and load records with units and source/provenance where needed. | Round-trip comparison verifies load IDs, types, magnitudes, units, and source fields where present. |
@@ -263,12 +263,12 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 >
 > | Operation | Minimum inputs | Minimum outputs / diagnostics | Notes |
 > |---|---|---|---|
-> | Create project | Project identity, unit system, storage/private-data policy, optional template/reference selection. | Versioned project envelope or diagnostics/result envelope. | Exact constructor/API shape TBD. |
+> | Create project | Project identity, unit system, storage/private-data policy, optional template/reference selection. | Versioned project envelope or diagnostics/result envelope. | Preserve the service contract in `docs/architecture/persistence_contract.md`; current signatures are implementation evidence. |
 > | Open project | Project artifact reference and caller context. | Parsed project envelope, validation result, migration status, diagnostics. | Must not bypass schema, unit, provenance, or data-boundary checks. |
-> | Save project | Validated project envelope, target artifact reference, canonicalization/hash options. | Saved artifact reference, version metadata, hash/manifest evidence, diagnostics. | Physical container remains TBD. |
+> | Save project | Validated project envelope, target artifact reference, canonicalization/hash options. | Saved artifact reference, version metadata, hash/manifest evidence, diagnostics. | Physical storage follows DEC-017 and portable packaging DEC-028. |
 > | Validate project | Project envelope or artifact reference. | Schema, unit, provenance, rule-pack-reference, private-data, and protected-content diagnostics. | Diagnostics use structured result-envelope fields. |
 > | Version check | Project schema/version metadata. | `current`, `stale`, `unsupported_schema`, `failed`, or `newer_than_supported` status and diagnostics. | Implemented for the bounded DEC-019/DEC-033 runtime; no additional names introduced. |
-> | Migrate project | Source project, target schema version, migration policy. | Migrated project or failed migration diagnostics. | Migration framework/tooling TBD. |
+> | Migrate project | Source project, target schema version, migration policy. | Migrated project or failed migration diagnostics. | Migration policy follows DEC-019/033; the current implementation remains separately verified. |
 >
 
 ### CLM-020 — Diagnostic Class Coverage
@@ -295,8 +295,8 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 >
 > | Standard / basis | Applicability | Status |
 > |---|---|---|
-> | JSON Schema 2020-12 | Public schema/interchange baseline for the project file schema. | Required by SCA-001; exact schema file layout TBD. |
-> | Canonical JSON / JCS-compatible canonicalization | Hash basis for JSON payloads. | Required by SCA-001; exact library/tooling TBD. |
+> | JSON Schema 2020-12 | Public schema/interchange baseline for the project file schema. | Required by SCA-001; current carrier `schemas/project_persistence.schema.yaml`. |
+> | Canonical JSON / JCS-compatible canonicalization | Hash basis for JSON payloads. | Required by SCA-001; canonical implementation evidence is separate from conformance acceptance. |
 > | SWBPIPE invariant catalog | Binding constraints for IP boundary, unit safety, provenance, professional boundary, private data, and agent outputs. | Required by `docs/CONTRACT.md`. |
 > | SWBPIPE data-boundary policy | Controls public/private data handling and provenance fields. | Required by `docs/IP_AND_DATA_BOUNDARY.md`. |
 >
@@ -329,10 +329,10 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 > - round-trip test documentation naming fixtures, expected preserved fields, semantic equality checks, canonical hash expectations, and protected-content/provenance gates;
 > - diagnostic taxonomy coverage and migration-status case matrix, with exact code names/status names marked TBD where not approved;
 > - fixture/public-data review evidence covering provenance, redistribution status, protected-content screening, private-data handling, and professional-boundary language;
-> - open decisions for physical project package/container, migration framework/tooling, binary asset packaging, exact schema file layout, dependency/tool selections, and hash payload partitioning;
+> - DEC-017/019/028/033 decision references and current schema/service evidence, with explicit remaining tool, payload-partition and uncovered integration questions;
 > - no protected standards excerpts, proprietary data, or code-compliance/certification claims.
 
-- **AC-001** — The contract preserves the accepted source requirements for schema-governed local persistence, deterministic round trips, explicit units and provenance, validated service boundaries, and unresolved physical-container or migration decisions.
+- **AC-001** — The contract preserves the accepted source requirements for schema-governed local persistence, deterministic round trips, explicit units and provenance, validated service boundaries, and the accepted DEC-017/019/028/033 storage/package/migration decisions and explicit unsupported cases.
 
 ## Production and Verification Method — Praxeology
 
@@ -364,7 +364,7 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 > ##### Prerequisites
 >
 > - Confirm the active deliverable is DEL-02-05 under PKG-02 and that write scope is limited to the deliverable-local artifacts. Source: `_CONTEXT.md`; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` section 4.
-> - Use `_CONTEXT.md` revision 0.7, `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7, and register rows for DEL-02-05, SOW-050, SOW-041, and ContextBudgetQA DEL-02-05.
+> - Use `_CONTEXT.md` current authority references, `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register), and register rows for DEL-02-05, SOW-050, SOW-041, and ContextBudgetQA DEL-02-05.
 > - Apply SCA-001 basis IDs AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, and AB-00-08 only to the extent they constrain this persistence deliverable.
 > - Treat `_DEPENDENCIES.md` as human-owned dependency context. Current state: no specific upstream/downstream dependency list was declared.
 > - Keep protected standards/code data, proprietary values, and code-compliance/certification claims out of public artifacts. Source: `docs/CONTRACT.md`; `docs/IP_AND_DATA_BOUNDARY.md`.
@@ -441,7 +441,7 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 > | Round-trip check | Required model, unit, load, rule-pack reference, provenance, and reproducibility metadata survives round trip without semantic loss. |
 > | Equality check | The test plan states per-category equality criteria for model content, unit metadata, loads, rule-pack references, provenance metadata, and reproducibility metadata. |
 > | Canonicalization check | JSON payloads produce stable canonical serialization and stable JCS-compatible hash inputs; the payload/manifest partition is documented or marked TBD. |
-> | Migration check | Unsupported, stale, and failed migration cases produce explicit migration status or diagnostics; newer/current status labels remain TBD unless approved. |
+> | Migration check | Unsupported, stale, and failed migration cases produce explicit migration status or diagnostics; status labels follow `schemas/project_persistence.schema.yaml`; unsupported behavior remains explicit. |
 > | Unit/provenance check | Missing/inconsistent unit metadata and missing/weak provenance are surfaced as findings. |
 > | Rule-pack reference check | Rule-pack reference ID/name, version, checksum, source note, and private/public or redistribution status survive round trip without exposing protected rule content. |
 > | Boundary check | Public fixtures contain no protected standards/code data, no proprietary values, no private rule-pack expansion, and no compliance/certification claims. |
@@ -505,8 +505,8 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 
 > ##### Considerations
 >
-> - Use a schema-versioned project envelope with explicit document kind, project identity, schema version, unit-system reference, migration status, and payload sections. ASSUMPTION: this envelope shape is a suitable implementation pattern; the exact schema file layout remains TBD under SCA-001.
-> - Make canonicalization scope explicit before hashing. A hash over volatile, environment-specific, or session-only fields will undermine reproducibility. The exact hash payload subset is TBD; the binding basis is canonical JSON with JCS-compatible canonicalization for JSON payloads.
+> - Use a schema-versioned project envelope with explicit document kind, project identity, schema version, unit-system reference, migration status, and payload sections. ASSUMPTION: this envelope shape is a suitable implementation pattern; the current schema layout is carried by `schemas/project_persistence.schema.yaml`; code-generation choices and any new public field retain their governing review.
+> - Make canonicalization scope explicit before hashing. A hash over volatile, environment-specific, or session-only fields will undermine reproducibility. The payload/manifest partition must be explicit in `docs/architecture/persistence_contract.md` and the implemented hash carrier; the binding basis is canonical JSON with JCS-compatible canonicalization for JSON payloads.
 > - Preserve unknowns as `TBD`, `UNKNOWN_SOURCE`, warnings, or diagnostics rather than filling defaults. This applies especially to units, provenance, rule-pack references, and migration status.
 > - Keep public fixtures small and invented. They can verify schema shape and round-trip behavior without exposing protected standards data, proprietary values, or commercial software examples.
 > - Represent private data boundaries in the contract. Project files may reference private libraries and rule packs, but the public project must not assume those files are redistributable.
@@ -527,7 +527,7 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 > | Project document | The logical persisted project content governed by schema and round-trip requirements. | A specific file extension or physical package format. |
 > | Project envelope | The versioned top-level contract containing metadata, payload slots, diagnostics/migration status, and reproducibility metadata. | A final schema file path or code-generated type. |
 > | Project file | A user-facing persistence artifact created/opened/saved by the product. | A commitment to a single JSON file. |
-> | Project package/container | The physical storage choice, such as single file versus packaged container. | A settled decision; this remains TBD under SCA-001/OI-011. |
+> | Project package/container | The physical storage choice, such as single file versus packaged container. | Canonical domain semantics: DEC-017 storage and DEC-028 portable packaging are distinct from the canonical schema/hash contract. |
 > | Input manifest | A reproducibility record that identifies hash inputs, referenced artifacts, and private/rule/library checksums where applicable. | A report approval or compliance claim. |
 >
 
@@ -537,12 +537,12 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 >
 > | Decision area | Conservative guidance | Why |
 > |---|---|---|
-> | Single JSON file vs packaged project container | Keep the physical package/container TBD until a human/architecture decision resolves it. | SCA-001 explicitly leaves the container unresolved. |
-> | Schema file layout and code generation | Record the exact schema layout/tooling decision in an ADR or open-decision log before implementation depends on it. | SCA-001 selects JSON Schema 2020-12 but leaves exact schema file layout and code-generation tooling TBD. |
+> | Single JSON file vs packaged project container | Apply the accepted local storage profile DEC-017 and portable package decision DEC-028. | Later DEC-017/028 resolve the respective storage and portable-container decisions. |
+> | Schema file layout and code generation | Record the exact schema layout/tooling decision in an ADR or open-decision log before implementation depends on it. | Current layout is carried by `schemas/project_persistence.schema.yaml`; unselected code generation remains an implementation choice under DEC-012. |
 > | Embedded rule-pack data vs references | Prefer references with version/checksum/source notes for persistence; avoid embedding protected or private rule content in public examples. | Maintains code-neutral and private-data boundaries. |
 > | Human-readable JSON vs strict canonical form | Permit authoring/readability where useful, but tests should compare normalized semantic content and canonical JSON/hash output. | Determinism is required for reproducibility. |
 > | Full-file hash vs payload/manifests | Use canonical JSON for JSON payload hashes and manifest hashes for non-JSON/binary assets; exact split is TBD. | Matches SCA-001 without deciding binary package structure prematurely. |
-> | Migration now vs migration framework later | Require schema version and migration status now; leave migration framework/tooling TBD. | This records compatibility boundaries without inventing implementation details. |
+> | Migration now vs migration framework later | Require schema version and migration status under DEC-019/033; retain unsupported migrations as explicit diagnostics. | This records compatibility boundaries without inventing implementation details. |
 > | Local project operations vs public sharing | Make create/open/save local-first by default; treat public export, bug-report attachment, telemetry, and repository commit as separately reviewed actions. | PRD section 18 and OPS-K-PRIV-1 prohibit default transmission or public commitment of private project data. |
 >
 
@@ -550,7 +550,7 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 
 > ##### Examples
 >
-> TBD. No deliverable-specific project file example was available in the accessible sources. Any future public fixture should use invented or permissively licensed data, include provenance/redistribution fields where data records exist, and avoid protected standards/code content.
+> Current example evidence includes `fixtures/persistence/invented_persisted_preview_project.json`; its presence does not establish whole-contract verification or provenance clearance. Every public fixture must use invented or permissively licensed data, include provenance/redistribution fields where data records exist, and avoid protected standards/code content.
 >
 > Future fixtures should also carry a durable review record with, at minimum, source name/location, license or redistribution basis, contributor certification, review status, and confirmation that the fixture does not include protected standards/code data, proprietary values, or professional approval claims (PRD §21.2). Source: `docs/IP_AND_DATA_BOUNDARY.md` sections 2-5; `docs/CONTRACT.md` OPS-K-IP-1 through OPS-K-IP-3 and OPS-K-AUTH-1.
 >

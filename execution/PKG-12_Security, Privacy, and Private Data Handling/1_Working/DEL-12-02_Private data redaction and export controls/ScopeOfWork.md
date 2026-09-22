@@ -57,8 +57,8 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 > | Redaction action vocabulary | `include`, `warning_only`, `redact_value`, `redact_field`, `omit_field`, `block_export` |
 > | Export context vocabulary | `public_report`, `public_example`, `shared_model`, `downstream_tool`, `local_private` |
 > | Config persistence | `schemas/redaction_export_controls.schema.yaml` now records the local-first control profile, field policies, decisions, and findings contract; durable project/profile storage location and storage roots remain `TBD` |
-> | Export-test status | Focused invented-fixture tests now exist for schema vocabulary, metadata-only classification, public/shared redaction, local-private intent, source non-mutation, and storage/privacy marker hardening; runtime report/export integration tests remain `TBD` |
-> | Implementation status | Metadata-only helper, schema, focused tests, and security documentation now exist as June 7 evidence; runtime report/export integration, destructive quarantine movement, legal review workflow, cloud exception workflow, storage roots, UI/CLI/public transport/export-format choices, and approval choices remain `TBD` |
+> | Export-test status | Current guard and fixed-route tests are defined in `tests/security/test_redaction_export_controls.py`, `redactionExportControls.test.ts` and `ControlledExportLink.test.tsx`. The R15 accepted breadth scope and native witness limit remain specific; this record runs no suite or new acceptance. |
+> | Implementation status | Metadata helper/schema plus actual desktop/Python/Rust final-sink bindings exist. Persist profile lifecycle, native witnesses, future public/plugin egress, quarantine, cloud and legal/security approval as separately scoped obligations. |
 >
 
 ### CLM-004 — Conditions
@@ -80,7 +80,7 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 
 > ##### Redaction Configuration Contract
 >
-> This deliverable now has current evidence for a schema-governed redaction/export-control contract in `schemas/redaction_export_controls.schema.yaml` and a metadata-only helper under `core/security/redaction/`. The exact persisted project/profile storage location, UI controls, CLI/API/public transport behavior, external export formats, and approval workflow remain implementation-level `TBD`.
+> This deliverable now has current evidence for a schema-governed redaction/export-control contract in `schemas/redaction_export_controls.schema.yaml` and a metadata-only helper under `core/security/redaction/`. Current final-sink bindings are recorded in `docs/security/redaction_export_controls.md` and desktop/Python/Rust consumers. Persisted profile lifecycle, public transport, future adapter/plugin egress, legal approval and native witness limitations remain separate obligations; existing UI/local CLI/export routes are not blanket TBDs.
 >
 > | Proposed Config Slot | Purpose | Default Setup Expectation |
 > |---|---|---|
@@ -88,18 +88,21 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 > | `export_context` | Classifies the intended export surface. | Configured context vocabulary exists for public report/example, shared model, downstream tool, and local private export. |
 > | `field_classification_rules` | Maps model/report fields to public, private, protected-suspected, or unknown handling classes. | Helper uses explicit metadata only; unknown risky fields produce warning, redaction, or blocking behavior. |
 > | `rule_pack_detail_policy` | Controls formula, allowable, interpretation, source-note, and checksum exposure. | Public/shared exports may include safe metadata such as identity/version/checksum/source note, not protected formula text. |
-> | `material_value_policy` | Controls material properties, allowables, provenance, and redistribution-status exposure. | Focused tests cover private and unknown material-like metadata redaction; runtime source integration remains `TBD`. |
-> | `component_value_policy` | Controls manufacturer/vendor component fields, geometry catalogs, stiffnesses, and private modifiers. | Focused tests cover private component-like metadata redaction; runtime source integration remains `TBD`. |
-> | `project_value_policy` | Controls project-specific loads, owner requirements, coordinates, equipment loads, paths, and design-basis values. | Shared/public exports redact private metadata and concrete path indicators; storage roots and runtime export paths remain `TBD`. |
-> | `manifest_policy` | Defines what evidence remains in an export manifest after redaction. | Safe metadata such as hashes/checksums/provenance summaries can remain visible; full runtime report/export manifest integration remains `TBD`. |
+> | `material_value_policy` | Controls material properties, allowables, provenance, and redistribution-status exposure. | Apply classification at the controlled final sink using the current desktop/Python/Rust route bindings; preserve material-value provenance and source immutability. Candidate evidence remains route-specific. |
+> | `component_value_policy` | Controls manufacturer/vendor component fields, geometry catalogs, stiffnesses, and private modifiers. | Apply current guarded final-sink classification to component values and private modifiers; source data must remain unchanged and blocking findings prevent exposure. |
+> | `project_value_policy` | Controls project-specific loads, owner requirements, coordinates, equipment loads, paths, and design-basis values. | Shared/public sinks redact private metadata and concrete paths through current route controls. Local-private retention requires wrapper-owned explicit intent; local placement follows the governed storage boundary. |
+> | `manifest_policy` | Defines what evidence remains in an export manifest after redaction. | Preserve safe identity, unit, hash/checksum and provenance metadata at final sinks. Withhold lossless exports when redaction would corrupt required semantics; maintain invented-data producer/consumer parity. |
 > | `override_policy` | Defines whether unredacted private export is allowed. | Local-private retention requires explicit local/private intent and emits warnings; approval and user-confirmation workflow remain `TBD`. |
 > | `diagnostic_policy` | Defines warning classes and blocking findings. | `IP_BOUNDARY_WARNING`, `PRIVATE_DATA_WARNING`, `PROVENANCE_WARNING`, `STORAGE_BOUNDARY_WARNING`, and professional-boundary findings are represented. |
-> | `template_guard_policy` | Controls public report templates and examples. | Guardrail documentation and focused scans exist; protected-content linter/runtime template integration and legal review workflow remain `TBD`. |
+> | `template_guard_policy` | Controls public report templates and examples. | Use typed protected-content checks and controlled report/template exposure. Scoped release scanning and legal review remain separate; neither guard presence nor a scan supplies legal approval. |
 >
 
 ### CLM-006 — Export Test Expectations
 
 > ##### Export Test Expectations
+>
+> Current deliverable obligation: implement export/report safeguards that warn or redact private rule/material/component values where configured. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
 >
 > | Test Expectation | Risk Covered | Setup Status |
 > |---|---|---|
@@ -110,7 +113,6 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 > | Adapter/plugin export path cannot bypass redaction, units, provenance, sandboxing, or diagnostics. | No-bypass failure. | Metadata hardening blocks storage/privacy bypass markers; adapter/plugin runtime routing remains `TBD`. |
 > | Redaction never mutates the source project model or private libraries. | Destructive export behavior. | Focused invented-fixture source non-mutation test exists; runtime source-model integration remains `TBD`. |
 >
-
 ### CLM-007 — Construction
 
 > ##### Construction
@@ -119,10 +121,10 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 >
 > Current evidence includes:
 >
-> - redaction/export-control requirements in `Specification.md`;
+> - redaction/export-control requirements in `ScopeOfWork.md`;
 > - configuration-slot and export-test expectations in this datasheet;
-> - guidance on export contexts, warning behavior, and deferred implementation decisions in `Guidance.md`;
-> - setup and future integration procedure in `Procedure.md`;
+> - guidance on export contexts, warning behavior, and deferred implementation decisions in `ScopeOfWork.md`;
+> - setup and future integration procedure in `ScopeOfWork.md`;
 > - schema contract in `schemas/redaction_export_controls.schema.yaml`;
 > - metadata-only helper in `core/security/redaction/`;
 > - focused tests in `tests/security/test_redaction_export_controls.py`;
@@ -131,14 +133,13 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 >
 > This run does not create product source code, tests, schemas, real project data, private rule packs, protected standards content, secrets, credentials, cloud operations, destructive quarantine movement, legal sufficiency, security certification, lifecycle acceptance, or professional/code-compliance claims (PRD §21.2).
 >
-
 ### CLM-008 — References
 
 > ##### References
 >
 > | Source | Use |
 > |---|---|
-> | `INIT.md` | Bootstrap boundaries: open mechanics, protected data, private data, and no certification claims. |
+> | `AGENTS.md` | Bootstrap boundaries: open mechanics, protected data, private data, and no certification claims. |
 > | `AGENTS.md` | Type 2 scoped execution and write-scope constraints. |
 > | `docs/DIRECTIVE.md` | Product principles for private code data, provenance, unit safety, report auditability, stop rules, and hidden cloud/telemetry exclusion. |
 > | `docs/CONTRACT.md` | OPS-K-IP, OPS-K-DATA, OPS-K-AUTH, OPS-K-REPORT, OPS-K-PRIV, OPS-K-RULE, and OPS-K-AGENT invariants. |
@@ -161,10 +162,9 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 
 > ##### Scope
 >
-> This deliverable specifies the documentation-level contract for private-data redaction and export controls where reports, shared models, downstream-tool exports, public templates, or examples may expose protected or private values.
+> Maintain private/protected-data controls for reports, shared models, downstream outputs and public templates/examples. The metadata helper itself has no I/O; actual route bindings control payload exposure before report DOM, download, native IPC/save and local CLI sinks. Current sources and the final-sink contract are identified in `docs/security/redaction_export_controls.md`.
 >
-> The original setup run was documentation production only. Current June 7 evidence now includes a metadata-only redaction helper, a schema-governed redaction/export-control contract, focused invented-fixture tests, and security documentation. This deliverable still does not process real project data, create report templates, integrate runtime report/export routes, move quarantine material, approve legal/security sufficiency, or make lifecycle, professional, certification, approval, sealing, authentication, or code-compliance claims (PRD §21.2).
->
+> Require wrapper-owned route context and explicit local-private intent, source non-mutation, blocking before exposure and safe metadata/parity. The R15 handoff closes only its accepted REXC-REQ-012 breadth scope and retains native save/print witness limits. Preserve missing native witnesses, persisted-profile lifecycle, future public/plugin transports, destructive quarantine, cloud exceptions and legal/security review. No real protected-data handling, professional acceptance or lifecycle issuance is inferred by this record repair.
 
 ### CLM-012 — Requirements
 
@@ -185,7 +185,7 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 > | REXC-REQ-011 | Diagnostics and result/report envelopes shall surface redaction, protected-content, and private-data export findings using machine-readable diagnostics, including `IP_BOUNDARY_WARNING` where applicable. | AB-00-06; `docs/SPEC.md` §7 | Future diagnostics tests check code/class/severity/source/affected object/message/remediation/provenance fields. |
 > | REXC-REQ-012 | Adapters, plugins, CLI exports, GUI report preview/export, and downstream-tool handoffs shall not bypass redaction, provenance, unit, sandboxing, diagnostics, or report controls. | AB-00-02; AB-00-07; OPS-K-PRIV-1 | Future adapter/plugin tests exercise no-bypass routes. |
 > | REXC-REQ-013 | Export controls shall preserve the distinction among mechanics solved, user-rule checked, and human-approved states, and shall not claim certification, sealing, approval, authentication, or code compliance (PRD §21.2). | OPS-K-AUTH-1; OPS-K-AUTH-2; AB-00-03; `docs/TYPES.md` §4 | Report review checks professional-boundary notices and status vocabulary. |
-> | REXC-REQ-014 | Redaction/export tests shall cover public report export, local private export, shared model export, downstream-tool export, adapter/plugin routes, manifest preservation, unknown provenance, and source-model non-mutation. | AB-00-08; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` §5 | Focused helper/schema tests now exist; runtime report/export, GUI/CLI/API, adapter/plugin, and protected-content linter integration tests remain `TBD`. |
+> | REXC-REQ-014 | Redaction/export tests shall cover public report export, local private export, shared model export, downstream-tool export, adapter/plugin routes, manifest preservation, unknown provenance, and source-model non-mutation. | AB-00-08; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` §5 | Use current fixed-route desktop/Python/Rust guard tests and R15 scope-bound evidence. Retain native save/print limits, future public/plugin routes and scoped legal review; this record establishes no fresh execution or acceptance. |
 > | REXC-REQ-015 | Any unresolved config schema, UI control, export format, public API transport, or physical project package/container choice shall remain `TBD` until resolved through an authorized implementation or architecture decision. | AB-00-04; AB-00-07; OPS-K-AGENT-1 | Review this deliverable for explicit TBD/open issue entries. |
 >
 
@@ -195,9 +195,8 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 >
 > No external engineering code, standards clause, protected table, protected formula, material allowable, SIF/flexibility table, protected dimensional table, proprietary report template, vendor catalog, real private project, or real secret is used or reproduced by this deliverable.
 >
-> The controlling project sources for this deliverable are the SWBPIPE governance and decomposition artifacts listed in `Datasheet.md` and `_REFERENCES.md`.
+> The controlling project sources for this deliverable are the SWBPIPE governance and decomposition artifacts listed in `ScopeOfWork.md` and `_REFERENCES.md`.
 >
-
 ### CLM-014 — Verification
 
 > ##### Verification
@@ -220,10 +219,7 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 >
 > Required setup artifacts for this run:
 >
-> - `Datasheet.md`;
-> - `Specification.md`;
-> - `Guidance.md`;
-> - `Procedure.md`;
+> - `ScopeOfWork.md`;
 > - `_SEMANTIC.md`;
 > - `_SEMANTIC_LENSING.md`;
 > - `Dependencies.csv`;
@@ -240,20 +236,19 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 > - `TASK_RUN_2026-06-07_0935_redaction-export-hardening.md`;
 > - package fan-in `WORKING_ITEMS_RUN_2026-06-07_0957_TP-PKG12-REDACTION-SECRET-GUARD-CLOSEOUT.md`.
 >
-> Artifacts and choices still deferred by this run:
+> Original June 7 evidence above remains historical. Current final-sink bindings are described in `docs/security/redaction_export_controls.md`; the metadata helper itself remains free of I/O. Remaining artifacts and choices:
 >
-> - runtime report/export integration;
-> - GUI controls;
-> - CLI/API/export-adapter implementation;
-> - protected-content linter integration and legal review workflow;
+> - native save/print witness limitations and candidate-bound integration evidence;
+> - persisted redaction-profile lifecycle;
+> - future public API/plugin/adapter egress not represented by current guarded local routes;
+> - scoped protected-content release review and legal review workflow;
 > - destructive quarantine movement workflow;
 > - cloud exception workflow;
-> - storage roots and persisted profile location;
-> - public transport and export-format choices;
+> - persisted profile location and unaccepted storage/security guarantees;
+> - future public transport and external export-format admission;
 > - approval choices;
 > - real project data, real private values, protected standards content, secrets, credentials, or cloud behavior.
-
-- **AC-001** — The contract preserves export-context and redaction-action vocabularies, safe manifest evidence, explicit local-private intent, non-mutation, protected/private/provenance handling, metadata-only schema/helper/test evidence, no-bypass adapter boundaries, and visible runtime integration and approval TBDs and conflicts; export safeguards remain separate from legal and security review. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+- **AC-001** — The contract preserves export-context and redaction-action vocabularies, safe manifest evidence, explicit local-private intent, non-mutation, protected/private/provenance handling, metadata-only schema/helper/test evidence, no-bypass adapter boundaries, and guarded final-sink exposure and invented-data parity, with explicit native witness and legal/security approval limits; export safeguards remain separate from legal and security review. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Production and Verification Method — Praxeology
 
@@ -277,7 +272,7 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 > | Prerequisite | Required State |
 > |---|---|
 > | Sealed deliverable context | DEL-12-02, PKG-12, SOW-040, OBJ-010, explicit write scope |
-> | Governance sources | `INIT.md`, `AGENTS.md`, `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/SPEC.md`, `docs/IP_AND_DATA_BOUNDARY.md`, and decomposition/register rows read |
+> | Governance sources | `AGENTS.md`, `AGENTS.md`, `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/SPEC.md`, `docs/IP_AND_DATA_BOUNDARY.md`, and decomposition/register rows read |
 > | Architecture basis | AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, and AB-00-08 injected as constraints, not copied wholesale |
 > | Scope boundary | No edits outside this deliverable folder |
 > | Protected/private data boundary | No real private values, credentials, protected standards content, proprietary report templates, or legal/compliance claims introduced |
@@ -291,17 +286,17 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 > | Step | Action | Output |
 > |---|---|---|
 > | 1 | Confirm DEL-12-02 identity, scope, objective, invariants, acceptance criteria, and write scope. | `_CONTEXT.md` remains the scope anchor. |
-> | 2 | Classify export risk surfaces: report preview/export, shared model export, public templates/examples, CLI/API export, adapter/plugin export, and downstream-tool handoff. | `Datasheet.md` attributes and conditions. |
-> | 3 | Classify sensitive value groups: project data, rule-pack details, material/component/library values, owner/company design basis, protected standards content, proprietary/vendor data, and private report-template content. | `Datasheet.md` and `Guidance.md` private/protected value sections. |
-> | 4 | Define setup-level redaction mode and export context vocabulary without selecting a concrete config schema. | `Datasheet.md` redaction configuration contract. |
-> | 5 | Translate redaction/export safeguards into requirements and verification expectations. | `Specification.md` REXC requirements and verification table. |
-> | 6 | Record implementation guidance, trade-offs, open issues, and human-ruling conflicts. | `Guidance.md` principles, trade-offs, open issues, and conflict table. |
-> | 7 | Build semantic matrix and lensing artifacts after the four documents exist. | `_SEMANTIC.md` and `_SEMANTIC_LENSING.md`. |
+> | 2 | Classify export risk surfaces: report preview/export, shared model export, public templates/examples, CLI/API export, adapter/plugin export, and downstream-tool handoff. | `ScopeOfWork.md` attributes and conditions. |
+> | 3 | Classify sensitive value groups: project data, rule-pack details, material/component/library values, owner/company design basis, protected standards content, proprietary/vendor data, and private report-template content. | `ScopeOfWork.md` and `ScopeOfWork.md` private/protected value sections. |
+> | 4 | Define setup-level redaction mode and export context vocabulary against `schemas/redaction_export_controls.schema.yaml`. | `ScopeOfWork.md` redaction configuration contract. |
+> | 5 | Translate redaction/export safeguards into requirements and verification expectations. | `ScopeOfWork.md` REXC requirements and verification table. |
+> | 6 | Record implementation guidance, trade-offs, open issues, and human-ruling conflicts. | `ScopeOfWork.md` principles, trade-offs, open issues, and conflict table. |
+> | 7 | Build semantic matrix and lensing artifacts against the current Scope of Work. | `_SEMANTIC.md` and `_SEMANTIC_LENSING.md`. |
 > | 8 | Apply P3 lensing by surfacing warranted TBDs, verification gaps, or conflicts only when source evidence supports the edit. | Open issues and verification gaps remain visible. |
 > | 9 | Extract dependency register rows for anchors and explicit execution information flow. | `Dependencies.csv` and `_DEPENDENCIES.md`. |
 > | 10 | During the historical setup workflow, run validation checks before any authorized lifecycle update. | Final setup run records. |
 > | 11 | During readiness-evidence alignment, replace stale setup-only language where current run evidence proves schema/helper/docs/tests exist. | `ScopeOfWork.md` reflects current evidence without lifecycle promotion. |
-> | 12 | Keep unresolved runtime report/export integration, destructive quarantine movement, legal review, cloud exception workflow, storage roots, UI/CLI/public transport/export-format choices, and approval choices as explicit `TBD` deferrals. | No hidden dependency closure or overclaim. |
+> | 12 | Preserve native witness limits, profile lifecycle, destructive quarantine, legal review, cloud exceptions and future public/plugin transport/export admission as explicit remaining gates; current final-sink bindings follow the security contract. | No hidden dependency closure or overclaim. |
 > | 13 | Refresh dependency and review evidence only where cited upstream statuses, reviews, or run records warrant the change. | `Dependencies.csv`, `_DEPENDENCIES.md`, `_REVIEW.md`, and `Review_Findings.csv` remain evidence-first. |
 >
 
@@ -311,7 +306,7 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 >
 > When a later implementation task is authorized, it should:
 >
-> 1. Wire the existing redaction/export-control schema into a project-local persisted profile store once storage roots and migration behavior are authorized.
+> 1. Evidence persisted redaction-profile integration with the project-local store under accepted DEC-017/019/028 and the native store implementation. Existing placement/migration policy is not an unresolved blanket prerequisite; unfulfilled profile persistence, rollback and native behavior require their own scoped implementation and witness.
 > 2. Add GUI/CLI/API controls that require explicit export context selection before shareable export.
 > 3. Route report generation, model export, adapter/plugin export, and downstream-tool handoff through the same redaction and diagnostic checks.
 > 4. Emit `IP_BOUNDARY_WARNING` and related diagnostics with code, class, severity, source, affected object, message, remediation, and provenance.
@@ -356,7 +351,6 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 > Do not move any artifact to `ISSUED` during a readiness-evidence alignment run.
 >
 > Readiness-evidence alignments must also leave product code, schemas, tests, DAG artifacts, coordination files, approval records, release files, package registers, and lifecycle files unchanged unless a separate authorized brief grants that write scope.
-
 - **VER-001** — Validate the contract and review source parity, export-context and redaction-policy coverage, private/protected/provenance handling, safe manifest preservation and source non-mutation, metadata-only evidence limits, no-bypass routes, retained conflicts and TBDs, and authority boundaries.
 
 ## Governing Values and Decisions — Axiology
@@ -373,7 +367,7 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 >
 > This deliverable keeps SWBPIPE report and export workflows aligned with the product boundary: public mechanics and schemas are allowed, while private project values, user-supplied code data, rule-pack details, component/vendor data, material allowables, and protected standards content remain controlled.
 >
-> The original guidance was setup-level. Current June 7 evidence now includes a concrete schema contract, metadata-only helper, focused invented-fixture tests, and security documentation. This guidance still does not select final persisted profile storage, UI design, CLI/API/public transport behavior, export format, cloud exception workflow, legal review workflow, destructive quarantine movement, or approval workflow.
+> The original guidance was setup-level. Current June 7 evidence now includes a concrete schema contract, metadata-only helper, focused invented-fixture tests, and security documentation. Current final-sink bindings define wrapper context/intent for desktop and local CLI exports. Preserve unresolved persisted profile lifecycle, future public/plugin egress, native witness limitations, cloud exceptions, legal review, destructive quarantine and approval workflow.
 >
 
 ### CLM-027 — Principles
@@ -455,7 +449,7 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 >
 > | Trade-off | Implication |
 > |---|---|
-> | Redact values vs. preserve review detail | Redaction lowers disclosure risk but can reduce review usefulness. Current schema/helper evidence preserves safe metadata classes; full report/export manifest integration remains `TBD`. |
+> | Redact values vs. preserve review detail | Redaction may reduce review detail. Current final sinks preserve safe identity, units, hashes and provenance; exports requiring lossless semantic parity must withhold rather than emit a corrupted redacted representation. Native and legal acceptance remain separate. |
 > | Warn-only vs. block export | Warn-only preserves user agency but can permit accidental disclosure. Current metadata hardening blocks high-risk storage/privacy markers while final approval and override workflow remains `TBD`. |
 > | Field-level vs. value-level redaction | Field-level redaction is simpler and safer; value-level redaction can retain structure but may leak through labels, units, hashes, or context. |
 > | Local private export vs. public template export | Local private exports may need full detail; public templates/examples must remain protected-data-free and invented-data-only. |
@@ -484,15 +478,15 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 > | Issue ID | Topic | Status | Notes |
 > |---|---|---|---|
 > | REXC-OI-001 | Redaction config schema | PARTIAL / TBD | `schemas/redaction_export_controls.schema.yaml` now exists; persisted profile storage location, migration behavior, and storage roots remain `TBD`. |
-> | REXC-OI-002 | Export context UI and override flow | TBD | Exact GUI controls, CLI prompts, user confirmation, and approval workflow are not selected here. |
-> | REXC-OI-003 | Public API transport and export formats | TBD | AB-00-07 leaves public transport and concrete import/export formats open. |
-> | REXC-OI-004 | Executable export tests | PARTIAL / TBD | Focused helper/schema tests now exist; runtime report/export, GUI/CLI/API, adapter/plugin, and protected-content linter integration tests remain `TBD`. |
+> | REXC-OI-002 | Export context UI and override flow | TBD | Current desktop/local CLI wrappers own fixed route context and explicit local-private intent. Future public/plugin interaction, profile persistence and legal approval remain separately governed. |
+> | REXC-OI-003 | Public API transport and export formats | TBD | SCA-004 and the accepted decomposition OI-004/PKG-17 allocation govern named export scope. Per-format interface/provenance guarantees and integration remain separately governed; this does not select a new public API transport or plugin runtime. |
+> | REXC-OI-004 | Executable export tests | Scoped evidence remains | Current Python/desktop fixed-route tests cover route context, explicit intent, source immutability, blocking and stale completion. Retain R15 native save/print witness limits and future public/plugin route evidence; definitions are not a fresh result. |
 > | REXC-OI-005 | Legal sufficiency of redaction | TBD | This deliverable does not claim that any redaction policy satisfies legal, client, security, or professional obligations. |
-> | REXC-OI-006 | Physical project package/container | TBD | Redaction may depend on project package boundaries, storage roots, and export staging behavior, which remain implementation-level `TBD`. |
-> | REXC-OI-007 | Runtime report/export integration | TBD | The helper/schema evidence exists, but report generator, result export, GUI, CLI, API, adapter, and public template runtime routes are not wired through this control here. |
+> | REXC-OI-006 | Physical project package/container | Choice ruled; implementation/conformance gaps retained | DEC-017 retains canonical JSON domain truth and a rebuildable SQLite projection; DEC-028 selects a multi-member zip/directory package with member inventory and per-member JCS hashes. DEC-057 names the `.opsproj` package. Storage roots, integration and unmet controls remain separately governed. |
+> | REXC-OI-007 | Runtime report/export integration | Current bindings; scoped gates remain | Current final-sink bindings span controlled report/download/IPC/package and local Python/Rust routes as documented in the security contract. Preserve native witness limits, profile lifecycle and future public/plugin egress gates; the helper itself performs no I/O. |
 > | REXC-OI-008 | Quarantine and legal review workflow | TBD | The helper blocks suspected/protected/private metadata but does not perform destructive quarantine movement or legal review routing. |
 > | REXC-OI-009 | Cloud exception workflow | TBD | Default posture remains no cloud export or transmission unless separately approved; exception process and controls are not selected here. |
-> | REXC-OI-010 | Storage roots and concrete paths | TBD | Concrete path indicators are redacted in focused helper behavior; allowed storage roots and portable project/export package behavior remain `TBD`. |
+> | REXC-OI-010 | Storage roots and concrete paths | TBD | Concrete path indicators are controlled at the final sink. Use current native storage and accepted container authority for placement/package boundaries; preserve native witnesses and unaccepted private-path guarantees. |
 >
 
 ### CLM-038 — Conflict Table (for human ruling)
@@ -501,9 +495,9 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 >
 > | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 > |---|---|---|---|---|---|---|
-> | REXC-CON-001 | The deliverable catalog anticipated redaction config and export tests; current evidence now provides a schema and focused helper tests but not full runtime integration. | `docs/_Registers/Deliverables.csv` row DEL-12-02 | `TASK_RUN_2026-06-07_0935_redaction-export-hardening.md`; package fan-in record | Specification Requirements; Procedure Future Implementation Procedure | Treat schema/focused tests as current evidence; defer runtime integration, UI/CLI/API/adapter routes, and approval workflows. | TBD |
+> | REXC-CON-001 | The former blanket runtime-absence premise is superseded by the current final-sink contract and its desktop/Python/Rust bindings. | `docs/_Registers/Deliverables.csv` row DEL-12-02 | `TASK_RUN_2026-06-07_0935_redaction-export-hardening.md`; package fan-in record | Specification Requirements; Procedure Future Implementation Procedure | Use current guarded-exposure/source-immutability/parity obligations; retain R15 native witness limits and separate legal/security, profile and future public/plugin gates. | Record premise repaired; no new ruling or lifecycle promotion |
 > | REXC-CON-002 | Local private exports may need unredacted values, but shared/public outputs must avoid private/protected disclosure. | `docs/SPEC.md#8. Reporting and audit`; `docs/IP_AND_DATA_BOUNDARY.md#7. Report boundary` | SOW-040; OPS-K-PRIV-1 | Guidance Export Contexts; Specification REXC-REQ-006 | Allow explicit local-private export with warning/audit record; require redaction or block for shared/public contexts. | TBD |
-> | REXC-CON-003 | Focused helper/schema/tests now exist, but runtime report/export paths and approval workflows are not integrated. | `TASK_RUN_2026-06-07_0935_redaction-export-hardening.md`; package fan-in `WORKING_ITEMS_RUN_2026-06-07_0957_TP-PKG12-REDACTION-SECRET-GUARD-CLOSEOUT.md` | `_STATUS.md` current `IN_PROGRESS`; Specification Documentation deferred items | Specification Verification; Procedure Future Implementation Procedure; Dependencies | Treat current evidence as readiness evidence only; defer lifecycle promotion and runtime integration to owning workflows. | TBD |
+> | REXC-CON-003 | The former blanket runtime-absence premise is superseded by the current final-sink contract and its desktop/Python/Rust bindings. | `TASK_RUN_2026-06-07_0935_redaction-export-hardening.md`; package fan-in `WORKING_ITEMS_RUN_2026-06-07_0957_TP-PKG12-REDACTION-SECRET-GUARD-CLOSEOUT.md` | `_STATUS.md` current `IN_PROGRESS`; Specification Documentation deferred items | Specification Verification; Procedure Future Implementation Procedure; Dependencies | Use current guarded-exposure/source-immutability/parity obligations; retain R15 native witness limits and separate legal/security, profile and future public/plugin gates. | Record premise repaired; no new ruling or lifecycle promotion |
 
 ## Output and Evaluation Matrix
 

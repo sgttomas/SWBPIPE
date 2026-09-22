@@ -34,14 +34,14 @@ Use this sequence before changing files.
 
 | Step | Read | Why |
 |---|---|---|
-| 1 | [`INIT.md`](../../INIT.md) | Establish the required reading order and project boundaries. |
+| 1 | [`AGENTS.md`](../../AGENTS.md) and the selected role instructions | Establish the applicable project boundaries and role before following the assigned brief. |
 | 2 | [`AGENTS.md`](../../AGENTS.md) | Understand Type 1 routing roles, Type 2 execution roles, and the dispatch rule. |
 | 3 | [`docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`](../AGENTIC_DEVELOPMENT_WORKFLOW.md) | Map the authority surfaces, Type 1/Type 2 loop, evidence expectations, and stop routes. |
 | 4 | [`docs/DIRECTIVE.md`](../DIRECTIVE.md) | Review founding intent, product boundaries, and stop rules. |
 | 5 | [`docs/CONTRACT.md`](../CONTRACT.md) | Check invariant IDs for IP, data, governance, privacy, and agent behavior. |
 | 6 | [`docs/TYPES.md`](../TYPES.md) | Confirm package, deliverable, status, and professional-boundary vocabulary. |
 | 7 | [`docs/IP_AND_DATA_BOUNDARY.md`](../IP_AND_DATA_BOUNDARY.md) | Confirm public/private data, provenance, and quarantine rules. |
-| 8 | The newest [`loop/WORKPLAN_*.md`](../../loop/) (development loop instructions) and [`execution/_Coordination/_COORDINATION.md`](../../execution/_Coordination/_COORDINATION.md) (ruled records) | Confirm work selection from deliverable folders, execution discipline, evidence expectations, review gates, and the current target stage. |
+| 8 | [`loop/LOOP_INIT.md`](../../loop/LOOP_INIT.md), its selected current work graph, and [`execution/_Coordination/_COORDINATION.md`](../../execution/_Coordination/_COORDINATION.md) (ruled records) | Confirm the current owner-steered work, execution boundaries, evidence expectations and recorded stage; the pointer does not expand scope or lift holds. |
 | 9 | [`execution/_Decomposition/SOFTWARE_DECOMP.md`](../../execution/_Decomposition/SOFTWARE_DECOMP.md) and [`docs/_Registers`](../_Registers/) | Confirm the active package/deliverable identity and scope rows. |
 | 10 | Your assigned sealed brief and deliverable folder | Confirm the exact write scope, acceptance criteria, and verification commands. |
 
@@ -193,10 +193,13 @@ Route these issues instead of resolving them inside a bounded contribution:
 | Professional reliance, code interpretation, or project-specific engineering acceptance wording | Professional-boundary review path. |
 
 The project license has been selected as `PolyForm-Noncommercial-1.0.0`.
-Preserve existing `TBD`s for the final contributor legal mechanism, maintainer
-quorum, release authority, CI policy, dependency versions, and other unsettled
-professional or legal decisions unless the assignment explicitly grants
-authority to change them.
+DEC-027 records the sole human project authority as sole maintainer and release
+authority with quorum one; external intake stays closed. DEC-079 adopts the
+review/screening skeleton with the contributor legal instrument deliberately
+`TBD` until a future owner activation decision with legal advice. CI and
+coverage follow DEC-025/059/060/093; implementation-level dependency choices
+follow DEC-012. Preserve actual unresolved professional/legal decisions and
+implementation or verification gaps, rather than reopening already ruled facts.
 
 ## Contribution Expectations
 

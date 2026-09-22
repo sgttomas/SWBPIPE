@@ -46,7 +46,7 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 > | Scope item | SOW-025 |
 > | Objectives | OBJ-001, OBJ-012 |
 > | Anticipated artifacts | `core/units` module contract; unit tests; `docs/SPEC.md` section |
-> | Sealed context basis | `_CONTEXT.md` revision 0.7; `SOFTWARE_DECOMP.md` revision 0.7 |
+> | Sealed context basis | `_CONTEXT.md` current authority references; `SOFTWARE_DECOMP.md` accepted authority (see the decision register) |
 > | Draft status | Draft/proposal until accepted by a human review gate per `docs/CONTRACT.md` OPS-K-AGENT-4 |
 >
 
@@ -62,10 +62,10 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 > | Persistence/hash baseline | Versioned, unit-aware, schema-governed JSON persistence. The current Python persistence boundary is sorted-key compact ASCII-escaped JSON labeled `SORTED_COMPACT_JSON`, explicitly not JCS; RFC 8785 requires a later governed implementation and proof. | `_CONTEXT.md` Architecture Basis Injection; `SOFTWARE_DECOMP.md` Section 8.1 AB-00-04 and Section 8.2; D-41 R5 T2A |
 > | Runtime baseline | Rust core/application services. Exact dependency versions remain TBD. | `_CONTEXT.md` Architecture Basis Injection; `SOFTWARE_DECOMP.md` Section 8.2 |
 > | Result/diagnostic envelope link | Unit errors and warnings must fit the project diagnostic/result-envelope model where emitted. | `_CONTEXT.md` applicable AB-00-06; `docs/SPEC.md` Section 7 |
-> | Unit catalog | TBD. No authoritative unit catalog, conversion table, or dimensional registry was supplied in the accessible references. | `_REFERENCES.md` Package-Specific References; `docs/CONTRACT.md` OPS-K-AGENT-1 |
-> | Minimal test catalog | TBD. Early unit tests need a minimal source-backed or human-decision-backed unit catalog and conversion source set before executable conversion cases rely on it. | `docs/_Registers/ScopeLedger.csv` row SOW-025; `docs/VALIDATION_STRATEGY.md` Section 2; `docs/CONTRACT.md` OPS-K-AGENT-1 |
+> | Unit catalog | DEC-018 supplies the accepted catalog/conversion basis; `core/units/README.md`, `core/units/src/lib.rs` and `schemas/units.schema.yaml` carry its current realization. Integration and engineering validation remain separately evidenced. | `_REFERENCES.md` Package-Specific References; `docs/CONTRACT.md` OPS-K-AGENT-1 |
+> | Minimal test catalog | Executable conversion cases use the DEC-018 catalog/source basis and DEC-026 governed tolerance policy; their actual evidence remains candidate-bound. | `docs/_Registers/ScopeLedger.csv` row SOW-025; `docs/VALIDATION_STRATEGY.md` Section 2; `docs/CONTRACT.md` OPS-K-AGENT-1 |
 > | Dimensional basis | ASSUMPTION: the first implementation will need base/derived dimensions covering geometry, force, moment, pressure/stress, density, temperature, angle/rotation, and time-related loads. Human review is required before treating this as normative. | Inferred from `docs/SPEC.md` Sections 3-5 and deliverable scope; not explicitly enumerated in sources |
-> | Conversion factors | TBD. Conversion factors must be sourced from public/permissive references or well-documented implementation decisions before release use. | `docs/IP_AND_DATA_BOUNDARY.md` Sections 2-4; `docs/CONTRACT.md` OPS-K-IP-1, OPS-K-IP-2, OPS-K-UNIT-1 |
+> | Conversion factors | DEC-018 selects the conversion source basis; conversion factors must be sourced from public/permissive references or well-documented implementation decisions before release use. | `docs/IP_AND_DATA_BOUNDARY.md` Sections 2-4; `docs/CONTRACT.md` OPS-K-IP-1, OPS-K-IP-2, OPS-K-UNIT-1 |
 > | Test obligations | Automated tests for units, schemas, invalid unit rejection, deterministic conversions, rule-pack unit mismatch, and reproducibility hooks. | `docs/SPEC.md` Section 9; `docs/VALIDATION_STRATEGY.md` Section 2; `SOFTWARE_DECOMP.md` Section 8.1 AB-00-08 |
 >
 
@@ -80,7 +80,7 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 > | Professional boundary | Unit correctness supports analysis. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/DIRECTIVE.md` Sections 3-4 |
 > | Adapter/plugin boundary | Import/export adapters and plugins must validate units and cannot bypass validation, diagnostics, provenance, sandboxing, or data-boundary controls. | `SOFTWARE_DECOMP.md` Section 8.1 AB-00-07; `docs/SPEC.md` Section 1 |
 > | Determinism | Unit conversion and dimensional checking must be deterministic and testable across calculations, schemas, imports, exports, and rule evaluations. | `docs/_Registers/ScopeLedger.csv` row SOW-025; `docs/SPEC.md` Section 4.5; `docs/VALIDATION_STRATEGY.md` Section 2 |
-> | Human review | This draft does not resolve exact unit list, conversion constants, numeric representation, or tolerances. | `docs/CONTRACT.md` OPS-K-AGENT-1 and OPS-K-AGENT-4 |
+> | Human review | Apply the accepted DEC-018 unit/conversion basis and DEC-026 numerical verification policy; new engineering criteria remain governed. | `docs/CONTRACT.md` OPS-K-AGENT-1 and OPS-K-AGENT-4 |
 >
 
 ### CLM-006 — Construction
@@ -91,10 +91,10 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 >
 > | Construct | Draft content |
 > |---|---|
-> | `core/units` module contract | Quantity model, unit registry, dimension-signature model, conversion API, dimensional algebra API, diagnostics, and schema serialization rules. Exact Rust module path is TBD unless established by later repository layout decisions. |
+> | `core/units` module contract | Quantity model, unit registry, dimension-signature model, conversion API, dimensional algebra API, diagnostics, and schema serialization rules. Current Rust source is `core/units/src/lib.rs`; the contract is independent of its module layout. |
 > | Schema hooks | JSON Schema 2020-12 definitions for quantities, unit references, dimension signatures, and unit-aware fields. Exact schema filenames and code-generation tooling are TBD. |
 > | Storage convention | Persist unit-bearing values with explicit unit metadata and schema versioning. PROPOSAL: preserve the user-entered unit representation for audit/round-trip behavior and use a canonical calculation representation internally. Human ruling required. |
-> | Conversion registry | Deterministic registry with explicit source/provenance metadata for each conversion family. Exact factor representation, allowed units, and precision/tolerance policy are TBD. |
+> | Conversion registry | Deterministic registry with explicit source/provenance metadata for each conversion family. Catalog and conversion semantics follow DEC-018; numeric verification follows DEC-026. Downstream unit integration remains separately evidenced. |
 > | Dimensionless classification | TBD. Explicit dimensionless fields, ratios, percentages, coefficients, and unitless-where-unit-required failures need a human-approved classification before schema/API freeze. |
 > | Diagnostics | Unit mismatch, unknown unit, ambiguous offset/absolute quantity, missing unit, and unitless-where-unit-required cases should produce structured diagnostics. Exact diagnostic codes are TBD. |
 > | Decision owner | TBD. Human review/decision ownership is required for open catalog, dimension-basis, storage, conversion, diagnostic-code, and special-quantity decisions before the contract is treated as issued. |
@@ -105,14 +105,14 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 
 > ##### References
 >
-> - `_CONTEXT.md` revision 0.7 for sealed deliverable identity, package exclusions, artifacts, and SCA-001 basis IDs.
+> - `_CONTEXT.md` current authority references for sealed deliverable identity, package exclusions, artifacts, and SCA-001 basis IDs.
 > - `_REFERENCES.md` for accessible source set and note that no package-specific source material beyond governance/register content was introduced by PREPARATION.
 > - `docs/CONTRACT.md` Section 1 for invariants OPS-K-IP-1 through OPS-K-IP-3, OPS-K-DATA-2, OPS-K-AUTH-1, OPS-K-UNIT-1, OPS-K-AGENT-1 through OPS-K-AGENT-4.
 > - `docs/SPEC.md` Sections 1-3, 6-9, 11 for layer ownership, `core/units`, domain objects with units, rule evaluator constraints, diagnostics, reports, tests, and acceptance semantics.
 > - `docs/DIRECTIVE.md` Sections 2-5 for unit safety, provenance, no silent defaults, professional boundary, and stop rules.
 > - `docs/IP_AND_DATA_BOUNDARY.md` Sections 2-7 for public/private data and provenance limits.
 > - `docs/VALIDATION_STRATEGY.md` Sections 2-5 for unit/schema test and benchmark-source expectations.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 Sections 4-8 for SOW-025, OBJ-001, OBJ-012, PKG-02, DEL-02-02, and SCA-001 architecture basis.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) Sections 4-8 for SOW-025, OBJ-001, OBJ-012, PKG-02, DEL-02-02, and SCA-001 architecture basis.
 > - `docs/_Registers/Deliverables.csv`, `ScopeLedger.csv`, and `ContextBudgetQA.csv` rows for DEL-02-02 and SOW-025.
 
 ### CLM-008 — D-41 R5 T2A persistence hash evidence (2026-07-12)
@@ -170,7 +170,7 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 >
 > - Numerical solver implementation, GUI views, and full persistence implementation, per PKG-02 exclusions in `_CONTEXT.md`.
 > - Protected standards/code data, proprietary unit tables, protected dimensional tables, vendor catalog data, or code-compliance logic.
-> - Final selection of exact unit catalog, conversion constants, numeric representation, precision/tolerance policy, and schema filenames. These are `TBD` unless later accepted by human review.
+> - New unit/catalog or numerical-policy selections beyond DEC-018/026 and the current schema contracts; existing decisions must be preserved.
 >
 
 ### CLM-014 — Requirements
@@ -182,7 +182,7 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 > | U-001 | The unit contract shall make all calculations, formulas, imported values, exports, schemas, and rule evaluations unit-aware and dimensionally checked. | `docs/CONTRACT.md` OPS-K-UNIT-1; `docs/_Registers/ScopeLedger.csv` row SOW-025 |
 > | U-002 | The domain core shall own unit invariant enforcement. Adapters, plugins, and import/export paths shall validate units instead of bypassing the domain contract. | `docs/SPEC.md` Section 1; `SOFTWARE_DECOMP.md` Section 8.1 AB-00-02 and AB-00-07 |
 > | U-003 | Unit-bearing numeric values crossing schema, service, import/export, persistence, solver, load, stress, report, or rule-pack boundaries shall carry explicit unit metadata unless explicitly typed as dimensionless. | Derived from `docs/CONTRACT.md` OPS-K-UNIT-1 and `docs/SPEC.md` Sections 3, 6, 8; ASSUMPTION for exact field shape |
-> | U-004 | The unit contract shall define a stable dimensional-signature representation for each supported unit. The exact base dimensions, derived dimensions, and dimension identifier vocabulary are TBD. | Deliverable description; `docs/CONTRACT.md` OPS-K-ID-1; `docs/CONTRACT.md` OPS-K-AGENT-1 |
+> | U-004 | The unit contract shall define a stable dimensional-signature representation for each supported unit. The accepted dimension basis follows DEC-018 and the current vocabulary is carried by `schemas/units.schema.yaml`; public vocabulary changes require their governing review. | Deliverable description; `docs/CONTRACT.md` OPS-K-ID-1; `docs/CONTRACT.md` OPS-K-AGENT-1 |
 > | U-005 | Addition, subtraction, comparison, conversion, and rule-pack checks shall reject incompatible dimensions. Multiplication/division and exponent operations shall produce explicit derived dimensions where supported. | Derived from dimensional-analysis purpose and OPS-K-UNIT-1; ASSUMPTION pending human approval of operation set |
 > | U-006 | Unit conversion shall be deterministic and testable. Unknown units, missing units, ambiguous conversions, or incompatible conversions shall produce explicit diagnostics rather than fallback defaults. | `docs/_Registers/ScopeLedger.csv` row SOW-025; `docs/CONTRACT.md` OPS-K-DATA-2; `docs/DIRECTIVE.md` Section 3 |
 > | U-007 | Conversion-factor records shall include source/provenance and redistribution status when stored as public data. Records suspected of protected or proprietary origin shall be quarantined and escalated. | `docs/IP_AND_DATA_BOUNDARY.md` Sections 3-5; `docs/CONTRACT.md` OPS-K-IP-1 through OPS-K-IP-3 |
@@ -191,7 +191,7 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 > | U-010 | Unit-related diagnostics and result-envelope fields, where emitted, shall include enough machine-readable context to identify code, class, severity, source, affected object, message, remediation, and provenance. Exact unit diagnostic code names are TBD. | `_CONTEXT.md` applicable AB-00-06; `SOFTWARE_DECOMP.md` Section 8.1 AB-00-06 |
 > | U-011 | The unit contract shall preserve the boundary between mechanics solve, user-rule checks, and human approval. Unit checks must not be presented as code compliance, certification, approval, sealing, or authentication (PRD §21.2). | `docs/CONTRACT.md` OPS-K-AUTH-1, OPS-K-MECH-2; `SOFTWARE_DECOMP.md` Section 8.1 AB-00-03 |
 > | U-012 | The unit test set shall cover dimension compatibility, incompatible-unit rejection, deterministic conversion behavior, serialization round trips, schema validation, import/export paths, rule-pack unit mismatch, and hash/reproducibility behavior for JSON payloads where applicable. | `docs/SPEC.md` Section 9; `docs/VALIDATION_STRATEGY.md` Section 2; `SOFTWARE_DECOMP.md` Section 8.1 AB-00-08 |
-> | U-013 | Missing values, unsupported unit dimensions, unresolved conversion constants, and unapproved assumptions shall remain visible as `TBD`, diagnostics, or open issues; the implementation shall not silently invent engineering values. | `docs/CONTRACT.md` OPS-K-AGENT-1 and OPS-K-AGENT-2; `INIT.md` Agent rule |
+> | U-013 | Missing values, unsupported unit dimensions, unresolved conversion constants, and unapproved assumptions shall remain visible as `TBD`, diagnostics, or open issues; the implementation shall not silently invent engineering values. | `docs/CONTRACT.md` OPS-K-AGENT-1 and OPS-K-AGENT-2; `loop/LOOP_INIT.md` Agent rule |
 > | U-014 | Public examples and test fixtures for unit behavior shall use original, invented, public-domain, or permissively licensed data. Protected code examples and commercial software examples require documented permission before use. | `docs/IP_AND_DATA_BOUNDARY.md` Sections 2-3; `docs/VALIDATION_STRATEGY.md` Section 5 |
 > | U-015 | Fields represented as dimensionless, ratio, percentage, coefficient, or intentionally unitless shall be classified explicitly. A missing physical unit where a unit-bearing value is required shall be rejected or diagnosed rather than treated as dimensionless. Exact categories and schema fields are TBD. | `docs/CONTRACT.md` OPS-K-UNIT-1 and OPS-K-DATA-2; `docs/DIRECTIVE.md` Section 3; ASSUMPTION for exact classification vocabulary |
 > | U-016 | Unit identifiers and aliases shall be deterministic and shall reject ambiguous parsing. Exact namespace, alias policy, and parser behavior are TBD until accepted by human review. | `docs/_Registers/ScopeLedger.csv` row SOW-025; `docs/CONTRACT.md` OPS-K-UNIT-1 and OPS-K-AGENT-1 |
@@ -203,21 +203,21 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 >
 > | Decision | Current status | Required disposition |
 > |---|---|---|
-> | Base dimension vector | TBD | Human-approved design decision before schema/API freeze. |
+> | Base dimension vector | DEC-018; DEC-026 governs numeric verification tolerances | Follow the accepted ruling and `core/units/README.md`; preserve unimplemented downstream bindings and separately required validation evidence. |
 > | Unit identifier namespace and aliases | TBD | Human-approved design decision; aliases must not create ambiguous parsing. |
 > | Dimensionless classification | TBD | Human-approved design decision for dimensionless fields, ratios, percentages, coefficients, and unitless-where-unit-required diagnostics before schema/API freeze. |
-> | Numeric representation for conversion factors and stored magnitudes | TBD | Human-approved design decision; must support deterministic testing. |
-> | Offset quantities, especially temperature scale versus temperature interval | TBD | Human-approved design decision before accepting temperature conversions. |
-> | Gauge versus absolute pressure semantics | TBD | Human-approved design decision before pressure-bearing schemas rely on it. |
+> | Numeric representation for conversion factors and stored magnitudes | DEC-018; DEC-026 governs numeric verification tolerances | Follow the accepted ruling and `core/units/README.md`; preserve unimplemented downstream bindings and separately required validation evidence. |
+> | Offset quantities, especially temperature scale versus temperature interval | DEC-018; DEC-026 governs numeric verification tolerances | Follow the accepted ruling and `core/units/README.md`; preserve unimplemented downstream bindings and separately required validation evidence. |
+> | Gauge versus absolute pressure semantics | DEC-018; DEC-026 governs numeric verification tolerances | Follow the accepted ruling and `core/units/README.md`; preserve unimplemented downstream bindings and separately required validation evidence. |
 > | Ratios, percentages, and unitless engineering coefficients | TBD | Human-approved design decision before related schemas or rule-pack variables rely on these as dimensionless. |
 > | Angle and rotation dimensional treatment | ASSUMPTION: explicit semantics needed even if represented as dimensionless in some calculations. | Human ruling required. |
-> | Canonical calculation unit basis | TBD | Human-approved design decision tied to solver and persistence behavior. |
+> | Canonical calculation unit basis | DEC-018; DEC-026 governs numeric verification tolerances | Follow the accepted ruling and `core/units/README.md`; preserve unimplemented downstream bindings and separately required validation evidence. |
 > | Persisted quantity shape and hash canonicalization | Quantity-shape choice remains TBD; current persistence hash bytes are ruled evidence, not a quantity-shape ruling. | Decide whether persistent payloads store entered units, canonical calculation representation, or both. The current Python persistence hash boundary is sorted-compact and explicitly non-JCS; a later JCS change requires governed implementation and evidence. |
 > | Schema file layout and tooling | TBD | Decide exact schema filenames, locations, and code-generation or validation tooling for JSON Schema 2020-12 quantity definitions. |
 > | Unit diagnostic code namespace | TBD | Decide stable unit diagnostic code names and map them to result-envelope fields before downstream consumers depend on them. |
-> | Conversion constants and tolerance policy | TBD | Executable deterministic conversion tests must wait for approved constants, representation, and tolerances; placeholders may be tracked before then. |
-> | Public unit/conversion source set | TBD | Must satisfy provenance and redistribution requirements. |
-> | Human decision owner / review gate | TBD | Identify the human owner or review gate for open contract decisions before treating the unit contract as issued. |
+> | Conversion constants and tolerance policy | DEC-018; DEC-026 governs numeric verification tolerances | Follow the accepted ruling and `core/units/README.md`; preserve unimplemented downstream bindings and separately required validation evidence. |
+> | Public unit/conversion source set | DEC-018; DEC-026 governs numeric verification tolerances | Follow the accepted ruling and `core/units/README.md`; preserve unimplemented downstream bindings and separately required validation evidence. |
+> | Human decision owner / review gate | `execution/_Coordination/_DECISIONS/_REGISTER.md`; DEC-018/026 | Identify the human owner or review gate for open contract decisions before treating the unit contract as issued. |
 >
 
 ### CLM-016 — Standards
@@ -233,7 +233,7 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 > | `docs/DIRECTIVE.md` | Founding intent, unit-safety principle, no silent defaults, data boundary, and stop rules. |
 > | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data and provenance rules for conversion/unit data and fixtures. |
 > | `docs/VALIDATION_STRATEGY.md` | Unit/schema verification expectations and benchmark-source restrictions. |
-> | `execution/_Decomposition/SOFTWARE_DECOMP.md` | Revision 0.7 scope, SOW-025, DEL-02-02, OBJ-001, OBJ-012, and SCA-001 architecture basis IDs. |
+> | `execution/_Decomposition/SOFTWARE_DECOMP.md` | Accepted scope and decision register, SOW-025, DEL-02-02, OBJ-001, OBJ-012, and SCA-001 architecture basis IDs. |
 > | `_CONTEXT.md` | Sealed context, applicable architecture basis IDs, package exclusions, and anticipated artifacts. |
 >
 
@@ -247,7 +247,7 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 > | U-003, U-015 | Schema and unit tests proving explicit dimensionless classifications are accepted only where intended and unit-bearing fields reject missing or disguised units. |
 > | U-002, U-006, U-010 | Contract/API tests proving adapter-facing and service-facing calls cannot bypass unit validation and return structured diagnostics for unit failures. |
 > | U-004, U-016 | Parser/registry tests for unit identifiers and aliases, including ambiguous alias rejection once the namespace is approved. |
-> | U-006, U-012 | Deterministic conversion test matrix with identity, inverse, round-trip, and incompatible conversion cases. Exact constants and tolerances are TBD; executable expected values are gated on approved constants, representation, and tolerance policy. |
+> | U-006, U-012 | Deterministic conversion test matrix with identity, inverse, round-trip, and incompatible conversion cases. Expected values must use the DEC-018 conversion source basis and DEC-026 governed tolerance policy, with evidence for each tested case. |
 > | U-010 | Diagnostic mapping tests proving unit error codes populate result-envelope fields consistently once the unit diagnostic namespace is approved. |
 > | U-007, U-014 | Protected-content/provenance review for unit/conversion data and test fixtures. |
 > | U-008, U-009 | JSON Schema validation and serialization round-trip tests for unit-bearing fields. |
@@ -313,7 +313,7 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 
 > ##### Purpose
 >
-> This procedure describes how to produce and use the DEL-02-02 unit-system contract without exceeding PKG-02 scope. It is intended for later implementation work on the `core/units` module contract, unit tests, and the corresponding `docs/SPEC.md` section.
+> This procedure describes how to produce and use the DEL-02-02 unit-system contract without exceeding PKG-02 scope. It is intended for maintenance and verification work on the `core/units` module contract, unit tests, and the corresponding `docs/SPEC.md` section.
 >
 
 ### CLM-025 — Prerequisites
@@ -322,13 +322,13 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 >
 > | Prerequisite | Status / source |
 > |---|---|
-> | Sealed DEL-02-02 context | Present in `_CONTEXT.md` revision 0.7. |
+> | Sealed DEL-02-02 context | Present in `_CONTEXT.md` current authority references. |
 > | Scope and objectives | DEL-02-02, PKG-02, SOW-025, OBJ-001, OBJ-012 from `_CONTEXT.md` and `docs/_Registers/Deliverables.csv`. |
 > | Applicable invariants | OPS-K-UNIT-1, OPS-K-DATA-2, OPS-K-IP-1 through OPS-K-IP-3, OPS-K-AUTH-1, OPS-K-AGENT-1 through OPS-K-AGENT-4 from `docs/CONTRACT.md`. |
 > | Architecture basis | AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, AB-00-08 from `_CONTEXT.md`. |
 > | Human dependency list | Not provided; `_DEPENDENCIES.md` says coordination is externally human-owned. |
 > | Human decision owner / review gate | TBD; required before open unit catalog, dimension basis, conversion, storage, diagnostic-code, schema-location, and special-quantity decisions can be treated as accepted. |
-> | Authoritative unit catalog | TBD; not supplied in accessible references. |
+> | Authoritative unit catalog | DEC-018; consult `core/units/README.md` and the bound catalog/source evidence. |
 > | Public/protected data policy | `docs/IP_AND_DATA_BOUNDARY.md` available. |
 > | Test and validation basis | `docs/SPEC.md` Section 9 and `docs/VALIDATION_STRATEGY.md` available. |
 >
@@ -351,7 +351,7 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 >
 > 4. Define the dimension-signature contract.
 >
->    Create a stable way to represent dimensional compatibility for units and derived quantities. Identify base dimensions, derived dimensions, exponent rules, and operation rules. Keep the dimension vocabulary `TBD` until human review accepts it.
+>    Create a stable way to represent dimensional compatibility for units and derived quantities. Identify base dimensions, derived dimensions, exponent rules, and operation rules. Use DEC-018 and the schema-owned dimension vocabulary; additions require governing review.
 >
 > 5. Define conversion behavior.
 >
@@ -396,7 +396,7 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 > | Default unknown handling | All unsupported dimensions, conversion constants, and special semantics are `TBD`, explicit assumptions, open decisions, or diagnostics. |
 > | Unit-aware surfaces | Inventory covers calculations, schemas, imports, exports, and rule evaluations from SOW-025. |
 > | Schema baseline | Quantity and unit-bearing fields use JSON Schema 2020-12. |
-> | Determinism | Conversion and round-trip tests define repeatable expected outcomes and tolerances once constants are approved. |
+> | Determinism | Conversion and round-trip tests define repeatable expected outcomes and tolerances under the DEC-018 source basis and DEC-026 governed tolerances. |
 > | Alias ambiguity | Unit identifier parser/registry tests reject ambiguous aliases once the namespace is approved. |
 > | Dimensionless classification | Schema and unit tests distinguish explicit dimensionless fields from missing units on unit-bearing fields. |
 > | Decision ownership | Open contract decisions have a human owner or review gate before schemas/APIs are frozen. |
@@ -477,7 +477,7 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 > | Principle | Guidance | Source |
 > |---|---|---|
 > | Unit safety is mandatory | Treat unit metadata and dimensional compatibility as part of the domain model, not as UI decoration or optional import metadata. | `docs/CONTRACT.md` OPS-K-UNIT-1; `docs/DIRECTIVE.md` Section 3 |
-> | Missing data is visible | Unknown units, missing units, unsupported conversion constants, or incomplete rule-check inputs should become diagnostics, `TBD`, or explicit open issues. | `docs/CONTRACT.md` OPS-K-DATA-2; `INIT.md` Agent rule |
+> | Missing data is visible | Unknown units, missing units, unsupported conversion constants, or incomplete rule-check inputs should become diagnostics, `TBD`, or explicit open issues. | `docs/CONTRACT.md` OPS-K-DATA-2; `loop/LOOP_INIT.md` Agent rule |
 > | Preserve boundaries | Unit checks support mechanics and rule evaluation; acceptance and professional judgment remain with the responsible engineer. | `docs/CONTRACT.md` OPS-K-AUTH-1; `SOFTWARE_DECOMP.md` Section 8.1 AB-00-03 |
 > | Keep public data clean | Unit and conversion data introduced as public records need provenance and redistribution status; suspected protected content is stopped and escalated. | `docs/IP_AND_DATA_BOUNDARY.md` Sections 3-5 |
 > | Determinism beats convenience | Prefer explicit registries, strict parsers, and repeatable conversion behavior over permissive parsing or hidden fallback conversion. | `docs/_Registers/ScopeLedger.csv` row SOW-025; `docs/VALIDATION_STRATEGY.md` Section 2 |
@@ -494,16 +494,13 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 
 > ###### Unit catalog and conversion sources
 >
-> The accessible sources do not provide an authoritative unit catalog or conversion-factor list. A future implementation should therefore avoid presenting any first-pass unit list as final. Each accepted unit family and conversion factor should be backed by a permissible source or explicit project decision record. Public fixtures should remain invented or permissively sourced.
+> Follow the accepted DEC-018 unit catalog and conversion-source basis; current realization is documented in `core/units/README.md` and `schemas/units.schema.yaml`. Every added family/factor needs permissible source or a recorded decision, with provenance and protected-content review. Lensing suggestions alone supply no constants.
 >
-> Before executable conversion tests or schema examples depend on a catalog, record the minimal early-test unit set and conversion source set as `TBD` or as a human-approved decision. The lensing worklist does not supply those units or factors.
->
-
 ### CLM-038 — Dimensional signatures
 
 > ###### Dimensional signatures
 >
-> Dimensional signatures should be stable identifiers or vectors that support equality and compatibility checks across calculations, schemas, imports, exports, rule evaluation, and reports. The exact basis is TBD. ASSUMPTION: likely first-pass dimensions include length, force, mass, time, temperature, angle/rotation, pressure/stress, moment, density, and stiffness-related derived dimensions, because the domain objects and solver/load/stress surfaces in `docs/SPEC.md` require these concepts. This assumption requires human review.
+> Dimensional signatures should be stable identifiers or vectors that support equality and compatibility checks across calculations, schemas, imports, exports, rule evaluation, and reports. Use the DEC-018 dimension basis and the schema-owned `DimensionId` vocabulary in `schemas/units.schema.yaml`; new dimensional semantics require the governing review.
 >
 
 ### CLM-039 — Offset and reference quantities
@@ -542,17 +539,17 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 > |---|---|
 > | Broad unit catalog now vs. small verified catalog first | Start with the smallest source-backed or decision-backed catalog needed for tests and early solver work; expand through review. |
 > | Preserve entered units vs. normalize everything | Preserve entered units for audit/round-trip behavior and define a separate canonical calculation/hash path if accepted. |
-> | Floating point factors vs. exact/rational/decimal factors | TBD. Choose only after considering deterministic testing, Rust implementation cost, schema representation, and required tolerances. |
+> | Floating point factors vs. exact/rational/decimal factors | Follow DEC-018 representation and source decisions and DEC-026 numerical verification; changes must preserve determinism and schema compatibility. |
 > | Permissive import parsing vs. strict imports | Prefer strict imports with explicit diagnostics; adapters should not guess units silently. |
 > | Unit mismatch warning vs. hard error | Treat incompatible dimensions in calculations and schema validation as blocking. Use warnings only for provenance weakness or assumptions that do not invalidate the computation. |
-> | Embed conversion examples vs. keep examples deferred | Keep numeric examples deferred until sources or invented examples are reviewed for provenance and protected-content safety. |
+> | Embed conversion examples vs. keep examples deferred | Use current invented conversion fixtures with their source/provenance and protected-content evidence; no engineering acceptance follows from example existence. |
 >
 
 ### CLM-044 — Examples
 
 > ##### Examples
 >
-> TBD. The accessible sources do not provide source-backed numeric unit-conversion examples or an accepted quantity schema. Do not add numeric examples until the schema, unit catalog, conversion constants, and tolerance policy have accepted sources or human decisions. Future examples should be original/invented or public/permissive, and should include:
+> Current source evidence is the DEC-018 unit catalog, `schemas/units.schema.yaml`, crate conversion tests and `fixtures/units/invented_unit_contract_fixture.json`; numeric verification follows DEC-026. Examples must be invented or rights-cleared with reviewed provenance, and coverage must include:
 >
 > - a valid same-dimension conversion case;
 > - an invalid cross-dimension conversion case;
@@ -568,7 +565,7 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 >
 > | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 > |---|---|---|---|---|---|---|
-> | C-DEL-02-02-001 | Repository overview text still describes v0.3 as the current downstream decomposition basis, while the sealed deliverable context and decomposition for this run identify revision 0.7 with SCA-001 injection. | `docs/README.md` governance map text | `_CONTEXT.md` Decomposition Reference and Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` revision notes | References, run record, source basis | Use the sealed `_CONTEXT.md` revision 0.7 and `SOFTWARE_DECOMP.md` revision 0.7 for this deliverable. | TBD |
+> | C-DEL-02-02-001 | The sealed run recorded a historical overview/decomposition version mismatch. Current navigation uses the accepted decomposition and decision register; that historic mismatch does not select current authority. | Historical `docs/README.md` governance-map wording | `_CONTEXT.md` current authority references; `execution/_Decomposition/SOFTWARE_DECOMP.md` and accepted decision register | Historical source provenance and current navigation | Resolve current authority through the accepted pointers; retain the original source mismatch as historical evidence. | Current carrier reconciled; historical finding retained |
 
 ### CLM-046 — D-41 R5 T2A persistence hash guidance (2026-07-12)
 

@@ -38,7 +38,7 @@ This Scope of Work defines `DEL-06-01` in service of project scope [SOW-016, SOW
 > | Scope items | SOW-016; SOW-042 |
 > | Objective | OBJ-005 |
 > | Anticipated artifacts | `schemas/rule_pack.schema.yaml`; `docs/SPEC.md` update |
-> | Current evidence status | Setup evidence only; no product implementation |
+> | Current evidence status | Schema contract with current carrier `schemas/rule_pack.schema.yaml`; implementation evidence and acceptance remain distinct |
 >
 
 ### CLM-004 — Attributes
@@ -57,7 +57,7 @@ This Scope of Work defines `DEL-06-01` in service of project scope [SOW-016, SOW
 > | Protected-content boundary | Public artifacts must not reproduce protected standards text, tables, examples, copied formulas, or proprietary allowables. | OPS-K-IP-1; OPS-K-IP-3; OPS-K-RULE-1 |
 > | Unit handling | Rule-pack inputs, formulas, and allowables must be unit-aware and dimensionally checked by later implementation work. | OPS-K-UNIT-1 |
 > | Missing data behavior | Missing rule-check-required values become explicit findings, not silent defaults. | OPS-K-DATA-2 |
-> | Evaluator boundary | Formula representation must remain declarative and sandbox-compatible; exact expression grammar/library remains `TBD`. | SOW-045 note; OI-006 |
+> | Evaluator boundary | Formula representation must remain declarative and sandbox-compatible; expression grammar follows DEC-022 (declarative typed AST, no text parser); unadopted extensions require their own decision. | SOW-045 note; OI-006 |
 > | Professional boundary | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). | OPS-K-AUTH-1; OPS-K-MECH-2 |
 >
 
@@ -115,9 +115,9 @@ This Scope of Work defines `DEL-06-01` in service of project scope [SOW-016, SOW
 
 > ##### Scope
 >
-> This deliverable defines setup evidence for a future rule-pack schema covering metadata, required inputs, formula declarations, user-supplied allowables, pass/fail/incomplete criteria, checksum fields, provenance/source notes, redistribution status, and professional-boundary markings.
+> This deliverable defines the rule-pack schema contract covering metadata, required inputs, formula declarations, user-supplied allowables, pass/fail/incomplete criteria, checksum fields, provenance/source notes, redistribution status, and professional-boundary markings.
 >
-> This setup pass does not implement `schemas/rule_pack.schema.yaml`, update `docs/SPEC.md`, create public examples, define an expression grammar, implement a sandboxed evaluator, publish protected rule content, or claim engineering code compliance.
+> Current schema realization is `schemas/rule_pack.schema.yaml`; evaluator implementation and example ownership remain separate. The schema must not publish protected rule content or claim engineering code compliance.
 >
 
 ### CLM-011 — Requirements
@@ -147,9 +147,9 @@ This Scope of Work defines `DEL-06-01` in service of project scope [SOW-016, SOW
 > | Standard or policy source | Use in this setup evidence |
 > |---|---|
 > | SWBPIPE CONTRACT | Governs protected-content, provenance, privacy, unit, rule-pack, professional-boundary, and agent-output constraints. |
-> | SOFTWARE_DECOMP revision 0.7 | Provides package/deliverable scope, accepted architecture basis, open issues, and remaining `TBD` boundaries. |
-> | JSON Schema 2020-12 | Required baseline for future public schema/interchange artifacts. Exact file layout and code-generation tooling remain `TBD`. |
-> | Canonical JSON / JCS-compatible hashing | Required checksum basis where JSON payloads are hashed. Exact implementation library remains `TBD`. |
+> | SOFTWARE_DECOMP accepted authority (see the decision register) | Provides package/deliverable scope, accepted architecture basis, open issues, and remaining `TBD` boundaries. |
+> | JSON Schema 2020-12 | Required baseline for public schema/interchange artifacts. Current schema layout is `schemas/rule_pack.schema.yaml` in strict JSON syntax; unselected code-generation tooling remains a DEC-012 implementation choice. |
+> | Canonical JSON / JCS-compatible hashing | Required checksum basis where JSON payloads are hashed. Canonical JSON realization is evidence carried by the in-repo canonicalization implementation; JCS conformance remains the contract. |
 > | External engineering standards | May be referenced by user-owned private rule packs, but their protected text, tables, examples, formulas, and values are not public project content. |
 >
 
@@ -179,7 +179,7 @@ This Scope of Work defines `DEL-06-01` in service of project scope [SOW-016, SOW
 > - checksum/provenance validation notes
 > - protected-content and redistribution review evidence
 
-- **AC-001** — The contract preserves the accepted public/private and protected-content boundaries, declarative sandbox-compatible posture, explicit missing-data behavior, canonical JSON/JCS-compatible hash basis, and retained grammar, storage, encryption, and packaging TBDs without inventing protected formulas, allowables, code content, defaults, or professional approval.
+- **AC-001** — The contract preserves the accepted public/private and protected-content boundaries, declarative sandbox-compatible posture, explicit missing-data behavior, canonical JSON/JCS-compatible hash basis, and DEC-022 grammar and DEC-017/028 storage/package decisions, with encryption and uncovered integration still governed without inventing protected formulas, allowables, code content, defaults, or professional approval.
 
 ## Production and Verification Method — Praxeology
 
@@ -193,7 +193,7 @@ This Scope of Work defines `DEL-06-01` in service of project scope [SOW-016, SOW
 
 > ##### Purpose
 >
-> This procedure describes how to produce and verify the future rule-pack schema artifact from the current setup evidence. It is operational guidance only; this setup run does not create product schema files or modify repo-level product documentation.
+> This procedure describes maintenance and verification of `schemas/rule_pack.schema.yaml` under the current brief, with schema compatibility, protected-content controls and candidate-bound evidence.
 >
 
 ### CLM-018 — Prerequisites
@@ -250,7 +250,7 @@ This Scope of Work defines `DEL-06-01` in service of project scope [SOW-016, SOW
 > - Semantic evidence: `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`
 > - Dependency evidence: `Dependencies.csv`, `_DEPENDENCIES.md`
 > - Run records under `_run_records/`
-> - Future schema validation logs and protected-content/provenance review records when implementation begins
+> - Revision-bound schema validation logs and protected-content/provenance review records for the current and any later implementation; this record repair creates no new validation or acceptance evidence
 
 - **VER-001** — Validate the contract and review source parity, schema record groups, identity/version/checksum/provenance fields, required-input and unit handling, evaluator and redistribution boundaries, diagnostics, invented-example constraints, and every retained governed residual.
 
@@ -328,9 +328,9 @@ This Scope of Work defines `DEL-06-01` in service of project scope [SOW-016, SOW
 >
 > | Item | Open decision | Current handling |
 > |---|---|---|
-> | OI-006 | Exact rule-pack expression grammar/library | `TBD`; schema should remain declarative and sandbox-compatible. |
+> | OI-006 | Rule-pack expression grammar/library | DEC-022 resolves the typed AST grammar; retain sandbox and unit obligations. |
 > | OI-010 | Private rule-pack encryption default | `TBD`; defer to security/privacy work and human ruling. |
-> | OI-011 | Physical project package/container | `TBD`; checksum schema should not assume a container format. |
+> | OI-011 | Physical storage and portable package | DEC-017 selects local SQLite storage; DEC-028/057 governs portable packaging. Canonical checksum semantics remain independent of storage. |
 
 ## Output and Evaluation Matrix
 

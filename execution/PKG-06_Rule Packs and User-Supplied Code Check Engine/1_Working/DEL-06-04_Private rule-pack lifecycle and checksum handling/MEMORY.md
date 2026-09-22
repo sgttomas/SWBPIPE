@@ -1,5 +1,9 @@
 # MEMORY - DEL-06-04 Private rule-pack lifecycle and checksum handling
 
+## 2026-09-22 — Current navigation
+
+The undated implementation and open-item blocks below preserve the May 2026 bounded-implementation snapshot. Current requirements and remaining delivery work are in `ScopeOfWork.md` and `_STATUS.md`. Production canonical JSON hashing, local rule-pack storage, GUI authoring, typed transport, and completeness checking now have implementation evidence in `core/serialization/canonical_json`, `apps/desktop/src-tauri/src`, and `core/rules/completeness_checker/`; those implementations do not close report/export audit-reference wiring, non-JSON manifest partitioning, PKG-12 privacy obligations, or formal review and acceptance. Historical entries below retain their original evidence and lifecycle statements.
+
 ## 2026-07-12 - D-41 R5 T4 PDU-040 supporting evidence
 
 - The downstream report reader does not expand the lifecycle crate or supply DEL-06-03 data-gap evaluation. Runtime binding and exact non-JSON/binary partitioning remain held.

@@ -44,7 +44,7 @@ This Scope of Work defines `DEL-02-03` in service of project scope [SOW-002] and
 >
 > | Attribute | Draft value | Source / notes |
 > |---|---|---|
-> | Boundary purpose | Separate mechanics solve, user-supplied rule-pack check, and project-specific human professional acceptance. | `INIT.md` agent rule; `docs/DIRECTIVE.md` section 2.2; `execution/_Decomposition/SOFTWARE_DECOMP.md` sections 1 and 7 |
+> | Boundary purpose | Separate mechanics solve, user-supplied rule-pack check, and project-specific human professional acceptance. | `loop/LOOP_INIT.md` agent rule; `docs/DIRECTIVE.md` section 2.2; `execution/_Decomposition/SOFTWARE_DECOMP.md` sections 1 and 7 |
 > | Code-neutral scope | Solver computes mechanics; user-supplied rule packs evaluate acceptability. | `SOW-002`; `docs/PRD.md` section 6.1; `docs/INTENT.md` "Rule-pack intent" |
 > | Public data boundary | Public artifacts must not contain protected standards text, tables, examples, code-derived formulas, allowables, SIF/flexibility tables, or proprietary commercial data. | `docs/CONTRACT.md` `OPS-K-IP-1`; `docs/IP_AND_DATA_BOUNDARY.md` sections 2-3 |
 > | Status vocabulary basis | `MODEL_INCOMPLETE`, `MECHANICS_SOLVED`, `RULE_INPUTS_INCOMPLETE`, `USER_RULE_CHECKED`, `USER_RULE_FAILED`, `HUMAN_REVIEW_REQUIRED`, `HUMAN_APPROVED_FOR_PROJECT`. | `docs/TYPES.md` section 4 |
@@ -104,11 +104,11 @@ This Scope of Work defines `DEL-02-03` in service of project scope [SOW-002] and
 
 > ##### References
 >
-> - `_CONTEXT.md` revision 0.7 for sealed deliverable identity, scope, artifacts, and architecture-basis injection.
+> - `_CONTEXT.md` current authority references for sealed deliverable identity, scope, artifacts, and architecture-basis injection.
 > - `docs/_Registers/Deliverables.csv` row `DEL-02-03`.
 > - `docs/_Registers/ScopeLedger.csv` row `SOW-002`.
 > - `docs/_Registers/ContextBudgetQA.csv` row `DEL-02-03`.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 sections 5, 7, 8, and 9.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) sections 5, 7, 8, and 9.
 > - `docs/CONTRACT.md` section 1 invariants `OPS-K-IP-*`, `OPS-K-DATA-*`, `OPS-K-AUTH-*`, `OPS-K-MECH-2`, `OPS-K-AGENT-*`.
 > - `docs/TYPES.md` sections 4, 5, 6, and 8.
 > - `docs/DIRECTIVE.md` sections 2, 3, 4, and 5.
@@ -142,7 +142,7 @@ This Scope of Work defines `DEL-02-03` in service of project scope [SOW-002] and
 > - `analysis_status` vocabulary and authority semantics.
 > - Boundary interfaces between mechanics solving, rule-pack checking, and human acceptance records.
 > - Minimum provenance, diagnostics, and evidence hooks needed to avoid status ambiguity.
-> - Documentation guidance for a future `docs/SPEC.md` state-model section.
+> - Documentation guidance bound to `docs/SPEC.md` §4.3 and the current state-model schema.
 >
 > Out of scope:
 >
@@ -153,7 +153,7 @@ This Scope of Work defines `DEL-02-03` in service of project scope [SOW-002] and
 > - External code, standard, or certification logic.
 > - Protected standards/code data, code tables, allowables, SIF/flexibility factors, or proprietary examples.
 >
-> Primary governing sources are `_CONTEXT.md`, `SOW-002`, `docs/TYPES.md` section 4, `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, `docs/PRD.md` sections 6.1/6.2/12/17.4, and `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7.
+> Primary governing sources are `_CONTEXT.md`, `SOW-002`, `docs/TYPES.md` section 4, `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, `docs/PRD.md` sections 6.1/6.2/12/17.4, and `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register).
 >
 
 ### CLM-010 — Requirements
@@ -163,7 +163,7 @@ This Scope of Work defines `DEL-02-03` in service of project scope [SOW-002] and
 > | ID | Requirement | Source |
 > |---|---|---|
 > | DEL-02-03-R01 | The boundary model shall represent the status vocabulary from `docs/TYPES.md` section 4: `MODEL_INCOMPLETE`, `MECHANICS_SOLVED`, `RULE_INPUTS_INCOMPLETE`, `USER_RULE_CHECKED`, `USER_RULE_FAILED`, `HUMAN_REVIEW_REQUIRED`, and `HUMAN_APPROVED_FOR_PROJECT`. | `docs/TYPES.md` section 4 |
-> | DEL-02-03-R02 | The model shall not include `CODE_COMPLIANT` as an automatic software status and shall not claim certification, sealing, approval, authentication, or engineering code compliance for reliance (PRD §21.2). | `docs/TYPES.md` section 4; `docs/CONTRACT.md` `OPS-K-AUTH-1`; `INIT.md` Agent rule |
+> | DEL-02-03-R02 | The model shall not include `CODE_COMPLIANT` as an automatic software status and shall not claim certification, sealing, approval, authentication, or engineering code compliance for reliance (PRD §21.2). | `docs/TYPES.md` section 4; `docs/CONTRACT.md` `OPS-K-AUTH-1`; `loop/LOOP_INIT.md` Agent rule |
 > | DEL-02-03-R03 | The mechanics solve boundary shall communicate that solver output is a mechanics result only. | `docs/CONTRACT.md` `OPS-K-MECH-2`; `docs/PRD.md` section 6.1; `docs/INTENT.md` mechanics/rule-pack boundary |
 > | DEL-02-03-R04 | The rule-check boundary shall require user-supplied rule-pack data for acceptability checks and shall not bundle proprietary or protected code content into the public model. | `SOW-002`; `docs/PRD.md` sections 6.1 and 12.1; `docs/IP_AND_DATA_BOUNDARY.md` sections 2-3 |
 > | DEL-02-03-R05 | Missing solve-required and rule-check-required values shall surface as explicit statuses or diagnostics, never as silent defaults. | `docs/CONTRACT.md` `OPS-K-DATA-2`; `docs/PRD.md` section 6.2 |
@@ -229,7 +229,7 @@ This Scope of Work defines `DEL-02-03` in service of project scope [SOW-002] and
 > | `docs/TYPES.md` | Analysis-status vocabulary, epistemic labels, domain terms, and lifecycle states. |
 > | `docs/DIRECTIVE.md` | Product boundaries, no silent defaults, human authority, and stop rules. |
 > | `docs/SPEC.md` | Layered architecture, rule-pack evaluator requirements, warning classes, report/audit boundaries, and acceptance semantics. |
-> | `execution/_Decomposition/SOFTWARE_DECOMP.md` | Accepted revision 0.7 decomposition, `SOW-002`, `DEL-02-03`, objectives, and SCA-001 architecture basis. |
+> | `execution/_Decomposition/SOFTWARE_DECOMP.md` | Accepted accepted authority (see the decision register) decomposition, `SOW-002`, `DEL-02-03`, objectives, and SCA-001 architecture basis. |
 > | `docs/PRD.md` | Open mechanics/private code data, no silent engineering defaults, rule-pack requirements, private data handling, and disclaimer requirements. |
 > | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data boundary, provenance fields, quarantine rule, and report boundary. |
 >
@@ -271,10 +271,10 @@ This Scope of Work defines `DEL-02-03` in service of project scope [SOW-002] and
 >
 > Required documentation outputs for this deliverable tranche:
 >
-> - `Datasheet.md` describing the boundary model attributes and construction.
-> - `Specification.md` defining requirements and verification hooks.
-> - `Guidance.md` explaining conservative use and trade-offs.
-> - `Procedure.md` giving operational steps for producing/updating the model.
+> - `ScopeOfWork.md` (definition) describing the boundary model attributes and construction.
+> - `ScopeOfWork.md` (requirements) defining requirements and verification hooks.
+> - `ScopeOfWork.md` (rationale) explaining conservative use and trade-offs.
+> - `ScopeOfWork.md` (procedure) giving operational steps for producing/updating the model.
 > - Future integration target: a `docs/SPEC.md` state-model section. This run does not edit `docs/SPEC.md` because the sealed write scope is deliverable-local.
 > - Future schema target: `analysis_status` enum/schema location TBD.
 >
@@ -298,18 +298,18 @@ This Scope of Work defines `DEL-02-03` in service of project scope [SOW-002] and
 
 > ##### Purpose
 >
-> Define a repeatable procedure for producing and checking the `DEL-02-03` boundary model. The procedure is for deliverable drafting and later implementation planning; it does not perform mechanics solving, rule-pack evaluation, GUI development, or human professional acceptance.
+> Define a repeatable procedure for producing and checking the `DEL-02-03` boundary model. The procedure is for maintenance and verification of the code-neutral analysis boundary contract; it does not perform mechanics solving, rule-pack evaluation, GUI development, or human professional acceptance.
 >
 
 ### CLM-018 — Prerequisites
 
 > ##### Prerequisites
 >
-> - Read `_CONTEXT.md` revision 0.7 for deliverable identity, scope, artifacts, and SCA-001 architecture-basis injection.
+> - Read `_CONTEXT.md` current authority references for deliverable identity, scope, artifacts, and SCA-001 architecture-basis injection.
 > - Confirm `_STATUS.md` allows editing under the active task brief. Reread the current state for each run; do not carry forward stale prior-run state claims.
 > - Read `_REFERENCES.md` and use accessible local sources.
 > - Read `docs/_Registers/Deliverables.csv` row `DEL-02-03`, `docs/_Registers/ScopeLedger.csv` row `SOW-002`, and `docs/_Registers/ContextBudgetQA.csv` row `DEL-02-03`.
-> - Read `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 sections for objectives, `PKG-02`, `DEL-02-03`, SCA-001 basis, and `SOW-002`.
+> - Read `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) sections for objectives, `PKG-02`, `DEL-02-03`, SCA-001 basis, and `SOW-002`.
 > - Read governing source slices: `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/DIRECTIVE.md`, `docs/SPEC.md`, `docs/PRD.md` sections 6.1/6.2/12/17.4, `docs/INTENT.md` rule-pack/mechanics boundary, and `docs/IP_AND_DATA_BOUNDARY.md`.
 > - Confirm no human-owned upstream dependency list blocks the work. `_DEPENDENCIES.md` states dependencies are coordinated externally and not tracked in this folder.
 >
@@ -355,11 +355,11 @@ This Scope of Work defines `DEL-02-03` in service of project scope [SOW-002] and
 > 7. Draft or update artifacts.
 >    - Draft `analysis_status` enum semantics.
 >    - Draft the `docs/SPEC.md` state-model text in deliverable-local form only unless a later task authorizes editing `docs/SPEC.md`.
->    - Keep implementation-level choices marked `TBD`: exact schema file path, exact field layout, expression grammar/library, public API transport, and physical persistence container.
+>    - Use current `schemas/analysis_status.schema.yaml` and `schemas/analysis_boundary.schema.yaml` as draft construction evidence. Apply DEC-022/037 grammar and DEC-017/028 persistence decisions; retain public transport, unselected local choices and status/acceptance conformance at their actual boundaries.
 >
 > 8. Run cross-document consistency checks.
->    - Confirm Datasheet attributes are reflected in Specification requirements.
->    - Confirm Specification requirements have Guidance rationale and Procedure verification hooks.
+>    - Confirm the consolidated `ScopeOfWork.md` attributes are traced to its requirements.
+>    - Confirm requirements retain their rationale and verification hooks in the consolidated `ScopeOfWork.md`.
 >    - Confirm terminology is consistent: mechanics solve, user-rule check, human professional acceptance, user-supplied rule pack, protected standards data, and `analysis_status`.
 >    - Confirm no numeric engineering values or protected source content were introduced.
 >
@@ -383,10 +383,10 @@ This Scope of Work defines `DEL-02-03` in service of project scope [SOW-002] and
 
 > ##### Records
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md` (definition)
+> - `ScopeOfWork.md` (requirements)
+> - `ScopeOfWork.md` (rationale)
+> - `ScopeOfWork.md` (procedure)
 > - `_STATUS.md` safe transition record, when state permits.
 > - `_run_records/TASK_RUN_*.md`
 > - Future record target: authorized update to `docs/SPEC.md` state model, if authorized by a separate task or change process.
@@ -442,7 +442,7 @@ This Scope of Work defines `DEL-02-03` in service of project scope [SOW-002] and
 >
 > Use `human acceptance record` as the preferred term for the data object or pointer that may support `HUMAN_APPROVED_FOR_PROJECT`. Use `professional approval` only for the human governance concept described in `docs/TYPES.md` section 6, not for a software action. Accepted aliases such as human professional approval, project-specific human acceptance, and human approval must resolve to a human record outside solver authority. UI, API, and report text should not shorten `HUMAN_APPROVED_FOR_PROJECT` to "approved" without the project-specific human-record qualifier (PRD §21.2).
 >
-> Source: `docs/TYPES.md` sections 4 and 6; `docs/CONTRACT.md` `OPS-K-AUTH-1` and `OPS-K-AUTH-2`; `INIT.md` Agent rule.
+> Source: `docs/TYPES.md` sections 4 and 6; `docs/CONTRACT.md` `OPS-K-AUTH-1` and `OPS-K-AUTH-2`; `loop/LOOP_INIT.md` Agent rule.
 >
 
 ### CLM-026 — Considerations
@@ -491,7 +491,7 @@ This Scope of Work defines `DEL-02-03` in service of project scope [SOW-002] and
 
 > ##### Conflict Table (for human ruling)
 >
-> No unresolved source conflicts remain. Pass 3 resolved the stale run-state trace item by requiring `_STATUS.md` to be reread for each run rather than carrying a prior run state into `Procedure.md`. Current unresolved items are implementation-level `TBD` items, not source conflicts:
+> No unresolved source conflicts remain. Pass 3 resolved the stale run-state trace item by requiring `_STATUS.md` to be reread for each run rather than carrying a prior run state into `ScopeOfWork.md` (procedure). Current unresolved items are implementation-level `TBD` items, not source conflicts:
 >
 > | Conflict ID | Conflict (short statement) | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling (TBD) |
 > |---|---|---|---|---|---|---|

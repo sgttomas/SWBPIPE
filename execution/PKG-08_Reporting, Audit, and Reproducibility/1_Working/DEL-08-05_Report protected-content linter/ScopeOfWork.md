@@ -39,7 +39,7 @@ This Scope of Work defines `DEL-08-05` in service of project scope [SOW-043] and
 > | Scope Item | SOW-043 |
 > | Objectives | OBJ-002, OBJ-007 |
 > | Context Envelope | M |
-> | Current Setup Boundary | Document/setup artifacts only; no linter source, CI guard, tests, report templates, or repo-level artifacts are implemented in this session. |
+> | Current Setup Boundary Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Document/setup artifacts only; no linter source, CI guard, tests, report templates, or repo-level artifacts are implemented in this session. |
 >
 
 ### CLM-004 — Attributes
@@ -52,8 +52,8 @@ This Scope of Work defines `DEL-08-05` in service of project scope [SOW-043] and
 > | Public/private boundary | Public templates and examples must stay protected-content-free. User-private report templates remain user responsibility. |
 > | Review posture | Heuristic plus review; this linter cannot be the sole legal/IP control. |
 > | Anticipated future artifacts | `report linter`; `CI guard` |
-> | Authorized current artifacts | Four-document setup kit, semantic artifacts, dependency register, run records, status update. |
-> | Explicit exclusions | No linter source, no CI workflow edits, no test fixtures embedding protected examples, no legal-sufficiency claim, no `ISSUED` movement. |
+> | Authorized current artifacts | Scope of Work contract, semantic artifacts, dependency register, run records, status update. |
+> | Explicit exclusions | No protected example fixtures, legal-sufficiency claim or issuance. Implementation writes require the active bounded brief; setup-era linter/CI write limits are not standing deliverable exclusions. |
 >
 
 ### CLM-005 — Conditions
@@ -93,7 +93,7 @@ This Scope of Work defines `DEL-08-05` in service of project scope [SOW-043] and
 >
 > | Reference | Use |
 > |---|---|
-> | `INIT.md` | Root bootstrap and agent constraints. |
+> | `AGENTS.md` | Root bootstrap and agent constraints. |
 > | `AGENTS.md` | TASK dispatch and package role constraints. |
 > | `docs/CONTRACT.md` | Invariants OPS-K-IP-1/2/3, OPS-K-DATA-1/2/3, OPS-K-RULE-1/3, OPS-K-AUTH-1, OPS-K-PRIV-1/2, OPS-K-AGENT-1..4, OPS-K-REPORT-2. |
 > | `docs/SPEC.md` | Reporting/audit requirements, warning classes, rule-pack metadata boundary, V&V expectations. |
@@ -116,6 +116,9 @@ This Scope of Work defines `DEL-08-05` in service of project scope [SOW-043] and
 
 > ##### Scope
 >
+> Current deliverable obligation: implement checks that prevent public report templates/examples from embedding protected code text/tables/formulas. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This deliverable specifies setup requirements for a protected-content linter that will guard public report templates and examples against accidental inclusion of protected standards/code text, copied standards tables, proprietary formulas, private rule-pack content, or misleading professional-authority claims.
 >
 > In scope for future implementation:
@@ -126,7 +129,7 @@ This Scope of Work defines `DEL-08-05` in service of project scope [SOW-043] and
 > - checks that public report language does not claim software certification, sealing, approval, authentication, or automatic code compliance (PRD §21.2);
 > - CI guard integration when separately authorized by implementation scope.
 >
-> Out of scope for this setup session:
+> Out of scope for the original setup session:
 >
 > - writing linter source code;
 > - adding or modifying CI guards;
@@ -135,7 +138,6 @@ This Scope of Work defines `DEL-08-05` in service of project scope [SOW-043] and
 > - making legal sufficiency, compliance, certification, or professional-reliance claims;
 > - moving the deliverable to `ISSUED`.
 >
-
 ### CLM-011 — Requirements
 
 > ##### Requirements
@@ -188,10 +190,7 @@ This Scope of Work defines `DEL-08-05` in service of project scope [SOW-043] and
 >
 > Required setup artifacts for this run:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -204,10 +203,12 @@ This Scope of Work defines `DEL-08-05` in service of project scope [SOW-043] and
 > - report linter;
 > - CI guard.
 >
-
 ### CLM-015 — Acceptance Criteria For This Setup Session
 
 > ##### Acceptance Criteria For This Setup Session
+>
+> Current deliverable obligation: implement checks that prevent public report templates/examples from embedding protected code text/tables/formulas. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
 >
 > - No file outside `execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-05_Report protected-content linter/` is edited.
 > - No linter source, CI guard, tests, report templates, docs outside this deliverable, or repo-level artifacts are modified.
@@ -215,7 +216,6 @@ This Scope of Work defines `DEL-08-05` in service of project scope [SOW-043] and
 > - No protected standards content, proprietary examples, private project/rule data, or certification/compliance claim is introduced.
 > - `Dependencies.csv` validates against v3.1 schema and active rows contain evidence.
 > - `_STATUS.md` reports `SEMANTIC_READY` only after the four-document kit, semantic artifacts, dependency register, and validation checks are complete.
-
 - **AC-001** — The contract preserves the public/private and redistribution boundary, flags suspected protected or prohibited-authority content without asserting legal sufficiency, uses no protected fixtures, keeps severity and review ownership TBD where unresolved, and retains human/legal review as an independent control.
 
 ## Production and Verification Method — Praxeology
@@ -230,9 +230,11 @@ This Scope of Work defines `DEL-08-05` in service of project scope [SOW-043] and
 
 > ##### Purpose
 >
+> Current deliverable obligation: implement checks that prevent public report templates/examples from embedding protected code text/tables/formulas. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This procedure records how DEL-08-05 setup artifacts are produced and how future implementation work should approach the protected-content linter without exceeding the public IP/data boundary.
 >
-
 ### CLM-019 — Prerequisites
 
 > ##### Prerequisites
@@ -242,7 +244,7 @@ This Scope of Work defines `DEL-08-05` in service of project scope [SOW-043] and
 > | Sealed deliverable context for DEL-08-05 with explicit write scope. | User brief; `_CONTEXT.md` | Available for this setup run. |
 > | Local governance references for IP/data, report boundary, professional boundary, and agent constraints. | `_REFERENCES.md`; `docs/CONTRACT.md`; `docs/SPEC.md`; `docs/IP_AND_DATA_BOUNDARY.md`; `docs/TYPES.md`; `docs/DIRECTIVE.md` | Available. |
 > | Decomposition/register scope for SOW-043, OBJ-002, OBJ-007. | `execution/_Decomposition/SOFTWARE_DECOMP.md`; `docs/_Registers/*.csv` | Available. |
-> | Future report template/example locations. | DEL-08-01 and future implementation work | TBD; not required for setup artifacts. |
+> | Future report template/example locations. | DEL-08-01 and future implementation work | Use the current report generator/renderer/package sources and typed linter target configuration; public template/example coverage and source review remain required. |
 > | Future CI guard location and policy. | DEL-10-04 or later authorized implementation work | TBD; not modified in this setup session. |
 >
 
@@ -311,17 +313,16 @@ This Scope of Work defines `DEL-08-05` in service of project scope [SOW-043] and
 > - `_STATUS.md` reports `SEMANTIC_READY`.
 > - No protected examples, proprietary formulas, private data, linter source, CI edits, report-template edits, or repo-level artifacts are introduced.
 >
-
 ### CLM-024 — Records
 
 > ##### Records
 >
 > | Record | Purpose |
 > |---|---|
-> | `Datasheet.md` | Descriptive setup facts and boundary conditions. |
-> | `Specification.md` | Normative setup requirements and future verification targets. |
-> | `Guidance.md` | Rationale, principles, trade-offs, examples, and open questions. |
-> | `Procedure.md` | Setup and future implementation workflow. |
+> | `ScopeOfWork.md` | Descriptive setup facts and boundary conditions. |
+> | `ScopeOfWork.md` | Normative setup requirements and future verification targets. |
+> | `ScopeOfWork.md` | Rationale, principles, trade-offs, examples, and open questions. |
+> | `ScopeOfWork.md` | Setup and future implementation workflow. |
 > | `_SEMANTIC.md` | Semantic matrix setup lens. |
 > | `_SEMANTIC_LENSING.md` | Coverage-complete lensing register. |
 > | `Dependencies.csv` | Machine-readable dependency register v3.1. |
@@ -425,10 +426,10 @@ This Scope of Work defines `DEL-08-05` in service of project scope [SOW-043] and
 >
 > | ID | Question | Current disposition |
 > |---|---|---|
-> | OQ-08-05-001 | Exact linter implementation language/library and integration point. | TBD; future implementation-level decision. |
-> | OQ-08-05-002 | Exact public template/example path list to scan by default. | TBD; should be resolved when report template locations exist. |
+> | OQ-08-05-001 | Exact linter implementation language/library and integration point. | The bounded Rust linter and `lint_targets` integration interface are in `core/reporting/protected_content_linter/`; public fixture review, caller integration and release acceptance remain separately governed. |
+> | OQ-08-05-002 | Exact public template/example path list to scan by default. | Use `LintConfiguration` and typed `LintTarget` surface metadata in the current linter; verify every required report/template/example surface in the scoped review instead of freezing a copied pathname list. |
 > | OQ-08-05-003 | Severity and disposition policy for release scans and CI guards. | DEC-058 / D-20 §9 governs the release-artifact scan: Blocking findings halt publication; unknown provenance routes to human review, and unknown/TBD/missing-certification provenance blocks. CI-guard severity policy remains open and is not selected by that release-scan ruling. |
-> | OQ-08-05-004 | Exact diagnostic schema fields for linter output. | TBD; align with AB-00-06 result-envelope/diagnostic basis. |
+> | OQ-08-05-004 | Exact diagnostic schema fields for linter output. | The output field contract is in `schemas/report_protected_content_linter.schema.yaml` and `LintFinding`/`LintRun`; retain the required diagnostic and review-route obligations. |
 > | OQ-08-05-005 | Human/legal review ownership for release-artifact protected-content findings. | DEC-058 / D-20 §9 records the owner as scan owner and sole signatory of the legal/protected-data release gate; DEL-08-05 owns scanner tooling. Each release candidate requires the scoped machine-readable scan record and owner sign-off. This records the adopted procedure, not scan execution, legal clearance or publication acceptance; non-release review questions retain their owning authority. |
 
 ## Output and Evaluation Matrix

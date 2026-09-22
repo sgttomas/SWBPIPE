@@ -71,7 +71,7 @@ This Scope of Work defines `DEL-14-03` in service of project scope [SOW-073, SOW
 > | Analysis-run result deltas | Out of this deliverable except where SOW-073 context informs state comparison; the analysis-run comparison engine is `DEL-14-04`. |
 > | External validation/prover status | Excluded. The package does not ingest commercial prover outputs comprehensively or determine external validation. |
 >
-> Source: `Dependencies.csv` approved DAG-002 mirror rows `DAG-002-E0792`, `DAG-002-E0793`, `DAG-002-E0794`; `_CONTEXT.md` Package Exclusions; `execution/_Decomposition/SOFTWARE_DECOMP.md` rows `DEL-14-03`, `DEL-14-04`, `DEL-14-05`.
+> Source: `Dependencies.csv` approved graph resolved through `execution/_DAG/_LATEST.md` mirror rows `DAG-002-E0792`, `DAG-002-E0793`, `DAG-002-E0794`; `_CONTEXT.md` Package Exclusions; `execution/_Decomposition/SOFTWARE_DECOMP.md` rows `DEL-14-03`, `DEL-14-04`, `DEL-14-05`.
 >
 
 ### CLM-006 — Construction
@@ -95,8 +95,8 @@ This Scope of Work defines `DEL-14-03` in service of project scope [SOW-073, SOW
 >
 > - `_CONTEXT.md` - deliverable identity, scope, architecture-basis injection, and dependency envelope.
 > - `_REFERENCES.md` - local reference index for this deliverable.
-> - `Dependencies.csv` - approved DAG-006 local mirror/evidence surface.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted revision 0.7 current decomposition basis.
+> - `Dependencies.csv` - approved graph resolved through `execution/_DAG/_LATEST.md` local mirror/evidence surface.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current decomposition basis.
 > - `docs/_Registers/Deliverables.csv` - deliverable row `DEL-14-03`.
 > - `docs/_Registers/ScopeLedger.csv` - rows `SOW-071` and `SOW-073`.
 > - `docs/CONTRACT.md` - invariants for IDs, units, professional authority, data, and agent behavior.
@@ -155,7 +155,7 @@ This Scope of Work defines `DEL-14-03` in service of project scope [SOW-073, SOW
 > - `docs/CONTRACT.md` for invariant boundaries.
 > - `docs/SPEC.md` for unit, persistence, result-envelope, and validation expectations.
 > - `docs/TYPES.md` for stable references, traceability links, checksums, diagnostics, and result/report boundary concepts.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for scope partitioning and architecture-basis constraints.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` with its accepted amendments for scope partitioning and architecture-basis constraints.
 >
 > Any clause-level external standard requirement is `TBD` and must not be inferred.
 >
@@ -181,10 +181,10 @@ This Scope of Work defines `DEL-14-03` in service of project scope [SOW-073, SOW
 >
 > Required local evidence for this deliverable:
 >
-> - state comparison engine artifact or module path, `TBD` until implementation;
-> - state diff tests;
+> - reference engine `core/comparison/model_state/engine.py`;
+> - state diff tests at `tests/test_model_state_comparison.py`;
 > - notes identifying dependency on `DEL-14-01`, `DEL-14-05`, and `DEL-02-02`;
-> - comparison result-envelope shape or service contract, `TBD` until implementation;
+> - reference comparison outputs from that engine, checked alongside `schemas/comparison_mapping.schema.json`; product/API conformance remains separate;
 > - protected-content/provenance status for fixtures and examples.
 
 ### CLM-016 — D-41 R5 T2B unit-comparison boundary (2026-07-12)
@@ -193,7 +193,7 @@ This Scope of Work defines `DEL-14-03` in service of project scope [SOW-073, SOW
 >
 > DEL-14-03 performs structural state comparison, not unit conversion. A changed field declared unit-bearing must carry explicit unit and dimension metadata on both sides. Missing metadata, incompatible dimensions, or different units without a governed normalization contract block classification as a normal change. Same-unit/same-dimension values are preserved as structured left/right evidence; the engine does not emit a bare numeric delta.
 
-- **AC-001** — The contract preserves immutable-state context, stable-ID-first matching, explicit rather than heuristic mappings, deterministic output, metadata and diagnostic preservation, structured unit/dimension blocking behavior without bare numeric deltas, invented/public-safe fixtures, the retained dependency-enum conflict and review residuals, and the separation from run comparison, export policy, external validation, or professional approval.
+- **AC-001** — The contract preserves immutable-state context, stable-ID-first matching, explicit rather than heuristic mappings, deterministic output, metadata and diagnostic preservation, structured unit/dimension blocking behavior without bare numeric deltas, invented/public-safe fixtures, the canonical dependency authority and preserved legacy provenance and review residuals, and the separation from run comparison, export policy, external validation, or professional approval.
 
 ## Production and Verification Method — Praxeology
 
@@ -216,9 +216,9 @@ This Scope of Work defines `DEL-14-03` in service of project scope [SOW-073, SOW
 >
 > | Prerequisite | Status / source |
 > |---|---|
-> | Immutable model-state record contract | Upstream dependency `DEL-14-01`; approved DAG-002 mirror row `DAG-002-E0792`. |
-> | Mapping/tolerance contract | Upstream dependency `DEL-14-05`; approved DAG-002 mirror row `DAG-002-E0793`; details `TBD` per `OI-014`. |
-> | Unit system and dimensional-analysis contract | Upstream dependency `DEL-02-02`; approved DAG-002 mirror row `DAG-002-E0794`. |
+> | Immutable model-state record contract | Upstream dependency `DEL-14-01`; approved graph resolved through `execution/_DAG/_LATEST.md` mirror row `DAG-002-E0792`. |
+> | Mapping/tolerance contract | Upstream dependency `DEL-14-05`; approved graph resolved through `execution/_DAG/_LATEST.md` mirror row `DAG-002-E0793`; details `TBD` per `OI-014`. |
+> | Unit system and dimensional-analysis contract | Upstream dependency `DEL-02-02`; approved graph resolved through `execution/_DAG/_LATEST.md` mirror row `DAG-002-E0794`. |
 > | Architecture basis | `AB-00-01`, `AB-00-02`, `AB-00-03`, `AB-00-04`, `AB-00-06`, `AB-00-07`, and `AB-00-08` in `_CONTEXT.md`. |
 > | Professional/IP boundary | `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, and `docs/IP_AND_DATA_BOUNDARY.md`. |
 >
@@ -255,7 +255,7 @@ This Scope of Work defines `DEL-14-03` in service of project scope [SOW-073, SOW
 > | Check | Expected evidence |
 > |---|---|
 > | Stable-ID determinism | Repeated comparisons of the same fixtures produce identical classifications and result serialization where implemented. |
-> | Mapping behavior | Explicit mappings produce expected correspondence; missing mappings remain visible. `TBD` until `DEL-14-05` exists. |
+> | Mapping behavior | Explicit mappings produce expected correspondence; missing mappings remain visible. Reference schema/engine evidence exists in `schemas/comparison_mapping.schema.json` and `tests/test_model_state_comparison.py`; actual product integration must be demonstrated. |
 > | Changed classification | Source-supported relevant field changes are reported as changed. Exact normalization policy is `TBD`. |
 > | Unit metadata | Unit-bearing fields require unit/dimension context or produce diagnostics. |
 > | Metadata preservation | Warnings, assumptions, external references, notes, provenance, and hashes are not silently dropped. |
@@ -267,11 +267,11 @@ This Scope of Work defines `DEL-14-03` in service of project scope [SOW-073, SOW
 
 > ##### Records
 >
-> - Implementation/module path: `TBD`.
-> - State comparison service or engine contract: `TBD`.
-> - State diff test artifact path: `TBD`.
+> - Reference implementation: `core/comparison/model_state/engine.py`.
+> - Comparison contract evidence: `schemas/comparison_mapping.schema.json`; runtime service integration remains separate.
+> - State diff tests: `tests/test_model_state_comparison.py`; no new execution result is claimed.
 > - Fixture provenance notes: `TBD`.
-> - Dependency notes: preserve the existing DAG-002 mirror rows as ACTIVE unless a future approved coordination workflow changes the mirror.
+> - Preserve local dependency meanings and actual statuses under `execution/_DAG/_LATEST.md`; historical IDs remain provenance and this record repair does not mutate the register.
 
 ### CLM-024 — D-41 R5 T2B unit check (2026-07-12)
 
@@ -351,7 +351,7 @@ This Scope of Work defines `DEL-14-03` in service of project scope [SOW-073, SOW
 > - an entity appears in both states with the same stable ID or explicit mapping and no relevant difference: unchanged;
 > - an entity appears in both states with the same stable ID or explicit mapping and a source-supported relevant difference: changed.
 >
-> Concrete fixture entities, fields, values, units, tolerances, and mapping records are `TBD` until the state schema and mapping/tolerance contract are available.
+> Concrete reference fixtures are carried by `tests/test_model_state_comparison.py`, with `schemas/model_state.schema.json` and `schemas/comparison_mapping.schema.json`. Their existence does not select default engineering tolerances or clear fixture provenance; preserve those separate obligations.
 >
 
 ### CLM-032 — Conflict Table (for human ruling)
@@ -360,7 +360,7 @@ This Scope of Work defines `DEL-14-03` in service of project scope [SOW-073, SOW
 >
 > | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 > |---|---|---|---|---|---|---|
-> | C-14-03-001 | Dependency-extract v3.1 write-form enums would normalize/reclassify several approved DAG-006 mirror values, but the project task rule says to preserve approved DAG-006 rows as ACTIVE without reclassification. | `skills/dependency-extract/SKILL.md` "Canonical enums"; `Dependencies.csv` approved mirror rows | User task instruction for `DEL-14-03` dependency handling | Dependency register handling; final report | Preserve the approved mirror unchanged and record the conflict. | TBD |
+> | C-14-03-001 | Historical legacy-enum/mirror conflict; canonical dependency vocabulary was adopted by DAG-007. | `execution/_DAG/DAG-007/APPROVAL_RECORD.md` | Current graph authority: `execution/_DAG/_LATEST.md` (DAG-011); legacy IDs remain provenance | Dependency carrier wording only | Preserve current approved mirror meanings and statuses, including retired legacy duplicates; no register mutation in this repair | Resolved for enum authority by recorded DAG-007 adoption; not a new owner ruling |
 
 ### CLM-033 — D-41 R5 T2B unit guidance (2026-07-12)
 

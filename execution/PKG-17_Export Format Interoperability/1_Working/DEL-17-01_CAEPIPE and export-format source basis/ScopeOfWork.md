@@ -54,7 +54,7 @@ This Scope of Work defines `DEL-17-01` in service of project scope [SOW-030, SOW
 >
 > | Source ID | Source | Use in PKG-17 |
 > |---|---|---|
-> | PLAN-EXPORT-INTEROP | `plans/EXPORT_FORMAT_INTEROPERABILITY_PLAN.md` | Human strategic basis for export priorities, boundaries, and target ordering. |
+> | PLAN-EXPORT-INTEROP | `execution/_ScopeChange/SCA-004_2026-05-18_0000/ACCEPTANCE_RECORD.md` and DEL-17-01 `ScopeOfWork.md` (current export scope/source boundary; the former export-plan path is unavailable historical strategy, not field-level authority) | Human strategic basis for export priorities, boundaries, and target ordering. |
 > | CAEPIPE-IMPORT-MBF | Official CAEPIPE MBF import/manual page; `IMPORT MBF`, `Command line operation`, `Format of .MBF` | Public evidence for MBF as a text model input path and command-line behavior. |
 > | CAEPIPE-EXPORT-DATA | Official CAEPIPE model/result export page; `Export data from CAEPIPE` | Public evidence for model/result export surfaces including CSV/text-style outputs. |
 > | CAEPIPE-EXPORT-MBF | Official CAEPIPE MBF export page; `EXPORT MBF` | Public evidence that CAEPIPE can export model data to MBF. |
@@ -188,7 +188,7 @@ This Scope of Work defines `DEL-17-01` in service of project scope [SOW-030, SOW
 >
 > DEL-17-01 is acceptable when:
 >
-> - the four-document kit exists and passes the local four-document check;
+> - the consolidated `ScopeOfWork.md` exists and passes the local four-document check;
 > - source findings cite admitted source IDs;
 > - public facts, assumptions, and TBDs are separated;
 > - the CAEPIPE developer-team question dossier exists;
@@ -267,6 +267,8 @@ This Scope of Work defines `DEL-17-01` in service of project scope [SOW-030, SOW
 
 ### CLM-023 — Validation
 
+> Historical population-run method and checks: retain the original commands, artifact expectations and permitted transition as evidence of that bounded run. Current maintenance uses `ScopeOfWork.md` and its applicable validation contract; this passage neither repeats that lifecycle transition nor asserts a new validation pass.
+
 > ##### Validation
 >
 > Run:
@@ -318,7 +320,7 @@ This Scope of Work defines `DEL-17-01` in service of project scope [SOW-030, SOW
 > ##### How to Use the Source Basis
 >
 > - Treat official/public vendor documentation as evidence for documented interfaces only.
-> - Treat `plans/EXPORT_FORMAT_INTEROPERABILITY_PLAN.md` as the accepted human-authored strategy, not as a substitute for target-format details.
+> - Preserve the unavailable former export plan as historical strategy provenance. Current admitted scope is established by `execution/_ScopeChange/SCA-004_2026-05-18_0000/ACCEPTANCE_RECORD.md` and the accepted decomposition; DEL-17-01 `ScopeOfWork.md` defines this source-admission work. These records do not replace the missing plan or establish target-format details.
 > - Treat project governance docs as binding constraints whenever source material is silent, ambiguous, or tempting to overstate.
 > - Treat any unsupported, version-sensitive, undocumented, or inferred target behavior as `TBD`.
 >

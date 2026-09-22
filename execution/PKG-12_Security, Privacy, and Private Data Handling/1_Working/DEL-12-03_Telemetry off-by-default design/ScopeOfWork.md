@@ -100,7 +100,7 @@ This Scope of Work defines `DEL-12-03` in service of project scope [SOW-037] and
 
 > ##### References
 >
-> - `INIT.md` for project bootstrap and boundary rules.
+> - `AGENTS.md` for project bootstrap and boundary rules.
 > - `AGENTS.md` for bounded Type 2 dispatch rules.
 > - `docs/CONTRACT.md` for OPS-K-IP, OPS-K-DATA, OPS-K-AUTH, OPS-K-PRIV, and OPS-K-AGENT invariants.
 > - `docs/DIRECTIVE.md` for founding boundaries and out-of-scope hidden cloud telemetry.
@@ -110,7 +110,7 @@ This Scope of Work defines `DEL-12-03` in service of project scope [SOW-037] and
 > - `core/security/telemetry_policy/` for metadata-only helper evidence.
 > - `tests/security/test_telemetry_policy.py` for focused default-off/helper tests.
 > - `apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx` for the DEL-12-03 default-off policy-review surface attributed by DEC-074 O3.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for PKG-12, DEL-12-03, SOW-037, OBJ-010, OI-008, and AB-00-01/02/03/04/06/07/08.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis for PKG-12, DEL-12-03, SOW-037, OBJ-010, OI-008, and AB-00-01/02/03/04/06/07/08.
 > - `execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-03_Telemetry off-by-default design/_run_records/TASK_RUN_2026-06-07_0141.md`.
 > - `execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/_run_records/WORKING_ITEMS_RUN_2026-06-07_0150_TP-PKG12-LOCAL-PRIVACY-GUARDS-FANIN.md`.
 > - `docs/_Registers/Deliverables.csv` row DEL-12-03.
@@ -201,10 +201,7 @@ This Scope of Work defines `DEL-12-03` in service of project scope [SOW-037] and
 >
 > The deliverable-local artifact set remains:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -213,7 +210,6 @@ This Scope of Work defines `DEL-12-03` in service of project scope [SOW-037] and
 >
 > Current external evidence artifacts are `docs/security/telemetry_policy.md`, `core/security/telemetry_policy/`, `tests/security/test_telemetry_policy.py`, and `apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx`. Future runtime telemetry, product config schema/storage, consent UI/CLI, endpoint/vendor/transport, retention, event allowlist/schema, and support-bundle implementation artifacts remain `TBD` and shall remain outside this setup folder unless dispatched by a separate sealed brief.
 >
-
 ### CLM-016 — D-41 R5 T5 PDU-042 affirmative-request boundary
 
 > ##### D-41 R5 T5 PDU-042 affirmative-request boundary
@@ -257,7 +253,7 @@ This Scope of Work defines `DEL-12-03` in service of project scope [SOW-037] and
 > ##### Steps
 >
 > 1. Confirm the current brief is scoped only to DEL-12-03 and the assigned folder.
-> 2. Read `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, `_STATUS.md`, `INIT.md`, `AGENTS.md`, `docs/CONTRACT.md`, the DEL-12-03 register rows, and the applicable PKG-12/architecture-basis decomposition rows.
+> 2. Read `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, `_STATUS.md`, `AGENTS.md`, `AGENTS.md`, `docs/CONTRACT.md`, the DEL-12-03 register rows, and the applicable PKG-12/architecture-basis decomposition rows.
 > 3. Treat telemetry as disabled unless explicit approved opt-in configuration exists.
 > 4. If no human/security approval exists for telemetry collection, keep event names, endpoint details, vendor selections, payload fields, and transport behavior as `TBD` or no-op.
 > 5. Verify configuration behavior so absent, unset, empty, unknown, unsupported, malformed, or incomplete telemetry metadata resolves to disabled.
@@ -277,7 +273,7 @@ This Scope of Work defines `DEL-12-03` in service of project scope [SOW-037] and
 > | `ScopeOfWork.md` exists | `ScopeOfWork.md` is present. |
 > | Telemetry policy artifact exists | `docs/security/telemetry_policy.md` is present and documents default-off policy plus metadata-only helper boundaries. |
 > | Metadata-only helper exists | `core/security/telemetry_policy/` is present and evaluates config/event metadata before payload construction. |
-> | Default sections preserved | Each document retains its required default section headings. |
+> | Default sections preserved | `ScopeOfWork.md` retains its four-lens sections, stable claim identifiers and output/evaluation matrix. |
 > | Privacy default | Specification states disabled-by-default and fail-closed config behavior. |
 > | No private data transmission | Specification forbids private project/code/rule/material/component/report/path/hash/secret/protected content in telemetry payloads. |
 > | No cloud assumption | Documents do not define cloud operation, endpoint, vendor, or upload behavior without human approval. |
@@ -293,10 +289,7 @@ This Scope of Work defines `DEL-12-03` in service of project scope [SOW-037] and
 >
 > Deliverable-local records:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -306,7 +299,6 @@ This Scope of Work defines `DEL-12-03` in service of project scope [SOW-037] and
 > Current external evidence records include `docs/security/telemetry_policy.md`, `core/security/telemetry_policy/`, `tests/security/test_telemetry_policy.py`, `apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx`, `_run_records/TASK_RUN_2026-06-07_0141.md`, and the PKG-12 package fan-in run record. Future implementation records, if authorized, should include human approval evidence, config schema/default fixtures, payload allowlist, transport-disabled runtime tests, opt-in tests, payload privacy tests, and plugin/adapter bypass tests.
 >
 > The PDU-042 request interaction is not one of those future consent/opt-in implementations. Treat it as bounded GUI evidence that an affirmative request can be distinct while the O7 guard remains authoritative and fail-closed.
-
 - **VER-001** — Validate the contract and review source parity, default-off and fail-closed cases, forbidden-field and no-network/no-payload boundaries, distinct affirmative-request behavior, bounded seam versus documented interception absences, retained TBDs, and professional-authority limits.
 
 ## Governing Values and Decisions — Axiology

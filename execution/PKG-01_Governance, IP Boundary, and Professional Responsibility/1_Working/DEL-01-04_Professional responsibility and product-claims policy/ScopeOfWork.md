@@ -36,7 +36,7 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 > | Scope Items | SOW-034, SOW-064 |
 > | Objectives | OBJ-011, OBJ-018 |
 > | Decomposition Basis | execution/_Decomposition/SOFTWARE_DECOMP.md (accepted authority; see the project decision register) |
-> | DAG Context | execution/_DAG/DAG-006/ approved active graph authority |
+> | DAG Context | execution/_DAG/_LATEST.md approved graph authority pointer |
 > | Local Status | IN_PROGRESS; draft governance/report-notice evidence, not issued or professionally accepted |
 >
 
@@ -48,7 +48,7 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 > |---|---|---|
 > | Primary purpose | Define permitted/prohibited claims, report disclaimers, human approval boundaries, and product-claim boundaries for the design-engine scope. | _CONTEXT.md; Deliverables.csv row DEL-01-04 |
 > | Professional boundary | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). | CONTRACT.md OPS-K-AUTH-1; ScopeLedger.csv SOW-034 |
-> | Design-engine scope boundary | SWBPIPE may be framed as an analysis-grade piping design engine and stress-model authoring environment with a full internal solver, but reliance remains non-authoritative without competent human review. | ScopeLedger.csv SOW-064; SOFTWARE_DECOMP.md revision 0.7 |
+> | Design-engine scope boundary | SWBPIPE may be framed as an analysis-grade piping design engine and stress-model authoring environment with a full internal solver, but reliance remains non-authoritative without competent human review. | ScopeLedger.csv SOW-064; SOFTWARE_DECOMP.md accepted authority (see the decision register) |
 > | Solver/rule boundary | The solver computes mechanics; rule packs evaluate user-defined acceptability; professional compliance remains human judgment. | CONTRACT.md OPS-K-MECH-2 |
 > | Report boundary | Reports must disclose provenance, warnings, assumptions, limitations, and professional-responsibility notices. | CONTRACT.md OPS-K-REPORT-1; SPEC.md Section 8 |
 > | Release boundary | Public releases must disclose scope, validation status, known limitations, data-boundary constraints, and professional-responsibility limitations. | CONTRACT.md OPS-K-GOV-3 |
@@ -74,17 +74,17 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 >
 > | Local Artifact | Intended Repo-Level Artifact Discussed | Construction Note |
 > |---|---|---|
-> | Datasheet.md | docs/PROFESSIONAL_BOUNDARY.md | Structured identity and policy attributes only. |
-> | Specification.md | docs/PROFESSIONAL_BOUNDARY.md; docs/report_notice_template.md | Normative requirements and acceptance boundaries for draft repo-level policy surfaces. |
-> | Guidance.md | docs/PROFESSIONAL_BOUNDARY.md | Rationale and examples for product-claims boundaries. |
-> | Procedure.md | docs/report_notice_template.md | Operational workflow for drafting/reviewing claims and notices. |
+> | ScopeOfWork.md — definition | docs/PROFESSIONAL_BOUNDARY.md | Structured identity and policy attributes only. |
+> | ScopeOfWork.md — requirements | docs/PROFESSIONAL_BOUNDARY.md; docs/report_notice_template.md | Normative requirements and acceptance boundaries for draft repo-level policy surfaces. |
+> | ScopeOfWork.md — rationale | docs/PROFESSIONAL_BOUNDARY.md | Rationale and examples for product-claims boundaries. |
+> | ScopeOfWork.md — procedure | docs/report_notice_template.md | Operational workflow for drafting/reviewing claims and notices. |
 >
 
 ### CLM-006 — References
 
 > ##### References
 >
-> - INIT.md
+> - loop/LOOP_INIT.md
 > - AGENTS.md
 > - docs/README.md
 > - docs/DIRECTIVE.md
@@ -93,7 +93,7 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 > - docs/SPEC.md
 > - agents/AGENT_PREPARATION.md
 > - execution/_Decomposition/SOFTWARE_DECOMP.md
-> - execution/_DAG/DAG-006/
+> - execution/_DAG/_LATEST.md
 > - docs/_Registers/Deliverables.csv
 > - docs/_Registers/ScopeLedger.csv
 > - docs/_Registers/ContextBudgetQA.csv
@@ -105,7 +105,7 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 
 > ##### D-41 R5 T7 PDU-054 current declaration
 >
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The professional-responsibility and product-claims policy is current under SOFTWARE_DECOMP revision 0.8 and DAG-007 coordination. It preserves the distinction between computational evidence, professional judgment, validation, and approval; no engineering ruling is created here.
+> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The professional-responsibility and product-claims policy follows `execution/_Decomposition/SOFTWARE_DECOMP.md`, its accepted decisions and graph context from `execution/_DAG/_LATEST.md`. It preserves the distinction between computational evidence, professional judgment, validation, and approval; no engineering ruling is created here.
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -118,7 +118,7 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 
 > ##### Scope
 >
-> This deliverable-local specification defines requirements and acceptance boundaries for the draft professional-boundary policy and report notice template. It covers product-claims language, software/agent authority limits, report notices, and human approval boundaries for OpenPipeStress.
+> This deliverable-local specification defines requirements and acceptance boundaries for the draft professional-boundary policy and report notice template. It covers product-claims language, software/agent authority limits, report notices, and human approval boundaries for SWBPIPE.
 >
 > This current-basis refresh does not edit repo-level policy files, implement product behavior, provide legal advice, certify engineering work, issue project policy, or determine project-specific code compliance.
 >
@@ -207,7 +207,7 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 
 > ##### Purpose
 >
-> Define the local procedure for producing and checking professional-boundary policy language and report notice text for OpenPipeStress.
+> Define the local procedure for producing and checking professional-boundary policy language and report notice text for SWBPIPE.
 >
 
 ### CLM-017 — Prerequisites
@@ -215,7 +215,7 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 > ##### Prerequisites
 >
 > - Sealed deliverable context for DEL-01-04.
-> - Applicable sources: docs/DIRECTIVE.md, docs/CONTRACT.md, docs/TYPES.md, docs/SPEC.md, docs/IP_AND_DATA_BOUNDARY.md, execution/_Decomposition/SOFTWARE_DECOMP.md revision 0.7, approved DAG-006 context, and register rows for DEL-01-04, SOW-034, and SOW-064.
+> - Applicable sources: docs/DIRECTIVE.md, docs/CONTRACT.md, docs/TYPES.md, docs/SPEC.md, docs/IP_AND_DATA_BOUNDARY.md, execution/_Decomposition/SOFTWARE_DECOMP.md (accepted authority through the decision register), approved graph context from `execution/_DAG/_LATEST.md`, and register rows for DEL-01-04, SOW-034, and SOW-064.
 > - No protected standards/code text or proprietary engineering data in the drafting input.
 > - Human/legal/professional rulings available for jurisdiction-specific language: `TBD`.
 >
@@ -267,7 +267,7 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 
 > ##### D-41 R5 T7 PDU-054 current declaration
 >
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The professional-responsibility and product-claims policy is current under SOFTWARE_DECOMP revision 0.8 and DAG-007 coordination. It preserves the distinction between computational evidence, professional judgment, validation, and approval; no engineering ruling is created here.
+> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The professional-responsibility and product-claims policy follows `execution/_Decomposition/SOFTWARE_DECOMP.md`, its accepted decisions and graph context from `execution/_DAG/_LATEST.md`. It preserves the distinction between computational evidence, professional judgment, validation, and approval; no engineering ruling is created here.
 
 - **VER-001** — Compare the converted contract source markers and parity report against all four legacy source documents, then inspect the matrix and derived checklist for the non-authoritative professional-reliance boundary and exact SOW-034, SOW-064, OBJ-011, and OBJ-018 traceability.
 

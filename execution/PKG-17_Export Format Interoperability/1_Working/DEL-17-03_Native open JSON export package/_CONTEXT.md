@@ -10,10 +10,9 @@
 Implement the native open JSON export package used for debug, interchange, archival, adapter input, deterministic manifests, ID maps, and validation reports.
 
 ## Anticipated Artifacts
-- exports/native_json package
-- package writer
-- validation fixtures
-- schema round-trip tests
+- Native JSON export package and writer
+- Validation fixtures and schema round-trip evidence
+- Current reference construction: `core/handoff/native_json/package.py` and `schemas/native_json_export.schema.json`; product/export conformance remains a separate obligation.
 
 ## Scope Coverage
 - SOW-030
@@ -44,7 +43,7 @@ Implement the native open JSON export package used for debug, interchange, archi
 - **Context Budget QA:** docs/_Registers/ContextBudgetQA.csv row DEL-17-03
 
 ## Architecture Basis Injection
-- **Scope Changes:** SCA-001 architecture basis as amended by SCA-003 and SCA-004.
+- **Scope Change Basis:** SCA-001 architecture constraints with accepted amendments recorded in `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`. Historical setup/amendment dates below retain their original reach.
 - **Applicable Basis IDs:** AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, AB-00-08.
 - **Resolved Baseline:** Rust core/application services where implementation-facing; JSON Schema 2020-12 contracts; schema-first command/query/job result envelopes; canonical JSON/JCS-compatible hash basis for JSON payloads; no-bypass adapter/plugin boundaries; protected-content validation gates as applicable.
 - **Dispatch Rule:** Future TASK execution must apply only applicable architecture-basis constraints and must not copy full PKG-00 prose into deliverable artifacts.

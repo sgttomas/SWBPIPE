@@ -115,7 +115,7 @@ This Scope of Work defines `DEL-03-04` in service of project scope [SOW-008] and
 > - Public branch fixture-value policy remains `TBD`; current public fixture
 >   values are schema-shape-only or omitted.
 > - Standard-specific branch interpretation, local-check methods, concrete import
->   formats, and GUI behavior remain `TBD`.
+>   formats remain `TBD`; implemented branch creation and inspector behavior belong to their product-owner evidence and do not close these source/format questions.
 > - Dependency satisfaction and lifecycle state remain governed by their existing
 >   local files and human/reconciliation process.
 > - Review findings `PKG03-DEL-03-04-PKG02-001` and `-002` are
@@ -133,7 +133,7 @@ This Scope of Work defines `DEL-03-04` in service of project scope [SOW-008] and
 > - `docs/_Registers/Deliverables.csv` row DEL-03-04.
 > - `docs/_Registers/ScopeLedger.csv` row SOW-008.
 > - `docs/_Registers/ContextBudgetQA.csv` row DEL-03-04.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7, rows for PKG-03, DEL-03-04, SOW-008, OBJ-004, and AB-00-01/02/04/06/07/08.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register), rows for PKG-03, DEL-03-04, SOW-008, OBJ-004, and AB-00-01/02/04/06/07/08.
 > - `docs/CONTRACT.md` invariants listed in this kit.
 > - `schemas/component.schema.yaml` current component library schema evidence.
 > - `fixtures/component/invented_component_library_valid.json` current invented
@@ -160,6 +160,8 @@ This Scope of Work defines `DEL-03-04` in service of project scope [SOW-008] and
 
 > ##### Scope
 >
+> Current realization evidence also includes branch inputs and diagnostics in `core/product_physics/src/lib.rs`, with creation/edits routed through `core/model_operations/operation_applier/src/lib.rs`. DEC-045 governs the multiplier-first mechanics boundary; product integration remains subject to its own verification, source and engineering holds.
+>
 > This deliverable specifies the branch connection component model fields now
 > evidenced by `schemas/component.schema.yaml`,
 > `fixtures/component/invented_component_library_valid.json`, and
@@ -169,7 +171,7 @@ This Scope of Work defines `DEL-03-04` in service of project scope [SOW-008] and
 > completeness rules, and diagnostics without bundling protected engineering
 > values.
 >
-> This evidence-reconciliation pass excludes:
+> The historical record-only reconciliation excluded the mutations below; these were run boundaries, not exclusions from the durable component obligation:
 >
 > - product implementation code;
 > - repo-level schema edits;
@@ -233,13 +235,13 @@ This Scope of Work defines `DEL-03-04` in service of project scope [SOW-008] and
 
 > ##### Verification
 >
-> Current verification evidence includes:
+> Verification must cover the schema obligations below and the product branch route through `core/product_physics/` and `core/model_operations/operation_applier/`; bound product tests and envelope round trips are evidence, not engineering acceptance. Schema-layer evidence includes:
 >
 > - schema/model presence checks for each field group named in SOW-008;
 > - unit-aware validation for dimensional fields;
 > - provenance completeness checks for user/imported values;
 > - missing-data diagnostics for required analysis or rule-check inputs;
-> - protected-content scans confirming no bundled branch/SIF/flexibility tables, formulas, or examples;
+> - protected-content keyword checks as limited screening evidence; scoped review remains required before claiming absence of protected branch/SIF/flexibility content;
 > - schema and fixture validation through `tests/test_component_section_schema.py`.
 >
 > Remaining verification `TBD`s include dependency satisfaction disposition,
@@ -309,7 +311,7 @@ This Scope of Work defines `DEL-03-04` in service of project scope [SOW-008] and
 > 1. Confirm the write scope is limited to authorized DEL-03-04 narrative files
 >    and the new reconciliation run record.
 > 2. Read `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, the relevant decomposition/register rows, and applicable CONTRACT invariants.
-> 3. Reconcile the four active docs and `MEMORY.md` against the implemented
+> 3. Reconcile the consolidated `ScopeOfWork.md` sections and `MEMORY.md` against the implemented
 >    branch evidence in the component schema, invented component fixture, schema
 >    test, and local review findings.
 > 4. Record implemented branch component field names where the schema now defines
@@ -342,7 +344,7 @@ This Scope of Work defines `DEL-03-04` in service of project scope [SOW-008] and
 > - No protected branch/SIF/flexibility tables, formulas, or examples are present.
 > - `python3 -m pytest tests/test_component_section_schema.py` passes when the
 >   local test environment is available.
-> - A stale-language search over the four active docs shows no remaining
+> - A stale-language search over the consolidated `ScopeOfWork.md` sections shows no remaining
 >   setup-only or future-only implementation language that contradicts the
 >   schema/fixture/test evidence.
 >
@@ -351,10 +353,10 @@ This Scope of Work defines `DEL-03-04` in service of project scope [SOW-008] and
 
 > ##### Records
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md` (definition)
+> - `ScopeOfWork.md` (requirements)
+> - `ScopeOfWork.md` (rationale)
+> - `ScopeOfWork.md` (procedure)
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`

@@ -53,7 +53,7 @@ This Scope of Work defines `DEL-16-02` in service of project scope [SOW-069] and
 > | Diff input boundary | Model-state comparison engine DEL-14-03 and comparison mapping/tolerance/export contracts DEL-14-05 are approved upstream dependencies. Source: `Dependencies.csv` rows `DAG-002-E0829` and `DAG-002-E0830`. |
 > | Diagnostics input boundary | Solver diagnostics and singularity detection DEL-04-06 is an approved upstream dependency. Source: `Dependencies.csv` row `DAG-002-E0831`. |
 > | Architecture basis | Rust core/application services, schema-first envelopes, JSON Schema 2020-12, JCS-compatible hash basis where JSON payloads are hashed, and layered test gates are dispatchable context constraints. Source: `_CONTEXT.md#Architecture Basis Injection`; `execution/_Decomposition/SOFTWARE_DECOMP.md#8`. |
-> | Implementation location | `core/model_operations/validation_preview/engine.py` implements the current validation and deterministic preview slice; focused evidence is in `tests/test_operation_validation_preview.py`, `tests/test_model_operation_schema.py`, `schemas/model_operation.schema.json`, and `fixtures/model_operations/`. |
+> | Implementation location | `core/model_operations/validation_preview/engine.py` implements the reference validation and deterministic preview slice; focused evidence is in `tests/test_operation_validation_preview.py`, `tests/test_model_operation_schema.py`, `schemas/model_operation.schema.json`, and `fixtures/model_operations/`. |
 >
 
 ### CLM-005 — Conditions
@@ -66,8 +66,8 @@ This Scope of Work defines `DEL-16-02` in service of project scope [SOW-069] and
 > | Invalid operation behavior | Invalid operations are blocked before application. Source: `_CONTEXT.md#Context Envelope`; `execution/_Decomposition/SOFTWARE_DECOMP.md#PKG-16`. |
 > | Professional boundary | The package excludes hidden model mutations and autonomous engineering acceptance. Source: `_CONTEXT.md#Package Reference`; `docs/CONTRACT.md#Invariant index`. |
 > | Diagnostics and result envelopes | Diagnostics/result envelopes must preserve source, severity/class, affected object, message/remediation, provenance, and no certification/compliance claims where applicable. Source: `execution/_Decomposition/SOFTWARE_DECOMP.md#8`; `docs/SPEC.md#4.3`. |
-> | Current validation flow | The current engine validates required envelope fields, runs `Draft202012Validator` against `schemas/model_operation.schema.json`, checks accepted model-state basis/hash and operation current hashes, imports blocking constraint diagnostics, then emits either generated preview rows or blocked preview rows with `application_status: not_applied`. |
-> | Current diff preview shape | The current deterministic fixture-backed preview rows include `operation_id`, `change_id`, `change_kind`, `target_ref`, `preview_status`, `before`, `after`, and `application_status`. Final diff payload contract beyond this slice remains TBD pending DEL-14-03/DEL-14-05 and later application contracts. |
+> | Current validation flow | Durable obligation: operations must conform to DEL-16-01 schema and semantic/unit/model-basis constraints before preview/application, with invalid edits leaving accepted state unchanged. Reference evidence: the Python engine validates required envelope fields, runs `Draft202012Validator` against `schemas/model_operation.schema.json`, checks accepted model-state basis/hash and operation current hashes, imports blocking constraint diagnostics, then emits either generated preview rows or blocked preview rows with `application_status: not_applied`. |
+> | Current diff preview shape | The Python reference fixture-backed preview rows include `operation_id`, `change_id`, `change_kind`, `target_ref`, `preview_status`, `before`, `after`, and `application_status`. Final diff payload contract beyond this slice remains TBD pending DEL-14-03/DEL-14-05 and later application contracts. |
 > | Current operation schema boundary | `schemas/model_operation.schema.json` is a JSON Schema 2020-12 contract for DEL-16-01 operation envelopes, with structured-operations-only mutation route, `direct_model_mutation_allowed: false`, downstream user-acceptance/audit bindings, operation/change taxonomies, required model basis/current hashes, unit requirements, diagnostics, provenance, and professional-boundary fields. Final upstream ownership remains DEL-16-01. |
 > | Canonical dimension check | Current validation blocks quantity payload dimensions outside the accepted canonical dimension vocabulary exposed by the engine/tests and schema checks. Deeper target-field dimensional compatibility remains outside this slice. |
 > | Direct mutation blocking | Current validation blocks direct accepted-model mutation signals such as applied operation validation status or forbidden auto-accepted operation statuses; output still reports `application_status: not_applied`. |
@@ -79,8 +79,8 @@ This Scope of Work defines `DEL-16-02` in service of project scope [SOW-069] and
 >
 > | Construct | Expected role | Status |
 > |---|---|---|
-> | Operation validator | Accepts or rejects proposed structured model operations using required envelope checks, JSON Schema 2020-12 validation, model-basis/current-hash checks, canonical dimension checks, target-reference checks, direct-mutation blocking, and injected blocking constraint diagnostics before any application. | Implemented in `core/model_operations/validation_preview/engine.py`; final constraint-engine API integration remains TBD. |
-> | Diff preview service | Produces deterministic before/after preview rows for supported change kinds and blocked preview rows when operation-local validation blocks preview. | Implemented in current engine and fixture tests; final diff payload contract beyond current deterministic evidence remains TBD. |
+> | Operation validator | Accepts or rejects proposed structured model operations using required envelope checks, JSON Schema 2020-12 validation, model-basis/current-hash checks, canonical dimension checks, target-reference checks, direct-mutation blocking, and injected blocking constraint diagnostics before any application. | Python reference evidence: `core/model_operations/validation_preview/engine.py`. Runtime evidence is separately evaluated at `core/model_operations/operation_applier/src/lib.rs` (DEL-16-06, SCA-011); schema/semantic equivalence and complete constraint integration remain delivery work. |
+> | Diff preview service | Produces deterministic before/after preview rows for supported change kinds and blocked preview rows when operation-local validation blocks preview. | Python reference preview evidence exists; runtime preview/application must demonstrate the same durable invalid-operation, basis, unit and no-mutation guarantees through DEL-16-06. Final public diff contract remains separately governed. |
 > | Validation tests | Exercise stable preview/no mutation, missing unit metadata, unknown dimensions, unresolved targets, blocking constraint diagnostics, direct mutation rejection, JSON Schema failure, model-role/current-hash checks, and prohibited-claim boundary. | Focused tests exist in `tests/test_operation_validation_preview.py`; schema contract checks exist in `tests/test_model_operation_schema.py`. |
 > | Result/diagnostic envelope integration | Reports validation statuses, sorted diagnostics, accepted model-state reference/hash, `accepted_model_state_unchanged`, `professional_boundary`, and provenance without approval or compliance claims. | Implemented for this slice; final cross-package diagnostic/result-envelope schema mapping remains TBD. |
 >
@@ -91,8 +91,8 @@ This Scope of Work defines `DEL-16-02` in service of project scope [SOW-069] and
 >
 > - `_CONTEXT.md` - deliverable identity, scope, objective, package reference, architecture-basis injection.
 > - `_REFERENCES.md` - source inventory for this deliverable.
-> - `Dependencies.csv` - approved DAG-006 local mirror/evidence surface for active upstream dependencies.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted revision 0.7 scope, package, deliverable, objective, and architecture-basis context.
+> - `Dependencies.csv` - approved graph resolved through `execution/_DAG/_LATEST.md` local mirror/evidence surface for active upstream dependencies.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current scope, package, deliverable, objective, and architecture-basis context.
 > - `docs/_Registers/Deliverables.csv` - deliverable identity and anticipated artifacts.
 > - `docs/_Registers/ScopeLedger.csv` - SOW-069 wording and product-boundary notes.
 > - `docs/_Registers/ContextBudgetQA.csv` - context-envelope row.
@@ -157,7 +157,7 @@ This Scope of Work defines `DEL-16-02` in service of project scope [SOW-069] and
 > | Canonical dimension checks | Quantity payloads require value, unit, and dimension metadata; dimensions outside the current canonical vocabulary block unit validation. Deeper target-field dimensional compatibility remains outside this slice. |
 > | No hidden mutation | Failed validation and preview-only flows do not mutate accepted model state and do not apply operations. Persistence/application behavior outside this preview slice remains TBD. |
 > | Professional boundary | Outputs are diagnostics, validation outcomes, and previews only; no automatic human approval or code-compliance status is emitted (PRD §21.2). |
-> | Dependency fidelity | Approved DAG-002 mirror rows remain ACTIVE and are not retired, deleted, or reclassified by this setup workflow. |
+> | Dependency fidelity | Preserve local dependency meanings and the actual statuses recorded under `execution/_DAG/_LATEST.md`; DAG-011 is current authority. Do not force historical duplicates or pending edges to ACTIVE. |
 >
 
 ### CLM-013 — Documentation
@@ -168,7 +168,7 @@ This Scope of Work defines `DEL-16-02` in service of project scope [SOW-069] and
 > - Diff preview service contract: current deterministic row shape is implemented in `core/model_operations/validation_preview/engine.py`; final contract remains TBD pending DEL-14-03, DEL-14-05, and downstream application/user-acceptance interfaces.
 > - Validation test plan and fixtures: current focused tests are `tests/test_operation_validation_preview.py` and `tests/test_model_operation_schema.py`; current fixtures are `fixtures/model_operations/invented_operation_set_valid.json` and `fixtures/model_operations/invented_accepted_model_state.json`.
 > - Diagnostic/result-envelope mapping: current slice emits structured diagnostics/provenance/professional-boundary fields; final cross-package envelope mapping remains TBD.
-> - Dependency preservation note: existing `Dependencies.csv` remains the approved local DAG-002 mirror/evidence surface.
+> - Dependency preservation note: existing `Dependencies.csv` remains the approved local dependency mirror (current authority: `execution/_DAG/_LATEST.md`; earlier graph IDs are provenance)/evidence surface.
 
 - **AC-001** — The contract preserves JSON Schema 2020-12 validation, model-basis and current-hash preconditions, canonical dimension and target-reference checks, injected blocking constraint diagnostics, direct-mutation rejection, deterministic before/after preview rows, not-applied and unchanged-state evidence, structured diagnostics/provenance, upstream and downstream ownership boundaries, invented fixture evidence, professional non-authority, and explicit TBDs for final constraint APIs, diff/tolerance payloads, persistence/application, and human dispositions.
 
@@ -270,7 +270,7 @@ This Scope of Work defines `DEL-16-02` in service of project scope [SOW-069] and
 > - Diff preview service contract: current deterministic fixture-backed row shape is implemented in `core/model_operations/validation_preview/engine.py`; final contract remains TBD.
 > - Validation test cases and fixture inventory: `tests/test_operation_validation_preview.py`, `tests/test_model_operation_schema.py`, `fixtures/model_operations/invented_operation_set_valid.json`, and `fixtures/model_operations/invented_accepted_model_state.json`.
 > - Diagnostic/result-envelope mapping notes: current structured diagnostics/provenance/professional-boundary output exists; final cross-package mapping remains TBD.
-> - Dependency preservation record: existing `Dependencies.csv` approved DAG-006 rows remain ACTIVE and unchanged by this setup workflow.
+> - Preserve local dependency meanings and actual statuses under `execution/_DAG/_LATEST.md`; historical IDs remain provenance and this record repair does not mutate the register.
 
 - **VER-001** — Validate the contract and review source parity, schema/constraint/unit/hash/target/direct-mutation blocking paths, deterministic preview shape and no-application behavior, accepted-state nonmutation, dependency and layer boundaries, structured diagnostics/provenance, retained downstream API and tolerance TBDs, and absence of hidden mutation, protected defaults, or professional-authority claims.
 
@@ -346,7 +346,7 @@ This Scope of Work defines `DEL-16-02` in service of project scope [SOW-069] and
 >
 > | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 > |---|---|---|---|---|---|---|
-> | None | No source conflict identified in the accessible slices. Current implementation evidence resolves earlier generic implementation-path/schema-path/test-fixture TBDs, while downstream APIs, final diff contract, persistence/application behavior, and human dispositions remain TBD. | N/A | N/A | N/A | N/A | N/A |
+> | None | No source conflict identified in the accessible slices. Current implementation evidence resolves earlier generic implementation-path/schema-path/test-fixture TBDs, while downstream APIs, final diff contract, durable-history conformance and human dispositions remain open; controlled application belongs to DEL-16-06 under DEC-020/SCA-011. | N/A | N/A | N/A | N/A | N/A |
 
 ### CLM-027 — SCA-011 Validation-to-application handoff
 

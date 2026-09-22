@@ -39,7 +39,7 @@ This Scope of Work defines `DEL-02-01` in service of project scope [SOW-041, SOW
 > | Deliverable objective | OBJ-001 |
 > | Primary artifact target | `schemas/model.schema.yaml` |
 > | Secondary artifact target | `docs/TYPES.md` update |
-> | Current drafting basis | `_CONTEXT.md` accepted revision 0.7; `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 |
+> | Current drafting basis | `_CONTEXT.md` accepted authority (see the decision register); `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) |
 > | Source posture | Public governance/register sources only; no protected standards/code data introduced |
 >
 
@@ -66,8 +66,8 @@ This Scope of Work defines `DEL-02-01` in service of project scope [SOW-041, SOW
 > - The schema must support a code-neutral model: mechanics data and user-owned rule/code data are separable, and software states must not imply automatic code compliance. Source: `docs/TYPES.md` Sections 4 and 6; `docs/DIRECTIVE.md` Sections 2.2 and 3.
 > - Missing solve-required or rule-check-required values are explicit findings, not silent defaults. Source: `docs/CONTRACT.md` OPS-K-DATA-2; `docs/SPEC.md` Section 7.
 > - ASSUMPTION: DEL-02-01 may define lightweight references or common definitions for sections, supports, combinations, and rule-pack references when required by the canonical model, but detailed material/component library semantics remain in PKG-03 and rule-pack internals remain in PKG-06.
-> - TBD: Exact schema file layout, `$id` URI, code-generation tooling, and fixture organization.
-> - TBD: Physical project package/container and migration framework remain outside this deliverable unless separately approved. Source: `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 and Section 8.2.
+> - The current schema layout and `$id` are carried by `schemas/model.schema.yaml`; fixture organization belongs to bound implementation evidence. Unselected code-generation tooling remains an implementation choice under DEC-012; this does not freeze new public vocabulary.
+> - Physical storage, packaging and migration remain outside this deliverable; their accepted decisions are DEC-017/019/028/033. Source: `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 and Section 8.2.
 >
 
 ### CLM-006 — Construction
@@ -83,20 +83,20 @@ This Scope of Work defines `DEL-02-01` in service of project scope [SOW-041, SOW
 > - result/report records: result envelopes, warnings/diagnostics, input manifests, hashes/checksums, and professional-boundary notices;
 > - validation fixtures: invented or public/permissive examples only, with protected-content and provenance checks.
 >
-> The construction above is source-grounded as an initial schema plan, not an implemented schema file. The primary artifact path `schemas/model.schema.yaml` is outside the write scope of this Pass 1+2 document run.
+> The construction above defines the durable schema obligations. The current schema carrier is `schemas/model.schema.yaml`; its existence is implementation evidence, while coverage and acceptance require the applicable verification and review records.
 >
 
 ### CLM-007 — References
 
 > ##### References
 >
-> - `_CONTEXT.md` revision 0.7 for deliverable identity, accepted decomposition reference, SCA-001 basis IDs, and write-scope constraints.
+> - `_CONTEXT.md` current authority references for deliverable identity, accepted decomposition reference, SCA-001 basis IDs, and write-scope constraints.
 > - `_REFERENCES.md` for the locally declared reference set.
 > - `_DEPENDENCIES.md` for human-owned dependency posture; no concrete upstream/downstream dependency list was declared.
 > - `docs/_Registers/Deliverables.csv` row DEL-02-01 for deliverable identity and artifact targets.
 > - `docs/_Registers/ScopeLedger.csv` row SOW-041 for machine-readable schema scope and JSON Schema 2020-12 baseline.
 > - `docs/_Registers/ContextBudgetQA.csv` row DEL-02-01 for context-envelope and SCA-001 notes.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7, especially PKG-02, DEL-02-01, SOW-041, and AB-00-01/02/03/04/06/07/08.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register), especially PKG-02, DEL-02-01, SOW-041, and AB-00-01/02/03/04/06/07/08.
 > - `docs/CONTRACT.md` for IP, data, authority, unit, report, and agent invariants.
 > - `docs/TYPES.md` for stable IDs, deliverable types, analysis-status vocabulary, epistemic labels, and provenance labels.
 > - `docs/DIRECTIVE.md` for object ontology, no-silent-defaults, code-neutrality, unit safety, provenance, and professional-boundary principles.
@@ -116,7 +116,7 @@ This Scope of Work defines `DEL-02-01` in service of project scope [SOW-041, SOW
 
 > ##### Scope
 >
-> This specification governs the DEL-02-01 document-level contract for a canonical domain model schema in PKG-02. The deliverable defines the intended public schema boundary for project, model, node, element, material, component, load, result, and report entities. It also records constraints that a future implementation of `schemas/model.schema.yaml` must satisfy.
+> This specification governs the DEL-02-01 document-level contract for a canonical domain model schema in PKG-02. The deliverable defines the intended public schema boundary for project, model, node, element, material, component, load, result, and report entities. It also records constraints that the implementation of `schemas/model.schema.yaml` must satisfy.
 >
 > In scope:
 >
@@ -160,7 +160,7 @@ This Scope of Work defines `DEL-02-01` in service of project scope [SOW-041, SOW
 
 > ##### Object-Family Coverage Crosswalk
 >
-> This crosswalk is acceptance-supporting planning content for the future `schemas/model.schema.yaml`; it is not evidence that the schema file has already been implemented. Any new canonical vocabulary still requires the anticipated `docs/TYPES.md` update or a human ruling before it is treated as frozen.
+> This crosswalk defines coverage obligations for `schemas/model.schema.yaml`. The schema exists; each family still needs traceable validation evidence. `docs/TYPES.md` supplies the canonical vocabulary; any new public vocabulary retains its governed change path.
 >
 > | Family or record group | Expected schema treatment | Source basis | Pass 3 disposition |
 > |---|---|---|---|
@@ -229,7 +229,7 @@ This Scope of Work defines `DEL-02-01` in service of project scope [SOW-041, SOW
 > | Standard or governing basis | Applicability | Status |
 > |---|---|---|
 > | JSON Schema 2020-12 | Public schema/interchange baseline for `schemas/model.schema.yaml` | Required by SOW-041 and SCA-001 |
-> | Canonical JSON / JCS-compatible hashing | Applies where JSON payload hashes are generated for reproducibility/audit | Required by AB-00-04 for hashed JSON payloads; exact implementation details TBD |
+> | Canonical JSON / JCS-compatible hashing | Applies where JSON payload hashes are generated for reproducibility/audit | Required by AB-00-04 for hashed JSON payloads; implementation evidence is the Rust `canonical_json` crate and its bound conformance fixtures |
 > | SWBPIPE invariants in `docs/CONTRACT.md` | Binding constraints for IP boundary, data provenance, units, authority, reports, privacy, and agents | Required |
 > | SWBPIPE vocabulary in `docs/TYPES.md` | Stable IDs, analysis statuses, epistemic labels, and provenance labels | Required unless superseded by human-approved change |
 > | Protected engineering standards/codes | May be referenced as user/private source context only; must not be embedded as public schema content or examples | Public redistribution prohibited without explicit rights |
@@ -261,10 +261,10 @@ This Scope of Work defines `DEL-02-01` in service of project scope [SOW-041, SOW
 >
 > Required or expected records:
 >
-> - `schemas/model.schema.yaml` as the future primary schema artifact. This path is outside the current four-document write scope.
-> - `docs/TYPES.md` update if new canonical type names, statuses, provenance labels, or schema vocabulary are introduced. This path is outside the current four-document write scope.
+> - `schemas/model.schema.yaml` as the primary schema artifact. This path is outside the historical document-preparation scope (current work requires its own authorized brief).
+> - `docs/TYPES.md` update if new canonical type names, statuses, provenance labels, or schema vocabulary are introduced. This path is outside the historical document-preparation scope (current work requires its own authorized brief).
 > - Schema validation/test evidence, including object-family coverage, unit applicability, provenance/status applicability, diagnostic/result/report mapping, hash-scope decisions or deferrals, fixture provenance manifests, and protected-content gates when implementation proceeds.
-> - Human review notes for schema file layout, code-generation tooling, `$id` URI, migration metadata, and any objective-mapping discrepancy recorded in `Guidance.md`.
+> - Human review notes for schema file layout, code-generation tooling, `$id` URI, migration metadata, and any objective-mapping discrepancy recorded in `ScopeOfWork.md` (rationale).
 > - `_run_records/TASK_RUN_*.md` for document drafting/enrichment runs.
 
 - **AC-001** — The contract preserves the accepted source requirements and boundaries for the canonical model schema, including unit, provenance, diagnostic, professional-reliance, and protected-content constraints, with unresolved decisions retained as stated.
@@ -281,7 +281,7 @@ This Scope of Work defines `DEL-02-01` in service of project scope [SOW-041, SOW
 
 > ##### Purpose
 >
-> This procedure describes how to produce and review the canonical domain model schema for DEL-02-01 without crossing the sealed write scope or introducing protected/code-specific data. It is operational guidance for the future `schemas/model.schema.yaml` artifact and its review evidence.
+> This procedure describes how to produce and review the canonical domain model schema for DEL-02-01 without crossing the sealed write scope or introducing protected/code-specific data. It is operational guidance for maintaining `schemas/model.schema.yaml` and its review evidence.
 >
 
 ### CLM-024 — Prerequisites
@@ -349,7 +349,7 @@ This Scope of Work defines `DEL-02-01` in service of project scope [SOW-041, SOW
 >
 > 9. Verify schema behavior.
 >    - Run JSON Schema validation against valid and invalid invented fixtures.
->    - Check object-family coverage against the crosswalk in `Specification.md`.
+>    - Check object-family coverage against the crosswalk in `ScopeOfWork.md` (requirements).
 >    - Check required units, provenance, status, diagnostics, and public/private boundary behavior.
 >    - Check diagnostic/result/report envelope compatibility, including code/class/severity, source, affected object, message, remediation, and provenance.
 >    - Check hash payload scope and canonicalization basis where JSON payload hashes are generated; record explicit deferrals where hashes are not yet used.
@@ -381,7 +381,7 @@ This Scope of Work defines `DEL-02-01` in service of project scope [SOW-041, SOW
 > | Fixture provenance check | Public examples and fixtures have a provenance manifest or a visible `TBD` manifest path. |
 > | Data-boundary check | No protected standards/code text, copied formulas, protected tables, proprietary data, or private user data are introduced. |
 > | Authority check | No compliance, certification, approval, sealing, or professional-reliance claim is made by the software/schema (PRD §21.2). |
-> | Conflict check | Objective/revision discrepancies are surfaced in `Guidance.md` for human ruling. |
+> | Conflict check | Objective/revision discrepancies are surfaced in `ScopeOfWork.md` (rationale) for human ruling. |
 > | Status check | `_STATUS.md` moves from `OPEN` to `INITIALIZED` only after Pass 1+2 document creation succeeds. |
 >
 
@@ -391,10 +391,10 @@ This Scope of Work defines `DEL-02-01` in service of project scope [SOW-041, SOW
 >
 > Records produced by document drafting/enrichment runs:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md` (definition)
+> - `ScopeOfWork.md` (requirements)
+> - `ScopeOfWork.md` (rationale)
+> - `ScopeOfWork.md` (procedure)
 > - `_run_records/TASK_RUN_2026-04-30_0120.md`
 > - `_run_records/TASK_RUN_2026-04-30_0141.md`
 > - `_run_records/TASK_RUN_2026-04-30_0941.md`
@@ -463,7 +463,7 @@ This Scope of Work defines `DEL-02-01` in service of project scope [SOW-041, SOW
 > - Public examples and validation fixtures should be original/invented or documented public/permissive data. If a value looks code-derived, proprietary, or copied from a protected source, quarantine/escalate rather than adapting it.
 > - The anticipated `docs/TYPES.md` update is outside this run's write scope. New type names or status/provenance labels should be proposed for human review before the file is changed.
 > - PROPOSAL: Treat object-family names as draft schema vocabulary until `docs/TYPES.md` is updated or a human ruling freezes the names. In particular, use `LoadCase` for primitive solved loads, `Combination` for algebraic combinations, and `Load` only as an umbrella term when following register/decomposition prose.
-> - Human rulings for conflict-table rows, schema file layout, `$id` URI, code-generation tooling, fixture organization, and persistence/hashing handoff need a durable reference before downstream acceptance depends on them. The exact ruling record type or path is `TBD` until the project authority selects one.
+> - Human rulings for conflict-table rows, schema file layout, `$id` URI, code-generation tooling, fixture organization, and persistence/hashing handoff need a durable reference before downstream acceptance depends on them. Accepted rulings are recorded in `execution/_Coordination/_DECISIONS/_REGISTER.md` and `execution/_Decomposition/SOFTWARE_DECOMP.md` §12; local implementation choices follow DEC-012.
 >
 > Vocabulary and boundary notes:
 >
@@ -486,7 +486,7 @@ This Scope of Work defines `DEL-02-01` in service of project scope [SOW-041, SOW
 > | Domain breadth | Include every object in one schema | Improves consistency but risks crossing into PKG-03/PKG-06/PKG-08 details | Define common identities, references, and envelopes; defer detailed library/rule/report internals to their packages. |
 > | Required fields | Require all potentially needed engineering data | Strong validation but may block mechanics-only workflows | Distinguish solve-required, rule-check-required, report-required, and optional fields; missing values become explicit findings. |
 > | Public examples | Use realistic industrial data | Better realism but high IP/provenance risk | Use invented or permissively licensed examples with provenance and non-compliance notices. |
-> | Hashing and canonicalization | Define implementation now | Improves reproducibility but overlaps DEL-02-05 persistence details | Keep schema compatible with AB-00-04; leave physical package and migration framework TBD. |
+> | Hashing and canonicalization | Define implementation now | Improves reproducibility but overlaps DEL-02-05 persistence details | Keep schema compatible with AB-00-04; apply DEC-017/019/028/033 for physical storage, migration and packaging while preserving this schema owner boundary. |
 > | Persistence handoff | Encode compatibility hooks now, but defer storage implementation | Keeps model schema aligned with deterministic round trips while avoiding premature ownership of package/container and migration mechanics | Record version, migration-status, unit, provenance, rule-pack reference, diagnostic, and hash metadata hooks where needed; route physical package/container and migration framework decisions to DEL-02-05 or human authority. |
 >
 
@@ -512,8 +512,8 @@ This Scope of Work defines `DEL-02-01` in service of project scope [SOW-041, SOW
 >
 > | Conflict ID | Conflict (short statement) | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 > |---|---|---|---|---|---|---|
-> | C-02-01-001 | Objective mapping differs: DEL-02-01 context/deliverable register lists OBJ-001, while SOW-041 scope ledger also maps OBJ-012. | `_CONTEXT.md` Objective Support; `docs/_Registers/Deliverables.csv` row DEL-02-01; `execution/_Decomposition/SOFTWARE_DECOMP.md` Objective table | `docs/_Registers/ScopeLedger.csv` row SOW-041 | Datasheet Identification; Specification Scope; Procedure Records | Treat OBJ-001 as the deliverable-owned objective for this run and treat OBJ-012 as directionally relevant package/scope context until a human updates registers. | TBD |
-> | C-02-01-002 | Decomposition revision wording is stale in pointers: `_REFERENCES.md` says accepted v0.2 and `docs/README.md` status says v0.3, while `_CONTEXT.md`, the user brief, and the current decomposition basis identify revision 0.7. | `_REFERENCES.md` Decomposition and Registers; `docs/README.md` Status | `_CONTEXT.md` Decomposition Reference and Architecture Basis Injection; user brief | Datasheet References; Procedure Prerequisites; run record | Use `_CONTEXT.md` revision 0.7 and the user-provided `DECOMPOSITION_REF` for this run; leave metadata/governance pointers unchanged because they are outside write scope. | TBD |
+> | C-02-01-001 | Historical objective-mapping discrepancy; current `_CONTEXT.md` and deliverable register carry OBJ-001, OBJ-012 and OBJ-014. | `_CONTEXT.md` Objective Support; `docs/_Registers/Deliverables.csv` row DEL-02-01; `execution/_Decomposition/SOFTWARE_DECOMP.md` Objective table | `docs/_Registers/ScopeLedger.csv` row SOW-041 | Datasheet Identification; Specification Scope; Procedure Records | Use the accepted current objective mapping; historical setup discrepancy does not reserve a new decision. | Resolved by current accepted mapping; no new human ruling required. |
+> | C-02-01-002 | Historical decomposition-pointer discrepancy: current local pointers now resolve the accepted decomposition and its decision register. | `_REFERENCES.md`; `_CONTEXT.md` | `execution/_Decomposition/SOFTWARE_DECOMP.md`; `docs/README.md` navigation | Current references and prerequisites | Follow accepted decomposition authority; historical setup version wording is not a current decision hold. | Resolved as current-record maintenance; no scope or acceptance change. |
 >
 > No engineering-value conflict was found in the accessible sources. No protected standards/code data was used.
 

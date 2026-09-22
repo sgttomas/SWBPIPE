@@ -35,7 +35,7 @@ This Scope of Work defines `DEL-06-04` in service of project scope [SOW-042] and
 > | Deliverable type | BACKEND_FEATURE_SLICE |
 > | Scope item | SOW-042 |
 > | Objectives | OBJ-002, OBJ-005 |
-> | Current setup role | Document and setup artifact production only; no implementation files changed |
+> | Current setup role | Lifecycle/checksum contract; current implementation evidence in `core/rules/rule_pack_lifecycle/` |
 >
 
 ### CLM-003 — Attributes
@@ -64,14 +64,14 @@ This Scope of Work defines `DEL-06-04` in service of project scope [SOW-042] and
 > | Professional responsibility | Rule-pack evaluation is software decision support using user data. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
 > | Unit awareness | Rule-pack values and evaluator inputs must remain unit-aware where numeric quantities are involved; missing required units or values are findings, not silent defaults. |
 > | Architecture basis | SCA-001 requires JSON Schema 2020-12 contracts, schema-first command/query/job result envelopes, and canonical JSON/JCS-compatible hash basis where JSON payloads are hashed. |
-> | Deferred decisions | Private storage location, encryption defaults, access-control policy defaults, permission grant persistence, and physical project container are deferred to PKG-12/PKG-02 architecture decisions unless separately approved. |
+> | Deferred decisions | DEC-017 resolves local storage and DEC-028 portable packaging. Encryption defaults, access-control defaults, permission grant persistence and secret handling retain their PKG-12 decision paths. |
 >
 
 ### CLM-005 — Construction
 
 > ##### Construction
 >
-> This setup surface describes the future implementation contract without creating implementation files. A later implementation task for DEL-06-04 should produce a local lifecycle and checksum mechanism that:
+> The lifecycle/checksum contract, realized in `core/rules/rule_pack_lifecycle/`, requires a local mechanism that:
 >
 > - records rule-pack identity, version, source notice, redistribution/private status, checksum metadata, and review/quarantine disposition;
 > - binds checksum values to explicit payload references rather than environment-local paths or volatile session state;
@@ -84,7 +84,7 @@ This Scope of Work defines `DEL-06-04` in service of project scope [SOW-042] and
 
 > ##### References
 >
-> - INIT.md - bootstrap boundaries for open mechanics, private code data, and professional responsibility.
+> - loop/LOOP_INIT.md - bootstrap boundaries for open mechanics, private code data, and professional responsibility.
 > - docs/CONTRACT.md - OPS-K-RULE-3, OPS-K-DATA-1/2/3, OPS-K-PRIV, OPS-K-IP-1/2/3, OPS-K-UNIT-1, OPS-K-AGENT-1..4.
 > - docs/SPEC.md - rule-pack evaluator minimum sections and report/audit requirements.
 > - docs/IP_AND_DATA_BOUNDARY.md - public/private data and quarantine policy.
@@ -112,9 +112,9 @@ This Scope of Work defines `DEL-06-04` in service of project scope [SOW-042] and
 
 > ##### Scope
 >
-> This deliverable defines the setup contract for private rule-pack lifecycle and checksum handling in PKG-06. It covers metadata, lifecycle guardrails, checksum handling, audit/report hooks, and diagnostics needed to keep rule packs versioned, source-noted, checksum-addressed, and marked for redistribution/private status.
+> This deliverable defines the contract for private rule-pack lifecycle and checksum handling in PKG-06. It covers metadata, lifecycle guardrails, checksum handling, audit/report hooks, and diagnostics needed to keep rule packs versioned, source-noted, checksum-addressed, and marked for redistribution/private status.
 >
-> This setup does not implement registry modules, schemas, tests, encryption, private storage, access-control defaults, or private rule-pack content.
+> Current lifecycle/checksum source and tests are evidence, not a selection of encryption, access-control defaults or private rule-pack content. Storage follows DEC-017; remaining security controls retain PKG-12 ownership.
 >
 
 ### CLM-010 — Requirements
@@ -131,9 +131,9 @@ This Scope of Work defines `DEL-06-04` in service of project scope [SOW-042] and
 > | R-06-04-006 | A checksum shall identify what was hashed and shall not depend on environment-local paths, timestamps, UI session state, or other volatile fields unless their treatment is explicitly documented. | docs/architecture/persistence_contract.md Hash Rules |
 > | R-06-04-007 | The lifecycle shall emit diagnostics for missing source notice, missing redistribution status, stale or missing checksum, suspected protected content, attempted public export of private content, and rule-check-required data gaps. | docs/SPEC.md Sections 6-8; docs/architecture/code_neutral_analysis_boundary.md Boundary Rules |
 > | R-06-04-008 | Reports and exports may reference private rule-pack identity, version, checksum, and source note without exposing protected formulas or private values in public templates. | docs/IP_AND_DATA_BOUNDARY.md Section 7; docs/PRD.md Section 15 |
-> | R-06-04-009 | Rule-pack lifecycle status shall not state or imply professional certification, sealing, approval, endorsement, or automatic code compliance (PRD §21.2). | INIT.md Agent rule; docs/CONTRACT.md OPS-K-AUTH-1; docs/architecture/code_neutral_analysis_boundary.md Status Separation |
+> | R-06-04-009 | Rule-pack lifecycle status shall not state or imply professional certification, sealing, approval, endorsement, or automatic code compliance (PRD §21.2). | loop/LOOP_INIT.md Agent rule; docs/CONTRACT.md OPS-K-AUTH-1; docs/architecture/code_neutral_analysis_boundary.md Status Separation |
 > | R-06-04-010 | Numeric rule-pack inputs and values shall preserve unit metadata where applicable; missing required values or units shall be explicit findings. | docs/CONTRACT.md OPS-K-UNIT-1 and OPS-K-DATA-2/3 |
-> | R-06-04-011 | Storage location, encryption default, access-control policy, permission persistence, and private-library secret handling are deferred architecture decisions for PKG-12 and related persistence work. | DEL-06-04 Context Envelope Notes; docs/architecture/persistence_contract.md Remaining TBDs |
+> | R-06-04-011 | Storage follows the accepted local profile DEC-017 and portable packaging DEC-028; encryption default, access-control policy, permission persistence and secret handling retain their PKG-12 decision paths. | DEL-06-04 Context Envelope Notes; docs/architecture/persistence_contract.md Remaining TBDs |
 > | R-06-04-012 | The implementation boundary shall preserve schema-first service/result envelope behavior and shall not allow adapters or plugins to bypass provenance, privacy, protected-content, checksum, or report controls. | docs/architecture/extension_domain_contracts.md No-Bypass Rules |
 >
 
@@ -157,14 +157,14 @@ This Scope of Work defines `DEL-06-04` in service of project scope [SOW-042] and
 >
 > | Verification ID | Check |
 > |---|---|
-> | V-06-04-001 | Four setup documents exist and retain required sections. |
+> | V-06-04-001 | ScopeOfWork.md sections exist and retain required sections. |
 > | V-06-04-002 | `_SEMANTIC.md` exists and contains matrix sections A, B, C, F, D, K, G, X, T, and E. |
 > | V-06-04-003 | `_SEMANTIC_LENSING.md` exists and contains lens coverage for matrices A, B, C, F, D, X, and E. |
 > | V-06-04-004 | `Dependencies.csv` exists, is parseable, and contains all v3.1 required columns. |
 > | V-06-04-005 | Dependency enum fields use canonical values where checked. |
 > | V-06-04-006 | `_DEPENDENCIES.md` summarizes active anchors and execution edges consistently with `Dependencies.csv`. |
 > | V-06-04-007 | No private rule-pack contents, protected standards data, proprietary formulas, or certification/compliance claims are introduced. |
-> | V-06-04-008 | `_STATUS.md` is set to `SEMANTIC_READY` only after setup artifacts and local validations pass. |
+> | V-06-04-008 | Preserve the lifecycle recorded in `_STATUS.md`; contract verification does not promote it. |
 >
 
 ### CLM-013 — Documentation
@@ -173,10 +173,10 @@ This Scope of Work defines `DEL-06-04` in service of project scope [SOW-042] and
 >
 > Required setup outputs for this session are:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md` (definition)
+> - `ScopeOfWork.md` (requirements)
+> - `ScopeOfWork.md` (rationale)
+> - `ScopeOfWork.md` (procedure)
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -206,14 +206,14 @@ This Scope of Work defines `DEL-06-04` in service of project scope [SOW-042] and
 
 > ##### Purpose
 >
-> This procedure describes how a future bounded implementation task should produce private rule-pack lifecycle and checksum handling while preserving the public/private data boundary. It also records how this setup run should be verified.
+> This procedure governs maintenance and verification of private rule-pack lifecycle/checksum handling while preserving the public/private data boundary and unresolved PKG-12 controls.
 >
 
 ### CLM-017 — Prerequisites
 
 > ##### Prerequisites
 >
-> - Read and apply INIT.md, AGENTS.md, docs/CONTRACT.md, docs/SPEC.md, docs/IP_AND_DATA_BOUNDARY.md, docs/PRD.md, and the DEL-06-04 sealed context.
+> - Read and apply loop/LOOP_INIT.md, AGENTS.md, docs/CONTRACT.md, docs/SPEC.md, docs/IP_AND_DATA_BOUNDARY.md, docs/PRD.md, and the DEL-06-04 sealed context.
 > - Confirm the implementation task has an explicit write scope before editing code, schemas, registry modules, or tests.
 > - Treat DEL-06-01 rule-pack schema as an upstream schema source for final field names and enum ownership.
 > - Treat DEL-08-02 audit manifest/model hash as a downstream consumer of rule-pack checksum metadata.
@@ -250,11 +250,11 @@ This Scope of Work defines `DEL-06-04` in service of project scope [SOW-042] and
 >    - Record storage location, encryption defaults, access-control policy, permission persistence, and credential handling as `TBD` or PKG-12-owned unless the sealed brief explicitly authorizes them.
 >
 > 7. Verify setup artifacts for this run.
->    - Confirm the four documents exist.
+>    - Confirm the ScopeOfWork.md sections exist.
 >    - Confirm semantic matrix and lensing artifacts exist.
 >    - Validate `Dependencies.csv` with the v3.1 schema validator.
 >    - Check dependency enum fields with `validate_enum.py`.
->    - Confirm `_STATUS.md` remains `SEMANTIC_READY` only after all setup gates pass.
+> - Preserve `_STATUS.md` lifecycle; completion of document or implementation checks is evidence, not an automatic transition.
 >
 
 ### CLM-019 — Verification
@@ -266,16 +266,16 @@ This Scope of Work defines `DEL-06-04` in service of project scope [SOW-042] and
 > | `ScopeOfWork.md` | `ScopeOfWork.md` exists. |
 > | Data boundary scan | No private rule-pack payloads, protected standards data, proprietary formulas, or code-compliance claims are present. |
 > | Checksum basis | Specification and guidance state JCS-compatible canonical JSON for JSON payload hashes. |
-> | Deferred decisions | Storage, encryption, access-control defaults, and physical container decisions remain deferred. |
+> | Deferred decisions | Apply DEC-017/028 storage/package decisions; keep encryption and access-control defaults with their owning PKG-12 decisions. |
 > | Dependency schema | `Dependencies.csv` validates as v3.1. |
-> | Lifecycle state | `_STATUS.md` states `SEMANTIC_READY` after setup artifacts validate. |
+> | Lifecycle state | Preserve the lifecycle recorded in `_STATUS.md`; contract verification does not promote it. |
 >
 
 ### CLM-020 — Records
 
 > ##### Records
 >
-> This setup session records:
+> Historical setup-session records (the current production carrier is `ScopeOfWork.md`):
 >
 > - four-document drafting and P3 enrichment in the production documents;
 > - semantic matrix output in `_SEMANTIC.md`;
@@ -374,7 +374,7 @@ This Scope of Work defines `DEL-06-04` in service of project scope [SOW-042] and
 >
 > | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 > |---|---|---|---|---|---|---|
-> | C-06-04-001 | Exact private storage location, encryption default, and access-control policy are required for implementation but out of scope for this deliverable. | DEL-06-04 context notes: access control details defer to PKG-12 | docs/PRD.md Section 18.3 lists optional encrypted storage | Datasheet Conditions; Specification R-06-04-011; Procedure Prerequisites | Defer to PKG-12 and persistence architecture; do not decide here. | TBD |
+> | C-06-04-001 | Storage follows DEC-017; encryption default and access-control policy remain PKG-12 decisions outside this lifecycle/checksum contract. | DEL-06-04 context notes: access control details defer to PKG-12 | docs/PRD.md Section 18.3 lists optional encrypted storage | Datasheet Conditions; Specification R-06-04-011; Procedure Prerequisites | Defer to PKG-12 and persistence architecture; do not decide here. | TBD |
 > | C-06-04-002 | Exact schema enum set for redistribution/private status is not finalized by this deliverable. | docs/SPEC.md Section 6 uses `private`, `public_permissive`, `unknown` | docs/IP_AND_DATA_BOUNDARY.md includes `private_only` and `protected_suspected` for data records | Specification R-06-04-003; Datasheet Attributes | Record minimum lifecycle need and defer final enum ownership to DEL-06-01/schema work. | TBD |
 
 ## Output and Evaluation Matrix

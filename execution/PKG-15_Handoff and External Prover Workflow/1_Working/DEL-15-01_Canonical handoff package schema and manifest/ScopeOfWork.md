@@ -53,7 +53,7 @@ This Scope of Work defines `DEL-15-01` in service of project scope [SOW-074] and
 > | Required package contents named by scope | model hash, units manifest, entity IDs, library/rule references, unresolved assumptions, warnings, target mapping metadata, unsupported-target flags | SOW-074 in `_CONTEXT.md`; `docs/_Registers/ScopeLedger.csv` |
 > | Professional boundary | Handoff packages support downstream modeling and professional validation workflows without automatic professional approval states | OBJ-017 in `execution/_Decomposition/SOFTWARE_DECOMP.md#5-objectives`; `docs/CONTRACT.md#1-invariant-index` |
 > | Target-specific commercial parsers | Deferred / out of this deliverable | SOW-074 notes; `execution/_Decomposition/SOFTWARE_DECOMP.md#11-open-issues` |
-> | Canonical package container | TBD | OI-015 in `execution/_Decomposition/SOFTWARE_DECOMP.md#11-open-issues` |
+> | Canonical package container | DEC-028 governs the project interchange container; DEL-17-02 governs export-package contracts. Target mappings and per-format behavior remain separately scoped. | `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-028; DEL-17-02 `ScopeOfWork.md` |
 > | Handoff target surfaces | Initial export and target surfaces are named by OI-015; concrete mappings, unsupported-behavior taxonomy extensions, target field coverage, and target-specific implementation remain gated by DEL-17-01 and DEL-17-02 | OI-015 in `execution/_Decomposition/SOFTWARE_DECOMP.md#11-open-issues` |
 > | Schema property names and `$id` values | `$id`: `https://openpipestress.org/schemas/handoff_package.schema.json`; root and nested properties are materialized in `schemas/handoff_package.schema.json` | DEL-15-01 implementation evidence |
 >
@@ -80,10 +80,10 @@ This Scope of Work defines `DEL-15-01` in service of project scope [SOW-074] and
 > | Slot | Required treatment | Source |
 > |---|---|---|
 > | Package identity | Include stable package identity, schema version, deliverable/package/scope/objective identifiers, and review state fields. | SOW-074; `schemas/handoff_package.schema.json` |
-> | Model hash | Represent model basis through the required `model_hash` checksum object, including algorithm, value, canonicalization, and provenance. | SOW-074; AB-00-04 hash basis; `schemas/handoff_package.schema.json` |
+> | Model hash | Required hash binding; the current `Checksum` definition carries algorithm, canonicalization, payload_ref, payload_scope and value. Provenance is carried at the enclosing manifest/model basis; the normative provenance obligation remains and per-checksum conformance must be demonstrated. | `schemas/handoff_package.schema.json`; SOW-074; preserved CLM-011 obligations |
 > | Canonicalization label | Use `deterministic_sorted_compact_json_payload_hash` only for the existing sorted-key compact-JSON byte basis; do not interpret it as RFC 8785. Legacy JCS-compatible labels remain accepted until their producers are separately repaired. | `DEC-074` E1; `schemas/handoff_package.schema.json` |
-> | Units manifest | Represent explicit units through the required `units_manifest` object, including unit system, dimensional basis, entries, diagnostics, and provenance. | SOW-074; `docs/SPEC.md#4-unit-system-and-dimensional-analysis`; `schemas/handoff_package.schema.json` |
-> | Entity IDs | Preserve stable model/entity identifiers through required `entity_ids` records with `entity_id`, `entity_kind`, `source_ref`, and optional mapping keys. | SOW-074; `docs/TYPES.md#2-stable-identifiers`; `schemas/handoff_package.schema.json` |
+> | Units manifest | Current `UnitsManifestRef` carries unit_system_ref, units_schema, dimension_basis, named unit fields, hash_refs and provenance. It does not contain the described entries/diagnostics fields; preserve explicit unit and diagnostic obligations and retain the schema/requirement conformance gap as delivery work. | `schemas/handoff_package.schema.json`; SOW-074; preserved CLM-011 obligations |
+> | Entity IDs | Current `EntityIdManifest` uses typed ID arrays and mapping_id_refs. The earlier per-entity entity_id/entity_kind/source_ref record description is not its construction shape; stable identity and traceability remain required. | `schemas/handoff_package.schema.json`; SOW-074; preserved CLM-011 obligations |
 > | Library/rule references | Reference libraries and rule packs through `library_refs` and `rule_pack_refs` identity/checksum/provenance records without copying protected/private payloads. | SOW-074; `docs/IP_AND_DATA_BOUNDARY.md`; `docs/SPEC.md#9-reporting-and-audit`; `schemas/handoff_package.schema.json` |
 > | Warnings and unresolved assumptions | Carry structured `warnings`, `unresolved_assumptions`, and `diagnostics` as review evidence with source/provenance fields. | SOW-074; `docs/SPEC.md#8-gui-requirements`; `docs/SPEC.md#9-reporting-and-audit`; `schemas/handoff_package.schema.json` |
 > | Target mapping metadata | Reserve a manifest surface for mapping to downstream target fields. Detailed target mapping contract is DEL-15-02. | SOW-074; DEL-15-02 row in decomposition |
@@ -156,7 +156,7 @@ This Scope of Work defines `DEL-15-01` in service of project scope [SOW-074] and
 > | DEL-15-01-R09 | The package shall reserve unsupported-target flags required by SOW-074 while leaving detailed unsupported behavior semantics to DEL-15-02. | SOW-074; OI-015 | Cross-deliverable interface review against `schemas/target_mapping.schema.json`. |
 > | DEL-15-01-R10 | The package and manifest shall preserve provenance for reliance-affecting data and references. | OPS-K-DATA-3; `docs/DIRECTIVE.md#25-axiology--what-values-govern`; `docs/IP_AND_DATA_BOUNDARY.md#4-required-provenance-fields` | Schema review for provenance-bearing records and protected-content gate. |
 > | DEL-15-01-R11 | The contract shall not declare certification, sealing, approval, authentication, code compliance, or professional acceptance as automatic software output (PRD §21.2). | OPS-K-AUTH-1; OBJ-017; `docs/TYPES.md#4-analysis-status-vocabulary` | Text/schema enum review for prohibited automatic statuses. |
-> | DEL-15-01-R12 | The package container remains TBD. OI-015 names initial export and target surfaces, while concrete mappings, unsupported-behavior taxonomy extensions, target field coverage, and target-specific implementation remain gated by DEL-17-01 and DEL-17-02. | OI-015; `_CONTEXT.md#Architecture Basis Injection` | Confirm the handoff schema remains target-neutral and does not claim target-specific mapping maturity. |
+> | DEL-15-01-R12 | The project interchange container strategy follows DEC-028; target-specific package realization still requires DEL-17-02 conformance. OI-015 names initial export and target surfaces, while concrete mappings, unsupported-behavior taxonomy extensions, target field coverage, and target-specific implementation remain gated by DEL-17-01 and DEL-17-02. | OI-015; `_CONTEXT.md#Architecture Basis Injection` | Confirm the handoff schema remains target-neutral and does not claim target-specific mapping maturity. |
 > | DEL-15-01-R13 | Checksum canonicalization metadata shall distinguish the existing Python sorted-key compact-JSON payload-hash basis as `deterministic_sorted_compact_json_payload_hash`; this value is not an RFC 8785/JCS claim. The existing `JCS_compatible_json_payload_hash` value remains accepted for backward compatibility until separately authorized producer repairs land. | D-41 `DEC-074` E1; PDU-002 prerequisite | Focused schema tests accept both values, assert the non-JCS boundary, and do not change producer or fixture output. |
 >
 
@@ -183,7 +183,7 @@ This Scope of Work defines `DEL-15-01` in service of project scope [SOW-074] and
 > | V-02 | Confirm all non-trivial schema requirements trace to `_CONTEXT.md`, decomposition, registers, or governing references. | PASS if every requirement has a source. |
 > | V-03 | Confirm unsupported specifics are marked `TBD` or `ASSUMPTION`. | PASS if package container, concrete mappings, target field coverage, and target-specific implementation are not invented. |
 > | V-04 | Confirm professional-boundary prohibited terms are not used as automatic software statuses. | PASS if no schema requirement creates automatic approval/compliance/certification states (PRD §21.2). |
-> | V-05 | Confirm local `Dependencies.csv` remains a DAG-002 mirror with approved rows preserved as ACTIVE. | PASS if dependency mirror is not retired/reclassified by setup. |
+> | V-05 | Preserve local dependency meanings and the actual statuses recorded under `execution/_DAG/_LATEST.md`; DAG-011 is current authority. Do not force historical duplicates or pending edges to ACTIVE. | Compare with the current approval record; legacy IDs remain provenance. |
 > | V-06 | Run `python3 tests/test_handoff_package_schema.py` and `python3 tools/validation/validate_dependencies_schema.py <DEL folder>/Dependencies.csv` when `Dependencies.csv` exists. | PASS/FAIL recorded in final run report. |
 > | V-07 | Run focused pytest coverage for both canonicalization labels. | PASS if the new deterministic sorted/compact label validates, the legacy JCS-compatible label remains valid, and schema text explicitly denies RFC 8785 conformance for the new label. |
 >
@@ -194,10 +194,10 @@ This Scope of Work defines `DEL-15-01` in service of project scope [SOW-074] and
 >
 > Required deliverable records:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md` definition section
+> - `ScopeOfWork.md` requirements section
+> - `ScopeOfWork.md` guidance section
+> - `ScopeOfWork.md` procedure section
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - local dependency validation result in the final run report
@@ -208,7 +208,7 @@ This Scope of Work defines `DEL-15-01` in service of project scope [SOW-074] and
 > - `tests/test_handoff_package_schema.py`
 > - `fixtures/invented_handoff_package.json`
 
-- **AC-001** — The contract preserves package identity, model checksum metadata with precise non-JCS canonicalization labels, unit manifests, stable entity IDs, library and rule references, assumptions, warnings, diagnostics, target-mapping and unsupported-target surfaces, provenance, privacy and protected-content boundaries, container and target-specific TBDs, and professional non-authority without lifecycle closure or approval claims.
+- **AC-001** — The contract preserves package identity, model checksum metadata with precise non-JCS canonicalization labels, unit manifests, stable entity IDs, library and rule references, assumptions, warnings, diagnostics, target-mapping and unsupported-target surfaces, provenance, privacy and protected-content boundaries, DEC-028 container strategy and remaining target-specific TBDs, and professional non-authority without lifecycle closure or approval claims.
 
 ## Production and Verification Method — Praxeology
 
@@ -264,14 +264,14 @@ This Scope of Work defines `DEL-15-01` in service of project scope [SOW-074] and
 >
 > | Verification item | Method |
 > |---|---|
-> | Source grounding | Check each non-trivial requirement against `_CONTEXT.md`, decomposition, registers, local DAG-002 mirror, or governing references. |
+> | Source grounding | Check each non-trivial requirement against `_CONTEXT.md`, decomposition, registers, local dependency mirror (current authority: `execution/_DAG/_LATEST.md`; earlier graph IDs are provenance), or governing references. |
 > | Schema baseline | Validate `schemas/handoff_package.schema.json` with `jsonschema.Draft202012Validator.check_schema` and validate the invented fixture with `python3 tests/test_handoff_package_schema.py`. |
 > | Canonicalization vocabulary | Run focused pytest cases proving the new non-JCS label validates, the legacy JCS-compatible label still validates, and the schema explicitly denies RFC 8785 conformance for the new label. |
 > | Required slots | Confirm the SOW-074 slots are present as requirements or explicit TBD surfaces. |
 > | TBD discipline | Confirm package container, concrete mappings, target field coverage, and target-specific implementation are not invented. Schema property names and validation fixture are now materialized evidence. |
 > | Data boundary | Check that schema guidance does not embed protected/private/proprietary payloads or examples. |
 > | Professional boundary | Check that the contract does not emit automatic approval/compliance/certification statuses (PRD §21.2). |
-> | Dependency mirror preservation | Confirm approved DAG-006 rows remain ACTIVE and are not retired, deleted, or reclassified. |
+> | Dependency mirror preservation | Preserve local dependency meanings and the actual statuses recorded under `execution/_DAG/_LATEST.md`; DAG-011 is current authority. Do not force historical duplicates or pending edges to ACTIVE. |
 >
 
 ### CLM-021 — Records
@@ -280,10 +280,10 @@ This Scope of Work defines `DEL-15-01` in service of project scope [SOW-074] and
 >
 > Maintain these records in the DEL-15-01 folder for setup:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md` definition section
+> - `ScopeOfWork.md` requirements section
+> - `ScopeOfWork.md` guidance section
+> - `ScopeOfWork.md` procedure section
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - existing `_DEPENDENCIES.md`

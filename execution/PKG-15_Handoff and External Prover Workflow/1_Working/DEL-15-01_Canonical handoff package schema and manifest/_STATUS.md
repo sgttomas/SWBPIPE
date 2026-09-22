@@ -4,6 +4,7 @@
 **Last Updated:** 2026-09-22
 
 ## Remaining
+- R5 continuation delivery task: Reconcile and verify the handoff public contract against its schema without deleting required semantics: Checksum provenance placement, UnitsManifestRef entries/diagnostics coverage, and EntityIdManifest identity/traceability representation remain concrete conformance tasks (CLM-006 rows 2/4/5; CLM-011 R03/R04).
 - Phase H program: design-knowledge schema/entry and constraint engine, physical-to-analytical transform contract, canonical handoff package + manifest, target-mapping/unsupported-behavior contract, downstream export workflow, external-prover boundary metadata, and remaining PKG-17 wire-format completion (stage-gated: v0.2 R6; DEL-17-01 vendor questions gate CAEPIPE MBF-specific claims) (see also DEL-13-01..04, DEL-15-02, DEL-15-03, DEL-15-04, DEL-17-01..09) (source: PRD plan §3 Forward Horizon row H / DEC-056)
 - Obtain owning human-review dispositions for open `RF-001` and `RF-002`; both retain `HumanDisposition=TBD`, and technically corrected schema/currentness/target wording does not formally close either finding (PDU-060).
 

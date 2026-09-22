@@ -149,7 +149,7 @@ This Scope of Work defines `DEL-16-04` in service of project scope [SOW-070] and
 > | REQ-16-04-07 | Missing data, unresolved assumptions, warnings, limitations, and `TBD` values shall remain explicit findings and shall not be converted into silent defaults. | `docs/DIRECTIVE.md` section 2.4; `docs/SPEC.md` sections 4.3, 9, and 12 | Current tests confirm missing audit, validation, source, actor, rationale text, and timestamp inputs emit visible `TBD_VISIBLE` diagnostics and unresolved assumptions remain counted/reportable. |
 > | REQ-16-04-08 | Public artifacts shall not introduce protected standards text, code-specific values, proprietary data, private project data, or private rule-pack payloads. | `docs/IP_AND_DATA_BOUNDARY.md` sections 2-6; `docs/CONTRACT.md` section 1, OPS-K-IP-1 through OPS-K-IP-3 | Protected-content and data-boundary review; exact linter integration TBD. |
 > | REQ-16-04-09 | Plugin, adapter, persistence, report, and application-service paths that touch this control surface shall preserve schema validation, provenance, private-data, protected-content, diagnostics, hashes, and professional-boundary checks. | `docs/SPEC.md` sections 4.4 and 4.5 | Rationale implementation path is established for this slice; plugin, adapter, persistence, report, and broader application-service integration remain TBD until concrete paths are assigned. |
-> | REQ-16-04-10 | Guard tests shall cover both positive preservation of rationale/assumptions and negative blocking of professional/code-compliance claim language. | `_CONTEXT.md` Anticipated Artifacts; `docs/CONTRACT.md` OPS-K-AUTH-1 and OPS-K-AGENT-4 | Current focused guard tests exist in `tests/test_agent_rationale_boundary.py`; broader UI/API/report coverage remains TBD. |
+> | REQ-16-04-10 | Guard tests shall cover both positive preservation of rationale/assumptions and negative blocking of professional/code-compliance claim language. | `_CONTEXT.md` Anticipated Artifacts; `docs/CONTRACT.md` OPS-K-AUTH-1 and OPS-K-AGENT-4 | Current focused guard tests exist in `tests/test_agent_rationale_boundary.py`; `docs/claims_registry.md` and the registered claim-lint surface provide additional wording evidence; actual API/UI/report coverage and runtime guards still require scoped verification. |
 >
 
 ### CLM-010 — Standards
@@ -176,10 +176,10 @@ This Scope of Work defines `DEL-16-04` in service of project scope [SOW-070] and
 > |---|---|---|
 > | Scope conformance | Review against `_CONTEXT.md`, Deliverables register row, and decomposition DEL-16-04 row. | No scope expansion beyond agent rationale and professional-boundary controls. |
 > | Rationale and assumption preservation | Focused test review of `tests/test_agent_rationale_boundary.py` and implementation review of `core/model_operations/agent_rationale/engine.py`. | Operation-related rationale, unresolved assumptions, affected entities, validation context, audit references, and audit metadata are retained or explicitly marked TBD. |
-> | Prohibited claim prevention | Focused guard tests for rationale text and copied operation/audit/validation context; future UI/API/report guard coverage remains TBD. | Prohibited authority language yields blocking diagnostics and does not become a permitted rationale status. |
+> | Prohibited claim prevention | Focused guard tests for rationale text and copied operation/audit/validation context; claims-registry/lint evidence exists; runtime/API/report guard completeness remains open. | Prohibited authority language yields blocking diagnostics and does not become a permitted rationale status. |
 > | Human acceptance separation | Review current rationale flags and adjacent audit-trail tests. | Rationale output is decision-support only and does not create accepted operation records, bypass user acceptance, or mutate accepted model state; final human-disposition workflow remains TBD. |
 > | Protected-content/data boundary | Protected-content and private-data checks. | No protected standards content or private project/rule data added to public artifacts. |
-> | Dependency preservation | Check approved DAG-006 local mirror. | Existing approved rows remain ACTIVE unless later changed by RECONCILIATION plus CHANGE approval. |
+> | Dependency preservation | Preserve local dependency meanings and the actual statuses recorded under `execution/_DAG/_LATEST.md`; DAG-011 is current authority. Do not force historical duplicates or pending edges to ACTIVE. | Compare with the current approval record; legacy IDs remain provenance. |
 >
 
 ### CLM-012 — Documentation
@@ -193,10 +193,10 @@ This Scope of Work defines `DEL-16-04` in service of project scope [SOW-070] and
 >
 > Setup artifacts produced by this workflow:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md` definition section
+> - `ScopeOfWork.md` requirements section
+> - `ScopeOfWork.md` guidance section
+> - `ScopeOfWork.md` procedure section
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 >
@@ -226,11 +226,11 @@ This Scope of Work defines `DEL-16-04` in service of project scope [SOW-070] and
 > | Prerequisite | Source |
 > |---|---|
 > | Confirm deliverable identity, package, scope, objectives, and artifact expectations from `_CONTEXT.md`. | `_CONTEXT.md` |
-> | Use the accepted revision 0.7 decomposition for SOW-070, OBJ-015, OBJ-018, PKG-16, and DEL-16-04. | `execution/_Decomposition/SOFTWARE_DECOMP.md` |
+> | Use the accepted decomposition and amendments for SOW-070, OBJ-015, OBJ-018, PKG-16, and DEL-16-04. | `execution/_Decomposition/SOFTWARE_DECOMP.md` |
 > | Apply project authority invariants for professional boundary and agent proposal status. | `docs/CONTRACT.md` OPS-K-AUTH-1 and OPS-K-AGENT-4 |
 > | Apply status vocabulary boundaries and epistemic labels. | `docs/TYPES.md` sections 4 and 5 |
 > | Apply data-boundary and protected-content constraints. | `docs/IP_AND_DATA_BOUNDARY.md` |
-> | Preserve the approved DAG-006 local dependency mirror unless RECONCILIATION plus CHANGE approval supersedes it. | `_DEPENDENCIES.md`; `Dependencies.csv` |
+> | Preserve the approved graph resolved through `execution/_DAG/_LATEST.md` local dependency mirror unless RECONCILIATION plus CHANGE approval supersedes it. | `_DEPENDENCIES.md`; `Dependencies.csv` |
 > | Use the current rationale implementation and focused tests as bounded evidence for this slice. | `core/model_operations/agent_rationale/engine.py`; `tests/test_agent_rationale_boundary.py` |
 > | Use adjacent PKG-16 schema/audit/preview implementation and tests as read-only context for boundaries consumed by rationale tests. | `schemas/model_operation.schema.json`; `core/model_operations/audit_trail/engine.py`; `core/model_operations/validation_preview/engine.py`; adjacent focused tests |
 > | Treat standalone rationale schema, final UI/agent workflow presentation, broader persistence/application behavior, dependency versions, and human review dispositions as TBD until later Type 2 work or human ruling resolves them. | `_CONTEXT.md` Architecture Basis Injection; `docs/SPEC.md` section 12 |
@@ -279,7 +279,7 @@ This Scope of Work defines `DEL-16-04` in service of project scope [SOW-070] and
 > The expected records for this deliverable are:
 >
 > - agent rationale record: current implementation path `core/model_operations/agent_rationale/engine.py`; standalone schema and persistence path TBD;
-> - professional-boundary guard tests: current focused path `tests/test_agent_rationale_boundary.py`; broader UI/API/report coverage TBD;
+> - professional-boundary guard tests: current focused path `tests/test_agent_rationale_boundary.py`; claims-registry/lint evidence exists; runtime/API/report guard completeness remains open;
 > - unresolved assumptions and `TBD` decisions surfaced in deliverable documents;
 > - validation evidence from focused implementation tests;
 > - this setup document kit and semantic/lensing metadata.
@@ -322,8 +322,8 @@ This Scope of Work defines `DEL-16-04` in service of project scope [SOW-070] and
 > | Topic | Consideration |
 > |---|---|
 > | Record shape | The current Python record shape is established in `core/model_operations/agent_rationale/engine.py` for this slice: deliverable/package/scope metadata, operation set ref, audit context, source, actor, timestamp, rationale posture, assumptions, validation context, affected entities, audit references, operation context, diagnostics, accepted-state unchanged flag, professional boundary, provenance, rationale ID, and rationale hash. Standalone JSON Schema and final persistence path remain TBD. |
-> | Guard-test surface | Current focused guards are in `tests/test_agent_rationale_boundary.py`. They cover deterministic records, no accepted-state mutation, no accepted-operation creation, no user-acceptance bypass, missing-context/TBD visibility, unresolved assumptions, prohibited rationale claims, copied-context claims, enum-style authority tokens, and lowercase approved coordination-context false-positive behavior. Broader UI/API/report coverage remains TBD. |
-> | Dependency context | The approved DAG-006 mirror identifies architecture-basis deliverables, professional responsibility policy, user acceptance/audit trail, and security threat model as upstream context. This setup pass preserves that mirror rather than reclassifying it. |
+> | Guard-test surface | Current focused guards are in `tests/test_agent_rationale_boundary.py`. They cover deterministic records, no accepted-state mutation, no accepted-operation creation, no user-acceptance bypass, missing-context/TBD visibility, unresolved assumptions, prohibited rationale claims, copied-context claims, enum-style authority tokens, and lowercase approved coordination-context false-positive behavior. `docs/claims_registry.md` and registered claim lint add wording evidence; actual runtime/API/report coverage remains to be demonstrated. |
+> | Dependency context | The approved graph resolved through `execution/_DAG/_LATEST.md` mirror identifies architecture-basis deliverables, professional responsibility policy, user acceptance/audit trail, and security threat model as upstream context. This setup pass preserves that mirror rather than reclassifying it. |
 > | Rationale privacy | Rationale may mention project context or user inputs. Future implementation must respect private-data and protected-content controls before public export. |
 > | Human review | Human review is a boundary, not a wording detail. A UI label or report phrase must not imply human acceptance unless backed by an external, human-owned, hash-bound record. |
 > | Copied context | Rationale capture scans rationale text plus copied operation, audit, validation, source, actor, affected-reference, and audit-reference context for prohibited authority language. Blocking diagnostics should be treated as wording/authority blockers, not engineering findings. |

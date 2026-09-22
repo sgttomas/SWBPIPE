@@ -13,11 +13,11 @@
 - docs/report_notice_template.md - Draft report notice template.
 - execution/_Coordination/_COORDINATION.md - Local status and DAG-guided development loop.
 - execution/_DAG/_LATEST.md - Current approved DAG pointer.
-- execution/_DAG/DAG-006/APPROVAL_RECORD.md - Approved active graph authority record.
+- execution/_DAG/_LATEST.md - Resolve the approved graph record through this current authority pointer.
 - agents/AGENT_PREPARATION.md - PREPARATION scaffolding protocol and file schemas.
 
 ## Decomposition and Registers
-- execution/_Decomposition/SOFTWARE_DECOMP.md - Current decomposition basis revision 0.7; package PKG-01 and deliverable DEL-01-04.
+- execution/_Decomposition/SOFTWARE_DECOMP.md - Current decomposition basis accepted authority (see decision register); package PKG-01 and deliverable DEL-01-04.
 - docs/_Registers/Deliverables.csv - Deliverable identity, description, artifacts, scope, objectives, and context envelope.
 - docs/_Registers/ScopeLedger.csv - Scope item mappings for SOW-034 and SOW-064.
 - docs/_Registers/ContextBudgetQA.csv - Context budget row for DEL-01-04.

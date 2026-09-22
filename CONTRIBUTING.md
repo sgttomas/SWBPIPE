@@ -24,8 +24,8 @@ New contributors should start with the tutorial path in
 agentic workflow map in
 [`docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`](docs/AGENTIC_DEVELOPMENT_WORKFLOW.md)
 before changing files. These onboarding documents are navigation aids only;
-the governance documents above, an assigned sealed brief, the approved DAG-007
-graph record,
+the governance documents above, an assigned sealed brief, the approved graph
+selected by `execution/_DAG/_LATEST.md`,
 deliverable-local lifecycle files, review dispositions, and human
 project-authority decisions remain controlling when they conflict.
 
@@ -36,17 +36,25 @@ code-compliance determination.
 ## Current Authority Basis
 
 This draft contributor workflow is aligned to
-`execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved
-`DAG-007` coordination authority. The project license has been selected as
+the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md` and the approved
+graph selected by `execution/_DAG/_LATEST.md`. The project license has been selected as
 `PolyForm-Noncommercial-1.0.0`; this is a project governance notice, not legal
 advice or a contributor legal mechanism.
 
-The final contributor legal mechanism, such as DCO, CLA, or another
-instrument, remains `TBD`. Maintainer roster/quorum, release authority,
-legal-review authority, security contact, release-label vocabulary,
+DEC-027 records a quorum of one: the sole human project authority is the sole
+maintainer and release authority. External contribution intake remains closed.
+DEC-079 adopts the D-07b sole-maintainer review and protected-content screening
+skeleton and records “process defined; intake closed”; activation requires a
+future owner decision. The final contributor legal instrument remains `TBD`
+until that activation decision, with legal advice obtained by the owner. No
+legal instrument or release is authorized by this current-basis correction.
+
+Legal-review authority, security contact, release-label vocabulary,
 human-acceptance workflow, and jurisdiction-specific professional-practice
-wording also remain `TBD` until recorded by the human project authority or
-qualified reviewer.
+wording retain their own unresolved decisions and qualified-review routes.
+See DEC-027/DEC-079 in `execution/_Decomposition/SOFTWARE_DECOMP.md` and
+`execution/_Coordination/_DECISIONS/D-07b_contributor_intake_mechanism.md` §10.
+Blank per-contribution fields remain unfilled evidence slots.
 
 ## 1. Contribution Scope
 

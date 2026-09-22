@@ -71,7 +71,7 @@ This Scope of Work defines `DEL-14-01` in service of project scope [SOW-071] and
 
 > ##### Construction
 >
-> The source-supported construction target is a schema and persistence-test surface for immutable model state records. The following construction fields are known at setup time:
+> The source-supported construction target is a schema and persistence-test surface for immutable model state records. The construction contract and current schema evidence are separated below:
 >
 > | Construction item | Status |
 > |---|---|
@@ -81,8 +81,8 @@ This Scope of Work defines `DEL-14-01` in service of project scope [SOW-071] and
 > | Test obligation | Known: model state persistence tests |
 > | Minimum record categories | Known: name, tags, notes, external references, unresolved assumptions, warnings, deterministic hashes |
 > | Snapshot immutability rule | Required concept; exact enforcement mechanism TBD |
-> | Canonical payload scope | TBD: model payload, state envelope, or explicit hash partitioning must be selected later |
-> | Schema property names and required/optional cardinality | TBD; no authoritative schema text exists in the accessible source set |
+> | Canonical payload scope | Consult the hash definitions and payload references in `schemas/model_state.schema.json`; retain explicit hash scope. A broader non-JSON partitioning decision is not implied. |
+> | Schema property names and required/optional cardinality | Defined by `schemas/model_state.schema.json`; check its current required fields and immutable-hash binding. Schema presence alone does not demonstrate product persistence. |
 > | Persistence module path and service API | TBD; exact package/module layout remains implementation-level detail |
 >
 
@@ -92,10 +92,10 @@ This Scope of Work defines `DEL-14-01` in service of project scope [SOW-071] and
 >
 > - `_CONTEXT.md` for deliverable identity, package, artifacts, scope, objective, architecture basis, and envelope notes.
 > - `_REFERENCES.md` for the approved source list and authority boundary.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for SOW-071, OBJ-016, PKG-14, and DEL-14-01 placement.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` with its accepted amendments for SOW-071, OBJ-016, PKG-14, and DEL-14-01 placement.
 > - `docs/_Registers/Deliverables.csv`, `ScopeLedger.csv`, and `ContextBudgetQA.csv` for register-backed identity and scope data.
 > - `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, `docs/SPEC.md`, `docs/TYPES.md`, and `docs/IP_AND_DATA_BOUNDARY.md` for invariants, technical boundaries, vocabulary, and data-boundary constraints.
-> - `Dependencies.csv` as the local approved DAG-006 mirror/evidence surface.
+> - `Dependencies.csv` as the local approved graph resolved through `execution/_DAG/_LATEST.md` mirror/evidence surface.
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -205,9 +205,9 @@ This Scope of Work defines `DEL-14-01` in service of project scope [SOW-071] and
 > ##### Prerequisites
 >
 > - Read `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, and `Dependencies.csv` in this deliverable folder.
-> - Use `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for SOW-071, OBJ-016, PKG-14, and DEL-14-01 scope.
+> - Use `execution/_Decomposition/SOFTWARE_DECOMP.md` with its accepted amendments for SOW-071, OBJ-016, PKG-14, and DEL-14-01 scope.
 > - Apply `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, `docs/SPEC.md`, `docs/TYPES.md`, and `docs/IP_AND_DATA_BOUNDARY.md` for governance, technical, vocabulary, and data-boundary constraints.
-> - Treat approved DAG-006 rows as coordination evidence, not as authorization to edit upstream deliverables or dispatch Type 2 implementation.
+> - Treat approved graph resolved through `execution/_DAG/_LATEST.md` rows as coordination evidence, not as authorization to edit upstream deliverables or dispatch Type 2 implementation.
 > - Preserve all unknown implementation choices as `TBD` unless a later accepted source resolves them.
 >
 > Declared upstream coordination evidence from the local mirror:
@@ -293,9 +293,9 @@ This Scope of Work defines `DEL-14-01` in service of project scope [SOW-071] and
 
 > ##### Considerations
 >
-> The accepted architecture basis makes this deliverable schema-first and hash-aware, but it does not yet select exact dependency versions, physical project package/container details, or package-specific implementation choices (`_CONTEXT.md`, Architecture Basis Injection). Those choices should remain explicit implementation `TBD`s until a later authorized task resolves them.
+> The accepted architecture basis makes this deliverable schema-first and hash-aware, with DEC-017 fixing the SQLite local-store/canonical-JSON profile and DEC-028 fixing the archive transport strategy. Unselected dependency versions and package-specific choices follow DEC-012 (accepted sealed brief or later ruling); persistence implementation/conformance remains separate.
 >
-> The local DAG-002 mirror identifies several upstream evidence surfaces: architecture-basis deliverables, canonical model schema, project persistence/serialization, audit manifest/model hash, and analysis-status vocabulary. These rows are coordination evidence only; they do not dispatch implementation work or authorize lifecycle promotion (`Dependencies.csv`; `execution/_DAG/DAG-006/APPROVAL_RECORD.md`).
+> The local dependency mirror (current authority: `execution/_DAG/_LATEST.md`; earlier graph IDs are provenance) identifies several upstream evidence surfaces: architecture-basis deliverables, canonical model schema, project persistence/serialization, audit manifest/model hash, and analysis-status vocabulary. These rows are coordination evidence only; they do not dispatch implementation work or authorize lifecycle promotion (`Dependencies.csv`; `execution/_DAG/_LATEST.md` (current approval record; DAG-006 remains historical provenance)).
 >
 > The model state should not borrow formal prover-status language. SOW-071 and the context budget note both state that model states are flexible metadata records, not formal prover approval states.
 >
@@ -316,7 +316,7 @@ This Scope of Work defines `DEL-14-01` in service of project scope [SOW-071] and
 
 > ##### Examples
 >
-> No concrete example payload is source-supported in the accessible material. Future examples should use invented or cleared public data, document provenance, and avoid protected standards text or proprietary project values.
+> `tests/test_model_state_schema.py` carries schema example evidence. Examples must use invented or cleared public data, document provenance, and avoid protected standards text or proprietary project values.
 >
 
 ### CLM-029 — Conflict Table (for human ruling)

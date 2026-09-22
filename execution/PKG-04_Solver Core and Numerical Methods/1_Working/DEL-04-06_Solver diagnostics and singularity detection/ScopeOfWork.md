@@ -53,7 +53,7 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 > | Analysis-boundary statuses | `ReadyToSolve`, `ModelIncomplete`, and `SolveFailed` map to `MODEL_INCOMPLETE`; `MechanicsSolved` and `SolvedWithWarnings` map to `MECHANICS_SOLVED`; every mapping keeps `human_review_required: true`, `emits_rule_status: false`, and `emits_human_acceptance: false`. | `core/solver/diagnostics/src/lib.rs` `SolverStatus::analysis_boundary_mapping` |
 > | Diagnostic classes | Blocking/failure diagnostics map to `SOLVE_BLOCKING`; ill-conditioning warnings map to `ASSUMPTION_WARNING`; warning-level solver-iteration nonconvergence maps to `NONLINEAR_WARNING`; sparse-solver and tolerance-policy deferrals map to `TBD`. | `core/solver/diagnostics/src/lib.rs` `diagnostic_class_for` |
 > | Numerical thresholds | Conditioning and convergence helper functions accept caller-supplied thresholds/tolerances and reject invalid numeric inputs, but accepted release thresholds remain TBD. | `core/solver/diagnostics/src/lib.rs` `classify_condition_ratio`, `convergence_diagnostic`; `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-005 |
-> | Sparse solver library/settings | Sparse solver selection remains TBD and is represented by an explicit warning diagnostic; no sparse numerical library/settings are selected in this deliverable. | `_CONTEXT.md` Still TBD; `core/solver/diagnostics/src/lib.rs` `sparse_solver_tbd_diagnostic` |
+> | Sparse solver library/settings | Sparse strategy is selected by DEC-023 and live/default use by DEC-050/053; the diagnostic records adoption status. This deliverable selects no release threshold. | `_CONTEXT.md` Still TBD; `core/solver/diagnostics/src/lib.rs` `sparse_solver_tbd_diagnostic` |
 >
 
 ### CLM-005 — Diagnostic Category Register
@@ -62,13 +62,13 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 >
 > | Category | Implemented handling | Preserved limit |
 > |---|---|---|
-> | Singular system | `FrameKernelError::SingularSystem` maps to `SingularSystem` / `Failure` / `MechanicsSolver` and produces a blocked `SolveFailed` report. | Sparse-solver selection and final solver integration remain outside this document update. |
+> | Singular system | `FrameKernelError::SingularSystem` maps to `SingularSystem` / `Failure` / `MechanicsSolver` and produces a blocked `SolveFailed` report. | Sparse selection follows DEC-023/050/053; uncovered product integration remains separately evidenced. |
 > | Ill-conditioned system | `classify_condition_ratio` returns `IllConditionedSystem` warning diagnostics and `ConditioningFailure` failure diagnostics from finite, nonnegative condition-ratio evidence. | Accepted project thresholds remain TBD. |
 > | Nonconverged analysis | `convergence_diagnostic` returns `NonConvergence` warning diagnostics before the iteration limit and failure diagnostics at or beyond the limit. | Nonlinear support warning finalization remains deferred pending the nonlinear support slice and accepted tolerance policy. |
 > | Invalid restraint | Frame restrained/prescribed DOF errors and support findings/application errors map to blocking `InvalidRestraint` model-validation diagnostics, with `dof:*` affected references where implemented. | This does not decide rule compliance or human acceptance. |
 > | Invalid model topology | Frame topology/orientation errors, support DOF alignment errors, and primitive-load topology findings map to blocking `InvalidModelTopology` diagnostics; missing load IDs use stable `load:<missing-id>` references. | Protected examples and proprietary benchmark cases remain excluded. |
 > | Invalid numeric input | Frame numeric errors, linear-support errors, primitive-load errors, and primitive-load numeric findings map to blocking `InvalidNumericInput` diagnostics. | Unit conversion/default policy is not introduced here. |
-> | Sparse/tolerance TBD | `SparseSolverTbd` and `TolerancePolicyTbd` diagnostics are warning-level solver-configuration diagnostics with class `TBD`. | No sparse solver, final tolerance threshold, performance claim, or release claim is selected. |
+> | Sparse/tolerance TBD | `SparseSolverTbd` and `TolerancePolicyTbd` diagnostics are warning-level solver-configuration diagnostics with class `TBD`. | DEC-023/050/053 resolves sparse adoption; no new tolerance, performance or release criterion is selected. |
 > | Solver status | `SolverDiagnosticReport` carries a solver-local status and diagnostics; analysis-boundary mapping preserves mechanics-only status semantics. | Final application-service/result-envelope integration remains deferred. |
 >
 
@@ -94,8 +94,8 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 > | Support mappings | Maps linear-support errors/findings and support-application errors into blocking diagnostics. | Implemented in `diagnostic_from_linear_support_error`, `diagnostic_from_support_finding`, and `diagnostics_from_support_application_error` |
 > | Primitive-load mappings | Maps primitive-load errors/findings, including axial-effect findings and missing load IDs, into blocking diagnostics with stable affected references. | Implemented in `diagnostic_from_primitive_load_error` and `diagnostic_from_primitive_load_finding` |
 > | Conditioning diagnostics | Classifies finite, nonnegative condition ratios into no diagnostic, warning, or failure. | Implemented with caller-supplied thresholds; release thresholds TBD |
-> | Nonconvergence diagnostics | Reports residual/tolerance nonconvergence as warning or failure based on iteration count. | Implemented with caller-supplied tolerance; accepted tolerance policy TBD |
-> | Sparse/tolerance TBD diagnostics | Emits warning diagnostics for unresolved sparse-solver adapter and tolerance policy. | Implemented; selections remain TBD |
+> | Nonconvergence diagnostics | Reports residual/tolerance nonconvergence as warning or failure based on iteration count. | Implemented with caller-supplied tolerance; DEC-026/046 governs policy; unmeasured entries remain explicit |
+> | Sparse/tolerance TBD diagnostics | Reports sparse adoption against DEC-023/050/053 and genuinely unmeasured tolerance criteria. | Current mappings in `core/solver/diagnostics/src/lib.rs`; release criteria remain open |
 > | Status reporting | Machine-readable solver-local statuses map to PKG-02 analysis-boundary mechanics statuses. | Implemented; final result-envelope integration remains deferred |
 >
 
@@ -157,7 +157,7 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 > | REQ-04-06-007 | Primitive-load errors and findings shall map to blocking model-validation diagnostics, including axial-effect findings and missing-load-ID references. | OPS-K-DATA-2; SOW-053; `core/solver/diagnostics/src/lib.rs` |
 > | REQ-04-06-008 | Conditioning diagnostics shall classify finite nonnegative condition-ratio evidence into no diagnostic, `IllConditionedSystem` warning, or `ConditioningFailure` failure using caller-supplied thresholds. | SOW-035; OI-005; `classify_condition_ratio` |
 > | REQ-04-06-009 | Nonconvergence diagnostics shall classify residual/tolerance evidence as no diagnostic, warning-level `NonConvergence`, or failure-level `NonConvergence` using caller-supplied tolerance and iteration count. | OPS-K-SOLVER-2; `convergence_diagnostic` |
-> | REQ-04-06-010 | Sparse-solver adapter selection and accepted tolerance policy shall remain explicit warning-level `TBD` diagnostics until accepted by a later governed decision. | `_CONTEXT.md` Still TBD; OI-005; `sparse_solver_tbd_diagnostic`; `tolerance_policy_tbd_diagnostic` |
+> | REQ-04-06-010 | Sparse adoption shall be reported against DEC-023/050/053; `TolerancePolicyTbd` remains applicable to genuinely unmeasured or unaccepted criteria under DEC-026/046. Do not label the settled solver strategy as undecided. | `_CONTEXT.md` Still TBD; OI-005; `sparse_solver_tbd_diagnostic`; `tolerance_policy_tbd_diagnostic` |
 > | REQ-04-06-011 | The diagnostic slice shall preserve mechanics-only boundaries and shall not claim certification, sealing, approval, professional reliance, release readiness, or code compliance (PRD §21.2). | OPS-K-MECH-2; OPS-K-AUTH-1; `core/solver/diagnostics/README.md` |
 >
 
@@ -237,7 +237,7 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 > 10. Confirm conditioning and nonconvergence diagnostics with caller-supplied thresholds/tolerances and input validation.
 > 11. Confirm sparse-solver and tolerance-policy TBD diagnostics remain warning-level unresolved-policy evidence.
 > 12. Check recent run records for validation evidence; the June 5 Worker B record reports 19 passing diagnostics tests.
-> 13. Preserve deferrals for sparse solver selection, accepted tolerance thresholds, nonlinear support warning finalization, final result-envelope integration, release claims, professional approval, and code-compliance claims (PRD §21.2).
+> 13. Preserve residuals for unmeasured accepted tolerance thresholds, nonlinear support warning finalization, final result-envelope integration, release claims, professional approval, and code-compliance claims (PRD §21.2).
 > 14. For document-only alignment work, do not edit code, `_STATUS.md`, review finding dispositions, dependency registers, DAG files, or coordination prompts.
 >
 
@@ -257,9 +257,9 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 
 > ##### Verification
 >
-> - Confirm all four production documents exist.
+> - Confirm `ScopeOfWork.md` and its required source sections exist.
 > - Confirm the four production documents align with current implementation evidence.
-> - Confirm current documents include diagnostic envelope fields, provenance/remediation/unit metadata, analysis-boundary status mapping, frame/support/primitive-load mappings, conditioning/nonconvergence diagnostics, sparse/tolerance TBD diagnostics, and 19-test evidence.
+> - Confirm current documents include diagnostic envelope fields, provenance/remediation/unit metadata, analysis-boundary status mapping, frame/support/primitive-load mappings, conditioning/nonconvergence diagnostics, sparse/tolerance TBD diagnostics, and revision-bound test evidence.
 > - Confirm obsolete non-implementation wording has been removed from the four production documents except where a preserved deferral is explicitly named.
 > - Confirm no files outside the assigned write scope were edited.
 >
@@ -268,7 +268,7 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 
 > ##### Records
 >
-> - Four production documents in this folder.
+> - The consolidated `ScopeOfWork.md` in this folder.
 > - `MEMORY.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
@@ -307,7 +307,7 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 > ##### Principles
 >
 > - Treat diagnostics as solver evidence, not engineering approval.
-> - Treat `SparseSolverTbd` and `TolerancePolicyTbd` as explicit unresolved-policy diagnostics, not as acceptable release settings.
+> - Treat sparse-adoption diagnostics against DEC-023/050/053 and `TolerancePolicyTbd` against the still-unmeasured governed criteria; neither establishes acceptable release settings.
 > - Preserve diagnostic provenance, remediation, affected references, canonical references, and unit metadata so downstream reports can explain which object, solver stage, and source produced a warning or blocking condition.
 > - Keep invalid restraints, invalid topology, invalid numeric inputs, and missing solve-required values visible as findings; do not normalize them away.
 > - Use `SolverStatus::analysis_boundary_mapping` for mechanics-only status handoff: solver diagnostics may map to `MODEL_INCOMPLETE` or `MECHANICS_SOLVED`, but they do not emit rule status or human acceptance.
@@ -352,7 +352,7 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 > | Decision area | Current guidance | Open issue |
 > |---|---|---|
 > | Diagnostic granularity | Use the implemented `SolverDiagnosticCode` registry before adding new diagnostic kinds. | Additional nonlinear-support warning classes remain deferred. |
-> | Conditioning warnings | Preserve reportability and provenance while passing threshold values explicitly from accepted solver policy. | Accepted release thresholds and sparse solver settings remain TBD. |
+> | Conditioning warnings | Preserve reportability and provenance while passing threshold values explicitly from accepted solver policy. | Accepted release thresholds remain TBD; solver strategy/default use follows DEC-023/050/053. |
 > | Fixture design | Use original/public/invented models and avoid protected examples. | Additional release gate fixture inventory remains TBD. |
 > | Status wording | State mechanics-solver facts only and preserve `solver_result_only` authority. | Human review, rule checks, and professional reliance remain outside solver authority. |
 > | Result integration | Keep diagnostic records and status mapping stable for the application result envelope. | Final result-envelope integration remains deferred. |
@@ -369,7 +369,7 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 
 > ##### Conflict Table (for human ruling)
 >
-> No new source conflicts were found during this document/evidence alignment. Numerical threshold policy, sparse solver selection, nonlinear support warning finalization, final result-envelope integration, release claims, and professional/code-compliance claims remain deferrals, not conflicts.
+> No new source conflicts were found during this document/evidence alignment. Unmeasured numerical thresholds and nonlinear support warning finalization, final result-envelope integration, release claims, and professional/code-compliance claims remain deferrals, not conflicts.
 
 ### CLM-034 — SCA-011 Diagnostic production and integration
 

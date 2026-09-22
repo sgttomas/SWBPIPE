@@ -51,7 +51,7 @@ This Scope of Work defines `DEL-05-02` in service of project scope [SOW-014] and
 > | Result boundary metadata | Result-boundary export requires explicit unit metadata, provenance reference, result schema binding, payload reference, and payload-hash reference. Load-record schema bindings are rejected for result quantities. | `core/loads/load_case_algebra/README.md`; `core/loads/load_case_algebra/src/lib.rs` |
 > | Data boundary | Code-specific combinations, allowables, protected standards content, and project-specific rule content are not bundled defaults. | `docs/CONTRACT.md` OPS-K-DATA-1; `core/loads/load_case_algebra/README.md` |
 > | Rule-pack boundary | The crate does not implement the rule-pack expression evaluator or arbitrary executable rules; rule-pack integration remains outside this deliverable slice. | SOW-014; OPS-K-RULE-2; `core/loads/load_case_algebra/README.md` |
-> | Expression grammar/library | General expression grammar/library remains TBD. The implemented API uses explicit enum variants and terms rather than a parser or code-specific syntax. | `_CONTEXT.md` Still TBD; `core/loads/load_case_algebra/src/lib.rs` |
+> | Expression grammar/library | Rule-pack grammar is resolved by DEC-022 as a declarative typed AST with no text parser. This does not add code-specific combinations or expand the algebra contract. The implemented API uses explicit enum variants and terms rather than a parser or code-specific syntax. | `_CONTEXT.md` Still TBD; `core/loads/load_case_algebra/src/lib.rs` |
 >
 
 ### CLM-004 — Conditions
@@ -145,7 +145,7 @@ This Scope of Work defines `DEL-05-02` in service of project scope [SOW-014] and
 > | REQ-05-02-006 | Implemented tests and finding paths cover missing operands, duplicate operands, missing result states, empty expressions, and non-finite factors as explicit findings or boundary errors. |
 > | REQ-05-02-007 | Implemented status propagation preserves mechanics/rule statuses, adds `HumanReviewRequired`, and blocks automatic `HumanApprovedForProject` propagation. |
 > | REQ-05-02-008 | Implemented result-boundary tests verify explicit unit metadata, provenance-compatible record fields, result-schema binding, payload/hash references, and rejection of load-record schema binding for result quantities. |
-> | REQ-05-02-009 | Targeted crate validation is `cargo test --manifest-path core/loads/load_case_algebra/Cargo.toml`; project CI/release-gate inclusion remains TBD. |
+> | REQ-05-02-009 | Targeted crate verification is `cargo test --manifest-path core/loads/load_case_algebra/Cargo.toml`; the crate participates in the registered DEC-025 evidence sweep; release acceptance remains separate. |
 >
 
 ### CLM-013 — Documentation
@@ -154,7 +154,7 @@ This Scope of Work defines `DEL-05-02` in service of project scope [SOW-014] and
 >
 > Required deliverable-local artifacts are `ScopeOfWork.md`, `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, `_STATUS.md`, and `_run_records/`. Implementation evidence is read-only for this TASK run at `core/loads/load_case_algebra/README.md` and `core/loads/load_case_algebra/src/lib.rs`.
 
-- **AC-001** — The contract preserves the accepted bounded algebra surface, explicit units and operand compatibility, user-supplied expressions and factors, deterministic ordering and findings, and unresolved grammar and integration policies without embedding proprietary code combinations, allowables, silent conversions, or compliance meaning.
+- **AC-001** — The contract preserves the accepted bounded algebra surface, explicit units and operand compatibility, user-supplied expressions and factors, deterministic ordering and findings, and the DEC-022 grammar boundary and unresolved integration obligations without embedding proprietary code combinations, allowables, silent conversions, or compliance meaning.
 
 ## Production and Verification Method — Praxeology
 
@@ -189,8 +189,8 @@ This Scope of Work defines `DEL-05-02` in service of project scope [SOW-014] and
 > 2. Confirm exclusions: no code-specific load combinations/defaults, no protected standards content, no arbitrary executable rules, no rule-pack evaluator, and no certification or professional-reliance claims.
 > 3. Maintain the data boundary: code-specific combinations are supplied by user rule packs and remain outside bundled public defaults.
 > 4. Verify deterministic implementation evidence for compatible-unit combinations, incompatible dimensions, missing operands, duplicate operands, missing result states, non-finite factors, subtraction/ranging, result-boundary metadata, status propagation, and human-approval rejection.
-> 5. Record unknowns as `TBD`, including general expression grammar/library, final rule-pack evaluator/interface behavior, final result-envelope/persistence integration, and release/CI gate policy.
-> 6. Preserve deliverable evidence in the four documents, semantic files, dependency artifacts, status history, memory, and run records.
+> 5. Apply DEC-022 for expression grammar and DEC-025/059/060/093 for CI and coverage policy. Retain unresolved evaluator/interface and result-envelope/persistence integration as explicit delivery tasks with bound evidence; any unselected decision remains `TBD`.
+> 6. Preserve deliverable evidence in `ScopeOfWork.md`, semantic files, dependency artifacts, status history, memory, and run records.
 >
 
 ### CLM-018 — Verification
@@ -250,7 +250,7 @@ This Scope of Work defines `DEL-05-02` in service of project scope [SOW-014] and
 >
 > | Topic | Guidance | Evidence |
 > |---|---|---|
-> | Expression grammar | General grammar/library remains TBD. Current implementation uses explicit `AlgebraExpression` variants and `CombinationTerm` values, not a parser or code-specific syntax. | `_CONTEXT.md` Still TBD; `core/loads/load_case_algebra/src/lib.rs`; OPS-K-RULE-2 |
+> | Expression grammar | DEC-022 resolves the rule-pack typed AST grammar; the algebra retains its own bounded enum/term contract. Current implementation uses explicit `AlgebraExpression` variants and `CombinationTerm` values, not a parser or code-specific syntax. | `_CONTEXT.md` Still TBD; `core/loads/load_case_algebra/src/lib.rs`; OPS-K-RULE-2 |
 > | Primitive load and result dependencies | Inputs must arrive as explicit mechanics/result operands with dimensions and boundary metadata already governed upstream. The DEL-05-01 and DEL-05-04 dependency rows are `SATISFIED` under the recorded 2026-06-05 blocker-closure ruling. | `Dependencies.csv`; `_DEPENDENCIES.md`; `core/loads/load_case_algebra/README.md` |
 > | Rule-pack combinations | User rule packs may supply code-specific combinations through a governed interface, but the crate does not provide code-specific defaults or a rule-pack evaluator. The DEL-06-02 evaluator interface remains TBD/low-confidence. | SOW-014; OBJ-005; `_DEPENDENCIES.md` |
 > | Diagnostics | Missing operands, empty expressions, non-finite factors, dimensional mismatch, duplicate operands, unsupported expression shapes, missing result states, and status-boundary violations are deterministic findings or boundary errors. | OPS-K-DATA-2; AB-00-06; `core/loads/load_case_algebra/src/lib.rs` |
@@ -261,7 +261,7 @@ This Scope of Work defines `DEL-05-02` in service of project scope [SOW-014] and
 
 > ##### Trade-offs
 >
-> - A more expressive grammar can help users define combinations, but increases validation and sandboxing risk. Grammar choice remains TBD.
+> - A more expressive grammar can help users define combinations, but increases validation and sandboxing risk. DEC-022 fixes the rule-pack typed AST; richer syntax remains outside that decision.
 > - Hard-coded combinations might appear convenient, but would violate the data boundary for code-specific and project-specific rule content.
 > - Implemented subtraction/ranging support deliberately stays deterministic and mechanics-focused instead of broadening into expression-language flexibility.
 >

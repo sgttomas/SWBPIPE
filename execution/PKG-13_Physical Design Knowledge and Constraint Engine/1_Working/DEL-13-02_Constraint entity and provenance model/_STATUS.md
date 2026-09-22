@@ -4,6 +4,7 @@
 **Last Updated:** 2026-09-22
 
 ## Remaining
+- R5 continuation delivery task: Demonstrate constraint-schema consumers against actual runtime data: downstream DEL-13-03 validation and DEL-13-04 transform conformance, plus owned PKG-07 presentation/blocking paths. Existing reference implementations do not establish product wiring or public-example provenance (CLM-004/013/027).
 - Obtain the owning human disposition for `PKG13-DEL-13-02-PKG02-001`; the review record remains `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`. Reassess its technical premise: `schemas/units.schema.yaml` includes `force_per_length`, while the constraint dimension enum in `schemas/constraint.schema.json` does not. Current vocabulary evidence therefore does not establish enum parity. No reviewer finding or human gate is closed by this factual correction (PDU-060).
 
 ## History

@@ -1,12 +1,14 @@
 # Status: DEL-03-05 Rigid component models for valves, flanges, reducers, and specialty items
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-09-22
 
 ## Remaining
+- Bind public rigid-family fixture provenance and protected-content review to the actual shared fixture and preview values, and evidence component adapter/API no-bypass checks. Keep the separate COG coordinate/reference-frame authority hold. (R5 continuation claim references: DEL-03-05:SOW#CLM-010.r07; CLM-013; CLM-014.)
 - Hold PDU-013 COG mechanics acceptance until an authorized coordinate convention and reference frame are selected; the existing value slot is not mechanics-ready evidence (source: D-41 R5 T2B E2/E4/E8 evidence-only backcheck, 2026-07-12)
 
 ## History
+- 2026-09-22 - Added explicit grouped delivery/evidence tasks from the R5 record-continuation screening to Remaining; lifecycle, existing dispositions and acceptance boundaries remain unchanged. Evidence: `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG00_06/`.
 - 2026-07-12 - D-41 R5 T7 PDU-056 refreshed four cited review-disposition declarations to the recorded Gate C `ACCEPT_AS_IS`/`RESOLVED` state; formal review records were preserved, and the cited-claim backcheck closed the D-41 bootstrap.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - State set to INITIALIZED (TASK+four-documents)

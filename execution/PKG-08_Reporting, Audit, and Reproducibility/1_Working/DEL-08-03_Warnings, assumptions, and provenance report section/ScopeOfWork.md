@@ -62,6 +62,9 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 
 > ##### Conditions
 >
+> Current deliverable obligation: implement report sections that expose missing data, assumptions, user-supplied values, and source/provenance notes. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > | Condition | Datasheet Value |
 > |---|---|
 > | Implementation state for this setup run | Documentation/setup only; no report code is implemented in this session |
@@ -71,7 +74,6 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 > | Certification/compliance claims | Prohibited for software-generated report language |
 > | Unit handling | Any future rendered values must preserve units and dimensional context; this setup artifact does not define value schemas |
 >
-
 ### CLM-006 — Construction
 
 > ##### Construction
@@ -92,15 +94,7 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 
 > ###### Provenance Payload Field Inventory
 >
-> Exact report-section schema field names are `TBD` until implementation-level schema/API work is available. The field families below are the setup basis only:
->
-> | Field Family | Setup Basis | Field Name Status |
-> |---|---|---|
-> | Diagnostic trace | code, class, severity, source, affected object, message, remediation, provenance | Names constrained by AB-00-06; exact schema names `TBD` |
-> | Source record | source name, source location, source license or redistribution basis | Names constrained by IP/data policy; exact schema names `TBD` |
-> | Rule-pack reference | rule-pack ID/name, version, checksum, source notice, public/private status | Names constrained by rule-pack/report requirements; exact schema names `TBD` |
-> | Review disposition | unknown source, protected suspected, review status, human review required | Names constrained by data-boundary and professional-responsibility requirements; exact schema names `TBD` |
->
+> Diagnostic trace, source record, rule-pack reference and review-disposition fields must follow `schemas/report_sections.schema.yaml` and `core/reporting/report_sections/src/lib.rs` (`Diagnostic`, `Provenance`, `ReportSections`). Carry source identity/license or redistribution status, class/severity/affected object/remediation, rule-pack version/checksum/privacy and review status through assembly. Missing required data remains explicit; this inventory reference does not waive producer/consumer parity or professional-boundary obligations.
 
 ### CLM-008 — References
 
@@ -157,16 +151,16 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 >
 > | Requirement ID | Requirement | Source | Verification |
 > |---|---|---|---|
-> | DEL-08-03-REQ-001 | The report section shall expose missing solve-required and rule-check-required data as explicit report findings. | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/SPEC.md` Section 8 | Report fixture or snapshot includes missing-data findings without default values |
-> | DEL-08-03-REQ-002 | The report section shall render warning classes supplied by diagnostics/result envelopes, including solve blocking, rule-check blocking, provenance, assumption, nonlinear, and IP-boundary warnings where present. | `docs/SPEC.md` Section 7; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06 | Fixture covers each supported warning class and preserves class/severity/code |
+> | DEL-08-03-REQ-001 | The report section shall expose missing solve-required and rule-check-required data as explicit report findings. | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections)| Report fixture or snapshot includes missing-data findings without default values |
+> | DEL-08-03-REQ-002 | The report section shall render warning classes supplied by diagnostics/result envelopes, including solve blocking, rule-check blocking, provenance, assumption, nonlinear, and IP-boundary warnings where present. | `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections); `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06 | Fixture covers each supported warning class and preserves class/severity/code |
 > | DEL-08-03-REQ-003 | Each rendered warning or assumption shall preserve machine-readable trace data when supplied: code, class, severity, source, affected object, message, remediation, and provenance. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06 | Schema/snapshot test confirms trace fields are retained or explicitly marked `TBD` |
-> | DEL-08-03-REQ-004 | User-supplied values and rule-pack references shall be identified as user-supplied or private where applicable, with source/provenance notes and rule-pack identity/checksum references when supplied by upstream artifacts. | `docs/CONTRACT.md` OPS-K-DATA-1, OPS-K-DATA-3, OPS-K-RULE-3; `docs/SPEC.md` Section 8 | Report fixture shows source/provenance and rule-pack ref/checksum without embedding protected content |
-> | DEL-08-03-REQ-005 | The report section shall include a professional-responsibility notice stating that professional reliance requires competent human review and that software output is decision support. | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/SPEC.md` Section 8 | Snapshot or template check finds the notice and rejects certification/approval language (PRD §21.2) |
+> | DEL-08-03-REQ-004 | User-supplied values and rule-pack references shall be identified as user-supplied or private where applicable, with source/provenance notes and rule-pack identity/checksum references when supplied by upstream artifacts. | `docs/CONTRACT.md` OPS-K-DATA-1, OPS-K-DATA-3, OPS-K-RULE-3; `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections)| Report fixture shows source/provenance and rule-pack ref/checksum without embedding protected content |
+> | DEL-08-03-REQ-005 | The report section shall include a professional-responsibility notice stating that professional reliance requires competent human review and that software output is decision support. | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections)| Snapshot or template check finds the notice and rejects certification/approval language (PRD §21.2) |
 > | DEL-08-03-REQ-006 | The report section shall not reproduce protected code text, protected standards tables, copyrighted examples, copied code formulas, material allowables, SIF/flexibility tables, protected dimensional tables, or proprietary commercial data in public templates/examples. | `docs/CONTRACT.md` OPS-K-IP-1, OPS-K-REPORT-2; `docs/IP_AND_DATA_BOUNDARY.md` Section 7 | Protected-content lint and review evidence pass for public templates/examples |
-> | DEL-08-03-REQ-007 | The report section shall preserve unit context for any rendered values and shall not display unit-bearing values without their units when units are supplied. | `docs/CONTRACT.md` OPS-K-UNIT-1; `docs/SPEC.md` Section 8 | Report fixture includes unit-bearing values with units and rejects unitless display where units exist |
+> | DEL-08-03-REQ-007 | The report section shall preserve unit context for any rendered values and shall not display unit-bearing values without their units when units are supplied. | `docs/CONTRACT.md` OPS-K-UNIT-1; `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections)| Report fixture includes unit-bearing values with units and rejects unitless display where units exist |
 > | DEL-08-03-REQ-008 | The report section shall distinguish mechanics-solved, user-rule-checked, incomplete-data, and human-review-required states without presenting software-generated code compliance. | `docs/TYPES.md` Section 4; `docs/CONTRACT.md` OPS-K-MECH-2 and OPS-K-AUTH-1 | Status fixture avoids `CODE_COMPLIANT` and includes human-review-required boundary language |
-> | DEL-08-03-REQ-009 | The report section shall support reproducibility by referencing model/report metadata supplied by audit manifest work, including model hash, software/solver version, and rule-pack checksum when present. | `docs/SPEC.md` Section 8; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 | Integration fixture consumes manifest fields by reference or marks unavailable fields `TBD` |
-> | DEL-08-03-REQ-010 | Missing source/provenance shall itself be reportable as a provenance warning rather than silently omitted. | `docs/CONTRACT.md` OPS-K-DATA-2, OPS-K-DATA-3; `docs/SPEC.md` Section 7 | Fixture with `UNKNOWN_SOURCE` or missing source emits a provenance warning |
+> | DEL-08-03-REQ-009 | The report section shall support reproducibility by referencing model/report metadata supplied by audit manifest work, including model hash, software/solver version, and rule-pack checksum when present. | `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections); `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 | Integration fixture consumes manifest fields by reference or marks unavailable fields `TBD` |
+> | DEL-08-03-REQ-010 | Missing source/provenance shall itself be reportable as a provenance warning rather than silently omitted. | `docs/CONTRACT.md` OPS-K-DATA-2, OPS-K-DATA-3; `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections)| Fixture with `UNKNOWN_SOURCE` or missing source emits a provenance warning |
 > | DEL-08-03-REQ-011 | If automated protected-content lint is unavailable during early implementation, the report-section change shall remain subject to explicit human review and shall record the unavailable lint gate as an open verification item. | `docs/CONTRACT.md` OPS-K-IP-1 and OPS-K-REPORT-2; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` Review checklist | Review evidence records lint status and human review requirement |
 > | DEL-08-03-REQ-012 | Report-section tests or review checks shall reject language that claims software certification, approval, endorsement, sealing, authentication, or automatic code compliance (PRD §21.2). | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/DIRECTIVE.md` Section 4.2 | Snapshot/lint/review check covers prohibited claim language |
 >
@@ -203,10 +197,7 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 >
 > Required setup artifacts for this run:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -218,7 +209,6 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 >
 > - report provenance section;
 > - tests.
-
 - **AC-001** — The contract preserves upstream diagnostic class, severity, source, affected object, message, remediation and provenance when supplied; exposes missingness rather than defaulting it; and protects private/protected content. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Production and Verification Method — Praxeology
@@ -240,6 +230,9 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 
 > ##### Prerequisites
 >
+> Current deliverable obligation: implement report sections that expose missing data, assumptions, user-supplied values, and source/provenance notes. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > | Prerequisite | Expected Source | Status |
 > |---|---|---|
 > | Sealed DEL-08-03 brief and explicit write scope | `_CONTEXT.md` and human dispatch | Available for setup |
@@ -250,7 +243,6 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 > | Warning data from GUI/core | DEL-07-04, DEL-07-07, solver/rule diagnostics deliverables | Upstream/integration dependency |
 > | Protected-content guardrail | DEL-08-05 and IP/data policy | Upstream/integration dependency for linter implementation |
 >
-
 ### CLM-020 — Steps
 
 > ##### Steps
@@ -301,7 +293,7 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 >
 > | Verification Item | Acceptance Signal |
 > |---|---|
-> | Four-document setup | `tools/validation/check_four_documents.sh <deliverable_path>` passes |
+> | Four-document setup | `python3 tools/scope_of_work/validate_scope_of_work.py <DELIVERABLE_PATH>/ScopeOfWork.md` passes |
 > | Semantic setup | `_SEMANTIC.md` exists and semantic audit records PASS |
 > | Lensing setup | `_SEMANTIC_LENSING.md` exists with complete matrix coverage |
 > | Dependency setup | `Dependencies.csv` validates against v3.1 schema |
@@ -311,24 +303,19 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 > | Professional-boundary guard | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
 > | Lint fallback guard | If protected-content lint tooling is unavailable, record that status as an open verification item requiring human review |
 >
-
 ### CLM-022 — Records
 
 > ##### Records
 >
 > This setup run should leave these records in the deliverable folder:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
 > - `_DEPENDENCIES.md`
 > - `_run_records/`
 > - `_STATUS.md`
-
 - **VER-001** — Validate the contract and review source parity, all warning and missing-data classes, trace-field preservation, unit and provenance visibility, manifest references, protected-content controls and fallback review, prohibited-claim language, and every retained TBD or governed residual.
 
 ## Governing Values and Decisions — Axiology
@@ -413,11 +400,11 @@ This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and
 >
 > | Question ID | Question | Current Disposition |
 > |---|---|---|
-> | DEL-08-03-Q-001 | Exact report renderer API and template format | `TBD`; owned by future implementation and DEL-08-01 integration |
-> | DEL-08-03-Q-002 | Exact data contract for warning/provenance payloads | `TBD`; constrained by AB-00-06 diagnostics/result-envelope basis |
-> | DEL-08-03-Q-003 | Exact protected-content linter interface | `TBD`; likely dependent on DEL-08-05 |
-> | DEL-08-03-Q-004 | Exact audit manifest field names | `TBD`; likely dependent on DEL-08-02 |
-> | DEL-08-03-Q-005 | Canonical professional notice wording for final templates | `TBD`; align with product-claims policy or approved report notice before implementation release |
+> | DEL-08-03-Q-001 | Exact report renderer API and template format | DEC-021 selects deterministic self-contained scriptless HTML and a derived print view; DEC-061 adds an in-repository deterministic PDF emitter at its bounded scope. Resolve report assembly and field contracts through `core/reporting/report_generator/`, `core/reporting/report_sections/`, and their schemas. These are implementation references, not new public transport or release acceptance. |
+> | DEL-08-03-Q-002 | Exact data contract for warning/provenance payloads | Use `schemas/report_sections.schema.yaml` and the corresponding `ReportSections`, `Diagnostic` and `Provenance` records in `core/reporting/report_sections/src/lib.rs`; unresolved integration remains explicit. |
+> | DEL-08-03-Q-003 | Exact protected-content linter interface | The bounded interface is `core/reporting/protected_content_linter/src/lib.rs::lint_targets` with typed targets and configuration; execution and release review remain separate evidence. |
+> | DEL-08-03-Q-004 | Exact audit manifest field names | The field inventory is carried by `core/reporting/audit_manifest/src/lib.rs::AuditManifest` and its referenced hash, solver, rule-pack and asset records. Preserve the accepted canonical hash obligation. |
+> | DEL-08-03-Q-005 | Canonical professional notice wording for final templates | Use the surface-specific registry `docs/claims_registry.md` and DEC-081/100/107; preserve notice obligations on surfaces that retain them. Do not recreate withdrawn emitted/product-document wording or infer professional acceptance. |
 
 ## Output and Evaluation Matrix
 

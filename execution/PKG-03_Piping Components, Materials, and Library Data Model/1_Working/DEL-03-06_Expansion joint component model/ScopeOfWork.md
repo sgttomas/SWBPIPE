@@ -48,7 +48,7 @@ This Scope of Work defines `DEL-03-06` in service of project scope [SOW-010] and
 >
 > | Attribute Category | Required Treatment | Source |
 > |---|---|---|
-> | Stiffness values | Implemented as `linear_stiffness` and `rotational_stiffness` component field kinds and accepted quantity dimensions. Public fixture values remain missing and private/user/manufacturer supplied. Exact per-axis DOF/tensor mapping for downstream solver consumption remains `TBD`. | `schemas/component.schema.yaml`; `fixtures/component/invented_component_library_valid.json`; `tests/test_component_section_schema.py`; execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-010; docs/CONTRACT.md#OPS-K-DATA-1 |
+> | Stiffness values | Implemented as `linear_stiffness` and `rotational_stiffness` component field kinds and accepted quantity dimensions. Public fixture values remain missing and private/user/manufacturer supplied. DEC-045 governs per-axis user-stiffness and macro-element consumption; the product implementation is separately evidenced. | `schemas/component.schema.yaml`; `fixtures/component/invented_component_library_valid.json`; `tests/test_component_section_schema.py`; execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-010; docs/CONTRACT.md#OPS-K-DATA-1 |
 > | Effective area | Implemented as an `effective_area` field kind with provenance and missing-value handling in the invented fixture. Pressure/thrust usage semantics remain downstream solver scope. | `schemas/component.schema.yaml`; `fixtures/component/invented_component_library_valid.json`; `tests/test_component_section_schema.py`; execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-010 |
 > | Movement limits | Implemented as a `movement_limit` field kind with explicit missing-value diagnostics. Movement-limit class taxonomy and dimensional validation categories remain `TBD`. | `schemas/component.schema.yaml`; `fixtures/component/invented_component_library_valid.json`; `tests/test_component_section_schema.py`; execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-010; docs/CONTRACT.md#OPS-K-DATA-2 |
 > | Hardware data | Implemented as `hardware_flag`/`hardware_reference` schema slots and fixture contract evidence, with `hardware_reference` present on the invented expansion-joint record. Hardware flag/enumeration taxonomy remains `TBD`. | `schemas/component.schema.yaml`; `fixtures/component/invented_component_library_valid.json`; `tests/test_component_section_schema.py`; execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-010 |
@@ -59,12 +59,12 @@ This Scope of Work defines `DEL-03-06` in service of project scope [SOW-010] and
 
 > ###### Preserved TBDs and Gates
 >
-> - `TBD`: exact per-axis stiffness field shape and solver degree-of-freedom mapping beyond the implemented `linear_stiffness` and `rotational_stiffness` dimensions.
+> - Per-axis stiffness and solver consumption follow DEC-045 and the current product macro-element; no engineering value or default is supplied.
 > - `TBD`: release-level required vs optional classification beyond the current schema completeness rule.
 > - `TBD`: movement-limit classes and dimensional validation categories.
 > - `TBD`: hardware flag/enumeration taxonomy.
 > - `TBD`: accepted public expansion-joint source catalog and public fixture-value policy.
-> - `TBD`: dependency satisfaction, human disposition of review findings, and lifecycle closure.
+> - `TBD`: dependency satisfaction, preservation of the resolved local review findings, and lifecycle closure.
 >
 
 ### CLM-006 — Conditions
@@ -81,7 +81,7 @@ This Scope of Work defines `DEL-03-06` in service of project scope [SOW-010] and
 
 > ##### Construction
 >
-> Current construction is bounded to the component-library schema, invented fixture, and schema validation tests. The implementation evidence includes `expansion_joint` as a component type, expansion-joint family contract fields, an invented expansion-joint record with missing supplied values, a blocking completeness finding, and expansion-joint diagnostic codes.
+> The contract separates component-library schema evidence from the DEC-045 product macro-element route in `core/product_physics/` and applier-gated edits; each layer retains its own verification evidence. The implementation evidence includes `expansion_joint` as a component type, expansion-joint family contract fields, an invented expansion-joint record with missing supplied values, a blocking completeness finding, and expansion-joint diagnostic codes.
 >
 > Current model partitions:
 >
@@ -99,7 +99,7 @@ This Scope of Work defines `DEL-03-06` in service of project scope [SOW-010] and
 > ##### References
 >
 > - `_CONTEXT.md` for deliverable identity, architecture basis, and package scope.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for SOW-010, OBJ-004, PKG-03, and AB-00-01/02/04/06/07/08.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) for SOW-010, OBJ-004, PKG-03, and AB-00-01/02/04/06/07/08.
 > - `docs/CONTRACT.md` for OPS-K-IP-1..3, OPS-K-DATA-1..3, OPS-K-UNIT-1, OPS-K-MECH-1, OPS-K-AGENT-1..4.
 > - `schemas/component.schema.yaml`, `fixtures/component/invented_component_library_valid.json`, and `tests/test_component_section_schema.py` for current implementation evidence.
 
@@ -115,7 +115,9 @@ This Scope of Work defines `DEL-03-06` in service of project scope [SOW-010] and
 
 > ##### Scope
 >
-> This deliverable-local specification covers the implemented backend data-model slice for an expansion joint component model. Current evidence is limited to component-library schema slots, an invented public fixture record, completeness rules, diagnostics, and schema tests for manufacturer/user/private-library supplied stiffness, effective area, movement limits, and hardware data.
+> DEC-045 fixes user-entered axial/lateral/angular/torsional stiffness and dedicated macro-element consumption; effective-area pressure thrust belongs on the load side. Current realization is in `core/product_physics/src/lib.rs` and applier-gated creation/edits in `core/model_operations/operation_applier/src/lib.rs`. Movement-limit/hardware taxonomy, source acceptance and engineering validation remain separate.
+>
+> This deliverable-local specification covers the implemented backend data-model slice for an expansion joint component model. Schema-layer evidence includes component-library schema slots, an invented public fixture record, completeness rules, diagnostics, and schema tests for manufacturer/user/private-library supplied stiffness, effective area, movement limits, and hardware data.
 >
 > Exclusions:
 >
@@ -149,7 +151,7 @@ This Scope of Work defines `DEL-03-06` in service of project scope [SOW-010] and
 >
 > The implementation evidence technically addresses the stale generic-stiffness concern by using accepted `linear_stiffness` and `rotational_stiffness` dimensions. The following items remain unresolved and must not be treated as closed until human-approved or supported by later authoritative source material:
 >
-> - `TBD`: exact per-axis stiffness field shape and solver degree-of-freedom mapping beyond the implemented dimensions.
+> - Per-axis stiffness and solver consumption follow DEC-045; values remain user supplied and validation remains separate.
 > - `TBD`: release-level required vs optional field classification beyond the current completeness rule.
 > - `TBD`: movement-limit validation classes.
 > - `TBD`: hardware flag/enumeration taxonomy.
@@ -174,7 +176,7 @@ This Scope of Work defines `DEL-03-06` in service of project scope [SOW-010] and
 > | DEL-03-06-R-005 | Tests assert component quantity dimensions include accepted `linear_stiffness` and `rotational_stiffness`, remain within accepted PKG-02 dimensions, and do not use retired dimensions. |
 > | DEL-03-06-R-006 | The invented fixture carries source, license/redistribution, contributor certification, and review status on schema-slot records. |
 > | DEL-03-06-R-007 | The invented fixture records an incomplete expansion-joint completeness finding and `EXPANSION_JOINT_STIFFNESS_DATA_MISSING` diagnostic. |
-> | DEL-03-06-R-008 | Current evidence is schema/fixture/test only; solver, adapter, GUI, persistence-service, and report bypass checks remain downstream package scope or separate authorized scope. |
+> | DEL-03-06-R-008 | Verification must cover both the schema boundary and the DEC-045 product macro-element/applier route; downstream adapter, GUI, persistence and report bypass obligations remain with their accepted owners and need scoped evidence. |
 > | DEL-03-06-R-009 | `python3 -m pytest tests/test_component_section_schema.py` is the targeted validation for this reconciliation pass. |
 > | Residual TBDs | Human ruling or later sealed work must define remaining taxonomy, source/value policy, dependency closure, lifecycle state, and review dispositions before completeness or release claims. |
 >
@@ -192,7 +194,7 @@ This Scope of Work defines `DEL-03-06` in service of project scope [SOW-010] and
 >
 > Future authorized work may add schema/API notes if the model is exposed through persistence services, import/export, adapters, GUI services, or reports.
 
-- **AC-001** — The contract preserves accepted expansion-joint requirements and boundaries, including supplied-data-only values, explicit units and provenance, protected-content controls, missing-value diagnostics, unresolved taxonomy and solver mappings, and no invented defaults or professional approval.
+- **AC-001** — The contract preserves accepted expansion-joint requirements and boundaries, including supplied-data-only values, explicit units and provenance, protected-content controls, missing-value diagnostics, the DEC-045 solver mapping and unresolved movement/hardware taxonomy, and no invented defaults or professional approval.
 
 ## Production and Verification Method — Praxeology
 
@@ -214,7 +216,7 @@ This Scope of Work defines `DEL-03-06` in service of project scope [SOW-010] and
 > ##### Prerequisites
 >
 > - Sealed brief for DEL-03-06 with explicit write scope.
-> - Current `_CONTEXT.md`, `_REFERENCES.md`, `Datasheet.md`, `Specification.md`, and `Guidance.md`.
+> - Current `_CONTEXT.md`, `_REFERENCES.md`, `ScopeOfWork.md` (definition), `ScopeOfWork.md` (requirements), and `ScopeOfWork.md` (rationale).
 > - Current implementation evidence in `schemas/component.schema.yaml`, `fixtures/component/invented_component_library_valid.json`, and `tests/test_component_section_schema.py`.
 > - Human-approved implementation scope before editing product files outside this deliverable folder.
 > - Applicable architecture-basis constraints AB-00-01, AB-00-02, AB-00-04, AB-00-06, AB-00-07, and AB-00-08.
@@ -286,7 +288,7 @@ This Scope of Work defines `DEL-03-06` in service of project scope [SOW-010] and
 
 > ##### Considerations
 >
-> Expansion joints can introduce nonlinear, directional, hardware-dependent, or manufacturer-specific behavior. Current evidence implements schema slots, fixture omissions, completeness findings, and diagnostics, but it does not include authoritative product data or design rules. Specific per-axis stiffness shape, movement-limit taxonomy, hardware enumerations, and downstream solver semantics remain `TBD`.
+> Expansion joints can introduce nonlinear, directional, hardware-dependent, or manufacturer-specific behavior. Current evidence implements schema slots, fixture omissions, completeness findings, and diagnostics, but it does not include authoritative product data or design rules. Per-axis stiffness and macro-element consumption follow DEC-045; movement-limit taxonomy and hardware enumerations remain `TBD`.
 >
 > The Pass 3 lensing register specifically keeps the hardware flag/enumeration taxonomy as `TBD`. Do not convert this into a fixed list without authoritative source material or human ruling.
 >
@@ -298,7 +300,7 @@ This Scope of Work defines `DEL-03-06` in service of project scope [SOW-010] and
 > | Choice | Benefit | Risk / Constraint |
 > |---|---|---|
 > | Supplied-data-only fields | Protects IP boundary and avoids invented defaults. | Requires clear missing-data diagnostics and user/library workflows. |
-> | Unit-aware field structure using accepted dimensions | Keeps persistence and adapters deterministic for the current schema evidence. | Exact per-axis solver mapping and movement/hardware taxonomy remain TBD. |
+> | Unit-aware field structure using accepted dimensions | Keeps persistence and adapters deterministic for the current schema evidence. | Per-axis consumption follows DEC-045; movement/hardware taxonomy remains TBD. |
 > | Provenance-first data model | Supports auditability and public/private library separation. | Requires validation and review fields even for simple examples. |
 > | Data-model-only implementation scope | Respects PKG-03 boundaries. | Solver behavior and rule checks must be handled by downstream deliverables. |
 >

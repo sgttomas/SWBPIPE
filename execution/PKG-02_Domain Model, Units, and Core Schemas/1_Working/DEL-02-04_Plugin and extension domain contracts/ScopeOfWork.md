@@ -71,7 +71,7 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 > | Mandatory boundary checks | Units, provenance, redistribution status, diagnostics, public/private data boundary, report controls | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: 8.1 Architecture basis register, AB-00-07 |
 > | Diagnostic payload basis | Diagnostic/result envelopes carry code, class, severity, source, affected object, message, remediation, and provenance | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: 8.1 Architecture basis register, AB-00-06 |
 > | External API transport | TBD | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: 8.2 Resolved architecture baseline |
-> | Concrete import/export formats | TBD | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: OI-004 |
+> | Concrete import/export formats | SCA-004 / OI-004 names the PKG-17 format set; per-format plugin bindings and coverage remain separately scoped | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: OI-004 |
 > | Detailed permission taxonomy and sandbox implementation | TBD | SourcePath: `docs/_Registers/ScopeLedger.csv`; SectionRef: row SOW-038 notes |
 >
 
@@ -96,9 +96,9 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 >
 > | Part | Status | Notes |
 > |---|---|---|
-> | Plugin interface spec | Draft target | Must define extension point identity, lifecycle status, schema version, capability declarations, diagnostic envelope use, and validation obligations. Exact schema file layout is TBD. |
+> | Plugin interface spec | Draft target | Must define extension point identity, lifecycle status, schema version, capability declarations, diagnostic envelope use, and validation obligations. Current draft layout is `schemas/plugin_manifest.schema.yaml`; its existence does not grant runtime capabilities or establish architecture/security acceptance. |
 > | Sandbox/permission model notes | Draft target | Must express deny-bypass constraints for units, provenance, data boundary, diagnostics, report controls, and rule sandboxing. Exact runtime mechanism is TBD. |
-> | Extension point registry | ASSUMPTION / TBD approval record | Candidate families are import adapter, export adapter, report/output extension, validation hook, and rule-pack integration hook. Approved registry names, registry ownership, and a decision/open-issue pointer are TBD. Concrete public API transport and format support remain TBD. |
+> | Extension point registry | Draft schema vocabulary; approval separate | Consult `schemas/plugin_manifest.schema.yaml` extension-point enum for the current candidate families. Registry acceptance, permissions, transport and runtime grants remain governed; no capabilities are granted by this inventory. |
 > | Capability/permission declarations | ASSUMPTION / TBD approval record | Candidate classes for later review are governed project mutation, read-only query access, private-library access, filesystem path access, network access, report/export generation, background job execution, and rule-pack evaluator integration. Exact permission names, grant records, enforcement implementation, and approval path remain TBD. |
 > | Human-ruling log pointer | TBD | Needed before exact extension registry, permission taxonomy, sandbox mechanism, transport binding, or telemetry/private-data exposure can be treated as approved. SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: DEC-012 and OI-004. |
 > | Provenance and redistribution metadata | Required concept | Public data records require source, source location, license, contributor certification, redistribution status, and review status. SourcePath: `docs/IP_AND_DATA_BOUNDARY.md`; SectionRef: 4. Required provenance fields. |
@@ -109,14 +109,14 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 
 > ##### References
 >
-> - `_CONTEXT.md`, revision 0.7 accepted basis for DEL-02-04.
+> - `_CONTEXT.md`, current accepted-basis references for DEL-02-04.
 > - `_REFERENCES.md`, local reference index for DEL-02-04.
 > - `_DEPENDENCIES.md`, human-owned dependency declarations for DEL-02-04.
 > - `docs/_Registers/Deliverables.csv`, row DEL-02-04.
 > - `docs/_Registers/ScopeLedger.csv`, row SOW-038.
 > - `docs/_Registers/ContextBudgetQA.csv`, row DEL-02-04.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md`, revision 0.7, especially PKG-02, DEL-02-04, OBJ-009, SOW-038, and SCA-001 architecture basis rows.
-> - Traceability note: `_CONTEXT.md` identifies `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 as the accepted basis, while `_REFERENCES.md` still describes the decomposition reference as accepted v0.2. `_REFERENCES.md` is outside this run's write scope; see `Guidance.md` Conflict Table.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md`, accepted authority through the decision register, especially PKG-02, DEL-02-04, OBJ-009, SOW-038, and SCA-001 architecture basis rows.
+> - Traceability: `_CONTEXT.md` and `_REFERENCES.md` point to the accepted decomposition through its decision register; the former revision-wording discrepancy is historical and does not create a new authority choice.
 > - `docs/CONTRACT.md`, invariant catalog.
 > - `docs/TYPES.md`, deliverable types, status vocabulary, epistemic labels, and data provenance labels.
 > - `docs/SPEC.md`, sections 1, 6, 7, 8, 10, and 11.
@@ -147,7 +147,7 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 
 > ##### Scope
 >
-> DEL-02-04 defines the domain/API contract surface for plugin and adapter extension points in OpenPipeStress. It covers plugin/adapter interface expectations, mandatory governance checks, sandbox/permission-model notes, diagnostics obligations, and data-boundary constraints. SourcePath: `_CONTEXT.md`; SectionRef: Description and Anticipated Artifacts.
+> DEL-02-04 defines the domain/API contract surface for plugin and adapter extension points in SWBPIPE. It covers plugin/adapter interface expectations, mandatory governance checks, sandbox/permission-model notes, diagnostics obligations, and data-boundary constraints. SourcePath: `_CONTEXT.md`; SectionRef: Description and Anticipated Artifacts.
 >
 > This deliverable is bounded to PKG-02 domain/API definitions. It does not implement a plugin loader, public API transport, external import/export formats, GUI views, numerical solving behavior, rule-pack evaluator internals, storage container mechanics, or concrete dependency versions. SourcePath: `_CONTEXT.md`; SectionRef: Package Reference; SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: 8.2 Resolved architecture baseline and DEC-012.
 >
@@ -168,12 +168,12 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 > | DEL-02-04-REQ-08 | Plugin/adapter outputs and reports shall not claim certification, sealing, approval, authentication, endorsement, or engineering code compliance for reliance (PRD §21.2). | SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-AUTH-1. SourcePath: `docs/DIRECTIVE.md`; SectionRef: 4.2 Out of scope. |
 > | DEL-02-04-REQ-09 | Mutating plugin/adapter operations shall route through schema-first application-service commands or equivalent governed service boundaries, not direct domain-core, solver, storage, or report-control bypasses. For this contract, an equivalent governed boundary preserves schema validation, unit checks where dimensional data is present, diagnostics/result envelopes, provenance and public/private data-boundary checks, report controls, and audit/reproducibility metadata. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-02, AB-00-03, and AB-00-07. SourcePath: `docs/SPEC.md`; SectionRef: 1. Architectural overview. |
 > | DEL-02-04-REQ-10 | Read-only and long-running plugin/adapter operations shall preserve the command/query/job distinction where exposed through application services, including cancellation/progress and reproducibility metadata when applicable. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-03. SourcePath: `docs/PRD.md`; SectionRef: 20. Performance Requirements. |
-> | DEL-02-04-REQ-11 | Public plugin manifests and interchange contracts shall align with the accepted JSON Schema 2020-12 and schema-first envelope baseline. Exact schema file layout and code-generation tooling remain TBD. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: 8.2 Resolved architecture baseline and DEC-010. |
+> | DEL-02-04-REQ-11 | Public plugin manifests and interchange contracts shall align with the accepted JSON Schema 2020-12 and schema-first envelope baseline. The existing draft layout is `schemas/plugin_manifest.schema.yaml`; unselected code-generation tooling and contract acceptance remain separate. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: 8.2 Resolved architecture baseline and DEC-010. |
 > | DEL-02-04-REQ-12 | JSON payload hashes used by plugin/adapter manifests, provenance records, or reproducibility artifacts shall use the accepted canonical JSON/JCS-compatible hash basis when hashing is required. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-04 and 8.2 Resolved architecture baseline. |
 > | DEL-02-04-REQ-13 | Rule-pack-facing extension hooks shall remain sandboxed, deterministic, unit-aware, and incapable of arbitrary filesystem or network access. Exact expression grammar/library remains TBD and is not resolved by this deliverable. | SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-RULE-2. SourcePath: `docs/PRD.md`; SectionRef: 12.3 Rule-Pack Evaluator. SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: OI-006. |
 > | DEL-02-04-REQ-14 | Plugin/adapter contract verification shall include layered checks for schema conformance, unit safety, provenance, diagnostics, protected-content gates, and relevant adapter/plugin regression behavior. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-08. SourcePath: `docs/VALIDATION_STRATEGY.md`; SectionRef: 2. Benchmark families and 4. Release gate. |
-> | DEL-02-04-REQ-15 | The contract shall explicitly record remaining implementation-level TBDs: public API transport, concrete import/export formats, exact sandbox mechanism, detailed permission names, exact dependency versions, and CI thresholds. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: 8.2 Resolved architecture baseline, OI-004, and DEC-012. |
-> | DEL-02-04-REQ-16 | Public plugin manifest/interface documentation shall include a placeholder concept inventory before contract issuance. Exact JSON Schema file layout, field names, transport binding, and code-generation tooling remain TBD until a human/architecture review resolves them. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: 8.2 Resolved architecture baseline and DEC-010. SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: DEC-012. |
+> | DEL-02-04-REQ-15 | The contract shall explicitly record remaining implementation-level TBDs: public API transport, plugin-specific bindings to the SCA-004/PKG-17 format set, exact sandbox mechanism and permission grants, and unselected local mechanisms; CI/coverage follows DEC-025/059/060/093 rather than a new collective TBD. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: 8.2 Resolved architecture baseline, OI-004, and DEC-012. |
+> | DEL-02-04-REQ-16 | Public plugin manifest/interface documentation shall include a placeholder concept inventory before contract issuance. Current draft layout and field names are carried by `schemas/plugin_manifest.schema.yaml`. Transport binding and unselected code-generation tooling remain explicit open choices; architecture/security review and capability-grant authority are not supplied by schema existence. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: 8.2 Resolved architecture baseline and DEC-010. SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: DEC-012. |
 > | DEL-02-04-REQ-17 | Exact extension-point registry entries, permission taxonomy names, sandbox mechanism, and approval path shall remain `TBD` until a documented human/project authority or security/architecture review records a decision; the interim contract shall not grant plugin capabilities by default. | SourcePath: `docs/_Registers/ScopeLedger.csv`; SectionRef: row SOW-038. SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-07 and DEC-012. |
 > | DEL-02-04-REQ-18 | Plugins/adapters shall not receive telemetry-facing data or transmit private project, rule-pack, component, material, or calculation-result data by default. Any later plugin exposure to telemetry-facing data remains TBD and requires explicit privacy/security ruling and verification coverage. | SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-PRIV-1 and OPS-K-PRIV-2. SourcePath: `docs/PRD.md`; SectionRef: 18.2 Telemetry. SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: OI-008. |
 >
@@ -190,7 +190,7 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 > - `docs/TYPES.md` for deliverable types, analysis-status vocabulary, epistemic labels, and data provenance labels.
 > - `docs/SPEC.md` for layer responsibilities, rule-pack evaluator constraints, diagnostics classes, reporting/audit, and Type 2 acceptance semantics.
 > - `docs/IP_AND_DATA_BOUNDARY.md` for public/private data and provenance policy.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for SOW-038, OBJ-009, SCA-001 basis IDs, JSON Schema 2020-12, schema-first envelopes, canonical JSON/JCS-compatible hashing, and remaining-TBD boundaries.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) for SOW-038, OBJ-009, SCA-001 basis IDs, JSON Schema 2020-12, schema-first envelopes, canonical JSON/JCS-compatible hashing, and remaining-TBD boundaries.
 >
 > External implementation standards:
 >
@@ -213,7 +213,7 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 > | REQ-13 | Security tests for any rule-pack-facing hook confirm no arbitrary code, filesystem, or network access unless a later human-approved sandbox design allows a bounded capability. |
 > | REQ-14 | Layered test plan maps plugin/adapter behavior to schema, unit, provenance, diagnostics, protected-content, and regression gates. |
 > | REQ-15, REQ-17 | Review confirms implementation-level TBDs remain visible and are not silently resolved or treated as approved capabilities. |
-> | REQ-16 | Manifest/interface documentation review confirms each concept slot is present as an approved field or explicit `TBD` placeholder. |
+> | REQ-16 | Manifest/interface documentation review confirms each concept slot maps to a current draft schema field with recorded review status, an approved field with authority, or an explicit unresolved placeholder. |
 > | REQ-18 | Privacy/security review confirms plugins/adapters do not receive telemetry-facing or private engineering data by default; any exception has an explicit human ruling and test evidence. |
 >
 
@@ -226,7 +226,7 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 > | Schema/manifest review gate | REQ-11, REQ-12, REQ-16 | Hold until concrete schema layout, field names, transport binding, and code-generation tooling are either approved or carried as explicit `TBD`; pass only with schema validation and canonicalization/hash evidence where hashing is required. |
 > | Layered plugin/adapter gate | REQ-01 through REQ-14 | Pass only when schema, unit, provenance, diagnostics, protected-content/provenance, and regression evidence is present or the missing evidence is explicitly recorded as `TBD`/open risk for human review. |
 > | Rule-pack sandbox gate | REQ-13 | Pass only when tests demonstrate deterministic, unit-aware behavior and no arbitrary code execution or unauthorized filesystem/network access. Exact sandbox technology remains TBD until approved. |
-> | Human-ruling gate | REQ-15, REQ-17, REQ-18 | Hold until open decisions for transport, registry, permission taxonomy, sandbox mechanism, import/export formats, telemetry/private-data exposure, and approval owner are recorded or explicitly deferred. |
+> | Human-ruling gate | REQ-15, REQ-17, REQ-18 | Hold until open decisions for transport, registry, permission taxonomy, sandbox mechanism, plugin-specific format bindings, telemetry/private-data exposure, and approval owner are recorded or explicitly deferred. |
 > | Diagnostic class check | REQ-02, REQ-03, REQ-05, REQ-06, REQ-07, REQ-13 | Pass only when missing units, weak provenance, protected-content risk, assumptions, and rule-blocking outcomes surface through the existing warning/diagnostic classes where applicable; exact severity taxonomy beyond the source-defined classes remains TBD. |
 >
 
@@ -241,17 +241,17 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 > - Requirement-to-verification matrix, as above, suitable for later PKG-10 implementation and PKG-12 security/privacy review.
 > - Human-ruling log or future open-issue references for public API transport, exact extension point registry, exact permission taxonomy, import/export format list, and concrete sandbox technology.
 >
-> Manifest/interface placeholder inventory for later schema work:
+> Manifest/interface concept inventory: current draft fields are recorded in `schemas/plugin_manifest.schema.yaml`; registry/grant/security approval remains separate.
 >
 > | Concept slot | Current status | Evidence |
 > |---|---|---|
-> | Plugin identity and version | TBD field names/layout | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: 8.2 Resolved architecture baseline. |
+> | Plugin identity and version | Draft `metadata` definition in `schemas/plugin_manifest.schema.yaml`; acceptance separate | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: 8.2 Resolved architecture baseline. |
 > | Extension-point declaration | TBD approved registry names | SourcePath: `docs/_Registers/ScopeLedger.csv`; SectionRef: row SOW-038. |
-> | Schema/envelope version | TBD field names/layout | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: DEC-010. |
+> | Schema/envelope version | Draft `schema_version` and `api_boundary_compatibility` fields; acceptance separate | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: DEC-010. |
 > | Capability request/declaration | TBD permission names and approval path | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-07 and DEC-012. |
-> | Provenance/data-boundary declaration | Required concept; exact manifest fields TBD | SourcePath: `docs/IP_AND_DATA_BOUNDARY.md`; SectionRef: 4. Required provenance fields. |
-> | Diagnostics compatibility | Required concept; exact manifest fields TBD | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-06. |
-> | Review/status metadata | Required concept; exact manifest fields TBD | SourcePath: `docs/TYPES.md`; SectionRef: 5. Epistemic labels. SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-AGENT-4. |
+> | Provenance/data-boundary declaration | Draft `provenance`, `privacy` and `no_bypass_constraints` fields; review required | SourcePath: `docs/IP_AND_DATA_BOUNDARY.md`; SectionRef: 4. Required provenance fields. |
+> | Diagnostics compatibility | Draft `api_boundary_compatibility` result-envelope obligations; review required | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-06. |
+> | Review/status metadata | Draft schema metadata/provenance status definitions; no review result inferred | SourcePath: `docs/TYPES.md`; SectionRef: 5. Epistemic labels. SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-AGENT-4. |
 
 - **AC-001** — The contracts preserve the accepted source constraints on validation, units, provenance, diagnostics, private data, canonical hashing, storage access, and professional responsibility without granting direct SQL or protected-content access.
 
@@ -287,7 +287,7 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 > ##### Prerequisites
 >
 > - Sealed deliverable context for DEL-02-04 with explicit write scope. SourcePath: `_CONTEXT.md`; SectionRef: Context: DEL-02-04.
-> - Current `_STATUS.md` state that permits drafting or update. For this Pass 3 run, state is `SEMANTIC_READY`; the prior Pass 1+2 drafting history includes `OPEN` as recorded in `_STATUS.md`.
+> - The current authorized brief and `_STATUS.md` govern work and lifecycle; prior Pass 3 drafting readiness is historical. This repair makes no lifecycle transition.
 > - Scope, deliverable, and context-budget register rows for DEL-02-04 and SOW-038. SourcePath: `docs/_Registers/Deliverables.csv`; SectionRef: row DEL-02-04. SourcePath: `docs/_Registers/ScopeLedger.csv`; SectionRef: row SOW-038. SourcePath: `docs/_Registers/ContextBudgetQA.csv`; SectionRef: row DEL-02-04.
 > - Applicable contract invariants from `docs/CONTRACT.md`, especially IP/data boundary, unit safety, rule sandboxing, report controls, privacy, and agent epistemic constraints.
 > - SCA-001 architecture basis IDs AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, and AB-00-08. SourcePath: `_CONTEXT.md`; SectionRef: Architecture Basis Injection.
@@ -309,7 +309,7 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 >
 > 3. Define the plugin interface specification at contract level.
 >    - Identify required manifest concepts: plugin identity, version, extension point declarations, schema/envelope version, capability request, provenance/data-boundary declaration, diagnostics compatibility, and review status.
->    - Mark exact schema file layout, field names, code-generation tooling, and transport binding as `TBD` unless later source material resolves them.
+>    - Read the existing draft layout and fields in `schemas/plugin_manifest.schema.yaml`. Its existence does not establish permission grants or architecture/security acceptance. Retain unselected code-generation tooling and public transport binding as open choices.
 >
 > 4. Define extension point families conservatively.
 >    - Candidate families are import adapter, export adapter, report/output extension, validation hook, and rule-pack integration hook.
@@ -333,8 +333,8 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 >    - Use invented, public-safe fixtures only.
 >
 > 8. Perform cross-document consistency review.
->    - Confirm Datasheet attributes appear in Specification requirements where appropriate.
->    - Confirm Specification requirements have Guidance rationale and Procedure verification hooks.
+>    - Confirm the consolidated `ScopeOfWork.md` attributes are traced to its requirements.
+>    - Confirm requirements retain their rationale and verification hooks in the consolidated `ScopeOfWork.md`.
 >    - Replace unsupported detail with `TBD` or `ASSUMPTION`.
 >    - Add or update the Guidance conflict table if sources disagree.
 >
@@ -354,17 +354,17 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 > - No protected standards/code text, copied tables, copied code formulas, proprietary commercial data, or private project/rule/library data is introduced.
 > - No statement claims certification, sealing, approval, endorsement, or automatic engineering code compliance (PRD §21.2).
 > - Terms are used consistently: plugin/adapter, extension point, schema-first envelope, unit-aware validation, provenance, diagnostics/result envelope, public/private data boundary, and report controls.
-> - Remaining implementation details are visible as TBD, especially public API transport, import/export format list, exact permission taxonomy, exact sandbox mechanism, exact dependency versions, CI thresholds, and concrete schema layout.
+> - Record public transport, exact permission grants, sandbox mechanism and unselected dependencies at their actual decision boundaries. Apply SCA-004 admitted formats and DEC-025/059/060/093 CI/coverage policy; compare plugin-specific conformance with the existing draft schema rather than calling the entire format/schema/CI basis undecided.
 >
 
 ### CLM-024 — Records
 
 > ##### Records
 >
-> - `Datasheet.md` records deliverable identity, attributes, conditions, construction assumptions, and source references.
-> - `Specification.md` records normative requirements, standards/baselines, verification mapping, and documentation obligations.
-> - `Guidance.md` records rationale, principles, considerations, trade-offs, invented safe examples, and conflict status.
-> - `Procedure.md` records the production and maintenance procedure for the contract kit.
+> - `ScopeOfWork.md` (definition) records deliverable identity, attributes, conditions, construction assumptions, and source references.
+> - `ScopeOfWork.md` (requirements) records normative requirements, standards/baselines, verification mapping, and documentation obligations.
+> - `ScopeOfWork.md` (rationale) records rationale, principles, considerations, trade-offs, invented safe examples, and conflict status.
+> - `ScopeOfWork.md` (procedure) records the production and maintenance procedure for the contract kit.
 > - Future manifest/schema review record should identify the approved fields or explicit `TBD` placeholders for plugin identity/version, extension declarations, schema/envelope version, capability declarations, provenance/data-boundary declarations, diagnostics compatibility, and review/status metadata.
 > - Future canonicalization/hash verification record should identify the manifest or payload schema version, canonicalization basis, sample invented fixtures, expected hashes, and unresolved `TBD` items when JSON hashing is required.
 > - Future sandbox/privacy verification record should document rule-pack-facing sandbox tests, denied arbitrary-code/filesystem/network paths, capability-grant review evidence, and any approved exception for telemetry-facing or private-data exposure.
@@ -447,7 +447,7 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 > | OD-02-04-001 | Public API transport for plugin/adapter interfaces | TBD; keep schema-first envelope baseline only | `execution/_Decomposition/SOFTWARE_DECOMP.md` 8.2 Resolved architecture baseline; DEC-012 | TBD |
 > | OD-02-04-002 | Approved extension-point registry names and owner | TBD; candidate families remain ASSUMPTION | `docs/_Registers/ScopeLedger.csv` row SOW-038; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-07 | TBD |
 > | OD-02-04-003 | Permission taxonomy, sandbox mechanism, and approval path | TBD; deny-by-default and no-bypass controls remain governing | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-07 and DEC-012; `docs/CONTRACT.md` OPS-K-RULE-2 | TBD |
-> | OD-02-04-004 | Supported import/export formats | TBD; do not imply concrete format support | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-004 and DEC-012 | TBD |
+> | OD-02-04-004 | Supported import/export formats | SCA-004 names the PKG-17 format set; plugin-specific support/coverage remains unproven until scoped evidence | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-004 and DEC-012 | TBD |
 > | OD-02-04-005 | Whether plugins can ever receive telemetry-facing or private engineering data | TBD; default is no telemetry/private-data exposure | `docs/CONTRACT.md` OPS-K-PRIV-1 and OPS-K-PRIV-2; `docs/PRD.md` 18.2 Telemetry | TBD |
 >
 
@@ -473,7 +473,7 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 >
 > | Conflict ID | Conflict (short statement) | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling (TBD) |
 > |---|---|---|---|---|---|---|
-> | CONF-02-04-001 | Decomposition revision wording differs between current context and local reference index. | `_CONTEXT.md` - Decomposition Reference identifies accepted revision 0.7/current_basis. | `_REFERENCES.md` - Decomposition and Registers describes the decomposition as accepted v0.2. | Datasheet References; future metadata/reference cleanup. | Treat `_CONTEXT.md` and current `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 as the active basis for this run; route `_REFERENCES.md` cleanup to a later authorized metadata/reference pass. | TBD |
+> | CONF-02-04-001 | Historical current-reference discrepancy resolved by source-qualified authority pointers in `_CONTEXT.md` and `_REFERENCES.md`. | Local context | Local references | References and prerequisites | Consult accepted `execution/_Decomposition/SOFTWARE_DECOMP.md` and its decision register. | Record repair only; no lifecycle or contract acceptance. |
 
 ## Output and Evaluation Matrix
 

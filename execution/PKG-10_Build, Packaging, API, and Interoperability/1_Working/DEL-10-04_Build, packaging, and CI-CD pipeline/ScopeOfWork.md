@@ -38,7 +38,7 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 > | Scope item | SOW-032 |
 > | Objectives | OBJ-008; OBJ-009 |
 > | Context envelope | L |
-> | Current setup state | SEMANTIC_READY |
+> | Current setup state | Use the current lifecycle recorded in `_STATUS.md`; preserve its state and history. Contract/evidence checks do not authorize a lifecycle transition or issuance. |
 >
 
 ### CLM-004 — Attributes
@@ -47,11 +47,11 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 >
 > | Attribute | Value |
 > |---|---|
-> | Deliverable purpose | Define the setup basis for reproducible builds, packaging, and CI/CD workflow work. |
+> | Deliverable purpose Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Define the setup basis for reproducible builds, packaging, and CI/CD workflow work. |
 > | Anticipated implementation artifacts | CI workflows; packaging scripts; release notes template. |
 > | Runtime/UI baseline | Rust core/application services; Tauri 2 desktop shell; TypeScript/React/Vite GUI where GUI-facing. |
 > | Test gate baseline | Cargo tests; Vitest; Playwright; validation gates; protected-content/provenance gates. |
-> | Desktop packaging baseline | Tauri-supported macOS, Windows, and Linux targets. |
+> | Desktop packaging baseline | DEC-057 selects macOS Apple Silicon (`aarch64-apple-darwin`) `.app` distributed as zip with SHA-256 and release records. Windows/Linux require evidence-gated decisions. Current unsigned conditions remain; DEC-089 adopts a policy-only future Developer ID/notarization target without closing its credential, implementation, network, publication or release gates. |
 > | Release-quality boundary | Development/release automation evidence only; no engineering certification or code-compliance claim. |
 > | Root workspace manifest evidence | `projects/chirality-piping/package.json`: `apps/desktop` workspace; desktop dev/build/wasm/test/e2e scripts; `generate:product-preview-mechanics` invented-fixture generator. Attributed to DEL-10-04 by D-41 `DEC-074` O3. |
 > | Build-readiness panel evidence | SURF-011, `apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx`: local Build/Package Readiness preview with embedded `DEL-10-04` / `PKG-10` / `SOW-032` identity. Attributed by D-42 `DEC-076`; no CI or release authority implied. |
@@ -63,17 +63,20 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 >
 > | Condition | Status |
 > |---|---|
-> | CI provider | TBD - human/project authority decision required. |
-> | Platform release matrix | TBD - this setup run does not finalize exact OS/architecture coverage. |
+> | CI provider | DEC-025 governs the local evidence sweep; DEC-059 conditionally governs public sanitized-export CI, and DEC-093 permits the exact-head-bound surface-4 CI alternative. DEC-060 selects coverage telemetry tooling, not numeric floors. Implementation and release evidence remain separately bound. |
+> | Platform release matrix | DEC-057 selects macOS Apple Silicon (`aarch64-apple-darwin`) `.app` distributed as zip with SHA-256 and release records. Windows/Linux require evidence-gated decisions. Current unsigned conditions remain; DEC-089 adopts a policy-only future Developer ID/notarization target without closing its credential, implementation, network, publication or release gates. |
 > | Coverage thresholds | TBD - no final numerical thresholds are set by this setup run. |
 > | Performance thresholds | TBD - no final timing/size thresholds are set by this setup run. |
 > | Dependency versions | TBD - exact versions remain implementation-level decisions. |
-> | Release signing process | TBD - governance/release authority decision required. |
+> | Release signing process | DEC-057 selects macOS Apple Silicon (`aarch64-apple-darwin`) `.app` distributed as zip with SHA-256 and release records. Windows/Linux require evidence-gated decisions. Current unsigned conditions remain; DEC-089 adopts a policy-only future Developer ID/notarization target without closing its credential, implementation, network, publication or release gates. |
 >
 
 ### CLM-006 — Construction
 
 > ##### Construction
+>
+> Current deliverable obligation: implement reproducible builds, tests, packaging skeleton, and release artifacts for supported platforms. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
 >
 > This setup artifact constrains later implementation work without creating implementation files. A future authorized DEL-10-04 implementation pass may draft CI workflows, packaging scripts, and release-note templates only after human authority confirms the CI provider, release matrix, thresholds, and write scope.
 >
@@ -84,19 +87,18 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 > - release artifacts must disclose validation status, limitations, data-boundary constraints, and professional-responsibility limitations;
 > - adapters, plugins, and packaging steps must not bypass unit, provenance, diagnostic, or privacy checks.
 >
-
 ### CLM-007 — References
 
 > ##### References
 >
-> - `INIT.md` - bootstrap and data-boundary posture.
+> - `AGENTS.md` - bootstrap and data-boundary posture.
 > - `AGENTS.md` - Type 2 sealed-deliverable dispatch rules.
 > - `docs/DIRECTIVE.md` - founding intent, stop rules, and no-certification boundary.
 > - `docs/CONTRACT.md` - invariant catalog, especially OPS-K-IP, OPS-K-DATA, OPS-K-PRIV, OPS-K-AUTH, and OPS-K-AGENT.
 > - `docs/SPEC.md` - architecture layers, reporting/audit requirements, V&V mechanics, and agentic implementation mechanics.
 > - `docs/VALIDATION_STRATEGY.md` - benchmark families and release gate expectations.
 > - `docs/PRD.md` - platform criteria and release milestones, including PRD 19.2, 19.3, and 22.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - revision 0.7 scope, architecture basis, decisions, and open issues.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current scope, architecture basis, decisions, and open issues.
 > - `docs/_Registers/Deliverables.csv` - row DEL-10-04.
 > - `docs/_Registers/ScopeLedger.csv` - row SOW-032.
 > - `docs/_Registers/ContextBudgetQA.csv` - row DEL-10-04.
@@ -104,16 +106,18 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 > - `apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx` - existing SURF-011 local preview evidence attributed by D-42 `DEC-076`; read-only in the attribution tranche.
 >
 
-### CLM-008 — TBD and Human-Ruling Slots
+### CLM-008 — Decision and delivery boundaries
 
-> ##### TBD and Human-Ruling Slots
+> ##### Decision and delivery boundaries
+>
+> Current decision basis: DEC-025 governs the local evidence sweep; DEC-059 conditionally governs public sanitized-export CI, and DEC-093 permits the exact-head-bound surface-4 CI alternative. DEC-060 selects coverage telemetry tooling, not numeric floors. Implementation and release evidence remain separately bound. DEC-057 selects macOS Apple Silicon (`aarch64-apple-darwin`) `.app` distributed as zip with SHA-256 and release records. Windows/Linux require evidence-gated decisions. Current unsigned conditions remain; DEC-089 adopts a policy-only future Developer ID/notarization target without closing its credential, implementation, network, publication or release gates. DEC-026 governs tolerance policy. Numeric floors, unmeasured scopes, engineering-beta criteria and unfulfilled release acts stay open. The following setup-era queue records its originating questions; it is not evidence that the cited later rulings are absent.
+>
 >
 > - TBD: CI provider.
 > - TBD: exact supported platform/release matrix.
 > - TBD: coverage and performance thresholds.
 > - TBD: release signing/notarization/publishing policy.
 > - TBD: exact packaging artifact names and distribution channels.
-
 ## Completion and Reliance Basis — Epistemology
 
 ### CLM-009 — Specification: DEL-10-04 Build, packaging, and CI/CD pipeline
@@ -126,7 +130,10 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 
 > ##### Scope
 >
-> This specification governs the setup basis for `DEL-10-04` only. It describes requirements and verification expectations for a future build, packaging, and CI/CD implementation pass, but this setup session does not modify CI workflows, packaging scripts, manifests, release files, source code, or repository-level artifacts.
+> Current deliverable obligation: implement reproducible builds, tests, packaging skeleton, and release artifacts for supported platforms. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
+> This specification governs the setup basis for `DEL-10-04` only. It describes requirements and verification expectations for a future build, packaging, and CI/CD implementation pass, but the original setup session does not modify CI workflows, packaging scripts, manifests, release files, source code, or repository-level artifacts.
 >
 > In scope for this setup run:
 >
@@ -142,7 +149,6 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 > - creating or editing actual workflow files, packaging scripts, manifests, release templates, or source code;
 > - making certification, endorsement, sealing, or code-compliance claims (PRD §21.2).
 >
-
 ### CLM-012 — Requirements
 
 > ##### Requirements
@@ -151,7 +157,7 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 > |---|---|---|---|
 > | REQ-10-04-01 | Future implementation must provide reproducible build, packaging, and CI/CD workflows for supported platforms. | SOW-032; Deliverables.csv DEL-10-04 | Human review of future implementation artifacts. |
 > | REQ-10-04-02 | Build/test gates must align with the accepted Cargo, Vitest, Playwright, validation, protected-content, and provenance gate baseline. | SOFTWARE_DECOMP AB-00-08; DEC-011 | Future CI/job review and test evidence. |
-> | REQ-10-04-03 | Desktop packaging planning must follow the Tauri-supported macOS, Windows, and Linux baseline without finalizing the detailed platform release matrix in this setup pass. | SOW-032 notes; architecture baseline | Confirm platform matrix remains `TBD` unless human-ruling evidence is cited. |
+> | REQ-10-04-03 | DEC-057 selects macOS Apple Silicon (`aarch64-apple-darwin`) `.app` distributed as zip with SHA-256 and release records. Windows/Linux require evidence-gated decisions. Current unsigned conditions remain; DEC-089 adopts a policy-only future Developer ID/notarization target without closing its credential, implementation, network, publication or release gates. | SOW-032 notes; architecture baseline | Confirm platform matrix remains `TBD` unless human-ruling evidence is cited. |
 > | REQ-10-04-04 | CI provider, coverage thresholds, performance thresholds, exact dependency versions, signing, publishing, and release matrix details must remain `TBD` unless a human authority record resolves them. | DEC-012; OI-002; user brief | Check all unresolved choices are visible as `TBD`. |
 > | REQ-10-04-05 | Pipeline and packaging concepts must not bypass unit checks, provenance checks, diagnostics, privacy controls, or adapter/plugin governance boundaries. | AB-00-02; AB-00-06; AB-00-07; OPS-K-UNIT-1; OPS-K-PRIV | Future implementation review and security/privacy checks. |
 > | REQ-10-04-06 | Public release automation must not include protected standards text, protected examples, proprietary engineering values, private rule packs, private project data, or private library data. | OPS-K-IP-1/2/3; OPS-K-DATA-1/2/3; OPS-K-PRIV | Protected-content/provenance gate and review. |
@@ -197,11 +203,13 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 
 > ##### Standards
 >
-> No external engineering code or standards-body text is incorporated by this deliverable. Governing project standards for this setup pass are internal SWBPIPE governance artifacts: `INIT.md`, `docs/DIRECTIVE.md`, `docs/CONTRACT.md`, `docs/SPEC.md`, `docs/IP_AND_DATA_BOUNDARY.md`, `docs/VALIDATION_STRATEGY.md`, and `execution/_Decomposition/SOFTWARE_DECOMP.md`.
+> Current decision basis: DEC-025 governs the local evidence sweep; DEC-059 conditionally governs public sanitized-export CI, and DEC-093 permits the exact-head-bound surface-4 CI alternative. DEC-060 selects coverage telemetry tooling, not numeric floors. Implementation and release evidence remain separately bound. DEC-057 selects macOS Apple Silicon (`aarch64-apple-darwin`) `.app` distributed as zip with SHA-256 and release records. Windows/Linux require evidence-gated decisions. Current unsigned conditions remain; DEC-089 adopts a policy-only future Developer ID/notarization target without closing its credential, implementation, network, publication or release gates. DEC-026 governs tolerance policy. Numeric floors, unmeasured scopes, engineering-beta criteria and unfulfilled release acts stay open. The following setup-era queue records its originating questions; it is not evidence that the cited later rulings are absent.
+>
+>
+> No external engineering code or standards-body text is incorporated by this deliverable. Governing project standards for this setup pass are internal SWBPIPE governance artifacts: `AGENTS.md`, `docs/DIRECTIVE.md`, `docs/CONTRACT.md`, `docs/SPEC.md`, `docs/IP_AND_DATA_BOUNDARY.md`, `docs/VALIDATION_STRATEGY.md`, and `execution/_Decomposition/SOFTWARE_DECOMP.md`.
 >
 > The term "Tauri-supported targets" is used only as an architecture-baseline label from the sealed context. Exact Tauri target details, operating-system versions, signing requirements, installer formats, and publishing rules remain `TBD`.
 >
-
 ### CLM-015 — Verification
 
 > ##### Verification
@@ -211,8 +219,8 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 > | Document kit presence | File inspection | `ScopeOfWork.md` exists. |
 > | Semantic setup | File inspection and local QA | `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` exist, with no matrix parse errors. |
 > | Dependency setup | Schema validation | `Dependencies.csv` validates against v3.1 schema. |
-> | Scope boundary | Diff/file inspection | No CI workflows, package scripts, manifests, release files, source code, or repo-level artifacts are modified. |
-> | TBD preservation | Text review | CI provider, release matrix, and thresholds remain visible as `TBD`. |
+> | Scope boundary | Diff/file inspection Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | No CI workflows, package scripts, manifests, release files, source code, or repo-level artifacts are modified. |
+> | TBD preservation | Text review | Verify ruled CI and release-matrix choices against DEC-025/057/059/089/093; preserve unadopted numeric thresholds and all unmet release gates. |
 > | Protected-data boundary | Text review | No protected standards content, proprietary values, or private data are introduced. |
 > | Authority boundary | Text review | No certification, sealing, approval, endorsement, or compliance claim is made (PRD §21.2). |
 > | Root workspace manifest attribution | Read-only inspection of `projects/chirality-piping/package.json` | Existing desktop workspace scripts and preview-mechanics fixture-generator command are recorded as DEL-10-04 implementation/build evidence under `DEC-074` O3. |
@@ -226,10 +234,7 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 >
 > Required setup artifacts for this session:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -237,13 +242,8 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 > - `_run_records/TASK_RUN_*.md`
 > - `_STATUS.md`
 >
-> Anticipated implementation artifacts remain future work:
->
-> - CI workflows
-> - packaging scripts
-> - release notes template
-
-- **AC-001** — The contract preserves deterministic build and test gates, Rust and GUI/toolchain boundaries, artifact provenance and checksums, platform/package evidence, protected-content and private-data controls, failure diagnostics, current implementation evidence, and explicit unresolved CI-provider, signing, publication, coverage, and platform-matrix decisions without making release or security assurances.
+> Current build/package/release procedure and artifact locations are recorded in `docs/BUILD_AND_RELEASE.md`; the release-notes template is `docs/RELEASE_NOTES_TEMPLATE.md`. Existing workflows/scripts are candidate implementation evidence. Preserve publication/signing and other unmet release gates separately.
+- **AC-001** — The contract preserves deterministic build and test gates, Rust and GUI/toolchain boundaries, artifact provenance and checksums, platform/package evidence, protected-content and private-data controls, failure diagnostics, current implementation evidence, and the ruled DEC-025/057/059/060/089/093 CI, signing, publication, coverage-tooling and platform boundaries with unfulfilled release acts and unadopted numeric floors explicit without making release or security assurances.
 
 ## Production and Verification Method — Praxeology
 
@@ -256,12 +256,17 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 
 > ##### Purpose
 >
+> Current deliverable obligation: implement reproducible builds, tests, packaging skeleton, and release artifacts for supported platforms. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > Run and verify the deliverable-local setup workflow for DEL-10-04 without creating product CI, packaging, release, manifest, or source-code artifacts.
 >
-
 ### CLM-019 — Prerequisites
 
 > ##### Prerequisites
+>
+> Current deliverable obligation: implement reproducible builds, tests, packaging skeleton, and release artifacts for supported platforms. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
 >
 > - Root bootstrap, agent index, contract, decomposition, registers, and project-local skill instructions have been read.
 > - The working folder is `execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-04_Build, packaging, and CI-CD pipeline/`.
@@ -269,13 +274,12 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 > - Protected-data, private-data, no-certification, and human-authority boundaries are active.
 > - CI provider, release matrix, and thresholds remain `TBD` unless human authority resolves them.
 >
-
 ### CLM-020 — Steps
 
 > ##### Steps
 >
-> 1. Execute `four-documents` with `RUN_PASSES=P1_P2` by drafting `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` from the sealed context and accessible governing references.
-> 2. Confirm the four documents preserve the setup-only boundary and do not create CI workflows, packaging scripts, manifests, release files, or source code.
+> 1. Execute `four-documents` with `RUN_PASSES=P1_P2` by drafting `ScopeOfWork.md` from the sealed context and accessible governing references.
+> 2. Confirm the Scope of Work contract preserve the setup-only boundary and do not create CI workflows, packaging scripts, manifests, release files, or source code.
 > 3. Execute `semantic-matrix-build` by replacing `_SEMANTIC.md` with a deliverable-local semantic lens and setting or verifying `_STATUS.md` as `SEMANTIC_READY` only after semantic QA passes.
 > 4. Execute `lens-register` by generating `_SEMANTIC_LENSING.md` from `_SEMANTIC.md` and the four production documents.
 > 5. Execute `four-documents` with `RUN_PASSES=P3_ONLY` by checking the lensing register for warranted enrichment items, applying only source-supported setup-document changes, and recording unresolved items as `TBD`.
@@ -284,7 +288,6 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 > 8. For build-evidence review, inspect the root `projects/chirality-piping/package.json` read-only and confirm its desktop workspace scripts plus `generate:product-preview-mechanics` command remain attributed to DEL-10-04 under D-41 `DEC-074` O3.
 > 9. Inspect SURF-011 read-only and confirm its embedded `deliverable_id`, `package_id`, `scope_item`, local-only boundary, and no-release/no-professional-claim posture remain consistent with D-42 `DEC-076`.
 >
-
 ### CLM-021 — Verification
 
 > ##### Verification
@@ -300,17 +303,13 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 > - Root `projects/chirality-piping/package.json` evidence is read-only and its recorded script inventory matches the manifest.
 > - SURF-011 is read-only; its embedded identity and boundary fields match the D-42 `DEC-076` attribution without changing behavior.
 >
-
 ### CLM-022 — Records
 
 > ##### Records
 >
 > Preserve these setup records:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -318,13 +317,11 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 > - `_STATUS.md`
 > - `_run_records/TASK_RUN_*.md`
 >
-
 ### CLM-023 — Completion Condition
 
 > ##### Completion Condition
 >
 > The setup workflow is complete when the document kit, semantic artifacts, dependency register, run records, and status file exist; local checks pass; and unresolved CI/release decisions remain explicitly marked `TBD` for human authority.
-
 - **VER-001** — Validate the contract and review source parity, build/test/package stage coverage, reproducibility and provenance evidence, platform and toolchain boundaries, protected/private-data controls, retained provider/signing/publication/coverage TBDs, and separation of pipeline evidence from release acceptance.
 
 ## Governing Values and Decisions — Axiology
@@ -339,9 +336,11 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 
 > ##### Purpose
 >
+> Current deliverable obligation: implement reproducible builds, tests, packaging skeleton, and release artifacts for supported platforms. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This guidance explains how to interpret the DEL-10-04 setup artifacts. The deliverable exists to prepare a bounded future implementation path for reproducible builds, packaging, and CI/CD while keeping release engineering, interoperability, data-boundary, and professional-responsibility constraints visible.
 >
-
 ### CLM-027 — Principles
 
 > ##### Principles
@@ -358,6 +357,9 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 
 > ##### Considerations
 >
+> Current decision basis: DEC-025 governs the local evidence sweep; DEC-059 conditionally governs public sanitized-export CI, and DEC-093 permits the exact-head-bound surface-4 CI alternative. DEC-060 selects coverage telemetry tooling, not numeric floors. Implementation and release evidence remain separately bound. DEC-057 selects macOS Apple Silicon (`aarch64-apple-darwin`) `.app` distributed as zip with SHA-256 and release records. Windows/Linux require evidence-gated decisions. Current unsigned conditions remain; DEC-089 adopts a policy-only future Developer ID/notarization target without closing its credential, implementation, network, publication or release gates. DEC-026 governs tolerance policy. Numeric floors, unmeasured scopes, engineering-beta criteria and unfulfilled release acts stay open. The following setup-era queue records its originating questions; it is not evidence that the cited later rulings are absent.
+>
+>
 > DEL-10-04 is a large context envelope item. Future implementation may need to split into smaller tasks if it expands beyond one bounded change. Natural split points include CI workflow skeleton, desktop packaging skeleton, release-note template, signing/publishing policy, protected-content/provenance gates, and release-checklist automation.
 >
 > The accepted baseline names Cargo, Vitest, Playwright, validation, and protected-content/provenance gates. It does not finalize the CI host, coverage thresholds, performance thresholds, installer formats, signing identities, release publishing destinations, dependency versions, or exact platform/architecture matrix.
@@ -373,7 +375,6 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 > surface, not as CI activation, package generation, signing, publication,
 > release authorization, or professional/code-compliance evidence.
 >
-
 ### CLM-029 — Trade-offs
 
 > ##### Trade-offs
@@ -388,21 +389,25 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 
 > ##### Examples
 >
-> TBD. This setup run does not create example workflow files, packaging scripts, release templates, or implementation snippets because the write scope is limited to deliverable-local setup documentation and registers.
+> Current deliverable obligation: implement reproducible builds, tests, packaging skeleton, and release artifacts for supported platforms. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
+>
+> TBD. The original setup run does not create example workflow files, packaging scripts, release templates, or implementation snippets because the write scope is limited to deliverable-local setup documentation and registers.
+>
+### CLM-031 — Decision and delivery boundaries
 
-### CLM-031 — Human-Ruling Queue
-
-> ##### Human-Ruling Queue
+> ##### Decision and delivery boundaries
+>
+> Current decision basis: DEC-025 governs the local evidence sweep; DEC-059 conditionally governs public sanitized-export CI, and DEC-093 permits the exact-head-bound surface-4 CI alternative. DEC-060 selects coverage telemetry tooling, not numeric floors. Implementation and release evidence remain separately bound. DEC-057 selects macOS Apple Silicon (`aarch64-apple-darwin`) `.app` distributed as zip with SHA-256 and release records. Windows/Linux require evidence-gated decisions. Current unsigned conditions remain; DEC-089 adopts a policy-only future Developer ID/notarization target without closing its credential, implementation, network, publication or release gates. DEC-026 governs tolerance policy. Numeric floors, unmeasured scopes, engineering-beta criteria and unfulfilled release acts stay open. The following setup-era queue records its originating questions; it is not evidence that the cited later rulings are absent.
+>
 >
 > - TBD: CI provider and hosting model.
 > - TBD: supported OS and architecture release matrix.
 > - TBD: installer/package formats per supported platform.
 > - TBD: coverage and performance thresholds.
 > - TBD: signing, notarization, checksum, and release publishing policy.
-> - TBD: whether release notes template belongs in this deliverable or a later release-governance deliverable.
+> - Release-notes template evidence: `docs/RELEASE_NOTES_TEMPLATE.md` under DEL-10-04; template presence does not authorize publication.
 >
-
 ### CLM-032 — Conflict Table (for human ruling)
 
 > ##### Conflict Table (for human ruling)

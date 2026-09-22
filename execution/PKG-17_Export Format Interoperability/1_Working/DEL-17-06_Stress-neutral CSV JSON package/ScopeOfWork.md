@@ -37,7 +37,7 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 > | Type | BACKEND_FEATURE_SLICE |
 > | Scope Items | SOW-046, SOW-074 |
 > | Objectives | OBJ-007, OBJ-017, OBJ-018 |
-> | Runtime pass | Phase A four-document P1/P2 only |
+> | Historical preparation pass | Phase A four-document P1/P2 only |
 >
 
 ### CLM-004 — Attributes
@@ -46,8 +46,8 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 >
 > | Attribute | Current value | Source |
 > |---|---|---|
-> | Package purpose | Project-controlled stress-oriented neutral package for review, debugging, community adapter development, and comparison across target exporters. It is not a vendor format and not a replacement for a commercial solver input deck. | `plans/EXPORT_FORMAT_INTEROPERABILITY_PLAN.md` section "Stress Neutral CSV/JSON Package" |
-> | Formats | CSV for inspection/spreadsheet review and JSON for structured import/export. | `plans/EXPORT_FORMAT_INTEROPERABILITY_PLAN.md` section "Stress Neutral CSV/JSON Package" |
+> | Package purpose | Project-controlled stress-oriented neutral package for review, debugging, community adapter development, and comparison across target exporters. It is not a vendor format and not a replacement for a commercial solver input deck. | Preserved deliverable obligation; accepted SCA-004 export scope and SOW-083 in `_CONTEXT.md`. The unavailable historical export plan is not current field-level evidence. |
+> | Formats | CSV for inspection/spreadsheet review and JSON for structured import/export. | Preserved deliverable obligation; accepted SCA-004 export scope and SOW-083 in `_CONTEXT.md`. The unavailable historical export plan is not current field-level evidence. |
 > | Required relationship to result exports | Result exports are for review, regression comparison, report consumption, headless automation, and governed downstream tooling; they preserve units, diagnostics, provenance, hashes, and professional-boundary limits. | `docs/SPEC.md` result export section; `docs/TYPES.md` `ResultExportEnvelope` |
 > | Required relationship to DEL-17-02 | Use loss reports and stable IDs for stress-neutral CSV/JSON result packages. | `DEL-17-02/Specification.md` "Downstream Requirements" |
 > | Required relationship to DEL-17-01 | Do not use CAEPIPE CSV/text behavior as professional acceptance; target-specific CSV coverage remains `TBD` unless source-confirmed. | `DEL-17-01/Specification.md` boundary and downstream rules |
@@ -59,12 +59,12 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 >
 > | Condition | Status |
 > |---|---|
-> | Source model reference | Required by result-export and handoff scope; exact source model identifier, version, and package reference path are `TBD`. |
-> | Source model hash basis | Required where the package or manifest records deterministic source evidence; exact payload scope and hash field are `TBD`. |
-> | Analysis-run reference | Required when exported values come from an analysis run; exact analysis-run identifier, solver version reference, load-case or combination basis, and package reference path are `TBD`. |
-> | Package member path references | Required by the common export package contract; exact CSV, JSON, manifest, ID-map, loss-report, and validation-report paths are `TBD`. |
-> | Unit and dimensional metadata | Required for exported result values; exact CSV column names and JSON property names are `TBD`. |
-> | Stable ID preservation | Required through direct fields or sidecar mapping; exact stress-neutral ID-map layout is `TBD`. |
+> | Source model reference | Required source identity/version/reference binding; versioned field evidence is in `schemas/stress_neutral_export.v0.1.schema.json` and `.v0.2.schema.json` and their producers. Actual source fidelity remains required. |
+> | Source model hash basis | Required explicit source hash/payload-scope evidence. Preserve received source checksums separately from computed members/package projections under the selected D-67 version. |
+> | Analysis-run reference | Required source analysis-run and load/solver basis where applicable; inspect versioned schema/producers alongside the DEL-14-02 version dispatcher. Actual producer completeness is not inferred. |
+> | Package member path references | Required member inventory bound by manifest; concrete source evidence is `core/handoff/stress_neutral/package.py` (0.1) and `package_v0_2.py` (0.2), with version-specific schemas. |
+> | Unit and dimensional metadata | Required explicit units/dimensions and diagnostics. Versioned schemas and producer column definitions carry current field evidence; missing or incompatible unit behavior remains a conformance check. |
+> | Stable ID preservation | Required direct or sidecar canonical identity; versioned package schemas carry `stable_id_map` evidence. Demonstrate round-trip correlation and omissions against actual output. |
 > | Diagnostics and boundary notes | Required so review consumers can see limitations, unresolved assumptions, warnings, and non-authoritative status. |
 > | Protected/private content handling | Public fixtures and examples must not include protected standards data, proprietary examples, private project data, code allowables, SIF/flexibility tables, or owner criteria. |
 > | Professional boundary | The package is evidence for review/regression/downstream tooling only. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
@@ -93,16 +93,16 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 
 > ##### Future Detail Slots
 >
-> These slots are placeholders for later schema, writer, fixture, and validation work. They are not populated by this Phase A/Pass 3 task.
+> The original Phase A slots are historical setup provenance. Current construction is versioned by `schemas/stress_neutral_export.schema.json` and its 0.1/0.2 members, with producer evidence in `core/handoff/stress_neutral/package.py` and `package_v0_2.py`. The durable content obligations below remain; schema/producer presence does not establish runtime or rights clearance.
 >
 > | Slot | Future content | Current disposition | Source basis |
 > |---|---|---|---|
-> | CSV fields | Exact table names, column names, ordering, quoting/null rules, and per-table required/optional status. | `TBD` until schema work begins. | Stress-neutral package contents from `plans/EXPORT_FORMAT_INTEROPERABILITY_PLAN.md`; package-member inventory rules from `DEL-17-02/Specification.md`. |
-> | JSON properties | Exact object layout, property names, required/optional status, schema identifier, and validation profile. | `TBD` until JSON Schema 2020-12 contract work begins. | Architecture basis in `_CONTEXT.md`; `DEL-17-02/Specification.md` architecture-basis requirements. |
-> | Manifest layout | Package ID, source model/run basis, profile ID, member inventory, hashes where applicable, diagnostics, and boundary notes. | `TBD` layout; required concept retained. | `DEL-17-02/Specification.md` manifest requirements; `docs/SPEC.md` result export and audit-manifest sections. |
-> | ID-map layout | Canonical ID, package member path, row/object reference, target/generated identity where any exists, and omission/unsupported reason. | `TBD` layout; stable-ID role retained. | `DEL-17-02/Specification.md` stable ID map requirements; export plan stable identity rules. |
-> | Loss-report layout | Exported, omitted, approximated, delegated, unsupported, and `TBD` behavior with affected IDs and downstream implication. | `TBD` layout; loss report remains mandatory for native project-owned exports. | `DEL-17-02/Specification.md` loss report requirements. |
-> | Validation-report layout | Shape checks, synchronization checks, source-evidence checks, protected-content checks, diagnostics, and boundary findings. | `TBD`; future implementation evidence only. | `docs/SPEC.md` result export boundary; `docs/IP_AND_DATA_BOUNDARY.md` contribution and public-data policy. |
+> | CSV fields | Exact table names, column names, ordering, quoting/null rules, and per-table required/optional status. | Use the selected version producer column/serialization definitions; verify emitted conformance. | Stress-neutral package contents from `plans/EXPORT_FORMAT_INTEROPERABILITY_PLAN.md`; package-member inventory rules from `DEL-17-02/ScopeOfWork.md`. |
+> | JSON properties | Exact object layout, property names, required/optional status, schema identifier, and validation profile. | Use the selected versioned JSON Schema; verify consumer/producer conformance. | Architecture basis in `_CONTEXT.md`; `DEL-17-02/ScopeOfWork.md` architecture-basis requirements. |
+> | Manifest layout | Package ID, source model/run basis, profile ID, member inventory, hashes where applicable, diagnostics, and boundary notes. | Layout evidence is the selected version schema/producer; required binding retained. | `DEL-17-02/ScopeOfWork.md` manifest requirements; `docs/SPEC.md` result export and audit-manifest sections. |
+> | ID-map layout | Canonical ID, package member path, row/object reference, target/generated identity where any exists, and omission/unsupported reason. | Versioned stable-ID map evidence exists; preserve traceability and test actual round trips. | `DEL-17-02/ScopeOfWork.md` stable ID map requirements; export plan stable identity rules. |
+> | Loss-report layout | Exported, omitted, approximated, delegated, unsupported, and `TBD` behavior with affected IDs and downstream implication. | Versioned loss-report schema evidence exists; losses remain mandatory on success. | `DEL-17-02/ScopeOfWork.md` loss report requirements. |
+> | Validation-report layout | Shape checks, synchronization checks, source-evidence checks, protected-content checks, diagnostics, and boundary findings. | Versioned validation/diagnostics contract evidence exists; assess actual scope/coverage. | `docs/SPEC.md` result export boundary; `docs/IP_AND_DATA_BOUNDARY.md` contribution and public-data policy. |
 >
 
 ### CLM-008 — References
@@ -111,7 +111,7 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 >
 > | Source | Use |
 > |---|---|
-> | `plans/EXPORT_FORMAT_INTEROPERABILITY_PLAN.md` | Stress-neutral package purpose, recommended contents, CSV/JSON format split, export risk framing. |
+> | `execution/_ScopeChange/SCA-004_2026-05-18_0000/ACCEPTANCE_RECORD.md` and DEL-17-01 `ScopeOfWork.md` (current export scope/source boundary; the former export-plan path is unavailable historical strategy, not field-level authority) | Stress-neutral package purpose, recommended contents, CSV/JSON format split, export risk framing. |
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` | DEL-17-06 scope, SOW-046/SOW-074 assignment, PKG-17 exclusions, architecture-basis context. |
 > | `docs/SPEC.md` | Result export envelope boundary, required result-export metadata, `TBD` status for additional formats. |
 > | `docs/TYPES.md` | Result/export, stable identity, data-boundary, no-bypass, and professional-boundary vocabulary. |
@@ -125,6 +125,8 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 > ##### D-41 R5 T2A canonicalization evidence (2026-07-12)
 >
 > JSON checksum records emitted by DEL-17-06 use `deterministic_sorted_compact_json_payload_hash`: UTF-8 Python JSON with lexicographically sorted keys, compact separators, and ASCII escaping. This is a deterministic local byte contract, not an RFC 8785/JCS claim. CSV members retain `normalized_ascii_lf_text`.
+>
+> Version boundary: these sorted-compact/no-JCS checks apply to retained 0.1 evidence. D-67 0.2 uses checked `openpipestress_jcs_ijson_v1` for JSON member/package projections, preserves received-checksum metadata separately, and retains separately labeled normalized CSV bytes. Check the selected version against its own schema and vectors; never relabel 0.1 bytes.
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -140,7 +142,7 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 >
 > DEL-17-06 shall define the documentation-level requirements for a project-controlled stress-neutral CSV/JSON package used for review, regression comparison, and downstream tooling.
 >
-> This Phase A deliverable is a four-document kit only. It shall not implement code, create or edit JSON schemas, create CSV fixtures, write exporters, define release compatibility, or claim professional/code-compliance acceptance.
+> The original Phase A run produced only a document kit. Current scope includes the accepted stress-neutral contract and bounded versioned producers under D-67; consult the schemas and `core/handoff/stress_neutral/` as implementation evidence. Further work needs its authorized scope and may not infer release compatibility, professional acceptance or whole-product completion.
 >
 > The stress-neutral package shall remain result/package evidence. It is not a vendor solver format, not a commercial solver input deck, not a CAEPIPE compatibility claim, and not a substitute for human professional review.
 >
@@ -151,16 +153,16 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 >
 > | Req ID | Requirement | Source basis |
 > |---|---|---|
-> | DEL-17-06-REQ-001 | The package shall support review, debugging, community adapter development, and comparison across target exporters without presenting itself as a vendor format. | `plans/EXPORT_FORMAT_INTEROPERABILITY_PLAN.md` "Stress Neutral CSV/JSON Package" |
-> | DEL-17-06-REQ-002 | The package shall provide CSV output for inspection/spreadsheet review and JSON output for structured import/export. | `plans/EXPORT_FORMAT_INTEROPERABILITY_PLAN.md` "Stress Neutral CSV/JSON Package" |
-> | DEL-17-06-REQ-003 | The package shall preserve canonical SWBPIPE identity through direct row/object fields or sidecar ID-map records. Exact field names are `TBD`. | `DEL-17-02/Specification.md` stable ID map requirements |
-> | DEL-17-06-REQ-004 | The package shall include or reference a manifest that records source model/run basis, package member inventory, hashes where applicable, diagnostics, and boundary notes. Exact manifest layout is `TBD`. | `DEL-17-02/Specification.md` manifest requirements; `docs/SPEC.md` result export section |
-> | DEL-17-06-REQ-005 | The package shall include a loss report even when export succeeds, with exported, omitted, approximated, delegated, unsupported, and `TBD` behavior visible. | `DEL-17-02/Specification.md` loss report requirements |
+> | DEL-17-06-REQ-001 | The package shall support review, debugging, community adapter development, and comparison across target exporters without presenting itself as a vendor format. | Preserved deliverable obligation; accepted SCA-004 export scope and SOW-083 in `_CONTEXT.md`. The unavailable historical export plan is not current field-level evidence. |
+> | DEL-17-06-REQ-002 | The package shall provide CSV output for inspection/spreadsheet review and JSON output for structured import/export. | Preserved deliverable obligation; accepted SCA-004 export scope and SOW-083 in `_CONTEXT.md`. The unavailable historical export plan is not current field-level evidence. |
+> | DEL-17-06-REQ-003 | The package shall preserve canonical SWBPIPE identity through direct row/object fields or sidecar ID-map records. Exact field names are `TBD`. | `DEL-17-02/ScopeOfWork.md` stable ID map requirements |
+> | DEL-17-06-REQ-004 | The package shall include or reference a manifest that records source model/run basis, package member inventory, hashes where applicable, diagnostics, and boundary notes. Exact manifest layout is `TBD`. | `DEL-17-02/ScopeOfWork.md` manifest requirements; `docs/SPEC.md` result export section |
+> | DEL-17-06-REQ-005 | The package shall include a loss report even when export succeeds, with exported, omitted, approximated, delegated, unsupported, and `TBD` behavior visible. | `DEL-17-02/ScopeOfWork.md` loss report requirements |
 > | DEL-17-06-REQ-006 | Result values shall carry explicit unit and dimensional metadata or produce blocking diagnostics. Exact CSV/JSON representation is `TBD`. | `docs/SPEC.md` result export section; `docs/CONTRACT.md` OPS-K-UNIT-1 |
 > | DEL-17-06-REQ-007 | The package shall carry diagnostics, warnings, unresolved assumptions, provenance, reproducibility references, and professional-boundary notices when those are present in the source result/export envelope. | `docs/SPEC.md` result export section; `docs/TYPES.md` `ResultExportEnvelope` |
 > | DEL-17-06-REQ-008 | The package shall not copy protected standards text, protected tables, proprietary formulas, code-specific allowables, SIF/flexibility values, private rule-pack payloads, private project data, or proprietary commercial examples into public artifacts. | `docs/CONTRACT.md`; `docs/IP_AND_DATA_BOUNDARY.md`; `docs/TYPES.md` |
-> | DEL-17-06-REQ-009 | The package shall not declare code compliance, certification, sealing, professional approval, formal validation, engineering acceptance, or release readiness (PRD §21.2). | `docs/CONTRACT.md` OPS-K-AUTH-1; `DEL-17-01/Specification.md`; `DEL-17-02/Specification.md` |
-> | DEL-17-06-REQ-010 | Target-specific or version-sensitive behavior not resolved by source evidence shall remain `TBD` and shall not be represented as supported behavior. | `DEL-17-01/Specification.md`; `DEL-17-02/Specification.md` |
+> | DEL-17-06-REQ-009 | The package shall not declare code compliance, certification, sealing, professional approval, formal validation, engineering acceptance, or release readiness (PRD §21.2). | `docs/CONTRACT.md` OPS-K-AUTH-1; `DEL-17-01/ScopeOfWork.md`; `DEL-17-02/ScopeOfWork.md` |
+> | DEL-17-06-REQ-010 | Target-specific or version-sensitive behavior not resolved by source evidence shall remain `TBD` and shall not be represented as supported behavior. | `DEL-17-01/ScopeOfWork.md`; `DEL-17-02/ScopeOfWork.md` |
 > | DEL-17-06-REQ-011 | The stress-neutral profile shall carry source-basis references for DEL-08-04, DEL-14-02, DEL-14-05, and DEL-17-02; missing references shall block package acceptance. | DAG-006 DEL-17-06 dependency edges; DEL-17-02 export contract; DEL-08-04 result export format; DEL-14-02 analysis run records; DEL-14-05 comparison export contracts. |
 >
 
@@ -171,11 +173,13 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 > | Standard or contract | Applicability | Status |
 > |---|---|---|
 > | JSON Schema 2020-12 | Baseline for future public JSON schemas/interchange contracts. | Applicable architecture basis; no schema file is created in this Phase A task. |
-> | Declared deterministic JSON hash basis | JSON package members use sorted-key compact ASCII-escaped Python JSON labeled `deterministic_sorted_compact_json_payload_hash`; this is explicitly not JCS. CSV normalization is separately labeled. | D-41 R5 T2A; exact non-current payload partitioning remains `TBD`. |
-> | SWBPIPE result export envelope | Governs result identity, model/run references, unit-aware values, diagnostics, provenance, reproducibility refs, statuses, rule-pack refs, and downstream-use declarations. | Source-grounded contract basis; additional CSV/JSON package layout remains `TBD`. |
+> | Declared deterministic JSON hash basis | Retained 0.1 JSON members use sorted-key compact ASCII-escaped Python JSON labeled `deterministic_sorted_compact_json_payload_hash`, explicitly not JCS. D-67 0.2 JSON member/package projections use checked `openpipestress_jcs_ijson_v1`; CSV normalized-text hashes and received-source checksum evidence remain separately identified. | D-41 R5 T2A; exact non-current payload partitioning remains `TBD`. |
+> | SWBPIPE result export envelope | Governs result identity, model/run references, unit-aware values, diagnostics, provenance, reproducibility refs, statuses, rule-pack refs, and downstream-use declarations. | Source-grounded contract basis; versioned layout evidence is in `schemas/stress_neutral_export.schema.json`, its 0.1/0.2 members and `core/handoff/stress_neutral/package.py` / `package_v0_2.py`. Verify actual output identity, units, diagnostics, references and member layout against the selected version. |
 > | DEL-17-02 common export contract | Governs export package, profile, stable ID map, manifest, and loss-report behavior. | Required upstream contract for DEL-17-06. |
 > | IP and data-boundary policy | Governs public/private/protected data use and contribution review. | Required for fixtures, examples, reports, and exported artifacts. |
 >
+>
+> Version boundary: these sorted-compact/no-JCS checks apply to retained 0.1 evidence. D-67 0.2 uses checked `openpipestress_jcs_ijson_v1` for JSON member/package projections, preserves received-checksum metadata separately, and retains separately labeled normalized CSV bytes. Check the selected version against its own schema and vectors; never relabel 0.1 bytes.
 
 ### CLM-015 — Verification
 
@@ -183,11 +187,11 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 >
 > | Verification ID | Check | Acceptance evidence |
 > |---|---|---|
-> | DEL-17-06-VER-001 | Confirm all four documents exist and preserve required default sections. | `tools/validation/check_four_documents.sh` result. |
+> | DEL-17-06-VER-001 | Confirm all migrated `ScopeOfWork.md` sections exist and preserve required default sections. | `tools/validation/check_four_documents.sh` result. |
 > | DEL-17-06-VER-002 | Confirm the deliverable-local minimum fileset remains present. | `tools/validation/check_min_viable_fileset.sh` result. |
-> | DEL-17-06-VER-003 | Review the four documents for prohibited claims (PRD §21.2): code compliance, professional approval, formal validation, release compatibility, or engineering acceptance. | Manual text review or grep-based evidence in run record. |
-> | DEL-17-06-VER-004 | Review the four documents for protected/proprietary copied examples or protected standards data. | Manual text review or grep-based evidence in run record. |
-> | DEL-17-06-VER-005 | Confirm unresolved target behavior, exact table columns, JSON shape, manifest layout, tolerance thresholds, and comparison semantics remain `TBD`. | Four-document review. |
+> | DEL-17-06-VER-003 | Review the migrated `ScopeOfWork.md` sections for prohibited claims (PRD §21.2): code compliance, professional approval, formal validation, release compatibility, or engineering acceptance. | Manual text review or grep-based evidence in run record. |
+> | DEL-17-06-VER-004 | Review the migrated `ScopeOfWork.md` sections for protected/proprietary copied examples or protected standards data. | Manual text review or grep-based evidence in run record. |
+> | DEL-17-06-VER-005 | Check selected-version columns, JSON shape and manifest against the schema/producer contract; carry genuinely unresolved target behavior, tolerance defaults and comparison semantics explicitly. | Versioned schema/source review and scoped output evidence; historical Phase A TBDs do not override D-67. |
 >
 > Future implementation verification, once schemas, writer outputs, fixtures, manifests, and comparison records exist:
 >
@@ -195,12 +199,14 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 > |---|---|---|
 > | DEL-17-06-VER-006 | Map DEL-17-06-REQ-001 through DEL-17-06-REQ-010 to concrete schema, exporter, fixture, manifest, loss-report, and validation evidence. | Traceability table in a future implementation run record; unresolved entries remain `TBD` rather than accepted. |
 > | DEL-17-06-VER-007 | Confirm CSV and JSON representations are synchronized for canonical identity, units/dimensions, source model/run references, manifest basis, loss-report content, diagnostics, and boundary notices. | Future paired CSV/JSON fixture diff, manifest review, and validation-report result. |
-> | DEL-17-06-VER-008 | Confirm manifest or package-member hashes identify payload scope and use the declared sorted-compact JSON basis for JSON payloads; confirm the label makes no JCS claim and non-JSON partitioning remains explicit. | Exact-byte/fixed-hash, ordering, mutation, schema/fixture, and JSON/CSV label-split evidence. |
+> | DEL-17-06-VER-008 | Verify the selected family: 0.1 JSON uses its declared non-JCS sorted-compact bytes; D-67 0.2 JSON members/package projections use checked `openpipestress_jcs_ijson_v1`. Preserve received checksums separately and keep CSV normalized-text hashing separately labeled. | Version-specific exact-byte/hash vectors, mutation, schema, member/package projection and JSON/CSV separation evidence; no legacy byte relabeling. |
 > | DEL-17-06-VER-009 | Review generated schemas, CSV outputs, JSON outputs, manifests, loss reports, validation reports, and fixtures for prohibited claims and protected/private content. | Future protected-content and professional-boundary review evidence; suspected protected content quarantined per policy. |
 > | DEL-17-06-VER-010 | Confirm CSV/JSON examples or fixtures are invented or rights-cleared and demonstrate only shape, identity, units, diagnostics, loss reporting, and boundary notices. | Future contribution/provenance review evidence; examples without redistribution evidence remain absent or `TBD`. |
 > | DEL-17-06-VER-011 | Confirm any target-specific or version-sensitive support flag is backed by cited source evidence, or is marked `TBD` and blocked from support claims. | Future source-evidence review against DEL-17-01/DEL-17-02 and the applicable source-basis register. |
 > | DEL-17-06-VER-012 | Confirm comparison tolerance profiles, pass/fail language, and export comparison semantics are consumed from DEL-14-02/DEL-14-05 before comparison claims are made. | Future upstream dependency review; comparison semantics remain diagnostic/audit-only until sourced. |
 >
+>
+> Version boundary: these sorted-compact/no-JCS checks apply to retained 0.1 evidence. D-67 0.2 uses checked `openpipestress_jcs_ijson_v1` for JSON member/package projections, preserves received-checksum metadata separately, and retains separately labeled normalized CSV bytes. Check the selected version against its own schema and vectors; never relabel 0.1 bytes.
 
 ### CLM-016 — Documentation
 
@@ -238,7 +244,7 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 >
 > DEL-17-06 JSON hashes SHALL use `deterministic_sorted_compact_json_payload_hash` for the existing sorted-key compact ASCII-escaped Python JSON serializer. The label SHALL NOT be interpreted as RFC 8785/JCS conformance. Normalized CSV hashes SHALL remain separately labeled `normalized_ascii_lf_text`.
 
-- **AC-001** — The contract preserves synchronized CSV/JSON identity, units and dimensions, source model/run references, manifest, stable-ID map, loss report, diagnostics, provenance, declared sorted-compact JSON hashing, protected/private-data controls, explicit TBD behavior, and professional non-authority without claiming vendor compatibility or code compliance.
+- **AC-001** — The contract preserves synchronized CSV/JSON identity, units and dimensions, source model/run references, manifest, stable-ID map, loss report, diagnostics, provenance, declared version-qualified (0.1 sorted-compact; D-67 0.2 checked `openpipestress_jcs_ijson_v1`) JSON hashing, protected/private-data controls, explicit TBD behavior, and professional non-authority without claiming vendor compatibility or code compliance.
 
 ## Production and Verification Method — Praxeology
 
@@ -271,6 +277,8 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 
 ### CLM-023 — Steps
 
+> Historical population-run method and checks: retain the original commands, artifact expectations and permitted transition as evidence of that bounded run. Current maintenance uses `ScopeOfWork.md` and its applicable validation contract; this passage neither repeats that lifecycle transition nor asserts a new validation pass.
+
 > ##### Steps
 >
 > 1. Confirm the deliverable identity from `_CONTEXT.md`: DEL-17-06, PKG-17, `BACKEND_FEATURE_SLICE`, SOW-046 and SOW-074.
@@ -290,15 +298,15 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 
 > ##### Later Implementation Consumption
 >
-> When a later sealed TASK is authorized to implement the stress-neutral package, use this document kit as an input and keep the implementation inside that later task's approved write scope.
+> For authorized maintenance or extension of the stress-neutral package, use this `ScopeOfWork.md` and the selected version contract; keep work within the active brief. Existing versioned reference producers are evidence, not proof of product integration.
 >
 > 1. Re-read DEL-17-01 and DEL-17-02 before defining support claims, package contracts, stable-ID behavior, manifest content, or loss-report behavior.
-> 2. Generate or update stress-neutral CSV and JSON schemas only in the later authorized schema/code scope; keep exact field names, package paths, and object layouts `TBD` until then.
+> 2. Inspect the existing dispatcher/member schemas and `core/handoff/stress_neutral/package.py` / `package_v0_2.py` for selected-version fields, member paths, object layouts and CSV columns. Modify those interfaces only within authorized scope; do not relabel historical 0.1 bytes or infer a schema change from reference output.
 > 3. Implement writer behavior against the common package/profile/ID-map/manifest/loss-report contract and the result export envelope boundary.
 > 4. Create invented or rights-cleared fixtures only after recording provenance, redistribution status, and protected-content review evidence.
 > 5. Validate CSV and JSON outputs for shared identity, unit/dimensional metadata, source model/run references, manifest basis, loss-report content, diagnostics, and boundary notices.
 > 6. Preserve comparison tolerances, pass/fail wording, and export comparison semantics as `TBD` until DEL-14-02/DEL-14-05 provide the applicable upstream basis.
-> 7. Record generated schemas, CSV outputs, JSON outputs, manifests, loss reports, validation reports, and fixtures as future implementation evidence, not as code-compliance or professional-acceptance evidence.
+> 7. Bind generated schemas, CSV/JSON outputs, manifests, loss/validation reports and fixtures to their actual candidate/version and validation record. These are implementation evidence, not code-compliance or professional-acceptance evidence.
 >
 
 ### CLM-025 — Verification
@@ -367,6 +375,8 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 > - Fixture/example data has provenance and redistribution evidence, or remains absent/`TBD`.
 > - Target-specific support flags cite source evidence or remain `TBD`.
 > - Comparison semantics cite DEL-14-02/DEL-14-05 or remain diagnostic/audit-only and `TBD`.
+>
+> Version boundary: these sorted-compact/no-JCS checks apply to retained 0.1 evidence. D-67 0.2 uses checked `openpipestress_jcs_ijson_v1` for JSON member/package projections, preserves received-checksum metadata separately, and retains separately labeled normalized CSV bytes. Check the selected version against its own schema and vectors; never relabel 0.1 bytes.
 
 ### CLM-028 — D-41 R5 T2A canonicalization check (2026-07-12)
 
@@ -375,6 +385,8 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 > Verify exact serialized bytes, a fixed SHA-256 vector, ordering stability, mutation sensitivity, the JSON/CSV label split, schema acceptance, and absence of a JCS claim before accepting checksum evidence.
 
 - **VER-001** — Validate the contract and review source parity, synchronized CSV/JSON package obligations, canonical identity, units and hash labels, source/run and manifest bindings, loss and diagnostic visibility, retained TBDs, protected-content exclusions, and absence of vendor, release, compliance, validation, or professional-acceptance claims.
+>
+> Version boundary: these sorted-compact/no-JCS checks apply to retained 0.1 evidence. D-67 0.2 uses checked `openpipestress_jcs_ijson_v1` for JSON member/package projections, preserves received-checksum metadata separately, and retains separately labeled normalized CSV bytes. Check the selected version against its own schema and vectors; never relabel 0.1 bytes.
 
 ## Governing Values and Decisions — Axiology
 
@@ -434,10 +446,10 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 >
 > | Topic | Guidance |
 > |---|---|
-> | CSV tables | Use table-oriented outputs for inspection and spreadsheet workflows, but keep exact table names, columns, ordering, quoting rules, and null handling `TBD` until schema work begins. |
-> | JSON package | Use JSON for structured import/export and future validation, but do not create a schema in this Phase A task. JSON Schema 2020-12 remains the expected future baseline. |
+> | CSV tables | Use table-oriented outputs for inspection and spreadsheet workflows, but bind exact table/column/serialization evidence to the selected version schema and producer. |
+> | JSON package | Use JSON for structured import/export and future validation, but use the versioned JSON Schema 2020-12 dispatcher and member schemas; the original Phase A no-schema limit is historical. |
 > | Units | Every result value needs explicit unit and dimensional context or a blocking diagnostic. Do not rely on spreadsheet headers alone for unit meaning. |
-> | Result values | Displacements, rotations, forces, moments, reactions, stress, ratios, and rule-check values are governed by result-export boundaries. Which result families appear in the stress-neutral package is `TBD`. |
+> | Result values | Displacements, rotations, forces, moments, reactions, stress, ratios, and rule-check values are governed by result-export boundaries. Current supported/withheld family evidence is versioned in the schemas and producers; retain unknown-family withholding and source diagnostics. |
 > | Materials and sections | Include identity/provenance surfaces only unless user-cleared data is present. Do not bundle protected tables, allowables, catalog defaults, SIF/flexibility values, or proprietary values. |
 > | Load/design cases | Preserve source basis and identity. Do not imply code-specific load combinations unless user/private rule data supplies them with provenance. |
 > | Comparisons | Use stable IDs and declared tolerance profiles when comparison semantics are later defined. Tolerances and pass/fail language are `TBD` in Phase A. |

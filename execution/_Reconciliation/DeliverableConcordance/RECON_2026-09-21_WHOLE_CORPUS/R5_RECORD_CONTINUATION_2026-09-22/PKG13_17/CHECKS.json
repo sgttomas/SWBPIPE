@@ -1,0 +1,25 @@
+{
+  "selected_original_claims": 350,
+  "selected_unique_keys": 350,
+  "dispositions": {
+    "NO_CHANGE_CURRENT_REQUIREMENT": 25,
+    "DELIVERY_TASK_RETAINED": 17,
+    "REPAIRED_CURRENT_RECORD": 276,
+    "NO_CHANGE_HISTORICAL_EVIDENCE": 32
+  },
+  "supplemental_screened": 388,
+  "supplemental_carrier_repairs": 14,
+  "supplemental_dispositions": {
+    "REPAIRED_CURRENT_RECORD": 14
+  },
+  "physical_files": 70,
+  "physical_hunks": 298,
+  "baseline_replay": "PASS including manager and fresh semantic-review repairs",
+  "scope": "PKG13\u201317 deliverable documents only; no code/tests/registers/history/accepted packets edited",
+  "diff_whitespace_check": "PASS",
+  "sca011_appended_sections": "unchanged",
+  "fresh_semantic_review_repairs": 27,
+  "all_nonpin_unchanged_warrants": "subject-specific direct inspection; generic warrants removed",
+  "unchanged_nested_subject": "DEL-17-06 CLM-014.r01 remains historical; parent repair is not child closure",
+  "final_state": "Author return plus manager independent-review corrections; cumulative exact replay is checked by ../backcheck.py"
+}

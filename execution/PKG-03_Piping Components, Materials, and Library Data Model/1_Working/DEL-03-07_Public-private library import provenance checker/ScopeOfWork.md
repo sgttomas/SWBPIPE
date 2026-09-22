@@ -69,6 +69,8 @@ This Scope of Work defines `DEL-03-07` in service of project scope [SOW-019, SOW
 >
 > Reconciled implementation evidence contains:
 >
+> The Rust runtime carrier is `core/library_import/library_import_document/`; its parity corpus and callers are implementation evidence distinct from the Python reference checker. Supported library-kind vocabulary must be read from that versioned contract, including hanger records; source/right acceptance and external parser coverage remain separate.
+>
 > - `core/library_import/provenance_checker.py`, a stdlib-only validator for already-parsed material, section, and component library payloads;
 > - `validate_library_import(...)`, returning `ACCEPTED_PUBLIC`, `PRIVATE_LOCAL_ONLY`, `REVIEW_REQUIRED`, `REJECTED`, or `QUARANTINE` outcomes;
 > - metadata checks for library-level and record-level provenance fields: source name/location, source license, contributor, contributor certification, redistribution status, and review status;
@@ -79,7 +81,7 @@ This Scope of Work defines `DEL-03-07` in service of project scope [SOW-019, SOW
 > - `core/library_import/README.md`, documenting the boundary that the checker does not parse external formats and does not make legal conclusions;
 > - `tests/test_library_import_provenance.py`, covering accepted public imports, public rejection for unresolved rights, private-local handling, missing provenance, protected-content quarantine, unit metadata, and diagnostic-envelope mapping using invented fixtures.
 >
-> Remaining unresolved items are concrete external import formats and parser contracts, accepted source catalogs and legal/license policy, fixture-value authority for engineering reliance, dependency satisfaction outside this bounded evidence, human disposition of review findings, and lifecycle closure.
+> Remaining unresolved items are concrete external import formats and parser contracts, accepted source catalogs and legal/license policy, fixture-value authority for engineering reliance, dependency satisfaction outside this bounded evidence, preservation of the resolved local review findings, and lifecycle closure.
 >
 
 ### CLM-006 — References
@@ -91,7 +93,7 @@ This Scope of Work defines `DEL-03-07` in service of project scope [SOW-019, SOW
 > - `docs/_Registers/Deliverables.csv` row DEL-03-07.
 > - `docs/_Registers/ScopeLedger.csv` rows SOW-019 and SOW-044.
 > - `docs/_Registers/ContextBudgetQA.csv` row DEL-03-07.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register).
 > - `docs/CONTRACT.md` invariants OPS-K-IP-1..3, OPS-K-DATA-1..3, OPS-K-UNIT-1, OPS-K-PRIV-1, OPS-K-GOV-4, and OPS-K-AGENT-1..4.
 
 ## Completion and Reliance Basis — Epistemology
@@ -145,7 +147,7 @@ This Scope of Work defines `DEL-03-07` in service of project scope [SOW-019, SOW
 > | Standard or governing source | Applicability | Status |
 > |---|---|---|
 > | docs/CONTRACT.md | Invariant source for IP, data, unit, privacy, governance, and agent behavior. | Locally accessible |
-> | execution/_Decomposition/SOFTWARE_DECOMP.md revision 0.7 | Scope and objective source for DEL-03-07. | Locally accessible |
+> | execution/_Decomposition/SOFTWARE_DECOMP.md (accepted authority through the decision register) | Scope and objective source for DEL-03-07. | Locally accessible |
 > | External import format specifications | Potential parser/import constraints once selected. | TBD |
 > | Legal license interpretation sources | May govern redistribution-right acceptance. | TBD; human/legal review required |
 >
@@ -173,7 +175,7 @@ This Scope of Work defines `DEL-03-07` in service of project scope [SOW-019, SOW
 > - `tests/test_library_import_provenance.py`;
 > - active deliverable docs recording implementation evidence and remaining TBDs.
 >
-> Remaining non-implementation decisions are external import formats, public-source/catalog policy, fixture-value authority for engineering reliance, dependency satisfaction outside this bounded evidence, human disposition of local review findings, and lifecycle closure.
+> Remaining non-implementation decisions are external import formats, public-source/catalog policy, fixture-value authority for engineering reliance, dependency satisfaction outside this bounded evidence, preservation of the resolved local review findings, and lifecycle closure.
 
 - **AC-001** — The contract preserves accepted public/private data boundaries, conservative missing-provenance handling, protected-content quarantine, unit and diagnostic requirements, and unresolved rights, vocabulary, source-catalog, and legal-acceptance decisions without creating legal conclusions or public defaults.
 
@@ -196,7 +198,7 @@ This Scope of Work defines `DEL-03-07` in service of project scope [SOW-019, SOW
 > ##### Prerequisites
 >
 > - Sealed context for DEL-03-07.
-> - `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, and `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7.
+> - `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, and `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register).
 > - Applicable invariants from `docs/CONTRACT.md`.
 > - Implementation evidence in `core/library_import/provenance_checker.py`, `core/library_import/README.md`, and `tests/test_library_import_provenance.py`.
 > - Human-approved decisions for license/redistribution acceptance vocabulary, public source catalogs, and import parser contracts before those fields are treated as project policy.
@@ -229,7 +231,7 @@ This Scope of Work defines `DEL-03-07` in service of project scope [SOW-019, SOW
 > | Unit handling | Tests assert unit fields are preserved for invented numeric values. |
 > | No legal conclusions | Tests assert unresolved rights questions remain review-needed/TBD. |
 > | No protected examples | Fixture review confirms no standards tables, vendor data, or real protected examples are included. |
-> | Review disposition boundary | Local review findings remain pending human disposition; no CSV status promotion is made by this procedure. |
+> | Review disposition boundary | Local `Review_Findings.csv` records `ACCEPT_AS_IS` / `RESOLVED`; this procedure preserves that human disposition and makes no new CSV or lifecycle promotion. |
 >
 
 ### CLM-018 — Records

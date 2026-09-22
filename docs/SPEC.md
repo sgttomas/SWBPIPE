@@ -192,12 +192,14 @@ status. Suspected protected standards content, proprietary vendor data, or
 undocumented commercial data must be quarantined and escalated under the
 project IP/data-boundary policy.
 
-Deterministic conversion tests that require numeric constants remain gated until
-the project has accepted the unit catalog, conversion source set, numeric
-representation, and tolerance policy. Until accepted, unsupported conversion
-semantics such as offset temperature, gauge versus absolute pressure, and
-angle/rotation treatment remain explicit `TBD` decisions or blocking
-diagnostics.
+Apply the accepted unit-catalog and conversion policy in DEC-018 and its
+D-01 governed records: SI-canonical internal units, dual display catalog,
+absolute/interval temperature and explicit gauge/absolute pressure quantity
+kinds. No silent atmospheric default is permitted. Conversion witnesses use
+the accepted source and tolerance records; unknown or unsupported semantics
+remain explicit diagnostics. The accepted policy removes the blanket catalog
+decision gate; implementation coverage and each required numerical witness
+remain separate delivery and verification obligations.
 
 Unit checks support mechanics and rule evaluation. They do not certify,
 seal, approve, or authenticate work, or declare code compliance (PRD §21.2).
@@ -635,19 +637,22 @@ The rule-pack artifact contract is represented by
   sealing, compliance, or human-acceptance records.
 
 The schema is a contract for downstream evaluator, completeness-check,
-private-lifecycle, GUI-editor, report, and documentation work. It does not
-select the expression grammar, implement evaluation, create public example rule
-packs, define private storage, choose the checksum library, or integrate final
-result envelopes. Those details remain `TBD` until assigned to later
-deliverables.
+private-lifecycle, GUI-editor, report, and documentation work. DEC-022 fixes
+the typed expression AST as the canonical checksum-bound grammar; DEC-031
+records its accepted algebra and branch-compatibility riders. DEC-037 retains
+the no-parser boundary and permits display-only AST rendering. These decisions
+are distinct from implementation and conformance evidence. Public example
+content, private storage services, checksum realization and final-result
+integration retain their owning deliverable contracts and actual remaining
+work; the schema alone does not implement those surfaces.
 
-`core/rules/expression_evaluator` implements the first bounded evaluator
-surface. It evaluates explicit expression trees only; it does not parse
-arbitrary text or use host-language `eval`. The supported surface is deliberately
-small: numeric literals, declared variable references, unary negation, basic
-arithmetic, and same-dimension comparisons. Multiplication and division are
-bounded to dimensionless scaling and same-dimension ratios until a later unit
-algebra decision extends them.
+`core/rules/expression_evaluator` supplies bounded reference evidence; its
+particular implementation coverage does not narrow the DEC-022/031 grammar
+contract. Evaluators must consume explicit expression trees without arbitrary
+text parsing or host-language `eval`, preserve declared type, dimension and
+unit checks, and demonstrate the adopted function and algebra coverage through
+the owning deliverable's conformance evidence. Unsupported coverage remains an
+explicit implementation gap rather than an undecided grammar policy.
 
 `core/rules/rule_pack_lifecycle` implements private rule-pack lifecycle and
 checksum evidence. It records rule-pack identity, version, privacy class,

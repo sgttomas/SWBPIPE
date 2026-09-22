@@ -48,7 +48,7 @@ This Scope of Work defines `DEL-03-08` in service of project scope [SOW-051, SOW
 > | Calculator purpose | Calculate pipe section and mass-property outputs from user-entered dimensions and material data with unit checks. |
 > | Permitted data source posture | User-entered or lawfully imported private/project data only. |
 > | Public bundled data posture | No protected pipe dimensional tables, material allowables, contents defaults, insulation defaults, corrosion allowances, or proprietary component data. |
-> | Unit posture | Inputs and outputs carry explicit unit and dimension metadata. Mixed units are rejected; approved conversion constants and public unit catalog remain `TBD`. |
+> | Unit posture | Inputs and outputs carry explicit unit and dimension metadata. Mixed units are rejected; the project conversion catalog and constants follow DEC-018. This calculator still requires evidence for any conversion/integration path beyond its matching-unit boundary. |
 > | Provenance posture | Calculator inputs require provenance metadata, and derived outputs state that they were calculated from user-entered dimensions. Exact private-library record linkage remains `TBD`. |
 > | Solver boundary | This deliverable prepares section and mass properties; it does not implement the global solver, code compliance, or rule-pack evaluation. |
 >
@@ -61,7 +61,7 @@ This Scope of Work defines `DEL-03-08` in service of project scope [SOW-051, SOW
 >
 > The implementation rejects missing required dimensions, missing provenance, incompatible dimensions, mixed units, and non-physical geometry through blocking diagnostics. It does not provide pipe schedule tables, material defaults, unit conversion constants, protected dimensional tables, contents defaults, insulation defaults, corrosion defaults, SIF/flexibility values, code-specific values, or proprietary catalog values.
 >
-> Exact allowed public unit catalog, conversion constants, accepted schema field placement, dependency satisfaction, fixture-value policy, public source catalog, lifecycle disposition, and downstream solver/GUI/report integration remain `TBD`.
+> DEC-018 governs the project unit catalog and conversion constants; accepted schema field placement, dependency satisfaction, fixture-value policy, public source catalog, lifecycle disposition, and downstream solver/GUI/report integration remain `TBD`.
 >
 > Mass-property tests use invented synthetic values in `tests/test_section_properties.py`. No protected published pipe tables, material tables, or vendor proprietary data may be encoded as test data.
 >
@@ -93,7 +93,7 @@ This Scope of Work defines `DEL-03-08` in service of project scope [SOW-051, SOW
 > - `core/section_properties/calculator.py` and `core/section_properties/README.md` for implemented calculator behavior.
 > - `tests/test_section_properties.py` for current unit and negative-test evidence.
 > - `fixtures/results/invented/tp_phys_015_section_property_stress_evidence_envelope.json` for invented downstream section-property evidence context.
-> - `Review_Findings.csv` for human-gated technical finding status; statuses remain `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`.
+> - `Review_Findings.csv` for human-gated technical finding status; the local findings are `ACCEPT_AS_IS` / `RESOLVED`; the prior technical-only state is historical.
 >
 
 ### CLM-007 — Open Questions
@@ -108,11 +108,11 @@ This Scope of Work defines `DEL-03-08` in service of project scope [SOW-051, SOW
 >
 > | Question | Needed from |
 > |---|---|
-> | Which approved unit catalog and conversion constants, if any, may this calculator call? | DEL-02-02 / human architecture ruling |
+> | Which unit basis governs calculator integration? | DEC-018 / DEL-02-02; calculator conversion bindings require separate evidence. |
 > | Which schema record owns calculator inputs, outputs, and library linkage? | DEL-03-02 / schema owner |
 > | What downstream result-envelope mapping is required before solver, persistence, GUI, or report integration? | PKG-02 / PKG-08 / human architecture ruling |
 > | What public source catalog and fixture-value policy is acceptable for section and mass-property tests? | Validation/QA owner |
-> | When may the technically addressed review findings move beyond human-gated `TBD` disposition? | Human project authority |
+> | Local review-finding disposition | `Review_Findings.csv` records `ACCEPT_AS_IS` / `RESOLVED`; no new disposition is required for those findings. |
 >
 
 ### CLM-008 — D-41 R5 T2B PDU-047 Evidence State
@@ -167,7 +167,7 @@ This Scope of Work defines `DEL-03-08` in service of project scope [SOW-051, SOW
 >
 > | Verification area | Current evidence and remaining gate |
 > |---|---|
-> | Unit safety | Tests demonstrate canonical dimensions and mixed-unit rejection without hidden conversion. Approved conversion support remains `TBD`. |
+> | Unit safety | Tests demonstrate canonical dimensions and mixed-unit rejection without hidden conversion. DEC-018 resolves the project catalog; calculator conversion support remains a separate integration obligation. |
 > | Missing input behavior | Tests demonstrate explicit blocking findings for missing required wall thickness and missing provenance; optional contributor policy remains `TBD`. |
 > | Provenance | Tests demonstrate provenance requirements at quantity construction/mapping boundaries and derived-output provenance. Library record linkage remains `TBD`. |
 > | IP/data boundary | Tests use invented synthetic values; formal source catalog and fixture-value policy remain `TBD`. |
@@ -192,7 +192,7 @@ This Scope of Work defines `DEL-03-08` in service of project scope [SOW-051, SOW
 > wall is blocking. Fractional/catalog conversion policy remains `TBD` and no
 > catalog value or default is supplied.
 >
-> Accepted schema ownership, dependency satisfaction, downstream result-envelope mapping, lifecycle disposition, and human disposition for review findings remain `TBD`.
+> Accepted schema ownership, dependency satisfaction, downstream result-envelope mapping, lifecycle disposition, remain open where evidence is absent; the local review findings already carry `ACCEPT_AS_IS` / `RESOLVED`.
 >
 
 ### CLM-015 — Conflict Table (for human ruling)
@@ -201,9 +201,9 @@ This Scope of Work defines `DEL-03-08` in service of project scope [SOW-051, SOW
 >
 > | Conflict ID | Issue | Contenders | Human ruling |
 > |---|---|---|---|
-> | PKG03-DEL-03-08-PKG02-001 | Dimension vocabulary compatibility finding has technical evidence in calculator/tests but awaits human disposition. | `Review_Findings.csv`; `tests/test_section_properties.py` | `TBD` |
-> | PKG03-DEL-03-08-PKG02-002 | Input provenance finding has technical evidence in calculator/tests but awaits human disposition. | `Review_Findings.csv`; `tests/test_section_properties.py` | `TBD` |
-> | PKG03-DEL-03-08-PKG02-003 | Diagnostic envelope field finding has technical evidence in calculator/tests but awaits human disposition. | `Review_Findings.csv`; `tests/test_section_properties.py` | `TBD` |
+> | PKG03-DEL-03-08-PKG02-001 | Dimension vocabulary compatibility finding has technical evidence in calculator/tests with human disposition `ACCEPT_AS_IS` / `RESOLVED` recorded in the local review CSV. | `Review_Findings.csv`; `tests/test_section_properties.py` | `ACCEPT_AS_IS` |
+> | PKG03-DEL-03-08-PKG02-002 | Input provenance finding has technical evidence in calculator/tests with human disposition `ACCEPT_AS_IS` / `RESOLVED` recorded in the local review CSV. | `Review_Findings.csv`; `tests/test_section_properties.py` | `ACCEPT_AS_IS` |
+> | PKG03-DEL-03-08-PKG02-003 | Diagnostic envelope field finding has technical evidence in calculator/tests with human disposition `ACCEPT_AS_IS` / `RESOLVED` recorded in the local review CSV. | `Review_Findings.csv`; `tests/test_section_properties.py` | `ACCEPT_AS_IS` |
 >
 
 ### CLM-016 — D-41 R5 T2B PDU-047 Evidence Binding (2026-07-12)
@@ -212,7 +212,7 @@ This Scope of Work defines `DEL-03-08` in service of project scope [SOW-051, SOW
 >
 > `tests/test_calculation_witness.py` now executes `calculate_pipe_section_properties` with the existing rights-safe TP-PHYS-015 outside diameter and wall thickness, then compares the produced area, section modulus, and torsional constant to both the formal oracle and `tp_phys_015_section_property_stress_evidence_envelope.json` using the witness's existing tolerances. It also asserts the emitted units and dimensions. This is bounded validation evidence, not an engineering-validation or lifecycle disposition.
 
-- **AC-001** — The contract preserves accepted calculator requirements and boundaries, including user-entered or lawfully imported inputs, dimensional checks, no silent defaults, invented fixtures, unresolved conversion, schema, contributor, dependency, and human-review decisions. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+- **AC-001** — The contract preserves accepted calculator requirements and boundaries, including user-entered or lawfully imported inputs, dimensional checks, no silent defaults, invented fixtures, DEC-018 unit policy with unresolved calculator-conversion integration, schema, contributor and dependency obligations; local review dispositions remain preserved. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Production and Verification Method — Praxeology
 
@@ -235,7 +235,7 @@ This Scope of Work defines `DEL-03-08` in service of project scope [SOW-051, SOW
 > | Prerequisite | Status |
 > |---|---|
 > | Sealed deliverable context for DEL-03-08 | Available in `_CONTEXT.md`. |
-> | Unit-system and dimensional-analysis contract | Calculator requires explicit unit/dimension metadata and rejects mixed units; approved conversion API/catalog remains `TBD`. |
+> | Unit-system and dimensional-analysis contract | Calculator requires explicit unit/dimension metadata and rejects mixed units; the project catalog follows DEC-018; calculator binding to a conversion API remains separately evidenced. |
 > | Pipe section/component library schema contract | Schema-like mapping exists through `quantity_from_mapping`; accepted owner fields and dependency satisfaction remain `TBD`. |
 > | Material library provenance model | Calculator quantities require provenance; private-library record linkage remains `TBD`. |
 > | Diagnostic/result envelope contract | Calculator diagnostics carry class, source, affected object, and provenance; downstream result-envelope mapping remains `TBD`. |
@@ -254,7 +254,7 @@ This Scope of Work defines `DEL-03-08` in service of project scope [SOW-051, SOW
 > 6. Confirm tests use synthetic or cleared values only and do not encode protected/reference-table content.
 > 7. Run `python3 -m pytest tests/test_section_properties.py` when feasible.
 > 8. Run a stale-language search over `ScopeOfWork.md`; reconcile implementation evidence while preserving unresolved `TBD` items.
-> 9. Record unresolved policy, source catalog, fixture-value, dependency satisfaction, human disposition, lifecycle, and downstream integration inputs as `TBD` and route them to the responsible schema/unit/diagnostic/human owner.
+> 9. Apply the recorded local review dispositions and DEC-045 invented-fixture policy. Record only genuinely unresolved source catalogs, numerical witnesses, dependency satisfaction, lifecycle and downstream integration needs, with their responsible owner and evidence boundary.
 >
 
 ### CLM-021 — Verification
@@ -264,10 +264,10 @@ This Scope of Work defines `DEL-03-08` in service of project scope [SOW-051, SOW
 > | Check | Expected result |
 > |---|---|
 > | Protected data check | No protected pipe tables, material tables, code tables, copied formulas, or proprietary fixtures are introduced. |
-> | Unit check | Inputs and outputs carry explicit units/dimensions; mixed units are rejected until conversion support is approved. |
+> | Unit check | Inputs and outputs carry explicit units/dimensions; mixed units are rejected at this boundary; DEC-018 resolves the project catalog while calculator conversion integration remains separately evidenced. |
 > | Missing value check | Missing required values produce explicit blocking diagnostics, not defaults. |
 > | Provenance check | Inputs require provenance and outputs preserve calculated provenance; exact library linkage remains `TBD`. |
-> | Review-finding check | Technical evidence remains aligned with `TECHNICALLY_ADDRESSED_PENDING_HUMAN`; `HumanDisposition` remains `TBD` until human action. |
+> | Review-finding check | Technical evidence remains traceable to the local findings, whose recorded human disposition is `ACCEPT_AS_IS` / `RESOLVED`. |
 > | Boundary check | Calculator remains outside global solver and rule-pack compliance logic. |
 >
 
@@ -312,7 +312,7 @@ This Scope of Work defines `DEL-03-08` in service of project scope [SOW-051, SOW
 >
 > Keep the calculator code-neutral. Section and mass properties can support solver and reporting workflows; acceptance and professional judgment remain with the responsible engineer.
 >
-> Keep unit behavior explicit. The calculator currently requires matching units at the calculation boundary and rejects mixed units; approved unit conversion support remains a separate `TBD`.
+> Keep unit behavior explicit. The calculator currently requires matching units at the calculation boundary and rejects mixed units; the project unit basis follows DEC-018; calculator conversion support remains a separate integration obligation.
 >
 > Keep provenance attached. Calculator inputs require provenance metadata, and calculated outputs identify that they were derived from user-entered dimensions. Exact private-library record linkage and downstream envelope mapping remain `TBD`.
 >
@@ -354,16 +354,16 @@ This Scope of Work defines `DEL-03-08` in service of project scope [SOW-051, SOW
 >
 > | Conflict ID | Conflict | Current disposition | Human ruling |
 > |---|---|---|---|
-> | PKG03-DEL-03-08-PKG02-001 | Dimension-vocabulary compatibility has technical evidence but no human disposition. | `TECHNICALLY_ADDRESSED_PENDING_HUMAN` | `TBD` |
-> | PKG03-DEL-03-08-PKG02-002 | Input-provenance handling has technical evidence but no human disposition. | `TECHNICALLY_ADDRESSED_PENDING_HUMAN` | `TBD` |
-> | PKG03-DEL-03-08-PKG02-003 | Diagnostic-envelope fields have technical evidence but no human disposition. | `TECHNICALLY_ADDRESSED_PENDING_HUMAN` | `TBD` |
+> | PKG03-DEL-03-08-PKG02-001 | Dimension-vocabulary compatibility has technical evidence and the local review CSV records `ACCEPT_AS_IS` / `RESOLVED`. | `RESOLVED` | `ACCEPT_AS_IS` |
+> | PKG03-DEL-03-08-PKG02-002 | Input-provenance handling has technical evidence and the local review CSV records `ACCEPT_AS_IS` / `RESOLVED`. | `RESOLVED` | `ACCEPT_AS_IS` |
+> | PKG03-DEL-03-08-PKG02-003 | Diagnostic-envelope fields have technical evidence and the local review CSV records human disposition `ACCEPT_AS_IS` with status `RESOLVED`. | `RESOLVED` | `ACCEPT_AS_IS` |
 >
 
 ### CLM-031 — P3 Enrichment Notes
 
 > ##### P3 Enrichment Notes
 >
-> Semantic lensing identified that diagnostic taxonomy, schema hook names, and optional mass contributors needed explicit treatment. The calculator now emits blocking diagnostics with diagnostic class, source, affected object, and provenance, and tests cover optional mass contributors when explicit densities are supplied. Accepted schema hook names, optional contributor requiredness policy, source catalog, fixture-value policy, dependency satisfaction, lifecycle disposition, human disposition, and downstream integration remain `TBD`.
+> Semantic lensing identified that diagnostic taxonomy, schema hook names, and optional mass contributors needed explicit treatment. The calculator now emits blocking diagnostics with diagnostic class, source, affected object, and provenance, and tests cover optional mass contributors when explicit densities are supplied. Accepted schema hook names, optional contributor requiredness policy, source catalog, fixture-value policy, dependency satisfaction, lifecycle disposition and downstream integration remain open; local review findings have recorded `ACCEPT_AS_IS` / `RESOLVED` disposition.
 >
 
 ### CLM-032 — D-41 R5 T2B PDU-047 Boundary

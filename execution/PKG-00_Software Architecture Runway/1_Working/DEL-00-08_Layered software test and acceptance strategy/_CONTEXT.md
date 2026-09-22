@@ -17,6 +17,8 @@
 Define layered software test strategy and acceptance gates for architecture, schemas, services, solver, GUI, CLI, reports, packaging, security, and regressions.
 
 ## Anticipated Artifacts
+
+Historical setup inventory. Current architecture constraints and realized-carrier references are in this deliverable’s `ArchitectureBasis.md`; an uncreated historical filename does not supersede that basis or establish delivery completeness.
 - docs/architecture/test_strategy.md
 - acceptance gate matrix
 
@@ -43,7 +45,7 @@ Define layered software test strategy and acceptance gates for architecture, sch
 
 ## Architecture Gate Rule
 - This deliverable is part of the `PKG-00` architecture runway.
-- `PKG-01` through `PKG-12` package-level document drafting and implementation planning should not proceed until `PKG-00` reaches the selected architecture readiness threshold or the human changes the gate.
+- Historical setup gate (DEC-007): superseded for current dispatch by D-43 / SCA-006. Current work follows the authorized brief and applicable consolidated ArchitectureBasis constraints; this historical gate does not assert PKG-00 lifecycle readiness.
 
 ## Decomposition Reference
 - **Decomposition:** execution/_Decomposition/SOFTWARE_DECOMP.md

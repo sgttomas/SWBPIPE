@@ -39,7 +39,7 @@ This Scope of Work defines `DEL-09-01` in service of project scope [SOW-026] and
 > | Scope items | SOW-026 |
 > | Objectives | OBJ-008 |
 > | Context envelope | M |
-> | Lifecycle state during setup | Draft setup evidence only; not implementation and not ISSUED |
+> | Lifecycle state during setup Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Draft setup evidence only; not implementation and not ISSUED |
 >
 
 ### CLM-004 — Attributes
@@ -48,9 +48,9 @@ This Scope of Work defines `DEL-09-01` in service of project scope [SOW-026] and
 >
 > | Attribute | Setup value |
 > |---|---|
-> | Suite purpose | Define the evidence boundary for future mechanics benchmark cases that exercise solver and stress-recovery behavior through original/public mechanics examples. |
+> | Suite purpose | Provide repeatable, source-qualified mechanics benchmark evidence through the current `validation/benchmarks/mechanics/` suite; preserve original/public source and engineering-acceptance boundaries. |
 > | Benchmark families | Cantilevers, frames, thermal growth, imposed displacement, and local-to-global stiffness transforms. |
-> | Solver boundary | The suite observes solver behavior; this setup pass does not implement solver logic, benchmark source files, tests, or final comparison tolerances. |
+> | Solver boundary Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | The suite observes solver behavior; this setup pass does not implement solver logic, benchmark source files, tests, or final comparison tolerances. |
 > | Source posture | Benchmark sources must be original, public-domain, public-permissive, or otherwise documented for redistribution before entering public artifacts. |
 > | Data boundary | Protected standards examples, code text, protected tables, proprietary commercial benchmarks, and vendor/private project data are excluded. |
 > | Tolerance posture | Final numerical tolerances, benchmark acceptance ranges, and release thresholds remain `TBD` pending solver prototype and human authority. |
@@ -61,24 +61,26 @@ This Scope of Work defines `DEL-09-01` in service of project scope [SOW-026] and
 
 > ##### Conditions
 >
+> Current deliverable obligation: Create benchmark cases for cantilevers, frames, thermal growth, imposed displacement, and stiffness transforms. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This setup context authorizes only document production and local setup registers. It does not authorize edits to validation benchmark source files, implementation tests, solver modules, repo-level CI, or `ISSUED` lifecycle state.
 >
 > The future mechanics benchmark suite must stay aligned with the architecture-basis constraints for module boundaries, diagnostics/result envelopes, layered validation gates, unit safety, and protected-content/provenance review. Exact fixture schema, runner command, solver numerical library, output comparison format, comparison tolerances, and CI/release thresholds remain `TBD`.
 >
-
 ### CLM-006 — Construction
 
 > ##### Construction
 >
 > | Construction item | Status |
 > |---|---|
-> | `validation/benchmarks/mechanics` | Anticipated future artifact; not created or edited in this setup pass. |
-> | Hand-calculation notes | Anticipated future artifact; formulas and numerical cases must be original/public/permissive and source-noted. |
-> | Cantilever cases | Required family; concrete geometry, loads, units, expected values, and tolerances are `TBD`. |
-> | Frame cases | Required family; concrete portal/frame cases and acceptance ranges are `TBD`. |
-> | Thermal growth cases | Required family; material/thermal inputs must be user/original/public-permissive and unit-aware; values are `TBD`. |
-> | Imposed displacement cases | Required family; boundary-condition semantics and expected reactions/displacements are `TBD`. |
-> | Stiffness transform cases | Required family; local/global transform cases and expected matrices/results are `TBD`. |
+> | `validation/benchmarks/mechanics` Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Anticipated future artifact; not created or edited in this setup pass. |
+> | Hand-calculation notes | The current fixture inventory and hand-calculation locations are recorded in `validation/benchmarks/mechanics/README.md` and `validation/hand_calcs/mechanics/`. Use the recorded candidate-bound inputs, units and regression values; final source eligibility, unadopted tolerances and engineering acceptance remain separate under DEC-026/027. |
+> | Cantilever cases | The current fixture inventory and hand-calculation locations are recorded in `validation/benchmarks/mechanics/README.md` and `validation/hand_calcs/mechanics/`. Use the recorded candidate-bound inputs, units and regression values; final source eligibility, unadopted tolerances and engineering acceptance remain separate under DEC-026/027. |
+> | Frame cases | The current fixture inventory and hand-calculation locations are recorded in `validation/benchmarks/mechanics/README.md` and `validation/hand_calcs/mechanics/`. Use the recorded candidate-bound inputs, units and regression values; final source eligibility, unadopted tolerances and engineering acceptance remain separate under DEC-026/027. |
+> | Thermal growth cases | The current fixture inventory and hand-calculation locations are recorded in `validation/benchmarks/mechanics/README.md` and `validation/hand_calcs/mechanics/`. Use the recorded candidate-bound inputs, units and regression values; final source eligibility, unadopted tolerances and engineering acceptance remain separate under DEC-026/027. |
+> | Imposed displacement cases | The current fixture inventory and hand-calculation locations are recorded in `validation/benchmarks/mechanics/README.md` and `validation/hand_calcs/mechanics/`. Use the recorded candidate-bound inputs, units and regression values; final source eligibility, unadopted tolerances and engineering acceptance remain separate under DEC-026/027. |
+> | Stiffness transform cases | The current fixture inventory and hand-calculation locations are recorded in `validation/benchmarks/mechanics/README.md` and `validation/hand_calcs/mechanics/`. Use the recorded candidate-bound inputs, units and regression values; final source eligibility, unadopted tolerances and engineering acceptance remain separate under DEC-026/027. |
 > | Provenance index | Required before public fixture publication; exact format is `TBD`. |
 >
 
@@ -88,7 +90,7 @@ This Scope of Work defines `DEL-09-01` in service of project scope [SOW-026] and
 >
 > - `_CONTEXT.md` for deliverable identity, scope, objectives, anticipated artifacts, and architecture-basis injection.
 > - `_REFERENCES.md` for governing local references.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7, rows for PKG-09, DEL-09-01, SOW-026, OBJ-008, AB-00-01, AB-00-02, AB-00-06, and AB-00-08.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis, rows for PKG-09, DEL-09-01, SOW-026, OBJ-008, AB-00-01, AB-00-02, AB-00-06, and AB-00-08.
 > - `docs/_Registers/Deliverables.csv` row DEL-09-01.
 > - `docs/_Registers/ScopeLedger.csv` row SOW-026.
 > - `docs/_Registers/ContextBudgetQA.csv` row DEL-09-01.
@@ -104,7 +106,7 @@ This Scope of Work defines `DEL-09-01` in service of project scope [SOW-026] and
 > | Question | Needed from |
 > |---|---|
 > | Which mechanics benchmark fixtures and public/permissive sources are approved for implementation? | Validation owner / IP review owner |
-> | What numerical comparison tolerance policy is acceptable for each benchmark family? | Solver lead / validation owner / human project authority |
+> | What numerical comparison tolerance policy is acceptable for each benchmark family? | DEC-026 supplies the comparison-policy structure and protected promotion route; per-kind measurements and unadopted numeric criteria remain open. |
 > | What fixture schema, runner interface, and result-envelope fields should executable benchmarks use? | Architecture / solver / validation owners |
 > | Which benchmark cases gate release and which are advisory regression checks? | QA/release owner / human project authority |
 >
@@ -113,9 +115,7 @@ This Scope of Work defines `DEL-09-01` in service of project scope [SOW-026] and
 
 > ##### D-41 R5 T2B PDU-013 Evidence State
 >
-> | Basis | Evidence | Limit |
-> |---|---|---|
-> | Fixture-local units | Explicit N-m-rad-K identifiers and dimensional checks in the mechanics benchmark crate. | Does not establish the still-TBD accepted project catalog/conversion basis. |
+> DEC-018 adopts the project unit catalog and conversion basis. The PDU fixture-local unit declaration does not itself prove that this suite is bound to or rerun through that catalog; preserve the unit-integration and conversion-witness delivery obligation.
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -129,11 +129,13 @@ This Scope of Work defines `DEL-09-01` in service of project scope [SOW-026] and
 
 > ##### Scope
 >
+> Current deliverable obligation: Create benchmark cases for cantilevers, frames, thermal growth, imposed displacement, and stiffness transforms. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This deliverable specifies setup evidence for a future mechanics benchmark suite covering cantilevers, frames, thermal growth, imposed displacement, and stiffness transforms.
 >
-> This setup pass does not implement benchmark source files, add tests, create numerical hand-calculation cases, modify solver code, edit validation directories outside this deliverable, choose final tolerances, or introduce protected/proprietary benchmark data.
+> The original setup pass does not implement benchmark source files, add tests, create numerical hand-calculation cases, modify solver code, edit validation directories outside this deliverable, choose final tolerances, or introduce protected/proprietary benchmark data.
 >
-
 ### CLM-013 — Requirements
 
 > ##### Requirements
@@ -176,16 +178,7 @@ This Scope of Work defines `DEL-09-01` in service of project scope [SOW-026] and
 
 > ##### Documentation
 >
-> Expected future artifacts, when implementation is authorized, are:
->
-> - `validation/benchmarks/mechanics` fixture set;
-> - hand-calculation notes for each benchmark family;
-> - fixture provenance and redistribution-status index;
-> - benchmark runner or integration notes;
-> - comparison-result records suitable for regression and release-gate review.
->
-> The exact module paths, fixture schema, runner command, result export format, numerical tolerances, and CI gates are `TBD` and must not be resolved by this setup pass.
->
+> Maintain the implemented fixture inventory in `validation/benchmarks/mechanics/`, hand-calculation notes in `validation/hand_calcs/mechanics/`, source/provenance records, runner/integration notes and candidate-bound comparison results. Fixture-local units remain distinct from DEC-018 catalog integration. DEC-026 governs protected comparison criteria; unmeasured values, dedicated provenance-index completeness and external-validation/release acceptance remain separate obligations.
 
 ### CLM-017 — Conflict Table (for human ruling)
 
@@ -200,9 +193,9 @@ This Scope of Work defines `DEL-09-01` in service of project scope [SOW-026] and
 
 > ##### D-41 R5 T2B PDU-013 Evidence Disposition (2026-07-12)
 >
-> The existing mechanics benchmarks remain explicit and dimensionally checked under `PKG09-FIXTURE-UNITS-EXPLICIT-N-M-RAD-K`. That fixture-local basis does not satisfy RQ-004 or Unit safety at the accepted-project-unit-system grain while the canonical catalog and conversion constants remain unresolved. No threshold or validation outcome is selected here.
+> DEC-018 adopts the project unit catalog and conversion basis. The PDU fixture-local unit declaration does not itself prove that this suite is bound to or rerun through that catalog; preserve the unit-integration and conversion-witness delivery obligation.
 
-- **AC-001** — The contract preserves unit-aware inputs and outputs, solver diagnostics, result-envelope fields, assumptions, provenance, limitations, fixture-local unit evidence, and explicit TBD tolerances and project-unit-system decisions. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+- **AC-001** — The contract preserves unit-aware inputs and outputs, solver diagnostics, result-envelope fields, assumptions, provenance, limitations, fixture-local unit evidence, and DEC-018 project-unit authority with separately verified suite binding, DEC-026 tolerance authority and explicit unmeasured per-kind values. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Production and Verification Method — Praxeology
 
@@ -216,9 +209,11 @@ This Scope of Work defines `DEL-09-01` in service of project scope [SOW-026] and
 
 > ##### Purpose
 >
+> Current deliverable obligation: Create benchmark cases for cantilevers, frames, thermal growth, imposed displacement, and stiffness transforms. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > Describe how a future TASK worker should produce or use the mechanics benchmark suite once implementation is authorized, while preserving the current setup-only boundary.
 >
-
 ### CLM-022 — Prerequisites
 
 > ##### Prerequisites
@@ -292,8 +287,7 @@ This Scope of Work defines `DEL-09-01` in service of project scope [SOW-026] and
 
 > ##### Purpose
 >
-> This deliverable prepares the evidence boundary for a future mechanics benchmark suite. It exists to make open mechanics verification repeatable and reviewable while preserving the data boundary between public mechanics cases and protected standards or proprietary examples.
->
+> Provide repeatable and reviewable open-mechanics benchmark evidence using the current fixture and hand-calculation inventories. Preserve the boundary between public/original/permissive mechanics cases and protected standards or proprietary examples; test success does not supply professional validation.
 
 ### CLM-030 — Principles
 
@@ -314,7 +308,7 @@ This Scope of Work defines `DEL-09-01` in service of project scope [SOW-026] and
 >
 > Thermal-growth and imposed-displacement cases can look similar to code or owner-standard examples if copied from protected sources. Future workers should create original cases or use permissively licensed/public-domain mechanics references, then record source and license status before publishing fixtures.
 >
-> Stiffness-transform cases should isolate local-to-global coordinate behavior and sign conventions. Concrete transform matrices, geometry, expected values, and numerical tolerances are not authorized by this setup pass.
+> Stiffness-transform cases should isolate local-to-global coordinate behavior and sign conventions. Current fixture matrices, geometry and regression values are recorded in `validation/benchmarks/mechanics/` and their original hand calculations. Apply DEC-026 to protected comparison criteria and preserve unmeasured values; the original setup brief did not itself authorize numeric acceptance.
 >
 
 ### CLM-032 — Trade-offs
@@ -333,8 +327,7 @@ This Scope of Work defines `DEL-09-01` in service of project scope [SOW-026] and
 
 > ##### Examples
 >
-> Concrete benchmark geometries, material values, loads, boundary conditions, expected results, and comparison tolerances are `TBD`. Future examples must be original, public-domain, or permissively licensed and must include provenance.
->
+> Current geometries, material values, loads, boundary conditions and regression observations are recorded in the fixture inventory and hand-calculation notes under `validation/benchmarks/mechanics/` and `validation/hand_calcs/mechanics/`. Additions must be original, public-domain or permissively licensed with provenance; numeric comparison acceptance follows DEC-026 and remains distinct from recorded regression values.
 
 ### CLM-034 — Conflict Table (for human ruling)
 
@@ -352,7 +345,7 @@ This Scope of Work defines `DEL-09-01` in service of project scope [SOW-026] and
 > | Item | Status |
 > |---|---|
 > | Approved benchmark fixture list and source basis | TBD |
-> | Approved numerical tolerance/comparison policy | TBD |
+> | Approved numerical tolerance/comparison policy | DEC-026 governs comparison-policy structure; record each measured/accepted scope separately and keep unadopted values TBD. |
 > | Approved fixture schema and result-envelope comparison format | TBD |
 > | Release-gating vs advisory benchmark classification | TBD |
 >
@@ -361,7 +354,7 @@ This Scope of Work defines `DEL-09-01` in service of project scope [SOW-026] and
 
 > ##### D-41 R5 T2B PDU-013 Boundary
 >
-> Fixture-local dimensional rigor is useful evidence, but it must not be promoted into a claim about an accepted project-wide unit catalog. The remaining catalog/conversion decision is upstream and is recorded as held rather than filled with new constants.
+> DEC-018 adopts the project unit catalog and conversion basis. The PDU fixture-local unit declaration does not itself prove that this suite is bound to or rerun through that catalog; preserve the unit-integration and conversion-witness delivery obligation.
 
 ## Output and Evaluation Matrix
 

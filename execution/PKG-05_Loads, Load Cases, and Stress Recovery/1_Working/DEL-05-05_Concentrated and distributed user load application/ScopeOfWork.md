@@ -49,9 +49,9 @@ This Scope of Work defines `DEL-05-05` in service of project scope [SOW-052, SOW
 > | Load boundary | General user loads are explicit mechanics inputs in addition to primitive piping load categories; code-specific combinations remain outside this crate. |
 > | Unit posture | `UserLoadQuantity` carries a `LoadDimension`; boundary records require explicit unit metadata, provenance references, canonical schema binding, JCS payload references, and payload-hash references. |
 > | Solver posture | Generic application emits nodal and element distributed contribution records; straight-pipe recovery emits equivalent global nodal loads for oriented straight-pipe elements. |
-> | Result posture | Result recovery hooks are implemented for nodal force, nodal moment, element distributed load, and bridged element axial-effect records; final result-envelope integration remains TBD. |
+> | Result posture | Result recovery hooks are implemented for nodal force, nodal moment, element distributed load, and bridged element axial-effect records; product realization is traced through `core/product_physics/` using the primitive-load and straight-pipe contracts; complete report/envelope coverage and independent validation require their own evidence. |
 > | Governance boundary | No design-code load combinations, public default factors, protected standards content, proprietary project data, rule-pack checks, or professional/code-compliance claims are introduced. |
-> | Remaining TBDs | Final result-envelope/API/persistence/GUI/CLI/report integration, production tolerance policy, release thresholds, primitive axial-effect provenance beyond `load_id`, and professional reliance remain TBD. |
+> | Remaining integration work | Trace the implemented GUI/operation/product-physics load route to each result-envelope, persistence, CLI and report obligation; retain uncovered paths, axial-effect provenance beyond `load_id`, unmeasured release criteria and professional acceptance separately. Current realization is evidence, not whole-contract completion. |
 >
 
 ### CLM-004 — Conditions
@@ -105,7 +105,7 @@ This Scope of Work defines `DEL-05-05` in service of project scope [SOW-052, SOW
 > ##### References
 >
 > - `_CONTEXT.md` for sealed deliverable identity, scope, artifacts, context budget, and architecture basis.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 rows for SOW-013, SOW-052, OBJ-003, OBJ-012, PKG-05, DEL-05-05, and AB-00-01/02/03/06/08.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) rows for SOW-013, SOW-052, OBJ-003, OBJ-012, PKG-05, DEL-05-05, and AB-00-01/02/03/06/08.
 > - `docs/_Registers/Deliverables.csv` row DEL-05-05.
 > - `docs/_Registers/ScopeLedger.csv` rows SOW-052 and SOW-013.
 > - `docs/_Registers/ContextBudgetQA.csv` row DEL-05-05.
@@ -183,7 +183,7 @@ This Scope of Work defines `DEL-05-05` in service of project scope [SOW-052, SOW
 > ##### Standards
 >
 > - Governing invariant catalog: `docs/CONTRACT.md`, location rows listed in `_CONTEXT.md` and this document.
-> - Decomposition basis: `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7.
+> - Decomposition basis: `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register).
 > - Public schema/interchange baseline: JSON Schema 2020-12 from architecture
 >   basis injection. Current implementation binds model-load records to
 >   `schemas/model.schema.yaml#/$defs/LoadRecord` and recovery records to model
@@ -219,9 +219,7 @@ This Scope of Work defines `DEL-05-05` in service of project scope [SOW-052, SOW
 > - `core/loads/user_loads/src/lib.rs` for API, findings, contribution records, recovery hooks, and tests;
 > - deliverable-local `MEMORY.md` for historical implementation slices, validation runs, and remaining TBDs.
 >
-> Remaining TBDs are final result-envelope/API/persistence/GUI/CLI/report
-> integration, production tolerance policy, release thresholds, primitive
-> axial-effect provenance beyond `load_id`, and professional reliance.
+> The implemented product route is evidenced through the GUI/operation seam and `core/product_physics/` consuming primitive-load/straight-pipe contracts. Review uncovered result-envelope, persistence, CLI and report paths individually; axial-effect provenance beyond `load_id`, unmeasured release criteria and professional acceptance remain separate.
 >
 
 ### CLM-014 — D-41 R5 T7 PDU-054 current declaration
@@ -252,7 +250,7 @@ This Scope of Work defines `DEL-05-05` in service of project scope [SOW-052, SOW
 > ##### Prerequisites
 >
 > - Sealed task brief for DEL-05-05 with explicit write scope.
-> - Access to `_CONTEXT.md`, `_REFERENCES.md`, `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7, relevant register rows, and `docs/CONTRACT.md`.
+> - Access to `_CONTEXT.md`, `_REFERENCES.md`, `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register), relevant register rows, and `docs/CONTRACT.md`.
 > - Access to implementation evidence in `core/loads/user_loads/README.md` and
 >   `core/loads/user_loads/src/lib.rs`.
 > - Any extension task must resolve or explicitly inherit applicable unit,
@@ -302,7 +300,7 @@ This Scope of Work defines `DEL-05-05` in service of project scope [SOW-052, SOW
 
 > ##### Verification
 >
-> - Four deliverable documents exist and consistently reflect the implemented
+> - The consolidated `ScopeOfWork.md` exists and consistently reflects the implemented
 >   evidence while excluding code-specific default behavior.
 > - `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` exist as lens artifacts only.
 > - `Dependencies.csv` validates against v3.1 schema.
@@ -319,10 +317,10 @@ This Scope of Work defines `DEL-05-05` in service of project scope [SOW-052, SOW
 
 > ##### Records
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md` (definition)
+> - `ScopeOfWork.md` (requirements)
+> - `ScopeOfWork.md` (rationale)
+> - `ScopeOfWork.md` (procedure)
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -371,9 +369,7 @@ This Scope of Work defines `DEL-05-05` in service of project scope [SOW-052, SOW
 > - Keep result hooks narrow: they should expose mechanical force/moment/result
 >   data and provenance needed by stress recovery, reporting, export, GUI, and
 >   headless execution work, not code-specific conclusions.
-> - Use `core/loads/user_loads` as the current implementation evidence for this
->   deliverable; do not infer additional solver, schema, GUI, or report behavior
->   beyond that crate without a sealed task.
+> - Use `core/loads/user_loads` for the primitive contract and `core/product_physics/` plus the operation seam for product-route evidence; claims about each consuming path require its bound evidence.
 >
 
 ### CLM-025 — Considerations
@@ -402,9 +398,7 @@ This Scope of Work defines `DEL-05-05` in service of project scope [SOW-052, SOW
 > ##### Trade-offs
 >
 > - A narrower user-load module reduces risk of accidentally encoding protected or jurisdiction-specific load combinations.
-> - Keeping final result-envelope/API/persistence/GUI/CLI/report integration as
->   TBD avoids overstating the implementation slice while preserving current
->   recovery-hook evidence.
+> - Separate primitive evidence, implemented product-route evidence and uncovered envelope/persistence/CLI/report obligations; no blanket TBD or blanket completion replaces subject-level evidence.
 > - The straight-pipe equivalent APIs support the current oriented straight-pipe
 >   scope; other element families or higher-level model assembly should remain
 >   separately dispatched.

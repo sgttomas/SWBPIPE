@@ -64,7 +64,7 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 > | Condition | Source basis | Effect on the manual skeleton |
 > |---|---|---|
 > | Verification vs validation distinction is mandatory. | `docs/VALIDATION_STRATEGY.md` section 1; SOW-027 | The outline separates mechanics benchmark evidence from intended-use workflow evidence. |
-> | Rule checks are user-defined computations. | `INIT.md`; `docs/TYPES.md`; `docs/SPEC.md` section 6 | The outline treats rule-pack checks as private/user design-basis evaluation, not professional authentication. |
+> | Rule checks are user-defined computations. | `AGENTS.md`; `docs/TYPES.md`; `docs/SPEC.md` §7 Rule-pack evaluator | The outline treats rule-pack checks as private/user design-basis evaluation, not professional authentication. |
 > | Professional reliance is outside software authority. | `docs/CONTRACT.md` OPS-K-AUTH-1; OBJ-011 | Every report-facing or validation-facing section must preserve the human review boundary. |
 > | Public validation examples must avoid protected and proprietary sources. | `docs/IP_AND_DATA_BOUNDARY.md`; `docs/VALIDATION_STRATEGY.md` section 5 | Source/provenance review is part of the validation manual records. |
 > | Unit-aware and diagnostic result boundaries remain relevant. | OPS-K-UNIT-1; `docs/SPEC.md` sections 7-9 | Manual sections include unit/schema verification and diagnostic/result-envelope checks where applicable. |
@@ -94,7 +94,7 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 
 > ##### References
 >
-> - `INIT.md`
+> - `AGENTS.md`
 > - `AGENTS.md`
 > - `docs/DIRECTIVE.md`
 > - `docs/CONTRACT.md`
@@ -120,6 +120,9 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 
 > ##### Scope
 >
+> Current deliverable obligation: Draft validation manual structure distinguishing verification, validation, user rule checks, and professional reliance. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This deliverable defines the local skeleton for a validation manual. It covers the manual structure, required boundaries, evidence categories, and acceptance checks needed to distinguish:
 >
 > - mechanics verification;
@@ -129,14 +132,13 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 >
 > This deliverable does not edit `docs/VALIDATION_STRATEGY.md` and does not create issued validation evidence. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >
-
 ### CLM-011 — Requirements
 
 > ##### Requirements
 >
 > | ID | Requirement | Source basis | Acceptance hook |
 > |---|---|---|---|
-> | VAL-REQ-001 | The manual skeleton shall separate mechanics verification from workflow validation. | `docs/VALIDATION_STRATEGY.md` section 1; SOW-027 | `Procedure.md` verification checks confirm separate sections and terminology. |
+> | VAL-REQ-001 | The manual skeleton shall separate mechanics verification from workflow validation. | `docs/VALIDATION_STRATEGY.md` section 1; SOW-027 | `ScopeOfWork.md` verification checks confirm separate sections and terminology. |
 > | VAL-REQ-002 | Mechanics verification sections shall describe software comparison against declared mechanics problems and tolerances, not code compliance. | `docs/VALIDATION_STRATEGY.md` section 1; `docs/TYPES.md` section 6 | Review confirms no automatic compliance wording appears. |
 > | VAL-REQ-003 | Validation sections shall evaluate intended-use workflow fitness while preserving project-specific professional judgment. | `docs/VALIDATION_STRATEGY.md` section 1; OBJ-011 | Review confirms professional reliance language remains human-bound. |
 > | VAL-REQ-004 | Rule-pack verification sections shall treat pass/fail results as user-supplied rule computations, not professional authentication. | `docs/SPEC.md` section 6; `docs/TYPES.md` section 4 | Review confirms statuses do not include automatic `CODE_COMPLIANT`. |
@@ -163,23 +165,19 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 >
 > | Check | Method | Expected result |
 > |---|---|---|
-> | Four-document presence | Run `tools/validation/check_four_documents.sh` on the deliverable folder. | All four setup documents are present. |
+> | Scope of Work contract | Check the consolidated `ScopeOfWork.md` production format, required sections and source/verification traceability. | The current deliverable contract is present and internally consistent; earlier four-document artifacts remain historical provenance only. |
 > | Protected-content boundary | Manual review against `docs/IP_AND_DATA_BOUNDARY.md` and OPS-K-IP invariants. | No protected standards data, proprietary values, or commercial examples introduced. |
 > | Professional boundary | Search for certification, approval, sealing, authentication, and compliance claims (PRD §21.2). | No software/agent claim exceeds decision-support authority. |
 > | Manual outline coverage | Compare Datasheet Construction against `docs/VALIDATION_STRATEGY.md` section 3. | Ten manual sections are represented. |
 > | Dependency register schema | Run `python3 tools/validation/validate_dependencies_schema.py` on `Dependencies.csv`. | v3.1 schema is valid. |
 >
-
 ### CLM-014 — Documentation
 
 > ##### Documentation
 >
 > The setup artifact set for this deliverable consists of:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -188,7 +186,6 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 > - `_run_records/*`
 >
 > The repository-level `docs/VALIDATION_STRATEGY.md` remains read-only for this deliverable.
-
 - **AC-001** — The contract preserves the ten manual sections, unit/schema/diagnostic/result-envelope evidence slots, public/private and protected-content boundaries, visible gaps and limitations, software-release versus project-reliance distinction, and human-owned professional judgment. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Production and Verification Method — Praxeology
@@ -210,6 +207,9 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 
 > ##### Prerequisites
 >
+> Current deliverable obligation: Draft validation manual structure distinguishing verification, validation, user rule checks, and professional reliance. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > | Prerequisite | Requirement |
 > |---|---|
 > | Sealed context | Confirm `DEL-09-04`, `PKG-09`, SOW-027, OBJ-008, and OBJ-011 from `_CONTEXT.md` and the registers. |
@@ -218,17 +218,16 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 > | Professional boundary | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
 > | Write scope | Write only inside this deliverable folder. |
 >
-
 ### CLM-019 — Steps
 
 > ##### Steps
 >
 > 1. Confirm the deliverable identity and current lifecycle state in `_STATUS.md`.
 > 2. Draft the `ScopeOfWork.md`:
->    - `Datasheet.md` captures identity, source basis, boundaries, and the manual outline.
->    - `Specification.md` captures requirements, exclusions, and acceptance checks.
->    - `Guidance.md` captures interpretation principles, trade-offs, and prohibited overclaims.
->    - `Procedure.md` captures production and verification steps.
+>    - `ScopeOfWork.md` captures identity, source basis, boundaries, and the manual outline.
+>    - `ScopeOfWork.md` captures requirements, exclusions, and acceptance checks.
+>    - `ScopeOfWork.md` captures interpretation principles, trade-offs, and prohibited overclaims.
+>    - `ScopeOfWork.md` captures production and verification steps.
 > 3. Check that the validation manual outline includes the ten sections listed in `docs/VALIDATION_STRATEGY.md` section 3.
 > 4. Check that mechanics verification, workflow validation, user rule checks, and professional reliance remain separate.
 > 5. Check that release-gate language describes software quality evidence only.
@@ -237,20 +236,18 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 > 8. Refresh dependency artifacts with conservative, evidence-cited rows.
 > 9. Run local validation checks and record warnings in `_run_records`.
 >
-
 ### CLM-020 — Verification
 
 > ##### Verification
 >
 > | Check | Command or review method | Pass condition |
 > |---|---|---|
-> | Four-document kit | `tools/validation/check_four_documents.sh <deliverable-folder>` | All four documents are present. |
+> | Scope of Work contract | `python3 tools/scope_of_work/validate_scope_of_work.py <DELIVERABLE_PATH>/ScopeOfWork.md` | the Scope of Work contract are present. |
 > | Dependency schema | `python3 tools/validation/validate_dependencies_schema.py <deliverable-folder>/Dependencies.csv` | Schema validator reports `VALID`. |
 > | Enum checks | `python3 tools/validation/validate_enum.py <enum> <value>` for emitted dependency enum values | Emitted values are accepted by the enum validator. |
 > | Status check | Inspect `_STATUS.md`. | Current State is `SEMANTIC_READY` only after setup artifacts pass. |
 > | Protected-content check | Manual review and targeted search for protected/compliance overclaims. | No protected data or software certification/compliance claims are present. |
 >
-
 ### CLM-021 — Records
 
 > ##### Records
@@ -264,7 +261,6 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 > - refreshed `_DEPENDENCIES.md`;
 > - `_STATUS.md`;
 > - `_run_records/*` entries for the setup sequence and validations.
-
 - **VER-001** — Validate the contract and review source parity, ten-section outline coverage, separation of verification/validation/rule checks/professional reliance, data and provenance boundaries, unit and diagnostic evidence slots, visible TBDs, and release/professional-authority limits.
 
 ## Governing Values and Decisions — Axiology

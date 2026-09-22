@@ -4,11 +4,13 @@
 **Last Updated:** 2026-09-22
 
 ## Remaining
+- Populate and verify validated local rule-pack audit references in product report/export requests; JSON hashing and local storage do not close that producer wiring. (R5 continuation: DEL-06-04:SOW#CLM-003.r07; CLM-010/R-06-04-008; CLM-025.r05.)
 - Bind rule-check-required data-gap findings through their DEL-06-03 owner and a governed result-envelope/runtime path; the T4 reader does not expand this lifecycle crate, and exact non-JSON/binary partitioning remains `TBD`.
 - Route any future rule-pack adapter/plugin execution through a governed runtime dispatch path; the current declaration gate is deny-only. Exact non-JSON/binary manifest-hash partitioning remains `TBD`.
 - Preserve PDU-044's documented schema absence in this lifecycle/checksum slice; numeric rule-pack unit metadata remains owned by DEL-02-02 and DEL-06-02/DEL-06-03 unless scope is separately changed.
 
 ## History
+- 2026-09-22 - Added explicit grouped delivery/evidence tasks from the R5 record-continuation screening to Remaining; lifecycle, existing dispositions and acceptance boundaries remain unchanged. Evidence: `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG00_06/`.
 - 2026-07-12 - D-41 R5 T4 PDU-040 recorded the bounded canonical persisted-run-to-report workflow evidence and retained this deliverable's producer/runtime/policy residuals; lifecycle remains IN_PROGRESS.
 - 2026-07-12 - D-41 R5 T3 PDU-028 recorded declaration-level no-bypass evidence while preserving exact non-JSON/binary partitioning as `TBD`; no rule-pack execution or lifecycle claim was made.
 - 2026-07-12 - D-41 R5 T2 preserved PDU-044 as a documented, correctly homed schema absence; no lifecycle-slice scope expansion occurred.

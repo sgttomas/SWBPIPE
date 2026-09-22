@@ -34,7 +34,7 @@ This Scope of Work defines `DEL-07-04` in service of project scope [SOW-022] and
 > | Scope items | SOW-022 |
 > | Objectives | OBJ-006, OBJ-011 |
 > | Anticipated artifacts | warning system UI; UX tests |
-> | Setup status | Setup/document-production only; no GUI source files, tests, schemas, package manifests, or repo-level docs are edited. |
+> | Setup status | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle and remaining work are recorded in `_STATUS.md`. Setup-only restrictions describe the originating setup run, not standing product scope. |
 >
 
 ### CLM-003 — Attributes
@@ -66,12 +66,15 @@ This Scope of Work defines `DEL-07-04` in service of project scope [SOW-022] and
 > | Result-envelope fields | Future warnings must preserve at least code, class, severity, source, affected object, message, remediation, and provenance where applicable. |
 > | Analysis state separation | Future UX must preserve `MODEL_INCOMPLETE`, `MECHANICS_SOLVED`, `RULE_INPUTS_INCOMPLETE`, `USER_RULE_CHECKED`, `USER_RULE_FAILED`, and `HUMAN_REVIEW_REQUIRED` distinctions; it must not auto-emit `CODE_COMPLIANT`. |
 > | GUI architecture | Future GUI mutation and state changes route through application-service command/query/job result envelopes and preserve durable/transient state separation. |
-> | Surface placement | Exact editor, solve-runner, results-view, report-preview, and export-control placement remains implementation-level `TBD`; this setup defines behavior and boundaries only. |
+> | Surface placement | Warning placement follows the current desktop feature/workspace composition. Preserve class distinctions, blocking semantics, affected-object navigation and remediation across editor, solve, results, report and export surfaces; placement is not an unresolved baseline decision. |
 >
 
 ### CLM-005 — Construction
 
 > ##### Construction
+>
+> Current deliverable obligation: implement missing-data warning/blocking UX, rule-check run interaction and aggregate status, with unit-aware warning presentation preserving owned rule/status semantics. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
 >
 > The setup artifact is a document kit and local evidence bundle. It does not create visual components, application state, tests, schemas, or source-code contracts.
 >
@@ -84,14 +87,13 @@ This Scope of Work defines `DEL-07-04` in service of project scope [SOW-022] and
 > - DEL-05-04 for analysis status semantics;
 > - DEL-06-03 for rule-pack required-input completeness signals.
 >
-
 ### CLM-006 — References
 
 > ##### References
 >
 > - `_CONTEXT.md` for deliverable identity, scope, objectives, and architecture-basis injection.
 > - `docs/CONTRACT.md` for invariants OPS-K-DATA-1/2/3, OPS-K-RULE-1/2/3, OPS-K-AUTH-1, OPS-K-IP-1/2/3, OPS-K-PRIV, and OPS-K-AGENT-1..4.
-> - `docs/SPEC.md` section 7 for GUI warnings and warning classes.
+> - `docs/SPEC.md` section 8 for GUI warnings and warning classes.
 > - `docs/TYPES.md` section 4 for analysis-status vocabulary.
 > - `docs/DIRECTIVE.md` sections 2 and 5 for missing-data, professional-boundary, and stop-rule treatment.
 > - `docs/IP_AND_DATA_BOUNDARY.md` for provenance and quarantine rules.
@@ -115,9 +117,11 @@ This Scope of Work defines `DEL-07-04` in service of project scope [SOW-022] and
 
 > ##### Scope
 >
+> Current deliverable obligation: implement missing-data warning/blocking UX, rule-check run interaction and aggregate status, with unit-aware warning presentation preserving owned rule/status semantics. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This deliverable specifies the setup boundary for a future GUI warning and blocking workflow. It covers warning classification, blocking and qualifying behavior, result-envelope visibility, and professional/IP boundary wording for missing or weak data. It does not implement GUI components, application state, schemas, tests, package manifests, or product source code.
 >
-
 ### CLM-010 — Requirements
 
 > ##### Requirements
@@ -183,10 +187,7 @@ This Scope of Work defines `DEL-07-04` in service of project scope [SOW-022] and
 >
 > Required setup artifacts for this deliverable are:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -196,7 +197,6 @@ This Scope of Work defines `DEL-07-04` in service of project scope [SOW-022] and
 >
 > Implementation artifacts listed in the register (`warning system UI`, `UX tests`) remain future work outside this setup session's write scope.
 >
-
 ### CLM-015 — Conflict Table (for human ruling)
 
 > ##### Conflict Table (for human ruling)
@@ -286,7 +286,6 @@ This Scope of Work defines `DEL-07-04` in service of project scope [SOW-022] and
 > - run records under `_run_records/`;
 > - lifecycle record in `_STATUS.md`.
 >
-
 ### CLM-024 — D-41 R5 T7 PDU-054 current declaration
 
 > ##### D-41 R5 T7 PDU-054 current declaration

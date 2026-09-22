@@ -39,7 +39,7 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 > | Scope Coverage | SOW-026 |
 > | Objective Support | OBJ-008 |
 > | Context Envelope | M |
-> | Current Setup Role | Documented setup surface only; no regression implementation in this pass. |
+> | Current Setup Role Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Documented setup surface only; no regression implementation in this pass. |
 >
 
 ### CLM-004 — Attributes
@@ -62,17 +62,18 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 
 > ##### Conditions
 >
+> Current deliverable obligation: Create active-set/gap/friction/lift-off convergence and regression cases. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > The suite is scoped to verification and regression coverage for nonlinear support behavior in the open mechanics solver. It is not a substitute for project-specific validation or competent professional review.
 >
 > The current task is setup/document production only. It does not create benchmark source files, test fixtures, solver code, or final numerical convergence tolerances.
 >
-
 ### CLM-006 — Construction
 
 > ##### Construction
 >
-> The future suite should be organized around source-qualified case definitions, expected diagnostic/result-envelope observations, deterministic rerun criteria, and release-gate integration. Case content remains `TBD` until the nonlinear support solver and related diagnostics are mature enough to support defensible regression criteria.
->
+> Organize the suite around source-qualified cases, diagnostic/result-envelope observations, deterministic rerun criteria and scoped gate integration. Current case and observation inventories are in `validation/benchmarks/nonlinear/README.md` with hand calculations under `validation/hand_calcs/nonlinear/`. Apply each DEC-046 policy only to its recorded seed, multisupport or release scope; unmeasured criteria remain explicit.
 
 ### CLM-007 — References
 
@@ -80,7 +81,7 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 >
 > | Source | Used for |
 > |---|---|
-> | `INIT.md` | Open mechanics, data boundary, and professional-responsibility boundaries. |
+> | `AGENTS.md` | Open mechanics, data boundary, and professional-responsibility boundaries. |
 > | `AGENTS.md` | Type 2 sealed deliverable execution and write-scope constraints. |
 > | `docs/CONTRACT.md` | Invariants for IP/data boundaries, unit safety, nonlinear diagnostics, and agent authority. |
 > | `docs/TYPES.md` | TEST_SUITE type, analysis-status vocabulary, and data/provenance terms. |
@@ -101,6 +102,9 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 
 > ##### Scope
 >
+> Current deliverable obligation: Create active-set/gap/friction/lift-off convergence and regression cases. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This deliverable specifies the setup surface for a future nonlinear support regression suite covering active-set, gap, friction, lift-off convergence, and regression cases for OpenPipeStress.
 >
 > In scope for this setup pass:
@@ -118,7 +122,6 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 > - inventing final numerical convergence tolerances;
 > - asserting certification, professional approval, or code compliance (PRD §21.2).
 >
-
 ### CLM-011 — Requirements
 
 > ##### Requirements
@@ -127,7 +130,7 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 > |---|---|---|---|
 > | REQ-09-03-001 | The future suite shall cover active-set, gap, friction, lift-off convergence, and regression behavior. | DEL-09-03 register description; SOW-026; `docs/SPEC.md` section 4.4 and 9. | Confirm case catalog maps each behavior category to at least one source-qualified case once implementation begins. |
 > | REQ-09-03-002 | Benchmark and regression case sources shall be public, original, or permissively licensed, with provenance recorded before public contribution. | SOW-026 note; OPS-K-IP-1/2/3; OPS-K-DATA-1/2/3. | Review case-source records and reject or quarantine suspected protected or proprietary content. |
-> | REQ-09-03-003 | The suite shall not bundle protected standards data, protected examples, code-derived tables, proprietary component values, or commercial benchmark cases without redistribution rights. | `INIT.md`; `docs/DIRECTIVE.md`; OPS-K-IP-1/2/3. | Protected-content/provenance review before any case enters the public repository. |
+> | REQ-09-03-003 | The suite shall not bundle protected standards data, protected examples, code-derived tables, proprietary component values, or commercial benchmark cases without redistribution rights. | `AGENTS.md`; `docs/DIRECTIVE.md`; OPS-K-IP-1/2/3. | Protected-content/provenance review before any case enters the public repository. |
 > | REQ-09-03-004 | Nonlinear support regression checks shall observe diagnostic/result-envelope fields for active/inactive state, gaps, lift-off, friction state, convergence tolerance, iteration count, and non-convergence warnings when those fields exist. | `docs/SPEC.md` section 4.4; OPS-K-SOLVER-2; architecture basis AB-00-06. | Schema and test review against the diagnostics/result-envelope contract. |
 > | REQ-09-03-005 | Regression comparisons shall be deterministic for the same model, units, solver version, and applicable rule-pack inputs. | `docs/SPEC.md` section 4.5; OBJ-008. | Repeat-run checks once solver and runner support exist. |
 > | REQ-09-03-006 | All case definitions, inputs, and expected observations shall be unit-aware and dimensionally checkable. | OPS-K-UNIT-1; `docs/SPEC.md` sections 3, 4.5, and 9. | Unit/schema validation before case acceptance. |
@@ -154,7 +157,7 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 >
 > This setup deliverable is acceptable when:
 >
-> - `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` exist and remain within the deliverable write scope;
+> - `ScopeOfWork.md` exist and remain within the deliverable write scope;
 > - `_SEMANTIC.md` is generated and audited without final-cell algebra/operator leaks;
 > - `_SEMANTIC_LENSING.md` covers matrices A, B, C, F, D, X, and E and records warranted gaps without inventing content;
 > - `Dependencies.csv` is parseable with the v3.1 dependency schema;
@@ -162,16 +165,15 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 > - `_STATUS.md` records `SEMANTIC_READY` only after the setup sequence completes;
 > - no benchmark source files, regression tests, solver code, protected examples, or final convergence tolerances are introduced.
 >
-
 ### CLM-014 — Deferred Implementation Decisions
 
 > ##### Deferred Implementation Decisions
 >
 > | Decision Slot | Current setup disposition | Required future evidence |
 > |---|---|---|
-> | Nonlinear convergence tolerances | `TBD`; not invented in setup. | Nonlinear solver maturity evidence, repeat-run behavior, and human-reviewed tolerance proposal. |
-> | Diagnostic/result-envelope field names | `TBD`; categories are named but exact schema fields are not fixed here. | Applicable schema/solver contract for active state, gap/lift-off, friction state, iteration count, tolerance basis, and non-convergence warnings. |
-> | Release-gate command names | `TBD`; no implementation commands are defined in setup. | Actual regression runner, CI entry points, and validation command names from later implementation work. |
+> | Nonlinear convergence tolerances | `TBD`; not invented in setup. | Use the scope-specific governed DEC-046 records in `validation/benchmarks/nonlinear/`: `convergence_policy.dec046.json`, its companion residual/delta policies, and `release_convergence_policy.dec046.c-b.json`. Their accepted fixture scopes, values and tighten-only rules remain unchanged. Unmeasured or unadopted scopes retain explicit TBDs; no general product, external-validation or CI threshold is inferred. |
+> | Diagnostic/result-envelope field names | `TBD`; categories are named but exact schema fields are not fixed here. | The current observation inventory is documented by `validation/benchmarks/nonlinear/README.md` and its crate: active/friction state, residual/iteration/convergence observations, policy references and diagnostics. Preserve dimensional and result-envelope obligations; fixture evidence does not close product integration. |
+> | Release-gate command names | `TBD`; no implementation commands are defined in setup. Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Actual regression runner, CI entry points, and validation command names from later implementation work. |
 >
 
 ### CLM-015 — Documentation
@@ -180,18 +182,14 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 >
 > Required setup artifacts:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
 > - `_DEPENDENCIES.md`
 > - `_run_records/TASK_RUN_*.md`
 > - `_STATUS.md`
-
-- **AC-001** — The contract preserves source-qualified public/original/permissive cases, unit-aware observations, active and friction state, gap and lift-off, iteration and tolerance basis, diagnostics, solver-maturity dependencies, explicit TBD thresholds, and the software-verification-only authority boundary.
+- **AC-001** — The contract preserves source-qualified public/original/permissive cases, unit-aware observations, active and friction state, gap and lift-off, iteration and tolerance basis, diagnostics, solver-maturity dependencies, scope-specific DEC-046 governed threshold records and explicit TBDs for unadopted scopes, and the software-verification-only authority boundary.
 
 ## Production and Verification Method — Praxeology
 
@@ -205,9 +203,11 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 
 > ##### Purpose
 >
+> Current deliverable obligation: Create active-set/gap/friction/lift-off convergence and regression cases. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > Define the operating procedure for producing the future nonlinear support regression suite while preserving the current setup boundary. This procedure is not an implementation runbook for solver code or test files.
 >
-
 ### CLM-019 — Prerequisites
 
 > ##### Prerequisites
@@ -234,7 +234,6 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 > 8. Validate future tests through unit/schema checks, deterministic reruns, diagnostics/result-envelope review, and protected-content/provenance review.
 > 9. Report regression outcomes as software-quality evidence only; do not claim code compliance, certification, sealing, approval, or professional reliance (PRD §21.2).
 >
-
 ### CLM-021 — Verification
 
 > ##### Verification
@@ -258,7 +257,6 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 >
 > Concrete validation command names are `TBD` until the regression runner, CI entry points, and nonlinear solver diagnostics exist. Do not substitute placeholder commands as if they were accepted release gates.
 >
-
 ### CLM-022 — Records
 
 > ##### Records
@@ -272,7 +270,6 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 > - `_DEPENDENCIES.md`;
 > - `_run_records/TASK_RUN_*.md`;
 > - `_STATUS.md`.
-
 - **VER-001** — Validate the contract and review source parity, nonlinear behavior-category coverage, provenance and protected-content exclusions, unit and deterministic rerun requirements, diagnostic/result-envelope categories, retained solver-maturity and tolerance TBDs, and prohibited authority claims.
 
 ## Governing Values and Decisions — Axiology
@@ -287,7 +284,7 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 
 > ##### Purpose
 >
-> This deliverable prepares the document and semantic foundation for nonlinear support regression testing. The suite is intended to help future solver work demonstrate repeatable behavior for active-set, gap, friction, lift-off, convergence, and non-convergence diagnostics without importing protected examples or overstating the meaning of test success.
+> This deliverable maintains the contract and evidence basis for the implemented nonlinear support regression suite. The suite is intended to help future solver work demonstrate repeatable behavior for active-set, gap, friction, lift-off, convergence, and non-convergence diagnostics without importing protected examples or overstating the meaning of test success.
 >
 
 ### CLM-026 — Principles
@@ -306,6 +303,9 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 
 > ##### Considerations
 >
+> Current deliverable obligation: Create active-set/gap/friction/lift-off convergence and regression cases. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > Nonlinear support behavior is sensitive to solver maturity. A regression suite created too early can freeze incidental behavior instead of intended behavior. This setup therefore records the categories and gates but defers final cases, tolerances, and pass/fail thresholds until the nonlinear active-set solver and diagnostics contract are mature enough to support them.
 >
 > The suite should distinguish at least these future evidence categories:
@@ -319,7 +319,6 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 > | Convergence | Record iteration counts, tolerance basis, and non-convergence warnings through the result envelope. |
 > | Regression stability | Compare deterministic outputs for the same model, units, solver version, and input manifest. |
 >
-
 ### CLM-028 — Trade-offs
 
 > ##### Trade-offs
@@ -333,18 +332,20 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 
 > ##### Examples
 >
+> Current deliverable obligation: Create active-set/gap/friction/lift-off convergence and regression cases. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > Specific regression case definitions are `TBD`. No example model, benchmark file, commercial comparison, or code-derived case is introduced by this setup pass.
 >
-
 ### CLM-030 — Open Issues
 
 > ##### Open Issues
 >
 > | Issue ID | Topic | Status |
 > |---|---|---|
-> | OI-09-03-001 | Final nonlinear convergence tolerances and pass/fail thresholds. | TBD pending nonlinear solver maturity and human review. |
-> | OI-09-03-002 | Exact diagnostic/result-envelope field names for active state, friction state, and non-convergence warning records. | TBD pending applicable schema/solver contract. |
-> | OI-09-03-003 | Public/original/permissive source list for future nonlinear support regression cases. | TBD; no protected examples may be copied or paraphrased into public artifacts. |
+> | OI-09-03-001 | Final nonlinear convergence tolerances and pass/fail thresholds. | Use the scope-specific governed DEC-046 records in `validation/benchmarks/nonlinear/`: `convergence_policy.dec046.json`, its companion residual/delta policies, and `release_convergence_policy.dec046.c-b.json`. Their accepted fixture scopes, values and tighten-only rules remain unchanged. Unmeasured or unadopted scopes retain explicit TBDs; no general product, external-validation or CI threshold is inferred. |
+> | OI-09-03-002 | Exact diagnostic/result-envelope field names for active state, friction state, and non-convergence warning records. | The current observation inventory is documented by `validation/benchmarks/nonlinear/README.md` and its crate: active/friction state, residual/iteration/convergence observations, policy references and diagnostics. Preserve dimensional and result-envelope obligations; fixture evidence does not close product integration. |
+> | OI-09-03-003 | Public/original/permissive source list for future nonlinear support regression cases. | Use the project-original source/provenance inventory in `validation/hand_calcs/nonlinear/README.md`; new cases still require lawful source and oracle review. |
 >
 
 ### CLM-031 — Conflict Table (for human ruling)

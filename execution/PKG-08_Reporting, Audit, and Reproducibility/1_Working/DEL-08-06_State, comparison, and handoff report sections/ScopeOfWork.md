@@ -38,7 +38,7 @@ This Scope of Work defines `DEL-08-06` in service of project scope [SOW-024] and
 > | Type | BACKEND_FEATURE_SLICE | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row DEL-08-06 |
 > | Scope coverage | SOW-024 | `_CONTEXT.md`; `docs/_Registers/ScopeLedger.csv` row SOW-024 |
 > | Objective support | OBJ-007, OBJ-016, OBJ-017, OBJ-018 | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` objective map |
-> | Implementation evidence | TBD | No product code was inspected or created in this setup pass. |
+> | Implementation evidence | TBD Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | No product code was inspected or created in this setup pass. |
 >
 
 ### CLM-004 — Attributes
@@ -55,7 +55,7 @@ This Scope of Work defines `DEL-08-06` in service of project scope [SOW-024] and
 > | Professional boundary | Reports are decision support. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/SPEC.md` section 9 |
 > | IP/data boundary | Public report artifacts must not copy protected standards text, protected tables, proprietary formulas, proprietary engineering values, private project data, private rule-pack payloads, private library content, or real secrets. | `docs/CONTRACT.md` OPS-K-IP-1 and OPS-K-REPORT-2; `docs/SPEC.md` section 9; `docs/IP_AND_DATA_BOUNDARY.md` sections 3 and 7 |
 > | Hash/provenance basis | JSON payload hashes use the accepted JCS-compatible canonical JSON basis where applicable; reports preserve stable references, checksums, source notes, privacy classification, review state, and provenance. | `_CONTEXT.md` Architecture Basis; `docs/SPEC.md` sections 4.4 and 9 |
-> | Upstream dependency mirror | 22 ACTIVE approved DAG-006 rows are present as local evidence. | `Dependencies.csv`; `_DEPENDENCIES.md` |
+> | Upstream dependency mirror | The original setup recorded 22 ACTIVE DAG-006 rows as historical evidence; current mirror/status authority is resolved in the adjacent source instruction. | Resolve the approved graph and adoption record through `execution/_DAG/_LATEST.md`; inspect the local `Dependencies.csv` for its exact mirror. Do not copy old DAG counts/statuses as current authority or infer satisfaction from graph adoption. |
 >
 
 ### CLM-005 — Conditions
@@ -69,7 +69,7 @@ This Scope of Work defines `DEL-08-06` in service of project scope [SOW-024] and
 > | Package exclusion | PKG-08 does not authenticate or certify engineering work. | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` PKG-08 |
 > | Public/private content posture | Private rule packs, material libraries, component libraries, owner requirements, project values, and private templates remain user-controlled unless intentionally exported or contributed with documented rights. | `docs/IP_AND_DATA_BOUNDARY.md` sections 6 and 7 |
 > | Missing engineering values | Missing solve-required or rule-check-required values remain explicit findings, not defaults. | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/SPEC.md` sections 4.3 and 9 |
-> | Runtime/code locations | TBD | No deliverable-specific implementation files are defined by the accessible sources. |
+> | Runtime/code locations | Current bounded source exists; complete integration not inferred | The bounded assembly implementation is `core/reporting/report_package/`; producer/consumer coverage and missing integration remain separate delivery obligations. |
 >
 
 ### CLM-006 — Construction
@@ -81,8 +81,8 @@ This Scope of Work defines `DEL-08-06` in service of project scope [SOW-024] and
 > | State/run report sections | Report-facing sections that reference immutable model states and analysis runs, including hashes, warnings, assumptions, diagnostics, source notes, and relevant result/report payload references. | `_CONTEXT.md`; `docs/SPEC.md` section 9; `Dependencies.csv` rows DAG-002-E0861 and DAG-002-E0862 |
 > | Comparison report section | Report-facing section for deterministic model-state and/or analysis-run comparison records using stable IDs, mappings where required, units, diagnostics, and tolerance/profile references when available. | `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-073; `Dependencies.csv` rows DAG-002-E0863 through DAG-002-E0865 |
 > | Handoff manifest report section | Report-facing section that references handoff package manifest data, units, entity IDs, library/rule references, unresolved assumptions, warnings, target mapping metadata, unsupported-target flags, and external-prover boundary metadata when available. | `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-074 and SOW-075; `Dependencies.csv` rows DAG-002-E0866 through DAG-002-E0868 |
-> | Integration surface | ASSUMPTION: this deliverable consumes report generator, audit manifest, report-section, result export, protected-content linter, redaction/export, state/run/comparison, and handoff records through schema-first service boundaries. | `Dependencies.csv`; `_CONTEXT.md` Architecture Basis; exact API names are TBD. |
-> | Test surface | TBD: expected tests should verify section assembly, boundary wording, protected-content avoidance, provenance/checksum preservation, unit metadata handling, and missing-data reporting. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-08; concrete test paths are TBD. |
+> | Integration surface | ASSUMPTION: this deliverable consumes report generator, audit manifest, report-section, result export, protected-content linter, redaction/export, state/run/comparison, and handoff records through schema-first service boundaries. | Use the schema-first `assemble_report_package_container` entrypoint and `ReportPackageContainerInput` in `core/reporting/report_package/src/lib.rs`; preserve the owning upstream contracts. |
+> | Test surface | Verification obligations cover section assembly, boundary wording, protected-content avoidance, provenance/checksum preservation, unit metadata handling and missing-data reporting; existing test definitions and executed evidence have distinct reach. | Current test definitions include `core/reporting/report_package/tests/container.rs`; assess each assembly, boundary, protected-content, provenance, unit and missing-data obligation against bound execution evidence. This record does not rerun or declare those checks passed. |
 >
 
 ### CLM-007 — References
@@ -91,8 +91,8 @@ This Scope of Work defines `DEL-08-06` in service of project scope [SOW-024] and
 >
 > - `_CONTEXT.md` - deliverable identity, scope, objectives, architecture-basis injection, and package boundaries.
 > - `_REFERENCES.md` - accessible governing reference list for this folder.
-> - `_DEPENDENCIES.md` and `Dependencies.csv` - approved DAG-006 local mirror and evidence surface.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted revision 0.7 package, deliverable, objective, scope, and architecture-basis entries.
+> - `_DEPENDENCIES.md` and `Dependencies.csv` - local mirror interpreted under the approved graph selected by `execution/_DAG/_LATEST.md` and evidence surface.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current package, deliverable, objective, scope, and architecture-basis entries.
 > - `docs/_Registers/Deliverables.csv` - row DEL-08-06.
 > - `docs/_Registers/ScopeLedger.csv` - row SOW-024 and related source rows SOW-071 through SOW-075.
 > - `docs/_Registers/ContextBudgetQA.csv` - row DEL-08-06.
@@ -175,14 +175,14 @@ This Scope of Work defines `DEL-08-06` in service of project scope [SOW-024] and
 >
 > | Verification topic | Minimum check | Evidence state |
 > |---|---|---|
-> | Scope coverage | Confirm state/run, comparison, and handoff report-section artifacts exist or are explicitly represented in tests. | TBD |
-> | SOW-024 content | Confirm inputs, sources, warnings, assumptions, results, rule-pack checksums, and limitations are represented. | TBD |
-> | Professional boundary | Confirm generated wording cannot imply professional approval, certification, sealing, authentication, endorsement, code compliance, or reliance (PRD §21.2). | TBD |
-> | IP/protected content | Confirm public sections/templates/fixtures are scanned or reviewed for protected/private content risk. | TBD |
-> | Units and numeric values | Confirm numeric values carry unit/dimension metadata or diagnostics. | TBD |
-> | Provenance/checksums | Confirm source notes, checksum refs, review state, privacy class, and stable refs survive assembly. | TBD |
-> | Determinism | Confirm comparison and section ordering are deterministic for identical source envelopes. | TBD |
-> | Missing data | Confirm missing source values become explicit findings, warnings, limitations, or unresolved TBDs. | TBD |
+> | Scope coverage | Confirm state/run, comparison, and handoff report-section artifacts exist or are explicitly represented in tests. | Evidence location: `core/reporting/report_package/` and its tests; claim-specific candidate-bound execution/review remains required |
+> | SOW-024 content | Confirm inputs, sources, warnings, assumptions, results, rule-pack checksums, and limitations are represented. | Evidence location: `core/reporting/report_package/` and its tests; claim-specific candidate-bound execution/review remains required |
+> | Professional boundary | Confirm generated wording cannot imply professional approval, certification, sealing, authentication, endorsement, code compliance, or reliance (PRD §21.2). | Evidence location: `core/reporting/report_package/` and its tests; claim-specific candidate-bound execution/review remains required |
+> | IP/protected content | Confirm public sections/templates/fixtures are scanned or reviewed for protected/private content risk. | Evidence location: `core/reporting/report_package/` and its tests; claim-specific candidate-bound execution/review remains required |
+> | Units and numeric values | Confirm numeric values carry unit/dimension metadata or diagnostics. | Evidence location: `core/reporting/report_package/` and its tests; claim-specific candidate-bound execution/review remains required |
+> | Provenance/checksums | Confirm source notes, checksum refs, review state, privacy class, and stable refs survive assembly. | Evidence location: `core/reporting/report_package/` and its tests; claim-specific candidate-bound execution/review remains required |
+> | Determinism | Confirm comparison and section ordering are deterministic for identical source envelopes. | Evidence location: `core/reporting/report_package/` and its tests; claim-specific candidate-bound execution/review remains required |
+> | Missing data | Confirm missing source values become explicit findings, warnings, limitations, or unresolved TBDs. | Evidence location: `core/reporting/report_package/` and its tests; claim-specific candidate-bound execution/review remains required |
 >
 
 ### CLM-015 — Documentation
@@ -259,7 +259,7 @@ This Scope of Work defines `DEL-08-06` in service of project scope [SOW-024] and
 > 7. Apply professional-boundary wording. The generated sections may support human professional review but must not state or imply software-generated code compliance, approval, certification, sealing, authentication, endorsement, or professional reliance (PRD §21.2).
 > 8. Apply public/private and protected-content boundaries. Public sections, templates, examples, and fixtures must avoid protected standards text, protected tables, protected examples, proprietary formulas, proprietary engineering values, private project data, private rule-pack payloads, private library content, and real secrets.
 > 9. Preserve deterministic ordering and stable references so repeated generation from identical source envelopes produces repeatable output.
-> 10. Record unresolved implementation decisions as TBD. Current TBDs include concrete code paths, exact schema fragments, API names, report layout, final notice wording, release thresholds, and external transport/export details.
+> 10. Record unresolved implementation decisions as TBD. Use `core/reporting/report_package/` for current assembly interfaces and `docs/claims_registry.md` for governed notice applicability. Keep unadopted layout, numeric release criteria and external-interface obligations explicit; do not relabel existing code/schema paths as absent.
 >
 
 ### CLM-022 — Verification
@@ -268,13 +268,13 @@ This Scope of Work defines `DEL-08-06` in service of project scope [SOW-024] and
 >
 > | Check | Expected result | Evidence |
 > |---|---|---|
-> | Scope completeness | State/run, comparison, and handoff report-section artifacts are represented. | Tests or review notes, TBD |
-> | SOW-024 coverage | Inputs, sources, warnings, assumptions, results, rule-pack checksums, and limitations are present or explicitly marked TBD. | Tests or fixture review, TBD |
-> | Boundary wording | No automatic professional approval, certification, sealing, authentication, endorsement, code-compliance, or reliance claim is emitted (PRD §21.2). | Boundary tests, TBD |
-> | Missing-data behavior | Missing solve-required or rule-check-required values become explicit findings, warnings, limitations, unresolved TBDs, or human-review-needed findings. | Tests, TBD |
-> | Unit/provenance behavior | Numeric values carry unit/dimensional metadata and provenance or explicit diagnostics. | Schema/unit tests, TBD |
-> | Protected-content behavior | Public report surfaces avoid protected/private content and preserve only permitted references/checksums/source notes. | Protected-content/provenance gate, TBD |
-> | Determinism | Repeated section generation from identical source envelopes is stable. | Snapshot or round-trip tests, TBD |
+> | Scope completeness | State/run, comparison, and handoff report-section artifacts are represented. | Tests or review notes; use `core/reporting/report_package/` test definitions and claim-specific bound results/review |
+> | SOW-024 coverage | Inputs, sources, warnings, assumptions, results, rule-pack checksums, and limitations are present or explicitly marked TBD. | Tests or fixture review; use `core/reporting/report_package/` test definitions and claim-specific bound results/review |
+> | Boundary wording | No automatic professional approval, certification, sealing, authentication, endorsement, code-compliance, or reliance claim is emitted (PRD §21.2). | Boundary tests; use `core/reporting/report_package/` test definitions and claim-specific bound results/review |
+> | Missing-data behavior | Missing solve-required or rule-check-required values become explicit findings, warnings, limitations, unresolved TBDs, or human-review-needed findings. | Tests; use `core/reporting/report_package/` test definitions and claim-specific bound results/review |
+> | Unit/provenance behavior | Numeric values carry unit/dimensional metadata and provenance or explicit diagnostics. | Schema/unit tests; use `core/reporting/report_package/` test definitions and claim-specific bound results/review |
+> | Protected-content behavior | Public report surfaces avoid protected/private content and preserve only permitted references/checksums/source notes. | Protected-content/provenance gate; use `core/reporting/report_package/` test definitions and claim-specific bound results/review |
+> | Determinism | Repeated section generation from identical source envelopes is stable. | Snapshot or round-trip tests; use `core/reporting/report_package/` test definitions and claim-specific bound results/review |
 > | Dependency mirror | Approved DAG-002 rows in `Dependencies.csv` remain ACTIVE and unmodified unless a later human-approved reconciliation changes the mirror. | Local dependency validation and final report |
 >
 
@@ -287,7 +287,6 @@ This Scope of Work defines `DEL-08-06` in service of project scope [SOW-024] and
 > - `Dependencies.csv` and `_DEPENDENCIES.md` as the approved DAG-006 local mirror/evidence surface.
 > - Future implementation tests and review notes for section assembly, protected-content avoidance, professional-boundary wording, provenance/checksum preservation, deterministic output, and missing-data findings.
 >
-
 ### CLM-024 — D-41 R5 T4 persisted-run procedure
 
 > ##### D-41 R5 T4 persisted-run procedure
@@ -339,7 +338,7 @@ This Scope of Work defines `DEL-08-06` in service of project scope [SOW-024] and
 > ##### Considerations
 >
 > - The report generator, audit manifest, warnings/provenance sections, result export, protected-content linter, private redaction/export controls, state/run records, comparison records, handoff package records, export workflow records, and external-prover metadata are all upstream evidence surfaces in `Dependencies.csv`. This setup pass preserves those edges as ACTIVE and does not reclassify them.
-> - ASSUMPTION: the future implementation should assemble sections from schema-first records rather than from unstructured text scraping. This follows the architecture-basis injection and `docs/SPEC.md` section 9, but exact code interfaces are TBD.
+> - ASSUMPTION: the future implementation should assemble sections from schema-first records rather than from unstructured text scraping. This follows the architecture-basis injection and `docs/SPEC.md` section 9, with current assembly interfaces in `core/reporting/report_package/src/lib.rs`; missing end-to-end evidence remains explicit.
 > - Any comparison wording should remain diagnostic/audit-oriented. A deterministic comparison can show changes and deltas; it does not prove external validation or acceptance.
 > - Any handoff wording should expose target mapping metadata and unsupported-target flags when available. It should not imply that a downstream external tool or human has approved the model.
 > - Boundary notices should be stable enough for tests, but exact wording remains TBD until the professional-claims policy deliverable and report templates are accepted.

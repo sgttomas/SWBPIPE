@@ -15,24 +15,33 @@ refs:
 
 ## 1. Purpose
 
-This policy keeps the public OpenPipeStress repository aligned with the project intent: public open mechanics, private/user-supplied code and proprietary data.
+This policy keeps the public SWBPIPE repository aligned with the project intent: public open mechanics, private/user-supplied code and proprietary data.
 
 This policy is a project governance control, not legal advice, professional engineering approval, certification, sealing, standards-body endorsement, or a code-compliance claim. Human/legal review remains required when redistribution rights or protected-content status are uncertain.
 
 ## 1.1 Current authority basis
 
 This draft policy is aligned to
-`execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved
-`DAG-007` coordination authority. The project license has been selected as
+the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md` and the approved
+graph selected by `execution/_DAG/_LATEST.md`. The project license has been selected as
 `PolyForm-Noncommercial-1.0.0`; contribution-source license and redistribution
 fields still record the source basis for submitted material and do not replace
 the project license notice.
 
-The final contributor legal mechanism, maintainer roster/quorum, release
-authority, legal-review authority, security contact, release-label vocabulary,
+DEC-027 records a quorum of one: the sole human project authority is the sole
+maintainer and release authority. External contribution intake remains closed.
+DEC-079 adopts the D-07b sole-maintainer review and protected-content screening
+skeleton and records “process defined; intake closed”; activation requires a
+future owner decision. The final contributor legal instrument remains `TBD`
+until that activation decision, with legal advice obtained by the owner. No
+legal instrument or release is authorized by this current-basis correction.
+
+Legal-review authority, security contact, release-label vocabulary,
 human-acceptance workflow, and jurisdiction-specific professional-practice
-wording remain `TBD` until recorded by the human project authority or qualified
-reviewer.
+wording retain their own unresolved decisions and qualified-review routes.
+See DEC-027/DEC-079 in `execution/_Decomposition/SOFTWARE_DECOMP.md` and
+`execution/_Coordination/_DECISIONS/D-07b_contributor_intake_mechanism.md` §10.
+Blank per-contribution fields remain unfilled evidence slots.
 
 ## 2. Public repository may contain
 

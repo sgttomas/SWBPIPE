@@ -51,7 +51,7 @@ This Scope of Work defines `DEL-17-07` in service of project scope [SOW-030, SOW
 > | Target family | PCF subset export, bounded by `PLAN-EXPORT-INTEROP` section `5. PCF` and CAEPIPE public PCF translator documentation. |
 > | Primary output concept | PCF target file plus export package records required by DEL-17-02: manifest, stable ID map, diagnostics, and loss report. |
 > | Initial subset candidates | Straight pipe, elbows/bends, tees, reducers, flanges, valves, end connections, line numbers, nominal size, OD/wall-thickness attributes where supported, basic spec/material labels, coordinates, component identifiers, and stable ID sidecar mapping. Source: `plans/EXPORT_FORMAT_INTEROPERABILITY_PLAN.md` section `5. PCF`. |
-> | Mandatory reporting | Unsupported, approximated, delegated, omitted, and `TBD` behavior shall be visible in the loss report. Source: DEL-17-02 `Specification.md` loss-report requirements. |
+> | Mandatory reporting | Unsupported, approximated, delegated, omitted, and `TBD` behavior shall be visible in the loss report. Source: DEL-17-02 `ScopeOfWork.md` requirements section loss-report requirements. |
 > | Translator-default posture | Hidden translator defaults shall not be silently relied on; they shall be rejected, warned, delegated, or recorded as `TBD`/loss-report entries. Source: `CAEPIPE-PCF` and DEL-17-01 source basis. |
 > | Version/profile basis | `TBD`; no first supported PCF target profile or CAEPIPE translator version is selected in this phase. Closure requires admitted public evidence or explicit human project authority. Sources: DEL-17-01 `Source_Basis_Register.md` TBD-17-01-005; `CAEPIPE_Question_Dossier.md` CQ-17-01-006; `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-004/OI-015/OI-017. |
 >
@@ -119,7 +119,7 @@ This Scope of Work defines `DEL-17-07` in service of project scope [SOW-030, SOW
 > | DEL-17-02 | `execution/.../DEL-17-02_Export package, profile, and stable ID map contracts/` | Common export package, profile, stable ID map, manifest, and loss-report contract. |
 > | DEL-03-02 | `execution/.../DEL-03-02_Pipe section and component library schema/` | Declared upstream dependency for component/section source data contracts; implementation use remains `TBD` until consumed. |
 > | DEL-13-04 | `execution/.../DEL-13-04_Physical-to-analytical transformation contract/` | Declared upstream dependency for transformation/loss semantics; implementation use remains `TBD` until consumed. |
-> | DEL-15-02 | `execution/.../DEL-15-02_External-prover handoff package contract/` | Declared upstream dependency for handoff-package alignment; implementation use remains `TBD` until consumed. |
+> | DEL-15-02 | DEL-15-02 Target mapping and unsupported-behavior contract (`ScopeOfWork.md`); canonical handoff package ownership is DEL-15-01 | Declared upstream dependency for handoff-package alignment; implementation use remains `TBD` until consumed. |
 > | PLAN-EXPORT-INTEROP | `plans/EXPORT_FORMAT_INTEROPERABILITY_PLAN.md` | PCF target priority, conservative subset candidates, and risk framing. |
 > | CAEPIPE-PCF | `https://www.sstusa.com/pdfs/PCF.pdf` | Public evidence for PCF translator behavior, defaults, mappings, and caveats. |
 > | CONTRACT / IP-DATA / SPEC / TYPES | `docs/` | Project invariants, protected-content boundary, unit/provenance/no-bypass constraints, and professional-boundary vocabulary. |
@@ -136,9 +136,9 @@ This Scope of Work defines `DEL-17-07` in service of project scope [SOW-030, SOW
 
 > ##### Scope
 >
-> DEL-17-07 shall define and later implement a conservative PCF subset exporter for broader plant-design interoperability. The deliverable shall produce a PCF subset profile, PCF writer behavior, unsupported behavior report, and invented fixtures.
+> DEL-17-07 shall define and maintain a conservative PCF subset exporter for broader plant-design interoperability. The deliverable shall produce a PCF subset profile, PCF writer behavior, unsupported behavior report, and invented fixtures.
 >
-> This deliverable shall not claim PCF completeness, CAEPIPE compatibility, solver validation, or release readiness. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). It shall not implement schema changes or code in this Phase A four-document pass.
+> This deliverable shall not claim PCF completeness, CAEPIPE compatibility, solver validation, or release readiness. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). The original Phase-A no-code restriction describes that historical population run. Current bounded reference construction exists in `core/handoff/pcf_export/package.py`, `schemas/pcf_export.schema.json` and `tests/test_pcf_export_package.py`; authorized future implementation must preserve the full contract, admitted-source limits and actual profile/runtime/compatibility gaps.
 >
 
 ### CLM-012 — Requirements
@@ -310,7 +310,7 @@ This Scope of Work defines `DEL-17-07` in service of project scope [SOW-030, SOW
 > ###### 1. Establish the source basis
 >
 > 1. Read DEL-17-01 `Source_Basis_Register.md` and `CAEPIPE_Question_Dossier.md`.
-> 2. Read DEL-17-02 `Specification.md` for profile, ID-map, manifest, and loss-report requirements.
+> 2. Read DEL-17-02 `ScopeOfWork.md` requirements section for profile, ID-map, manifest, and loss-report requirements.
 > 3. Read `plans/EXPORT_FORMAT_INTEROPERABILITY_PLAN.md` section `5. PCF`.
 > 4. Read the admitted public PCF translator source slices before making any PCF behavior claim.
 > 5. Mark unsupported, source-absent, or version-sensitive behavior as `TBD`.

@@ -4,6 +4,7 @@
 **Last Updated:** 2026-09-22
 
 ## Remaining
+- R5 continuation delivery task: Demonstrate emitted JSON/CSV and runtime mapping/tolerance conformance to `schemas/comparison_mapping.schema.json`, including stable IDs, units, diagnostics, provenance and privacy. Schema/test existence does not close actual export or report coverage; OI-014 defaults remain open (CLM-005/006/013).
 - SCA-011 interface follow-through: Review and accept the named ComparisonResult draft or its explicit successor before producer conformance claims; bind mapping, unmatched accounting, tolerance references, units, diagnostics and reporting handoff without selecting numeric tolerances or report layout.
 - Keep PDU-037 engine determinism owned by DEL-14-04 and tolerance/independent-validation outcomes open; refreshed deterministic backcheck does not move engine logic or validate tolerance suitability.
 - Bind comparison export/report-section references through the reporting owner with explicit analysis-status and limitation preservation; the current T4 evidence covers persisted state/run records only and does not select layout or tolerance policy.

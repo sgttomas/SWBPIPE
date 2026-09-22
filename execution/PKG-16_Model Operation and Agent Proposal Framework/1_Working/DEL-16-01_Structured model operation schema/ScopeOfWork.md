@@ -73,7 +73,7 @@ This Scope of Work defines `DEL-16-01` in service of project scope [SOW-069] and
 > | Exact implemented root and operation field layout | Established by `schemas/model_operation.schema.json` and covered by `tests/test_model_operation_schema.py`. |
 > | Operation fixture path | Established as `fixtures/model_operations/invented_operation_set_valid.json`. |
 > | Accepted model-state fixture path | Established as `fixtures/model_operations/invented_accepted_model_state.json`. |
-> | Exact operation granularity for all future physical model edits | Still TBD beyond the current operation/change enums and fixture coverage. |
+> | Exact operation granularity for all future physical model edits | DEC-094/SCA-009 defines the NORMATIVE-NOW/ROADMAP vocabulary, with SCA-011 clarifying implementation ownership. The schema enum is not the complete implemented taxonomy; vocabulary/schema/runtime conformance remains delivery work. |
 > | Exact persistence granularity and broader hash partitioning | Still TBD beyond the implemented `accepted_model_state_hash` and per-operation `required_current_hashes` hooks. |
 > | Validation/diff-preview behavior | Downstream DEL-16-02; current schema only provides fields and evidence hooks. |
 > | User acceptance and audit trail behavior | Downstream DEL-16-03; current schema records boundary hooks only. |
@@ -104,7 +104,7 @@ This Scope of Work defines `DEL-16-01` in service of project scope [SOW-069] and
 >
 > - `_CONTEXT.md` - deliverable identity, scope, objective, architecture-basis injection.
 > - `_REFERENCES.md` - source list for this setup pass.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted revision 0.7 current decomposition basis, SOW-069, OBJ-015, PKG-16, DEL-16-01, architecture basis.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current decomposition basis, SOW-069, OBJ-015, PKG-16, DEL-16-01, architecture basis.
 > - `docs/CONTRACT.md` - project invariants, including data boundary, professional boundary, and agent non-invention constraints.
 > - `docs/TYPES.md` - canonical object registry and schema boundary notes.
 > - `docs/SPEC.md` - technical specification slices for domain objects, persistence, viewport command intents, and professional boundaries.
@@ -205,7 +205,7 @@ This Scope of Work defines `DEL-16-01` in service of project scope [SOW-069] and
 > Residual TBDs:
 >
 > - exact persistence granularity and broader hash partitioning beyond implemented model-state hash hooks;
-> - complete operation granularity for future physical model edit classes beyond current enum/fixture coverage;
+> - vocabulary/schema/runtime conformance to DEC-094/SCA-009 and SCA-011, with ROADMAP items retaining their status;
 > - validation/diff-preview behavior owned by DEL-16-02;
 > - user acceptance, audit trail, and human review dispositions owned by DEL-16-03 and review governance;
 > - agent rationale/professional-boundary workflow behavior owned by DEL-16-04.
@@ -233,7 +233,7 @@ This Scope of Work defines `DEL-16-01` in service of project scope [SOW-069] and
 >
 > | Prerequisite | Source / Status |
 > |---|---|
-> | Deliverable context and decomposition basis | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 |
+> | Deliverable context and decomposition basis | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` with its accepted amendments |
 > | Scope and objective mapping | `_CONTEXT.md` rows `SOW-069` and `OBJ-015`; schema root constants |
 > | Architecture basis constraints | `_CONTEXT.md` "Architecture Basis Injection"; JSON Schema 2020-12 and canonical hash-basis notes |
 > | Approved dependency mirror | `Dependencies.csv`; preserve active rows unless a later approved workflow says otherwise |
@@ -260,7 +260,7 @@ This Scope of Work defines `DEL-16-01` in service of project scope [SOW-069] and
 > 10. Keep unit-bearing payload behavior explicit: unit metadata required, dimension check required, and missing unit behavior `emit_diagnostic`.
 > 11. Keep public fixtures invented and schema-focused. Do not embed protected standards text, protected numeric tables, proprietary catalog values, private project data, or engineering defaults.
 > 12. Keep downstream behavior boundaries explicit: validation/diff preview in DEL-16-02, acceptance/audit trail in DEL-16-03, and agent rationale/professional-boundary workflow in DEL-16-04.
-> 13. Record unresolved issues for exact persistence granularity, broader hash partitioning, future operation granularity, and human review dispositions.
+> 13. Record unresolved issues for exact persistence granularity, broader hash partitioning, vocabulary/schema/runtime conformance, and human review dispositions.
 >
 
 ### CLM-018 — Verification
@@ -275,7 +275,7 @@ This Scope of Work defines `DEL-16-01` in service of project scope [SOW-069] and
 > | Boundary check | Operation records carry no prohibited authority claims (PRD §21.2). |
 > | Mutation-route check | Contract status disallows direct model mutation; adjacent preview behavior does not mutate accepted state. |
 > | Source-fidelity check | Requirements trace to `_CONTEXT.md`, decomposition, governance docs, schema, fixtures, tests, or the approved local dependency mirror. Unsupported details remain TBD or ASSUMPTION. |
-> | Dependency mirror check | Existing local dependency rows remain ACTIVE and are not reclassified by this procedure. |
+> | Dependency mirror check | Local rows retain the statuses recorded by current approved graph authority through `execution/_DAG/_LATEST.md`; this procedure does not reclassify them. |
 >
 
 ### CLM-019 — Records
@@ -284,10 +284,10 @@ This Scope of Work defines `DEL-16-01` in service of project scope [SOW-069] and
 >
 > Current records for this deliverable/evidence slice:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md` definition section
+> - `ScopeOfWork.md` requirements section
+> - `ScopeOfWork.md` guidance section
+> - `ScopeOfWork.md` procedure section
 > - `MEMORY.md`
 > - `schemas/model_operation.schema.json`
 > - `fixtures/model_operations/invented_operation_set_valid.json`
@@ -348,8 +348,8 @@ This Scope of Work defines `DEL-16-01` in service of project scope [SOW-069] and
 > - The current schema establishes the concrete path `schemas/model_operation.schema.json`, root envelope fields, operation/change enums, reference/precondition/hash hooks, provenance requirements, validation placeholders, unit requirements, and professional-boundary flags.
 > - The fixture `fixtures/model_operations/invented_operation_set_valid.json` covers the declared operation kinds and change kinds using invented public example data.
 > - The fixture `fixtures/model_operations/invented_accepted_model_state.json` provides the invented physical source-of-truth model state and `sha256:invented-state-001` hash referenced by operation-set model basis and preconditions.
-> - Exact persistence granularity, physical project package/container behavior, and broad hash partitioning remain TBD beyond the current model-state hash hooks.
-> - Runtime validation, deterministic diff preview, blocking behavior, and controlled application remain DEL-16-02 behavior. `tests/test_operation_validation_preview.py` is useful adjacent evidence but does not transfer ownership to DEL-16-01.
+> - DEC-017/028 fix local-store and interchange strategy; exact history integration and broader hash partitioning beyond the current model-state hooks require scoped evidence.
+> - Validation/diff preview remains DEL-16-02 behavior; DEC-020/SCA-011 assigns controlled application to DEL-16-06. `tests/test_operation_validation_preview.py` is useful adjacent evidence but does not transfer ownership to DEL-16-01.
 > - User acceptance, audit trail records, and human review dispositions remain DEL-16-03/review-governance behavior. Existing `Review_Findings.csv` human dispositions are not changed by this evidence-alignment pass.
 > - Agent operation autonomy remains bounded by proposal status, downstream user acceptance, and professional-boundary controls.
 >
@@ -360,7 +360,7 @@ This Scope of Work defines `DEL-16-01` in service of project scope [SOW-069] and
 >
 > | Topic | Current Position |
 > |---|---|
-> | Broad operation enum vs specialized records | The implemented schema uses an `OperationKind` enum plus structured `OperationChange` records. More granular future edit classes remain TBD. |
+> | Broad operation enum vs specialized records | The implemented schema uses an `OperationKind` enum plus structured `OperationChange` records. DEC-094/SCA-009 already defines the interactive vocabulary separately from these schema enums; assess conformance without silently changing the public contract. |
 > | Patch-like payload vs command-like payload | The implemented schema supports `value_kind` values including `structured_patch`, `quantity`, `reference_list`, and `text`; it does not settle a universal patch grammar. |
 > | Embedding snapshots vs referencing targets | Current schema uses target references, model-basis references, accepted model-state hash, and required current hashes rather than embedding full model snapshots. |
 > | Agent-authored operations | Agent authoring is represented by `author_type = agent`, but records remain proposals and carry required professional-boundary negatives. |
@@ -389,9 +389,9 @@ This Scope of Work defines `DEL-16-01` in service of project scope [SOW-069] and
 >
 > | Conflict ID | Conflict (short statement) | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling (TBD) |
 > |---|---|---|---|---|---|---|
-> | CT-001 | Operation granularity is required by SOW-069, but exact future edit-class granularity is not fully settled beyond the current schema enums. | `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-069 | `schemas/model_operation.schema.json` `$defs.OperationKind` and `$defs.OperationChange` | Specification Requirements; Procedure Steps | Treat current enums/fixtures as implemented DEL-16-01 evidence; keep broader operation granularity TBD. | TBD |
+> | CT-001 | Operation granularity is required by SOW-069, but DEC-094/SCA-009 vocabulary is adopted separately from the schema enums; schema/runtime coverage still needs conformance evidence. | `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-069 | `schemas/model_operation.schema.json` `$defs.OperationKind` and `$defs.OperationChange` | Specification Requirements; Procedure Steps | Retain current public enums as contract evidence and assess DEC-094/SCA-009 vocabulary coverage under SCA-011; no new schema vocabulary is ratified here. | TBD |
 > | CT-002 | Agent edits are in scope, but autonomy level is unresolved beyond proposal and human-review boundaries. | `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-069 | `schemas/model_operation.schema.json` `OperationAuthorType`, `OperationContractStatus`, and `ProfessionalBoundary` | Specification Requirements; Procedure Verification | Allow `author_type = agent` operation proposals only; preserve downstream acceptance/audit and professional-boundary controls. | TBD |
-> | CT-003 | Hash binding is implemented for accepted model state, but broader persistence/hash partitioning remains unsettled. | `schemas/model_operation.schema.json` `$defs.OperationModelBasis` and `$defs.OperationPrecondition` | `_CONTEXT.md` Architecture Basis Injection still lists physical project package/container as TBD | Datasheet Conditions; Specification R010; Procedure Verification | Record current model-state hash hooks as fact; keep exact persistence granularity and broader hash partitioning TBD. | TBD |
+> | CT-003 | Hash binding is implemented for accepted model state, but broader persistence/hash partitioning remains unsettled. | `schemas/model_operation.schema.json` `$defs.OperationModelBasis` and `$defs.OperationPrecondition` | `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-017/028 resolve substrate/transport; exact broader hash partitioning remains separate | Datasheet Conditions; Specification R010; Procedure Verification | Record current model-state hash hooks as fact; keep exact persistence granularity and broader hash partitioning TBD. | TBD |
 
 ## Output and Evaluation Matrix
 

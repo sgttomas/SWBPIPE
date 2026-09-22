@@ -84,4 +84,4 @@ These remain routed to human ruling; they are not silently selected here.
 
 ## Currency and provenance
 
-Consolidated 2026-07-15 per piping decision D-43 from the four-document kit (`Datasheet.md`, `Specification.md`, `Procedure.md`, `Guidance.md`) as reconciled by D-41 R5 T7 (PDU-054 currentness declarations). Prior wording, including setup-era framing, is preserved in git history; `MEMORY.md` is retained unchanged. Current upstream authority is SOFTWARE_DECOMP revision 0.9 with DAG-007 coordination.
+Consolidated 2026-07-15 per piping decision D-43 from the four-document kit (`Datasheet.md`, `Specification.md`, `Procedure.md`, `Guidance.md`) as reconciled by D-41 R5 T7 (PDU-054 currentness declarations). Prior wording, including setup-era framing, is preserved in git history; `MEMORY.md` is retained unchanged. Current upstream authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` with its accepted decisions; approved graph context is resolved through `execution/_DAG/_LATEST.md`.

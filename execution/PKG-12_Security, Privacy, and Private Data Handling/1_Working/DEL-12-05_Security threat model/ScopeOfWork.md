@@ -47,7 +47,7 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 > | Context envelope | M |
 > | Anticipated product artifact | docs/security/threat_model.md |
 > | Setup artifact location | This deliverable folder only |
-> | Current setup state | SEMANTIC_READY |
+> | Current setup state | Use the current lifecycle recorded in `_STATUS.md`; preserve its state and history. Contract/evidence checks do not authorize a lifecycle transition or issuance. |
 >
 > Source basis: `_CONTEXT.md` sections "Description", "Anticipated Artifacts", "Scope Coverage", "Objective Support", and "Architecture Basis Injection"; `docs/_Registers/Deliverables.csv` row `DEL-12-05`; `docs/_Registers/ScopeLedger.csv` row `SOW-040`; `docs/_Registers/ContextBudgetQA.csv` row `DEL-12-05`.
 >
@@ -106,9 +106,11 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 
 > ##### Construction
 >
+> Current deliverable obligation: Draft and maintain threat model for private data, report sharing, plugins, imports, and supply chain. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This setup document represents the planned content for `docs/security/threat_model.md` without writing that repo-level product artifact. It is organized as a maintainable threat-model basis for later architecture and implementation work.
 >
-
 ### CLM-009 — Threat Surfaces
 
 > ###### Threat Surfaces
@@ -159,7 +161,7 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 >
 > | Reference | Use in this setup artifact |
 > |---|---|
-> | `INIT.md` | Bootstrap boundaries for open mechanics, protected data, professional responsibility, and local-first agent work. |
+> | `AGENTS.md` | Bootstrap boundaries for open mechanics, protected data, professional responsibility, and local-first agent work. |
 > | `AGENTS.md` | TASK dispatch scope and bounded execution rule. |
 > | `docs/DIRECTIVE.md` | Product principles, stop rules, public/private data boundary, and professional-responsibility limits. |
 > | `docs/CONTRACT.md` | Invariants for IP, data, privacy, rule packs, reports, authority, and agents. |
@@ -195,13 +197,15 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 
 > ##### Scope
 >
+> Current deliverable obligation: Draft and maintain threat model for private data, report sharing, plugins, imports, and supply chain. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This specification defines the deliverable-local setup content for the planned SWBPIPE security threat model. It covers private data handling threats for local-first workflows, report sharing, shared model/export paths, plugins, imports, rule packs, private libraries, and supply chain exposure.
 >
 > This document is not the product artifact `docs/security/threat_model.md`; it is the setup-stage source content inside the sealed DEL-12-05 folder. It must not introduce protected standards content, real private project data, real secrets, legal sufficiency claims, certification claims, or professional approval claims (PRD §21.2).
 >
 > Source basis: `_CONTEXT.md`, `execution/_Decomposition/SOFTWARE_DECOMP.md` rows `PKG-12`, `SOW-040`, `OBJ-010`, architecture basis rows `AB-00-01/02/03/04/06/07/08`, `docs/CONTRACT.md`, `docs/PRD.md` section 18, and `docs/IP_AND_DATA_BOUNDARY.md`.
 >
-
 ### CLM-017 — Requirements
 
 > ##### Requirements
@@ -262,7 +266,7 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 >
 > | Check | Acceptance signal |
 > |---|---|
-> | Four-document setup kit | `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` exist with default sections. |
+> | Scope of Work contract | `ScopeOfWork.md` exist with default sections. |
 > | Scope match | Documents reference `DEL-12-05`, `PKG-12`, `SOW-040`, and `OBJ-010` without expanding to unrelated deliverables. |
 > | Boundary compliance | No protected standards text/tables/data, no real private project data, no real secrets, and no certification/approval/seal claims (PRD §21.2). |
 > | Local-first posture | Cloud operation remains out of scope unless separately approved; telemetry is off by default. |
@@ -270,12 +274,15 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 > | Open questions | Implementation-level unknowns are marked `TBD`. |
 > | Semantic outputs | `_SEMANTIC.md` has no matrix audit errors and final result tables do not contain algebra/operator leaks. |
 > | Dependency register | `Dependencies.csv` validates against `tools/validation/validate_dependencies_schema.py`. |
-> | Lifecycle state | `_STATUS.md` remains `SEMANTIC_READY`, not `ISSUED`. |
+> | Lifecycle state | Use the current lifecycle recorded in `_STATUS.md`; preserve its state and history. Contract/evidence checks do not authorize a lifecycle transition or issuance. |
 >
 
 ### CLM-021 — Documentation
 
 > ##### Documentation
+>
+> Current deliverable obligation: Draft and maintain threat model for private data, report sharing, plugins, imports, and supply chain. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
 >
 > The eventual product artifact should be `docs/security/threat_model.md`; this run intentionally writes only deliverable-local setup content. A later implementation or documentation task may promote accepted content into product documentation after human review.
 >
@@ -287,7 +294,6 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 > - Status artifact: `_STATUS.md` with `SEMANTIC_READY`.
 > - Run records under `_run_records/` for P1/P2, semantic matrix, lens register, P3, and dependency extraction.
 >
-
 ### CLM-022 — D-41 R5 T7 PDU-054 current declaration
 
 > ##### D-41 R5 T7 PDU-054 current declaration
@@ -316,9 +322,11 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 
 > ##### Purpose
 >
+> Current deliverable obligation: Draft and maintain threat model for private data, report sharing, plugins, imports, and supply chain. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This procedure defines how a bounded TASK worker drafts, refreshes, and checks the DEL-12-05 security threat model setup content. It is intended for deliverable-local setup work only and does not publish `docs/security/threat_model.md`.
 >
-
 ### CLM-026 — Prerequisites
 
 > ##### Prerequisites
@@ -326,11 +334,11 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 > | Prerequisite | Required handling |
 > |---|---|
 > | Sealed deliverable context | Confirm `DEL-12-05`, `PKG-12`, `SOW-040`, `OBJ-010`, and the allowed write scope before editing. |
-> | Governance sources | Read `INIT.md`, `AGENTS.md`, `docs/CONTRACT.md`, relevant `SOFTWARE_DECOMP.md` revision 0.7 rows, register rows, and deliverable-local metadata. |
+> | Governance sources | Read `AGENTS.md`, `AGENTS.md`, `docs/CONTRACT.md`, relevant `SOFTWARE_DECOMP.md` accepted current basis rows, register rows, and deliverable-local metadata. |
 > | Source boundary | Use only accessible source material; mark missing implementation details `TBD`. |
-> | Write boundary | Write only inside this deliverable folder. Do not create or edit repo-level `docs/security/threat_model.md`. |
+> | Write boundary | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle and remaining work are recorded in `_STATUS.md`. Setup-only restrictions describe the originating setup run, not standing product scope. |
 > | Protected/private data boundary | Do not include protected standards text/tables/data, real private project data, real secrets, legal sufficiency claims, certification claims, or professional approval claims (PRD §21.2). |
-> | Status boundary | Keep `_STATUS.md` at `SEMANTIC_READY` after a successful setup refresh; do not mark `ISSUED`. |
+> | Status boundary | Use the current lifecycle recorded in `_STATUS.md`; preserve its state and history. Contract/evidence checks do not authorize a lifecycle transition or issuance. |
 >
 
 ### CLM-027 — Steps
@@ -346,17 +354,17 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 >    - Use `docs/PRD.md` sections 17-18 for private data, telemetry, report, and bug-report requirements.
 >    - Use `docs/SPEC.md` sections 1 and 6-8 for architecture, rule-pack, diagnostics, and reporting boundaries.
 >    - Use `docs/IP_AND_DATA_BOUNDARY.md` for provenance, quarantine, private data, and report boundaries.
->    - Use `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for `PKG-12`, `SOW-040`, `OBJ-010`, and architecture basis rows `AB-00-01/02/03/04/06/07/08`.
+>    - Use `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis for `PKG-12`, `SOW-040`, `OBJ-010`, and architecture basis rows `AB-00-01/02/03/04/06/07/08`.
 >
-> 3. Draft or refresh the four documents.
->    - Keep `Datasheet.md` sections `Identification`, `Attributes`, `Conditions`, `Construction`, and `References`.
->    - Keep `Specification.md` sections `Scope`, `Requirements`, `Standards`, `Verification`, and `Documentation`.
->    - Keep `Guidance.md` sections `Purpose`, `Principles`, `Considerations`, `Trade-offs`, and `Examples`.
->    - Keep `Procedure.md` sections `Purpose`, `Prerequisites`, `Steps`, `Verification`, and `Records`.
+> 3. Draft or refresh the Scope of Work contract.
+>    - Keep `ScopeOfWork.md` sections `Identification`, `Attributes`, `Conditions`, `Construction`, and `References`.
+>    - Keep `ScopeOfWork.md` sections `Scope`, `Requirements`, `Standards`, `Verification`, and `Documentation`.
+>    - Keep `ScopeOfWork.md` sections `Purpose`, `Principles`, `Considerations`, `Trade-offs`, and `Examples`.
+>    - Keep `ScopeOfWork.md` sections `Purpose`, `Prerequisites`, `Steps`, `Verification`, and `Records`.
 >    - Label unknown implementation details `TBD`; label inferences `ASSUMPTION` if used.
 >
 > 4. Build the semantic matrix artifact.
->    - Refresh `_SEMANTIC.md` using the deliverable perspective and the four documents.
+>    - Refresh `_SEMANTIC.md` using the deliverable perspective and the Scope of Work contract.
 >    - Verify the final result tables for matrices `C`, `F`, `D`, `X`, and `E` have no algebra/operator leaks and no matrix errors.
 >    - Set or verify `_STATUS.md` as `SEMANTIC_READY` on pass.
 >
@@ -383,20 +391,19 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 >    - Check `_SEMANTIC.md` for `MatrixError`/`MATRIX_ERROR`.
 >    - Check final result table rows for leaked algebra/operator tokens.
 >
-
 ### CLM-028 — Verification
 
 > ##### Verification
 >
 > | Verification item | Method |
 > |---|---|
-> | Four documents exist | File presence check for `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md`. |
-> | Default sections preserved | Heading check for required sections in all four documents. |
+> | the Scope of Work contract exist | File presence check for `ScopeOfWork.md`. |
+> | Default sections preserved | Heading check for required sections in the Scope of Work contract. |
 > | Semantic audit clean | Search `_SEMANTIC.md` for matrix errors and inspect final result tables for algebra/operator leaks. |
 > | Lensing coverage complete | Confirm `_SEMANTIC_LENSING.md` includes matrix sections for `A`, `B`, `C`, `F`, `D`, `X`, and `E`. |
 > | Dependency schema valid | Run the v3.1 dependency schema validator. |
-> | Status safe | Confirm `_STATUS.md` says `Current State: SEMANTIC_READY`, not `ISSUED`. |
-> | Write scope respected | Review changed paths before final report; no writes outside this deliverable folder. |
+> | Status safe | Use the current lifecycle recorded in `_STATUS.md`; preserve its state and history. Contract/evidence checks do not authorize a lifecycle transition or issuance. |
+> | Write scope respected Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Review changed paths before final report; no writes outside this deliverable folder. |
 >
 
 ### CLM-029 — Records
@@ -416,7 +423,6 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 > - `_run_records/PHASE_2_4_lens_register_2026-04-30.md`
 > - `_run_records/PHASE_2_5_four_documents_P3_2026-04-30.md`
 > - `_run_records/PHASE_2_6_dependency_extract_2026-04-30.md`
-
 - **VER-001** — Validate the contract and review source parity, asset/threat/trust-boundary coverage, local-first disclosure and report controls, plugin/import/rule/supply-chain/secret handling, bounded control evidence and explicit absences, retained TBDs and update triggers, and non-assurance limits.
 
 ## Governing Values and Decisions — Axiology
@@ -504,7 +510,7 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 > | What is the concrete plugin permission model? | `TBD`; no-bypass architecture basis applies until resolved. |
 > | What public API transport and import/export formats are supported? | `TBD`; schema-first envelopes are the current architecture basis. |
 > | What secret storage and signing-key process is used? | `TBD`; no real secrets may appear in setup or public examples. |
-> | What package/container format stores project data? | `TBD`; canonical JSON/JCS-compatible hash basis applies for JSON payload hashes. |
+> | What package/container format stores project data? | DEC-017 retains canonical JSON domain truth and a rebuildable SQLite projection; DEC-028 selects a multi-member zip/directory package with member inventory and per-member JCS hashes. DEC-057 names the `.opsproj` package. Storage roots, integration and unmet controls remain separately governed. |
 >
 
 ### CLM-038 — Trade-offs

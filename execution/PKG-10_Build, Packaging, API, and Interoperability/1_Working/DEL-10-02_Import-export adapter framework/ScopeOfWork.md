@@ -68,7 +68,7 @@ This Scope of Work defines `DEL-10-02` in service of project scope [SOW-030] and
 > | Imported data must flag missing required fields, missing or inconsistent units, missing provenance, unclear redistribution status, protected-table risk, and user-defined reasonableness concerns. | docs/PRD.md section 13.5 |
 > | Private rule packs, component libraries, material data, project files, and calculation results must not be transmitted or exported unexpectedly. | docs/PRD.md sections 18.2 and 18.3; docs/CONTRACT.md OPS-K-PRIV-1 |
 > | Adapter outputs for nontrivial operations use diagnostics/result envelopes and must not make certification or compliance claims. | execution/_Decomposition/SOFTWARE_DECOMP.md AB-00-06; docs/CONTRACT.md OPS-K-AUTH-1 |
-> | Adapter interfaces remain code-neutral and do not bundle protected standards data or proprietary tool behavior. | INIT.md; docs/DIRECTIVE.md; docs/IP_AND_DATA_BOUNDARY.md |
+> | Adapter interfaces remain code-neutral and do not bundle protected standards data or proprietary tool behavior. | AGENTS.md; docs/DIRECTIVE.md; docs/IP_AND_DATA_BOUNDARY.md |
 >
 
 ### CLM-006 — Construction
@@ -103,11 +103,10 @@ This Scope of Work defines `DEL-10-02` in service of project scope [SOW-030] and
 > - docs/_Registers/Deliverables.csv
 > - docs/_Registers/ScopeLedger.csv
 > - docs/_Registers/ContextBudgetQA.csv
-> - execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-03_Application service command-query-job model/Specification.md
-> - execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-06_Diagnostics, warning, and result-envelope contract/Specification.md
-> - execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-07_API boundary and adapter contract map/Specification.md
-> - execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-08_Layered software test and acceptance strategy/Specification.md
-
+> - execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-03_Application service command-query-job model/ArchitectureBasis.md
+> - execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-06_Diagnostics, warning, and result-envelope contract/ArchitectureBasis.md
+> - execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-07_API boundary and adapter contract map/ArchitectureBasis.md
+> - execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-08_Layered software test and acceptance strategy/ArchitectureBasis.md
 ## Completion and Reliance Basis — Epistemology
 
 ### CLM-008 — Specification: DEL-10-02 Import/export adapter framework
@@ -184,13 +183,15 @@ This Scope of Work defines `DEL-10-02` in service of project scope [SOW-030] and
 
 > ##### Documentation
 >
+> Current deliverable obligation: implement adapter shell with provenance capture and validation hooks for external formats. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > Required future artifacts remain:
 >
 > - adapter interfaces;
 > - sample invented adapter using invented, non-code, non-proprietary data only.
 >
-> This setup run does not create those implementation artifacts.
-
+> The original setup run does not create those implementation artifacts.
 - **AC-001** — The contract preserves schema-first adapter interfaces, unit/dimensional/provenance and redistribution checks, public/private data separation, protected-content quarantine, diagnostics and loss reporting, deterministic round-trip behavior, format-specific extension boundaries, downstream FEA-handoff compatibility, and unresolved external-format decisions without inventing implementation authority.
 
 ## Production and Verification Method — Praxeology
@@ -213,11 +214,10 @@ This Scope of Work defines `DEL-10-02` in service of project scope [SOW-030] and
 > ##### Prerequisites
 >
 > - Confirm the sealed brief authorizes implementation work beyond this setup/document production run.
-> - Read `_CONTEXT.md`, `Specification.md`, and the applicable `AB-00-*` architecture basis rows.
+> - Read `_CONTEXT.md`, `ScopeOfWork.md`, and the applicable `AB-00-*` architecture basis rows.
 > - Confirm the write scope before creating adapter source, tests, sample adapters, package manifests, or repo-level artifacts.
 > - Confirm whether the target work is framework-only or a concrete external format. Concrete external format selection requires human approval if not already recorded.
 >
-
 ### CLM-019 — Steps
 
 > ##### Steps

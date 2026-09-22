@@ -22,14 +22,14 @@ refs:
 
 # Local-First Storage Policy
 
-This policy defines OpenPipeStress local-first storage and private path posture
+This policy defines SWBPIPE local-first storage and private path posture
 for `DEL-12-01`. It is a privacy and product-boundary artifact, not a
 filesystem layout, cloud-service design, encryption claim, secret storage
 design, security certification, or compliance attestation (PRD §21.2).
 
 ## Scope
 
-OpenPipeStress is local-first by default. Private project models, private rule
+SWBPIPE is local-first by default. Private project models, private rule
 packs, private material and component libraries, owner standards, company
 design bases, credentials, secrets, diagnostics, reports, generated outputs,
 and other user-owned engineering data remain user controlled unless a user
@@ -56,10 +56,15 @@ states rather than silent defaults.
 The physical project package/container decision is SCA-003: a local
 SQLite-backed project store/index that stores canonical JSON/JCS-compatible
 payload bytes and private indexed projections behind application-service
-boundaries. Operating-system roots, application data directories, rollback
-semantics, encryption, secret storage, key management, redaction workflow,
-import/export formats, and cloud exception workflow remain unresolved unless
-separately approved.
+boundaries. Local storage placement follows DEC-012's accepted brief/change
+route without changing the private, local-first or service-boundary obligations.
+The desktop placement and migration realization is evidence in
+`apps/desktop/src-tauri/src/lib.rs` (`app_store_path`, `open_project_store`),
+with product persistence owned by DEL-02-05; this metadata guard is not that
+storage service. Redaction routes follow DEL-12-02's controlled-export contract
+and export format scope follows SCA-004/PKG-17. Actual rollback guarantees,
+encryption, secret-provider/key management and any cloud exception retain their
+own contract, verification and reserved-decision boundaries.
 
 This policy does not create real private paths, write files, define a product
 configuration schema, or select storage roots. It authorizes the local-only
@@ -200,12 +205,12 @@ path-class vocabulary.
 | Decision | Current state |
 |---|---|
 | Physical project package/container | SCA-003 local SQLite-backed project store/index. |
-| Operating-system roots and application data directories | `TBD`; no OS-specific root or real user path is selected. |
-| DB migration and product schema migration framework | `TBD`; the concerns are separate and versioned, migration-aware persistence remains the baseline. |
+| Operating-system roots and application data directories | Local placement is implementation evidence under DEC-012; preserve symbolic private-path and application-service boundaries. Product-specific native/OS behavior requires its own witness. |
+| DB migration and product schema migration framework | DEC-019/028 and DEL-02-05 govern separate versioned migration concerns; current store evidence does not establish every rollback or compatibility guarantee. |
 | Encryption, secret storage, and key management | `TBD`; no encryption or secret-storage claim is made here. |
-| Redaction workflow and export staging behavior | `TBD`; owned downstream by `DEL-12-02`. |
-| Private-library registry and secret/private-library handling | `TBD`; owned downstream by `DEL-12-04`. |
-| Import/export formats and adapter behavior | `TBD`; no adapter behavior is authorized here. |
+| Redaction workflow and export staging behavior | DEL-12-02 governs controlled final exposure, source preservation and wrapper-owned intent; see `docs/security/redaction_export_controls.md` and the accepted R15 breadth record. Unverified native behavior remains explicit. |
+| Private-library registry and secret/private-library handling | DEL-12-04 owns its implemented metadata/reference contract; a production secret provider and any grant model remain separately governed. |
+| Import/export formats and adapter behavior | SCA-004 and PKG-17 define admitted format scope; each owning contract retains its implementation/conformance work. This policy grants no new adapter behavior. |
 | Cloud exception workflow | `TBD`; cloud storage, cloud sync, and cloud service behavior are out of MVP unless separately approved. |
 
 ## Verification Expectations

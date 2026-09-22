@@ -87,7 +87,7 @@ This candidate defines `DEL-13-04` in service of project scope [SOW-066] and pac
 
 > ###### Upstream Inputs
 >
-> The local `Dependencies.csv` is an approved DAG-006 mirror/evidence surface. It lists these ACTIVE upstream dependencies for DEL-13-04:
+> The local `Dependencies.csv` is an approved graph resolved through `execution/_DAG/_LATEST.md` mirror/evidence surface. It lists these ACTIVE upstream dependencies for DEL-13-04:
 >
 > | Target | Relationship summary | Source |
 > |---|---|---|
@@ -114,7 +114,7 @@ This candidate defines `DEL-13-04` in service of project scope [SOW-066] and pac
 > | Condition | Value |
 > |---|---|
 > | Engineering standards text availability | Not locally available for this deliverable; do not derive clause-level requirements. |
-> | PRD v0.2 source availability | Referenced by SOW-066 but not present in `_REFERENCES.md` as a local source; PRD-derived particulars remain `TBD`. |
+> | PRD v0.2 source availability | The older PRD v0.2 citation is historical. Current `docs/PRD.md` is present (v0.4 Draft) and contains FR-MOD-007; use accepted SOW-066 for binding scope and explicitly trace any adopted PRD-derived detail. This does not claim v0.2/v0.4 clause parity or promote the draft. |
 > | Public data policy | No protected standards text, copied formulas, protected tables, protected examples, proprietary commercial data, or code-specific public defaults. |
 > | Solver acceptance policy | Deterministic mechanics tests are required before release; code-compliance acceptance remains outside software authority. |
 > | Constraint/provenance upstream | Current DEL-13-02 evidence is `schemas/constraint.schema.json` and `tests/test_constraint_schema.py`; transform consumption beyond copied `constraint_refs` remains broader integration `TBD`. |
@@ -145,8 +145,8 @@ This candidate defines `DEL-13-04` in service of project scope [SOW-066] and pac
 >
 > - `_CONTEXT.md` - deliverable identity, scope, architecture-basis injection, and accepted decomposition reference.
 > - `_REFERENCES.md` - governing reference list and source boundary.
-> - `_DEPENDENCIES.md` and `Dependencies.csv` - approved DAG-006 mirror/evidence surface.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - revision 0.7 package, scope, objective, and deliverable entries.
+> - `_DEPENDENCIES.md` and `Dependencies.csv` - approved graph resolved through `execution/_DAG/_LATEST.md` mirror/evidence surface.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current package, scope, objective, and deliverable entries.
 > - `docs/_Registers/Deliverables.csv` - row DEL-13-04.
 > - `docs/_Registers/ScopeLedger.csv` - row SOW-066.
 > - `docs/_Registers/ContextBudgetQA.csv` - row DEL-13-04.
@@ -154,13 +154,13 @@ This candidate defines `DEL-13-04` in service of project scope [SOW-066] and pac
 > - `docs/SPEC.md` - physical model source-of-truth, unit contract, and missing-data warning classes.
 > - `docs/TYPES.md` - model, model role, traceability, diagnostic, and mechanics-boundary registry meanings.
 > - `docs/IP_AND_DATA_BOUNDARY.md` - protected-content handling policy.
-> - `INIT.md` - project principles and stop rules.
+> - `AGENTS.md` and the applicable `docs/CONTRACT.md` invariants - project principles and stop rules.
 > - `core/model_transform/physical_to_analytical/contract.py` - implemented transform contract.
 > - `core/model_transform/physical_to_analytical/_solver_boundary_adapter.py` - internal solver-boundary DTO adapter.
 > - `fixtures/domain/invented_physical_source_of_truth_model.json` - canonical invented physical source-of-truth fixture.
 > - `tests/test_physical_to_analytical_transform.py` - focused transform tests.
 > - `tests/test_analytical_solver_boundary_adapter.py` - focused adapter tests.
-> - Current DEL-13-02 and DEL-13-03 four-document kits, `MEMORY.md` files, and 2026-06-07 TASK run records - upstream evidence refresh context.
+> - Current DEL-13-02 and DEL-13-03 `ScopeOfWork.md` records, `MEMORY.md` files, and 2026-06-07 TASK run records - upstream evidence refresh context.
 >
 
 ### CLM-010 — D-41 R5 T2B PDU-047 Evidence State
@@ -265,7 +265,7 @@ This candidate defines `DEL-13-04` in service of project scope [SOW-066] and pac
 > | `docs/SPEC.md` | Schema-first model role, unit metadata, diagnostics/warnings, and warning class context. |
 > | `docs/TYPES.md` | Vocabulary for model roles, traceability, diagnostics, frame kernel, supports, and load semantics. |
 > | `docs/IP_AND_DATA_BOUNDARY.md` | Protected-data and private-data handling. |
-> | `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 | Accepted decomposition and SOW/OBJ mapping. |
+> | `execution/_Decomposition/SOFTWARE_DECOMP.md` with its accepted amendments | Accepted decomposition and SOW/OBJ mapping. |
 > | `core/model_transform/physical_to_analytical/contract.py` | Current transform implementation. |
 > | `core/model_transform/physical_to_analytical/_solver_boundary_adapter.py` | Current internal adapter implementation. |
 > | `tests/test_physical_to_analytical_transform.py` and `tests/test_analytical_solver_boundary_adapter.py` | Current focused verification evidence. |
@@ -296,10 +296,10 @@ This candidate defines `DEL-13-04` in service of project scope [SOW-066] and pac
 >
 > Required local artifacts for this setup pass:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md` definition section
+> - `ScopeOfWork.md` requirements section
+> - `ScopeOfWork.md` guidance section
+> - `ScopeOfWork.md` procedure section
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 >
@@ -368,8 +368,8 @@ This candidate defines `DEL-13-04` in service of project scope [SOW-066] and pac
 >    - `docs/SPEC.md`
 >    - `docs/TYPES.md`
 >    - `docs/IP_AND_DATA_BOUNDARY.md`
->    - `INIT.md`
-> 3. Treat `Dependencies.csv` as the approved DAG-006 mirror/evidence surface. Preserve approved rows as ACTIVE; do not retire, delete, or reclassify them during this setup workflow.
+>    - `AGENTS.md` and the applicable `docs/CONTRACT.md` invariants
+> 3. Preserve local dependency meanings and actual statuses under `execution/_DAG/_LATEST.md`; historical IDs remain provenance and this record repair does not mutate the register.
 > 4. Use only source-cleared or invented/public-permissive data in examples and tests. Suspected protected content must be quarantined and escalated under project policy.
 > 5. Inspect current implementation and test evidence:
 >    - `core/model_transform/physical_to_analytical/contract.py`
@@ -377,7 +377,7 @@ This candidate defines `DEL-13-04` in service of project scope [SOW-066] and pac
 >    - `fixtures/domain/invented_physical_source_of_truth_model.json`
 >    - `tests/test_physical_to_analytical_transform.py`
 >    - `tests/test_analytical_solver_boundary_adapter.py`
-> 6. Treat current DEL-13-02 and DEL-13-03 four-document kits, `MEMORY.md` files, and TASK run records `TASK_RUN_2026-06-07_1127.md` / `TASK_RUN_2026-06-07_1133.md` as read-only upstream evidence for this refresh.
+> 6. Treat current DEL-13-02 and DEL-13-03 `ScopeOfWork.md` records, `MEMORY.md` files, and TASK run records `TASK_RUN_2026-06-07_1127.md` / `TASK_RUN_2026-06-07_1133.md` as read-only upstream evidence for this refresh.
 >
 
 ### CLM-027 — Steps
@@ -480,7 +480,7 @@ This candidate defines `DEL-13-04` in service of project scope [SOW-066] and pac
 > | Data boundary | No protected/private/proprietary engineering content is introduced. |
 > | Professional boundary | Outputs avoid certification, approval, compliance, or professional reliance claims (PRD §21.2). |
 > | Internal adapter boundary | Adapter accepts only strict `analytical_solver_model` mappings and reports DTO/load/orientation/property failures as diagnostics. |
-> | Dependency preservation | Existing local dependency rows remain unchanged during evidence refresh; historical row IDs remain audit evidence under the current DAG-006 coordination basis. |
+> | Dependency preservation | Existing local dependency rows remain unchanged during evidence refresh; historical row IDs remain audit evidence under the approved graph resolved through `execution/_DAG/_LATEST.md` coordination basis. |
 >
 
 ### CLM-035 — Records
@@ -489,10 +489,10 @@ This candidate defines `DEL-13-04` in service of project scope [SOW-066] and pac
 >
 > Maintain the following deliverable-local records:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md` definition section
+> - `ScopeOfWork.md` requirements section
+> - `ScopeOfWork.md` guidance section
+> - `ScopeOfWork.md` procedure section
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `_STATUS.md`
@@ -626,7 +626,7 @@ This candidate defines `DEL-13-04` in service of project scope [SOW-066] and pac
 >
 > | Gap | Impact | Handling |
 > |---|---|---|
-> | PRD v0.2 Section8.3 / FR-MOD-007 not locally available through `_REFERENCES.md` | Cannot derive PRD-specific transform clauses beyond SOW-066 wording. | Keep PRD-specific particulars `TBD`. |
+> | Historical PRD v0.2 citation versus current PRD source | Current `docs/PRD.md` v0.4 Draft includes FR-MOD-007; historical clause parity and adopted-detail traceability must be established before reliance. | Retain accepted SOW-066 scope; verify cited PRD detail at its actual accepted reach rather than infer current source absence. |
 > | Broader upstream integration beyond current DEL-13-02/DEL-13-03 refresh evidence | Cannot claim full runtime constraint-validation consumption, GUI presentation, public API behavior, or persisted handoff readiness. | Keep those integration surfaces `TBD` until bounded implementation evidence exists. |
 > | OI-012 unresolved architecture detail for loss classes | Transform-loss taxonomy cannot be finalized here. | Record `TBD`; require later architecture/detail task. |
 >

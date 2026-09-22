@@ -38,7 +38,7 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 > | Deliverable type | API_CONTRACT |
 > | Scope item | SOW-046 |
 > | Supported objectives | OBJ-007; OBJ-009 |
-> | Setup status | Draft setup artifact; not implementation |
+> | Setup status | Current contract with bounded implementation evidence; consult `_STATUS.md` for lifecycle and remaining work. |
 >
 
 ### CLM-004 — Attributes
@@ -50,7 +50,7 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 > | Primary artifact family | Machine-readable result export contract for review, regression comparison, and downstream tooling. |
 > | Baseline format | Schema-first JSON result envelopes. Source: `docs/_Registers/ScopeLedger.csv` row SOW-046; `_CONTEXT.md` Architecture Basis Injection. |
 > | Additional export formats | TBD; this setup deliverable does not choose CSV, HDF5, neutral-file, spreadsheet, or external tool formats as final. |
-> | Anticipated implementation artifacts | `schemas/results.schema.yaml`, exporter source, and tests. Source: `_CONTEXT.md` Anticipated Artifacts; not created or edited in this setup session. |
+> | Anticipated implementation artifacts Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | `schemas/results.schema.yaml`, exporter source, and tests. Source: `_CONTEXT.md` Anticipated Artifacts; not created or edited in the original setup session. |
 > | Envelope content categories | Result identity, model/run references, unit-aware value arrays, diagnostics, provenance, analysis status, warnings, and reproducibility references. Source: `docs/SPEC.md` sections 4.5, 7, 8, and 9; `execution/_Decomposition/SOFTWARE_DECOMP.md` architecture basis rows AB-00-03, AB-00-04, AB-00-06, and AB-00-07. |
 > | Review boundary | Exports support review and comparison. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Source: `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` section 4. |
 > | Unit boundary | Exported values must be unit-aware and dimensionally traceable; missing units are findings, not silent defaults. Source: `docs/CONTRACT.md` OPS-K-UNIT-1 and OPS-K-DATA-2. |
@@ -61,13 +61,15 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 
 > ##### Conditions
 >
+> Current deliverable obligation: Define and implement machine-readable result export for tests, review, and downstream tooling. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > - This session is setup/document production only; no schema file, exporter source, tests, docs outside this folder, or repository-level artifacts are modified.
 > - The export baseline is a JSON result envelope contract. Any additional export format remains `TBD` until a later bounded decision or implementation brief.
 > - Result exports must preserve the PKG-00 no-bypass baseline: adapters and downstream tools cannot bypass unit checks, diagnostics, provenance, public/private data boundaries, or professional-responsibility notices.
 > - Mechanics results, user-rule-check results, and human review/approval states must remain distinguishable in exported data.
 > - Exported diagnostics must carry enough structured information for review and regression triage without relying on prose-only warnings.
 >
-
 ### CLM-006 — Construction
 
 > ##### Construction
@@ -110,11 +112,13 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 
 > ##### Scope
 >
+> Current deliverable obligation: Define and implement machine-readable result export for tests, review, and downstream tooling. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This deliverable defines the setup specification for a machine-readable result export contract. The baseline is a schema-first JSON result envelope suitable for review, regression comparison, and downstream tooling.
 >
-> This setup run does not implement exporter code, edit `schemas/results.schema.yaml`, create tests, choose additional export formats as final, or modify documentation outside this deliverable folder. Those remain future implementation work under bounded Type 2 briefs.
+> The original setup run does not implement exporter code, edit `schemas/results.schema.yaml`, create tests, choose additional export formats as final, or modify documentation outside this deliverable folder. Those remain future implementation work under bounded Type 2 briefs.
 >
-
 ### CLM-011 — Requirements
 
 > ##### Requirements
@@ -141,7 +145,7 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 >
 > | Standard or basis | Applicability | Status |
 > |---|---|---|
-> | JSON Schema 2020-12 | Baseline schema technology for public result envelope contracts. | Architecture basis; schema file editing is outside this setup write scope. |
+> | JSON Schema 2020-12 | Baseline schema technology for public result envelope contracts. Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Architecture basis; schema file editing is outside this setup write scope. |
 > | Schema-first command/query/job result envelope baseline | Result export/API boundary and no-bypass contract. | Required by PKG-00 architecture basis referenced in `_CONTEXT.md`. |
 > | Canonical JSON / JCS-compatible canonicalization | Relevant when exported JSON payloads or manifests are hashed for reproducibility. | Hash implementation belongs primarily to DEL-08-02 / future implementation; this deliverable shall preserve compatible references. |
 > | SWBPIPE invariant catalog | IP, data, units, rule-pack, privacy, professional-responsibility, and agent-boundary constraints. | Binding project governance draft. |
@@ -173,10 +177,7 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 >
 > This setup deliverable produces:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -185,7 +186,6 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 > - `_STATUS.md`
 >
 > Future implementation artifacts anticipated by the register are `schemas/results.schema.yaml`, exporter source, and tests; they are not created or edited in this setup session.
-
 - **AC-001** — The contract preserves explicit units and dimensional metadata, structured diagnostics, provenance and reproducibility references, stable identifiers and ordering, mechanics/rule/human status distinctions, public/private content boundaries, and no-bypass or professional-authority constraints.
 
 ## Production and Verification Method — Praxeology
@@ -200,9 +200,11 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 
 > ##### Purpose
 >
+> Current deliverable obligation: Define and implement machine-readable result export for tests, review, and downstream tooling. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This procedure describes how to maintain the setup artifact for the result export format and how a later implementation brief should convert the setup specification into a governed result export contract.
 >
-
 ### CLM-018 — Prerequisites
 
 > ##### Prerequisites
@@ -223,6 +225,9 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 
 > ##### Steps
 >
+> Current deliverable obligation: Define and implement machine-readable result export for tests, review, and downstream tooling. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > 1. Confirm the current brief is limited to DEL-08-04 and does not authorize edits to `schemas/results.schema.yaml`, exporter source, tests, or documentation outside this deliverable folder.
 > 2. Read `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, `docs/CONTRACT.md`, `docs/SPEC.md`, `docs/TYPES.md`, `docs/IP_AND_DATA_BOUNDARY.md`, `execution/_Decomposition/SOFTWARE_DECOMP.md`, and the register rows for DEL-08-04 and SOW-046.
 > 3. Treat the baseline export as a schema-first JSON result envelope. Record additional formats as `TBD` unless a later human-approved scope change chooses them.
@@ -232,20 +237,19 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 > 7. Record dependency edges only when source documents state an explicit anchor, prerequisite, interface, or handoff. Do not add structural adjacency or coordination-only edges.
 > 8. For a later implementation brief, create or edit schemas/exporter/tests only inside that later brief's write scope and run the applicable schema, unit, diagnostics, protected-content, and regression gates.
 >
-
 ### CLM-020 — Verification
 
 > ##### Verification
 >
 > | Check | Expected result |
 > |---|---|
-> | Four-document setup kit | `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` exist with stable default sections. |
-> | Scope boundary | No files outside `execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/**` are edited. |
+> | Scope of Work contract | `ScopeOfWork.md` exist with stable default sections. |
+> | Scope boundary Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | No files outside `execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/**` are edited. |
 > | Format boundary | JSON result envelope baseline is stated; additional export formats remain `TBD`. |
 > | Unit/provenance/diagnostic boundary | Unit-aware values, provenance, diagnostics, and no-bypass adapter constraints are visible in the specification. |
 > | Protected/private boundary | No protected standards text, copied tables, proprietary formulas, private rule-pack payloads, private project data, or certification/compliance claims are introduced. |
 > | Dependency register | `Dependencies.csv` validates against v3.1 schema and `_DEPENDENCIES.md` counts match the CSV. |
-> | Lifecycle state | `_STATUS.md` is `SEMANTIC_READY` only after the four docs, semantic matrix, lensing register, and dependency extraction setup gates pass. |
+> | Lifecycle state | Use the current lifecycle recorded in `_STATUS.md`; preserve its state and history. Contract/evidence checks do not authorize a lifecycle transition or issuance. |
 >
 
 ### CLM-021 — Records
@@ -254,12 +258,11 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 >
 > The setup run should leave these records in the deliverable folder:
 >
-> - Four production documents: `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`
+> - Four production documents: `ScopeOfWork.md`
 > - Semantic artifacts: `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`
 > - Dependency artifacts: `Dependencies.csv`, `_DEPENDENCIES.md`
 > - Run records: `_run_records/TASK_RUN_2026-04-30_*.md`
 > - Lifecycle status: `_STATUS.md`
-
 - **VER-001** — Validate the contract and review source parity, schema-first JSON baseline, retained TBD format choices, unit and diagnostic completeness, deterministic comparison identity, provenance and rule-pack references, adapter no-bypass behavior, protected-content limits, and every governed residual.
 
 ## Governing Values and Decisions — Axiology

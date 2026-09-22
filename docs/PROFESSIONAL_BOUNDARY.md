@@ -19,9 +19,9 @@ refs:
 ## 1. Purpose
 
 This policy defines the professional-responsibility boundary for
-OpenPipeStress product, report, documentation, release, and agent claims.
+SWBPIPE product, report, documentation, release, and agent claims.
 
-OpenPipeStress is decision-support software for transparent piping mechanics,
+SWBPIPE is decision-support software for transparent piping mechanics,
 analysis-grade design-engine workflows, and stress-model authoring. It may
 compute mechanics, evaluate user-supplied rule packs, record diagnostics,
 support design-authoring and comparison workflows, and assemble auditable
@@ -35,16 +35,25 @@ code-compliance determination.
 ## 2. Current Authority Basis
 
 This draft policy is aligned to
-`execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved
-`DAG-007` coordination authority. The project license has been selected as
+the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md` and the approved
+graph selected by `execution/_DAG/_LATEST.md`. The project license has been selected as
 `PolyForm-Noncommercial-1.0.0`; this is a project governance notice and not
 legal advice, professional approval, or code-compliance evidence.
 
-The final contributor legal mechanism, maintainer roster/quorum, release
-authority, legal-review authority, security contact, release-label vocabulary,
+DEC-027 records a quorum of one: the sole human project authority is the sole
+maintainer and release authority. External contribution intake remains closed.
+DEC-079 adopts the D-07b sole-maintainer review and protected-content screening
+skeleton and records “process defined; intake closed”; activation requires a
+future owner decision. The final contributor legal instrument remains `TBD`
+until that activation decision, with legal advice obtained by the owner. No
+legal instrument or release is authorized by this current-basis correction.
+
+Legal-review authority, security contact, release-label vocabulary,
 human-acceptance workflow, and jurisdiction-specific professional-practice
-wording remain `TBD` until recorded by the human project authority or qualified
-reviewer.
+wording retain their own unresolved decisions and qualified-review routes.
+See DEC-027/DEC-079 in `execution/_Decomposition/SOFTWARE_DECOMP.md` and
+`execution/_Coordination/_DECISIONS/D-07b_contributor_intake_mechanism.md` §10.
+Blank per-contribution fields remain unfilled evidence slots.
 
 ## 3. Authority Boundaries
 
@@ -59,7 +68,7 @@ reviewer.
 
 ## 4. Permitted Claims
 
-OpenPipeStress materials may claim supported behavior when the claim is backed
+SWBPIPE materials may claim supported behavior when the claim is backed
 by implementation, tests, documentation, or recorded evidence. Permitted claims
 include:
 
@@ -80,7 +89,7 @@ Unsupported claims remain `TBD`, `ASSUMPTION`, or `PROPOSAL`.
 
 ## 5. Prohibited Claims
 
-OpenPipeStress software, reports, agents, examples, releases, and public
+SWBPIPE software, reports, agents, examples, releases, and public
 documentation must not state or imply that the project:
 
 - certifies, seals, approves, authenticates, or endorses engineering work;
@@ -115,7 +124,7 @@ project records, not solver-generated conclusions.
 
 ## 7. Human Acceptance Records
 
-If OpenPipeStress stores or references a human acceptance record, that record
+If SWBPIPE stores or references a human acceptance record, that record
 must:
 
 - identify the human acceptance authority or external record location;
@@ -133,7 +142,7 @@ the relevant persistence, report, and governance deliverables.
 
 Generated reports and public report templates must include notices that:
 
-- identify OpenPipeStress as decision-support software;
+- identify SWBPIPE as decision-support software;
 - distinguish mechanics results from user-rule checks and human professional
   acceptance;
 - state that code-specific and project-specific data are supplied by the user

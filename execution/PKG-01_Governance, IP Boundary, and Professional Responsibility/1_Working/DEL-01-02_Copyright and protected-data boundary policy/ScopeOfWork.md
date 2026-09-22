@@ -92,8 +92,8 @@ This Scope of Work defines `DEL-01-02` in service of project scope [SOW-003, SOW
 > - docs/IP_AND_DATA_BOUNDARY.md — draft repo-level policy artifact.
 > - governance/CONTRIBUTION_REVIEW_CHECKLIST.md — draft repo-level contribution review checklist.
 > - docs/AGENTIC_DEVELOPMENT_WORKFLOW.md — Type 2 execution and review expectations.
-> - execution/_Decomposition/SOFTWARE_DECOMP.md revision 0.7 — DEL-01-02, SOW-003, SOW-028, OBJ-002, AB-00-01, AB-00-02, AB-00-06, AB-00-08.
-> - execution/_DAG/DAG-006/ — approved active graph authority.
+> - execution/_Decomposition/SOFTWARE_DECOMP.md (accepted authority through the decision register) — DEL-01-02, SOW-003, SOW-028, OBJ-002, AB-00-01, AB-00-02, AB-00-06, AB-00-08.
+> - execution/_DAG/_LATEST.md — approved graph authority pointer.
 > - docs/_Registers/Deliverables.csv, ScopeLedger.csv, ContextBudgetQA.csv — register evidence.
 
 ## Completion and Reliance Basis — Epistemology
@@ -118,22 +118,22 @@ This Scope of Work defines `DEL-01-02` in service of project scope [SOW-003, SOW
 > |---|---|---|---|
 > | DEL-01-02-R1 | The policy shall state that the public repository must not contain protected standards text, tables, figures, examples, copied code formulas, material allowables, SIF/flexibility tables, protected dimensional tables, or proprietary commercial data. | docs/CONTRACT.md §1 OPS-K-IP-1; execution/_Decomposition/SOFTWARE_DECOMP.md SOW-003 | Review policy prohibited-content section and protected-content checklist entries. |
 > | DEL-01-02-R2 | The policy shall require public data contributions to include source, provenance, license or redistribution status, contributor certification, and review disposition. | docs/CONTRACT.md §1 OPS-K-IP-2; docs/IP_AND_DATA_BOUNDARY.md §4 | Confirm contribution checklist has each metadata field. |
-> | DEL-01-02-R3 | The policy shall define suspected protected-content handling as stop, quarantine, issue record, and human/legal escalation. | docs/CONTRACT.md §1 OPS-K-IP-3; docs/IP_AND_DATA_BOUNDARY.md §5 | Confirm quarantine path/process and escalation fields are present; exact path is `TBD`. |
-> | DEL-01-02-R4 | The policy shall distinguish open mechanics from user-supplied code-specific and proprietary data. | INIT.md; docs/DIRECTIVE.md §1, §3; docs/CONTRACT.md OPS-K-DATA-1 | Review allowed/prohibited/private categories. |
-> | DEL-01-02-R5 | The policy shall state that missing, unknown, or undocumented provenance/redistribution status blocks public acceptance until resolved. | docs/CONTRACT.md OPS-K-DATA-2, OPS-K-IP-2; docs/TYPES.md §5, §7 | Checklist includes `TBD`, `UNKNOWN_SOURCE`, and rejection/quarantine outcomes. |
+> | DEL-01-02-R3 | The policy shall define suspected protected-content handling as stop, quarantine, issue record, and human/legal escalation. | docs/CONTRACT.md §1 OPS-K-IP-3; docs/IP_AND_DATA_BOUNDARY.md §5 | Confirm quarantine path/process and escalation fields are present; default metadata convention is `quarantine/protected-content/` or a maintainer-approved equivalent, per `docs/IP_AND_DATA_BOUNDARY.md` §5. Access and legal disposition remain governed. |
+> | DEL-01-02-R4 | The policy shall distinguish open mechanics from user-supplied code-specific and proprietary data. | loop/LOOP_INIT.md; docs/DIRECTIVE.md §1, §3; docs/CONTRACT.md OPS-K-DATA-1 | Review allowed/prohibited/private categories. |
+> | DEL-01-02-R5 | The policy shall state that missing, unknown, or undocumented provenance/redistribution status blocks public acceptance until resolved. | docs/CONTRACT.md OPS-K-DATA-2, OPS-K-IP-2; docs/TYPES.md §5, §7 | Checklist includes `TBD`, the `unknown` redistribution value (the checklist representation of the TYPES `UNKNOWN_SOURCE` condition), and rejection/quarantine outcomes; unknown provenance still blocks acceptance. |
 > | DEL-01-02-R6 | The policy shall require public rule-pack examples and public report templates/examples to avoid protected standards content and use invented or permissively sourced data. | docs/CONTRACT.md OPS-K-RULE-1, OPS-K-REPORT-2; docs/SPEC.md §6, §8 | Review public-example and report-template review rows. |
 > | DEL-01-02-R7 | The policy shall make contributor review a maintainer gate for IP, provenance, privacy, and protected-content risks before accepting public contributions. | docs/CONTRACT.md OPS-K-GOV-4; docs/DIRECTIVE.md §6 | Checklist includes review disposition and responsible reviewer field. |
 > | DEL-01-02-R8 | The policy shall not claim legal advice, professional engineering approval, certification, sealing, code compliance, or standards-body endorsement (PRD §21.2). | docs/CONTRACT.md OPS-K-AUTH-1, OPS-K-AGENT-4; docs/DIRECTIVE.md §4.2, §6 | Review notices and forbidden-claim checks. |
 > | DEL-01-02-R9 | The policy shall preserve stable IDs and traceability to DEL-01-02, PKG-01, SOW-003, SOW-028, and OBJ-002 in the deliverable-local kit. | docs/CONTRACT.md OPS-K-HIER-1, OPS-K-ID-1; docs/TYPES.md §1-2 | Confirm IDs appear consistently in this kit. |
 > | DEL-01-02-R10 | Architecture-facing references to diagnostics, result envelopes, tests, and gates shall remain constraints for downstream implementation only unless this deliverable explicitly resolves them. | execution/_Decomposition/SOFTWARE_DECOMP.md AB-00-06, AB-00-08; sealed brief | Confirm policy text uses non-implementation wording and records downstream handoff. |
-> | DEL-01-02-R11 | The repo-level checklist location is `governance/CONTRIBUTION_REVIEW_CHECKLIST.md`; reviewer role and final legal/governance mechanism shall remain `TBD` until assigned by the human project authority. | docs/IP_AND_DATA_BOUNDARY.md §8; governance/CONTRIBUTION_REVIEW_CHECKLIST.md; docs/CONTRACT.md OPS-K-GOV-2, OPS-K-GOV-4 | Confirm the checklist path exists while reviewer and final legal mechanism remain unresolved. |
+> | DEL-01-02-R11 | The repo-level checklist location is `governance/CONTRIBUTION_REVIEW_CHECKLIST.md`; review follows the DEC-027 sole-maintainer authority and DEC-079 §5 process; final contributor legal instrument remains open until owner activation on legal advice. External intake remains closed. | docs/IP_AND_DATA_BOUNDARY.md §8; governance/CONTRIBUTION_REVIEW_CHECKLIST.md; docs/CONTRACT.md OPS-K-GOV-2, OPS-K-GOV-4 | Confirm the checklist path and DEC-027/079 sole-maintainer review route; preserve the deferred legal-instrument decision and closed intake. |
 >
 
 ### CLM-011 — Standards
 
 > ##### Standards
 >
-> No protected standards text or clause-level standard requirements are used as source material. Standards-body content is treated as excluded public-repository content unless explicit redistribution rights are documented and human/legal review accepts it. Specific legal requirements, licenses, and quarantine storage paths are `TBD`.
+> No protected standards text or clause-level standard requirements are used as source material. Standards-body content is treated as excluded public-repository content unless explicit redistribution rights are documented and human/legal review accepts it. The selected project license is `PolyForm-Noncommercial-1.0.0` (the 2026-06-03 human selection; `LICENSE.md`); DEC-027 governs the separate maintainer and external-intake posture. Default quarantine metadata uses `quarantine/protected-content/` or a maintainer-approved equivalent (`docs/IP_AND_DATA_BOUNDARY.md` §5); specific legal requirements, access arrangements, and legal disposition retain their governed decisions.
 >
 
 ### CLM-012 — Verification
@@ -145,7 +145,7 @@ This Scope of Work defines `DEL-01-02` in service of project scope [SOW-003, SOW
 > - Requirements cite local project sources rather than protected standard text.
 > - Unknowns are marked `TBD`.
 > - No product implementation, protected standards/code data, legal conclusion, certification, sealing, approval, or compliance-for-reliance claim is introduced (PRD §21.2).
-> - The contribution checklist verification remains field-by-field; path existence is resolved at `governance/CONTRIBUTION_REVIEW_CHECKLIST.md`, while reviewer role and final legal mechanism remain `TBD`.
+> - The contribution checklist verification remains field-by-field; path existence is resolved at `governance/CONTRIBUTION_REVIEW_CHECKLIST.md`, with the DEC-027/079 sole-maintainer review route; the final contributor legal instrument remains deferred to owner activation on legal advice.
 > - Dependency register validates against v3.1 schema after extraction.
 >
 
@@ -180,7 +180,7 @@ This Scope of Work defines `DEL-01-02` in service of project scope [SOW-003, SOW
 > - Applicable invariants from `docs/CONTRACT.md`.
 > - Human/legal availability for unresolved legal wording, license, contributor certification, and quarantine-path decisions.
 > - Checklist path: `governance/CONTRIBUTION_REVIEW_CHECKLIST.md`.
-> - Human project authority assignment of reviewer role and final governance/legal mechanism: `TBD`.
+> - Reviewer authority: the sole maintainer under DEC-027 and the DEC-079 §5 process. Contributor legal-instrument adoption remains deferred to owner activation on legal advice; intake stays closed.
 > - No protected standards/code/vendor data in working examples or drafts.
 >
 
@@ -204,7 +204,7 @@ This Scope of Work defines `DEL-01-02` in service of project scope [SOW-003, SOW
 > 5. If suspected protected content appears, stop ingestion, avoid reproducing it, mark the item `PROTECTED_CONTENT_SUSPECTED`, quarantine outside public examples, record the issue, and request human/legal review.
 > 6. Replace unknowns with `TBD` rather than inventing license status, legal conclusions, provenance, examples, formulas, or engineering values.
 > 7. Verify the policy avoids claims of legal advice, code compliance, professional engineering approval, certification, sealing, endorsement, or release fitness (PRD §21.2).
-> 8. Perform a field-by-field checklist acceptance review against Specification R2 and R11, treating reviewer role and final governance/legal mechanism as `TBD` until assigned by the human project authority.
+> 8. Perform a field-by-field checklist acceptance review against Specification R2 and R11, applying the DEC-027/079 sole-maintainer review route and retaining the final contributor legal-instrument decision for owner activation on legal advice.
 > 9. Route the repo-level policy/checklist for REVIEW and then human acceptance before treating it as project policy.
 >
 
@@ -264,7 +264,7 @@ This Scope of Work defines `DEL-01-02` in service of project scope [SOW-003, SOW
 
 > ##### Considerations
 >
-> The existing draft `docs/IP_AND_DATA_BOUNDARY.md` provides categories for allowed public content, prohibited public content, provenance fields, quarantine behavior, private user data, reports, and the contribution review checklist. The draft `governance/CONTRIBUTION_REVIEW_CHECKLIST.md` provides the current checklist surface. Later governance work may still need human decisions for final legal mechanism, license status vocabulary, reviewer roles, and escalation owner.
+> The existing draft `docs/IP_AND_DATA_BOUNDARY.md` provides categories for allowed public content, prohibited public content, provenance fields, quarantine behavior, private user data, reports, and the contribution review checklist. The draft `governance/CONTRIBUTION_REVIEW_CHECKLIST.md` provides the current checklist surface. DEC-027 and DEC-079 establish sole-maintainer review and keep intake closed. Contributor legal-instrument selection and legal sufficiency remain deferred to owner activation on legal advice; unresolved vocabulary and channel-specific escalation details retain their governing process.
 >
 > Architecture-basis items AB-00-01, AB-00-02, AB-00-06, and AB-00-08 matter as downstream constraints: protected-content and provenance gates should be testable, diagnostics should include `IP_BOUNDARY_WARNING` where implementation later touches contribution/report flows, and adapters/plugins should not bypass provenance or data-boundary controls. This document does not implement those controls.
 >
@@ -297,8 +297,8 @@ This Scope of Work defines `DEL-01-02` in service of project scope [SOW-003, SOW
 > | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling (TBD) |
 > |---|---|---|---|---|---|---|
 > | C-001 | Exact quarantine storage path is now specified as `quarantine/protected-content/` or maintainer-approved equivalent, but no maintainer-approved alternative path or owner is assigned. | docs/IP_AND_DATA_BOUNDARY.md §5 | governance/CONTRIBUTION_REVIEW_CHECKLIST.md §8 | Procedure §Steps; Specification R3 | Treat `quarantine/protected-content/` as the default unless a maintainer-approved equivalent is recorded. | TBD |
-> | C-002 | Contributor certification mechanism is required by policy intent but exact wording/mechanism remains unresolved. | docs/CONTRACT.md OPS-K-IP-2 | docs/DIRECTIVE.md §6 | Specification R2; Procedure checklist | Human/legal review should approve final attestation language. | TBD |
-> | C-003 | The contribution checklist path exists, but reviewer role and final governance/legal mechanism remain unresolved. | docs/IP_AND_DATA_BOUNDARY.md §8; governance/CONTRIBUTION_REVIEW_CHECKLIST.md | docs/CONTRACT.md OPS-K-GOV-2, OPS-K-GOV-4 | Specification R11; Procedure §Prerequisites | Human project authority should assign reviewer role and final governance/legal mechanism. | TBD |
+> | C-002 | Contributor certification mechanism is required by policy intent but exact wording/mechanism remains unresolved. | docs/CONTRACT.md OPS-K-IP-2 | docs/DIRECTIVE.md §6 | Specification R2; Procedure checklist | Human/legal review should approve final attestation language. | DEC-079: instrument choice remains deferred to owner activation on legal advice; external intake stays closed. |
+> | C-003 | Checklist location and sole-maintainer review are resolved; contributor legal-instrument adoption remains deferred. | DEC-027; DEC-079 §5 | `governance/CONTRIBUTION_REVIEW_CHECKLIST.md` | Requirements R11; Prerequisites | Apply the recorded review route; preserve legal and activation gates. | DEC-027/079; external intake remains closed. |
 
 ## Output and Evaluation Matrix
 

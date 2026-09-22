@@ -48,18 +48,21 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 > | Attribute | Draft setup value | Source / notes |
 > |---|---|---|
 > | Documentation purpose | Explain the lineage from classical piping flexibility analysis to modern global centerline/frame implementation. | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` row `DEL-11-03` |
-> | Solver concept boundary | The project uses a global 3D centerline/frame model as the primary practical analysis model; local shell/solid FEA is a separate handoff path. | `docs/CONTRACT.md` invariant `OPS-K-MECH-1`; `INIT.md` boundary 4 |
+> | Solver concept boundary | The project uses a global 3D centerline/frame model as the primary practical analysis model; local shell/solid FEA is a separate handoff path. | `docs/CONTRACT.md` invariant `OPS-K-MECH-1`; `AGENTS.md` boundary 4 |
 > | Public-source constraint | Future theory text must use public/permissive sources only and must cite them explicitly. | `_CONTEXT.md` Context Budget QA; `docs/CONTRACT.md` `OPS-K-IP-1` and `OPS-K-IP-2` |
 > | Protected-data exclusion | The note must not reproduce protected standards text, examples, figures, tables, code-specific formulas, SIF/flexibility tables, material allowables, or proprietary commercial data. | `docs/CONTRACT.md` `OPS-K-IP-1`; `_CONTEXT.md` |
-> | Code-neutral framing | Mechanics explanation must stay separate from user rule checks and professional approval. | `INIT.md` boundaries 2 and 3; `docs/CONTRACT.md` `OPS-K-AUTH-1`, `OPS-K-MECH-2` |
+> | Code-neutral framing | Mechanics explanation must stay separate from user rule checks and professional approval. | `AGENTS.md` boundaries 2 and 3; `docs/CONTRACT.md` `OPS-K-AUTH-1`, `OPS-K-MECH-2` |
 > | Unit stance | Any later technical explanation that mentions quantities or dimensions must remain unit-aware and avoid silent defaults. | `docs/CONTRACT.md` `OPS-K-UNIT-1`, `OPS-K-DATA-2` |
-> | Current source basis | Governance and decomposition sources only. Public mechanics references for production theory content are `TBD`. | `_REFERENCES.md`; `_CONTEXT.md` |
+> | Current source basis | Governance and the bounded public conceptual sources listed in the current theory Source Notes. Uncovered claims retain specific source gaps. | The current source inventory is `docs/theory/centerline_analysis.md` §Source Notes: NASA NTRS NASTRAN metadata, MIT OCW FEA overview and Engineering Statics metadata support only their listed conceptual claims. Historical piping-lineage, formula-level frame theory and expanded local-FEA-practice sources remain TBD. Do not infer permission to copy formulas, figures or examples. |
 > | Source inventory status | Source selection remains governed; sources that are not public/permissive, reviewed, and claim-specific remain `TBD` or rejected for public theory-note use. | `_SEMANTIC_LENSING.md` items `B-001`, `C-001`, `F-001`, and `E-001`; `docs/IP_AND_DATA_BOUNDARY.md` section 4 |
 >
 
 ### CLM-005 — Conditions
 
 > ##### Conditions
+>
+> Current deliverable obligation: Draft theory notes explaining the classical flexibility lineage and modern 3D frame implementation without copying protected standards. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
 >
 > - This setup kit is deliverable-local. It does not create or modify `docs/theory/centerline_analysis.md`.
 > - The final theory note must be educational and auditable. Acceptance, professional judgment, and any certification, sealing, or code-compliance determination remain with the responsible engineer and project authority.
@@ -69,7 +72,6 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 > - No source may be upgraded from `TBD` to accepted source support unless its provenance fields, public/permissive basis, protected-content review, and claim scope are recorded.
 > - Unclear sources, protected standards, proprietary commercial examples, and unsupported historical claims must not be used as substitutes for public/permissive source evidence.
 >
-
 ### CLM-006 — Construction
 
 > ##### Construction
@@ -78,27 +80,27 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 >
 > | Slot | Purpose | Current setup disposition |
 > |---|---|---|
-> | Scope and boundary | State educational purpose and non-certification boundary. | Required; grounded in `INIT.md` and `docs/CONTRACT.md`. |
+> | Scope and boundary | State educational purpose and non-certification boundary. | Required; grounded in `AGENTS.md` and `docs/CONTRACT.md`. |
 > | Classical lineage overview | Explain the transition from flexibility concepts to computer-aided structural analysis. | Public/permissive citations `TBD`; no protected standards examples. |
 > | Centerline/frame abstraction | Explain why a global pipe run can be represented as nodes, elements, frames, supports, and loads for routine flexibility analysis. | Concept allowed by `OPS-K-MECH-1`; equations and implementation details deferred. |
 > | Loads and result interpretation | Discuss primitive load families and mechanical results at a conceptual level. | Must avoid code-specific load combinations and stress allowables. |
 > | Rule-check boundary | Explain that rule packs evaluate user-defined acceptability after mechanics results. | Required by `OPS-K-MECH-2`, `OPS-K-DATA-1`, and `OPS-K-AUTH-1`. |
-> | Limitations and FEA handoff | Distinguish global centerline analysis from local shell/solid FEA. | Required by `INIT.md` boundary 4 and `OPS-K-MECH-1`. |
-> | References and provenance | List only public/permissive sources with license/redistribution status where applicable. | `TBD` until public sources are selected. |
+> | Limitations and FEA handoff | Distinguish global centerline analysis from local shell/solid FEA. | Required by `AGENTS.md` boundary 4 and `OPS-K-MECH-1`. |
+> | References and provenance | List only public/permissive sources with license/redistribution status where applicable. | The current source inventory is `docs/theory/centerline_analysis.md` §Source Notes: NASA NTRS NASTRAN metadata, MIT OCW FEA overview and Engineering Statics metadata support only their listed conceptual claims. Historical piping-lineage, formula-level frame theory and expanded local-FEA-practice sources remain TBD. Do not infer permission to copy formulas, figures or examples. |
 >
 > Source provenance minimum fields for future production:
 >
 > | Field | Purpose | Current disposition |
 > |---|---|---|
-> | Source title | Human-readable source name for final citation review. | TBD. |
-> | Source location | URL, DOI, local path, or other durable locator. | TBD. |
-> | Source section | Exact section, chapter, page, or heading used for a claim. | TBD. |
-> | License / redistribution status | Evidence that source can be cited or used in the public repository. | TBD. |
-> | Source type | Public-domain, permissive, project-authored, private-only, protected-suspected, or other reviewed category. | TBD. |
-> | Claim scope | Which final-note section or claim the source supports. | TBD. |
-> | Public/permissive disposition | `ACCEPTED`, `REJECTED`, or `TBD` for public theory-note use. | TBD. |
-> | Review disposition | Pending, accepted, rejected, quarantined, or deferred by human/project review. | TBD. |
-> | Protected-content review notes | Any concern about standard-derived, proprietary, private, or restricted content. | TBD. |
+> | Source title | Human-readable source name for final citation review. | The current source inventory is `docs/theory/centerline_analysis.md` §Source Notes: NASA NTRS NASTRAN metadata, MIT OCW FEA overview and Engineering Statics metadata support only their listed conceptual claims. Historical piping-lineage, formula-level frame theory and expanded local-FEA-practice sources remain TBD. Do not infer permission to copy formulas, figures or examples. |
+> | Source location | URL, DOI, local path, or other durable locator. | The current source inventory is `docs/theory/centerline_analysis.md` §Source Notes: NASA NTRS NASTRAN metadata, MIT OCW FEA overview and Engineering Statics metadata support only their listed conceptual claims. Historical piping-lineage, formula-level frame theory and expanded local-FEA-practice sources remain TBD. Do not infer permission to copy formulas, figures or examples. |
+> | Source section | Exact section, chapter, page, or heading used for a claim. | The current source inventory is `docs/theory/centerline_analysis.md` §Source Notes: NASA NTRS NASTRAN metadata, MIT OCW FEA overview and Engineering Statics metadata support only their listed conceptual claims. Historical piping-lineage, formula-level frame theory and expanded local-FEA-practice sources remain TBD. Do not infer permission to copy formulas, figures or examples. |
+> | License / redistribution status | Evidence that source can be cited or used in the public repository. | The current source inventory is `docs/theory/centerline_analysis.md` §Source Notes: NASA NTRS NASTRAN metadata, MIT OCW FEA overview and Engineering Statics metadata support only their listed conceptual claims. Historical piping-lineage, formula-level frame theory and expanded local-FEA-practice sources remain TBD. Do not infer permission to copy formulas, figures or examples. |
+> | Source type | Public-domain, permissive, project-authored, private-only, protected-suspected, or other reviewed category. | The current source inventory is `docs/theory/centerline_analysis.md` §Source Notes: NASA NTRS NASTRAN metadata, MIT OCW FEA overview and Engineering Statics metadata support only their listed conceptual claims. Historical piping-lineage, formula-level frame theory and expanded local-FEA-practice sources remain TBD. Do not infer permission to copy formulas, figures or examples. |
+> | Claim scope | Which final-note section or claim the source supports. | The current source inventory is `docs/theory/centerline_analysis.md` §Source Notes: NASA NTRS NASTRAN metadata, MIT OCW FEA overview and Engineering Statics metadata support only their listed conceptual claims. Historical piping-lineage, formula-level frame theory and expanded local-FEA-practice sources remain TBD. Do not infer permission to copy formulas, figures or examples. |
+> | Public/permissive disposition | `ACCEPTED`, `REJECTED`, or `TBD` for public theory-note use. | The current source inventory is `docs/theory/centerline_analysis.md` §Source Notes: NASA NTRS NASTRAN metadata, MIT OCW FEA overview and Engineering Statics metadata support only their listed conceptual claims. Historical piping-lineage, formula-level frame theory and expanded local-FEA-practice sources remain TBD. Do not infer permission to copy formulas, figures or examples. |
+> | Review disposition | Pending, accepted, rejected, quarantined, or deferred by human/project review. | The current source inventory is `docs/theory/centerline_analysis.md` §Source Notes: NASA NTRS NASTRAN metadata, MIT OCW FEA overview and Engineering Statics metadata support only their listed conceptual claims. Historical piping-lineage, formula-level frame theory and expanded local-FEA-practice sources remain TBD. Do not infer permission to copy formulas, figures or examples. |
+> | Protected-content review notes | Any concern about standard-derived, proprietary, private, or restricted content. | The current source inventory is `docs/theory/centerline_analysis.md` §Source Notes: NASA NTRS NASTRAN metadata, MIT OCW FEA overview and Engineering Statics metadata support only their listed conceptual claims. Historical piping-lineage, formula-level frame theory and expanded local-FEA-practice sources remain TBD. Do not infer permission to copy formulas, figures or examples. |
 >
 > Current source inventory/status expectations:
 >
@@ -106,7 +108,7 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 > |---|---|---|---|
 > | Project governance and decomposition documents | Scope, boundary, vocabulary, professional-boundary, and source-control requirements. | Available for control-document support. | Cite exact local file and relevant invariant or section. |
 > | Public history source for classical flexibility lineage | Historical or lineage statements. | `TBD`. | Public/permissive provenance, claim scope, and protected-content review. |
-> | Public mechanics/frame source | General structural-analysis or line-element concept support. | `TBD`. | Public/permissive provenance, claim scope, and no protected formula/table dependency. |
+> | Public mechanics/frame source | General structural-analysis or line-element concept support. | Bounded conceptual sources available; detailed piping/formula claims remain source-limited. | The current source inventory is `docs/theory/centerline_analysis.md` §Source Notes: NASA NTRS NASTRAN metadata, MIT OCW FEA overview and Engineering Statics metadata support only their listed conceptual claims. Historical piping-lineage, formula-level frame theory and expanded local-FEA-practice sources remain TBD. Do not infer permission to copy formulas, figures or examples. |
 > | Local FEA handoff source | Boundary between global centerline analysis and local shell/solid handoff. | `TBD`. | Public/permissive provenance and boundary-only use. |
 > | Protected standards or code-body material | Boundary reference only. | Not accepted as public source text. | Do not quote, paraphrase, table, formula-copy, or derive examples unless a future human-approved legal basis is recorded. |
 > | Proprietary commercial examples, benchmark files, or vendor data | Not part of public theory-note support. | Rejected unless rights are documented. | Remain `TBD`, rejected, or quarantined until review records redistribution rights. |
@@ -118,11 +120,11 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 >
 > - `_CONTEXT.md` for sealed deliverable identity, write boundary, scope, objectives, and architecture-basis injection.
 > - `_REFERENCES.md` for currently available governing references.
-> - `INIT.md` for open mechanics, protected-data, rule-check, professional-responsibility, and centerline-vs-FEA boundaries.
+> - `AGENTS.md` for open mechanics, protected-data, rule-check, professional-responsibility, and centerline-vs-FEA boundaries.
 > - `docs/CONTRACT.md` for invariants `OPS-K-IP-1`, `OPS-K-IP-2`, `OPS-K-IP-3`, `OPS-K-DATA-1`, `OPS-K-DATA-2`, `OPS-K-UNIT-1`, `OPS-K-AUTH-1`, `OPS-K-MECH-1`, `OPS-K-MECH-2`, and `OPS-K-AGENT-1..4`.
 > - `docs/IP_AND_DATA_BOUNDARY.md` for public/permissive source provenance fields, protected-content quarantine expectations, and contribution-review controls.
 > - `docs/PROFESSIONAL_BOUNDARY.md` for product-claim and professional-reliance boundaries.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 rows for `PKG-11`, `DEL-11-03`, `OBJ-001`, `OBJ-003`, and `SOW-033`.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis rows for `PKG-11`, `DEL-11-03`, `OBJ-001`, `OBJ-003`, and `SOW-033`.
 > - `docs/_Registers/Deliverables.csv`, `docs/_Registers/ScopeLedger.csv`, and `docs/_Registers/ContextBudgetQA.csv` rows for `DEL-11-03` and `SOW-033`.
 
 ## Completion and Reliance Basis — Epistemology
@@ -137,20 +139,22 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 
 > ##### Scope
 >
+> Current deliverable obligation: Draft theory notes explaining the classical flexibility lineage and modern 3D frame implementation without copying protected standards. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This specification governs only the deliverable-local setup for `DEL-11-03` and the future production contract for `docs/theory/centerline_analysis.md`. It does not authorize edits outside the deliverable folder in this setup run.
 >
 > The future theory note shall explain the classical flexibility lineage and modern 3D centerline/frame implementation approach for SWBPIPE, while preserving protected-data, rule-check, professional-responsibility, and unit-awareness boundaries.
 >
-
 ### CLM-011 — Requirements
 
 > ##### Requirements
 >
 > | ID | Requirement | Source |
 > |---|---|---|
-> | REQ-11-03-01 | The theory note shall explain centerline analysis as an educational mechanics concept and shall not assert code compliance, certification, sealing, approval, or professional reliance (PRD §21.2). | `docs/CONTRACT.md` `OPS-K-AUTH-1`; `INIT.md` |
-> | REQ-11-03-02 | The theory note shall distinguish mechanics solving from user-supplied rule checks and human professional acceptance. | `docs/CONTRACT.md` `OPS-K-MECH-2`, `OPS-K-DATA-1`; `INIT.md` |
-> | REQ-11-03-03 | The theory note shall frame routine global piping analysis as a 3D centerline/frame model and distinguish local shell/solid FEA as a handoff path. | `docs/CONTRACT.md` `OPS-K-MECH-1`; `INIT.md` |
+> | REQ-11-03-01 | The theory note shall explain centerline analysis as an educational mechanics concept and shall not assert code compliance, certification, sealing, approval, or professional reliance (PRD §21.2). | `docs/CONTRACT.md` `OPS-K-AUTH-1`; `AGENTS.md` |
+> | REQ-11-03-02 | The theory note shall distinguish mechanics solving from user-supplied rule checks and human professional acceptance. | `docs/CONTRACT.md` `OPS-K-MECH-2`, `OPS-K-DATA-1`; `AGENTS.md` |
+> | REQ-11-03-03 | The theory note shall frame routine global piping analysis as a 3D centerline/frame model and distinguish local shell/solid FEA as a handoff path. | `docs/CONTRACT.md` `OPS-K-MECH-1`; `AGENTS.md` |
 > | REQ-11-03-04 | The theory note shall use only public/permissive sources for historical and mechanics claims and shall cite source provenance. | `_CONTEXT.md`; `docs/CONTRACT.md` `OPS-K-IP-2` |
 > | REQ-11-03-05 | The theory note shall not copy or paraphrase protected standards text, examples, figures, tables, code-specific formulas, material allowables, SIF/flexibility tables, protected dimensional tables, or proprietary commercial data. | `docs/CONTRACT.md` `OPS-K-IP-1`, `OPS-K-IP-3` |
 > | REQ-11-03-06 | Any technical quantities, units, or dimensional reasoning introduced later shall be unit-aware and shall not rely on silent defaults. | `docs/CONTRACT.md` `OPS-K-UNIT-1`, `OPS-K-DATA-2` |
@@ -179,6 +183,8 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 >
 > Public/permissive theory sources for final prose are `TBD`.
 >
+
+> Source inventory qualification: The current source inventory is `docs/theory/centerline_analysis.md` §Source Notes: NASA NTRS NASTRAN metadata, MIT OCW FEA overview and Engineering Statics metadata support only their listed conceptual claims. Historical piping-lineage, formula-level frame theory and expanded local-FEA-practice sources remain TBD. Do not infer permission to copy formulas, figures or examples.
 
 ### CLM-013 — Source Provenance Control
 
@@ -217,7 +223,7 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 >
 > | Check | Method | Expected evidence |
 > |---|---|---|
-> | Four-document setup exists | File presence check | `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` present in this folder |
+> | Four-document setup exists | File presence check | `ScopeOfWork.md` present in this folder |
 > | Scope isolation | Path review | All created/modified setup artifacts remain under `DEL-11-03_Theory notes- classical to modern centerline analysis/` |
 > | Protected-data boundary | Content review | No copied standards formulas/examples/tables, material allowables, SIF/flexibility tables, or proprietary values |
 > | Non-certification boundary | Content review | No statement that software output certifies, seals, approves, authenticates, or declares engineering code compliance (PRD §21.2) |
@@ -225,7 +231,7 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 > | Source inventory control | Content review | Candidate sources carry the minimum provenance fields and a status of `ACCEPTED`, `REJECTED`, `QUARANTINED`, or `TBD`; only accepted public/permissive sources support final claims |
 > | Semantic setup | Artifact review | `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, and P3 run record exist and preserve lens-not-authority language |
 > | Dependency setup | Tool validation | `Dependencies.csv` passes v3.1 schema validation and `_DEPENDENCIES.md` counts match |
-> | Lifecycle gate | `_STATUS.md` review | `Current State` is `SEMANTIC_READY` only after setup artifacts and local validations pass |
+> | Lifecycle gate | `_STATUS.md` review | Use the current lifecycle recorded in `_STATUS.md`; preserve its state and history. Contract/evidence checks do not authorize a lifecycle transition or issuance. |
 >
 > Final theory-note coverage checklist for future production:
 >
@@ -256,12 +262,12 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 
 > ##### Documentation
 >
+> Current deliverable obligation: Draft theory notes explaining the classical flexibility lineage and modern 3D frame implementation without copying protected standards. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > Required setup outputs for this run:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -272,7 +278,6 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 > Future production output remains:
 >
 > - `docs/theory/centerline_analysis.md` (not edited in this setup run)
-
 - **AC-001** — The contract preserves the source-defined conceptual progression, coordinate and unit conventions, model assumptions and limitations, source-provenance controls, distinctions among explanation, implementation, verification, validation, and professional reliance, visible unresolved technical questions, and the ban on presenting unverified extracted equations or narrative as authoritative design basis.
 
 ## Production and Verification Method — Praxeology
@@ -286,9 +291,11 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 
 > ##### Purpose
 >
+> Current deliverable obligation: Draft theory notes explaining the classical flexibility lineage and modern 3D frame implementation without copying protected standards. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > Execute and review the deliverable-local setup workflow for the theory notes without editing the final documentation target or introducing protected engineering content.
 >
-
 ### CLM-018 — Prerequisites
 
 > ##### Prerequisites
@@ -303,7 +310,7 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 
 > ##### Steps
 >
-> 1. Draft the four-document setup kit.
+> 1. Draft the Scope of Work contract.
 >    - Populate identification, scope, requirements, guidance, and procedure content from the sealed context and governing documents.
 >    - Mark unavailable public-source details as `TBD`.
 >    - Do not edit `docs/theory/centerline_analysis.md`.
@@ -318,7 +325,7 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 >    - Record warranted future enrichment items without changing production documents.
 >    - Keep human rulings as `TBD`.
 >
-> 4. Run the P3-only four-document pass.
+> 4. Run the P3-only contract review.
 >    - Treat `_SEMANTIC_LENSING.md` as a candidate worklist, not as authority.
 >    - Apply only warranted clarifications supported by the already-read governing sources.
 >    - Preserve protected-data and no-certification boundaries.
@@ -329,12 +336,11 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 >    - Validate schema and enum values.
 >
 > 6. Verify setup gates.
->    - Confirm the four documents exist.
+>    - Confirm the Scope of Work contract exist.
 >    - Confirm semantic and lensing artifacts exist and are internally structured.
 >    - Confirm dependency schema validation passes.
 >    - Confirm no file outside the deliverable folder was modified by this TASK run.
 >
-
 ### CLM-020 — Verification
 
 > ##### Verification
@@ -343,10 +349,10 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 >
 >   ```sh
 >   deliverable_folder="execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-03_Theory notes- classical to modern centerline analysis"
->   test -f "$deliverable_folder/Datasheet.md"
->   test -f "$deliverable_folder/Specification.md"
->   test -f "$deliverable_folder/Guidance.md"
->   test -f "$deliverable_folder/Procedure.md"
+>   test -f "$deliverable_folder/ScopeOfWork.md"
+>   test -f "$deliverable_folder/ScopeOfWork.md"
+>   test -f "$deliverable_folder/ScopeOfWork.md"
+>   test -f "$deliverable_folder/ScopeOfWork.md"
 >   ```
 >
 > - `python3 tools/validation/validate_dependencies_schema.py <deliverable-folder>/Dependencies.csv` passes.
@@ -354,7 +360,6 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 > - Content review finds no protected standards text, examples, formulas, tables, proprietary values, or compliance/certification claims.
 > - `_STATUS.md` history records setup progression without moving anything to `ISSUED`.
 >
-
 ### CLM-021 — Records
 
 > ##### Records
@@ -366,7 +371,6 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 > - Dependency artifacts: `Dependencies.csv`, `_DEPENDENCIES.md`
 > - Run records: `_run_records/TASK_RUN_*.md`
 > - Lifecycle file: `_STATUS.md`
-
 - **VER-001** — Validate the contract and review source parity, classical-to-modern topic coverage, assumptions and limitations, coordinate/unit conventions, source provenance and equation reliability controls, verification-versus-validation boundaries, retained conflicts and TBDs, and non-reliance limits.
 
 ## Governing Values and Decisions — Axiology
@@ -412,7 +416,7 @@ This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and
 > | Topic | Source need | Current disposition |
 > |---|---|---|
 > | Classical flexibility lineage | Public/permissive historical or educational source for lineage statements. | `TBD`; do not invent or overstate history. |
-> | Centerline/frame explanation | Public/permissive mechanics or structural-analysis source if the final note goes beyond project boundary language. | `TBD`; keep current prose conceptual. |
+> | Centerline/frame explanation | Public/permissive mechanics or structural-analysis source if the final note goes beyond project boundary language. | The current source inventory is `docs/theory/centerline_analysis.md` §Source Notes: NASA NTRS NASTRAN metadata, MIT OCW FEA overview and Engineering Statics metadata support only their listed conceptual claims. Historical piping-lineage, formula-level frame theory and expanded local-FEA-practice sources remain TBD. Do not infer permission to copy formulas, figures or examples. |
 > | Local shell/solid FEA handoff | Public/permissive source if future prose expands from boundary statement to practice explanation. | `TBD`; keep current use as a boundary concept. |
 > | Examples | Invented educational examples only, unless public/permissive source and review support are recorded. | `TBD`; no standards-derived or proprietary examples. |
 >

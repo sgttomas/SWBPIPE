@@ -223,7 +223,7 @@ This Scope of Work defines `DEL-05-04` in service of project scope [SOW-047] and
 > | Prerequisite | Source |
 > |---|---|
 > | Sealed DEL-05-04 context with write scope limited to this deliverable folder. | `_CONTEXT.md`; OPS-K-AGENT-3 |
-> | Decomposition revision 0.7 and register rows for DEL-05-04, SOW-047, OBJ-005, and OBJ-011. | `execution/_Decomposition/SOFTWARE_DECOMP.md`; registers |
+> | Accepted decomposition, its decision register, and register rows for DEL-05-04, SOW-047, OBJ-005, and OBJ-011. | `execution/_Decomposition/SOFTWARE_DECOMP.md`; registers |
 > | Applicable architecture basis IDs AB-00-01, AB-00-02, AB-00-03, AB-00-06, and AB-00-08. | `_CONTEXT.md` Architecture Basis Injection |
 > | Invariant catalog slices for authority, mechanics/rule separation, missing data, reports, and agent boundaries. | `docs/CONTRACT.md` |
 > | Analysis status vocabulary, architecture note, schemas, and tests. | `docs/TYPES.md`; `docs/architecture/analysis_status_semantics.md`; `schemas/analysis_status.schema.yaml`; `tests/test_analysis_status_schema.py` |
@@ -240,7 +240,7 @@ This Scope of Work defines `DEL-05-04` in service of project scope [SOW-047] and
 > | 3 | Maintain the `ScopeOfWork.md` as deliverable-local evidence for the analysis-status state model. | `ScopeOfWork.md` |
 > | 4 | Build the semantic matrix lens as question-shaping evidence, not engineering authority. | `_SEMANTIC.md` |
 > | 5 | Build the semantic lensing register and capture warranted gaps/questions with `HumanRuling=TBD`. | `_SEMANTIC_LENSING.md` |
-> | 6 | Apply only source-supported Pass 3 refinements, preserving unresolved items as `TBD`. | Four documents and run record |
+> | 6 | Apply only source-supported Pass 3 refinements, preserving unresolved items as `TBD`. | `ScopeOfWork.md` and run record |
 > | 7 | Extract dependency anchors and information-flow constraints conservatively. | `Dependencies.csv`; `_DEPENDENCIES.md` |
 > | 8 | Validate dependency/schema evidence as needed and keep `_STATUS.md` unchanged unless a human explicitly authorizes a lifecycle gate. | Validation output; `_STATUS.md` |
 >

@@ -22,7 +22,7 @@ Identity: Deliverable DEL-00-06, PKG-00 Software Architecture Runway, type DATA_
 | REQ-06-04 | Distinguish invalid input, incomplete model, mechanics result, rule-check result, and human-review-needed states. | Kit Specification; AB-00-06 row |
 | REQ-06-05 | Diagnostics must not claim certification, code compliance, approval, or professional authentication. | Kit Specification; AB-00-06 row; `OPS-K-AUTH-1` |
 
-Sanctioned additive classes (extensions, not contradictions of REQ-06-02): the implemented warning-class enum in `schemas/analysis_run.schema.json` additionally carries `UNIT_WARNING`, `RUN_REPRODUCIBILITY_WARNING`, and `RESULT_HASH_WARNING` alongside the six SPEC classes.
+Sanctioned additive classes (extensions, not contradictions of REQ-06-02): the versioned `schemas/analysis_run.v0.1.schema.json` warning-class enum carries `UNIT_WARNING`, `RUN_REPRODUCIBILITY_WARNING`, and `RESULT_HASH_WARNING` alongside the six SPEC classes. The result contracts in `schemas/results.v0.1.schema.yaml` and `schemas/results.v0.2.schema.yaml` carry `UNIT_WARNING`; they do not declare the two analysis-run-specific additions. Consumers must preserve the applicable versioned boundary contract.
 
 Cross-cutting invariants carried unchanged from the kit: `OPS-K-IP-1` (no protected standards text, tables, formulas, allowables, or proprietary data in public artifacts), `OPS-K-DATA-2` (missing solve/rule-check-required values remain explicit findings, never silent defaults), `OPS-K-AUTH-1` (no certification/sealing/approval/code-compliance claims), `OPS-K-MECH-1` (global analysis is a 3D centerline/frame model; local FEA is a handoff path), `OPS-K-AGENT-1` (unknown facts become `TBD`), `OPS-K-AGENT-3` (Type 2 execution stays within sealed scope).
 
@@ -30,7 +30,7 @@ Downstream consumers use this member as AB-00-06 architecture-basis context thro
 
 ## Resolved decisions (former TBD and human-ruling queue)
 
-Register: `execution/_Coordination/_DECISIONS/_REGISTER.md`; codification in `execution/_Decomposition/SOFTWARE_DECOMP.md` §8.4 (~lines 585–640).
+Register: `execution/_Coordination/_DECISIONS/_REGISTER.md`; codification in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 (decision log) and §8.2 (architecture baseline).
 
 | Former open item | Resolution | Record |
 |---|---|---|
@@ -45,7 +45,7 @@ Register: `execution/_Coordination/_DECISIONS/_REGISTER.md`; codification in `ex
 |---|---|---|
 | `docs/architecture/diagnostics_contract.md` | Never created under that name. Status/diagnostic semantics realized as `docs/architecture/analysis_status_semantics.md`. | DEL-05-04 |
 | Standalone result-envelope schema | Never created under that name. Realized as `schemas/operation_outcome.schema.json`. | DEL-10-03 |
-| Warning-class contract | Realized as the warning-class enum in `schemas/analysis_run.schema.json` (six SPEC classes plus the sanctioned additive classes noted above). | Implementation surface owned by its package; this member remains the class-contract basis |
+| Warning-class contract | Realized by the versioned analysis-run and result schema enums described above; the applicable schema version determines its additive classes. | Implementation surface owned by its package; this member remains the class-contract basis |
 
 ## Open holds and routed questions
 
@@ -56,4 +56,4 @@ Register: `execution/_Coordination/_DECISIONS/_REGISTER.md`; codification in `ex
 
 ## Currency and provenance
 
-Consolidated 2026-07-15 per piping decision D-43 from the four-document kit (`Datasheet.md`, `Specification.md`, `Procedure.md`, `Guidance.md`) as reconciled by D-41 R5 T7 (PDU-054 currentness declarations, 2026-07-12) and the accepted TP-DIAG-019 / TP-VERIFY-013E rulings. Prior wording is preserved in git history; `MEMORY.md` is retained unchanged as the dated decision/evidence trail. Current upstream authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.9 with approved `execution/_DAG/DAG-007/` graph context.
+Consolidated 2026-07-15 per piping decision D-43 from the four-document kit (`Datasheet.md`, `Specification.md`, `Procedure.md`, `Guidance.md`) as reconciled by D-41 R5 T7 (PDU-054 currentness declarations, 2026-07-12) and the accepted TP-DIAG-019 / TP-VERIFY-013E rulings. Prior wording is preserved in git history; `MEMORY.md` is retained unchanged as the dated decision/evidence trail. Current upstream authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` with its accepted decisions; approved graph context is resolved through `execution/_DAG/_LATEST.md`.

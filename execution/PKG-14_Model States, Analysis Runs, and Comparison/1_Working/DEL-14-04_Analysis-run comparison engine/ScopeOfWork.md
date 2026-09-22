@@ -63,7 +63,7 @@ This Scope of Work defines `DEL-14-04` in service of project scope [SOW-073, SOW
 > | Entity/result coverage | Mapped nodes, elements, supports, terminals, stress/result locations, diagnostics, and settings. |
 > | Role boundary | Diagnostic/audit functionality only. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
 > | Architecture basis | Rust core/application services; schema-first command/query/job result envelopes; JSON Schema 2020-12; JCS-compatible hash basis for JSON payloads when hashed; Cargo/Vitest/Playwright/validation/protected-content gates as applicable. |
-> | Open implementation decisions | Exact dependency versions, solver numerical library, public API transport, import/export format list, CI provider/coverage thresholds, physical project package/container, comparison tolerance defaults, and mapping workflows remain `TBD` unless separately approved. |
+> | Open implementation decisions | Implementation choices follow DEC-012 and their accepted briefs. DEC-023 settles the solver strategy; SCA-004 admits the export scope; DEC-025/059/060/093 govern applicable CI and coverage portions. Their implementation and conformance evidence remains required. Unselected dependency versions, public transport, comparison tolerance defaults and mapping workflows retain their actual decision or delivery boundaries (including OI-014); DEC-017/028 conformance remains delivery work. |
 >
 
 ### CLM-005 — Conditions
@@ -71,8 +71,8 @@ This Scope of Work defines `DEL-14-04` in service of project scope [SOW-073, SOW
 > ##### Conditions
 >
 > - The comparison engine must remain source-grounded in PKG-14 scope: immutable model states, analysis-run records, deterministic state/run comparison, mappings, tolerances, and comparison exports.
-> - `ASSUMPTION`: This deliverable consumes analysis-run records, mapping/tolerance contracts, result-export envelopes, and unit-system contracts as upstream evidence surfaces because `Dependencies.csv` lists those rows as ACTIVE DAG-002 mirror entries.
-> - The local dependency mirror records eleven ACTIVE rows and identifies the source of truth as approved DAG-006 coordination. These rows are evidence surface only and are not reclassified by this datasheet.
+> - Preserve local dependency meanings and actual statuses under `execution/_DAG/_LATEST.md`; historical IDs remain provenance and this record repair does not mutate the register.
+> - The local dependency mirror records eleven ACTIVE rows and identifies the source of truth as approved graph resolved through `execution/_DAG/_LATEST.md` coordination. These rows are evidence surface only and are not reclassified by this datasheet.
 > - Missing or ambiguous units on unit-bearing physical values are diagnostics, not silent defaults, per `docs/SPEC.md` unit-contract text.
 > - Result export envelopes must preserve units, diagnostics, provenance, hashes/status boundaries, and professional-boundary notices per `docs/SPEC.md` and `docs/TYPES.md`.
 > - Comparison tolerance defaults and mapping workflows are explicitly `TBD` in `execution/_Decomposition/SOFTWARE_DECOMP.md` open issue OI-014.
@@ -84,13 +84,13 @@ This Scope of Work defines `DEL-14-04` in service of project scope [SOW-073, SOW
 >
 > | Construct | Description | Status |
 > |---|---|---|
-> | Input run references | References to two analysis runs and their exact model-state/run basis. | Required by SOW-072/SOW-073; concrete schema field names `TBD`. |
+> | Input run references | References to two analysis runs and their exact model-state/run basis. | Required by SOW-072/SOW-073; reference field shape is in `core/comparison/analysis_run/engine.py`; final public API conformance remains separate. |
 > | Mapping source | Automatic mappings for unique identical result IDs with matching family/object/basis/dimension; explicit caller-supplied manual mappings for all other comparable relationships. | Implemented as a bounded DEL-14-05 `MappingRecord` consumer/producer projection; no heuristic workflow selected. |
 > | Unit normalization | Same-dimension comparison of result values using accepted unit metadata and conversion contracts. | Required by SOW-073 and unit contract; accepted unit catalog/tolerance details `TBD`. |
 > | Delta categories | Result, diagnostic, and settings deltas for mapped entities/locations. | Required by DEL-14-04 description; exact enum/API shape `TBD`. |
 > | Tolerance profiles | Profile-driven thresholding for comparison outcomes. | Required by SOW-073; defaults/workflows `TBD` under OI-014. |
-> | Deterministic output | Stable ordering and reproducible results for the same inputs. | Required by deterministic comparison scope; concrete hash/output fixture basis `TBD`. |
-> | Tests | Result delta tests. | Anticipated artifact; acceptance fixture set `TBD`. |
+> | Deterministic output | Stable ordering and reproducible results for the same inputs. | Required by deterministic comparison scope; reference ordering/output fixtures are in `tests/test_analysis_run_comparison.py`; assess current coverage against the requirement. |
+> | Tests | Result delta tests. | `tests/test_analysis_run_comparison.py` provides reference fixtures; engineering acceptance and fixture provenance are separate. |
 >
 
 ### CLM-007 — References
@@ -99,8 +99,8 @@ This Scope of Work defines `DEL-14-04` in service of project scope [SOW-073, SOW
 >
 > - `_CONTEXT.md` - deliverable identity, scope, architecture-basis injection, and context budget.
 > - `_REFERENCES.md` - governing reference list and accessible public context.
-> - `Dependencies.csv` - approved DAG-006 mirror/evidence surface for upstream dependency rows.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - revision 0.7 package, deliverable, scope, objective, and open-issue basis.
+> - `Dependencies.csv` - approved graph resolved through `execution/_DAG/_LATEST.md` mirror/evidence surface for upstream dependency rows.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current package, deliverable, scope, objective, and open-issue basis.
 > - `docs/CONTRACT.md` - invariant catalog, including no invention, unit-awareness, professional boundary, IP/privacy, and agent constraints.
 > - `docs/SPEC.md` - unit contract, analysis boundary, persistence/hash, result export, runner output, and validation mechanics.
 > - `docs/TYPES.md` - stable reference, diagnostic, checksum, result, result-export, and analysis-boundary vocabulary.
@@ -181,7 +181,7 @@ This Scope of Work defines `DEL-14-04` in service of project scope [SOW-073, SOW
 > - `docs/SPEC.md` for unit, analysis-boundary, persistence/hash, result-export, runner-output, and validation mechanics.
 > - `docs/TYPES.md` for vocabulary and boundary notes.
 > - `docs/IP_AND_DATA_BOUNDARY.md` for protected-content/private-data limits.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` for accepted revision 0.7 scope and open issues.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` for accepted current scope and open issues.
 >
 
 ### CLM-015 — Verification
@@ -190,12 +190,12 @@ This Scope of Work defines `DEL-14-04` in service of project scope [SOW-073, SOW
 >
 > | Verification Item | Required Evidence | Current Status |
 > |---|---|---|
-> | Determinism | Same input pair produces identical ordered comparison output. | `TBD` fixture/API shape. |
+> | Determinism | Same input pair produces identical ordered comparison output. | Inspect `core/comparison/analysis_run/engine.py` and `tests/test_analysis_run_comparison.py` for reference output/ordering evidence; public API conformance remains open. |
 > | Stable-ID/mapping behavior | Exact stable-ID production and manual-mapping paths are both exercised through JSON round trip. | Implemented for unique exact result IDs using the DEL-14-05 `MappingRecord`; non-identical/ambiguous IDs remain manual-only. |
-> | Unit-normalized deltas | Same-dimension values compare after accepted unit normalization; incompatible/missing units emit diagnostics. | `TBD`; depends on DEL-02-02 unit contract maturity. |
-> | Diagnostics/settings deltas | Diagnostic and settings differences are surfaced without compliance claims. | `TBD`; depends on result/run record schema. |
-> | Tolerance profiles | Tolerance profile affects classification without changing raw delta evidence. | `TBD`; OI-014 open. |
-> | Boundary wording | Output statuses avoid human approval, certification, sealing, authentication, and automatic code-compliance labels (PRD §21.2). | Required by governance; concrete assertions `TBD`. |
+> | Unit-normalized deltas | Same-dimension values compare after accepted unit normalization; incompatible/missing units emit diagnostics. | Reference unit/delta checks are in `tests/test_analysis_run_comparison.py`; prove dimensional and missing-unit obligations against actual producer inputs. |
+> | Diagnostics/settings deltas | Diagnostic and settings differences are surfaced without compliance claims. | Reference engine/test coverage exists; producer diagnostic loss and actual cross-surface conformance remain explicit delivery work. |
+> | Tolerance profiles | Tolerance profile affects classification without changing raw delta evidence. | Reference profile handling exists; OI-014 default tolerances/workflow selection remain open. |
+> | Boundary wording | Output statuses avoid human approval, certification, sealing, authentication, and automatic code-compliance labels (PRD §21.2). | Required by governance; compare reference tests and `docs/claims_registry.md` checks with actual UI/report output. |
 >
 
 ### CLM-016 — Documentation
@@ -266,7 +266,7 @@ This Scope of Work defines `DEL-14-04` in service of project scope [SOW-073, SOW
 >
 > - Read `_CONTEXT.md`, `_REFERENCES.md`, and the current deliverable-local dependency mirror before implementation work.
 > - Confirm the applicable scope items are SOW-072 and SOW-073, and that OBJ-016 is the objective context.
-> - Treat all existing approved DAG-006 rows in `Dependencies.csv` as ACTIVE evidence rows, not as rows to rewrite during this setup workflow.
+> - Treat all existing approved graph resolved through `execution/_DAG/_LATEST.md` rows in `Dependencies.csv` as ACTIVE evidence rows, not as rows to rewrite during this setup workflow.
 > - Confirm upstream contract availability before implementing dependent behavior:
 >   - DEL-14-02 analysis run records;
 >   - DEL-14-05 comparison mapping, tolerance, and export contracts;
@@ -330,8 +330,8 @@ This Scope of Work defines `DEL-14-04` in service of project scope [SOW-073, SOW
 
 > ##### Records
 >
-> - Run comparison engine implementation artifact (`TBD` path).
-> - Result delta tests (`TBD` path/command).
+> - Run comparison reference engine: `core/comparison/analysis_run/engine.py`.
+> - Result delta evidence: `tests/test_analysis_run_comparison.py`; this record repair does not rerun or assert a new pass.
 > - Fixture provenance notes for any public examples.
 > - Diagnostics/status assertions.
 > - Mapping/tolerance contract references.

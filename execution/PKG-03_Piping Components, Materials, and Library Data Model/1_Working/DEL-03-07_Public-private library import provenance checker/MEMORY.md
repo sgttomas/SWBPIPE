@@ -1,5 +1,7 @@
 # DEL-03-07 Memory
 
+Current navigation (2026-09-22 record repair): The undated Work Notes/Open Items below belong to the original May 2026 slice. Current runtime evidence is `core/library_import/library_import_document/`; current UI and adapter integration must be assessed through their owning deliverables. Local review dispositions are recorded in unchanged `Review_Findings.csv`. Current requirements and residual work are in `ScopeOfWork.md` and `_STATUS.md`.
+
 ## Decisions And Rulings
 
 - 2026-05-01: Human project authority authorized exactly one bounded DAG item:

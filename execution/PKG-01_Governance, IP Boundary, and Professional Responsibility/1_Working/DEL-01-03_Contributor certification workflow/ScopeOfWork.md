@@ -35,7 +35,7 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 > | Type | DOC_UPDATE |
 > | Objective | OBJ-002 |
 > | Scope Items | SOW-028, SOW-048 |
-> | Source basis | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md`; approved `DAG-006`; `docs/CONTRACT.md`; `docs/IP_AND_DATA_BOUNDARY.md`; `docs/DIRECTIVE.md`; `docs/SPEC.md`; register rows for DEL-01-03, SOW-028, SOW-048 |
+> | Source basis | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md`; approved graph resolved through `execution/_DAG/_LATEST.md`; `docs/CONTRACT.md`; `docs/IP_AND_DATA_BOUNDARY.md`; `docs/DIRECTIVE.md`; `docs/SPEC.md`; register rows for DEL-01-03, SOW-028, SOW-048 |
 >
 
 ### CLM-003 — Attributes
@@ -47,8 +47,8 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 > | Workflow purpose | Define contributor attestations, provenance fields, review routing, and rejection rules for public data contributions. | `_CONTEXT.md` Description |
 > | Anticipated repo artifacts | `CONTRIBUTING.md` and `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md` exist as draft repo-level governance artifacts. | `_CONTEXT.md` Anticipated Artifacts; `CONTRIBUTING.md`; `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md` |
 > | Local artifact boundary | This current-basis refresh updates the DEL-01-03 local kit only; repo-level artifacts are read as evidence and remain draft governance surfaces. | Approved tranche `TP-DEL-01-03-CURRENT-BASIS-REFRESH-001` |
-> | License decision | TBD. The project intends to be free/open-source, but exact license remains a human project authority decision. | `docs/CONTRACT.md` OPS-K-GOV-1; `docs/DIRECTIVE.md` section 6 |
-> | Maintainer/release authority | TBD until recorded in public governance artifacts. | `docs/CONTRACT.md` OPS-K-GOV-2 |
+> | License decision | `PolyForm-Noncommercial-1.0.0`; source-available noncommercial posture, selected by human project authority on 2026-06-03 (SOW-001 and `LICENSE`). | `docs/CONTRACT.md` OPS-K-GOV-1; `docs/DIRECTIVE.md` section 6 |
+> | Maintainer/release authority | DEC-027: sole human project authority is maintainer and release authority; quorum one. DEC-079 preserves closed external intake and sole-maintainer review. | `docs/CONTRACT.md` OPS-K-GOV-2 |
 > | Public contribution review gate | Source, provenance, redistribution rights, protected-content risk, private-data risk, and test evidence must be checked before merge. | `docs/DIRECTIVE.md` section 6; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` section 5 |
 >
 
@@ -85,7 +85,7 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 > | protected_content_screen | Required | Records whether protected standards text/tables/figures/examples, copied formulas, protected dimensional tables, or proprietary catalog data appear suspected. |
 > | private_data_screen | Required | Records whether user-private project, owner, rule-pack, material, or component data is present. |
 > | review_status | Required | `pending`, `accepted`, `rejected`, or `quarantined`. |
-> | reviewer | Required at disposition | Maintainer/reviewer identity; final role assignment remains `TBD`. |
+> | reviewer | Required at disposition | Sole-maintainer review under DEC-027 and DEC-079 §5; record the actual reviewer identity at disposition. |
 > | disposition_notes | Required at disposition | Short rationale and links to evidence, issue, or quarantine record. |
 >
 
@@ -111,8 +111,8 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 > - `docs/CONTRACT.md` invariant index.
 > - `docs/DIRECTIVE.md` sections 5-6.
 > - `docs/SPEC.md` sections 6, 8, 10-11.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 rows DEL-01-03, SOW-028, SOW-048, OBJ-002, AB-00-01, AB-00-02, AB-00-06, AB-00-08.
-> - `execution/_DAG/DAG-006/` approved active graph authority.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) rows DEL-01-03, SOW-028, SOW-048, OBJ-002, AB-00-01, AB-00-02, AB-00-06, AB-00-08.
+> - `execution/_DAG/_LATEST.md` approved graph authority pointer.
 > - `CONTRIBUTING.md` and `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md` draft repo-level contributor workflow artifacts.
 > - `docs/_Registers/Deliverables.csv`, `ScopeLedger.csv`, `ContextBudgetQA.csv` rows named in `_CONTEXT.md`.
 >
@@ -121,7 +121,7 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 
 > ##### D-41 R5 T7 PDU-054 current declaration
 >
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Contributor certification templates and issue-intake surfaces now exist under the repository's PolyForm-Noncommercial-1.0.0 boundary. Current upstream authority is SOFTWARE_DECOMP revision 0.8 with DAG-007 coordination; contributor disposition remains subject to the recorded governance workflow.
+> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Contributor certification templates and issue-intake surfaces now exist under the repository's PolyForm-Noncommercial-1.0.0 boundary. Current upstream authority is resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md`, its accepted decision register and `execution/_DAG/_LATEST.md`; contributor disposition remains subject to the recorded governance workflow.
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -148,7 +148,7 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 > | DEL-01-03-REQ-01 | The workflow shall require contributor-provided source, location, license or `TBD`, contributor identity, certification statement, redistribution status, and review status for public data records. | `docs/IP_AND_DATA_BOUNDARY.md` section 4; OPS-K-IP-2 |
 > | DEL-01-03-REQ-02 | The workflow shall reject or quarantine contributions with suspected protected standards text, tables, figures, examples, copied formulas, material allowables, SIF/flexibility tables, protected dimensional tables, proprietary vendor data without redistribution rights, or private user/project/rule-pack data. | `docs/IP_AND_DATA_BOUNDARY.md` sections 3 and 5; OPS-K-IP-1, OPS-K-IP-3 |
 > | DEL-01-03-REQ-03 | The workflow shall route suspected protected content to human/legal review and shall not paraphrase protected tables or values into public data. | `docs/IP_AND_DATA_BOUNDARY.md` section 5; OPS-K-IP-3; sealed brief hard stops |
-> | DEL-01-03-REQ-04 | The workflow shall preserve `TBD` for unresolved contributor legal mechanism, maintainer authority, reviewer role, release authority, quorum, legal-review outcomes, and legal sufficiency of contribution instruments. | `docs/CONTRACT.md` OPS-K-GOV-1 and OPS-K-GOV-2; `docs/DIRECTIVE.md` section 6; `governance/MAINTAINERS.md` section 6 |
+> | DEL-01-03-REQ-04 | The workflow shall preserve `TBD` for unresolved contributor legal-instrument selection, legal-review outcomes, and legal sufficiency. Maintainer/release authority and quorum follow DEC-027; review follows DEC-079 §5; intake remains closed until an owner activation decision. | `docs/CONTRACT.md` OPS-K-GOV-1 and OPS-K-GOV-2; `docs/DIRECTIVE.md` section 6; `governance/MAINTAINERS.md` section 6 |
 > | DEL-01-03-REQ-05 | The workflow shall separate contribution governance from professional engineering approval and shall not claim certification, sealing, code compliance, legal clearance, or professional reliance (PRD §21.2). | `docs/CONTRACT.md` OPS-K-AUTH-1, OPS-K-AGENT-4; `docs/DIRECTIVE.md` section 6 |
 > | DEL-01-03-REQ-06 | The workflow shall record reviewer disposition as a project governance review only, with status values that distinguish pending, accepted, rejected, and quarantined contributions. | `docs/IP_AND_DATA_BOUNDARY.md` section 4; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` section 5 |
 > | DEL-01-03-REQ-07 | The workflow shall keep public/private data boundaries visible for future adapters, imports, rule packs, reports, and release gates. | AB-00-02, AB-00-06, AB-00-08; `docs/SPEC.md` sections 1, 7, 8 |
@@ -190,10 +190,7 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 >
 > The deliverable-local documentation set consists of:
 >
-> - `Datasheet.md` - structured fields and workflow states.
-> - `Specification.md` - requirements, verification hooks, and exclusions.
-> - `Guidance.md` - rationale, principles, trade-offs, assumptions, and human rulings needed.
-> - `Procedure.md` - operational steps for intake, review, quarantine, disposition, and records.
+> - `ScopeOfWork.md` - deliverable definition, requirements and verification, rationale, and operational steps for intake, review, quarantine, disposition, and records. The four source documents remain historical conversion evidence.
 > - `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` - semantic lens artifacts used as enrichment aids only.
 > - `Dependencies.csv` and `_DEPENDENCIES.md` - local dependency register and index.
 > - `CONTRIBUTING.md`, `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md`, and `governance/CONTRIBUTION_REVIEW_CHECKLIST.md` - draft repo-level governance artifacts read as evidence by this deliverable.
@@ -204,8 +201,8 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 > ##### Acceptance Criteria
 >
 > - The local kit contains the required `ScopeOfWork.md` and generated semantic/dependency artifacts.
-> - Repo-level contributor workflow artifacts exist as drafts, but this current-basis refresh does not modify them.
-> - Final contributor legal mechanism, legal sufficiency, reviewer authority, and acceptance require recorded human project authority approval.
+> - Repo-level contributor workflow artifacts implement the adopted skeleton of DEC-079; contributor intake remains closed until separately authorized activation.
+> - Reviewer and release authority follow DEC-027 (sole maintainer, quorum one). Final contributor legal mechanism, legal sufficiency, future intake activation, and acceptance retain their required recorded project authority and legal review.
 > - No protected standards/code data, copied tables, proprietary values, or legal conclusions are introduced.
 > - Unknown contributor-governance/legal-review decisions remain `TBD`.
 > - Human rulings needed are visible.
@@ -215,7 +212,7 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 
 > ##### D-41 R5 T7 PDU-054 current declaration
 >
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Contributor certification templates and issue-intake surfaces now exist under the repository's PolyForm-Noncommercial-1.0.0 boundary. Current upstream authority is SOFTWARE_DECOMP revision 0.8 with DAG-007 coordination; contributor disposition remains subject to the recorded governance workflow.
+> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Contributor certification templates and issue-intake surfaces now exist under the repository's PolyForm-Noncommercial-1.0.0 boundary. Current upstream authority is resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md`, its accepted decision register and `execution/_DAG/_LATEST.md`; contributor disposition remains subject to the recorded governance workflow.
 
 - **AC-001** — The workflow preserves the documented contributor fields, protected-content stop and quarantine rules, repository-governance-only disposition boundary, recorded human-gated decisions, and residual TBDs for SOW-028 and SOW-048 without adding legal or professional approval.
 
@@ -238,9 +235,9 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 > ##### Prerequisites
 >
 > - Assigned deliverable context: DEL-01-03 under PKG-01.
-> - Current governing references: `docs/CONTRACT.md`, `docs/IP_AND_DATA_BOUNDARY.md`, `docs/DIRECTIVE.md`, `docs/SPEC.md`, `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7, and approved `DAG-006`.
+> - Current governing references: `docs/CONTRACT.md`, `docs/IP_AND_DATA_BOUNDARY.md`, `docs/DIRECTIVE.md`, `docs/SPEC.md`, `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register), and approved graph resolved through `execution/_DAG/_LATEST.md`.
 > - Draft repo-level workflow surfaces exist at `CONTRIBUTING.md`, `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md`, and `governance/CONTRIBUTION_REVIEW_CHECKLIST.md`.
-> - Human-owned governance decisions for exact license, final contributor legal mechanism, maintainer authority, reviewer role, release authority, and legal-review thresholds are `TBD`.
+> - Selected license is `PolyForm-Noncommercial-1.0.0`; maintainer/release authority and quorum follow DEC-027, and review follows DEC-079 §5. Contributor legal-instrument choice and legal sufficiency remain deferred to owner activation on legal advice.
 > - No protected standards, proprietary vendor data, or private project/rule-pack content may be copied into the public workflow records.
 >
 
@@ -248,7 +245,7 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 
 > ##### Steps
 >
-> 1. Receive contribution package.
+> 1. Confirm external intake has been activated by a recorded owner decision before receiving external contributions. DEC-027/079 currently keep intake closed; the following steps describe the adopted process skeleton for activation.
 >    - Record contributor identity and contribution description.
 >    - Assign an intake record ID using the future project convention, or `TBD` if no convention exists.
 >
@@ -289,7 +286,7 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 > 8. Maintain repo-level workflow evidence.
 >    - Treat `CONTRIBUTING.md` and `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md` as draft governance surfaces until human acceptance.
 >    - Edit repo-level contributor artifacts only under an explicitly approved write scope.
->    - Carry the selected project license as `PolyForm-Noncommercial-1.0.0`; keep exact contributor legal mechanism, legal sufficiency, and reviewer/release authority `TBD` until the human project authority records them.
+>    - Carry the selected project license as `PolyForm-Noncommercial-1.0.0`; apply DEC-027/079 for sole-maintainer review and release authority; keep legal-instrument selection and legal sufficiency deferred to owner activation on legal advice, with external intake closed.
 >
 
 ### CLM-022 — Verification
@@ -301,7 +298,7 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 > | Field completeness | All required provenance and certification fields are present or explicitly `TBD`. |
 > | Protected-content stop rule | Suspected protected/private content is not reproduced and is routed to quarantine/human review. |
 > | Authority boundary | Records do not claim certification, sealing, legal clearance, code compliance, or professional approval (PRD §21.2). |
-> | Contributor-governance uncertainty | Contributor legal mechanism, legal sufficiency, and maintainer/release authority unresolved items remain `TBD`; selected project license remains recorded as `PolyForm-Noncommercial-1.0.0`. |
+> | Contributor-governance uncertainty | Contributor legal-instrument selection and legal sufficiency remain deferred to owner activation on legal advice; maintainer/release authority and review follow DEC-027/079; selected project license remains recorded as `PolyForm-Noncommercial-1.0.0`. |
 > | Local write scope | This current-basis refresh edits only DEL-01-03 local artifacts; repo-level artifacts are read as evidence unless separately approved for editing. |
 >
 
@@ -322,7 +319,7 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 
 > ##### D-41 R5 T7 PDU-054 current declaration
 >
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Contributor certification templates and issue-intake surfaces now exist under the repository's PolyForm-Noncommercial-1.0.0 boundary. Current upstream authority is SOFTWARE_DECOMP revision 0.8 with DAG-007 coordination; contributor disposition remains subject to the recorded governance workflow.
+> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Contributor certification templates and issue-intake surfaces now exist under the repository's PolyForm-Noncommercial-1.0.0 boundary. Current upstream authority is resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md`, its accepted decision register and `execution/_DAG/_LATEST.md`; contributor disposition remains subject to the recorded governance workflow.
 
 - **VER-001** — Compare the converted contract source markers and parity report against all four legacy source documents, then inspect the matrix and derived checklist for complete contributor-workflow coverage and preserved authority boundaries.
 
@@ -407,7 +404,7 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 > | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling (TBD) |
 > |---|---|---|---|---|---|---|
 > | C-001 | Project license is selected as `PolyForm-Noncommercial-1.0.0`, but final contributor legal mechanism and legal sufficiency are not selected. | `docs/CONTRACT.md` OPS-K-GOV-1 | `docs/DIRECTIVE.md` section 6; `governance/MAINTAINERS.md` section 6 | Specification Standards; Procedure Records | Carry selected project license as fact; defer contributor legal mechanism and legal sufficiency until human/legal review. | Human ruling 2026-06-04: defer until external contribution intake or public release readiness becomes relevant. |
-> | C-002 | Legal review threshold and reviewer role for accepting public component/material data remain unresolved. | `governance/MAINTAINERS.md` section 6 | `docs/IP_AND_DATA_BOUNDARY.md` sections 4-5 | Procedure protected-content review and disposition | Treat suspected or uncertain rights as quarantine/reject until human/legal review. | TBD |
+> | C-002 | Sole-maintainer reviewer role is resolved by DEC-027/079; legal sufficiency and activation remain owner-held. | `governance/MAINTAINERS.md` section 6 | `docs/IP_AND_DATA_BOUNDARY.md` sections 4-5 | Procedure protected-content review and disposition | Treat suspected or uncertain rights as quarantine/reject until human/legal review. | TBD |
 >
 
 ### CLM-034 — Human Rulings Needed
@@ -415,7 +412,7 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 > ##### Human Rulings Needed
 >
 > - Whether a separate contributor license agreement, developer certificate of origin, or project-specific certification text will be used, and whether the final contributor instrument is legally sufficient.
-> - Maintainer/reviewer authority model, quorum, and release-policy linkage.
+> - Apply the resolved sole-maintainer/release authority and quorum-one model (DEC-027), and DEC-079 §5 review process; keep future intake activation and legal-instrument adoption with the owner.
 > - Quarantine storage location and access rules for suspected protected/private submissions.
 > - Whether automated protected-content/provenance lint gates are required before every contribution review or only before release.
 

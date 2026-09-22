@@ -41,7 +41,7 @@ This Scope of Work defines `DEL-03-05` in service of project scope [SOW-009] and
 
 > ##### Attributes
 >
-> This deliverable describes implemented evidence for rigid and semi-rigid component library schema slots, fixture shape, and validation coverage for valves, flanges, reducers, rigid placeholders, and specialty items. The implementation evidence is `schemas/component.schema.yaml`, `fixtures/component/invented_component_library_valid.json`, `tests/test_component_section_schema.py`, and the deliverable-local memory/review records.
+> This deliverable describes implemented evidence for rigid and semi-rigid component library schema slots, fixture shape, and validation coverage for valves, flanges, reducers, rigid placeholders, and specialty items. Realization also includes the DEC-045 product route in `core/product_physics/` and `core/model_operations/operation_applier/`, with candidate-bound evidence. Schema-layer evidence is `schemas/component.schema.yaml`, `fixtures/component/invented_component_library_valid.json`, `tests/test_component_section_schema.py`, and the deliverable-local memory/review records.
 >
 > Implemented descriptive slots and retained gaps are:
 >
@@ -54,7 +54,7 @@ This Scope of Work defines `DEL-03-05` in service of project scope [SOW-009] and
 > | Semi-rigid behavior | `ComponentQuantityDimension`; fixture field definitions; review finding resolution evidence | Stiffness is split into `linear_stiffness` and `rotational_stiffness`; generic `stiffness` is not used as a component quantity dimension. Exact solver treatment remains `TBD`. |
 > | Provenance and review metadata | OPS-K-DATA-3; OPS-K-IP-2; schema required fields | Component library metadata, records, fields, diagnostics, and fixture slots carry provenance/review status requirements. The two local findings are `ACCEPT_AS_IS` / `RESOLVED` under the recorded 2026-06-05 Gate C disposition. |
 > | Unit handling | OPS-K-UNIT-1; AB-00-04; schema/test evidence | Unit-bearing dimensions include length, force, linear stiffness, and rotational stiffness. Connection/reference slots keep `dimension_id: TBD` where no unit-bearing value is defined. |
-> | Public-data boundary | OPS-K-IP-1..3; OPS-K-DATA-1; fixture policies | Public artifacts carry schema shape and invented diagnostics only. Protected tables, vendor data, catalog dimensions, actual weights, COGs, and stiffness values remain excluded. |
+> | Public-data boundary | OPS-K-IP-1..3; OPS-K-DATA-1; fixture policies | Public examples may be schema-shape-only or invented non-engineering fixtures under DEC-045 with truthful provenance and review status. Protected tables, vendor data, catalog dimensions, actual weights, COGs, and stiffness values remain excluded. |
 >
 > The base rigid/semi-rigid field taxonomy is implemented for schema validation and strict fixture coverage. Policy-level source catalogs, public fixture-value acceptance, concrete import formats, exact solver consumption, per-family engineering profiles, dependency satisfaction, human disposition, and lifecycle closure remain `TBD`.
 >
@@ -63,7 +63,7 @@ This Scope of Work defines `DEL-03-05` in service of project scope [SOW-009] and
 
 > ##### Conditions
 >
-> - Public artifacts must not include proprietary component/vendor data, protected dimensional tables, copied standards content, or invented weights/COGs.
+> - Public artifacts must not include proprietary component/vendor data, protected dimensional tables, copied standards content, or undisclosed/default engineering weights/COGs; explicitly invented non-engineering example quantities remain allowed under DEC-045.
 > - User-entered or lawfully imported private data must carry provenance and redistribution status where it can enter a library or reusable fixture.
 > - Missing solve-required or model-required values must remain explicit findings or validation diagnostics, never silent defaults.
 > - Outputs are documentation reconciliation evidence and do not claim certification, compliance, or fitness for professional reliance.
@@ -83,7 +83,7 @@ This Scope of Work defines `DEL-03-05` in service of project scope [SOW-009] and
 > ##### References
 >
 > - `_CONTEXT.md` for deliverable identity, architecture-basis injection, and scope envelope.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 rows for PKG-03, DEL-03-05, SOW-009, OBJ-004, and AB-00-01/02/04/06/07/08.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) rows for PKG-03, DEL-03-05, SOW-009, OBJ-004, and AB-00-01/02/04/06/07/08.
 > - `docs/_Registers/Deliverables.csv` row DEL-03-05.
 > - `docs/_Registers/ScopeLedger.csv` row SOW-009.
 > - `docs/_Registers/ContextBudgetQA.csv` row DEL-03-05.
@@ -110,9 +110,11 @@ This Scope of Work defines `DEL-03-05` in service of project scope [SOW-009] and
 
 > ##### Scope
 >
+> Current realization evidence also includes rigid-component inputs and diagnostics in `core/product_physics/src/lib.rs` and component creation/edits in `core/model_operations/operation_applier/src/lib.rs`. DEC-045 governs the mechanics-only consumption boundary. Invented preview values are examples, never defaults or qualified engineering data; public-source and validation holds remain.
+>
 > This deliverable covers the reconciled evidence specification for the implemented rigid and semi-rigid component schema contract for valves, flanges, reducers, rigid placeholders, and specialty items. It is limited to behavior grounded in the sealed brief, decomposition/register rows, contract invariants, `schemas/component.schema.yaml`, `fixtures/component/invented_component_library_valid.json`, `tests/test_component_section_schema.py`, and deliverable-local memory/review evidence.
 >
-> Out of scope for this reconciliation:
+> Historical reconciliation write restrictions (not exclusions from the durable component obligation):
 >
 > - Editing repository-level schemas, code, fixtures, tests, package metadata, lifecycle/status files, dependency registers, review CSVs, DAG files, coordination files, or DEL-03-01.
 > - Introducing protected dimensional tables, manufacturer data, catalog weights, COGs, stiffness values, or default component properties.
@@ -135,7 +137,7 @@ This Scope of Work defines `DEL-03-05` in service of project scope [SOW-009] and
 > | R08 | Use deterministic, versioned, schema-governed persistence for component records. | AB-00-04 | Round-trip and canonical JSON/hash checks where JSON payloads are hashed. |
 > | R09 | Include strict fixture evidence for the rigid/semi-rigid contract using synthetic schema-shape records only. | Deliverables.csv artifact expectation; OPS-K-IP-1; invented component fixture | Fixture tests confirm the family contract and rigid record slots without proprietary/vendor/protected values. Concrete public fixture values for reducer, flange, valve, and specialty items remain `TBD`. |
 > | R10 | Define COG coordinate convention and reference frame before project or library COG values are accepted for mechanics use. | SOW-009; OPS-K-UNIT-1 | Human ruling remains `TBD`; implemented schema slots do not settle the convention. |
-> | R11 | Preserve minimum provenance fields for user-supplied and library-imported component data before reusable public fixtures are accepted. | OPS-K-IP-2; OPS-K-DATA-3; AB-00-07 | Provenance validator checks source, rights/redistribution status where applicable, and review disposition. Source catalog and public fixture-value policy remain `TBD`. |
+> | R11 | Preserve minimum provenance fields for user-supplied and library-imported component data before reusable public fixtures are accepted. | OPS-K-IP-2; OPS-K-DATA-3; AB-00-07 | Provenance validator checks source, rights/redistribution status where applicable, and review disposition. Source catalogs remain separately governed; DEC-045 permits invented non-engineering fixtures with truthful provenance and review status. |
 >
 
 ### CLM-011 — Review Finding Reconciliation
@@ -192,7 +194,7 @@ This Scope of Work defines `DEL-03-05` in service of project scope [SOW-009] and
 
 > ##### D-41 R5 T2C PDU-023 E6 Evidence (2026-07-12)
 >
-> REQ-008 has bounded schema/transform evidence for valid component geometry quantities: paired `source_field_path` and `target_field_path` values identify the copied scalar leaf, while incomplete unit/dimension/provenance metadata blocks scalar-link emission. This does not establish runtime result-envelope integration.
+> The scalar trace mapping has bounded schema/transform evidence for valid component geometry quantities: paired `source_field_path` and `target_field_path` values identify the copied scalar leaf, while incomplete unit/dimension/provenance metadata blocks scalar-link emission. This does not establish runtime result-envelope integration.
 
 - **AC-001** — The contract preserves accepted rigid-component requirements, public/private and protected-data boundaries, explicit missing-value diagnostics, provenance and unit discipline, resolved historical findings, and unresolved coordinate and solver-treatment decisions without inventing component values.
 
@@ -228,7 +230,7 @@ This Scope of Work defines `DEL-03-05` in service of project scope [SOW-009] and
 > 1. Confirm the component families in scope from implementation evidence: `valve`, `flange`, `reducer`, `rigid`, and `specialty`.
 > 2. Confirm implemented model slots from schema/fixture/test evidence: rigid body length, end-size/reference slots, weight, COG, `linear_stiffness`, `rotational_stiffness`, stiffness behavior reference, and source/manufacturer reference slots.
 > 3. Confirm strict fixture behavior: public component values remain omitted, missing values are explicit, provenance/review metadata is present, and blocking diagnostics represent incomplete mechanics inputs.
-> 4. Preserve unresolved choices as `TBD`: accepted source catalogs, public fixture-value policy, coordinate convention, exact stiffness solver treatment, concrete import formats, per-family engineering profiles, dependency satisfaction, human disposition, and lifecycle closure.
+> 4. Apply DEC-045's invented non-engineering fixture policy and preserve the recorded local `ACCEPT_AS_IS` / `RESOLVED` dispositions. Accepted source catalogs, component-specific coordinate/stiffness treatment, import coverage, engineering profiles, dependency satisfaction and lifecycle closure retain their particular evidence or authority boundaries; fixture-policy settlement does not fill them.
 > 5. Apply public/private data controls: every reusable component datum needs provenance, license/redistribution status where applicable, and contributor/review disposition before public acceptance.
 > 6. Preserve review finding semantics: `Review_Findings.csv` records PKG03-DEL-03-05-PKG02-001 and PKG03-DEL-03-05-PKG02-002 as `ACCEPT_AS_IS` / `RESOLVED` under Gate C on 2026-06-05; documentation maintenance must not rewrite that formal disposition.
 > 7. Preserve architecture constraints from AB-00-01, AB-00-02, AB-00-04, AB-00-06, AB-00-07, and AB-00-08 for any downstream implementation handoff.
@@ -240,7 +242,7 @@ This Scope of Work defines `DEL-03-05` in service of project scope [SOW-009] and
 
 > ##### Verification
 >
-> - Four local reconciliation documents exist and retain the default sections.
+> - The consolidated `ScopeOfWork.md` exists and retain the default sections.
 > - No numeric component defaults, vendor data, protected tables, or standards text are introduced.
 > - Implemented schema/fixture/test evidence is distinguished from unresolved policy, dependency, human-disposition, and lifecycle gaps.
 > - All unknown implementation specifics are marked `TBD` or as assumptions/proposals.
@@ -252,10 +254,10 @@ This Scope of Work defines `DEL-03-05` in service of project scope [SOW-009] and
 
 > ##### Records
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md` (definition)
+> - `ScopeOfWork.md` (requirements)
+> - `ScopeOfWork.md` (rationale)
+> - `ScopeOfWork.md` (procedure)
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -343,8 +345,8 @@ This Scope of Work defines `DEL-03-05` in service of project scope [SOW-009] and
 >
 > | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 > |---|---|---|---|---|---|---|
-> | PKG03-DEL-03-05-PKG02-001 | Earlier audit found `specialty` in PKG-03 but not in the PKG-02 canonical component enum. | `Review_Findings.csv` row PKG03-DEL-03-05-PKG02-001 | `tests/test_component_section_schema.py` verifies `ComponentType` equals the PKG-02 canonical enum. | `Specification.md`; schema evidence interpretation | Preserve the recorded Gate C disposition. | `ACCEPT_AS_IS` / `RESOLVED` (2026-06-05) |
-> | PKG03-DEL-03-05-PKG02-002 | Earlier audit found generic `stiffness` dimension ambiguous against PKG-02 units. | `Review_Findings.csv` row PKG03-DEL-03-05-PKG02-002 | `ComponentQuantityDimension` uses `linear_stiffness` and `rotational_stiffness`; tests verify accepted dimensions and retired dimensions are absent. | `Specification.md`; schema evidence interpretation | Preserve the recorded Gate C disposition. | `ACCEPT_AS_IS` / `RESOLVED` (2026-06-05) |
+> | PKG03-DEL-03-05-PKG02-001 | Earlier audit found `specialty` in PKG-03 but not in the PKG-02 canonical component enum. | `Review_Findings.csv` row PKG03-DEL-03-05-PKG02-001 | `tests/test_component_section_schema.py` verifies `ComponentType` equals the PKG-02 canonical enum. | `ScopeOfWork.md` (requirements); schema evidence interpretation | Preserve the recorded Gate C disposition. | `ACCEPT_AS_IS` / `RESOLVED` (2026-06-05) |
+> | PKG03-DEL-03-05-PKG02-002 | Earlier audit found generic `stiffness` dimension ambiguous against PKG-02 units. | `Review_Findings.csv` row PKG03-DEL-03-05-PKG02-002 | `ComponentQuantityDimension` uses `linear_stiffness` and `rotational_stiffness`; tests verify accepted dimensions and retired dimensions are absent. | `ScopeOfWork.md` (requirements); schema evidence interpretation | Preserve the recorded Gate C disposition. | `ACCEPT_AS_IS` / `RESOLVED` (2026-06-05) |
 >
 
 ### CLM-031 — D-41 R5 T2B PDU-013 Boundary

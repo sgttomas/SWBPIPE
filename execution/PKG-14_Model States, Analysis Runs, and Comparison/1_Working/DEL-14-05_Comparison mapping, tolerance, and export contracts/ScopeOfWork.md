@@ -65,8 +65,8 @@ This Scope of Work defines `DEL-14-05` in service of project scope [SOW-073] and
 > | Condition | Status |
 > |---|---|
 > | Tolerance defaults | TBD. `execution/_Decomposition/SOFTWARE_DECOMP.md#OI-014` states comparison tolerance defaults and mapping workflows are pending solver/result schema prototypes. |
-> | Exact CSV fields | TBD. DEL-14-05 is assigned CSV export semantics, but the accessible sources do not define field names or column order. |
-> | Exact JSON schema | TBD. The baseline is schema-first JSON, but the accessible sources do not include a deliverable-specific schema body. |
+> | Exact CSV fields | The `CsvExportContract` in `schemas/comparison_mapping.schema.json` defines required_columns, ordering, delimiter, encoding and stable-row-ID policy. Actual serialized export conformance must be demonstrated. |
+> | Exact JSON schema | `schemas/comparison_mapping.schema.json` defines the comparison-review envelope, mapping evidence, participants, diagnostics and export contracts; inspect version-bound schema evidence for field/cardinality detail. |
 > | Report-section layout | TBD. Report sections must preserve privacy, provenance, units, diagnostics, limitations, and professional-boundary notices; final rendering and layout remain outside the accessible source slice. |
 > | External validation | Excluded. PKG-14 does not ingest commercial prover outputs comprehensively or determine external validation. Source: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md#PKG-14`. |
 > | Protected standards data | Excluded from public artifacts unless separately authorized by provenance and review. Source: `docs/CONTRACT.md#OPS-K-IP-1`; `docs/IP_AND_DATA_BOUNDARY.md#public-repository-must-not-contain`. |
@@ -78,11 +78,11 @@ This Scope of Work defines `DEL-14-05` in service of project scope [SOW-073] and
 >
 > | Construct | Description |
 > |---|---|
-> | Comparison mapping schema | Defines stable-ID mapping records and manual mapping evidence needed when state/run entities do not align automatically. Details remain TBD pending DEL-14-03/DEL-14-04 interfaces. |
+> | Comparison mapping schema | Defines stable-ID mapping records and manual mapping evidence needed when state/run entities do not align automatically. `schemas/comparison_mapping.schema.json` defines `MappingRecord` and `MappingEvidence`; the state/run reference engines consume that contract. Runtime/API conformance remains separate. |
 > | Unmatched classification schema | Defines explicit classifications for compared entities or results that have no accepted counterpart. Specific enum values are TBD unless later source material supplies them. |
 > | Tolerance profile schema | Defines unit-aware tolerance profile records for comparison deltas. Default numeric values are TBD and must not be silently supplied. |
-> | JSON export contract | Schema-first result/comparison envelope compatible with governed downstream tooling and report consumption. Exact schema fields are TBD. |
-> | CSV export contract | Tabular export semantics for comparison review. Exact columns, ordering, and serialization rules are TBD. |
+> | JSON export contract | Schema-first result/comparison envelope compatible with governed downstream tooling and report consumption. Current fields are defined by `schemas/comparison_mapping.schema.json`; new public interface changes remain separately governed. |
+> | CSV export contract | Tabular export semantics for comparison review. The schema `CsvExportContract` carries column, ordering and serialization policy; concrete emitted-byte conformance remains an implementation obligation. |
 > | Report-section contract | Report-facing comparison section references that preserve units, diagnostics, provenance, hashes, assumptions, limitations, and professional-boundary notice. Exact layout is TBD. |
 >
 
@@ -100,7 +100,7 @@ This Scope of Work defines `DEL-14-05` in service of project scope [SOW-073] and
 > - `docs/SPEC.md`
 > - `docs/IP_AND_DATA_BOUNDARY.md`
 > - `docs/DIRECTIVE.md`
-> - `execution/_DAG/DAG-006/APPROVAL_RECORD.md`
+> - `execution/_DAG/_LATEST.md` (current approval record; DAG-006 remains historical provenance)
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -174,17 +174,17 @@ This Scope of Work defines `DEL-14-05` in service of project scope [SOW-073] and
 >
 > | Requirement | Verification approach |
 > |---|---|
-> | DEL-14-05-R001 | Determinism tests comparing equivalent input states/runs once DEL-14-03 and DEL-14-04 interfaces exist. Current status: TBD. |
-> | DEL-14-05-R002 | Schema validation for manual mapping records, including stable source/target references and evidence/provenance fields. Current status: TBD. |
-> | DEL-14-05-R003 | Schema validation for unmatched classifications once enum values are human-approved or source-defined. Current status: TBD. |
-> | DEL-14-05-R004 | Unit-aware tolerance-profile validation with missing default values treated as explicit findings. Current status: TBD. |
-> | DEL-14-05-R005 | Unit/dimension validation for exported comparison values. Current status: TBD. |
-> | DEL-14-05-R006 | JSON Schema validation against the deliverable schema after the schema body is created. Current status: TBD. |
-> | DEL-14-05-R007 | CSV parse/round-trip checks after column set and ordering are defined. Current status: TBD. |
-> | DEL-14-05-R008 | Report-section fixture checks for provenance, diagnostics, hashes, limitations, and professional-boundary notices. Current status: TBD. |
-> | DEL-14-05-R009 | Protected wording/professional-claim review checking for prohibited approval/compliance language. Current status: TBD. |
-> | DEL-14-05-R010 | Protected-content/private-data lint or review gate. Current status: TBD. |
-> | DEL-14-05-R011 | Dependency closure review against the approved local DAG-002 mirror. Current status: mirror present; closure not independently reclassified by this deliverable. |
+> | DEL-14-05-R001 | Determinism tests comparing equivalent input states/runs using `tests/test_model_state_comparison.py` and `tests/test_analysis_run_comparison.py`; no current run/pass is asserted. |
+> | DEL-14-05-R002 | Schema validation for manual mapping records, including stable source/target references and evidence/provenance fields. Evidence to assess: `schemas/comparison_mapping.schema.json` and `tests/test_comparison_contracts.py`; any unexercised runtime/export, provenance or numeric-policy requirement remains open. |
+> | DEL-14-05-R003 | Schema validation for unmatched classifications once enum values are human-approved or source-defined. Evidence to assess: `schemas/comparison_mapping.schema.json` and `tests/test_comparison_contracts.py`; any unexercised runtime/export, provenance or numeric-policy requirement remains open. |
+> | DEL-14-05-R004 | Unit-aware tolerance-profile validation with missing default values treated as explicit findings. Evidence to assess: `schemas/comparison_mapping.schema.json` and `tests/test_comparison_contracts.py`; any unexercised runtime/export, provenance or numeric-policy requirement remains open. |
+> | DEL-14-05-R005 | Unit/dimension validation for exported comparison values. Evidence to assess: `schemas/comparison_mapping.schema.json` and `tests/test_comparison_contracts.py`; any unexercised runtime/export, provenance or numeric-policy requirement remains open. |
+> | DEL-14-05-R006 | JSON Schema validation against the deliverable schema after the schema body is created. Evidence to assess: `schemas/comparison_mapping.schema.json` and `tests/test_comparison_contracts.py`; any unexercised runtime/export, provenance or numeric-policy requirement remains open. |
+> | DEL-14-05-R007 | CSV parse/round-trip checks after column set and ordering are defined. Evidence to assess: `schemas/comparison_mapping.schema.json` and `tests/test_comparison_contracts.py`; any unexercised runtime/export, provenance or numeric-policy requirement remains open. |
+> | DEL-14-05-R008 | Report-section fixture checks for provenance, diagnostics, hashes, limitations, and professional-boundary notices. Evidence to assess: `schemas/comparison_mapping.schema.json` and `tests/test_comparison_contracts.py`; any unexercised runtime/export, provenance or numeric-policy requirement remains open. |
+> | DEL-14-05-R009 | Protected wording/professional-claim review checking for prohibited approval/compliance language. Evidence to assess: `schemas/comparison_mapping.schema.json` and `tests/test_comparison_contracts.py`; any unexercised runtime/export, provenance or numeric-policy requirement remains open. |
+> | DEL-14-05-R010 | Protected-content/private-data lint or review gate. Evidence to assess: `schemas/comparison_mapping.schema.json` and `tests/test_comparison_contracts.py`; any unexercised runtime/export, provenance or numeric-policy requirement remains open. |
+> | DEL-14-05-R011 | Dependency closure review against the approved local dependency mirror (current authority: `execution/_DAG/_LATEST.md`; earlier graph IDs are provenance). Current status: mirror present; closure not independently reclassified by this deliverable. |
 >
 
 ### CLM-014 — Documentation
@@ -225,9 +225,9 @@ This Scope of Work defines `DEL-14-05` in service of project scope [SOW-073] and
 > | Prerequisite | Source |
 > |---|---|
 > | Deliverable context for DEL-14-05 is present and readable. | `_CONTEXT.md` |
-> | Accepted SOFTWARE_DECOMP revision 0.7 is available. | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` |
+> | Accepted SOFTWARE_DECOMP and its amendments are available. | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` |
 > | Governing project invariants are available. | `_REFERENCES.md`; `docs/CONTRACT.md`; `docs/TYPES.md`; `docs/SPEC.md`; `docs/IP_AND_DATA_BOUNDARY.md`; `docs/DIRECTIVE.md` |
-> | Approved DAG-002 local mirror is present and preserved. | `_DEPENDENCIES.md`; `Dependencies.csv`; `execution/_DAG/DAG-006/APPROVAL_RECORD.md` |
+> | approved graph resolved through `execution/_DAG/_LATEST.md` local mirror is present and preserved. | `_DEPENDENCIES.md`; `Dependencies.csv`; `execution/_DAG/_LATEST.md` (current approval record; DAG-006 remains historical provenance) |
 > | Upstream architecture basis rows remain context evidence only. | `_CONTEXT.md#Architecture-Basis-Injection`; `_DEPENDENCIES.md#Authority-Boundary` |
 >
 > Approved local dependency mirror, summarized:
@@ -284,17 +284,17 @@ This Scope of Work defines `DEL-14-05` in service of project scope [SOW-073] and
 > | Unit check | Unit-bearing comparison/export values are specified as unit-aware or diagnostic-producing. |
 > | Boundary check | No professional approval, certification, code-compliance, or external-validation claim is introduced (PRD §21.2). |
 > | IP/privacy check | No protected standards content, proprietary data, private project data, or private rule-pack payload is embedded. |
-> | Dependency mirror check | Existing approved DAG-006 rows remain present and ACTIVE. |
+> | Dependency mirror check | Preserve local dependency meanings and the actual statuses recorded under `execution/_DAG/_LATEST.md`; DAG-011 is current authority. Do not force historical duplicates or pending edges to ACTIVE. |
 >
 
 ### CLM-021 — Records
 
 > ##### Records
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md` definition section
+> - `ScopeOfWork.md` requirements section
+> - `ScopeOfWork.md` guidance section
+> - `ScopeOfWork.md` procedure section
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -338,12 +338,14 @@ This Scope of Work defines `DEL-14-05` in service of project scope [SOW-073] and
 
 > ##### Considerations
 >
-> - The comparison mapping contract depends on upstream model-state and analysis-run identity surfaces. The local approved DAG-006 mirror records upstream dependencies on DEL-14-01 and DEL-14-02.
-> - Unit-aware tolerance behavior depends on the unit-system contract. The local approved DAG-006 mirror records an upstream dependency on DEL-02-02.
-> - Export semantics should remain compatible with result export envelopes. The local approved DAG-006 mirror records an upstream dependency on DEL-08-04.
+> - The comparison mapping contract depends on upstream model-state and analysis-run identity surfaces. The local approved graph resolved through `execution/_DAG/_LATEST.md` mirror records upstream dependencies on DEL-14-01 and DEL-14-02.
+> - Unit-aware tolerance behavior depends on the unit-system contract. The local approved graph resolved through `execution/_DAG/_LATEST.md` mirror records an upstream dependency on DEL-02-02.
+> - Export semantics should remain compatible with result export envelopes. The local approved graph resolved through `execution/_DAG/_LATEST.md` mirror records an upstream dependency on DEL-08-04.
 > - Architecture basis rows in the local mirror are context evidence, not independent Type 2 dispatch authority.
 > - The accessible sources do not define exact mapping enums, unmatched classification values, tolerance formulas, tolerance default values, CSV columns, JSON property names, or report-section layout. These remain `TBD`.
 >
+>
+> Current contract evidence: `schemas/comparison_mapping.schema.json` defines mapping/unmatched and JSON/CSV export fields; `tests/test_comparison_contracts.py` checks the reference contract. This resolves blanket schema/field absence, but OI-014 tolerance defaults/workflows and actual runtime/export conformance remain open.
 
 ### CLM-027 — Trade-offs
 

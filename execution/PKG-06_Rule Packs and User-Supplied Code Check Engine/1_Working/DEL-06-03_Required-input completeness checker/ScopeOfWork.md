@@ -39,7 +39,7 @@ This Scope of Work defines `DEL-06-03` in service of project scope [SOW-004] and
 > | Scope item | SOW-004 |
 > | Supported objectives | OBJ-002, OBJ-005 |
 > | Context envelope | M |
-> | Current production mode | Setup/document production only |
+> | Current production mode | Contract with current completeness-checker implementation evidence |
 >
 
 ### CLM-004 — Attributes
@@ -73,9 +73,9 @@ This Scope of Work defines `DEL-06-03` in service of project scope [SOW-004] and
 
 > ##### Construction
 >
-> The setup artifact defines the future feature boundary only. It does not create executable completeness rules, code formulas, material allowables, design-code tables, or checker implementation files.
+> This contract defines the completeness-checker boundary, realized in `core/rules/completeness_checker/`. It supplies no code formulas, material allowables or design-code tables.
 >
-> The future implementation is expected to consume a rule-pack schema contract from DEL-06-01, analysis-status semantics from DEL-05-04, and diagnostics/result-envelope constraints from the architecture basis. Those dependencies are recorded as information-flow dependencies, not as schedule decisions.
+> The implementation must consume a rule-pack schema contract from DEL-06-01, analysis-status semantics from DEL-05-04, and diagnostics/result-envelope constraints from the architecture basis. Those dependencies are recorded as information-flow dependencies, not as schedule decisions.
 >
 
 ### CLM-007 — References
@@ -84,7 +84,7 @@ This Scope of Work defines `DEL-06-03` in service of project scope [SOW-004] and
 >
 > | Source | Used for |
 > |---|---|
-> | `INIT.md` | Bootstrap boundaries for open mechanics, user rule checks, and professional responsibility. |
+> | `loop/LOOP_INIT.md` | Bootstrap boundaries for open mechanics, user rule checks, and professional responsibility. |
 > | `AGENTS.md` | TASK dispatch boundary and sealed deliverable discipline. |
 > | `docs/CONTRACT.md` | Invariants OPS-K-DATA, OPS-K-RULE, OPS-K-IP, OPS-K-AGENT, and professional authority constraints. |
 > | `docs/DIRECTIVE.md` | No silent defaults, private code data, and human authority principles. |
@@ -108,9 +108,9 @@ This Scope of Work defines `DEL-06-03` in service of project scope [SOW-004] and
 
 > ##### Scope
 >
-> This deliverable specifies the setup boundary for a required-input completeness checker for user-defined rule packs. The future checker must connect a rule pack's declared required inputs to project/model/user-supplied data and prevent a user-rule-check status from being reported when required rule-check data is missing.
+> This deliverable specifies the contract boundary for a required-input completeness checker for user-defined rule packs. The checker must connect a rule pack's declared required inputs to project/model/user-supplied data and prevent a user-rule-check status from being reported when required rule-check data is missing.
 >
-> This setup run does not implement code, schemas, executable completeness rules, code-specific formulas, allowables, or standards-derived defaults.
+> Current source/tests are `core/rules/completeness_checker/`; code-specific formulas, allowables and standards-derived defaults remain excluded.
 >
 
 ### CLM-011 — Requirements
@@ -166,10 +166,10 @@ This Scope of Work defines `DEL-06-03` in service of project scope [SOW-004] and
 >
 > Required setup artifacts for this deliverable are:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md` (definition)
+> - `ScopeOfWork.md` (requirements)
+> - `ScopeOfWork.md` (rationale)
+> - `ScopeOfWork.md` (procedure)
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -177,9 +177,9 @@ This Scope of Work defines `DEL-06-03` in service of project scope [SOW-004] and
 > - `_run_records/*`
 > - `_STATUS.md`
 >
-> Implementation artifacts listed in the register (`rule completeness checker`, `tests`) remain future work outside this setup session's write scope.
+> Implementation evidence is the source and tests in `core/rules/completeness_checker/`; uncovered integration requirements remain separately actionable.
 
-- **AC-001** — The contract preserves the accepted separation between solve-blocking physical inputs and rule-check-required data, explicit no-default behavior, private user-data and protected-content boundaries, and professional responsibility, while retaining the expression grammar/library decision as TBD and inventing no engineering values.
+- **AC-001** — The contract preserves the accepted separation between solve-blocking physical inputs and rule-check-required data, explicit no-default behavior, private user-data and protected-content boundaries, and professional responsibility, while applying the DEC-022 grammar decision and inventing no engineering values.
 
 ## Production and Verification Method — Praxeology
 
@@ -193,7 +193,7 @@ This Scope of Work defines `DEL-06-03` in service of project scope [SOW-004] and
 
 > ##### Purpose
 >
-> Define the setup-time procedure and future implementation checks for the required-input completeness checker without writing implementation files or executable rules in this session.
+> Define maintenance and verification of the required-input completeness checker, preserving the accepted schema/status contracts and explicit missing-input behavior.
 >
 
 ### CLM-019 — Prerequisites
@@ -204,9 +204,9 @@ This Scope of Work defines `DEL-06-03` in service of project scope [SOW-004] and
 > |---|---|---|
 > | Sealed DEL-06-03 context | Available | `_CONTEXT.md` identifies SOW-004, OBJ-002, and OBJ-005. |
 > | Governing data/IP boundary | Available | `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, and `docs/IP_AND_DATA_BOUNDARY.md`. |
-> | Rule-pack schema contract | Future dependency | DEL-06-01 must define required-input declarations before checker implementation. |
-> | Analysis status semantics | Future dependency | DEL-05-04 supplies status vocabulary such as `RULE_INPUTS_INCOMPLETE`. |
-> | Rule expression grammar/library | TBD | Open issue OI-006; not resolved here. |
+> | Rule-pack schema contract | Current contract carrier exists | DEL-06-01 owns `schemas/rule_pack.schema.yaml`; required-input conformance remains verified at the consuming boundary. |
+> | Analysis status semantics | Current contract carrier exists | DEL-05-04 supplies the governed status vocabulary; this reference does not alter dependency satisfaction metadata. |
+> | Rule expression grammar/library | DEC-022 | Preserve the accepted typed AST grammar. |
 >
 
 ### CLM-020 — Steps
@@ -232,7 +232,7 @@ This Scope of Work defines `DEL-06-03` in service of project scope [SOW-004] and
 > - `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` exist and preserve lens-not-authority language;
 > - `Dependencies.csv` validates against the v3.1 schema;
 > - `_DEPENDENCIES.md` counts match the CSV;
-> - `_STATUS.md` remains within the allowed setup lifecycle and reaches `SEMANTIC_READY` only after semantic and dependency artifacts exist;
+> - Preserve `_STATUS.md` lifecycle; completion of document or implementation checks is evidence, not an automatic transition.
 > - no files outside the DEL-06-03 write scope were edited.
 >
 
@@ -304,7 +304,7 @@ This Scope of Work defines `DEL-06-03` in service of project scope [SOW-004] and
 >
 > | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 > |---|---|---|---|---|---|---|
-> | CF-DEL-06-03-001 | Exact future expression grammar/library for rule-pack declarations is not selected. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-006 | `docs/SPEC.md` rule-pack evaluator section | Specification External Inputs; Procedure Prerequisites | Treat grammar/library as `TBD` and do not encode executable rules in setup artifacts. | TBD |
+> | CF-DEL-06-03-001 | Grammar selection resolved by DEC-022. | DEC-022 | Rule-pack evaluator contract | External inputs; Prerequisites | Preserve the declarative AST and checker/evaluator boundary. | DEC-022; no new acceptance. |
 
 ## Output and Evaluation Matrix
 

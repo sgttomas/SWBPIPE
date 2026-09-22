@@ -34,7 +34,7 @@ boundaries, and product-claim boundaries for the design-engine scope.
 ## Package Reference
 - **Package:** PKG-01 Governance, IP Boundary, and Professional Responsibility
 - **Package Scope:** Defines the product’s legal, governance, contribution, and professional-boundary rules.
-- **Package Assigned Scope Items:** SOW-001, SOW-003, SOW-028, SOW-034, SOW-048
+- **Package Assigned Scope Items:** SOW-001, SOW-003, SOW-028, SOW-034, SOW-048, SOW-064
 - **Package Exclusions:** Does not implement solver or GUI behavior except through requirements and policies.
 
 ## Decomposition Reference
@@ -56,7 +56,8 @@ boundaries, and product-claim boundaries for the design-engine scope.
 - **Decomposition Reference:** `execution/_Decomposition/SOFTWARE_DECOMP.md`; accepted decisions and amendments are recorded in `execution/_Coordination/_DECISIONS/_REGISTER.md`.
 - **Applicable Basis IDs:** AB-00-01, AB-00-02, AB-00-06, AB-00-08
 - **Resolved Baseline:** Rust core/application services; Tauri 2 desktop shell where GUI-facing; TypeScript/React/Vite GUI where GUI-facing; Three.js viewport where 3D viewport-facing; JSON Schema 2020-12 contracts; schema-first command/query/job result envelopes; canonical JSON/JCS-compatible hash basis where JSON payloads are hashed; Cargo/Vitest/Playwright/validation/protected-content test gates as applicable.
-- **Still TBD:** Jurisdiction-specific professional-practice wording, exact human-acceptance record storage/invalidation workflow, release-label vocabulary, final release policy language, legal-review authority, and final human acceptance of repo-level policy/template text.
+- **Implementation choices and open matters:** DEC-012 permits resolution in a sealed brief or later human ruling. Consult the accepted decisions in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12: solver strategy DEC-023; expression grammar DEC-022; migration/versioning DEC-019/033; package/export baseline DEC-028 and SCA-004; CI/coverage DEC-025/059/060/093. Current mechanisms and versions belong to bound implementation evidence. Public transport, per-format contracts, optional retrieval mechanisms and any unselected choices retain their own scope and decision paths; this reference does not close delivery, privacy, review or validation gaps.
+- **Reserved policy matters:** Jurisdiction-specific professional-practice wording, exact human-acceptance record storage/invalidation workflow, release-label vocabulary, final release policy language, legal-review authority, and final human acceptance of repo-level policy/template text retain their specific decision and acceptance gates.
 - **Dispatch Rule:** Future TASK execution must apply only the applicable architecture-basis constraints and must not copy full PKG-00 prose into deliverable artifacts.
 
 ## PREPARATION Notes

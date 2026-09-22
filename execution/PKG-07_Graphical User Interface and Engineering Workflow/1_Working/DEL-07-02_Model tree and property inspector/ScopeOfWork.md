@@ -50,7 +50,7 @@ This Scope of Work defines `DEL-07-02` in service of project scope [SOW-020, SOW
 > |---|---|
 > | UI surface | Single GUI work surface for tree navigation and selected-entity property inspection. |
 > | Primary entities | Project, Model, Node, Element, Component, Material, Section, Support, LoadCase, Combination, RulePackRef, Result, and diagnostics where applicable. |
-> | GUI baseline | Tauri 2 desktop shell, TypeScript/React/Vite GUI, and Three.js viewport where viewport-facing. Exact component and state libraries are `TBD`. |
+> | GUI baseline | Resolve current dependency and component/state choices through `apps/desktop/package.json` and the implemented consumers. DEC-012 permits choices in a sealed brief or later ruling; preserve durable/transient separation and accepted architecture. Release scope follows DEC-057. |
 > | State boundary | Durable project/model state is separate from transient session, viewport, selection, and job-progress state. GUI mutations route through application-service commands. |
 > | Missing-data posture | Missing solve-required and rule-check-required values are surfaced as explicit findings, not defaulted silently. |
 > | Data boundary | Private project, material, component, and rule-pack data remain user-controlled and are not transmitted or committed publicly by default. |
@@ -92,15 +92,7 @@ This Scope of Work defines `DEL-07-02` in service of project scope [SOW-020, SOW
 
 > ##### Setup Slot Checklist
 >
-> | Slot | Setup status | Owner/source status |
-> |---|---|---|
-> | Tree grouping and hierarchy rules | `TBD` | Expected from accepted domain/schema and GUI state contracts. |
-> | Inspector field inventory | `TBD` | Expected from accepted domain/schema contracts for model entities and library references. |
-> | Unit display and edit hooks | `TBD` | Expected from accepted unit and command/query contracts. |
-> | Provenance and redistribution/private-status display | `TBD` | Expected from material/component/rule-pack/library contracts. |
-> | Diagnostic classes and affected-object display | `TBD` | Expected from diagnostics/result-envelope contract. |
-> | Fixture, screenshot, and UI test data policy | `TBD` | Must remain synthetic, public-domain, or otherwise cleared. |
->
+> Maintain tree grouping, inspector field inventory, unit display/edit hooks, provenance/redistribution/privacy display and diagnostic affected-object navigation against `schemas/model.schema.yaml`, `schemas/results.schema.yaml`, `ModelTree.tsx` and `PropertyInspector.tsx` in `apps/desktop/src/features/model-tree/`. The field contracts and candidate implementation supply the inventory; do not preserve a blanket setup-era TBD. Fixture/screenshot/UI data must remain synthetic, public-domain or otherwise cleared; actual provenance review remains required.
 
 ### CLM-009 — References
 
@@ -109,7 +101,7 @@ This Scope of Work defines `DEL-07-02` in service of project scope [SOW-020, SOW
 > - `_CONTEXT.md` for deliverable identity, scope, artifacts, and architecture-basis injection.
 > - `docs/_Registers/Deliverables.csv` row `DEL-07-02`.
 > - `docs/_Registers/ScopeLedger.csv` rows `SOW-020` and `SOW-021`.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7, `PKG-07`, `OBJ-006`, and architecture basis IDs `AB-00-03`, `AB-00-05`, `AB-00-06`, `AB-00-07`, and `AB-00-08`.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis, `PKG-07`, `OBJ-006`, and architecture basis IDs `AB-00-03`, `AB-00-05`, `AB-00-06`, `AB-00-07`, and `AB-00-08`.
 > - `docs/CONTRACT.md` invariants `OPS-K-DATA-1`, `OPS-K-DATA-2`, `OPS-K-DATA-3`, `OPS-K-UNIT-1`, `OPS-K-RULE-1`, `OPS-K-RULE-3`, `OPS-K-PRIV-1`, `OPS-K-PRIV-2`, `OPS-K-IP-1`, `OPS-K-IP-2`, `OPS-K-IP-3`, and `OPS-K-AGENT-1..4`.
 > - `docs/SPEC.md` sections 1, 3, 6, 7, 10, and 11.
 > - `docs/TYPES.md` sections 3, 4, 5, 6, 7, 8, and 9.
@@ -122,11 +114,11 @@ This Scope of Work defines `DEL-07-02` in service of project scope [SOW-020, SOW
 >
 > | Question | Status |
 > |---|---|
-> | Which accepted schema version supplies the property inspector field inventory? | `TBD` |
-> | Which GUI state library, if any, is accepted for transient selection and inspector state? | `TBD` |
-> | Which application-service commands and queries are accepted for model tree edits and property reads? | `TBD` |
-> | Which diagnostics contract shape is accepted for inline missing-data and provenance warnings? | `TBD` |
-> | Which UI test framework conventions apply to this slice beyond the architecture-basis Playwright/Vitest expectation? | `TBD` |
+> | Which accepted schema version supplies the property inspector field inventory? | Resolve fields through `schemas/model.schema.yaml` and the current property-inspector consumer; bind verification to their candidate revisions. |
+> | Which GUI state library, if any, is accepted for transient selection and inspector state? | Resolve current dependency and component/state choices through `apps/desktop/package.json` and the implemented consumers. DEC-012 permits choices in a sealed brief or later ruling; preserve durable/transient separation and accepted architecture. Release scope follows DEC-057. |
+> | Which application-service commands and queries are accepted for model tree edits and property reads? | Use the accepted PKG-16 operation seam and `apps/desktop/src/services/operationService.ts`; no direct durable-state mutation or alternative validator is authorized. |
+> | Which diagnostics contract shape is accepted for inline missing-data and provenance warnings? | Resolve diagnostics through the accepted result/operation envelopes and the inspector consumer; missing-data and provenance warnings remain required, and interface deficiencies remain delivery work. |
+> | Which UI test framework conventions apply to this slice beyond the architecture-basis Playwright/Vitest expectation? | Use the candidate-bound desktop package scripts, Vitest and Playwright configuration; existing test definitions are not a fresh execution result. |
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -219,7 +211,7 @@ This Scope of Work defines `DEL-07-02` in service of project scope [SOW-020, SOW
 > - `apps/desktop/src/features/model-tree/PropertyInspector.tsx`;
 > - focused UI tests and deliverable-local run evidence for bounded tree, selection, and inspector behavior.
 >
-> GUI component/state-library architecture remains owned by `DEL-00-05`. Broader model-level modulus entry, unit-entry coverage, test/factoring hardening, and full canvas/tree/editor UX remain open; unresolved schema versions, command/query names, and screenshot fixture policy remain `TBD` where current accepted evidence does not settle them.
+> GUI component/state-library architecture remains owned by `DEL-00-05`. Resolve editable field inventory, unit entry and command/query names through `schemas/model.schema.yaml`, PropertyInspector and workspaceSession; DEC-111 assigns creation/generic editing to DEL-07-02 and specialized editors to DEL-07-03. Preserve missing interaction witnesses, test/factoring gaps and actual fixture/screenshot provenance review separately.
 >
 
 ### CLM-020 — Conflict Table (for human ruling)
@@ -230,7 +222,8 @@ This Scope of Work defines `DEL-07-02` in service of project scope [SOW-020, SOW
 > |---|---|---|---|
 > | D41-PDU-009 | Whether GUI selection/inspector ownership remains wholly in `DEL-00-05` or behavior implementation belongs in `DEL-07-02`. | `DEL-00-05`; `DEL-07-02` | Resolved by `DEC-074` O2: `DEL-00-05` owns GUI state/interaction architecture; `DEL-07-02` owns model-tree/property-inspector behavior implementation within it. |
 
-- **AC-001** — The contract preserves the current implemented inspection/editing boundary, explicit read-only and missing-data states, durable-versus-transient state separation, and protected/private data constraints without inventing engineering defaults, component data, authority, or hidden mutations.
+- **AC-001** — The contract preserves the current implemented inspection/editing boundary, explicit read-only and missing-data states, durable-versus-transient state separation, and protected/private data constraints without inventing engineering defaults, component data, authority, or hidden mutations. Current source references are `PipeViewport.tsx`, `ModelTree.tsx`, `PropertyInspector.tsx` and `workspaceSession.ts`; preserve DEC-111 creation/generic-edit versus specialized-editor ownership. Source presence does not discharge independent interaction/parity review.
+
 
 ## Production and Verification Method — Praxeology
 
@@ -262,7 +255,7 @@ This Scope of Work defines `DEL-07-02` in service of project scope [SOW-020, SOW
 
 > ##### Steps
 >
-> 1. Re-read `_CONTEXT.md`, `Specification.md`, `_DEPENDENCIES.md`, and any accepted upstream schema/service contracts.
+> 1. Re-read `_CONTEXT.md`, `ScopeOfWork.md`, `_DEPENDENCIES.md`, and any accepted upstream schema/service contracts.
 > 2. Identify the entity types and field groups that `DEL-07-02` owns for tree navigation and selected-entity inspection without redefining `DEL-00-05` state/interaction architecture.
 > 3. Define tree-to-viewport-to-inspector selection behavior using transient GUI state and stable model identities.
 > 4. Define property inspector read-only/editable states and command-backed mutation paths.
@@ -271,7 +264,6 @@ This Scope of Work defines `DEL-07-02` in service of project scope [SOW-020, SOW
 > 7. Require a bounded implementation brief for any new behavior. Preserve the open residuals for model-level `modulus_basis_records` entry, broader unit entry/pickers, test/factoring hardening, and broader canvas/tree/editor UX until separately executed.
 > 8. Maintain UI tests for tree navigation, selection synchronization, inspector field groups, missing-data visibility, provenance/private status, and command/query boundary behavior.
 >
-
 ### CLM-025 — Verification
 
 > ##### Verification
@@ -372,7 +364,7 @@ This Scope of Work defines `DEL-07-02` in service of project scope [SOW-020, SOW
 >
 > The inspector is a convenience surface over governed model and service contracts. Command-backed edits keep validation, unit checks, diagnostics, provenance handling, undo/redo scope, and result-envelope behavior in the application-service boundary instead of allowing UI state to become an alternate authority.
 >
-> The split with adjacent GUI deliverables remains explicit: DEL-07-02 owns navigation and selected-entity inspection setup, DEL-07-03 owns specialized material/component/rule-pack editor implementation, and DEL-07-04 owns missing-data warning and blocking UX unless a later sealed brief or human ruling changes that boundary.
+> The split with adjacent GUI deliverables remains explicit: DEL-07-02 owns navigation, selected-entity inspection, creation and generic editing under SCA-011/DEC-111, DEL-07-03 owns specialized material/component/rule-pack editor implementation, and DEL-07-04 owns missing-data warning and blocking UX unless a later sealed brief or human ruling changes that boundary.
 >
 
 ### CLM-035 — Examples

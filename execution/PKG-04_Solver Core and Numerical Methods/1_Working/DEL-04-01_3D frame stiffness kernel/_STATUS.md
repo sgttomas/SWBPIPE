@@ -1,12 +1,14 @@
 # Status: DEL-04-01 3D frame stiffness kernel
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-09-05
+**Last Updated:** 2026-09-22
 
 ## Remaining
+- Bind protected-content review to the frozen frame-kernel source/test bytes and verify the full diagnostic field set at the desktop preview crossing; source repair and existing kernel evidence do not supply these review/boundary witnesses. (R5 continuation claim references: DEL-04-01:SOW#CLM-012/DEL-04-01-REQ-012; CLM-010/DEL-04-01-REQ-011.)
 - Verify mechanics-program §5 completion: assessment gap rows G1/G2/G4 and M2/M3 methods defects closed or explicitly re-dispositioned by owner ruling (see also DEL-04-04, DEL-05-01, DEL-05-02) (gated: owner re-disposition where not closed by evidence) (source: mechanics plan §5 / DEC-066–070)
 
 ## History
+- 2026-09-22 - Added explicit grouped delivery/evidence tasks from the R5 record-continuation screening to Remaining; lifecycle, existing dispositions and acceptance boundaries remain unchanged. Evidence: `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG00_06/`.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - State set to INITIALIZED (TASK+four-documents P1_P2)
 - 2026-04-30 - State set/verified as SEMANTIC_READY (TASK+semantic-matrix-build)

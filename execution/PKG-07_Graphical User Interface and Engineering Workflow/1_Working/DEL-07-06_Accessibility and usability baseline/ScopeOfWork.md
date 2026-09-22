@@ -45,7 +45,7 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 > | Scope coverage | SOW-036 |
 > | Objective support | OBJ-006 |
 > | Context envelope | M |
-> | Setup state | Draft setup artifact for later implementation review |
+> | Setup state | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle and remaining work are recorded in `_STATUS.md`. Setup-only restrictions describe the originating setup run, not standing product scope. |
 >
 
 ### CLM-004 — Attributes
@@ -54,13 +54,13 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 >
 > | Attribute | Baseline value |
 > |---|---|
-> | Work surface | GUI workflow and report-facing review surfaces, limited to setup documentation in this run |
+> | Work surface Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | GUI workflow and report-facing review surfaces, limited to setup documentation in this run |
 > | Baseline topics | Keyboard navigation, labels/tooltips, contrast/readability, search/filter, copy/export, undo/redo discoverability, inline validation, warning separation |
 > | Engineering review focus | Model creation, missing data, results, assumptions, diagnostics, provenance, and human-review boundaries remain visible |
 > | Architecture basis | Tauri 2 desktop shell, TypeScript/React/Vite GUI, Three.js where viewport-facing, schema-first command/query/job/result envelopes |
-> | Accessibility conformance target | TBD by human ruling; this setup artifact does not assert a WCAG level |
+> | Accessibility conformance target | D-68 (`execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md`) adopts WCAG 2.2 AA criteria for touched desktop controls. Independent usability remains held; this is neither a conformance result nor a target selection for generated report/export files. |
 > | Report-facing accessibility target | TBD separately for report preview/export and generated report artifacts |
-> | Implementation status | No GUI source, tests, schemas, manifests, or report templates changed in this deliverable |
+> | Implementation status | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle and remaining work are recorded in `_STATUS.md`. Setup-only restrictions describe the originating setup run, not standing product scope. |
 >
 
 ### CLM-005 — Conditions
@@ -82,11 +82,13 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 
 > ##### Construction
 >
+> Current deliverable obligation: Define and implement baseline keyboard, contrast, readability, and review-workflow usability requirements. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This setup deliverable defines the future baseline checklist and verification hooks for accessibility and engineering-review usability. It does not select component libraries, implement UI behavior, create automated tests, choose final WCAG conformance, or change report templates.
 >
-> Future implementation should translate the checklist into GUI and report tests only after the relevant GUI framework choices and human accessibility target are accepted. Any implementation work remains outside this setup session.
+> Future implementation should translate the checklist into GUI and report tests only after the relevant GUI framework choices and human accessibility target are accepted. Any implementation work remains outside the original setup session.
 >
-
 ### CLM-007 — References
 
 > ##### References
@@ -115,7 +117,7 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 > | Review grain | Deterministic project-owned contract records |
 > | Independent usability basis | Not present |
 > | Desktop runtime evaluation | Not performed |
-> | Contrast/readability target | `TBD_by_human_project_authority` |
+> | Contrast/readability target | Historical PDU source field: `TBD_by_human_project_authority`. Current touched-control criterion follows D-68; the old record does not establish current target absence. Independent usability remains held. |
 > | Conformance claim | False |
 
 ## Completion and Reliance Basis — Epistemology
@@ -130,11 +132,13 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 
 > ##### Scope
 >
+> Current deliverable obligation: Define and implement baseline keyboard, contrast, readability, and review-workflow usability requirements. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This deliverable specifies setup evidence for a future accessibility and engineering-review usability baseline for the SWBPIPE GUI and report-facing review surfaces. It covers baseline keyboard access, labels/tooltips, contrast/readability, large-model navigation, result table copy/export, undo/redo discoverability, inline validation messages, warning separation, and visibility of assumptions needed by engineering reviewers.
 >
-> This setup pass does not implement UI behavior, edit GUI source, edit tests, edit schemas, edit package manifests, select a final accessibility standard, assert a WCAG conformance target, or alter report templates. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+> The original setup pass does not implement UI behavior, edit GUI source, edit tests, edit schemas, edit package manifests, select a final accessibility standard, assert a WCAG conformance target, or alter report templates. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >
-
 ### CLM-012 — Requirements
 
 > ##### Requirements
@@ -157,8 +161,7 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 
 > ##### Standards
 >
-> No final accessibility conformance target is selected by this setup deliverable. `WCAG target TBD` remains the governing state until the human project authority records a target and its applicability to desktop GUI, report preview/export, and generated report artifacts. The decision record should identify whether the target applies equally to interactive desktop workflows, report preview/export surfaces, and generated report files, or whether each surface has a separate target.
->
+> D-68 (`execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md`) adopts WCAG 2.2 AA criteria for touched desktop controls. Independent usability remains held; this is neither a conformance result nor a target selection for generated report/export files.
 > Protected standards text, protected tables, proprietary engineering values, and private project content are not available or needed for this baseline. Clause-level requirements are `TBD` unless later supplied from redistributable sources or a human-approved policy.
 >
 
@@ -184,14 +187,7 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 
 > ##### Documentation
 >
-> Expected future artifacts, when implementation is separately authorized, are:
->
-> - accessibility checklist;
-> - UI fixes;
-> - tests.
->
-> Exact checklist format, target accessibility standard, automated a11y tooling, component library, state library, test filenames, screenshot policy, and report accessibility target are `TBD`.
->
+> Maintain the accessibility checklist, UI repairs and candidate-bound checks for keyboard paths, labels, contrast/readability and engineering-review use. D-68 selects WCAG 2.2 AA for touched controls; implementation-local tooling/filenames follow accepted bounded work and current desktop tests. Generated report/export targets are not selected by D-68. Preserve independent-usability validation as a separate held obligation.
 
 ### CLM-016 — Conflict Table (for human ruling)
 
@@ -199,28 +195,32 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 >
 > | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 > |---|---|---|---|---|---|---|
-> | DEL-07-06-CF-001 | SOW-036 requires baseline accessibility/usability, but the detailed WCAG target is explicitly TBD. | `ScopeLedger.csv` SOW-036 notes | `Specification.md#Standards` | Requirements, Standards, Verification | Keep baseline requirements qualitative and defer measurable conformance target to human ruling. | TBD |
+> | Historical setup conflict: target was unresolved before D-68; current touched-control criteria are ruled. | SOW-036 requires baseline accessibility/usability, but the detailed WCAG target is explicitly TBD. | `ScopeLedger.csv` SOW-036 notes | `Specification.md#Standards` | Requirements, Standards, Verification | Apply D-68 to touched desktop controls. Preserve the original qualitative setup proposal as historical; report/export targets and independent-usability evidence retain their separate holds. | D-68 (`execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md`) adopts WCAG 2.2 AA criteria for touched desktop controls. Independent usability remains held; this is neither a conformance result nor a target selection for generated report/export files. |
 >
 
 ### CLM-017 — D-41 R5 T5 PDU-045 evidence boundary
 
 > ##### D-41 R5 T5 PDU-045 evidence boundary
 >
-> The current deterministic contract review remains project-owned verification,
-> not independent usability validation. Desktop runtime evaluation is not
+> The historical PDU deterministic contract review remains project-owned verification,
+> not independent usability validation. In that PDU record, desktop runtime evaluation was not
 > performed, no accessibility conformance claim is emitted, and
 > contrast/readability findings remain warnings while the measurable target is
 > `TBD_by_human_project_authority`.
 >
+
+> Current criterion: D-68 (`execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md`) adopts WCAG 2.2 AA criteria for touched desktop controls. Independent usability remains held; this is neither a conformance result nor a target selection for generated report/export files. Historical PDU fields and results remain bound to their original source revision.
 
 ### CLM-018 — D-41 R5 T6 PDU-046 measurable-target hold
 
 > ##### D-41 R5 T6 PDU-046 measurable-target hold
 >
 > `DEL-07-06-RQ-004` remains `VERIFIED_NOT_VALIDATED`. The qualitative
-> contrast/readability review is project-owned verification only; no independent
-> usability basis or human-selected measurable target was supplied. PDU-046
+> contrast/readability review is project-owned verification only; that record supplied no independent
+> usability basis or human-selected measurable target. PDU-046
 > cannot be upgraded by the existing warning evidence.
+
+> Current criterion: D-68 (`execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md`) adopts WCAG 2.2 AA criteria for touched desktop controls. Independent usability remains held; this is neither a conformance result nor a target selection for generated report/export files. Historical PDU fields and results remain bound to their original source revision.
 
 - **AC-001** — The contract preserves the accessibility and engineering-review baseline, keeps the measurable contrast/readability target explicitly human-owned and TBD, separates diagnostic classes, and preserves units and provenance. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
@@ -236,12 +236,17 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 
 > ##### Purpose
 >
+> Current deliverable obligation: Define and implement baseline keyboard, contrast, readability, and review-workflow usability requirements. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > Define the setup procedure for producing and later using the accessibility and usability baseline for engineering-review GUI and report-facing workflows.
 >
-
 ### CLM-022 — Prerequisites
 
 > ##### Prerequisites
+>
+> Current deliverable obligation: Define and implement baseline keyboard, contrast, readability, and review-workflow usability requirements. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
 >
 > - Sealed DEL-07-06 context with write scope limited to this deliverable folder.
 > - Register scope: SOW-036 and OBJ-006.
@@ -249,7 +254,6 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 > - Architecture basis: AB-00-03, AB-00-05, AB-00-06, AB-00-08 where relevant to GUI commands, state, diagnostics, result envelopes, and tests.
 > - Human ruling remains required for the final accessibility conformance target.
 >
-
 ### CLM-023 — Steps
 
 > ##### Steps
@@ -262,9 +266,8 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 > 6. Mark exact WCAG or equivalent conformance target as `TBD` pending human decision, including whether the target applies to desktop GUI, report preview/export, generated report files, or separate surfaces.
 > 7. Define verification hooks for future GUI workflow validation, report reproducibility validation, protected-content review, private-data review, and product-claims review.
 > 8. Generate semantic and dependency setup artifacts without treating semantic matrices as engineering authority.
-> 9. Set `_STATUS.md` to `SEMANTIC_READY` only if the four documents, semantic matrix, lensing register, dependency register, and local validation checks pass.
+> 9. Set `_STATUS.md` to `SEMANTIC_READY` only if the Scope of Work contract, semantic matrix, lensing register, dependency register, and local validation checks pass.
 >
-
 ### CLM-024 — Verification
 
 > ##### Verification
@@ -272,8 +275,8 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 > | Check | Expected result |
 > |---|---|
 > | `ScopeOfWork.md` | `ScopeOfWork.md` exists with default sections. |
-> | Scope control | No files outside the DEL-07-06 working folder are modified by this task. |
-> | Accessibility target | Exact WCAG or equivalent target remains `TBD`; no final conformance claim is made. |
+> | Scope control Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | No files outside the DEL-07-06 working folder are modified by this task. |
+> | Accessibility target | D-68 (`execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md`) adopts WCAG 2.2 AA criteria for touched desktop controls. Independent usability remains held; this is neither a conformance result nor a target selection for generated report/export files. |
 > | Data boundary | No protected standards content, proprietary values, or private project data are introduced. |
 > | Warning boundary | Solve-blocking and rule-check-blocking warnings remain distinct in future verification hooks. |
 > | Fixture boundary | Future screenshots, public examples, and exported report fixtures are checked for protected standards content and private project data. |
@@ -287,10 +290,7 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 
 > ##### Records
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -298,7 +298,6 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 > - `_run_records/*`
 > - `_STATUS.md`
 >
-
 ### CLM-026 — D-41 R5 T5 PDU-045 hold check
 
 > ##### D-41 R5 T5 PDU-045 hold check
@@ -312,6 +311,8 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 >    conformance claim is emitted.
 > 5. Preserve `VERIFIED_NOT_VALIDATED`; do not infer independent usability
 >    validation.
+
+> Current criterion: D-68 (`execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md`) adopts WCAG 2.2 AA criteria for touched desktop controls. Independent usability remains held; this is neither a conformance result nor a target selection for generated report/export files. Historical PDU fields and results remain bound to their original source revision.
 
 - **VER-001** — Validate the contract and review source parity, keyboard and labeling expectations, diagnostic and warning separation, unit/provenance visibility, protected-content boundaries, professional-boundary language, and every retained TBD or governed residual.
 
@@ -337,7 +338,7 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 > - Missing data remains visible. The GUI must not hide or silently repair missing solve-required values, rule-check inputs, weak provenance, or assumptions.
 > - Warning classes should stay distinct. Solve readiness, rule-check readiness, provenance, assumptions, nonlinear uncertainty, and IP boundary warnings have different engineering meanings.
 > - Units and provenance are part of readability. A readable table that omits units or source status is not adequate for engineering review.
-> - Accessibility conformance is not finalized here. The exact WCAG or other target remains `TBD` until human ruling.
+> - D-68 (`execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md`) adopts WCAG 2.2 AA criteria for touched desktop controls. Independent usability remains held; this is neither a conformance result nor a target selection for generated report/export files.
 > - Public fixtures and report examples must remain protected-data-free and private-data-free.
 > - The software may support review; acceptance and professional judgment remain with the responsible engineer.
 >
@@ -395,7 +396,7 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 >
 > | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 > |---|---|---|---|---|---|---|
-> | DEL-07-06-CF-001 | Baseline accessibility is in scope, but the detailed WCAG target is unresolved. | `docs/_Registers/ScopeLedger.csv` SOW-036 | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-002 and DEL-07-06 note | Specification Standards and Verification; Guidance Principles | Keep conformance target as `TBD`; allow only qualitative setup requirements until human ruling. | TBD |
+> | Historical setup conflict: target was unresolved before D-68; current touched-control criteria are ruled. | Baseline accessibility is in scope, but the detailed WCAG target is unresolved. | `docs/_Registers/ScopeLedger.csv` SOW-036 | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-002 and DEL-07-06 note | Specification Standards and Verification; Guidance Principles | Apply D-68 to touched desktop controls. Preserve the original qualitative setup proposal as historical; report/export targets and independent-usability evidence retain their separate holds. | D-68 (`execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md`) adopts WCAG 2.2 AA criteria for touched desktop controls. Independent usability remains held; this is neither a conformance result nor a target selection for generated report/export files. |
 >
 
 ### CLM-035 — D-41 R5 T5 PDU-045 guidance

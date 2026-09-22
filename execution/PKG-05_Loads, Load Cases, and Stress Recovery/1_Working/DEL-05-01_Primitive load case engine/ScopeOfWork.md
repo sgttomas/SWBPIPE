@@ -67,7 +67,7 @@ This Scope of Work defines `DEL-05-01` in service of project scope [SOW-013] and
 > | Load-case record boundary | `PrimitiveLoadCaseRecord` binds one primitive category to canonical model `LoadCase` metadata, sorted load IDs, provenance, payload refs, and hash refs. Mixed-category algebra remains downstream DEL-05-02 scope. | `PrimitiveLoadCaseRecord`; `_DEPENDENCIES.md` |
 > | Diagnostic bridge | `LoadDiagnosticRecord` maps primitive-load validation and load-case assembly findings to code, class, blocking severity, source, affected object, message, remediation, and provenance ref for later result-envelope transport. | `LoadDiagnosticRecord`; `diagnostic_records_from_load_findings`; `diagnostic_records_from_load_case_assembly_findings` |
 > | Missing values | Missing solve-required load targets, magnitudes, spans, properties, or provenance become explicit findings/errors rather than silent defaults. | OPS-K-DATA-2; `FindingCode`; `BoundaryMetadataError` |
-> | Dynamic scope | Wind, seismic, and occasional loads are represented only as explicit equivalent mechanics loads; equivalent-static preparation requires caller-supplied basis/provenance refs. Dynamic procedure generation, response spectra, code coefficients, and environmental defaults remain `TBD` and out of this deliverable. | `_CONTEXT.md`; `README.md`; tests in `src/lib.rs` |
+> | Dynamic scope | Wind, seismic and occasional mechanics loads retain explicit user inputs and provenance; DEC-068 additionally governs static-equivalent generation from user-entered seismic factors/model mass and wind parameters/user-marked exposed spans. Dynamic procedure generation, response spectra, code coefficients, and environmental defaults remain `TBD` and out of this deliverable. | `_CONTEXT.md`; `README.md`; tests in `src/lib.rs` |
 >
 
 ### CLM-006 — Primitive Load Category Register
@@ -76,7 +76,7 @@ This Scope of Work defines `DEL-05-01` in service of project scope [SOW-013] and
 >
 > | Category | Implemented mechanics evidence | Preserved boundary / open item |
 > |---|---|---|
-> | Weight | Element uniform `ForcePerLength` loads; eligible for lumped equivalent nodal conversion when caller supplies span/connectivity. | Mass-source, gravity-vector, density provenance, and unit-conversion policy remain `TBD`. |
+> | Weight | Element uniform `ForcePerLength` loads; eligible for lumped equivalent nodal conversion when caller supplies span/connectivity. | Mass/gravity/density inputs require explicit provenance with no hidden defaults; static-equivalent generation follows DEC-068 and unit conversion follows DEC-018. |
 > | Pressure | Element pressure or equivalent line-load records; straight-pipe pressure thrust helper computes `p * internal_area` from caller-supplied properties. | Pressure stress formulas, code stress categories, pressure design rules, and property/default sourcing remain outside this deliverable. |
 > | Thermal | Element temperature-change records; straight-pipe thermal axial helper computes `E * A * alpha * DeltaT` from caller-supplied properties. | Reference temperature, material property provenance, expansion policy, and broader thermal behavior remain bounded to future sealed scopes. |
 > | Imposed displacement | Support-target imposed displacement records preserve translational displacement or rotational DOF boundary. | Support/restraint implementation and boundary-condition ownership remain interface-dependent. |
@@ -120,7 +120,7 @@ This Scope of Work defines `DEL-05-01` in service of project scope [SOW-013] and
 > ##### Conditions
 >
 > - Primitive load categories remain separate from code-specific load combinations and allowables. Source: `_CONTEXT.md`; PKG-05 exclusions; SOW-014 note.
-> - The downstream load-case algebra/user-combination interface remains DEL-05-02. Source: `Specification.md` REQ-05-01-007; `_DEPENDENCIES.md`.
+> - The downstream load-case algebra/user-combination interface remains DEL-05-02. Source: `ScopeOfWork.md` (requirements) REQ-05-01-007; `_DEPENDENCIES.md`.
 > - The crate exposes storage-neutral boundary records and diagnostic records, not the final application-service result envelope/API.
 > - Unknown coefficients, default magnitudes, conversion constants, jurisdictional values, and professional acceptance remain `TBD`. Source: OPS-K-AGENT-1; OPS-K-DATA-1; OPS-K-IP-1.
 > - Agent-authored deliverable evidence remains draft/proposal material until accepted by the human workflow authority. Source: OPS-K-AGENT-4.
@@ -174,7 +174,7 @@ This Scope of Work defines `DEL-05-01` in service of project scope [SOW-013] and
 > | REQ-05-01-005 | Missing or invalid solve-required load data shall become explicit findings/errors rather than silent defaults. | OPS-K-DATA-2; `FindingCode`; `BoundaryMetadataError` |
 > | REQ-05-01-006 | Load validation and load-case assembly findings shall be convertible to diagnostic records carrying code, class, blocking severity, source, affected object, message, remediation, and provenance reference. | AB-00-06; `LoadDiagnosticRecord` |
 > | REQ-05-01-007 | Primitive load-case records shall bind one primitive category to canonical model `LoadCase` metadata, provenance, payload reference, payload-hash reference, and sorted load IDs; mixed-category algebra remains DEL-05-02 scope. | SOW-013; SOW-014; DEL-05-02; `PrimitiveLoadCaseRecord`; `_DEPENDENCIES.md` |
-> | REQ-05-01-008 | Wind, seismic, and occasional equivalent-static handling shall accept only explicit equivalent mechanics loads with caller-supplied basis/provenance refs unless a later sealed scope authorizes dynamic procedure generation. | SOW-013 note; `_CONTEXT.md`; `README.md`; `EquivalentStaticMechanicsBasis` |
+> | REQ-05-01-008 | Wind, seismic, and occasional equivalent-static handling shall accept explicit equivalent mechanics loads and the DEC-068 static-equivalent generators from user-supplied inputs with basis/provenance refs; dynamic procedure generation and protected/default coefficients remain outside this authority. | SOW-013 note; `_CONTEXT.md`; `README.md`; `EquivalentStaticMechanicsBasis` |
 > | REQ-05-01-009 | Deterministic primitive-load tests shall cover category representation, supported/unsupported target and dimension boundaries, boundary metadata, equivalent-static handling, load-case records, diagnostic bridge records, lumping, axial effects, and solver-vector assembly behavior before release use. | OPS-K-SOLVER-1; `src/lib.rs` tests |
 > | REQ-05-01-010 | Primitive load inputs, load-case records, boundary quantity records, and diagnostic records shall retain provenance references sufficient to distinguish explicit user/lawful source inputs from unresolved `TBD` state. | OPS-K-DATA-1; OPS-K-DATA-2; AB-00-06 |
 > | REQ-05-01-011 | Lumped equivalent nodal conversion shall remain limited to explicit translational/global `ForcePerLength` element loads with caller-supplied element span and node connectivity. | `prepare_lumped_nodal_loads`; `ElementLoadSpan` |
@@ -214,8 +214,8 @@ This Scope of Work defines `DEL-05-01` in service of project scope [SOW-013] and
 >
 > - Canonical unit conversion constants and production unit conversion policy.
 > - Final result-envelope/API integration and application-service command/query surface.
-> - Production tolerance policy and release thresholds.
-> - Wind/seismic dynamic treatment, occasional-event mapping, and any future lawful procedure generators.
+> - Apply DEC-026 for numerical verification and retain unmeasured release thresholds.
+> - Wind/seismic dynamic treatment and unadopted occasional-event mapping remain open; DEC-068 resolves the bounded static-equivalent generation scope.
 > - Broader material/property sourcing policy, default prohibition enforcement, and human acceptance gates.
 > - Professional reliance and code-compliance acceptance remain human/project authority decisions, not crate behavior.
 >
@@ -264,7 +264,7 @@ This Scope of Work defines `DEL-05-01` in service of project scope [SOW-013] and
 > 5. Confirm primitive mechanics boundaries: nodal, element-uniform, imposed-displacement, equivalent-static preparation, lumped equivalent nodal conversion, straight-pipe axial effects, and solver load-vector assembly are documented only to the extent implemented.
 > 6. Preserve the boundary between primitive load definitions/load-case records in DEL-05-01 and mixed-category load-case algebra/user combinations in DEL-05-02.
 > 7. Preserve the boundary between mechanics solving, diagnostic record transport, rule/compliance evaluation, and human professional judgment.
-> 8. Keep unknown coefficients, default magnitudes, conversion constants, dynamic treatment, property/default sourcing, production tolerance policy, final API integration, release thresholds, and professional reliance as `TBD` unless supplied by lawful source material and sealed scope.
+> 8. Apply the accepted DEC-018 conversion basis and DEC-026 governed tolerance records at their actual reach. Unknown coefficients/default magnitudes, dynamic treatment, property sourcing, unmeasured tolerance entries, final API integration and release thresholds remain explicit gaps; professional reliance remains a human act.
 > 9. Run focused validation after documentation or crate-affecting changes: `cargo test --manifest-path core/loads/primitive_loads/Cargo.toml` and `git diff --check` scoped to touched files where possible.
 > 10. Record durable closeout evidence in `MEMORY.md` and `_run_records/TASK_RUN_*.md` without editing `_STATUS.md`, dependency registers, DAG artifacts, schemas, repo-level governance, or core code unless explicitly authorized by a later brief.
 >
@@ -342,7 +342,7 @@ This Scope of Work defines `DEL-05-01` in service of project scope [SOW-013] and
 >
 > | Topic | Guidance |
 > |---|---|
-> | Weight | Use explicit mechanics quantities such as element `ForcePerLength`; any mass-source, gravity-vector, density, and conversion policy must come from lawful upstream data or future sealed scope. |
+> | Weight | Use explicit mechanics quantities such as element `ForcePerLength`; mass-source, gravity-vector and density inputs require lawful upstream provenance; DEC-068 governs bounded generation and DEC-018 the unit conversion basis. |
 > | Pressure | Pressure can be carried as an element primitive load and interpreted for straight-pipe pressure thrust only with caller-supplied properties; pressure stress formulas and code stress categories belong elsewhere. |
 > | Thermal | Thermal can be carried as element temperature change and interpreted for straight-pipe axial force only with caller-supplied material/section properties; reference temperature and material provenance remain open policy. |
 > | Displacement | Imposed displacement is a support-target mechanics input; support/restraint behavior remains an interface with the owning solver/support deliverables. |

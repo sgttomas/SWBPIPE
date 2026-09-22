@@ -48,7 +48,7 @@ This Scope of Work defines `DEL-04-04` in service of project scope [SOW-012] and
 > | Covered behavior categories | One-way supports, gaps, lift-off, and friction. | Deliverables.csv DEL-04-04; ScopeLedger.csv SOW-012 |
 > | Reporting obligation | Convergence reporting, active-set state, and unresolved non-convergence reporting are in scope. | CONTRACT.md OPS-K-SOLVER-2; _CONTEXT.md Description |
 > | Anticipated artifacts | Active-set classifier/state oracle; report-facing active-set records; classifier and integration-facing convergence tests. | _CONTEXT.md Anticipated Artifacts; DEC-044 |
-> | Explicit deferrals | Assembled loop ownership is re-pointed to `core/solver/nonlinear_integration`; sparse live-path adoption, class-tiered convergence values, and implementation-level defaults remain governed follow-on work. | _CONTEXT.md Architecture Basis Injection; DEC-044; DEC-046; human brief hard stops |
+> | Explicit deferrals | Assembled loop ownership is re-pointed to `core/solver/nonlinear_integration`; sparse live-path/default policy follows DEC-050/053; class-tiered convergence follows DEC-046 and its measured records; unmeasured entries and caller-supplied defaults remain explicit. | _CONTEXT.md Architecture Basis Injection; DEC-044; DEC-046; human brief hard stops |
 >
 
 ### CLM-004 — Conditions
@@ -68,7 +68,7 @@ This Scope of Work defines `DEL-04-04` in service of project scope [SOW-012] and
 
 > ##### Construction
 >
-> This setup kit defines the nonlinear active-set classifier boundary. The
+> This contract defines the nonlinear active-set classifier boundary. The
 > assembled nonlinear loop is owned by the PKG-04 integration tranche under
 > `DEC-044`; this deliverable remains the classifier/state-oracle surface.
 >
@@ -77,7 +77,7 @@ This Scope of Work defines `DEL-04-04` in service of project scope [SOW-012] and
 > | Active-set iteration loop | Re-pointed by `DEC-044`: assembled loop ownership is `core/solver/nonlinear_integration`; this deliverable supplies the per-iteration classifier/state oracle. |
 > | Support activation state model | In scope for this deliverable; exact downstream integration contract is owned by the integration tranche. |
 > | Gap/lift-off/one-way state transitions | In scope for this deliverable; rules must be evidence-backed and tested. |
-> | Friction behavior | In scope as a named behavior category; numerical model, defaults, and limits are TBD. |
+> | Friction behavior | DEC-067 adopts bounded Coulomb sliding force opposing motion using current-iterate normal reaction. No path-history model or caller-input defaults are selected. |
 > | Convergence reporting | Required output surface; result-envelope integration follows AB-00-03 and diagnostics follow AB-00-06. |
 > | Convergence tests | Required anticipated artifact; deterministic verification follows OPS-K-SOLVER-1 and AB-00-08. |
 >
@@ -90,7 +90,7 @@ This Scope of Work defines `DEL-04-04` in service of project scope [SOW-012] and
 > - docs/_Registers/Deliverables.csv row DEL-04-04.
 > - docs/_Registers/ScopeLedger.csv row SOW-012.
 > - docs/_Registers/ContextBudgetQA.csv row DEL-04-04.
-> - execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 rows for PKG-04, DEL-04-04, SOW-012, OBJ-003, and AB-00-01/02/03/06/08.
+> - execution/_Decomposition/SOFTWARE_DECOMP.md` accepted authority (see the decision register) rows for PKG-04, DEL-04-04, SOW-012, OBJ-003, and AB-00-01/02/03/06/08.
 > - docs/CONTRACT.md invariants OPS-K-MECH-1, OPS-K-MECH-2, OPS-K-UNIT-1, OPS-K-SOLVER-1, OPS-K-SOLVER-2, OPS-K-DATA-2, OPS-K-REPORT-1, and OPS-K-AGENT-1 through OPS-K-AGENT-4.
 >
 
@@ -134,7 +134,7 @@ This Scope of Work defines `DEL-04-04` in service of project scope [SOW-012] and
 > | DEL-04-04-REQ-06 | Unit-bearing support, displacement, force, and friction-related quantities shall be unit-aware and dimensionally checked where applicable. | OPS-K-UNIT-1 | Unit tests cover accepted, rejected, and missing unit metadata. |
 > | DEL-04-04-REQ-07 | The solver shall compute mechanics only; rule-pack acceptability and professional compliance remain outside this deliverable. | OPS-K-MECH-2; package exclusions | Reports and result labels avoid compliance/certification language. |
 > | DEL-04-04-REQ-08 | Result and diagnostic outputs shall support report disclosure of solver version, warnings, assumptions, limitations, and provenance notes. | OPS-K-REPORT-1; AB-00-06 | Report-facing fixture tests confirm required metadata is present or explicitly TBD. |
-> | DEL-04-04-REQ-09 | Implementation choices for sparse live-path adoption, class-tiered convergence values, friction defaults, and final data contracts remain governed or TBD until later authorized work. | _CONTEXT.md Still TBD; OPS-K-AGENT-1; DEC-044; DEC-046; human hard stops | Review confirms no invented values or defaults appear in setup artifacts. |
+> | DEL-04-04-REQ-09 | Sparse live-path/default use shall follow DEC-050/053; convergence values shall follow DEC-046 measured records, with unmeasured entries explicit. Friction follows DEC-067; missing caller inputs, path-history semantics and unsettled final contracts remain open. | _CONTEXT.md Still TBD; OPS-K-AGENT-1; DEC-044; DEC-046; human hard stops | Review confirms no invented values or defaults appear in setup artifacts. |
 >
 
 ### CLM-011 — Standards
@@ -168,13 +168,13 @@ This Scope of Work defines `DEL-04-04` in service of project scope [SOW-012] and
 
 > ##### Documentation
 >
-> Required documentation artifacts for this setup are `Datasheet.md`,
-> `Specification.md`, `Guidance.md`, `Procedure.md`, `_SEMANTIC.md`,
+> Required documentation artifacts for this setup are `ScopeOfWork.md` (definition),
+> `ScopeOfWork.md` (requirements), `ScopeOfWork.md` (rationale), `ScopeOfWork.md` (procedure), `_SEMANTIC.md`,
 > `_SEMANTIC_LENSING.md`, `_DEPENDENCIES.md`, `Dependencies.csv`, and
 > `_run_records/`. The assembled-loop integration artifact is
 > `core/solver/nonlinear_integration`.
 
-- **AC-001** — The contract preserves the accepted classifier versus assembled-loop ownership, implemented state-transition and bounded Coulomb-friction basis, unit and diagnostic boundaries, explicit missing inputs, mechanics-only posture, and unresolved path-history, convergence-threshold, sparse-live-path, and validation policies without inventing defaults or engineering acceptance.
+- **AC-001** — The contract preserves the accepted classifier versus assembled-loop ownership, implemented state-transition and bounded Coulomb-friction basis, unit and diagnostic boundaries, explicit missing inputs, mechanics-only posture, and unresolved path-history, unmeasured convergence entries, and validation policies without inventing defaults or engineering acceptance.
 
 ## Production and Verification Method — Praxeology
 
@@ -187,7 +187,7 @@ This Scope of Work defines `DEL-04-04` in service of project scope [SOW-012] and
 
 > ##### Purpose
 >
-> Define the documentation setup procedure for DEL-04-04 without implementing nonlinear solver code.
+> Define the maintenance and verification procedure for DEL-04-04 for the implemented classifier boundary; assembled-loop integration remains with its accepted owner.
 >
 
 ### CLM-016 — Prerequisites
@@ -197,7 +197,7 @@ This Scope of Work defines `DEL-04-04` in service of project scope [SOW-012] and
 > - Read `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, and `_STATUS.md`.
 > - Apply docs/CONTRACT.md invariants OPS-K-MECH-1, OPS-K-MECH-2, OPS-K-UNIT-1, OPS-K-SOLVER-1, OPS-K-SOLVER-2, OPS-K-DATA-2, OPS-K-REPORT-1, and OPS-K-AGENT-1 through OPS-K-AGENT-4.
 > - Apply architecture basis AB-00-01, AB-00-02, AB-00-03, AB-00-06, and AB-00-08.
-> - Keep all writes inside the DEL-04-04 folder.
+> - Keep writes within the current authorized brief; the historical setup pass was deliverable-local. Classifier ownership and accepted integration boundaries remain unchanged.
 >
 
 ### CLM-017 — Steps
@@ -205,7 +205,7 @@ This Scope of Work defines `DEL-04-04` in service of project scope [SOW-012] and
 > ##### Steps
 >
 > 1. Confirm the deliverable identity is DEL-04-04 under PKG-04.
-> 2. Confirm the setup scope is documentation only: four documents, semantic files, dependency artifacts, and run records.
+> 2. Confirm the setup scope is documentation only: ScopeOfWork.md sections, semantic files, dependency artifacts, and run records.
 > 3. Capture nonlinear support behavior categories from SOW-012 and the deliverables register: one-way supports, gaps, lift-off, and friction. Per `DEC-067`, the implemented classifier decision boundary is state-switched (engaged supports classify on reaction sign, released supports on displacement penetration/clearance) and a sliding friction support carries the bounded `+/- mu*N` tangential force in the assembled loop rather than a full DOF release.
 > 4. Record future implementation needs as `TBD` when exact numerical library choices, convergence thresholds, friction defaults, or data contracts are not provided.
 > 5. Preserve mechanics/reporting boundaries: mechanics solved by solver, acceptability handled by rule packs or humans, and no compliance/certification claims.
@@ -217,7 +217,7 @@ This Scope of Work defines `DEL-04-04` in service of project scope [SOW-012] and
 
 > ##### Verification
 >
-> - Four production documents exist and retain Datasheet, Specification, Guidance, and Procedure roles.
+> - `ScopeOfWork.md` retains the consolidated Datasheet, Specification, Guidance, and Procedure source sections.
 > - `_SEMANTIC.md` exists and separates semantic lensing from engineering authority.
 > - `_SEMANTIC_LENSING.md` exists and records warranted enrichment items without rewriting production documents.
 > - `Dependencies.csv` validates against v3.1 schema.
@@ -228,10 +228,10 @@ This Scope of Work defines `DEL-04-04` in service of project scope [SOW-012] and
 
 > ##### Records
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md` (definition)
+> - `ScopeOfWork.md` (requirements)
+> - `ScopeOfWork.md` (rationale)
+> - `ScopeOfWork.md` (procedure)
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -251,7 +251,7 @@ This Scope of Work defines `DEL-04-04` in service of project scope [SOW-012] and
 
 > ##### Purpose
 >
-> This deliverable prepares a future nonlinear support active-set solver slice within PKG-04. Its value is to keep nonlinear mechanical behavior, diagnostics, unit handling, and result reporting bounded before implementation work begins.
+> This deliverable defines the nonlinear support classifier slice within PKG-04. Its value is to keep nonlinear mechanical behavior, diagnostics, unit handling, and result reporting bounded through implementation and verification.
 >
 
 ### CLM-022 — Principles
@@ -269,7 +269,7 @@ This Scope of Work defines `DEL-04-04` in service of project scope [SOW-012] and
 
 > ##### Considerations
 >
-> The future implementation will likely need to coordinate with linear support models, the frame stiffness kernel, solver diagnostics, and sparse solver behavior. Those are execution relationships for later work; this setup pass records them without editing other deliverables or implementing code.
+> Classifier maintenance coordinates with the linear-support, frame-kernel, diagnostics and sparse-solver contracts; assembled-loop integration follows the accepted decomposition and DEC-044. This record does not transfer ownership or waive integration evidence.
 >
 > Convergence reporting needs enough information for downstream diagnostics and reports to disclose unresolved non-convergence, assumptions, and limitations. It must not imply engineering approval or code compliance.
 >

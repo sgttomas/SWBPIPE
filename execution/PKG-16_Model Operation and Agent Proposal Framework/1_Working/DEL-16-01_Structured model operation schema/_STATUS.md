@@ -4,6 +4,7 @@
 **Last Updated:** 2026-08-21
 
 ## Remaining
+- R5 continuation delivery task: Reconcile the unchanged public operation-schema contract with DEC-094/SCA-009 vocabulary and actual runtime operations under SCA-011 ownership. Prove required unit/model-basis/hash/diagnostic guarantees without treating the schema enum as the complete taxonomy or silently ratifying new interface fields (CLM-003/004/017/026).
 - Obtain owning human dispositions for `PKG16-DEL1601-PKG02-001` and `PKG16-DEL1601-PKG02-002`; both remain `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`, notwithstanding current model-basis/hash and fixture evidence (PDU-060).
 
 ## History

@@ -63,8 +63,8 @@ This Scope of Work defines `DEL-16-03` in service of project scope [SOW-069, SOW
 >
 > | Condition | Status |
 > |---|---|
-> | Current audit-trail implementation path | Established for this slice at `core/model_operations/audit_trail/engine.py`. |
-> | Current validation-preview dependency path | Established read-only dependency at `core/model_operations/validation_preview/engine.py`. |
+> | Reference audit-trail implementation path | Established for this slice at `core/model_operations/audit_trail/engine.py`. |
+> | Reference validation-preview dependency path | Established read-only dependency at `core/model_operations/validation_preview/engine.py`. |
 > | Current operation schema and fixture basis | Established upstream evidence at `schemas/model_operation.schema.json`, `fixtures/model_operations/invented_operation_set_valid.json`, and `fixtures/model_operations/invented_accepted_model_state.json`. |
 > | Explicit user acceptance requirement | Established: accepted records require `acceptance_signal.accepted is True`, `decision == accept`, and `actor_type == user`; agent-only acceptance is held for user acceptance. |
 > | Blocked validation behavior | Established: accepted records require passed schema, constraint, and unit validation, generated diff preview, and `application_status: not_applied`; blocking validation prevents accepted status. |
@@ -74,7 +74,7 @@ This Scope of Work defines `DEL-16-03` in service of project scope [SOW-069, SOW
 > | Missing input diagnostics | Established: missing validation outcome, diff-preview reference, user decision, timestamp, and rationale are surfaced as visible `TBD` diagnostics or placeholder values. |
 > | Deterministic record shape | Established: records are sorted by canonical JSON, hashes are derived from stable JSON serialization, and focused tests compare canonical output stability. |
 > | Professional/compliance claims | Established: current audit output carries boundary flags and focused tests reject prohibited professional, certification, sealing, authentication, approval, and code-compliance wording (PRD §21.2). |
-> | Durable persistence container or storage mechanism | TBD; current implementation returns an in-memory audit payload and does not define long-term storage. |
+> | Durable persistence integration | DEC-017 fixes the local storage substrate; this reference implementation returns an in-memory payload. Durable audit/history conformance and retention remain delivery obligations. |
 > | Long-term retention policy | TBD; rejected operations are recorded in the current payload, but durable retention duration and disposal rules are not defined. |
 > | Final actor identity model beyond current fields | TBD; current fields include `actor_type`, `actor_ref`, and `source_role`, but final identity/authentication semantics are not defined. |
 > | Timestamp precision policy beyond current fixture evidence | TBD; current fixture/test evidence uses ISO-like UTC strings, but project-wide precision/clock policy is not defined. |
@@ -88,7 +88,7 @@ This Scope of Work defines `DEL-16-03` in service of project scope [SOW-069, SOW
 
 > ##### Construction
 >
-> DEL-16-03 is a backend feature-slice control surface for recording operation acceptance outcomes and audit metadata. The current implementation is the deterministic audit-trail module at `core/model_operations/audit_trail/engine.py`, exercised by `tests/test_operation_audit_trail.py`. It consumes structured operation envelopes, validation/diff-preview evidence, acceptance or rejection signals, actor/source metadata, timestamps, rationale, audit metadata, and accepted model-state references.
+> DEL-16-03 is a backend feature-slice control surface for recording operation acceptance outcomes and audit metadata. The reference implementation is the deterministic audit-trail module at `core/model_operations/audit_trail/engine.py`, exercised by `tests/test_operation_audit_trail.py`. It consumes structured operation envelopes, validation/diff-preview evidence, acceptance or rejection signals, actor/source metadata, timestamps, rationale, audit metadata, and accepted model-state references.
 >
 > The module records accepted, rejected, and held-for-user-acceptance outcomes without applying operations or mutating accepted model state. Accepted audit records require explicit user acceptance, nonblocking validation/preview evidence, hash-bound diff-preview evidence, and a current accepted model-state hash that matches the operation precondition. Missing inputs remain visible as `TBD` diagnostics. Durable persistence, retention policy, final actor identity semantics, timestamp precision policy, operation application, and human review dispositions remain outside the established implementation facts for this slice.
 >
@@ -202,7 +202,7 @@ This Scope of Work defines `DEL-16-03` in service of project scope [SOW-069, SOW
 > - `fixtures/model_operations/invented_operation_set_valid.json`
 > - `fixtures/model_operations/invented_accepted_model_state.json`
 >
-> Durable persistence container, long-term retention policy, final actor identity model beyond current fields, timestamp precision policy beyond fixture evidence, operation application outside this slice, and human review dispositions remain TBD.
+> Durable persistence integration under DEC-017, long-term retention policy, final actor identity model beyond current fields, timestamp precision policy beyond fixture evidence, operation application outside this slice, and human review dispositions remain TBD.
 
 - **AC-001** — The contract preserves explicit user acceptance, passed validation and generated hash-bound diff-preview gates, accepted-model-state hash/precondition evidence, operation history, rationale, assumptions, affected entities, actor/source metadata, timestamps, validation outcomes, audit metadata, deterministic record hashes, visible TBD diagnostics, rejected-record retention in the current payload, unchanged accepted state, invented-public data boundaries, professional non-authority, and unresolved durable persistence, retention, identity, timestamp, application, autonomy, and human-disposition matters.
 
@@ -229,7 +229,7 @@ This Scope of Work defines `DEL-16-03` in service of project scope [SOW-069, SOW
 >
 > - Current deliverable context: `_CONTEXT.md`.
 > - Governing reference list: `_REFERENCES.md`.
-> - Accepted decomposition basis: `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7.
+> - Accepted decomposition basis: `execution/_Decomposition/SOFTWARE_DECOMP.md` with its accepted amendments.
 > - Approved local DAG-002 dependency mirror: `_DEPENDENCIES.md` and `Dependencies.csv`.
 > - Upstream context recorded in the local mirror, including architecture-basis rows DAG-002-E0744 through DAG-002-E0750 and execution context rows DAG-002-E0832 through DAG-002-E0836.
 > - Default user-acceptance posture from `_CONTEXT.md` and OI-016.
@@ -283,9 +283,9 @@ This Scope of Work defines `DEL-16-03` in service of project scope [SOW-069, SOW
 > - Review notes for unresolved TBDs and assumptions.
 > - Protected-content/provenance check results for any public fixtures.
 > - Future human decisions that change the default acceptance/autonomy posture.
-> - Future human decisions for durable persistence container, long-term retention policy, final actor identity model, timestamp precision policy, operation application outside this slice, and review finding dispositions.
+> - Durable-history implementation and verification records under DEC-017/028 (local-store and transport strategy already ruled), with DEL-16-06 actual-outcome integration under DEC-020/SCA-011. Retain separately unresolved long-term retention, actor identity, timestamp precision and review-finding dispositions at their owning decision paths.
 
-- **VER-001** — Validate the contract and review source parity, accepted/rejected/held disposition coverage, explicit user and validation/preview/hash gates, complete SOW-070 audit metadata, deterministic identity, visible missing-input diagnostics, rejected and accepted-state nonmutation behavior, protected-data and professional boundaries, and retention of every persistence, retention, actor, timestamp, application, and human-disposition TBD.
+- **VER-001** — Validate the contract and review source parity, accepted/rejected/held disposition coverage, explicit user and validation/preview/hash gates, complete SOW-070 audit metadata, deterministic identity, visible missing-input diagnostics, rejected and accepted-state nonmutation behavior, protected-data and professional boundaries, and verification of durable-history/application conformance under the already-ruled substrate and ownership, with separately unresolved retention, actor, timestamp and human-disposition questions retained.
 
 ## Governing Values and Decisions — Axiology
 
@@ -338,7 +338,7 @@ This Scope of Work defines `DEL-16-03` in service of project scope [SOW-069, SOW
 > | Blocked validation | Treat blocking validation or preview evidence as preventing accepted status; record diagnostics visibly instead of upgrading status. |
 > | Accepted-state handling | Treat audit recording as nonmutating; DEL-16-06 owns application and its actual-outcome handoff, while acceptance/audit policy remains here. |
 > | Professional wording | Use audit/review/development acceptance language; avoid professional approval or code-compliance wording (PRD §21.2). |
-> | Dependency mirror handling | Preserve approved DAG-006 rows as ACTIVE; do not reinterpret the mirror as a fresh extraction result. |
+> | Dependency mirror handling | Preserve approved graph rows with their recorded statuses through `execution/_DAG/_LATEST.md`; do not reinterpret the mirror as a fresh extraction result. |
 >
 
 ### CLM-027 — Examples
@@ -356,7 +356,7 @@ This Scope of Work defines `DEL-16-03` in service of project scope [SOW-069, SOW
 >
 > | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling (TBD) |
 > |---|---|---|---|---|---|---|
-> | TBD | Durable persistence container, long-term retention policy, final actor identity model beyond `actor_type`/`actor_ref`/`source_role`, timestamp precision policy beyond current fixture evidence, operation application outside this slice, and human review dispositions are not resolved by the current implementation evidence. | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md`; `core/model_operations/audit_trail/engine.py`; focused tests | No persistence container, retention policy, final identity policy, timestamp policy, application workflow, or human disposition ruling present | Datasheet Conditions; Specification Documentation; Procedure Records | Future sealed Type 2 implementation brief or human governance ruling | TBD |
+> | TBD | Durable persistence integration under DEC-017, long-term retention policy, final actor identity model beyond `actor_type`/`actor_ref`/`source_role`, timestamp precision policy beyond current fixture evidence, DEL-16-06 application/outcome integration, and human review dispositions are not closed by the reference implementation evidence. | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md`; `core/model_operations/audit_trail/engine.py`; focused tests | DEC-017 fixes the storage substrate and DEC-020/SCA-011 assigns controlled application to DEL-16-06; durable history, retention, identity/clock policy and human dispositions still require evidence | Datasheet Conditions; Specification Documentation; Procedure Records | Future sealed Type 2 implementation brief or human governance ruling | TBD |
 
 ### CLM-029 — SCA-011 Acceptance-to-application handoff
 

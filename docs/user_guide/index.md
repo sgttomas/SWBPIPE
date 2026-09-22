@@ -44,6 +44,16 @@ Any human acceptance record, if used in a future workflow, is external to
 automatic solver and rule-pack output and must bind to specific reviewed
 hashes.
 
+## Accessibility Intent
+
+Guide instructions must describe available keyboard navigation, labels, focus
+behavior, visible units, missing-data diagnostics and usable result alternatives
+where the corresponding interface provides them. Keep the DEL-07-06
+accessibility/usability contract and DEL-11-01 acceptance criteria visible when
+reviewing a user journey. Document known gaps and test evidence at their actual
+reach; an intended control or guide statement does not establish accessibility
+conformance or settle a human-selected target.
+
 ## 2. Current Repository Surfaces
 
 The guide should refer to these current surfaces when explaining behavior:

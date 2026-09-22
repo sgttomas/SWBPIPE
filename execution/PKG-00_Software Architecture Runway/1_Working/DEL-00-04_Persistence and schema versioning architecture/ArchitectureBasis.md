@@ -32,7 +32,7 @@ Guardrails: prefer explicit contracts over package-local assumptions; treat diag
 |---|---|---|
 | Physical project file format / storage backend | Local SQLite-backed project store/index; canonical JSON/JCS remains domain truth; rebuildable SQLite FTS5/BM25 retrieval sidecars; large files referenced in place by path/URI plus hash/metadata; no hosted DB, daemon, required network, cloud sync, telemetry, or direct plugin/adapter SQL access. | SCA-003; DEC-017 in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12; AB-00-04 |
 | Schema language | JSON Schema 2020-12 as the public schema/interchange baseline, with schema-first command/query/job/result envelopes. | SCA-001; DEC-010 in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 |
-| Canonical hash algorithm | SHA-256 over JCS-like sorted-key canonical JSON, implemented in `apps/desktop/src/services/hashService.ts`; the envelope hash excludes the volatile storage summary and its own carrier field so it is recomputable from a restored envelope. | `execution/_Coordination/_DECISIONS/D-08_model_document_schema_migration.md` §2.7 |
+| Canonical hash algorithm | SHA-256 over RFC 8785 JCS canonical JSON; `apps/desktop/src/services/hashService.ts` routes through the WebAssembly engine to the Rust `canonical_json` implementation; the envelope hash excludes the volatile storage summary and its own carrier field so it is recomputable from a restored envelope. | `execution/_Coordination/_DECISIONS/D-08_model_document_schema_migration.md` §2.7 |
 | Migration framework / schema-version and migration policy | Two-track versioning: store schema via the SQLite `user_version` ledger; model documents via per-document semver with an explicit registered transform chain; migrate-in-memory-on-open with persist-on-save; explicit-operation evidence guarantees with no silent destructive rewrites. Refined by DEC-033: additive shape changes (new optional fields) bump the per-document minor version; patch is reserved for non-shape changes; breaking changes remain major/explicit-migration events. | D-08 packet; DEC-019 (2026-06-10) and DEC-033 (2026-06-12) in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 |
 
 ## Realized artifacts
@@ -44,7 +44,7 @@ The anticipated `docs/architecture/persistence_versioning.md` was never created.
 | `docs/architecture/persistence_contract.md` | Canonical persistence contract document | DEL-02-05 (not DEL-00-04) |
 | `execution/_Coordination/_DECISIONS/D-08_model_document_schema_migration.md` | Migration-policy decision packet (accepted as proposed 2026-06-10) | Decision record (coordination surface) |
 | `apps/desktop/src-tauri/src/model_document_migration.rs` | Implemented model-document migration chain | Implementation packages (not DEL-00-04) |
-| `apps/desktop/src/services/hashService.ts` | Canonical-JSON SHA-256 hashing implementation (REQ-04-03) | Implementation packages (not DEL-00-04) |
+| `apps/desktop/src/services/hashService.ts` | Frontend seam to the Rust canonical JSON / SHA-256 implementation through the WebAssembly engine (REQ-04-03) | Implementation packages (not DEL-00-04) |
 
 ## Open holds and routed questions
 

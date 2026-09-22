@@ -28,11 +28,11 @@ Boundary rules retained as current: GUI state cannot bypass application services
 
 ## Resolved decisions (former TBD and human-ruling queue)
 
-Register: `execution/_Coordination/_DECISIONS/_REGISTER.md`; codification in `execution/_Decomposition/SOFTWARE_DECOMP.md` §8.4 (~lines 585–640).
+Register: `execution/_Coordination/_DECISIONS/_REGISTER.md`; codification in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12 (decision log) and §8.2 (architecture baseline).
 
 | Former open item | Resolution | Record |
 |---|---|---|
-| GUI framework / viewport engine (setup-era TBD) | Rust core/application services; Tauri 2 desktop shell; TypeScript/React/Vite GUI; Three.js viewport. Accepted 2026-04-30 and implemented (`apps/desktop/package.json`). | `DEC-009` (SOFTWARE_DECOMP rev 0.9 §8.4; SCA-001 Gate 3) |
+| GUI framework / viewport engine (setup-era TBD) | Rust core/application services; Tauri 2 desktop shell; TypeScript/React/Vite GUI; Three.js viewport. Accepted 2026-04-30 and implemented (`apps/desktop/package.json`). | `DEC-009` (SOFTWARE_DECOMP §12; SCA-001 Gate 3) |
 | Model-tree / property-inspector ownership (D-41 OD-002/CU-002) | Option O2: DEL-00-05 retains cross-cutting GUI state/interaction architecture; DEL-07-02 is delegated owner of model-tree and property-inspector behavior. Folded into REQ-05-04 above. | D-41 `DEC-074` (R4 ruling 2026-07-12); PDU-009 |
 | Setup-era "no implementation exists" framing | Superseded as current declaration by the implemented working-tree slice and its evidence; earlier wording is historical setup context only. | D-41 R5 T7 PDU-054/PDU-055 (claims `DEL-00-05-DECL-002`, `DEL-00-05-DECL-003`) |
 
@@ -52,4 +52,4 @@ Register: `execution/_Coordination/_DECISIONS/_REGISTER.md`; codification in `ex
 
 ## Currency and provenance
 
-Consolidated 2026-07-15 per piping decision D-43 from the four-document kit (`Datasheet.md`, `Specification.md`, `Procedure.md`, `Guidance.md`) as reconciled by D-41 R5 T7 (PDU-054/PDU-055 currentness declarations, 2026-07-12). Prior wording is preserved in git history; `MEMORY.md` is retained unchanged as the dated decision/evidence trail. Current upstream authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.9 with approved `execution/_DAG/DAG-007/` graph context.
+Consolidated 2026-07-15 per piping decision D-43 from the four-document kit (`Datasheet.md`, `Specification.md`, `Procedure.md`, `Guidance.md`) as reconciled by D-41 R5 T7 (PDU-054/PDU-055 currentness declarations, 2026-07-12). Prior wording is preserved in git history; `MEMORY.md` is retained unchanged as the dated decision/evidence trail. Current upstream authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` with its accepted decisions; approved graph context is resolved through `execution/_DAG/_LATEST.md`.

@@ -37,8 +37,8 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 > | Package name | Graphical User Interface and Engineering Workflow |
 > | Deliverable type | UX_UI_SLICE |
 > | Context envelope | L |
-> | Current execution mode | Setup/document production only |
-> | Write boundary | This deliverable folder only |
+> | Current execution mode | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle and remaining work are recorded in `_STATUS.md`. Setup-only restrictions describe the originating setup run, not standing product scope. |
+> | Write boundary | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle and remaining work are recorded in `_STATUS.md`. Setup-only restrictions describe the originating setup run, not standing product scope. |
 >
 
 ### CLM-004 — Attributes
@@ -51,7 +51,7 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 > | Supported objective | OBJ-006: GUI workflow makes model creation, missing data, results, and assumptions visible | `execution/_Decomposition/SOFTWARE_DECOMP.md` section 5; `_CONTEXT.md` |
 > | Future artifact class | GUI viewport and interaction tests | `docs/_Registers/Deliverables.csv` row `DEL-07-01`; `_CONTEXT.md` |
 > | Runtime/UI baseline | Tauri 2 desktop shell, TypeScript/React/Vite GUI, Three.js viewport | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` `DEC-009` |
-> | Unresolved implementation choices | Exact dependency versions, component library, state-management library, and platform release matrix remain `TBD` | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` `DEC-012` |
+> | Unresolved implementation choices | Resolve current dependency and component/state choices through `apps/desktop/package.json` and the implemented consumers. DEC-012 permits choices in a sealed brief or later ruling; preserve durable/transient separation and accepted architecture. Release scope follows DEC-057. | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` `DEC-012` |
 > | State/editing basis | Durable project state is separate from transient viewport, selection, and session state; mutations route through application-service commands | `execution/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-05` |
 > | Diagnostic basis | User-facing warnings and result-envelope diagnostics use explicit classes and do not claim code compliance | `execution/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-06`; `docs/SPEC.md` section 7 |
 > | Data boundary posture | Code-specific values, protected standards data, manufacturer/private data, and professional approval remain user/private or human-owned | `docs/CONTRACT.md` `OPS-K-DATA-1`, `OPS-K-IP-1`, `OPS-K-AUTH-1`; `docs/IP_AND_DATA_BOUNDARY.md` |
@@ -67,13 +67,16 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 > | A future component glyph needs protected dimensional tables or vendor catalog data | Stop and route through the protected-data/provenance review path |
 > | The viewport can create geometry but required solve data is missing | Surface an explicit diagnostic or missing-data state; do not hide the gap |
 > | A rule-pack or code-check status is implied by viewport color, label, or state | Preserve mechanics-solve, user-rule-check, and human-approval separation |
-> | A future implementation needs to choose a component or state-management library | Record the decision through the architecture decision path; this setup deliverable does not finalize it |
-> | A change would edit GUI source, package manifests, repo-level docs, or tests during this setup session | Stop; those paths are outside this sealed write scope |
+> | A future implementation needs to choose a component or state-management library | Resolve current dependency and component/state choices through `apps/desktop/package.json` and the implemented consumers. DEC-012 permits choices in a sealed brief or later ruling; preserve durable/transient separation and accepted architecture. Release scope follows DEC-057. |
+> | A change would edit GUI source, package manifests, repo-level docs, or tests during the original setup session Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Stop; those paths are outside this sealed write scope |
 >
 
 ### CLM-006 — Construction
 
 > ##### Construction
+>
+> Current deliverable obligation: implement viewport and centerline editing plus palette rendering and operation routing under the DEL-07-09 organization contract. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
 >
 > This setup artifact frames a future GUI slice for a 3D centerline viewport and editor. A conforming future implementation should keep these surfaces distinct:
 >
@@ -87,9 +90,8 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 > | Undo/redo | Scope undo/redo to reversible model edits and preserve diagnostics/result-envelope integrity |
 > | Test evidence | Use GUI-layer tests appropriate to the accepted Vitest/Playwright baseline once implementation is authorized |
 >
-> This deliverable does not implement product UI in this setup session. It also does not supply engineering component data, rule-pack values, or professional acceptance records.
+> This deliverable does not implement product UI in the original setup session. It also does not supply engineering component data, rule-pack values, or professional acceptance records.
 >
-
 ### CLM-007 — References
 
 > ##### References
@@ -98,13 +100,13 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 > |---|---|
 > | `_CONTEXT.md` | Deliverable identity, package, scope, objectives, accepted decomposition revision, and architecture basis injection |
 > | `_REFERENCES.md` | Local source inventory |
-> | `INIT.md` | Bootstrap boundaries for protected data, missing values, and professional reliance |
+> | `AGENTS.md` | Bootstrap boundaries for protected data, missing values, and professional reliance |
 > | `AGENTS.md` | Type 2 dispatch and write-scope rule |
 > | `docs/CONTRACT.md` | Invariants for protected content, user-supplied code data, units, diagnostics, privacy, IP, and agent limits |
 > | `docs/DIRECTIVE.md` | Founding intent, centerline-first model, no silent defaults, and stop rules |
 > | `docs/TYPES.md` | UX_UI_SLICE type, analysis-status vocabulary, centerline model, and domain object vocabulary |
 > | `docs/SPEC.md` | GUI requirements, warning classes, architecture layers, and acceptance semantics |
-> | `docs/PRD.md` | Functional requirements FR-003, FR-013, and GUI requirements section 14 |
+> | `docs/PRD.md` | GUI requirements in section 14 |
 > | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data, provenance, and protected-content policy |
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-07 and DEL-07-01 decomposition context plus SCA-001 architecture basis |
 > | `docs/_Registers/Deliverables.csv` | Deliverable register row |
@@ -122,6 +124,9 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 
 > ##### Scope
 >
+> Current deliverable obligation: implement viewport and centerline editing plus palette rendering and operation routing under the DEL-07-09 organization contract. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This deliverable defines setup documentation for the future 3D viewport and centerline editor slice. It is limited to the local `DEL-07-01` working folder and does not create or modify GUI source files, interaction tests, package manifests, dependency manifests, or repo-level documentation.
 >
 > The deliverable covers:
@@ -138,14 +143,13 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 > - model tree, property inspector, editor panels, solve execution UX, or results viewer behavior owned by adjacent PKG-07 deliverables;
 > - any protected standards data, code-specific defaults, proprietary component dimensions, or professional approval workflow.
 >
-
 ### CLM-011 — Requirements
 
 > ##### Requirements
 >
 > | Requirement ID | Requirement | Source |
 > |---|---|---|
-> | DEL-07-01-REQ-01 | The future implementation shall provide a 3D centerline viewport/editor for creating and editing nodes, pipe runs, bends, and simple piping component symbols. | `docs/_Registers/Deliverables.csv` row `DEL-07-01`; `docs/PRD.md` FR-003 and FR-013 |
+> | DEL-07-01-REQ-01 | The future implementation shall provide a 3D centerline viewport/editor for creating and editing nodes, pipe runs, bends, and simple piping component symbols. | `docs/_Registers/Deliverables.csv` row `DEL-07-01`; `docs/PRD.md` section 14 |
 > | DEL-07-01-REQ-02 | The viewport shall represent the visual categories listed for the 3D viewport where applicable to this slice: pipe centerlines, bend arcs, branch symbols, valves, flanges, reducers, expansion joints, supports, labels, load vectors, deformed shapes, reaction arrows, and stress-ratio color maps. Items beyond initial centerline editing may remain deferred to adjacent result/component slices. | `docs/PRD.md` section 14.2; `_CONTEXT.md` description |
 > | DEL-07-01-REQ-03 | The setup deliverable shall preserve the accepted runtime baseline of Tauri 2, TypeScript/React/Vite, and Three.js while keeping exact dependency versions and component/state libraries `TBD`. | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` `DEC-009`, `DEC-012` |
 > | DEL-07-01-REQ-04 | Viewport model mutations shall route through application-service commands and shall keep durable project state separate from transient viewport, selection, camera, and interaction state. | `execution/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-03`, `AB-00-05` |
@@ -154,7 +158,7 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 > | DEL-07-01-REQ-07 | Viewport diagnostics shall preserve warning classes and result-envelope boundaries, including solve-blocking, rule-check-blocking, provenance, assumption, nonlinear, and IP-boundary warnings. | `docs/SPEC.md` section 7; `execution/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-06` |
 > | DEL-07-01-REQ-08 | Visual status, labels, colors, and interaction states shall not claim certification, sealing, approval, authentication, or engineering code compliance for reliance (PRD §21.2). | `docs/CONTRACT.md` `OPS-K-AUTH-1`; `docs/TYPES.md` sections 4 and 6 |
 > | DEL-07-01-REQ-09 | Future tests for the implemented slice shall use the accepted GUI test baseline and verify viewport rendering, selection/editing commands, missing-data visibility, and no-protected-data defaults. Exact test harness details beyond the baseline remain `TBD`. | `execution/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-08`; `docs/PRD.md` section 21 |
-> | DEL-07-01-REQ-10 | This setup run shall write only deliverable-local setup artifacts and shall not move any artifact to `ISSUED`. | `AGENTS.md` dispatch rule; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` section 4 |
+> | DEL-07-01-REQ-10 | The original setup run shall write only deliverable-local setup artifacts and shall not move any artifact to `ISSUED`. Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | `AGENTS.md` dispatch rule; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` section 4 |
 >
 
 ### CLM-012 — Standards
@@ -168,8 +172,8 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 > | SWBPIPE governance and invariant documents | Accessible local governing source |
 > | PRD GUI requirements | Accessible local product source |
 > | SCA-001 architecture basis | Accepted downstream dispatch basis, not `ISSUED` product implementation |
-> | Exact GUI dependency versions | `TBD`; future implementation decision |
-> | Component and state-management libraries | `TBD`; future implementation decision |
+> | Exact GUI dependency versions | The implementation manifest and lockfile bind dependency versions for a candidate; DEC-012 permits accepted bounded implementation choices. Versions are not a new architecture requirement. |
+> | Component and state-management libraries | Resolve current dependency and component/state choices through `apps/desktop/package.json` and the implemented consumers. DEC-012 permits choices in a sealed brief or later ruling; preserve durable/transient separation and accepted architecture. Release scope follows DEC-057. |
 > | Engineering code values and component catalogs | User/private or legally imported only; not supplied by this deliverable |
 >
 
@@ -179,11 +183,11 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 >
 > | Verification ID | Verifies | Method |
 > |---|---|---|
-> | DEL-07-01-VER-01 | Four-document kit exists locally | Run `tools/validation/check_four_documents.sh` on this deliverable folder |
+> | DEL-07-01-VER-01 | Scope of Work contract exists locally | Run `python3 tools/scope_of_work/validate_scope_of_work.py <DELIVERABLE_PATH>/ScopeOfWork.md` |
 > | DEL-07-01-VER-02 | Semantic setup artifacts exist | Confirm `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, and `_run_records/*` exist locally |
 > | DEL-07-01-VER-03 | Dependency register is schema-valid | Run `python3 tools/validation/validate_dependencies_schema.py` on local `Dependencies.csv` |
 > | DEL-07-01-VER-04 | Dependency enums are canonical | Run `python3 tools/validation/validate_enum.py` for emitted enum values |
-> | DEL-07-01-VER-05 | Setup stayed inside the assigned write scope | Check git status and changed paths for this deliverable folder only |
+> | DEL-07-01-VER-05 | Setup stayed inside the assigned write scope Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Check git status and changed paths for this deliverable folder only |
 > | DEL-07-01-VER-06 | Protected-data and professional boundaries are visible | Review the setup documents for no-protected-content, no-silent-default, and no-certification language |
 > | DEL-07-01-VER-07 | Unresolved implementation choices remain unresolved | Confirm exact dependency versions and component/state libraries are marked `TBD` rather than finalized |
 >
@@ -194,10 +198,7 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 >
 > Required setup artifacts for this deliverable are:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -206,14 +207,14 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 > - `_STATUS.md`
 >
 > Future implementation artifacts such as GUI source and interaction tests remain outside this session's write scope.
-
 ### CLM-015 — D-41 R5 T5 PDU-008 current GUI boundary
 
 > ##### D-41 R5 T5 PDU-008 current GUI boundary
 >
-> Current PDU-008 evidence covers structured node and straight-pipe authoring, support handoff, and reference-only component insertion. Dedicated bend authoring and full component-symbol geometry authoring remain absent; this is not full REQ-01 closure.
+> The viewport contract covers structured node, straight-pipe, bend and simple component-symbol authoring, selection and route editing through the governed operation seam. Current realization is in `apps/desktop/src/features/viewport/PipeViewport.tsx`, `routeDraft.ts` and the workspace-session handlers; the original PDU-008 observation remains historical evidence at its bound revision. Use candidate-bound interaction evidence for each claimed editing capability; this record does not assert full REQ-01 completion.
 
-- **AC-001** — The contract preserves the current implemented viewport slice and named residuals, separates durable model state from transient interaction state, keeps missing or protected engineering data explicit, and invents no component dimensions, code values, defaults, compliance status, or professional approval.
+- **AC-001** — The contract preserves the current implemented viewport slice and named residuals, separates durable model state from transient interaction state, keeps missing or protected engineering data explicit, and invents no component dimensions, code values, defaults, compliance status, or professional approval. Current source references are `PipeViewport.tsx`, `ModelTree.tsx`, `PropertyInspector.tsx` and `workspaceSession.ts`; preserve DEC-111 creation/generic-edit versus specialized-editor ownership. Source presence does not discharge independent interaction/parity review.
+
 
 ## Production and Verification Method — Praxeology
 
@@ -227,9 +228,11 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 
 > ##### Purpose
 >
+> Current deliverable obligation: implement viewport and centerline editing plus palette rendering and operation routing under the DEL-07-09 organization contract. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This procedure records how to produce and verify the setup artifacts for `DEL-07-01`, and it gives future implementation work a bounded execution path for the 3D viewport and centerline editor.
 >
-
 ### CLM-019 — Prerequisites
 
 > ##### Prerequisites
@@ -237,11 +240,11 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 > | Prerequisite | Status |
 > |---|---|
 > | Sealed deliverable context for `DEL-07-01` | Present in `_CONTEXT.md` and the user brief |
-> | Write scope limited to this deliverable folder | Required for this setup session |
+> | Write scope limited to this deliverable folder | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle and remaining work are recorded in `_STATUS.md`. Setup-only restrictions describe the originating setup run, not standing product scope. |
 > | Governing references available locally | Present through `_REFERENCES.md` and repo docs |
 > | SCA-001 architecture basis injected | Present in `_CONTEXT.md` |
 > | Protected standards or proprietary data needed | Not needed for setup; must be excluded |
-> | GUI source/package/test write authorization | Not present in this setup session |
+> | GUI source/package/test write authorization Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Not present in the original setup session |
 >
 
 ### CLM-020 — Steps
@@ -250,15 +253,15 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 >
 > 1. Confirm the active deliverable path is `execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor`.
 > 2. Read `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, `_STATUS.md`, governing docs, decomposition, registers, and the four requested skill files.
-> 3. Produce the four-document setup kit:
->    - `Datasheet.md` for identity, attributes, conditions, construction, and references;
->    - `Specification.md` for scope, requirements, standards, verification, and documentation;
->    - `Guidance.md` for rationale, principles, considerations, trade-offs, and examples;
->    - `Procedure.md` for prerequisites, steps, verification, and records.
+> 3. Produce the Scope of Work contract:
+>    - `ScopeOfWork.md` for identity, attributes, conditions, construction, and references;
+>    - `ScopeOfWork.md` for scope, requirements, standards, verification, and documentation;
+>    - `ScopeOfWork.md` for rationale, principles, considerations, trade-offs, and examples;
+>    - `ScopeOfWork.md` for prerequisites, steps, verification, and records.
 > 4. Mark unknown or unresolved implementation choices as `TBD`; do not finalize exact GUI dependency versions or component/state libraries.
 > 5. Run `semantic-matrix-build` for this deliverable and write `_SEMANTIC.md` with the semantic lens, audit result, and status update if the audit passes.
 > 6. Run `lens-register` for this deliverable and write `_SEMANTIC_LENSING.md` without modifying production documents.
-> 7. Run `four-documents` with `RUN_PASSES=P3_ONLY` by treating `_SEMANTIC_LENSING.md` as a candidate worklist only; incorporate only source-supported changes.
+> 7. Review `ScopeOfWork.md` against source evidence by treating `_SEMANTIC_LENSING.md` as a candidate worklist only; incorporate only source-supported changes.
 > 8. Run `dependency-extract` for this deliverable and write `Dependencies.csv` plus `_DEPENDENCIES.md` with anchor and execution dependencies.
 > 9. Validate local artifacts:
 >    - `ScopeOfWork.md` exists;
@@ -268,7 +271,6 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 >    - changed paths remain inside the assigned deliverable folder.
 > 10. Leave the deliverable at `SEMANTIC_READY` only if setup gates pass. Do not move anything to `ISSUED`.
 >
-
 ### CLM-021 — Future Implementation Procedure
 
 > ##### Future Implementation Procedure
@@ -292,12 +294,12 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 >
 > | Check | Command or method | Expected result |
 > |---|---|---|
-> | Four-document kit | `tools/validation/check_four_documents.sh <DELIVERABLE_PATH>` | PASS |
+> | Scope of Work contract | `python3 tools/scope_of_work/validate_scope_of_work.py <DELIVERABLE_PATH>/ScopeOfWork.md` | PASS |
 > | Dependency schema | `python3 tools/validation/validate_dependencies_schema.py <DELIVERABLE_PATH>/Dependencies.csv` | VALID |
 > | Enum values | `python3 tools/validation/validate_enum.py <ENUM_NAME> <value>` | VALID for emitted enum values |
 > | Semantic/lensing artifacts | File existence check | `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` present |
-> | Status | Review `_STATUS.md` | `Current State: SEMANTIC_READY` only after all setup gates pass |
-> | Scope | `git status --short -- <DELIVERABLE_PATH>` | Changed paths are deliverable-local only |
+> | Status | Review `_STATUS.md` Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | `Current State: SEMANTIC_READY` only after all setup gates pass |
+> | Scope | `git status --short -- <DELIVERABLE_PATH>` Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Changed paths are deliverable-local only |
 >
 
 ### CLM-023 — Records
@@ -306,14 +308,13 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 >
 > The setup run should leave:
 >
-> - four production setup documents;
+> - Scope of Work contract;
 > - `_SEMANTIC.md`;
 > - `_SEMANTIC_LENSING.md`;
 > - `Dependencies.csv`;
 > - refreshed `_DEPENDENCIES.md`;
 > - `_run_records/*` entries for each setup step;
 > - `_STATUS.md` history showing initialization and semantic readiness.
-
 - **VER-001** — Validate the contract and review source parity, centerline and symbol boundaries, command/service mutation routing, stable identity, units, diagnostics, current implementation declarations and residuals, protected-data controls, and every retained governed TBD.
 
 ## Governing Values and Decisions — Axiology
@@ -356,7 +357,7 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 > |---|---|
 > | Initial slice size | `DEL-07-01` has an L context envelope. Keep the future implementation bounded to viewport/editor basics and split if it starts absorbing model tree, property inspector, results viewer, or solve-execution work. |
 > | Component visualization | Simple glyphs can support recognition and selection. Detailed component properties, private library data, and editor behavior belong to PKG-03 and adjacent PKG-07 deliverables. |
-> | State library choice | The exact state-management library remains `TBD`. Future work should preserve the durable/transient split regardless of library choice. |
+> | State library choice | Resolve current dependency and component/state choices through `apps/desktop/package.json` and the implemented consumers. DEC-012 permits choices in a sealed brief or later ruling; preserve durable/transient separation and accepted architecture. Release scope follows DEC-057. |
 > | Viewport library baseline | Three.js is the accepted viewport baseline. Exact versions and wrappers remain implementation-level decisions. |
 > | Accessibility | The viewport should not be the only path to edit or inspect model data. Keyboard navigation, tooltips, high-contrast options, and structured panels are part of the wider GUI baseline. |
 > | Diagnostics | Warnings should be attached to affected model objects where possible so users can navigate from the viewport to the underlying issue. |
@@ -396,7 +397,7 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 >
 > | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 > |---|---|---|---|---|---|---|
-> | None | No source conflict identified during setup drafting. | N/A | N/A | N/A | N/A | N/A |
+> | None | No source conflict was identified in the original setup drafting; this historical observation is not a current conflict review. | N/A | N/A | N/A | N/A | N/A |
 >
 
 ### CLM-032 — Review Notes

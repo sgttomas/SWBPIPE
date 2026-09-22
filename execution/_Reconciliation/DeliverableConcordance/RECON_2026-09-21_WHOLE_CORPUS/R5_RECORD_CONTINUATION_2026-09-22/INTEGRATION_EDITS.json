@@ -1,0 +1,626 @@
+{
+  "files": [
+    {
+      "path": "projects/chirality-piping/docs/IP_AND_DATA_BOUNDARY.md",
+      "before_sha256": "87458097809cec9563d95fddfc6fa2e77f0613a51cae80c36401571c71a93ea6",
+      "after_sha256": "a3d3cafe43065119cc480553ca4422bf3278de357be9538d1c5b698d2820f636",
+      "edits": [
+        {
+          "before": "`execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved\n`DAG-007` coordination authority.",
+          "after": "the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md` and the approved\ngraph selected by `execution/_DAG/_LATEST.md`.",
+          "keys": [
+            "DEL-01-02:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "D-73 current-carrier repair; lift copied revision/graph snapshots to accepted authority pointers; no scope or graph change",
+          "posture": "b"
+        },
+        {
+          "before": "The final contributor legal mechanism, maintainer roster/quorum, release\nauthority, legal-review authority, security contact, release-label vocabulary,\nhuman-acceptance workflow, and jurisdiction-specific professional-practice\nwording remain `TBD` until recorded by the human project authority or qualified\nreviewer.",
+          "after": "DEC-027 records a quorum of one: the sole human project authority is the sole\nmaintainer and release authority. External contribution intake remains closed.\nDEC-079 adopts the D-07b sole-maintainer review and protected-content screening\nskeleton and records \u201cprocess defined; intake closed\u201d; activation requires a\nfuture owner decision. The final contributor legal instrument remains `TBD`\nuntil that activation decision, with legal advice obtained by the owner. No\nlegal instrument or release is authorized by this current-basis correction.\n\nLegal-review authority, security contact, release-label vocabulary,\nhuman-acceptance workflow, and jurisdiction-specific professional-practice\nwording retain their own unresolved decisions and qualified-review routes.\nSee DEC-027/DEC-079 in `execution/_Decomposition/SOFTWARE_DECOMP.md` and\n`execution/_Coordination/_DECISIONS/D-07b_contributor_intake_mechanism.md` \u00a710.\nBlank per-contribution fields remain unfilled evidence slots.",
+          "keys": [
+            "DEL-01-02:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-027 and DEC-079 resolve sole-maintainer/release identity and closed intake; preserve deliberate legal instrument TBD and reserved review boundaries",
+          "posture": "a"
+        },
+        {
+          "before": "This policy keeps the public OpenPipeStress repository aligned with the project intent: public open mechanics, private/user-supplied code and proprietary data.",
+          "after": "This policy keeps the public SWBPIPE repository aligned with the project intent: public open mechanics, private/user-supplied code and proprietary data.",
+          "keys": [
+            "DEL-01-02:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-101 and R0 current-name direction: current prose uses SWBPIPE; no code identifier, frozen quoted notice or past event is changed",
+          "posture": "a"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/governance/CONTRIBUTION_REVIEW_CHECKLIST.md",
+      "before_sha256": "f777084539b366315551836c54f41da0e254acd5ac1b12e63b1c63184fc50979",
+      "after_sha256": "9f0134363f586f21528d7f2adaa809d26e73a8b390ad4853503f852c36fbc4d3",
+      "edits": [
+        {
+          "before": "`execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved\n`DAG-007` coordination authority.",
+          "after": "the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md` and the approved\ngraph selected by `execution/_DAG/_LATEST.md`.",
+          "keys": [
+            "DEL-01-02:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "D-73 current-carrier repair; lift copied revision/graph snapshots to accepted authority pointers; no scope or graph change",
+          "posture": "b"
+        },
+        {
+          "before": "The final contributor legal mechanism, maintainer roster/quorum, release\nauthority, legal-review authority, security contact, release-label vocabulary,\nhuman-acceptance workflow, and jurisdiction-specific professional-practice\nwording remain `TBD` until recorded by the human project authority or qualified\nreviewer.",
+          "after": "DEC-027 records a quorum of one: the sole human project authority is the sole\nmaintainer and release authority. External contribution intake remains closed.\nDEC-079 adopts the D-07b sole-maintainer review and protected-content screening\nskeleton and records \u201cprocess defined; intake closed\u201d; activation requires a\nfuture owner decision. The final contributor legal instrument remains `TBD`\nuntil that activation decision, with legal advice obtained by the owner. No\nlegal instrument or release is authorized by this current-basis correction.\n\nLegal-review authority, security contact, release-label vocabulary,\nhuman-acceptance workflow, and jurisdiction-specific professional-practice\nwording retain their own unresolved decisions and qualified-review routes.\nSee DEC-027/DEC-079 in `execution/_Decomposition/SOFTWARE_DECOMP.md` and\n`execution/_Coordination/_DECISIONS/D-07b_contributor_intake_mechanism.md` \u00a710.\nBlank per-contribution fields remain unfilled evidence slots.",
+          "keys": [
+            "DEL-01-02:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-027 and DEC-079 resolve sole-maintainer/release identity and closed intake; preserve deliberate legal instrument TBD and reserved review boundaries",
+          "posture": "a"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/CONTRIBUTING.md",
+      "before_sha256": "e0d03e4967bc32cfccff904c6650a77e8e9cdee6d032f401371782bfce2e5003",
+      "after_sha256": "f274712d06e0909e6d4e668c757ca6ea409f8be9f12043560f854196267c8238",
+      "edits": [
+        {
+          "before": "`execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved\n`DAG-007` coordination authority.",
+          "after": "the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md` and the approved\ngraph selected by `execution/_DAG/_LATEST.md`.",
+          "keys": [
+            "DEL-01-03:SOW#CLM-012/DEL-01-03-REQ-08",
+            "DEL-01-03:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "D-73 current-carrier repair; lift copied revision/graph snapshots to accepted authority pointers; no scope or graph change",
+          "posture": "b"
+        },
+        {
+          "before": "The final contributor legal mechanism, such as DCO, CLA, or another\ninstrument, remains `TBD`. Maintainer roster/quorum, release authority,\nlegal-review authority, security contact, release-label vocabulary,\nhuman-acceptance workflow, and jurisdiction-specific professional-practice\nwording also remain `TBD` until recorded by the human project authority or\nqualified reviewer.",
+          "after": "DEC-027 records a quorum of one: the sole human project authority is the sole\nmaintainer and release authority. External contribution intake remains closed.\nDEC-079 adopts the D-07b sole-maintainer review and protected-content screening\nskeleton and records \u201cprocess defined; intake closed\u201d; activation requires a\nfuture owner decision. The final contributor legal instrument remains `TBD`\nuntil that activation decision, with legal advice obtained by the owner. No\nlegal instrument or release is authorized by this current-basis correction.\n\nLegal-review authority, security contact, release-label vocabulary,\nhuman-acceptance workflow, and jurisdiction-specific professional-practice\nwording retain their own unresolved decisions and qualified-review routes.\nSee DEC-027/DEC-079 in `execution/_Decomposition/SOFTWARE_DECOMP.md` and\n`execution/_Coordination/_DECISIONS/D-07b_contributor_intake_mechanism.md` \u00a710.\nBlank per-contribution fields remain unfilled evidence slots.",
+          "keys": [
+            "DEL-01-03:SOW#CLM-012/DEL-01-03-REQ-08",
+            "DEL-01-03:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-027 and DEC-079 resolve sole-maintainer/release identity and closed intake; preserve deliberate legal instrument TBD and reserved review boundaries",
+          "posture": "a"
+        },
+        {
+          "before": "the governance documents above, an assigned sealed brief, the approved DAG-007\ngraph record,",
+          "after": "the governance documents above, an assigned sealed brief, the approved graph\nselected by `execution/_DAG/_LATEST.md`,",
+          "keys": [
+            "DEL-01-03:SOW#CLM-012/DEL-01-03-REQ-08",
+            "DEL-01-03:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "Lift retired current DAG snapshot to approved graph pointer",
+          "posture": "b"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md",
+      "before_sha256": "bd6b48e1a8418c4086c18822e0545eca2ea18e4cd86b2be53e57feb059a2f177",
+      "after_sha256": "0f92bb1eff43436d13e17e8eba8ee4f909b15c50fdc718cc3a216fe7507088ab",
+      "edits": [
+        {
+          "before": "`execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved\n`DAG-007` coordination authority.",
+          "after": "the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md` and the approved\ngraph selected by `execution/_DAG/_LATEST.md`.",
+          "keys": [
+            "DEL-01-03:SOW#CLM-012/DEL-01-03-REQ-08",
+            "DEL-01-03:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "D-73 current-carrier repair; lift copied revision/graph snapshots to accepted authority pointers; no scope or graph change",
+          "posture": "b"
+        },
+        {
+          "before": "The final contributor legal mechanism remains `TBD`. Maintainer roster/quorum,\nrelease authority, legal-review authority, security contact, release-label\nvocabulary, human-acceptance workflow, and jurisdiction-specific\nprofessional-practice wording remain `TBD` until recorded by the human project\nauthority or qualified reviewer.",
+          "after": "DEC-027 records a quorum of one: the sole human project authority is the sole\nmaintainer and release authority. External contribution intake remains closed.\nDEC-079 adopts the D-07b sole-maintainer review and protected-content screening\nskeleton and records \u201cprocess defined; intake closed\u201d; activation requires a\nfuture owner decision. The final contributor legal instrument remains `TBD`\nuntil that activation decision, with legal advice obtained by the owner. No\nlegal instrument or release is authorized by this current-basis correction.\n\nLegal-review authority, security contact, release-label vocabulary,\nhuman-acceptance workflow, and jurisdiction-specific professional-practice\nwording retain their own unresolved decisions and qualified-review routes.\nSee DEC-027/DEC-079 in `execution/_Decomposition/SOFTWARE_DECOMP.md` and\n`execution/_Coordination/_DECISIONS/D-07b_contributor_intake_mechanism.md` \u00a710.\nBlank per-contribution fields remain unfilled evidence slots.",
+          "keys": [
+            "DEL-01-03:SOW#CLM-012/DEL-01-03-REQ-08",
+            "DEL-01-03:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-027 and DEC-079 resolve sole-maintainer/release identity and closed intake; preserve deliberate legal instrument TBD and reserved review boundaries",
+          "posture": "a"
+        },
+        {
+          "before": "evidence for public OpenPipeStress contributions. It is project governance. It",
+          "after": "evidence for public SWBPIPE contributions. It is project governance. It",
+          "keys": [
+            "DEL-01-03:SOW#CLM-012/DEL-01-03-REQ-08",
+            "DEL-01-03:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-101 and R0 current-name direction: current prose uses SWBPIPE; no code identifier, frozen quoted notice or past event is changed",
+          "posture": "a"
+        },
+        {
+          "before": "> covered contribution for OpenPipeStress repository review under the recorded",
+          "after": "> covered contribution for SWBPIPE repository review under the recorded",
+          "keys": [
+            "DEL-01-03:SOW#CLM-012/DEL-01-03-REQ-08",
+            "DEL-01-03:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-101 and R0 current-name direction: current prose uses SWBPIPE; no code identifier, frozen quoted notice or past event is changed",
+          "posture": "a"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/docs/PROFESSIONAL_BOUNDARY.md",
+      "before_sha256": "9b42d3792a26b5bad57e480f59b622a7f2bfc1247cb23795a122df02d5d2f60d",
+      "after_sha256": "3e0c1ab5d8a2dd9737a342292ecd7e5a912d937a4726d7265414a6922aec4744",
+      "edits": [
+        {
+          "before": "`execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved\n`DAG-007` coordination authority.",
+          "after": "the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md` and the approved\ngraph selected by `execution/_DAG/_LATEST.md`.",
+          "keys": [
+            "DEL-01-04:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "D-73 current-carrier repair; lift copied revision/graph snapshots to accepted authority pointers; no scope or graph change",
+          "posture": "b"
+        },
+        {
+          "before": "The final contributor legal mechanism, maintainer roster/quorum, release\nauthority, legal-review authority, security contact, release-label vocabulary,\nhuman-acceptance workflow, and jurisdiction-specific professional-practice\nwording remain `TBD` until recorded by the human project authority or qualified\nreviewer.",
+          "after": "DEC-027 records a quorum of one: the sole human project authority is the sole\nmaintainer and release authority. External contribution intake remains closed.\nDEC-079 adopts the D-07b sole-maintainer review and protected-content screening\nskeleton and records \u201cprocess defined; intake closed\u201d; activation requires a\nfuture owner decision. The final contributor legal instrument remains `TBD`\nuntil that activation decision, with legal advice obtained by the owner. No\nlegal instrument or release is authorized by this current-basis correction.\n\nLegal-review authority, security contact, release-label vocabulary,\nhuman-acceptance workflow, and jurisdiction-specific professional-practice\nwording retain their own unresolved decisions and qualified-review routes.\nSee DEC-027/DEC-079 in `execution/_Decomposition/SOFTWARE_DECOMP.md` and\n`execution/_Coordination/_DECISIONS/D-07b_contributor_intake_mechanism.md` \u00a710.\nBlank per-contribution fields remain unfilled evidence slots.",
+          "keys": [
+            "DEL-01-04:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-027 and DEC-079 resolve sole-maintainer/release identity and closed intake; preserve deliberate legal instrument TBD and reserved review boundaries",
+          "posture": "a"
+        },
+        {
+          "before": "OpenPipeStress product, report, documentation, release, and agent claims.",
+          "after": "SWBPIPE product, report, documentation, release, and agent claims.",
+          "keys": [
+            "DEL-01-04:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-101 and R0 current-name direction: current prose uses SWBPIPE; no code identifier, frozen quoted notice or past event is changed",
+          "posture": "a"
+        },
+        {
+          "before": "OpenPipeStress is decision-support software for transparent piping mechanics,",
+          "after": "SWBPIPE is decision-support software for transparent piping mechanics,",
+          "keys": [
+            "DEL-01-04:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-101 and R0 current-name direction: current prose uses SWBPIPE; no code identifier, frozen quoted notice or past event is changed",
+          "posture": "a"
+        },
+        {
+          "before": "OpenPipeStress materials may claim supported behavior when the claim is backed",
+          "after": "SWBPIPE materials may claim supported behavior when the claim is backed",
+          "keys": [
+            "DEL-01-04:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-101 and R0 current-name direction: current prose uses SWBPIPE; no code identifier, frozen quoted notice or past event is changed",
+          "posture": "a"
+        },
+        {
+          "before": "OpenPipeStress software, reports, agents, examples, releases, and public",
+          "after": "SWBPIPE software, reports, agents, examples, releases, and public",
+          "keys": [
+            "DEL-01-04:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-101 and R0 current-name direction: current prose uses SWBPIPE; no code identifier, frozen quoted notice or past event is changed",
+          "posture": "a"
+        },
+        {
+          "before": "If OpenPipeStress stores or references a human acceptance record, that record",
+          "after": "If SWBPIPE stores or references a human acceptance record, that record",
+          "keys": [
+            "DEL-01-04:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-101 and R0 current-name direction: current prose uses SWBPIPE; no code identifier, frozen quoted notice or past event is changed",
+          "posture": "a"
+        },
+        {
+          "before": "- identify OpenPipeStress as decision-support software;",
+          "after": "- identify SWBPIPE as decision-support software;",
+          "keys": [
+            "DEL-01-04:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-101 and R0 current-name direction: current prose uses SWBPIPE; no code identifier, frozen quoted notice or past event is changed",
+          "posture": "a"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/docs/report_notice_template.md",
+      "before_sha256": "8bc8ed91f92ff7b1e2ff09043f21064bc303721d5ca72848738beb9783ae054a",
+      "after_sha256": "183e910f4ce83d974c41cecdbf888d749d8422ff1b81e426a6c6ce61979cb55d",
+      "edits": [
+        {
+          "before": "`execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7` and approved\n`DAG-007` coordination authority.",
+          "after": "the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md` and the approved\ngraph selected by `execution/_DAG/_LATEST.md`.",
+          "keys": [
+            "DEL-01-04:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "D-73 current-carrier repair; lift copied revision/graph snapshots to accepted authority pointers; no scope or graph change",
+          "posture": "b"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/docs/developer_guide/index.md",
+      "before_sha256": "d51d856e2dfd9c403a0d85b47f6e4fbc857d23c3b5a0bb447e91e43157d76001",
+      "after_sha256": "3d68fa95870fb721cb475312d0c1529108347ae91d752295be52c4122e4d66d4",
+      "edits": [
+        {
+          "before": "Current authority basis: `execution/_Decomposition/SOFTWARE_DECOMP.md`\nrevision `0.7` and approved `execution/_DAG/DAG-007/`. `DAG-007` is graph\ncoordination authority only; it",
+          "after": "Current authority basis: the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md`\nand its decision register, with approved graph coordination selected through\n`execution/_DAG/_LATEST.md`. Graph coordination",
+          "keys": [
+            "DEL-11-02:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "Lift stale revision and DAG snapshot to accepted authority pointers under D-73",
+          "posture": "b"
+        },
+        {
+          "before": "Unresolved implementation choices remain `TBD` unless a human-approved\narchitecture or implementation deliverable records the decision. Current `TBD`\nitems include the production sparse solver integration, rule-expression\nimplementation-library integration, dependency versions, CI thresholds, external transport,\nplugin loading/isolation details, operating-system storage roots, product/DB\nmigration rollback semantics, redaction workflow, cloud exception workflow, and\nportable project export/copy workflow. SCA-003 has resolved the MVP storage\nsubstrate as a local SQLite-backed project store/index. SCA-004 has admitted\nexport interoperability as explicit boundary work, but concrete writers,\nruntime invocation, endpoint syntax, target coverage, and permission grant\nmechanics remain governed deliverable work or `TBD`.",
+          "after": "Implementation-level choices follow DEC-012 and may be resolved by a sealed\nbrief or later human ruling; accepted changes and lockfiles record their actual\nrealization. The numerical solver policy is settled by DEC-023, canonical rule\nexpressions by DEC-022/037, and CI/coverage policy by DEC-025/059/060/093. Their\nimplementation and candidate-bound verification remain separate obligations.\nSCA-003 and DEC-028 govern the local SQLite project store; SCA-004 and the\nPKG-17 contracts govern admitted export formats. Neither a copied TBD list nor\na present code file replaces those contracts.\n\nPublic transport, plugin loading/isolation and permission grants, migration or\nrollback compatibility, private-data/redaction behavior and external activation\nretain their applicable contract and decision paths. Check the owning deliverable\nand current accepted brief for the exact unresolved requirement or witness;\nlocal mechanism choices do not waive privacy, public-interface, engineering,\nprotected-criterion or release gates.",
+          "keys": [
+            "DEL-11-02:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "Apply DEC-012 sealed-brief route and settled DEC-022/023/028/037/025/059/060/093 policy; lift temporary implementation choices and preserve contract/delivery gates",
+          "posture": "b"
+        },
+        {
+          "before": "| `core/solver/frame_kernel` | Keep frame mechanics deterministic and unit-compatible; sparse production solve policy remains `TBD`. |",
+          "after": "| `core/solver/frame_kernel` | Keep frame mechanics deterministic and unit-compatible under DEC-023; implementation and benchmark evidence must satisfy its governed sparse-solve policy. |",
+          "keys": [
+            "DEL-11-02:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "Apply settled DEC-023 without claiming implementation/benchmark acceptance",
+          "posture": "a"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/docs/contributor_guide/index.md",
+      "before_sha256": "6b4f407517cabfd26fa6ebaa5a81b301c4a1e0bc5d0fb190e81a4a89033bc215",
+      "after_sha256": "e819328893dcbffa1ccc482dec22bb4665142783238870303514a4c7a28590f5",
+      "edits": [
+        {
+          "before": "| 1 | [`INIT.md`](../../INIT.md) | Establish the required reading order and project boundaries. |",
+          "after": "| 1 | [`AGENTS.md`](../../AGENTS.md) and the selected role instructions | Establish the applicable project boundaries and role before following the assigned brief. |",
+          "keys": [
+            "DEL-11-05:SOW#CLM-011/REQ-11-05-01",
+            "DEL-11-05:SOW#CLM-028"
+          ],
+          "reason": "Replace removed INIT navigation with current project entry, preserving assigned scope",
+          "posture": "b"
+        },
+        {
+          "before": "| 8 | The newest [`loop/WORKPLAN_*.md`](../../loop/) (development loop instructions) and [`execution/_Coordination/_COORDINATION.md`](../../execution/_Coordination/_COORDINATION.md) (ruled records) | Confirm work selection from deliverable folders, execution discipline, evidence expectations, review gates, and the current target stage. |",
+          "after": "| 8 | [`loop/LOOP_INIT.md`](../../loop/LOOP_INIT.md), its selected current work graph, and [`execution/_Coordination/_COORDINATION.md`](../../execution/_Coordination/_COORDINATION.md) (ruled records) | Confirm the current owner-steered work, execution boundaries, evidence expectations and recorded stage; the pointer does not expand scope or lift holds. |",
+          "keys": [
+            "DEL-11-05:SOW#CLM-011/REQ-11-05-01",
+            "DEL-11-05:SOW#CLM-028"
+          ],
+          "reason": "Apply project AGENTS current loop navigation; no revival of superseded Remaining-only selection",
+          "posture": "b"
+        },
+        {
+          "before": "Preserve existing `TBD`s for the final contributor legal mechanism, maintainer\nquorum, release authority, CI policy, dependency versions, and other unsettled\nprofessional or legal decisions unless the assignment explicitly grants\nauthority to change them.",
+          "after": "DEC-027 records the sole human project authority as sole maintainer and release\nauthority with quorum one; external intake stays closed. DEC-079 adopts the\nreview/screening skeleton with the contributor legal instrument deliberately\n`TBD` until a future owner activation decision with legal advice. CI and\ncoverage follow DEC-025/059/060/093; implementation-level dependency choices\nfollow DEC-012. Preserve actual unresolved professional/legal decisions and\nimplementation or verification gaps, rather than reopening already ruled facts.",
+          "keys": [
+            "DEL-11-05:SOW#CLM-011/REQ-11-05-01",
+            "DEL-11-05:SOW#CLM-028"
+          ],
+          "reason": "Apply settled maintainer/intake/CI decisions and retain legal/activation gates",
+          "posture": "a"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/docs/security/local_first_storage_policy.md",
+      "before_sha256": "fc31878d589cfd88f555f4d779ce472a217dd11e5896007153a63a4aa5d582a3",
+      "after_sha256": "abb70599366ccc3571834c1f7dfc7e96142e1c89b6297aea2f47bda8593a96dc",
+      "edits": [
+        {
+          "before": "boundaries. Operating-system roots, application data directories, rollback\nsemantics, encryption, secret storage, key management, redaction workflow,\nimport/export formats, and cloud exception workflow remain unresolved unless\nseparately approved.",
+          "after": "boundaries. Local storage placement follows DEC-012's accepted brief/change\nroute without changing the private, local-first or service-boundary obligations.\nThe desktop placement and migration realization is evidence in\n`apps/desktop/src-tauri/src/lib.rs` (`app_store_path`, `open_project_store`),\nwith product persistence owned by DEL-02-05; this metadata guard is not that\nstorage service. Redaction routes follow DEL-12-02's controlled-export contract\nand export format scope follows SCA-004/PKG-17. Actual rollback guarantees,\nencryption, secret-provider/key management and any cloud exception retain their\nown contract, verification and reserved-decision boundaries.",
+          "keys": [
+            "DEL-12-01:SOW#CLM-009",
+            "DEL-12-01:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "D-73 current carrier repair applies DEC-012/019/028 and established DEL-12-02/SCA-004 scope; preserve private-path, rollback, native, secret-provider and cloud gates",
+          "posture": "b"
+        },
+        {
+          "before": "| Operating-system roots and application data directories | `TBD`; no OS-specific root or real user path is selected. |",
+          "after": "| Operating-system roots and application data directories | Local placement is implementation evidence under DEC-012; preserve symbolic private-path and application-service boundaries. Product-specific native/OS behavior requires its own witness. |",
+          "keys": [
+            "DEL-12-01:SOW#CLM-009",
+            "DEL-12-01:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "D-73 current carrier repair applies DEC-012/019/028 and established DEL-12-02/SCA-004 scope; preserve private-path, rollback, native, secret-provider and cloud gates",
+          "posture": "b"
+        },
+        {
+          "before": "| DB migration and product schema migration framework | `TBD`; the concerns are separate and versioned, migration-aware persistence remains the baseline. |",
+          "after": "| DB migration and product schema migration framework | DEC-019/028 and DEL-02-05 govern separate versioned migration concerns; current store evidence does not establish every rollback or compatibility guarantee. |",
+          "keys": [
+            "DEL-12-01:SOW#CLM-009",
+            "DEL-12-01:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "D-73 current carrier repair applies DEC-012/019/028 and established DEL-12-02/SCA-004 scope; preserve private-path, rollback, native, secret-provider and cloud gates",
+          "posture": "b"
+        },
+        {
+          "before": "| Redaction workflow and export staging behavior | `TBD`; owned downstream by `DEL-12-02`. |",
+          "after": "| Redaction workflow and export staging behavior | DEL-12-02 governs controlled final exposure, source preservation and wrapper-owned intent; see `docs/security/redaction_export_controls.md` and the accepted R15 breadth record. Unverified native behavior remains explicit. |",
+          "keys": [
+            "DEL-12-01:SOW#CLM-009",
+            "DEL-12-01:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "D-73 current carrier repair applies DEC-012/019/028 and established DEL-12-02/SCA-004 scope; preserve private-path, rollback, native, secret-provider and cloud gates",
+          "posture": "b"
+        },
+        {
+          "before": "| Private-library registry and secret/private-library handling | `TBD`; owned downstream by `DEL-12-04`. |",
+          "after": "| Private-library registry and secret/private-library handling | DEL-12-04 owns its implemented metadata/reference contract; a production secret provider and any grant model remain separately governed. |",
+          "keys": [
+            "DEL-12-01:SOW#CLM-009",
+            "DEL-12-01:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "D-73 current carrier repair applies DEC-012/019/028 and established DEL-12-02/SCA-004 scope; preserve private-path, rollback, native, secret-provider and cloud gates",
+          "posture": "b"
+        },
+        {
+          "before": "| Import/export formats and adapter behavior | `TBD`; no adapter behavior is authorized here. |",
+          "after": "| Import/export formats and adapter behavior | SCA-004 and PKG-17 define admitted format scope; each owning contract retains its implementation/conformance work. This policy grants no new adapter behavior. |",
+          "keys": [
+            "DEL-12-01:SOW#CLM-009",
+            "DEL-12-01:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "D-73 current carrier repair applies DEC-012/019/028 and established DEL-12-02/SCA-004 scope; preserve private-path, rollback, native, secret-provider and cloud gates",
+          "posture": "b"
+        },
+        {
+          "before": "This policy defines OpenPipeStress local-first storage and private path posture",
+          "after": "This policy defines SWBPIPE local-first storage and private path posture",
+          "keys": [
+            "DEL-12-01:SOW#CLM-009",
+            "DEL-12-01:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-101 and R0 current-name direction: current prose uses SWBPIPE; no code identifier, frozen quoted notice or past event is changed",
+          "posture": "a"
+        },
+        {
+          "before": "OpenPipeStress is local-first by default. Private project models, private rule",
+          "after": "SWBPIPE is local-first by default. Private project models, private rule",
+          "keys": [
+            "DEL-12-01:SOW#CLM-009",
+            "DEL-12-01:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-101 and R0 current-name direction: current prose uses SWBPIPE; no code identifier, frozen quoted notice or past event is changed",
+          "posture": "a"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/docs/SPEC.md",
+      "before_sha256": "d92c1a97b78c0532801a03f3cf3a167c32703cf4468e0a41066b9f887df704bd",
+      "edits": [
+        {
+          "before": "Deterministic conversion tests that require numeric constants remain gated until\nthe project has accepted the unit catalog, conversion source set, numeric\nrepresentation, and tolerance policy. Until accepted, unsupported conversion\nsemantics such as offset temperature, gauge versus absolute pressure, and\nangle/rotation treatment remain explicit `TBD` decisions or blocking\ndiagnostics.",
+          "after": "Apply the accepted unit-catalog and conversion policy in DEC-018 and its\nD-01 governed records: SI-canonical internal units, dual display catalog,\nabsolute/interval temperature and explicit gauge/absolute pressure quantity\nkinds. No silent atmospheric default is permitted. Conversion witnesses use\nthe accepted source and tolerance records; unknown or unsupported semantics\nremain explicit diagnostics. The accepted policy removes the blanket catalog\ndecision gate; implementation coverage and each required numerical witness\nremain separate delivery and verification obligations.",
+          "keys": [
+            "DEL-02-02:SOW#CLM-018"
+          ],
+          "reason": "D-73 carrier repair applies existing DEC-018 without inventing constants or verification evidence.",
+          "posture": "b"
+        },
+        {
+          "before": "The schema is a contract for downstream evaluator, completeness-check,\nprivate-lifecycle, GUI-editor, report, and documentation work. It does not\nselect the expression grammar, implement evaluation, create public example rule\npacks, define private storage, choose the checksum library, or integrate final\nresult envelopes. Those details remain `TBD` until assigned to later\ndeliverables.",
+          "after": "The schema is a contract for downstream evaluator, completeness-check,\nprivate-lifecycle, GUI-editor, report, and documentation work. DEC-022 fixes\nthe typed expression AST as the canonical checksum-bound grammar; DEC-031\nrecords its accepted algebra and branch-compatibility riders. DEC-037 retains\nthe no-parser boundary and permits display-only AST rendering. These decisions\nare distinct from implementation and conformance evidence. Public example\ncontent, private storage services, checksum realization and final-result\nintegration retain their owning deliverable contracts and actual remaining\nwork; the schema alone does not implement those surfaces.",
+          "keys": [
+            "DEL-06-01:SOW#CLM-014"
+          ],
+          "reason": "D-73 carrier repair applies DEC-022/031/037 and removes a settled grammar TBD without asserting implementation completion.",
+          "posture": "b"
+        },
+        {
+          "before": "`core/rules/expression_evaluator` implements the first bounded evaluator\nsurface. It evaluates explicit expression trees only; it does not parse\narbitrary text or use host-language `eval`. The supported surface is deliberately\nsmall: numeric literals, declared variable references, unary negation, basic\narithmetic, and same-dimension comparisons. Multiplication and division are\nbounded to dimensionless scaling and same-dimension ratios until a later unit\nalgebra decision extends them.",
+          "after": "`core/rules/expression_evaluator` supplies bounded reference evidence; its\nparticular implementation coverage does not narrow the DEC-022/031 grammar\ncontract. Evaluators must consume explicit expression trees without arbitrary\ntext parsing or host-language `eval`, preserve declared type, dimension and\nunit checks, and demonstrate the adopted function and algebra coverage through\nthe owning deliverable's conformance evidence. Unsupported coverage remains an\nexplicit implementation gap rather than an undecided grammar policy.",
+          "keys": [
+            "DEL-06-01:SOW#CLM-014"
+          ],
+          "reason": "Keep reference implementation reach distinct from the already accepted canonical grammar and its conformance obligation.",
+          "posture": "b"
+        }
+      ],
+      "after_sha256": "461570f14ada321b327451f929cfd77b8aeff9938edf1926bab9aea582f99fe7"
+    },
+    {
+      "path": "projects/chirality-piping/docs/user_guide/index.md",
+      "before_sha256": "a44286a1a03f7aca1d9493d7fe755cc94a773e238c8c632a5b2a27d633f64239",
+      "edits": [
+        {
+          "before": "## 2. Current Repository Surfaces",
+          "after": "## Accessibility Intent\n\nGuide instructions must describe available keyboard navigation, labels, focus\nbehavior, visible units, missing-data diagnostics and usable result alternatives\nwhere the corresponding interface provides them. Keep the DEL-07-06\naccessibility/usability contract and DEL-11-01 acceptance criteria visible when\nreviewing a user journey. Document known gaps and test evidence at their actual\nreach; an intended control or guide statement does not establish accessibility\nconformance or settle a human-selected target.\n\n## 2. Current Repository Surfaces",
+          "keys": [
+            "DEL-11-01:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "Apply DEL-11-01 current accessibility-intent obligation to its actual guide carrier without conformance claims.",
+          "posture": "b"
+        }
+      ],
+      "after_sha256": "72db131b37c89fbdb24c40445b7f6d45d5c8306c366391321075dccafeb4c48a"
+    },
+    {
+      "path": "projects/chirality-piping/docs/theory/centerline_analysis.md",
+      "before_sha256": "dce0458021cd0e6285c3df0a2723a382f8f53224cdf160dc230d1163b4eb34f0",
+      "edits": [
+        {
+          "before": "These notes explain why OpenPipeStress treats routine global piping analysis as",
+          "after": "These notes explain why SWBPIPE treats routine global piping analysis as",
+          "keys": [
+            "DEL-11-03:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-101 current product prose naming; retain code identifiers and source history.",
+          "posture": "b"
+        },
+        {
+          "before": "OpenPipeStress outputs are software evidence for review. A mechanics solve,",
+          "after": "SWBPIPE outputs are software evidence for review. A mechanics solve,",
+          "keys": [
+            "DEL-11-03:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-101 current product prose naming; retain code identifiers and source history.",
+          "posture": "b"
+        },
+        {
+          "before": "For OpenPipeStress, the useful centerline idea is a practical abstraction: a",
+          "after": "For SWBPIPE, the useful centerline idea is a practical abstraction: a",
+          "keys": [
+            "DEL-11-03:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-101 current product prose naming; retain code identifiers and source history.",
+          "posture": "b"
+        },
+        {
+          "before": "OpenPipeStress preserves that separation. The public project may define schema",
+          "after": "SWBPIPE preserves that separation. The public project may define schema",
+          "keys": [
+            "DEL-11-03:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-101 current product prose naming; retain code identifiers and source history.",
+          "posture": "b"
+        },
+        {
+          "before": "OpenPipeStress maps the centerline idea to a 3D frame model. In the project",
+          "after": "SWBPIPE maps the centerline idea to a 3D frame model. In the project",
+          "keys": [
+            "DEL-11-03:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-101 current product prose naming; retain code identifiers and source history.",
+          "posture": "b"
+        },
+        {
+          "before": "the OpenPipeStress architecture. NASA NTRS material for NASTRAN and MIT OCW",
+          "after": "the SWBPIPE architecture. NASA NTRS material for NASTRAN and MIT OCW",
+          "keys": [
+            "DEL-11-03:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-101 current product prose naming; retain code identifiers and source history.",
+          "posture": "b"
+        },
+        {
+          "before": "structural modeling and finite-element procedures. OpenPipeStress-specific",
+          "after": "structural modeling and finite-element procedures. SWBPIPE-specific",
+          "keys": [
+            "DEL-11-03:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-101 current product prose naming; retain code identifiers and source history.",
+          "posture": "b"
+        },
+        {
+          "before": "| Concept | Centerline meaning | OpenPipeStress boundary |",
+          "after": "| Concept | Centerline meaning | SWBPIPE boundary |",
+          "keys": [
+            "DEL-11-03:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-101 current product prose naming; retain code identifiers and source history.",
+          "posture": "b"
+        },
+        {
+          "before": "modeling context, while project governance defines which OpenPipeStress",
+          "after": "modeling context, while project governance defines which SWBPIPE",
+          "keys": [
+            "DEL-11-03:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-101 current product prose naming; retain code identifiers and source history.",
+          "posture": "b"
+        },
+        {
+          "before": "OpenPipeStress separates mechanics from rule checks. The solver computes",
+          "after": "SWBPIPE separates mechanics from rule checks. The solver computes",
+          "keys": [
+            "DEL-11-03:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-101 current product prose naming; retain code identifiers and source history.",
+          "posture": "b"
+        },
+        {
+          "before": "The handoff should not imply that OpenPipeStress has performed the local FEA,",
+          "after": "The handoff should not imply that SWBPIPE has performed the local FEA,",
+          "keys": [
+            "DEL-11-03:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-101 current product prose naming; retain code identifiers and source history.",
+          "posture": "b"
+        },
+        {
+          "before": "analysis context. They do not provide OpenPipeStress acceptance criteria,",
+          "after": "analysis context. They do not provide SWBPIPE acceptance criteria,",
+          "keys": [
+            "DEL-11-03:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-101 current product prose naming; retain code identifiers and source history.",
+          "posture": "b"
+        },
+        {
+          "before": "| `SRC-OPS-GOV` | `ACCEPTED` | `docs/DIRECTIVE.md`; `docs/CONTRACT.md`; `docs/TYPES.md`; `docs/SPEC.md`; `docs/IP_AND_DATA_BOUNDARY.md`; `docs/PROFESSIONAL_BOUNDARY.md`; `docs/VALIDATION_STRATEGY.md`; `docs/architecture/code_neutral_analysis_boundary.md`; `docs/architecture/analysis_status_semantics.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7`. | Project-authored repository governance and architecture basis. | OpenPipeStress scope, authority boundaries, source/provenance controls, protected-content exclusions, centerline/frame architecture, rule-pack separation, validation family separation, and professional-boundary wording. | Accepted for project-specific claims only. Does not supply external piping-history evidence. |",
+          "after": "| `SRC-OPS-GOV` | `ACCEPTED` | `docs/DIRECTIVE.md`; `docs/CONTRACT.md`; `docs/TYPES.md`; `docs/SPEC.md`; `docs/IP_AND_DATA_BOUNDARY.md`; `docs/PROFESSIONAL_BOUNDARY.md`; `docs/VALIDATION_STRATEGY.md`; `docs/architecture/code_neutral_analysis_boundary.md`; `docs/architecture/analysis_status_semantics.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7`. | Project-authored repository governance and architecture basis. | SWBPIPE scope, authority boundaries, source/provenance controls, protected-content exclusions, centerline/frame architecture, rule-pack separation, validation family separation, and professional-boundary wording. | Accepted for project-specific claims only. Does not supply external piping-history evidence. |",
+          "keys": [
+            "DEL-11-03:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "DEC-101 current product prose naming; retain code identifiers and source history.",
+          "posture": "b"
+        },
+        {
+          "before": "practice remain `TBD`.",
+          "after": "practice remain `TBD`. Extracted equations and explanatory narrative require\nsource verification before reliance; unverified extraction is not an accepted\ndesign basis. Preserve the source, applicable assumptions, coordinate and unit\nconventions, and the distinction between explanation and implemented behavior.",
+          "keys": [
+            "DEL-11-03:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "Apply DEL-11-03 source-verification and unverified-extraction boundary to the theory carrier.",
+          "posture": "b"
+        },
+        {
+          "before": "complete, and a user-rule check does not prove professional acceptance.",
+          "after": "complete, and a user-rule check does not prove professional acceptance.\nValidation asks whether the model and its assumptions adequately represent the\nintended physical application, using applicable independent evidence and human\njudgment. Numerical verification, conceptual explanation and reference-software\ncomparison do not by themselves establish that application validity or\nprofessional acceptance.",
+          "keys": [
+            "DEL-11-03:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "Apply existing DEL-11-03 distinction between verification, validation and reliance; no new engineering acceptance.",
+          "posture": "b"
+        },
+        {
+          "before": "Release-quality tolerances, final solver numerical library choices, and final\nvalidation gate wording remain governed by future accepted deliverables where\nnot already recorded.",
+          "after": "Apply the accepted solver strategy in DEC-023 and the governed tolerance\nrecords under DEC-026 at their stated reach. Unmeasured tolerance entries,\napplication-specific validation and remaining release evidence retain their\nown verification and acceptance requirements; the theory note supplies none\nof those outcomes.",
+          "keys": [
+            "DEL-11-03:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "Remove settled solver blanket TBD while retaining true numerical and validation gaps.",
+          "posture": "b"
+        },
+        {
+          "before": "`execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7`.",
+          "after": "`execution/_Decomposition/SOFTWARE_DECOMP.md` and its accepted decision register.",
+          "keys": [
+            "DEL-11-03:SOW#completion-and-reliance-basis-epistemology/AC-001"
+          ],
+          "reason": "Lift obsolete current authority snapshot to accepted source pointer.",
+          "posture": "b"
+        }
+      ],
+      "after_sha256": "d527b919890ae18f83f78dedc00d2d057a8f7db2170f90d8eb3a43e00f7c96ce"
+    },
+    {
+      "path": "projects/chirality-piping/docs/README.md",
+      "before_sha256": "a5de93304893997be56d9409150c6a4ccf5ef982aa5a4c8d001809ebf4ee0f63",
+      "edits": [
+        {
+          "before": "The current decomposition authority is\n`execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7`, coordinated by\napproved `DAG-007` under `execution/_DAG/DAG-007/`. `DAG-007` is the current\ncanonical dependency type-system rectification graph authority. `DAG-001`\nthrough `DAG-006` remain immutable historical snapshots; `DAG-006` preserves\nthe prior approved legacy-enum graph context. Revision `0.7` carries the accepted\narchitecture runway, design-engine and persistence amendments, and\nexport-format interoperability scope into the active working surface.",
+          "after": "The current decomposition authority is\n`execution/_Decomposition/SOFTWARE_DECOMP.md` with its accepted decisions and\namendments. Resolve approved graph coordination and its approval record through\n`execution/_DAG/_LATEST.md`. Earlier graph artifacts retain their immutable\nhistorical reach. Current coordination does not advance deliverable lifecycle,\nselect implementation work, or establish engineering or release acceptance.",
+          "keys": [
+            "DEL-02-02:SOW#conflicts"
+          ],
+          "reason": "Reconcile actual current overview carrier to accepted authority while preserving frozen graph history.",
+          "posture": "b"
+        }
+      ],
+      "after_sha256": "300fecbe5ffa090d9ebb567e9fbe8c00c46cee40937b4d102d70b13b85e8f029"
+    }
+  ]
+}

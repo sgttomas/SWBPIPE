@@ -48,11 +48,11 @@ This Scope of Work defines `DEL-17-09` in service of project scope [SOW-030, SOW
 > | Attribute | Value | Source |
 > |---|---|---|
 > | Contract surface | Adapter SDK contract, adapter template, target registry contract, and validation checklist at planning/contract level only. | SourcePath: `_CONTEXT.md`; SectionRef: Anticipated Artifacts. |
-> | Primary upstream contract | DEL-17-02 export package, profile, stable ID map, manifest, and loss-report contract. | SourcePath: `DEL-17-02/Specification.md`; SectionRef: Downstream Requirements, DEL-17-09 row. |
-> | Source-basis authority | DEL-17-01 admitted source basis and TBD register gate target-specific behavior. | SourcePath: `DEL-17-01/Specification.md`; SectionRef: Source Authority Requirements and Boundary Requirements. |
+> | Primary upstream contract | DEL-17-02 export package, profile, stable ID map, manifest, and loss-report contract. | SourcePath: `DEL-17-02/ScopeOfWork.md`; SectionRef: Downstream Requirements, DEL-17-09 row. |
+> | Source-basis authority | DEL-17-01 admitted source basis and TBD register gate target-specific behavior. | SourcePath: `DEL-17-01/ScopeOfWork.md`; SectionRef: Source Authority Requirements and Boundary Requirements. |
 > | Adapter boundary | Adapters validate units, provenance, diagnostics, redistribution, and public/private data boundaries, and cannot bypass validation, sandboxing, envelopes, or report controls. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-07. |
 > | No-bypass extension posture | Plugins and adapters are denied by default until a later approved permission/runtime design authorizes bounded capability. | SourcePath: `docs/SPEC.md`; SectionRef: 4.5 Plugin and extension domain contracts. |
-> | Target-admission posture | Additional targets are candidate targets until they provide public, official, project-owned, or rights-cleared source basis and explicit loss/TBD records. | SourcePath: `DEL-17-02/Guidance.md`; SectionRef: Target-Specific Carryforward and Boundary Guidance. |
+> | Target-admission posture | Additional targets are candidate targets until they provide public, official, project-owned, or rights-cleared source basis and explicit loss/TBD records. | SourcePath: `DEL-17-02/ScopeOfWork.md`; SectionRef: Target-Specific Carryforward and Boundary Guidance. |
 >
 
 ### CLM-005 — Conditions
@@ -62,9 +62,9 @@ This Scope of Work defines `DEL-17-09` in service of project scope [SOW-030, SOW
 > | Condition | Status | Notes |
 > |---|---|---|
 > | Implementation code | OUT OF SCOPE | This Phase A deliverable does not create code, schemas, package manifests, sample adapters, public endpoints, runtime loaders, or compatibility artifacts. SourcePath: sealed task brief; SectionRef: Acceptance criteria. |
-> | Public API promise | OUT OF SCOPE | Public API transport, endpoint syntax, plugin runtime, permission taxonomy, and exact code-generation tooling remain `TBD`. SourcePath: `DEL-10-01/Specification.md`; SectionRef: REQ-13. |
+> | Public API promise | OUT OF SCOPE | Public API transport, endpoint syntax, plugin runtime, permission taxonomy, and exact code-generation tooling remain `TBD`. SourcePath: `DEL-10-01/ScopeOfWork.md`; SectionRef: REQ-13. |
 > | Concrete additional target support | TBD | Additional targets may be evaluated only after source basis, target version basis, rights posture, loss categories, and validation obligations are recorded. SourcePath: `plans/EXPORT_FORMAT_INTEROPERABILITY_PLAN.md`; SectionRef: Suggested Repository Layout and Main Risks. |
-> | External tool execution | Optional/user-owned when applicable | External execution metadata must not imply bundled executables, license independence, formal validation, or professional acceptance. SourcePath: `DEL-17-02/Specification.md`; SectionRef: Export Profile Requirements. |
+> | External tool execution | Optional/user-owned when applicable | External execution metadata must not imply bundled executables, license independence, formal validation, or professional acceptance. SourcePath: `DEL-17-02/ScopeOfWork.md`; SectionRef: Export Profile Requirements. |
 > | Protected/private content | Prohibited for public artifacts | Public artifacts must not include protected standards text, proprietary examples, private project data, code-specific values, or target files without redistribution rights. SourcePath: `docs/IP_AND_DATA_BOUNDARY.md`; SectionRef: Public repository must not contain. |
 >
 
@@ -85,8 +85,8 @@ This Scope of Work defines `DEL-17-09` in service of project scope [SOW-030, SOW
 >
 > | Record object | Expected fields | Source |
 > |---|---|---|
-> | Target registry/profile record | `target_name`, admission state, target version basis or `TBD`, source-basis IDs or `TBD`, rights/redistribution posture, boundary notes, unresolved-TBD list, validation evidence reference, and no-support/no-claim statement. Exact schema field names remain `TBD`. | SourcePath: `DEL-17-02/Datasheet.md`; SectionRef: Required Export-Profile Fields. SourcePath: `DEL-17-02/Specification.md`; SectionRef: Export Profile Requirements. |
-> | Source-basis record | Source location, license or redistribution basis, admitted use, boundary notes, affected target behavior, review disposition, and source-basis ID. Exact source-basis ID field name remains `TBD` until later schema work. | SourcePath: `DEL-17-01/Specification.md`; SectionRef: Source Authority Requirements and Documentation Requirements. SourcePath: `docs/IP_AND_DATA_BOUNDARY.md`; SectionRef: 4. Contribution evidence fields. |
+> | Target registry/profile record | `target_name`, admission state, target version basis or `TBD`, source-basis IDs or `TBD`, rights/redistribution posture, boundary notes, unresolved-TBD list, validation evidence reference, and no-support/no-claim statement. Current field evidence is in `schemas/export_adapter_sdk.schema.json`; the durable admission, loss, provenance and deny-by-default obligations remain. | SourcePath: `DEL-17-02/ScopeOfWork.md`; SectionRef: Required Export-Profile Fields. SourcePath: `DEL-17-02/ScopeOfWork.md`; SectionRef: Export Profile Requirements. |
+> | Source-basis record | Source location, license or redistribution basis, admitted use, boundary notes, affected target behavior, review disposition, and source-basis ID. Current source-basis fields are defined in `schemas/export_adapter_sdk.schema.json`; target-specific admission still requires its own evidence. | SourcePath: `DEL-17-01/ScopeOfWork.md`; SectionRef: Source Authority Requirements and Documentation Requirements. SourcePath: `docs/IP_AND_DATA_BOUNDARY.md`; SectionRef: 4. Contribution evidence fields. |
 > | Validation checklist record | Checklist item, validation category, expected evidence artifact, result status (`pass`, `fail`, `TBD`, or `not applicable`), reviewer note, and source or run-record reference. Exact record format remains `TBD`. | SourcePath: `plans/EXPORT_FORMAT_INTEROPERABILITY_PLAN.md`; SectionRef: Validation Strategy. SourcePath: `docs/SPEC.md`; SectionRef: 4.5 Plugin and extension domain contracts. |
 >
 
@@ -102,8 +102,8 @@ This Scope of Work defines `DEL-17-09` in service of project scope [SOW-030, SOW
 > | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data and protected-content policy. |
 > | `plans/EXPORT_FORMAT_INTEROPERABILITY_PLAN.md` | Human-authored export strategy, adapter architecture, target validation, and risk basis. |
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-17, DEL-17-09, SOW, objective, architecture-basis, and open-issue context. |
-> | `DEL-17-01` four-document kit plus `Source_Basis_Register.md` and `CAEPIPE_Question_Dossier.md` | Source-admission and target-claim boundary. |
-> | `DEL-17-02` four-document kit | Common export package/profile/stable-ID/manifest/loss-report contract consumed by DEL-17-09. |
+> | `DEL-17-01` consolidated `ScopeOfWork.md` plus `Source_Basis_Register.md` and `CAEPIPE_Question_Dossier.md` | Source-admission and target-claim boundary. |
+> | `DEL-17-02` consolidated `ScopeOfWork.md` | Common export package/profile/stable-ID/manifest/loss-report contract consumed by DEL-17-09. |
 
 ### CLM-008 — D-41 R5 T2A canonicalization evidence (2026-07-12)
 
@@ -132,7 +132,7 @@ This Scope of Work defines `DEL-17-09` in service of project scope [SOW-030, SOW
 >
 > DEL-17-09 defines a contract-level export adapter SDK and target-admission model for future community or additional export targets. It covers adapter obligations, target registry admission states, source-basis requirements, boundary contracts, and validation checklist expectations.
 >
-> This deliverable shall not implement source code, schemas, runtime loaders, public endpoints, package manifests, sample adapters, tests, external parser behavior, executable harnesses, or target-specific writers. It shall not make compatibility, target support, release, or formal validation claims. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). SourcePath: `_CONTEXT.md`; SectionRef: Package Exclusions. SourcePath: sealed task brief; SectionRef: Deliverable-specific emphasis and acceptance criteria.
+> The original Phase A no-code constraint applied to that historical run. Current metadata-contract evidence exists in `schemas/export_adapter_sdk.schema.json`, `core/handoff/export_adapter_sdk/package.py` and `tests/test_export_adapter_sdk.py`. Runtime loaders, grants, public endpoints, external parser/harness activation and additional target writers remain separately scoped; metadata presence authorizes none of them. It shall not make compatibility, target support, release, or formal validation claims. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). SourcePath: `_CONTEXT.md`; SectionRef: Package Exclusions. SourcePath: sealed task brief; SectionRef: Deliverable-specific emphasis and acceptance criteria.
 >
 
 ### CLM-013 — Requirements
@@ -141,19 +141,19 @@ This Scope of Work defines `DEL-17-09` in service of project scope [SOW-030, SOW
 >
 > | Req ID | Requirement | Source |
 > |---|---|---|
-> | DEL-17-09-REQ-001 | The adapter SDK contract shall consume DEL-17-02 as its common export package/profile/stable-ID/manifest/loss-report contract and shall not redefine those package objects in incompatible terms. | SourcePath: `DEL-17-02/Specification.md`; SectionRef: Downstream Requirements. |
-> | DEL-17-09-REQ-002 | Additional targets shall provide their own admitted source basis before any target-specific behavior is described as supported, compatible, validated, or ready for use. | SourcePath: `DEL-17-01/Specification.md`; SectionRef: Source Authority Requirements; SourcePath: `DEL-17-02/Guidance.md`; SectionRef: Target-Specific Carryforward. |
-> | DEL-17-09-REQ-003 | Unknown, unsupported, version-sensitive, or source-insufficient target behavior shall remain `TBD`, `unsupported`, `omitted`, `approximated`, or `delegated` rather than becoming a support claim. | SourcePath: `DEL-17-02/Specification.md`; SectionRef: Export Profile Requirements and Loss Report Requirements. |
-> | DEL-17-09-REQ-004 | Adapter participation shall require target version basis, unit policy, coordinate policy, stable-ID policy, source-basis IDs, loss-report policy, diagnostics policy, and boundary notes at the contract level. Exact field names/layout remain `TBD` until later schema work. | SourcePath: `DEL-17-02/Datasheet.md`; SectionRef: Required Export-Profile Fields; SourcePath: `DEL-17-02/Specification.md`; SectionRef: Export Profile Requirements; SourcePath: `docs/SPEC.md`; SectionRef: 4.5 Plugin and extension domain contracts. |
-> | DEL-17-09-REQ-005 | Adapter targets shall preserve canonical identity directly or through sidecar mapping when target artifacts cannot carry SWBPIPE IDs. | SourcePath: `DEL-17-02/Specification.md`; SectionRef: Stable ID Map Requirements. |
-> | DEL-17-09-REQ-006 | Every target adapter shall require a loss report, including successful exports, so exported, omitted, approximated, delegated, unsupported, and `TBD` behavior remains visible. | SourcePath: `DEL-17-02/Specification.md`; SectionRef: Loss Report Requirements; SourcePath: `DEL-17-02/Guidance.md`; SectionRef: Loss report. |
+> | DEL-17-09-REQ-001 | The adapter SDK contract shall consume DEL-17-02 as its common export package/profile/stable-ID/manifest/loss-report contract and shall not redefine those package objects in incompatible terms. | SourcePath: `DEL-17-02/ScopeOfWork.md`; SectionRef: Downstream Requirements. |
+> | DEL-17-09-REQ-002 | Additional targets shall provide their own admitted source basis before any target-specific behavior is described as supported, compatible, validated, or ready for use. | SourcePath: `DEL-17-01/ScopeOfWork.md`; SectionRef: Source Authority Requirements; SourcePath: `DEL-17-02/ScopeOfWork.md`; SectionRef: Target-Specific Carryforward. |
+> | DEL-17-09-REQ-003 | Unknown, unsupported, version-sensitive, or source-insufficient target behavior shall remain `TBD`, `unsupported`, `omitted`, `approximated`, or `delegated` rather than becoming a support claim. | SourcePath: `DEL-17-02/ScopeOfWork.md`; SectionRef: Export Profile Requirements and Loss Report Requirements. |
+> | DEL-17-09-REQ-004 | Adapter participation shall require target version basis, unit policy, coordinate policy, stable-ID policy, source-basis IDs, loss-report policy, diagnostics policy, and boundary notes at the contract level. Current field layout is in `schemas/export_adapter_sdk.schema.json`; conformance to these obligations remains required. | SourcePath: `DEL-17-02/ScopeOfWork.md`; SectionRef: Required Export-Profile Fields; SourcePath: `DEL-17-02/ScopeOfWork.md`; SectionRef: Export Profile Requirements; SourcePath: `docs/SPEC.md`; SectionRef: 4.5 Plugin and extension domain contracts. |
+> | DEL-17-09-REQ-005 | Adapter targets shall preserve canonical identity directly or through sidecar mapping when target artifacts cannot carry SWBPIPE IDs. | SourcePath: `DEL-17-02/ScopeOfWork.md`; SectionRef: Stable ID Map Requirements. |
+> | DEL-17-09-REQ-006 | Every target adapter shall require a loss report, including successful exports, so exported, omitted, approximated, delegated, unsupported, and `TBD` behavior remains visible. | SourcePath: `DEL-17-02/ScopeOfWork.md`; SectionRef: Loss Report Requirements; SourcePath: `DEL-17-02/ScopeOfWork.md`; SectionRef: Loss report. |
 > | DEL-17-09-REQ-007 | Adapter validation shall distinguish syntactic readiness, schema validation, unit and dimensional validation, provenance completeness, redistribution review, privacy classification, protected-content screening, mechanics readiness, rule-check readiness, export review, and human review. | SourcePath: `docs/SPEC.md`; SectionRef: 4.5 Plugin and extension domain contracts. |
-> | DEL-17-09-REQ-008 | Adapter and target registry records shall not grant filesystem, network, process, private-data, report-control, solver, rule-pack, or storage access by default. Runtime grant mechanics remain `TBD`. | SourcePath: `DEL-10-01/Specification.md`; SectionRef: REQ-12 and REQ-13. |
+> | DEL-17-09-REQ-008 | Adapter and target registry records shall not grant filesystem, network, process, private-data, report-control, solver, rule-pack, or storage access by default. Runtime grant mechanics remain `TBD`. | SourcePath: `DEL-10-01/ScopeOfWork.md`; SectionRef: REQ-12 and REQ-13. |
 > | DEL-17-09-REQ-009 | Public adapter templates and target examples shall use invented or otherwise rights-cleared data only, and shall not include protected standards data, proprietary commercial examples, copied vendor files, or private project data. | SourcePath: `docs/IP_AND_DATA_BOUNDARY.md`; SectionRef: Public repository may contain and Public repository must not contain. |
-> | DEL-17-09-REQ-010 | External execution, if a later target adapter needs it, shall be optional, user-owned, license-bound, and recorded as non-authoritative external-run evidence rather than professional acceptance. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: SOW-075; SourcePath: `DEL-17-02/Specification.md`; SectionRef: Export Profile Requirements. |
-> | DEL-17-09-REQ-011 | Adapter outputs, manifests, diagnostics, documentation, and checklist language shall not claim certification, sealing, approval, authentication, endorsement, code compliance, professional acceptance, formal solver validation, release readiness, or vendor compatibility (PRD §21.2). | SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-AUTH-1, OPS-K-GOV-3, OPS-K-AGENT-4; SourcePath: `DEL-17-02/Specification.md`; SectionRef: Boundary Requirements. |
+> | DEL-17-09-REQ-010 | External execution, if a later target adapter needs it, shall be optional, user-owned, license-bound, and recorded as non-authoritative external-run evidence rather than professional acceptance. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: SOW-075; SourcePath: `DEL-17-02/ScopeOfWork.md`; SectionRef: Export Profile Requirements. |
+> | DEL-17-09-REQ-011 | Adapter outputs, manifests, diagnostics, documentation, and checklist language shall not claim certification, sealing, approval, authentication, endorsement, code compliance, professional acceptance, formal solver validation, release readiness, or vendor compatibility (PRD §21.2). | SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-AUTH-1, OPS-K-GOV-3, OPS-K-AGENT-4; SourcePath: `DEL-17-02/ScopeOfWork.md`; SectionRef: Boundary Requirements. |
 > | DEL-17-09-REQ-012 | Future implementation work shall be bounded to later sealed deliverables and shall not be implied by this Phase A contract kit. | SourcePath: `AGENTS.md`; SectionRef: Dispatch rule; SourcePath: `skills/four-documents/SKILL.md`; SectionRef: Non-goal and Non-negotiable constraints. |
-> | DEL-17-09-REQ-013 | Adapter contracts shall carry DEL-17-01 and DEL-17-02 source-basis refs, and any `source_basis_admitted` target shall carry target-specific source evidence beyond package-level contract refs. | SourcePath: `DEL-17-01/Specification.md`; SectionRef: Source Authority Requirements; SourcePath: `DEL-17-02/Specification.md`; SectionRef: Export Profile Requirements. |
+> | DEL-17-09-REQ-013 | Adapter contracts shall carry DEL-17-01 and DEL-17-02 source-basis refs, and any `source_basis_admitted` target shall carry target-specific source evidence beyond package-level contract refs. | SourcePath: `DEL-17-01/ScopeOfWork.md`; SectionRef: Source Authority Requirements; SourcePath: `DEL-17-02/ScopeOfWork.md`; SectionRef: Export Profile Requirements. |
 >
 > Runtime permission taxonomy, sandbox capability approval, and grant-record ownership are not named by the available Phase A sources. They remain `TBD` and shall not be inferred from adapter manifest requests, target registry records, or candidate target names. SourcePath: `docs/SPEC.md`; SectionRef: 4.5 Plugin and extension domain contracts.
 >
@@ -188,13 +188,13 @@ This Scope of Work defines `DEL-17-09` in service of project scope [SOW-030, SOW
 > | REQ-002, REQ-004, REQ-009 | Source-basis review confirms target-specific statements are either source-grounded, explicitly `TBD`, or excluded. |
 > | REQ-007, REQ-008 | Architecture/security review confirms adapter admission does not grant runtime permissions, storage access, external execution, or bypass privileges. |
 > | REQ-010, REQ-011 | Professional/IP boundary review confirms no external-run, compatibility, validation, release, code-compliance, or professional-acceptance claim is present. |
-> | REQ-012 | Sealed-scope review confirms no implementation files, schemas, tests, package manifests, public API endpoints, or sibling deliverable files were modified. |
+> | REQ-012 | Review the actual authorized change scope and its evidence. The historical Phase-A no-code check remains evidence of that run; current metadata-contract evidence includes `schemas/export_adapter_sdk.schema.json`, `core/handoff/export_adapter_sdk/package.py` and `tests/test_export_adapter_sdk.py`. Their presence does not authorize a runtime loader, grants, public endpoints, external execution or target support. |
 >
 > Category-level acceptance detail for REQ-007:
 >
 > | Validation category | Acceptance record for this contract phase |
 > |---|---|
-> | Syntactic readiness and schema validation | Record `TBD` until concrete schema layout exists; later records should cite schema validation evidence when available. |
+> | Syntactic readiness and schema validation | Assess the existing `schemas/export_adapter_sdk.schema.json` against metadata-builder outputs and `tests/test_export_adapter_sdk.py`; retain dated validation results tied to the actual candidate. Metadata schema existence does not demonstrate runtime permission, endpoint, loader or target conformance. |
 > | Unit and dimensional validation | Record pass/fail/TBD against declared unit and coordinate policies; no silent unit default is acceptable. |
 > | Provenance completeness | Record source-basis IDs, source location, license or redistribution posture, and review disposition, or mark the entry `TBD`/rejected. |
 > | Redistribution review, privacy classification, and protected-content screening | Record public/private/protected-content disposition before public artifact use. Suspected protected content is rejected or quarantined, not normalized into an example. |
@@ -272,7 +272,7 @@ This Scope of Work defines `DEL-17-09` in service of project scope [SOW-030, SOW
 > 2. Read the DEL-17-02 `ScopeOfWork.md` and use its export package, profile, stable-ID, manifest, and loss-report contract objects.
 > 3. Confirm the target has public, official, project-owned, user-provided-with-rights, or otherwise rights-cleared source evidence.
 > 4. Confirm protected standards data, proprietary examples, private project data, copied vendor files, and license-bypass material are not being introduced.
-> 5. Confirm runtime permission, sandbox, public API transport, package layout, concrete schema layout, external execution, and target-specific validation remain `TBD` unless a later sealed brief authorizes them.
+> 5. Read the existing metadata layout in `schemas/export_adapter_sdk.schema.json` and `core/handoff/export_adapter_sdk/package.py`. Confirm separately selected authority and evidence for any runtime permission, sandbox, public API transport, external execution or target-specific validation; metadata records grant none of these capabilities. New layout/interface changes remain within their authorized brief.
 >
 
 ### CLM-024 — Steps
@@ -461,7 +461,7 @@ This Scope of Work defines `DEL-17-09` in service of project scope [SOW-030, SOW
 
 > ###### Adapter SDK surface
 >
-> The SDK surface should be described as obligations and review checkpoints until a later implementation brief authorizes code. Useful obligations include source basis, profile metadata, stable identity, package member declaration, loss reporting, diagnostics, protected-content screening, privacy classification, and professional-boundary wording. Exact method names, schemas, endpoints, loader mechanisms, and package structure remain `TBD`.
+> The SDK carries durable admission and no-bypass obligations. Current schema and metadata-builder evidence is `schemas/export_adapter_sdk.schema.json` and `core/handoff/export_adapter_sdk/package.py`; runtime activation remains separately scoped. Useful obligations include source basis, profile metadata, stable identity, package member declaration, loss reporting, diagnostics, protected-content screening, privacy classification, and professional-boundary wording. The metadata schema/package structure is present. Runtime method/endpoint/loader/grant selection remains open; do not turn metadata fields into an access grant.
 >
 > Vocabulary note:
 >

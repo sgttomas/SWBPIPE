@@ -39,7 +39,7 @@ This Scope of Work defines `DEL-17-08` in service of project scope [SOW-030, SOW
 > | Scope items | SOW-030, SOW-074 |
 > | Objectives | OBJ-009, OBJ-017 |
 > | Source basis | DEL-17-01 source-basis register; DEL-17-02 export package/profile/stable-ID contract |
-> | Lifecycle role | Target-specific Phase A contract draft for review-geometry export |
+> | Preparation provenance | Target-specific Phase A contract draft for review-geometry export |
 >
 
 ### CLM-004 — Attributes
@@ -92,18 +92,20 @@ This Scope of Work defines `DEL-17-08` in service of project scope [SOW-030, SOW
 > | `loss_report.json` and/or `loss_report.md` | Records exported, omitted, approximated, delegated, unsupported, and `TBD` review-geometry behavior | Required by DEL-17-02; exact rendering `TBD` |
 > | Geometry fixtures | Invented or public-permissive fixtures for deterministic checks | `TBD`; no fixtures created in Phase A |
 >
+>
+> Current source evidence: `schemas/review_geometry_export.schema.json` and `core/handoff/review_geometry/package.py` supplies a bounded reference implementation. The original Phase A no-code/no-fixture statement describes that run only. Retain the full accepted contract and explicit runtime, provenance, target/executable and validation holds; reference construction does not retire unmet requirements.
 
 ### CLM-007 — Future Data Slots
 
 > ###### Future Data Slots
 >
-> These slots remain descriptive records, not implementation authority. They are kept as `TBD` until a later profile, schema, or fixture task supplies source-grounded values.
+> These slots remain descriptive records, not implementation authority. Current bounded construction evidence and still-open coverage/provenance questions are distinguished in the disposition column.
 >
 > | Slot ID | Future record | Source reread evidence | Phase A disposition |
 > |---|---|---|---|
-> | B-001 | Exact package filenames, schema or storage locations, and field sets for `review_geometry_profile.json`, `id_map.json`, manifest, and loss report. | DEL-17-02 Datasheet `## Contract Objects`, `## Required Export-Profile Fields`; DEL-17-02 Specification `## Export Package Requirements`, `## Stable ID Map Requirements`, `## Manifest Requirements`, `## Loss Report Requirements`. | Converted to `TBD`; Construction remains the descriptive inventory. |
-> | F-002 | Future fixture inventory, fixture rights basis, and fixture-to-check coverage. | IP-DATA `## Public Repository Boundary`; DEL-17-01 Datasheet `## Boundary Facts`; DEL-17-02 Guidance `## Boundary Guidance`. | Converted to `TBD`; no fixtures are created in Phase A. |
-> | X-002 | Canonical ID families and schema source for emitted and intentionally omitted review entities. | DEL-17-02 Datasheet `## Stable ID Families`; PLAN-EXPORT-INTEROP `## Stable ID Strategy`; `schemas/model.schema.yaml` top-level description. | Converted to `TBD`; canonical family list is not enumerated locally until the source schema/profile boundary is selected. |
+> | B-001 | Exact package filenames, schema or storage locations, and field sets for `review_geometry_profile.json`, `id_map.json`, manifest, and loss report. | DEL-17-02 Datasheet `## Contract Objects`, `## Required Export-Profile Fields`; DEL-17-02 Specification `## Export Package Requirements`, `## Stable ID Map Requirements`, `## Manifest Requirements`, `## Loss Report Requirements`. | Current construction evidence: `schemas/review_geometry_export.schema.json` and `core/handoff/review_geometry/package.py` define JSON glTF members, manifest, profile, loss report and sidecar map; inspect the selected profile rather than infer GLB support. |
+> | F-002 | Future fixture inventory, fixture rights basis, and fixture-to-check coverage. | IP-DATA `## Public Repository Boundary`; DEL-17-01 Datasheet `## Boundary Facts`; DEL-17-02 Guidance `## Boundary Guidance`. | Reference fixture evidence is in `tests/test_review_geometry_export_package.py`; provenance/rights and per-requirement coverage require scoped review. The historical Phase A run did not create fixtures. |
+> | X-002 | Canonical ID families and schema source for emitted and intentionally omitted review entities. | DEL-17-02 Datasheet `## Stable ID Families`; PLAN-EXPORT-INTEROP `## Stable ID Strategy`; `schemas/model.schema.yaml` top-level description. | Current reference foundation emits canonical node/element centerline identity and sidecar correlation; expanded entity-family coverage and omission evidence remain explicit delivery work. |
 >
 
 ### CLM-008 — References
@@ -168,7 +170,7 @@ This Scope of Work defines `DEL-17-08` in service of project scope [SOW-030, SOW
 > | DEL-17-08-REQ-011 | A glTF asset shall include the required `asset.version` field required by GLTF-2.0. |
 > | DEL-17-08-REQ-012 | Linear geometry emitted into glTF shall use meters or shall produce a blocking diagnostic before target writing. |
 > | DEL-17-08-REQ-013 | The profile shall declare the source coordinate basis, target glTF basis, and transform policy, including the glTF +Y-up/right-handed convention. |
-> | DEL-17-08-REQ-014 | Mesh primitive topology choices shall be profile-declared. Candidate modes include line-style centerline review geometry and triangle-style surface preview geometry; the selected subset remains `TBD`. |
+> | DEL-17-08-REQ-014 | Mesh primitive topology choices shall be profile-declared. Candidate modes include line-style centerline review geometry and triangle-style surface preview geometry; the existing reference foundation selects JSON glTF LINES/centerline segments; GLB, tube/surface geometry and rendered-viewer validation remain separate. |
 > | DEL-17-08-REQ-015 | Use of glTF extensions, if any, shall follow the GLTF-2.0 extension declaration mechanism and shall remain optional unless a later profile explicitly records the viewer impact. |
 >
 
@@ -206,7 +208,7 @@ This Scope of Work defines `DEL-17-08` in service of project scope [SOW-030, SOW
 > | Req ID | Requirement |
 > |---|---|
 > | DEL-17-08-REQ-040 | The profile shall declare which canonical entity families are visually emitted, omitted, approximated, unsupported, or `TBD`. |
-> | DEL-17-08-REQ-041 | Centerline segments, bends, branches, reducers, components, supports/restraints, equipment interfaces, line labels, material/section labels, load-case indicators, and diagnostics overlays remain `TBD` until the profile selects first coverage. |
+> | DEL-17-08-REQ-041 | The existing bounded reference profile emits JSON glTF LINES for centerline node/element segments (`core/handoff/review_geometry/package.py`). Declare coverage and loss treatment for every family: bends, branches, reducers, components, supports/restraints, equipment interfaces, line labels, material/section labels, load-case indicators and diagnostics overlays still require their own supported, omitted, approximated, unsupported or `TBD` disposition. Reference centerline evidence does not satisfy the broader accepted geometry scope or GLB/viewer qualification. |
 > | DEL-17-08-REQ-042 | Simplified review shapes shall be recorded as approximations when they replace richer canonical model geometry. |
 > | DEL-17-08-REQ-043 | Missing units, ambiguous coordinate systems, duplicate stable IDs, zero-length geometry, impossible bend display geometry, and unmapped emitted entities shall produce blocking diagnostics before package acceptance. |
 >
@@ -231,8 +233,8 @@ This Scope of Work defines `DEL-17-08` in service of project scope [SOW-030, SOW
 > | Check | Expected result |
 > |---|---|
 > | `ScopeOfWork.md` exists | `ScopeOfWork.md` is present. |
-> | Default section check | Each document retains its required default schema sections. |
-> | Source grounding | Claims cite GLTF-2.0, DEL-17-01, DEL-17-02, PLAN-EXPORT-INTEROP, or governance/schema sources. |
+> | Default section check | The consolidated `ScopeOfWork.md` retains its required schema sections and source/claim traceability. |
+> | Source grounding | Claims cite admitted GLTF-2.0, DEL-17-01/02 and applicable governance/schema evidence at their actual reach. PLAN-EXPORT-INTEROP is unavailable historical strategy, not current field-level authority. |
 > | Stable-ID round trip | Written `model.gltf` node/primitive identity metadata and `id_map.json` round trip to the same canonical centerline IDs; mismatches block package acceptance. |
 > | Deterministic metadata observation | Repeated packages are byte-deterministic, `asset.generator` is a fixed versioned string, and timestamp keys are absent; no normative policy is inferred. |
 > | TBD preservation | Binary GLB, broader geometry, viewer compatibility, engineering validation, and exact timestamp/generator policy remain unselected. |
@@ -245,16 +247,16 @@ This Scope of Work defines `DEL-17-08` in service of project scope [SOW-030, SOW
 
 > ###### Future Requirement-to-Check Map
 >
-> This map records future acceptance slots only. It does not close the underlying `TBD` profile, implementation, fixture, or viewer-behavior decisions.
+> This map preserves the original Phase A acceptance slots alongside current selected-profile evidence. Existing JSON glTF centerline implementation and mandatory sidecar policy do not close broader geometry, GLB, fixture, viewer or engineering-validation work.
 >
 > | Item ID | Requirement area | Future check slot | Source reread evidence | Phase A disposition |
 > |---|---|---|---|---|
-> | A-001 | DEL-17-08 `shall` requirements across profile, identity, package, and coverage requirements. | Build an explicit req-to-check matrix before implementation acceptance. | Current `Specification.md` `## Requirements` and `## Verification`; DEL-17-02 Specification `## Export Package Requirements` through `## Loss Report Requirements`. | Incorporated as future acceptance mapping; pass criteria remain `TBD`. |
-> | C-001 | Direct identity metadata versus sidecar identity policy. | Decide when glTF `name`, `extras`, or extensions are sufficient and when manifest-referenced sidecar ID mapping is mandatory. | GLTF-2.0 sections 3.3, 3.12, 5.16, 5.23-5.25; DEL-17-02 Datasheet `## Stable ID Families`; DEL-17-02 Guidance `### Stable ID map`. | Converted to `TBD`; profile must define consumer-risk threshold before direct metadata is accepted. |
-> | C-002 | Export service boundary and trigger/interface. | Identify the application-service/API boundary that consumes the canonical model and invokes the writer. | `_CONTEXT.md` Architecture Basis Injection; SOFTWARE_DECOMP SOW-030 and SOW-062; current `Specification.md` `## Scope`. | Already excluded from Phase A; retained as `TBD` for a later interface contract. |
-> | F-001 | Source-evidence gate for target profile facts. | Verify each GLB/glTF target fact traces to GLTF-2.0, DEL-17-01, DEL-17-02, or governance evidence. | DEL-17-01 Specification `## Source Authority Requirements`; DEL-17-02 Specification `## Source Authority Requirements`; GLTF-2.0 sections 2.4, 3.4, 4, 5.9, 5.16, 5.23-5.25. | Incorporated as future source-evidence check. |
-> | X-001 | First review-geometry coverage declaration by canonical entity family. | Check each family is classified as emitted, omitted, approximated, delegated, unsupported, or `TBD`. | DEL-17-02 Datasheet `## Required Export-Profile Fields`, `## Loss Categories`; DEL-17-02 Specification `## Export Profile Requirements`; current `Specification.md` `### Review Geometry Coverage Requirements`. | Already required by REQ-040/REQ-041; disposition recorded here with `TBD` coverage. |
-> | X-003 | Implementation verification for generated artifacts. | Verify the selected JSON glTF structure, deterministic hashing, geometry counts, and stable-ID correlation; add GLB or rendered visual checks only after separately selected scope. | GLTF-2.0 sections 3.2, 3.4, 5.9, 5.23-5.25; DEL-17-02 Specification `## Export Package Requirements`; `DEC-074` O11/E7. | JSON glTF checks are implemented; GLB, viewer, broader geometry, and engineering validation remain outside the selected scope. |
+> | A-001 | DEL-17-08 `shall` requirements across profile, identity, package, and coverage requirements. | Build an explicit req-to-check matrix before implementation acceptance. | Current `ScopeOfWork.md` requirements `## Requirements` and `## Verification`; DEL-17-02 `ScopeOfWork.md` export-package requirements through `## Loss Report Requirements`. | Incorporated as future acceptance mapping; pass criteria remain `TBD`. |
+> | C-001 | Direct identity metadata versus sidecar policy | Verify each emitted centerline identity round trips through direct extras and the mandatory authoritative sidecar. | `core/handoff/review_geometry/package.py`; selected profile and schema | The existing foundation requires sidecar audit correlation even when extras carry direct IDs; broader profile/viewer policy remains separately scoped. |
+> | C-002 | Export service boundary and trigger/interface. | Identify the application-service/API boundary that consumes the canonical model and invokes the writer. | `_CONTEXT.md` Architecture Basis Injection; SOFTWARE_DECOMP SOW-030 and SOW-062; current `ScopeOfWork.md` requirements `## Scope`. | Already excluded from Phase A; retained as `TBD` for a later interface contract. |
+> | F-001 | Source-evidence gate for target profile facts. | Verify each GLB/glTF target fact traces to GLTF-2.0, DEL-17-01, DEL-17-02, or governance evidence. | DEL-17-01 and DEL-17-02 `ScopeOfWork.md` source-authority requirements; GLTF-2.0 sections 2.4, 3.4, 4, 5.9, 5.16, 5.23-5.25. | Incorporated as future source-evidence check. |
+> | X-001 | First review-geometry coverage declaration by canonical entity family. | Check each family is classified as emitted, omitted, approximated, delegated, unsupported, or `TBD`. | DEL-17-02 consolidated `ScopeOfWork.md` export-profile fields, loss categories and export-profile requirements; current `ScopeOfWork.md` requirements `### Review Geometry Coverage Requirements`. | REQ-040/REQ-041 require explicit family coverage. The selected JSON glTF profile emits centerlines with identity/sidecar correlation; inspect current profile declarations for omitted or unsupported families and retain broader coverage work. |
+> | X-003 | Implementation verification for generated artifacts. | Verify the selected JSON glTF structure, deterministic hashing, geometry counts, and stable-ID correlation; add GLB or rendered visual checks only after separately selected scope. | GLTF-2.0 sections 3.2, 3.4, 5.9, 5.23-5.25; DEL-17-02 `ScopeOfWork.md` export-package requirements; `DEC-074` O11/E7. | JSON glTF checks are implemented; GLB, viewer, broader geometry, and engineering validation remain outside the selected scope. |
 >
 
 ### CLM-021 — Documentation
@@ -263,10 +265,7 @@ This Scope of Work defines `DEL-17-08` in service of project scope [SOW-030, SOW
 >
 > Current bounded implementation records include:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`, carrying the migrated definition, requirements, method and guidance sections; original four-document artifacts remain historical source evidence
 > - `_STATUS.md` safe lifecycle update when permitted
 > - `_run_records/TASK_RUN_2026-05-18_1156.md`
 > - `core/handoff/review_geometry/`, `schemas/review_geometry_export.schema.json`, invented fixtures, and focused tests;
@@ -467,8 +466,8 @@ This Scope of Work defines `DEL-17-08` in service of project scope [SOW-030, SOW
 > | Topic | Guidance |
 > |---|---|
 > | Coordinate policy | glTF uses a right-handed +Y-up coordinate basis and meters for linear distances. Source model axes, project vertical axis, origin, scale, and transform recording remain profile decisions. |
-> | Geometry level of detail | First coverage may be centerline-only, simplified tube/symbol geometry, or another declared subset. The choice remains `TBD` and should be loss-report driven. |
-> | Metadata placement | glTF `extras` and object `name` fields are candidate places for direct review metadata. A sidecar remains necessary when metadata needs stronger auditability or may be stripped by consuming tools. |
+> | Geometry level of detail | Current reference evidence selects JSON glTF LINES/centerline segments. Expanded tube/symbol/surface or other geometry remains separately scoped and loss-report driven; the bounded reference profile does not close broader entity coverage or GLB requirements. |
+> | Metadata placement | The bounded JSON-glTF reference profile emits direct node/primitive identity metadata and always requires the authoritative stable-ID sidecar, even when extras carry identity. Verify their one-to-one correlation; different profile/viewer metadata policies require separate evidence. |
 > | Extensions | Avoid required custom extensions unless the profile records viewer impact and fallback behavior. Extensions used by an asset must be declared according to GLTF-2.0. |
 > | Hashing | GLB is binary. The manifest should hash the emitted binary when deterministic or record why a hash cannot be stable. |
 > | Fixtures | Public fixtures must be invented or rights-cleared and should avoid real project/client/tag data. |
@@ -495,7 +494,7 @@ This Scope of Work defines `DEL-17-08` in service of project scope [SOW-030, SOW
 
 > ###### Geometry Detail Rationale
 >
-> For D-002, a later profile should choose the first review-geometry level of detail by asking whether the representation supports visual orientation, canonical-ID correlation, and limitation disclosure without implying solver, CAD, fabrication, or analysis fidelity. Centerline, simplified tube/surface, symbol, annotation, and overlay choices should be justified by coverage, identity, viewer-risk, package size, deterministic generation, and loss-report clarity; unchosen or unresolved families remain `TBD`.
+> The existing reference profile selects JSON glTF LINES/centerline segments (`core/handoff/review_geometry/package.py`). Expanded profiles must still assess whether the representation supports visual orientation, canonical-ID correlation, and limitation disclosure without implying solver, CAD, fabrication, or analysis fidelity. Centerline, simplified tube/surface, symbol, annotation, and overlay choices should be justified by coverage, identity, viewer-risk, package size, deterministic generation, and loss-report clarity; unchosen or unresolved families remain `TBD`.
 >
 
 ### CLM-044 — Examples

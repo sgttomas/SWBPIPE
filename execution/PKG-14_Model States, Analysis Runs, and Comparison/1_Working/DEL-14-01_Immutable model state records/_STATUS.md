@@ -4,6 +4,7 @@
 **Last Updated:** 2026-09-22
 
 ## Remaining
+- R5 continuation delivery task: Demonstrate immutable model-state persistence/round trips and hash-scope enforcement against `schemas/model_state.schema.json` in the product store. Schema fixtures do not establish durable storage; preserve DEC-017/028 strategy and unresolved partitioning (CLM-006).
 - Bind external-reference ingestion/consumption for model-state records to governed privacy and protected-content runtime screening; the adapter declaration gate is not that consumer binding.
 - Phase G program: build immutable model-state records, analysis-run records, state/run comparison engines, mapping/tolerance/export contracts, the comparison workspace GUI, and state/comparison report sections (stage-gated: v0.2 R3) (see also DEL-14-02, DEL-14-03, DEL-14-04, DEL-14-05, DEL-07-08, DEL-08-06) (source: PRD plan §3 Forward Horizon row G / DEC-056/SCA-005)
 

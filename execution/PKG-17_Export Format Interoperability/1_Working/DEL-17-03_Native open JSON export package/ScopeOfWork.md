@@ -135,7 +135,7 @@ This Scope of Work defines `DEL-17-03` in service of project scope [SOW-030, SOW
 >
 > | Check | Requirement |
 > |---|---|
-> | Four-document check | The four-document kit exists. |
+> | Four-document check | The consolidated `ScopeOfWork.md` exists. |
 > | Dependency schema | `Dependencies.csv` validates as v3.1. |
 > | Semantic artifacts | `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` exist and are lens artifacts only. |
 > | Schema and fixture checks | Native JSON schema and invented fixture parse as JSON. |

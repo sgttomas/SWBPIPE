@@ -3,7 +3,7 @@
 ## Current Reading Contract
 - `ArchitectureBasis.md` - canonical current member reference (`chirality-architecture-basis/v1`, AB-00-08).
 - `_STATUS.md` - sole deliverable-local lifecycle authority.
-- `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.9 - current decomposition and architecture-basis authority.
+- `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted authority (see decision register) - current decomposition and architecture-basis authority.
 - `execution/_Coordination/_DECISIONS/D-43_pkg00_architecture_basis_consolidation.md` - consolidation ruling and boundaries.
 - `../../CONSOLIDATION_MANIFEST.md` - hash-bound predecessor/successor provenance and package reading contract.
 - `_CONTEXT.md`, `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, `MEMORY.md`, and `_run_records/` are retained setup or derivative evidence; they do not override the current surfaces above.
@@ -22,7 +22,7 @@
 - agents/AGENT_PREPARATION.md - PREPARATION scaffolding protocol and file schemas.
 
 ## Decomposition and Registers
-- execution/_Decomposition/SOFTWARE_DECOMP.md - Accepted revision 0.9 current decomposition basis; package PKG-00 and deliverable DEL-00-08.
+- execution/_Decomposition/SOFTWARE_DECOMP.md - Accepted accepted authority (see decision register) current decomposition basis; package PKG-00 and deliverable DEL-00-08.
 - docs/_Registers/Deliverables.csv - Deliverable identity, description, artifacts, scope, objectives, and context envelope.
 - docs/_Registers/ScopeLedger.csv - Scope item mapping for SOW-063.
 - docs/_Registers/ContextBudgetQA.csv - Context budget row for DEL-00-08.

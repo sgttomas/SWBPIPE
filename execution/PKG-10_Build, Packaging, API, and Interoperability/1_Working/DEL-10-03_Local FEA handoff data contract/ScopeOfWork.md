@@ -30,7 +30,6 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 > package_id: PKG-10
 > ---
 >
-
 ### CLM-002 — Datasheet: Local FEA Handoff Data Contract
 
 > #### Datasheet: Local FEA Handoff Data Contract
@@ -50,8 +49,8 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 > | Scope items | SOW-031, SOW-049 |
 > | Objective | OBJ-009 |
 > | Anticipated artifacts | `local FEA handoff schema`; `docs/local-analysis notes` |
-> | Current artifact form | Deliverable-local contract kit; repository-level schemas and docs are outside this setup write scope |
-> | Lifecycle target for setup | `SEMANTIC_READY` after setup gates pass |
+> | Current artifact form | Current schema/contract: `schemas/local_fea_handoff.schema.yaml`; active authorized briefs govern writes. |
+> | Lifecycle | See `_STATUS.md`; record repair does not promote state. |
 > | External FEA implementation | Out of scope |
 > | Final external format selection | TBD |
 >
@@ -63,7 +62,7 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 > | Attribute | Value | Source |
 > |---|---|---|
 > | Boundary purpose | Define an export package for selected local shell/solid FEA handoff and advisory labels for when handoff is recommended. | `_CONTEXT.md` Description; `docs/_Registers/Deliverables.csv` row DEL-10-03 |
-> | Normal global method | SWBPIPE primary analysis remains a 3D centerline/frame model. | `INIT.md` boundaries; `docs/DIRECTIVE.md` section 3; `docs/CONTRACT.md` OPS-K-MECH-1 |
+> | Normal global method | SWBPIPE primary analysis remains a 3D centerline/frame model. | `AGENTS.md` boundaries; `docs/DIRECTIVE.md` section 3; `docs/CONTRACT.md` OPS-K-MECH-1 |
 > | Handoff role | Local FEA handoff is a specialized interoperability path for local-detail problems, not the normal global analysis method. | `docs/_Registers/ScopeLedger.csv` rows SOW-031 and SOW-049 |
 > | Contract baseline | Schema-first command/query/job result envelopes; JSON Schema 2020-12 public schema/interchange basis; canonical JSON/JCS-compatible hash basis where JSON payloads are hashed. | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2 |
 > | Adapter boundary | Handoff exports are governed adapter payloads and cannot bypass unit checks, provenance, diagnostics, privacy, protected-content screening, report controls, or professional-boundary language. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-02, AB-00-06, AB-00-07; `docs/SPEC.md` section 1 |
@@ -90,6 +89,9 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 
 > ##### Construction
 >
+> Current deliverable obligation: Define export package for local shell/solid FEA handoff and criteria labels for when handoff is recommended. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > The local FEA handoff contract is a conceptual export package. It should be described in schema-ready terms without choosing a final external tool format.
 >
 > | Contract surface | Minimum concept slots | Setup status |
@@ -103,7 +105,6 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 > | Diagnostics and limitations | Diagnostic code/class/severity/source/affected object/message/remediation/provenance, warnings, assumptions, limitations, unresolved `TBD`s. | Governed by AB-00-06. |
 > | Reproducibility manifest | Canonical JSON payload hash where applicable, model/result hashes, source pointers, rule-pack references without exposing private values. | Concept defined; canonicalization edge cases TBD. |
 >
-
 ### CLM-008 — References
 
 > ##### References
@@ -114,7 +115,7 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 > - `docs/TYPES.md` sections 3, 4, 5, 6, 7, and 8 for deliverable type, analysis status, epistemic labels, local FEA handoff vocabulary, provenance labels, and domain object registry.
 > - `docs/SPEC.md` sections 1, 3, 4, 7, 8, 9, 10, and 11 for architecture layering, domain objects, solver/result/report boundaries, diagnostics, verification, and acceptance semantics.
 > - `docs/IP_AND_DATA_BOUNDARY.md` sections 2-6 for public/private data boundaries, provenance, quarantine, and private user data.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for SOW-031, SOW-049, OBJ-009, PKG-10, AB-00-02/03/04/06/07/08, and OI-004.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis for SOW-031, SOW-049, OBJ-009, PKG-10, AB-00-02/03/04/06/07/08, and OI-004.
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -129,7 +130,6 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 > package_id: PKG-10
 > ---
 >
-
 ### CLM-010 — Specification: Local FEA Handoff Data Contract
 
 > #### Specification: Local FEA Handoff Data Contract
@@ -159,10 +159,10 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 > | DEL-10-03-REQ-06 | Handoff guidance labels shall be advisory only and shall not assert code compliance, professional approval, certification, sealing, endorsement, or project-specific acceptability (PRD §21.2). | SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-AUTH-1. SourcePath: `docs/TYPES.md`; SectionRef: sections 4 and 6. |
 > | DEL-10-03-REQ-07 | The contract shall prohibit public artifacts from embedding protected standards text, protected tables, copied code formulas, material allowables, SIF/flexibility tables, protected dimensional tables, proprietary vendor data without rights, private project data, or private rule-pack values. | SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-IP-1 and OPS-K-IP-3. SourcePath: `docs/IP_AND_DATA_BOUNDARY.md`; SectionRef: sections 2-3. |
 > | DEL-10-03-REQ-08 | The handoff contract shall align with the schema-first command/query/job/result-envelope boundary and shall not allow an export adapter or plugin to bypass domain validation, unit checks, diagnostics, provenance checks, privacy controls, protected-content screening, or report controls. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-02, AB-00-03, AB-00-06, AB-00-07. SourcePath: `docs/architecture/plugin_boundary.md`; SectionRef: Boundary Rules and No-Bypass Constraints. |
-> | DEL-10-03-REQ-09 | Final public API transport, concrete external FEA format list, concrete adapter implementation, external solver invocation semantics, and schema file placement shall remain `TBD` unless later approved in a separate implementation deliverable. | SourcePath: `_CONTEXT.md`; SectionRef: Still TBD. SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: OI-004 and section 8.2. |
+> | DEL-10-03-REQ-09 | Final public API transport, concrete external FEA format list, concrete adapter implementation, external solver invocation semantics shall remain `TBD` unless later approved in a separate implementation deliverable. | SourcePath: `_CONTEXT.md`; SectionRef: Still TBD. SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: OI-004 and section 8.2. |
 > | DEL-10-03-REQ-10 | The contract shall include advisory criteria labels that distinguish expected global-centerline sufficiency from recommended local-detail review or local FEA handoff, while keeping the final engineering decision with a competent human. | SourcePath: `docs/_Registers/ScopeLedger.csv`; SectionRef: rows SOW-031 and SOW-049. SourcePath: `docs/DIRECTIVE.md`; SectionRef: sections 2.2 and 3. |
 > | DEL-10-03-REQ-11 | The contract shall require diagnostics/result envelopes to carry code, class, severity, source, affected object, message, remediation, and provenance for handoff-blocking, assumption, provenance, privacy, and IP-boundary findings. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-06. SourcePath: `docs/SPEC.md`; SectionRef: section 7. |
-> | DEL-10-03-REQ-12 | Verification for this setup deliverable shall include document review, semantic/lensing completeness checks, dependency register validation, protected-content/professional-boundary scans, and preservation of unresolved implementation decisions as `TBD`. | SourcePath: `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`; SectionRef: sections 4-5. SourcePath: `docs/VALIDATION_STRATEGY.md`; SectionRef: sections 1, 2, and 4. |
+> | DEL-10-03-REQ-12 | Verification for this setup deliverable shall include document review, semantic/lensing completeness checks, dependency register validation, protected-content/professional-boundary scans, and preservation of unresolved implementation decisions as `TBD`. Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | SourcePath: `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`; SectionRef: sections 4-5. SourcePath: `docs/VALIDATION_STRATEGY.md`; SectionRef: sections 1, 2, and 4. |
 >
 
 ### CLM-014 — Standards
@@ -178,7 +178,7 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 > - `docs/TYPES.md` for API contract type, analysis-status vocabulary, epistemic labels, provenance labels, centerline model, and local FEA handoff vocabulary.
 > - `docs/SPEC.md` for layer responsibilities, domain objects, solver/result/report boundaries, diagnostics classes, verification strategy, and Type 2 acceptance semantics.
 > - `docs/IP_AND_DATA_BOUNDARY.md` for public/private data, provenance, quarantine, private user data, and report boundary policy.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for SOW-031, SOW-049, OBJ-009, PKG-10, AB-00-02/03/04/06/07/08, and OI-004.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis for SOW-031, SOW-049, OBJ-009, PKG-10, AB-00-02/03/04/06/07/08, and OI-004.
 >
 > External implementation baseline:
 >
@@ -189,6 +189,9 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 
 > ##### Verification
 >
+> Current deliverable obligation: Define export package for local shell/solid FEA handoff and criteria labels for when handoff is recommended. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > | Requirement IDs | Verification approach |
 > |---|---|
 > | REQ-01, REQ-06, REQ-10 | Boundary review confirms local FEA is framed as optional guidance and that human review remains required. |
@@ -196,10 +199,9 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 > | REQ-05, REQ-09 | TBD review confirms missing values, external format/tool decisions, schema placement, and implementation details are visible rather than silently resolved. |
 > | REQ-07 | Protected-content review confirms no protected standards data, proprietary external-tool behavior, private project data, or private rule-pack values are introduced. |
 > | REQ-08 | Adapter/API review confirms no-bypass constraints are carried into the handoff boundary. |
-> | REQ-12 | Setup evidence review confirms four docs, semantic/lensing artifacts, dependency artifacts, run records, and status updates exist and pass local gates. |
+> | REQ-12 | Review confirms the consolidated `ScopeOfWork.md` and applicable semantic/lensing, dependency, run and status records exist; earlier four-document setup is retained as historical evidence. |
 > | Future implementation gate | Later source-code or schema work must add tests for handoff export schema validation, unit/provenance/privacy checks, protected-content screening, diagnostics, reproducibility metadata, and no-certification language before release use. |
 >
-
 ### CLM-016 — Interim Setup Acceptance Criteria
 
 > ###### Interim Setup Acceptance Criteria
@@ -213,7 +215,6 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 > | Dependency gate | `Dependencies.csv` exists, validates against v3.1 required columns, uses canonical write-form enums, and `_DEPENDENCIES.md` summarizes active rows. |
 > | Boundary gate | No external FEA implementation, mesh generation, external tool behavior, final format choice, source code, package manifest, protected data, private engineering data, or certification/compliance claim is introduced. |
 >
-
 ### CLM-017 — Documentation
 
 > ##### Documentation
@@ -235,7 +236,6 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 > | Advisory criteria label | Required concept; guidance only and human-reviewed. | `docs/_Registers/ScopeLedger.csv` row SOW-049. |
 > | Units/provenance/privacy/diagnostics | Required concepts; exact schema fields TBD. | `docs/CONTRACT.md` OPS-K-DATA-3, OPS-K-UNIT-1, OPS-K-PRIV; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06. |
 > | Reproducibility/hash basis | Required where payload hashes are used; canonicalization details TBD. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 and section 8.2. |
-
 - **AC-001** — The contract preserves solver-neutral schema and manifest boundaries, stable identifiers, coordinate and unit conventions, provenance and protected/private-data controls, completeness and diagnostic checks, deterministic hashes, local-tool separation, declared omissions and unsupported features, and visible solver/export-format TBDs without claiming external-solver validation or professional approval.
 
 ## Production and Verification Method — Praxeology
@@ -251,7 +251,6 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 > package_id: PKG-10
 > ---
 >
-
 ### CLM-019 — Procedure: Local FEA Handoff Data Contract
 
 > #### Procedure: Local FEA Handoff Data Contract
@@ -269,13 +268,15 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 
 > ##### Prerequisites
 >
+> Current deliverable obligation: Define export package for local shell/solid FEA handoff and criteria labels for when handoff is recommended. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > - The sealed DEL-10-03 context is available in `_CONTEXT.md`.
 > - Governing documents and registers named in `_REFERENCES.md` have been read.
 > - Applicable architecture basis IDs AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, and AB-00-08 are treated as dispatch constraints, not copied as full PKG-00 authority.
 > - Current setup write scope is restricted to this deliverable folder.
 > - External FEA implementation, final exchange formats, concrete adapter code, shell/solid meshing, solver-specific boundary-condition mapping, and schema file placement remain TBD.
 >
-
 ### CLM-023 — Steps
 
 > ##### Steps
@@ -320,7 +321,6 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 >    - `_run_records/*`.
 >    - `_STATUS.md` with `SEMANTIC_READY` only after setup gates pass.
 >
-
 ### CLM-024 — Verification
 
 > ##### Verification
@@ -328,7 +328,7 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 > | Check | Expected result |
 > |---|---|
 > | Write-scope check | Only files in the DEL-10-03 folder changed. |
-> | Four-document check | Datasheet, Specification, Guidance, and Procedure exist with default sections. |
+> | Scope of Work contract | The consolidated `ScopeOfWork.md` exists with required sections, identity and source/verification traceability; historical four-document setup is not the current production contract. |
 > | Handoff boundary check | Local FEA is optional/specialized; global centerline/frame analysis remains the normal global method. |
 > | Implementation boundary check | No external FEA implementation, mesh generation, external solver behavior, final exchange format, source code, package manifest, or repository-level schema file is introduced. |
 > | Protected-data check | No protected standards content, proprietary commercial data, private project/rule/component/material data, or copied commercial software examples are introduced. |
@@ -336,15 +336,11 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 > | Semantic check | `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` exist and preserve lens-not-authority separation. |
 > | Dependency check | `Dependencies.csv` validates against v3.1 schema and canonical enum values. |
 >
-
 ### CLM-025 — Records
 
 > ##### Records
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -352,13 +348,14 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 > - `_run_records/TASK_RUN_*.md`
 > - `_STATUS.md`
 >
-
 ### CLM-026 — Completion Condition
 
 > ##### Completion Condition
 >
+> Current deliverable obligation: Define export package for local shell/solid FEA handoff and criteria labels for when handoff is recommended. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > The setup sequence is complete when the required setup artifacts exist, dependency validation passes, semantic/lensing artifacts are internally consistent, unresolved decisions remain visible as `TBD`, protected-data/professional-boundary checks are clean, and `_STATUS.md` records `SEMANTIC_READY` without any `ISSUED` transition.
-
 - **VER-001** — Validate the contract and review source parity, geometry/property/load/constraint and mapping coverage, coordinate/unit/provenance requirements, manifest/hash and diagnostic evidence, local FEA boundary and re-association behavior, retained tool/format TBDs, and prohibited validation or approval claims.
 
 ## Governing Values and Decisions — Axiology
@@ -374,7 +371,6 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 > package_id: PKG-10
 > ---
 >
-
 ### CLM-028 — Guidance: Local FEA Handoff Data Contract
 
 > #### Guidance: Local FEA Handoff Data Contract
@@ -414,14 +410,14 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 > | Adapter/API implementer | Stable schema-ready contract surfaces. | Keep final tool formats and export mechanics TBD until a later implementation brief. |
 > | Reviewer/auditor | Evidence that handoff did not bypass governance. | Preserve provenance, privacy classification, hashes, diagnostics, protected-content checks, and professional-boundary notices. |
 >
-> Advisory label examples for future schema review:
+> Current advisory vocabulary from `schemas/local_fea_handoff.schema.yaml` (`HandoffGuidanceLabel`); these are screening labels, not engineering decisions:
 >
 > | Label | Intended meaning | Boundary note |
 > |---|---|---|
-> | `GLOBAL_CENTERLINE_EXPECTED_SUFFICIENT` | Current evidence suggests the centerline model is the appropriate analysis level for the stated purpose. | Guidance only; not certification. |
-> | `LOCAL_DETAIL_REVIEW_RECOMMENDED` | A local feature, assumption, or uncertainty should be reviewed before relying on global results alone. | Requires human interpretation. |
-> | `LOCAL_FEA_HANDOFF_RECOMMENDED` | A selected local-detail problem may need shell/solid treatment outside the global solver. | Does not implement or validate external FEA. |
-> | `HUMAN_REVIEW_REQUIRED` | Professional review is required before project reliance. | Always true for professional use. |
+> | `global_centerline_expected_sufficient_for_screening` | Current evidence suggests the centerline model is the appropriate analysis level for the stated purpose. | Guidance only; not certification. |
+> | `local_detail_review_consider` | A local feature, assumption, or uncertainty should be reviewed before relying on global results alone. | Requires human interpretation. |
+> | `local_shell_solid_handoff_consider` | A selected local-detail problem may need shell/solid treatment outside the global solver. | Does not implement or validate external FEA. |
+> | `human_review_required` | Professional review is required before project reliance. | Always true for professional use. |
 >
 > General factors that may support local-detail review include local geometry or restraint behavior that is not represented by the centerline model, local load introduction, attachment/nozzle/equipment interface concerns, localized discontinuity behavior, or unresolved assumptions. These are screening prompts, not automatic rules.
 >
@@ -460,11 +456,11 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 >
 > | Topic | Current disposition |
 > |---|---|
-> | Final local FEA handoff schema filename and repository location | TBD; outside this setup write scope |
+> | Final local FEA handoff schema filename and repository location | Current schema: `schemas/local_fea_handoff.schema.yaml`; implementation-local placement follows DEC-012 without altering the handoff or external-FEA boundaries. |
 > | Final external FEA format list | TBD |
 > | Exact adapter implementation and external solver invocation behavior | TBD |
-> | Exact handoff package field names and JSON Schema layout | TBD |
-> | Exact advisory criteria label vocabulary | PROPOSAL in this deliverable; requires later human/API review |
+> | Exact handoff package field names and JSON Schema layout | Current field names and layout are recorded in `schemas/local_fea_handoff.schema.yaml`; preserve required units, provenance, diagnostics and candidate compatibility review. |
+> | Exact advisory criteria label vocabulary | Current `HandoffGuidanceLabel` vocabulary is in `schemas/local_fea_handoff.schema.yaml`. Labels remain advisory screening outcomes; actual engineering/advisory criteria and qualified review are not supplied by a schema enum. |
 > | Mapping from global model results to external shell/solid boundary conditions | TBD; no solver-specific behavior selected |
 > | Validation fixtures for handoff export | TBD; future invented/public examples only |
 >

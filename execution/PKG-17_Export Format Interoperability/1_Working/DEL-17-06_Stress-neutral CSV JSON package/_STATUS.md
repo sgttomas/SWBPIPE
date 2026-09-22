@@ -4,6 +4,7 @@
 **Last Updated:** 2026-09-15
 
 ## Remaining
+- R5 continuation delivery task: Demonstrate actual stress-neutral producers and emitted member bytes against the selected 0.1 or D-67 0.2 schema, preserving identity, dimensions/units, diagnostics, losses, received checksum evidence and member/package projections. Keep comparison/default-tolerance and fixture-provenance residuals explicit (CLM-005/007/013/015/037; AC-001).
 - For the accepted 830-row sparse fixture only, resolve or formally disposition the two explicitly withheld unit-preservation witnesses for diagnostic-work rows `result:nonlinear-support:free-dof-work-residual` and `result:loadcase:load-L-200:nonlinear-support:free-dof-work-residual`. The strict 0.2 package retains every raw row; this fixture-scoped hold is not a dropped-row, schema-failure, universal-row-count, or other-producer claim.
 - Regenerate `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` against the accepted post-D-67/CLM-042 state, or formally retire them from current use; their 2026-05-18 statements that exact schema/hash partitioning is unresolved are superseded and must not be used as current evidence. Refresh `_DEPENDENCIES.md` against DAG-010 through the owning dependency workflow; `Dependencies.csv` and DAG authority remain unchanged until then.
 

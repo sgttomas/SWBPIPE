@@ -69,7 +69,7 @@ This Scope of Work defines `DEL-17-02` in service of project scope [SOW-030, SOW
 > |---|---|
 > | DEL-17-01 `Source_Basis_Register.md` | Upstream source-basis authority for admitted public/project source IDs, findings, boundaries, and TBD register. SourceRef: `Source_Basis_Register.md#Public and Official Source Evidence`, `#Accepted Project References`, `#TBD Register`. |
 > | DEL-17-01 `CAEPIPE_Question_Dossier.md` | Upstream question register for unresolved CAEPIPE claims. SourceRef: `CAEPIPE_Question_Dossier.md#Question Register`, `#Question Boundary`, `#Closure Rule`. |
-> | SCA-004 and DAG-005 | Establish PKG-17 scope and sequencing authority. |
+> | SCA-004 and current graph | Accepted SCA-004 establishes export scope; current sequencing authority is resolved through `execution/_DAG/_LATEST.md`. DAG-005 remains historical scope-extension provenance. |
 > | `docs/CONTRACT.md` and `docs/IP_AND_DATA_BOUNDARY.md` | Govern protected-content, professional-boundary, and no-bypass constraints. |
 > | `schemas/model.schema.yaml` | Supplies canonical model identity vocabulary for mapping, without changing the schema in this tranche. |
 >
@@ -87,7 +87,7 @@ This Scope of Work defines `DEL-17-02` in service of project scope [SOW-030, SOW
 > | CAEPIPE-PCF | PCF translator planning evidence with mapping/default caveats for conservative downstream subset work. | `Source_Basis_Register.md#Public and Official Source Evidence`; PCF PDF `Reference`, `PCF to CAEPIPE component Mapping`. |
 > | GLTF-2.0 | Review-geometry package evidence for glTF/GLB asset, identity, coordinate, and container semantics. | `Source_Basis_Register.md#Public and Official Source Evidence`; glTF `2.4`, `3.2`, `3.3`, `3.4`, `4`. |
 > | PLAN-EXPORT-INTEROP | Strategy and priority basis only; section location remains `location TBD`. | `Source_Basis_Register.md#Accepted Project References`; `location TBD within plan`. |
-> | CONTRACT / IP-DATA / SPEC / TYPES / DAG-005 | Governance, workflow, lifecycle, provenance, TBD, data-boundary, and active graph-coordination basis. | `Source_Basis_Register.md#Accepted Project References`; local governance files and DAG-006 approval record locations cited there. |
+> | CONTRACT / IP-DATA / SPEC / TYPES / current graph | Governance, provenance, data and authority boundaries; graph coordination follows `execution/_DAG/_LATEST.md`. | `Source_Basis_Register.md#Accepted Project References`; applicable current governance sources; DAG-005/006 locations are historical provenance. |
 >
 
 ### CLM-008 — Local Contract Artifact Inventory
@@ -177,7 +177,7 @@ This Scope of Work defines `DEL-17-02` in service of project scope [SOW-030, SOW
 > | TBD-17-01-003 | Preserve MBF direct carrier versus sidecar-only stable-ID policy as `TBD`. | DEL-17-02, DEL-17-04 |
 > | TBD-17-01-004 | Preserve CSV result-section parser scope as `TBD`. | DEL-17-05, DEL-17-06 |
 > | TBD-17-01-005 | Preserve conservative PCF subset and default-warning policy as `TBD`. | DEL-17-07 |
-> | TBD-17-01-006 | Preserve glTF/GLB review-geometry identity metadata and sidecar policy as `TBD`. | DEL-17-08 |
+> | TBD-17-01-006 | The existing DEL-17-08 JSON-glTF centerline reference profile carries direct identity metadata plus a mandatory authoritative sidecar; inspect `core/handoff/review_geometry/package.py` and verify correlation. GLB, expanded entity coverage and viewer behavior remain separately scoped; review geometry does not establish solver validation. | DEL-17-08 |
 >
 
 ### CLM-014 — Boundary Summary
@@ -330,6 +330,8 @@ This Scope of Work defines `DEL-17-02` in service of project scope [SOW-030, SOW
 
 ### CLM-026 — Acceptance Requirements
 
+> Historical population-run method and checks: retain the original commands, artifact expectations and permitted transition as evidence of that bounded run. Current maintenance uses `ScopeOfWork.md` and its applicable validation contract; this passage neither repeats that lifecycle transition nor asserts a new validation pass.
+
 > ##### Acceptance Requirements
 >
 > DEL-17-02 is acceptable when:
@@ -398,6 +400,8 @@ This Scope of Work defines `DEL-17-02` in service of project scope [SOW-030, SOW
 
 ### CLM-032 — Validation Commands
 
+> Historical population-run method and checks: retain the original commands, artifact expectations and permitted transition as evidence of that bounded run. Current maintenance uses `ScopeOfWork.md` and its applicable validation contract; this passage neither repeats that lifecycle transition nor asserts a new validation pass.
+
 > ##### Validation Commands
 >
 > Run from repository root:
@@ -429,6 +433,8 @@ This Scope of Work defines `DEL-17-02` in service of project scope [SOW-030, SOW
 >
 
 ### CLM-034 — Closeout Procedure
+
+> Historical population-run method and checks: retain the original commands, artifact expectations and permitted transition as evidence of that bounded run. Current maintenance uses `ScopeOfWork.md` and its applicable validation contract; this passage neither repeats that lifecycle transition nor asserts a new validation pass.
 
 > ##### Closeout Procedure
 >
@@ -494,7 +500,7 @@ This Scope of Work defines `DEL-17-02` in service of project scope [SOW-030, SOW
 >
 > Profile authors should prefer narrow, source-confirmed profiles over broad profiles with unproven target behavior. If a target behavior is plausible but not yet sourced, mark it `TBD` and include the affected downstream deliverables.
 >
-> Use `DEL-17-01 Source_Basis_Register.md` as the upstream authority for admitted source IDs. For non-trivial target statements, cite one or more of `CAEPIPE-IMPORT-MBF`, `CAEPIPE-EXPORT-DATA`, `CAEPIPE-EXPORT-MBF`, `CAEPIPE-BATCH`, `CAEPIPE-PCF`, `GLTF-2.0`, or a project reference such as `CONTRACT`, `IP-DATA`, `SPEC`, `TYPES`, and `DAG-006`. If only `PLAN-EXPORT-INTEROP` supports the planning direction, preserve its plan-location `TBD` and do not convert strategy into target-field evidence.
+> Use `DEL-17-01 Source_Basis_Register.md` as the upstream authority for admitted source IDs. For non-trivial target statements, cite one or more of `CAEPIPE-IMPORT-MBF`, `CAEPIPE-EXPORT-DATA`, `CAEPIPE-EXPORT-MBF`, `CAEPIPE-BATCH`, `CAEPIPE-PCF`, `GLTF-2.0`, or a project reference such as `CONTRACT`, `IP-DATA`, `SPEC`, `TYPES`, and `DAG-006`. If only `PLAN-EXPORT-INTEROP` supports the planning direction, record that its historical plan location is unavailable in the current tree; use accepted SCA-004 and DEL-17-01 only for current scope and admitted-source limits and do not convert strategy into target-field evidence.
 >
 
 ### CLM-042 — Stable ID map
@@ -541,7 +547,7 @@ This Scope of Work defines `DEL-17-02` in service of project scope [SOW-030, SOW
 > | CAEPIPE MBF | CAEPIPE version/profile, initial MBF record families, required fields, and stable ID carrying strategy remain `TBD` until downstream source review or developer-team clarification closes them. |
 > | CAEPIPE external run/CSV | CSV section stability, parser coverage, and licensed executable availability remain `TBD`; harnesses are user-owned and optional. |
 > | PCF | Conservative subset and translator-default warning rules remain `TBD`; PCF work shall be loss-report driven. |
-> | GLB/glTF | Identity metadata and sidecar policy remain `TBD`; review geometry shall not be treated as solver validation. |
+> | GLB/glTF | The existing DEL-17-08 JSON-glTF centerline reference profile carries direct identity metadata plus a mandatory authoritative sidecar; inspect `core/handoff/review_geometry/package.py` and verify correlation. GLB, expanded entity coverage and viewer behavior remain separately scoped; review geometry does not establish solver validation. |
 > | Adapter SDK | Additional targets shall inherit this contract and declare their own source basis before target-specific claims. |
 >
 
@@ -572,7 +578,7 @@ This Scope of Work defines `DEL-17-02` in service of project scope [SOW-030, SOW
 > - Does the ID-map guidance preserve canonical identity even when the target format cannot?
 > - Does the loss report include successful-export loss categories?
 > - Are later deliverables identified as consumers without being populated in this tranche?
-> - Did semantic matrix, lens-register, four-document, minimum-fileset, dependency-schema, and diff-hygiene validation pass before downstream consumption?
+> - Does the current candidate have the applicable `ScopeOfWork.md`, semantic/lensing, minimum-fileset, dependency-schema and diff-hygiene evidence needed for downstream consumption? Preserve original four-document results as historical evidence; do not substitute them for a current claim.
 
 ## Output and Evaluation Matrix
 

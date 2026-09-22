@@ -1,5 +1,9 @@
 # MEMORY - DEL-06-05 Invented Non-Code Example Rule Pack
 
+## 2026-09-22 — Current navigation
+
+The undated implementation and open-item blocks below preserve the May 2026 bounded-implementation snapshot. Current requirements and remaining delivery work are in `ScopeOfWork.md` and `_STATUS.md`. Production canonical JSON hashing, local rule-pack storage, GUI authoring, typed transport, and completeness checking now have implementation evidence in `core/serialization/canonical_json`, `apps/desktop/src-tauri/src`, and `core/rules/completeness_checker/`; those implementations do not close report/export audit-reference wiring, non-JSON manifest partitioning, PKG-12 privacy obligations, or formal review and acceptance. Historical entries below retain their original evidence and lifecycle statements.
+
 ## Implementation Summary
 
 Implemented the bounded `DEL-06-05` public example slice:

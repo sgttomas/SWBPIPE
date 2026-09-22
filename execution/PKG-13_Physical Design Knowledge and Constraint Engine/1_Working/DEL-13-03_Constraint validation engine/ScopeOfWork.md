@@ -69,7 +69,7 @@ This candidate defines `DEL-13-03` in service of project scope [SOW-068] and pac
 > | Public/private data boundary | Public artifacts must not bundle protected standards text, protected tables, proprietary values, owner standards, or private project data. Sources: `docs/CONTRACT.md` OPS-K-IP-1 through OPS-K-IP-3; `docs/IP_AND_DATA_BOUNDARY.md` sections 2-6. |
 > | Professional boundary | Software outputs are decision support. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Sources: `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/SPEC.md` section 4.3; `docs/DIRECTIVE.md` Professional boundary. |
 > | Unit and provenance controls | Domain-core and adapter paths may not bypass unit checks, provenance checks, or public/private data boundaries. Sources: `docs/SPEC.md` sections 1 and 4. |
-> | Upstream evidence surface | `Dependencies.csv` is a deliverable-local evidence surface under the current DAG-006 coordination basis. It preserves historical DAG-002 dependency IDs for audit while listing ACTIVE rows for architecture basis, design-knowledge schema/provenance, constraint entity/provenance, unit, diagnostics, and persistence predecessors. Source: `_DEPENDENCIES.md`; `Dependencies.csv`; `_COORDINATION.md`. |
+> | Upstream evidence surface | `Dependencies.csv` is a deliverable-local evidence surface under the approved graph resolved through `execution/_DAG/_LATEST.md` coordination basis. It preserves historical DAG-002 dependency IDs for audit while listing ACTIVE rows for architecture basis, design-knowledge schema/provenance, constraint entity/provenance, unit, diagnostics, and persistence predecessors. Source: `_DEPENDENCIES.md`; `Dependencies.csv`; `_COORDINATION.md`. |
 > | Design-knowledge reference handling | The validator indexes supplied `design_knowledge.records` by `id` and emits unresolved-reference diagnostics when constraint references are absent from the supplied design-knowledge envelope. Source: `core/constraints/validation/engine.py`; `tests/test_constraint_validation.py`. |
 > | Data-boundary handling | The validator checks data-boundary policy fields and emits `IP_BOUNDARY_WARNING` diagnostics for mismatches, protected-suspected provenance, private project data, or professional-boundary failures. Source: `core/constraints/validation/engine.py`; `tests/test_constraint_validation.py`. |
 >
@@ -86,7 +86,7 @@ This candidate defines `DEL-13-03` in service of project scope [SOW-068] and pac
 > | Validation diagnostics tests | Implemented in `tests/test_constraint_validation.py` using stdlib assertions and invented public test fixtures. |
 > | Represented diagnostic classes | Tests cover `CONNECTIVITY_CONFLICT`, `CLEARANCE_CONFLICT`, `ROUTE_CONFLICT`, `SUPPORT_ZONE_CONFLICT`, `SLOPE_DRAIN_VENT_CONFLICT`, `CONSTRAINT_MISSING_DATA`, and `SCHEMA_VALIDATION`; implementation also emits `PROVENANCE_WARNING`, `UNIT_WARNING`, and `IP_BOUNDARY_WARNING`. |
 > | Unit checks | Quantity parameters are checked for `value`, `unit`, `dimension`, and `provenance`; noncanonical dimensions produce `CV-UNIT-DIMENSION-UNKNOWN`. The validator does not convert units or invent tolerances. |
-> | Dependency integration | Current documentation refresh does not edit dependency files. Local dependency rows remain an evidence surface under DAG-006 coordination, with preserved historical row IDs where present. |
+> | Dependency integration | Current documentation refresh does not edit dependency files. Local dependency rows remain an evidence surface under current authority through `execution/_DAG/_LATEST.md`, with preserved historical row IDs where present. |
 > | Data examples | Executable invented fixtures exist in `tests/test_constraint_validation.py`. Publication-grade examples, owner/project examples, localization, full geometric conflict solving, runtime integration, release readiness, and human acceptance remain `TBD`. |
 >
 
@@ -96,8 +96,8 @@ This candidate defines `DEL-13-03` in service of project scope [SOW-068] and pac
 >
 > - `_CONTEXT.md` - deliverable identity, scope, artifacts, architecture-basis injection.
 > - `_REFERENCES.md` - governing reference list for this DEL folder.
-> - `_DEPENDENCIES.md` and `Dependencies.csv` - deliverable-local dependency evidence surface under the current DAG-006 coordination basis.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted revision 0.7 package, scope, objective, and deliverable entries.
+> - `_DEPENDENCIES.md` and `Dependencies.csv` - deliverable-local dependency evidence surface under the approved graph resolved through `execution/_DAG/_LATEST.md` coordination basis.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current package, scope, objective, and deliverable entries.
 > - `docs/_Registers/Deliverables.csv` - row DEL-13-03.
 > - `docs/_Registers/ScopeLedger.csv` - row SOW-068.
 > - `docs/_Registers/ContextBudgetQA.csv` - row DEL-13-03.
@@ -171,7 +171,7 @@ This candidate defines `DEL-13-03` in service of project scope [SOW-068] and pac
 > | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data and protected-content boundary. |
 > | `docs/SPEC.md` | Technical architecture, domain-core boundary, unit/provenance controls, diagnostics/result-envelope posture, and no-compliance-claim boundary. |
 > | `docs/TYPES.md` | Epistemic labels and canonical vocabulary for protected data, user-supplied code data, diagnostics, and professional approval. |
-> | `execution/_Decomposition/SOFTWARE_DECOMP.md` | Accepted revision 0.7 current decomposition basis for DEL-13-03 scope and exclusions. |
+> | `execution/_Decomposition/SOFTWARE_DECOMP.md` | accepted current decomposition basis for DEL-13-03 scope and exclusions. |
 > | `_CONTEXT.md` | Deliverable-local identity, architecture-basis injection, and control-surface constraints. |
 > | `core/constraints/validation/engine.py` | Current validation module, diagnostic record implementation, boundary checks, and deterministic ordering. |
 > | `tests/test_constraint_validation.py` | Current focused validation diagnostics tests and invented public fixtures. |
@@ -237,7 +237,7 @@ This candidate defines `DEL-13-03` in service of project scope [SOW-068] and pac
 >
 > | Prerequisite | Basis |
 > |---|---|
-> | Deliverable scope and identity loaded from `_CONTEXT.md` and `execution/_Decomposition/SOFTWARE_DECOMP.md`. | Four-documents source hierarchy. |
+> | Deliverable scope and identity loaded from `_CONTEXT.md` and `execution/_Decomposition/SOFTWARE_DECOMP.md`. | Consolidated ScopeOfWork source hierarchy. |
 > | Approved local dependency mirror available as `Dependencies.csv`. | `_DEPENDENCIES.md`; `Dependencies.csv`. |
 > | Architecture basis constraints applied only as applicable dispatch context. | `_CONTEXT.md` Architecture Basis Injection. |
 > | No hidden owner standards, protected code requirements, proprietary values, or protected tables used as public defaults. | `docs/CONTRACT.md`; `docs/IP_AND_DATA_BOUNDARY.md`. |
@@ -285,7 +285,7 @@ This candidate defines `DEL-13-03` in service of project scope [SOW-068] and pac
 >    - Current coverage: deterministic output behavior, represented SOW-068 category handling, missing-data findings, unresolved references, provenance visibility, unit metadata and dimension checks, and boundary protection.
 >    - Public documentation examples remain `TBD` unless invented or otherwise permitted examples are separately reviewed.
 >
-> 9. Preserve approved DAG-006 dependency evidence.
+> 9. Preserve approved graph resolved through `execution/_DAG/_LATEST.md` dependency evidence.
 >    - Do not retire, delete, reclassify, or normalize current ACTIVE local dependency rows during this evidence-refresh workflow.
 >
 
@@ -301,7 +301,7 @@ This candidate defines `DEL-13-03` in service of project scope [SOW-068] and pac
 > | Missing-data check | Required missing values produce explicit findings rather than defaults. |
 > | Provenance check | Findings retain or reference input provenance through `source_references` where available. |
 > | Boundary check | No protected standards text, owner defaults, proprietary values, or professional-approval/compliance statuses are introduced. |
-> | Dependency check | Current dependency evidence remains ACTIVE and unchanged in `Dependencies.csv`; historical dependency IDs are preserved where present under the DAG-006 coordination basis. |
+> | Dependency check | Current dependency evidence preserves the statuses and meanings of the approved graph through `execution/_DAG/_LATEST.md`; historical dependency IDs remain provenance. |
 > | Syntax check | `python3 -m py_compile core/constraints/validation/engine.py tests/test_constraint_validation.py` completes successfully. |
 > | Focused test check | `python3 tests/test_constraint_validation.py` completes successfully. |
 >

@@ -54,7 +54,7 @@ This Scope of Work defines `DEL-15-02` in service of project scope [SOW-074] and
 > | Target-specific commercial parsers | Deferred. | `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-074 note; `docs/_Registers/ScopeLedger.csv` SOW-074 note |
 > | External professional approval state | Excluded from this package. | `_CONTEXT.md` Package Exclusions; `execution/_Decomposition/SOFTWARE_DECOMP.md` PKG-15 exclusions |
 > | Target surfaces | OI-015 names initial export and target surfaces; concrete mappings, target field coverage, target-specific taxonomy extensions, and target-specific implementation remain gated by DEL-17-01 and DEL-17-02. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-015 |
-> | Canonical package container | TBD. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-015 |
+> | Canonical package container | DEC-028 governs the project interchange container; DEL-17-02 governs export-package contracts. Target mappings and per-format behavior remain separately scoped. | `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-028; DEL-17-02 `ScopeOfWork.md` |
 > | Target-specific mapping strategy | TBD. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-015 |
 >
 
@@ -80,9 +80,9 @@ This Scope of Work defines `DEL-15-02` in service of project scope [SOW-074] and
 > |---|---|---|
 > | Target mapping schema | MATERIALIZED | `schemas/target_mapping.schema.json` is the JSON Schema 2020-12 provider-neutral contract matching `core/handoff/target_mapping/contract.py`; exact commercial target enumeration remains TBD. |
 > | Unsupported behavior taxonomy | MATERIALIZED PROVIDER-NEUTRAL | `unsupported_behavior_flags`, `approximate_behavior_flags`, `SUPPORTED_BEHAVIOR_STATUSES`, and diagnostics expose unsupported and approximate behavior without silent loss of assumptions; target-specific taxonomy extensions remain TBD. |
-> | Mapping record identity | MATERIALIZED | Mapping records are traceable through `source_entity_ref`, `target_field_ref`, `mapping_status`, optional unit metadata, and provenance fields. |
-> | Unsupported/approximate behavior record | MATERIALIZED | Behavior flags carry `behavior_kind`, `behavior_status`, severity, description, source/target references, diagnostics, and provenance. |
-> | Hash and manifest binding | MATERIALIZED | `source_context` binds mapping metadata to package/model/unit/entity/library/rule references while preserving target/container TBDs. |
+> | Mapping record identity | MATERIALIZED | Mapping records are traceable through `source_ref`, `target_ref`, `mapping_status`, optional unit metadata, and provenance fields. |
+> | Unsupported/approximate behavior record | MATERIALIZED | Current `BehaviorFlag` records carry `flag_id`, `behavior_label`, `status`, `target_ref`, `affected_refs`, assumption/warning references, `human_review_required`, and provenance. Diagnostics are a separate root collection; this construction description does not remove any disclosure or diagnostic requirement. |
+> | Hash and manifest binding | MATERIALIZED | `source_context` carries model hash, units-manifest, entity, library, rule, assumption, warning and privacy references. `core/handoff/exporter/workflow.py` checks package binding using model-hash and units-reference agreement; target-specific mappings remain separately scoped under DEL-17-01/02 and the container follows DEC-028. |
 >
 
 ### CLM-007 — References
@@ -91,8 +91,8 @@ This Scope of Work defines `DEL-15-02` in service of project scope [SOW-074] and
 >
 > - `_CONTEXT.md` - deliverable identity, scope, package envelope, architecture-basis injection.
 > - `_REFERENCES.md` - local reference index.
-> - `Dependencies.csv` - approved DAG-006 mirror/evidence surface for predecessor context.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted revision 0.7 current decomposition basis, PKG-15 and DEL-15-02 rows.
+> - `Dependencies.csv` - approved graph resolved through `execution/_DAG/_LATEST.md` mirror/evidence surface for predecessor context.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current decomposition basis, PKG-15 and DEL-15-02 rows.
 > - `docs/_Registers/Deliverables.csv` - DEL-15-02 row.
 > - `docs/_Registers/ScopeLedger.csv` - SOW-074 row.
 > - `docs/_Registers/ContextBudgetQA.csv` - DEL-15-02 row.
@@ -141,7 +141,7 @@ This Scope of Work defines `DEL-15-02` in service of project scope [SOW-074] and
 > | DEL-15-02-R009 | The contract shall not create software-generated professional approval, certification, sealing, authentication, or code-compliance statuses (PRD §21.2). | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/SPEC.md` adapter framework boundary | Vocabulary review confirms status fields are diagnostic/handoff support only and do not imply professional reliance approval. |
 > | DEL-15-02-R010 | The contract shall remain compatible with the canonical handoff package schema and manifest predecessor. | `Dependencies.csv` DAG-002-E0805; `_DEPENDENCIES.md` authority boundary | Dependency trace confirms DEL-15-01 predecessor relationship remains visible and ACTIVE in the approved mirror. |
 > | DEL-15-02-R011 | The contract shall preserve redaction/export-control boundaries. | `Dependencies.csv` DAG-002-E0808; `docs/IP_AND_DATA_BOUNDARY.md` Private user data | Schema review confirms private data can be excluded or referenced without public disclosure; exact redaction workflow is TBD. |
-> | DEL-15-02-R012 | The contract shall keep concrete mappings, target field coverage, target-specific taxonomy extensions, canonical package container, and target-specific implementation gated until accepted by the governing workflow. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-015; DEL-17-01; DEL-17-02 | Review confirms no unapproved target-specific mapping maturity, package container, or implementation strategy has been asserted. |
+> | DEL-15-02-R012 | The contract shall keep concrete mappings, target field coverage, target-specific taxonomy extensions, target-specific package realization and implementation gated until accepted by the governing workflow. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-015; DEL-17-01; DEL-17-02 | Review confirms no unapproved target-specific mapping maturity, package container, or implementation strategy has been asserted. |
 >
 
 ### CLM-012 — Standards
@@ -151,7 +151,7 @@ This Scope of Work defines `DEL-15-02` in service of project scope [SOW-074] and
 > | Standard or governing basis | Applicability | Status |
 > |---|---|---|
 > | JSON Schema 2020-12 | The architecture basis identifies JSON Schema 2020-12 contracts for schema-first boundaries. | Applicable; schema file path is `schemas/target_mapping.schema.json`. |
-> | Canonical JSON / JCS-compatible hash basis | The architecture basis identifies canonical JSON/JCS-compatible hashing where JSON payloads are hashed. | Applicable to hashed JSON payloads; provider-neutral binding fields are in `source_context`, while package container remains TBD. |
+> | Canonical JSON / JCS-compatible hash basis | The architecture basis identifies canonical JSON/JCS-compatible hashing where JSON payloads are hashed. | Applicable to hashed JSON payloads; provider-neutral binding fields are in `source_context`, while project container strategy follows DEC-028 and target realization remains separately scoped. |
 > | SWBPIPE invariant catalog | Governs unit, provenance, data, professional-boundary, report, and privacy constraints. | Applicable via `docs/CONTRACT.md`. |
 > | Protected data boundary policy | Governs public/private data handling, protected content, and public export defaults. | Applicable via `docs/IP_AND_DATA_BOUNDARY.md`. |
 > | External commercial tool standards | Not established in accessible source material. | TBD; do not infer target-specific clauses or behavior. |
@@ -167,8 +167,8 @@ This Scope of Work defines `DEL-15-02` in service of project scope [SOW-074] and
 > | V-002 | Boundary vocabulary review. | No professional approval/status overclaim; no code-compliance claim (PRD §21.2). |
 > | V-003 | Protected-content and privacy review. | No private or protected data copied into public artifacts. |
 > | V-004 | Unit/provenance validation plan review. | Unit awareness, dimensional metadata, source/provenance. |
-> | V-005 | Dependency mirror check. | Approved DAG-002 predecessor evidence remains ACTIVE and unmodified. |
-> | V-006 | TBD review gate. | Concrete mappings, target field coverage, target-specific taxonomy extensions, canonical package container, and target-specific implementation remain gated unless supported by accepted source material. |
+> | V-005 | Dependency mirror check. | approved graph resolved through `execution/_DAG/_LATEST.md` predecessor evidence remains ACTIVE and unmodified. |
+> | V-006 | TBD review gate. | Concrete mappings, target field coverage, target-specific taxonomy extensions, target-specific package realization and implementation remain gated unless supported by accepted source material. |
 >
 
 ### CLM-014 — Documentation
@@ -177,10 +177,10 @@ This Scope of Work defines `DEL-15-02` in service of project scope [SOW-074] and
 >
 > Required deliverable documentation artifacts:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md` definition section
+> - `ScopeOfWork.md` requirements section
+> - `ScopeOfWork.md` guidance section
+> - `ScopeOfWork.md` procedure section
 > - `schemas/target_mapping.schema.json`
 > - `core/handoff/target_mapping/contract.py`
 > - `tests/test_target_mapping_contract.py`
@@ -192,7 +192,7 @@ This Scope of Work defines `DEL-15-02` in service of project scope [SOW-074] and
 >
 > The builder SHALL emit blocking privacy diagnostics when redaction is not affirmed or embedded private/protected/commercial payload is reported. Metadata shape alone is not enforcement.
 
-- **AC-001** — The contract preserves mapping identity, source and target references, mapping and behavior statuses, unit and dimensional metadata, assumptions, warnings, diagnostics, provenance, privacy and redaction boundaries, explicit no-silent-default behavior, target-specific mapping and taxonomy gates, package-container TBDs, the retained dependency-enum conflict, and professional non-authority without implying target equivalence or validation.
+- **AC-001** — The contract preserves mapping identity, source and target references, mapping and behavior statuses, unit and dimensional metadata, assumptions, warnings, diagnostics, provenance, privacy and redaction boundaries, explicit no-silent-default behavior, target-specific mapping and taxonomy gates, DEC-028 container strategy, separately open per-target realization, and current canonical dependency authority, and professional non-authority without implying target equivalence or validation.
 
 ## Production and Verification Method — Praxeology
 
@@ -216,14 +216,14 @@ This Scope of Work defines `DEL-15-02` in service of project scope [SOW-074] and
 > | Prerequisite | Source | Status |
 > |---|---|---|
 > | Current deliverable context and accepted decomposition basis. | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` | Available |
-> | Approved DAG-002 mirror/evidence surface. | `Dependencies.csv`; `_DEPENDENCIES.md` | Available; preserve rows unchanged in this run. |
+> | approved graph resolved through `execution/_DAG/_LATEST.md` mirror/evidence surface. | `Dependencies.csv`; `_DEPENDENCIES.md` | Available; preserve rows unchanged in this run. |
 > | Canonical handoff package schema and manifest predecessor. | `Dependencies.csv` DAG-002-E0805 | ACTIVE mirror row |
 > | Adapter framework predecessor. | `Dependencies.csv` DAG-002-E0806 | ACTIVE mirror row |
 > | Local FEA handoff data contract predecessor. | `Dependencies.csv` DAG-002-E0807 | ACTIVE mirror row |
 > | Private data redaction and export controls predecessor. | `Dependencies.csv` DAG-002-E0808 | ACTIVE mirror row |
 > | Physical-to-analytical transformation predecessor. | `Dependencies.csv` DAG-002-E0809 | ACTIVE mirror row |
 > | Comparison mapping, tolerance, and export contracts predecessor. | `Dependencies.csv` DAG-002-E0810 | ACTIVE mirror row |
-> | Concrete mappings, target field coverage, target-specific taxonomy extensions, canonical package container, and target-specific implementation. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-015; DEL-17-01; DEL-17-02 | Gated |
+> | Concrete mappings, target field coverage, target-specific taxonomy extensions, target-specific package realization and implementation. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-015; DEL-17-01; DEL-17-02 | Gated |
 >
 
 ### CLM-020 — Steps
@@ -257,13 +257,13 @@ This Scope of Work defines `DEL-15-02` in service of project scope [SOW-074] and
 >    - Exclude private project data, protected standards text, proprietary formulas, proprietary values, and private rule-pack payloads from public artifacts by default.
 >
 > 7. Check dependencies:
->    - Read the deliverable-local `Dependencies.csv` as an approved DAG-006 mirror/evidence surface.
->    - Preserve all approved DAG-006 rows as ACTIVE for this workflow.
+>    - Read the deliverable-local `Dependencies.csv` as an approved graph resolved through `execution/_DAG/_LATEST.md` mirror/evidence surface.
+>    - Preserve all approved graph rows with their recorded statuses through `execution/_DAG/_LATEST.md` for this workflow.
 >    - Record any conflict with dependency-extract normalization rules rather than rewriting the mirror.
 >
 > 8. Record unresolved decisions:
 >    - Initial export and target surfaces: named by OI-015.
->    - Canonical package container: TBD.
+>    - Canonical package container: DEC-028 strategy; per-target realization remains governed by DEL-17-02.
 >    - Concrete mappings and target field coverage: gated by DEL-17-01 and DEL-17-02.
 >    - Target-specific implementation strategy: gated by DEL-17-01 and DEL-17-02.
 >    - Target-specific unsupported behavior taxonomy extensions: gated by DEL-17-01 and DEL-17-02.
@@ -281,7 +281,7 @@ This Scope of Work defines `DEL-15-02` in service of project scope [SOW-074] and
 > | Unsupported behavior | Unsupported and approximate behavior are explicit; no silent defaults are introduced. |
 > | Privacy/IP boundary | Public artifacts do not copy private/protected payloads. |
 > | Professional boundary | No field or procedure creates software-generated approval, certification, sealing, authentication, or code-compliance status (PRD §21.2). |
-> | Dependency mirror preservation | All existing approved DAG-006 rows in `Dependencies.csv` remain ACTIVE and unmodified. |
+> | Dependency mirror preservation | Preserve local dependency meanings and the actual statuses recorded under `execution/_DAG/_LATEST.md`; DAG-011 is current authority. Do not force historical duplicates or pending edges to ACTIVE. |
 > | Schema validation | `python3 tests/test_target_mapping_contract.py` validates generated normal and negative contracts against `schemas/target_mapping.schema.json`; `python3 tools/validation/validate_dependencies_schema.py <deliverable>/Dependencies.csv` passes if `Dependencies.csv` exists. |
 >
 
@@ -289,10 +289,10 @@ This Scope of Work defines `DEL-15-02` in service of project scope [SOW-074] and
 
 > ##### Records
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md` definition section
+> - `ScopeOfWork.md` requirements section
+> - `ScopeOfWork.md` guidance section
+> - `ScopeOfWork.md` procedure section
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -379,7 +379,7 @@ This Scope of Work defines `DEL-15-02` in service of project scope [SOW-074] and
 >
 > | Conflict ID | Conflict (short statement) | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling (TBD) |
 > |---|---|---|---|---|---|---|
-> | CT-001 | Dependency-extract v3.1 enum guidance would normalize dependency rows, but the project task rule requires preserving approved DAG-006 mirror rows as ACTIVE without reclassification. | `skills/dependency-extract/SKILL.md` Function 3 and canonical enums | User task instruction; `_DEPENDENCIES.md` Authority Boundary; `Dependencies.csv` approved DAG-006 rows | `Dependencies.csv`; `_DEPENDENCIES.md`; final workflow report | Preserve the approved mirror unchanged for this run. | TBD |
+> | CT-001 | Historical legacy-enum/mirror conflict; canonical dependency vocabulary was adopted by DAG-007. | `execution/_DAG/DAG-007/APPROVAL_RECORD.md` | Current graph authority: `execution/_DAG/_LATEST.md` (DAG-011); legacy IDs remain provenance | Dependency carrier wording only | Preserve current approved mirror meanings and statuses, including retired legacy duplicates; no register mutation in this repair | Resolved for enum authority by recorded DAG-007 adoption; not a new owner ruling |
 >
 
 ### CLM-032 — References

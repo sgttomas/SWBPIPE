@@ -38,7 +38,7 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 > | Scope item | SOW-033 |
 > | Objectives | OBJ-001; OBJ-002 |
 > | Context envelope | S |
-> | Lifecycle target for setup | SEMANTIC_READY after setup gates pass |
+> | Lifecycle target for setup | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle and remaining work are recorded in `_STATUS.md`. Setup-only restrictions describe the originating setup run, not standing product scope. |
 >
 
 ### CLM-004 — Attributes
@@ -48,10 +48,10 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 > | Attribute | Source | Value |
 > |---|---|---|
 > | Primary purpose | _CONTEXT.md; Deliverables.csv row DEL-11-05 | Create an onboarding path for new contributors using package/deliverable decomposition and governance docs. |
-> | Production surface | Human brief | Deliverable-local setup/document production only. Repo-level `CONTRIBUTING`, `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`, documentation outside this deliverable, source code, and repo-level artifacts are excluded from this session. |
+> | Production surface | Human brief Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Deliverable-local setup/document production only. Repo-level `CONTRIBUTING`, `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`, documentation outside this deliverable, source code, and repo-level artifacts are excluded from this session. |
 > | Intended audience | docs/AGENTIC_DEVELOPMENT_WORKFLOW.md section 1; AGENTS.md project-specific TASK profiles | New contributors and Type 2 TASK workers who need a safe first path through SWBPIPE governance, decomposition, and bounded execution. |
-> | Documentation targets | _CONTEXT.md; Deliverables.csv row DEL-11-05 | Future CONTRIBUTING tutorial material and future AGENTIC_DEVELOPMENT_WORKFLOW onboarding material, staged here only. |
-> | Data boundary | INIT.md; docs/DIRECTIVE.md sections 3-5; docs/IP_AND_DATA_BOUNDARY.md sections 2-6 | Public onboarding must not introduce protected standards text, copied tables, protected examples, proprietary vendor data, private rule packs, owner standards, or company design bases. |
+> | Documentation targets | _CONTEXT.md; Deliverables.csv row DEL-11-05 | Current contributor guide: `docs/contributor_guide/index.md`; governance entry is `AGENTS.md` with current loop navigation. Published guide existence does not open contribution intake or adopt a legal instrument. |
+> | Data boundary | AGENTS.md; docs/DIRECTIVE.md sections 3-5; docs/IP_AND_DATA_BOUNDARY.md sections 2-6 | Public onboarding must not introduce protected standards text, copied tables, protected examples, proprietary vendor data, private rule packs, owner standards, or company design bases. |
 > | Professional boundary | docs/CONTRACT.md OPS-K-AUTH-1; docs/TYPES.md section 4; docs/AGENTIC_DEVELOPMENT_WORKFLOW.md section 4 | Onboarding must not state or imply that software, agents, maintainers, or contributors certify, approve, seal, authenticate, or declare engineering code compliance for reliance (PRD §21.2). |
 > | Agent boundary | AGENTS.md dispatch rule; docs/SPEC.md sections 10-11 | Type 2 work uses one sealed deliverable, explicit write scope, applicable invariants, acceptance criteria, and evidence. |
 > | Architecture-basis context | _CONTEXT.md Architecture Basis Injection | Applicable architecture basis IDs are AB-00-01, AB-00-02, AB-00-06, AB-00-07, and AB-00-08; they inform contributor routing but do not mark PKG-00 as ISSUED. |
@@ -66,7 +66,7 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 > | No protected examples | Use invented, public-domain, or permissively licensed examples only; otherwise record `TBD` or quarantine per policy. |
 > | No public defaults for code data | Contributor material must preserve user-supplied/private rule-pack and project-data boundaries. |
 > | No certification claims | Use "human review", "maintainer review", "acceptance gate", or "draft/proposal" language as appropriate; avoid code-compliance certification claims. |
-> | No out-of-scope edits | This setup deliverable does not edit repo-level onboarding files. Future integration must be a separate approved task or human action. |
+> | No out-of-scope edits Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | This setup deliverable does not edit repo-level onboarding files. Future integration must be a separate approved task or human action. |
 > | Unknowns | Record `TBD`; do not invent policy, legal conclusions, engineering values, or source citations. |
 >
 
@@ -90,7 +90,7 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 >
 > | Reference | Sections used | Use |
 > |---|---|---|
-> | INIT.md | Required reading order; agent rule | Bootstrap and stop-rule context. |
+> | AGENTS.md | Required reading order; agent rule | Bootstrap and stop-rule context. |
 > | AGENTS.md | Agent posture; primary agents; dispatch rule | Role and dispatch boundaries. |
 > | docs/README.md | Document map; agent use package | Source navigation. |
 > | docs/DIRECTIVE.md | Sections 1-6 | Project intent, boundaries, and stop rules. |
@@ -100,7 +100,7 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 > | docs/IP_AND_DATA_BOUNDARY.md | Sections 2-7 | Public/private data and quarantine policy. |
 > | docs/VALIDATION_STRATEGY.md | Sections 1, 4-5 | Validation boundary and permitted benchmark/example sources. |
 > | docs/AGENTIC_DEVELOPMENT_WORKFLOW.md | Sections 1-6 | Type 1/Type 2 workflow and review checklist. |
-> | execution/_Decomposition/SOFTWARE_DECOMP.md | Revision 0.7; SOW-033; DEL-11-05 | Scope and objectives. |
+> | execution/_Decomposition/SOFTWARE_DECOMP.md | Accepted current basis; SOW-033; DEL-11-05 | Scope and objectives. |
 > | docs/_Registers/Deliverables.csv | Row DEL-11-05 | Deliverable identity. |
 > | docs/_Registers/ScopeLedger.csv | Row SOW-033 | Scope item basis. |
 > | execution/_ScopeChange/SCA-001_2026-04-30_0045/Handoff_State.md | Explicit holds | Architecture-basis handling and ISSUED hold. |
@@ -117,26 +117,28 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 
 > ##### Scope
 >
+> Current deliverable obligation: Create onboarding path for new contributors using package/deliverable decomposition and governance docs. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This deliverable defines a contributor onboarding tutorial draft inside the DEL-11-05 working folder. It covers how contributors should orient to SWBPIPE governance, the package/deliverable decomposition, sealed Type 2 execution, evidence production, review handoff, and protected-data boundaries.
 >
-> This setup run does not edit repo-level `CONTRIBUTING`, `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`, documentation outside this deliverable, source code, examples, schemas, or release artifacts. Future publication of the tutorial into repo-level onboarding surfaces requires a separate approved task or human action.
+> The original setup run does not edit repo-level `CONTRIBUTING`, `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`, documentation outside this deliverable, source code, examples, schemas, or release artifacts. Future publication of the tutorial into repo-level onboarding surfaces requires a separate approved task or human action.
 >
-
 ### CLM-011 — Requirements
 
 > ##### Requirements
 >
 > | ID | Requirement | Source | Verification |
 > |---|---|---|---|
-> | REQ-11-05-01 | The tutorial draft shall start contributors from root bootstrap and governance reading before any implementation or documentation work. | INIT.md required reading order; docs/README.md document map | Procedure includes onboarding read sequence. |
-> | REQ-11-05-02 | The tutorial draft shall explain the flat package/deliverable hierarchy and stable ID model used by OpenPipeStress. | docs/TYPES.md sections 1-2; SOFTWARE_DECOMP revision 0.7 | Datasheet and Procedure use PKG/DEL identity consistently. |
-> | REQ-11-05-03 | The tutorial draft shall describe Type 1 and Type 2 agent responsibilities without expanding TASK authority beyond a sealed deliverable. | AGENTS.md primary agents and dispatch rule; docs/AGENTIC_DEVELOPMENT_WORKFLOW.md sections 1-4 | Guidance and Procedure distinguish routing, execution, review, and human authority. |
+> | REQ-11-05-01 | The tutorial draft shall start contributors from root bootstrap and governance reading before any implementation or documentation work. | AGENTS.md and active role/project instruction entry; docs/README.md document map | Procedure includes onboarding read sequence. |
+> | REQ-11-05-02 | The tutorial draft shall explain the flat package/deliverable hierarchy and stable ID model used by OpenPipeStress. | docs/TYPES.md sections 1-2; SOFTWARE_DECOMP accepted current basis | Scope of Work identity and method sections use PKG/DEL identity consistently. |
+> | REQ-11-05-03 | The tutorial draft shall describe Type 1 and Type 2 agent responsibilities without expanding TASK authority beyond a sealed deliverable. | AGENTS.md primary agents and dispatch rule; docs/AGENTIC_DEVELOPMENT_WORKFLOW.md sections 1-4 | Scope of Work rationale and method sections distinguish routing, execution, review, and human authority. |
 > | REQ-11-05-04 | The tutorial draft shall require contributors to preserve protected standards, vendor IP, private data, and provenance controls. | docs/CONTRACT.md OPS-K-IP-1..3, OPS-K-DATA-1..3, OPS-K-PRIV-1; docs/IP_AND_DATA_BOUNDARY.md sections 2-6 | Guidance includes stop rules; dependencies record governing constraints. |
-> | REQ-11-05-05 | The tutorial draft shall preserve the rule-pack boundary: public examples use invented non-code values and user/code data remains user supplied. | docs/CONTRACT.md OPS-K-RULE-1 and OPS-K-RULE-3; docs/SPEC.md section 6; ScopeLedger.csv SOW-033 | Guidance and Procedure prohibit protected or private rule-pack examples. |
+> | REQ-11-05-05 | The tutorial draft shall preserve the rule-pack boundary: public examples use invented non-code values and user/code data remains user supplied. | docs/CONTRACT.md OPS-K-RULE-1 and OPS-K-RULE-3; docs/SPEC.md section 6; ScopeLedger.csv SOW-033 | Scope of Work rationale and method sections prohibit protected or private rule-pack examples. |
 > | REQ-11-05-06 | The tutorial draft shall preserve professional responsibility boundaries and avoid certification, code-compliance, approval, sealing, or reliance claims by agents/software (PRD §21.2). | docs/CONTRACT.md OPS-K-AUTH-1; docs/TYPES.md section 4; docs/DIRECTIVE.md sections 3 and 6 | Text scan confirms no software/agent compliance certification claim. |
 > | REQ-11-05-07 | The tutorial draft shall tell contributors to use architecture-basis constraints only as dispatch context and not as ISSUED product authority. | _CONTEXT.md Architecture Basis Injection; SCA-001 Handoff_State.md Explicit Holds | Procedure includes architecture-basis handling. |
 > | REQ-11-05-08 | The tutorial draft shall include evidence expectations: changed paths, validation commands/results, warnings, open issues, and review handoff. | docs/AGENTIC_DEVELOPMENT_WORKFLOW.md sections 4-5; docs/SPEC.md section 11 | Procedure includes final handoff checklist. |
-> | REQ-11-05-09 | The setup artifacts shall include four documents, semantic matrix, lensing register, dependency register, run records, and final status only if setup gates pass. | Human brief; skills/four-documents/SKILL.md; skills/semantic-matrix-build/SKILL.md; skills/lens-register/SKILL.md; skills/dependency-extract/SKILL.md | Local validation commands pass before final `_STATUS.md` is set to SEMANTIC_READY. |
+> | REQ-11-05-09 | The setup artifacts shall include the Scope of Work contract, semantic matrix, lensing register, dependency register, run records, and final status only if setup gates pass. | Human brief; skills/four-documents/SKILL.md; skills/semantic-matrix-build/SKILL.md; skills/lens-register/SKILL.md; skills/dependency-extract/SKILL.md | Local validation commands pass before final `_STATUS.md` is set to SEMANTIC_READY. |
 >
 
 ### CLM-012 — Standards
@@ -152,7 +154,7 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 >
 > | Check | Expected result |
 > |---|---|
-> | Four-document presence | `tools/validation/check_four_documents.sh <deliverable>` returns PASS. |
+> | Scope of Work contract | `python3 tools/scope_of_work/validate_scope_of_work.py <DELIVERABLE_PATH>/ScopeOfWork.md` returns PASS. |
 > | Minimum metadata presence | `tools/validation/check_min_viable_fileset.sh <deliverable>` returns PASS. |
 > | Dependency schema | `python3 tools/validation/validate_dependencies_schema.py <deliverable>/Dependencies.csv` returns VALID. |
 > | Lifecycle enum | `python3 tools/validation/validate_enum.py LIFECYCLE_STATE SEMANTIC_READY` returns VALID. |
@@ -160,17 +162,13 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 > | Professional-claims scan | Local review finds no automatic compliance, certification, approval, sealing, or professional reliance claim by software or agents (PRD §21.2). |
 > | Semantic setup | `_SEMANTIC.md` has Audit Result PASS and `_SEMANTIC_LENSING.md` includes coverage rows for matrices A, B, C, F, D, X, and E. |
 >
-
 ### CLM-014 — Documentation
 
 > ##### Documentation
 >
 > Required setup outputs for this deliverable are:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -180,7 +178,6 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 >
 > Repo-level publication targets remain references only in this setup session.
 >
-
 ### CLM-015 — Required Invariants
 
 > ##### Required Invariants
@@ -200,8 +197,10 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 
 > ##### Acceptance Criteria
 >
+> Current deliverable obligation: Create onboarding path for new contributors using package/deliverable decomposition and governance docs. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This setup deliverable is ready for review when the listed setup artifacts exist, validation commands pass, no protected-data or certification-claim warning is found in the local artifacts, and `_STATUS.md` records `Current State: SEMANTIC_READY`.
-
 - **AC-001** — The contract preserves the source-defined contributor path, architecture-basis handling, schema and unit invariants, deterministic checks, protected/private-data and licensing boundaries, documentation and review records, safe-versus-unsafe examples, visible unresolved onboarding decisions, and the distinction between contribution acceptance and professional engineering approval.
 
 ## Production and Verification Method — Praxeology
@@ -216,12 +215,17 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 
 > ##### Purpose
 >
+> Current deliverable obligation: Create onboarding path for new contributors using package/deliverable decomposition and governance docs. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This procedure defines how to produce and verify the contributor onboarding tutorial draft for DEL-11-05 inside the deliverable working folder.
 >
-
 ### CLM-020 — Prerequisites
 
 > ##### Prerequisites
+>
+> Current deliverable obligation: Create onboarding path for new contributors using package/deliverable decomposition and governance docs. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
 >
 > - The contributor has read the assigned brief and confirmed the write scope is only this deliverable folder.
 > - `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, `_STATUS.md`, and register rows for DEL-11-05 and SOW-033 are available.
@@ -229,7 +233,6 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 > - No protected standards examples, proprietary vendor data, private rule packs, owner standards, or commercial software examples are imported.
 > - The current lifecycle state allows setup refresh.
 >
-
 ### CLM-021 — Steps
 
 > ##### Steps
@@ -239,14 +242,14 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 >    - Verify `Deliverable ID: DEL-11-05`, `Package ID: PKG-11`, `Type: DOC_UPDATE`, `Scope Coverage: SOW-033`, and `Objective Support: OBJ-001; OBJ-002`.
 >
 > 2. Confirm source authority.
->    - Read `INIT.md`, `AGENTS.md`, `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/SPEC.md`, `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`, `docs/IP_AND_DATA_BOUNDARY.md`, and the decomposition/register rows listed in `_REFERENCES.md`.
+>    - Read `AGENTS.md`, the active role instructions, `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/SPEC.md`, `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`, `docs/IP_AND_DATA_BOUNDARY.md`, and the decomposition/register rows listed in `_REFERENCES.md`.
 >    - Use source locations in the document kit where requirements or constraints are stated.
 >
 > 3. Draft the contributor tutorial concept in the `ScopeOfWork.md`.
->    - Put descriptive identity, boundaries, and references in `Datasheet.md`.
->    - Put normative onboarding requirements, invariants, and acceptance criteria in `Specification.md`.
->    - Put rationale, trade-offs, safe/unsafe examples, and source-boundary advice in `Guidance.md`.
->    - Put contributor execution and validation steps in this `Procedure.md`.
+>    - Put descriptive identity, boundaries, and references in `ScopeOfWork.md`.
+>    - Put normative onboarding requirements, invariants, and acceptance criteria in `ScopeOfWork.md`.
+>    - Put rationale, trade-offs, safe/unsafe examples, and source-boundary advice in `ScopeOfWork.md`.
+>    - Put contributor execution and validation steps in this `ScopeOfWork.md`.
 >
 > 4. Preserve hard boundaries.
 >    - Do not edit repo-level `CONTRIBUTING`, `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`, source code, examples, schemas, or documentation outside this deliverable.
@@ -254,15 +257,15 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 >    - Do not claim software, agents, contributors, or maintainers certify, approve, seal, authenticate, or declare engineering code compliance (PRD §21.2).
 >
 > 5. Generate setup artifacts in sequence.
->    - Run `four-documents` with `RUN_PASSES=P1_P2`.
+>    - Maintain `ScopeOfWork.md`.
 >    - Run `semantic-matrix-build`.
 >    - Run `lens-register`.
->    - Run `four-documents` with `RUN_PASSES=P3_ONLY`.
+>    - Review `ScopeOfWork.md` against source evidence.
 >    - Run `dependency-extract`.
 >
 > 6. Validate setup gates.
 >    - Run `tools/validation/check_min_viable_fileset.sh <deliverable>`.
->    - Run `tools/validation/check_four_documents.sh <deliverable>`.
+>    - Run `python3 tools/scope_of_work/validate_scope_of_work.py <DELIVERABLE_PATH>/ScopeOfWork.md`.
 >    - Run `python3 tools/validation/validate_dependencies_schema.py <deliverable>/Dependencies.csv`.
 >    - Run `python3 tools/validation/validate_enum.py LIFECYCLE_STATE SEMANTIC_READY`.
 >    - Scan the local artifacts for protected-data risk and certification/compliance-claim language.
@@ -274,29 +277,26 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 > 8. Return the handoff.
 >    - Report status, changed paths, validation commands/results, warnings, and open issues.
 >
-
 ### CLM-022 — Verification
 
 > ##### Verification
 >
+> Current deliverable obligation: Create onboarding path for new contributors using package/deliverable decomposition and governance docs. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > The setup is valid when all required files exist, dependency schema validation passes, the semantic lens and lensing register exist, run records are present, no out-of-scope file is modified, and `_STATUS.md` is set to `SEMANTIC_READY` only after those checks pass.
 >
-
 ### CLM-023 — Records
 
 > ##### Records
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
 > - `_DEPENDENCIES.md`
 > - `_STATUS.md`
 > - `_run_records/TASK_RUN_*.md`
-
 - **VER-001** — Validate the contract and review source parity, onboarding-step and contributor-path coverage, architecture and invariant handling, test/evidence/review expectations, protected/private-data and licensing controls, retained conflicts and TBDs, and professional-responsibility limits.
 
 ## Governing Values and Decisions — Axiology
@@ -335,7 +335,7 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 >
 > A contributor-facing tutorial should guide the reader through this sequence:
 >
-> 1. Read `INIT.md`, `AGENTS.md`, `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/SPEC.md`, and the active decomposition/register rows relevant to the assigned deliverable.
+> 1. Read `AGENTS.md`, `AGENTS.md`, `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/SPEC.md`, and the active decomposition/register rows relevant to the assigned deliverable.
 > 2. Confirm the sealed deliverable identity, package, scope items, objectives, invariants, acceptance criteria, and explicit write scope.
 > 3. Inspect `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, and `_STATUS.md` before changing production artifacts.
 > 4. Make only scoped edits and record evidence through validation commands, warnings, and open issues.
@@ -369,7 +369,7 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 >
 > | Trade-off | Guidance |
 > |---|---|
-> | Helpful tutorial vs. over-specific process | Provide a concrete path through existing files, but keep repo-level publication and policy decisions separate from this deliverable. |
+> | Helpful tutorial vs. over-specific process Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Provide a concrete path through existing files, but keep repo-level publication and policy decisions separate from this deliverable. |
 > | Contributor confidence vs. certification language | Explain what maintainers review and what tools check, but avoid any statement that software or agents approve engineering work. |
 > | Rich examples vs. IP risk | Use invented examples and provenance notes rather than real protected code examples or commercial software files. |
 > | Automation vs. human authority | Use scripts for evidence and repeatability; preserve human gates for scope, acceptance, legal/professional questions, and ambiguous protected content. |
@@ -402,8 +402,10 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 
 > ##### Conflict Table (for human ruling)
 >
-> No source conflicts were detected during setup. If future repo-level onboarding asks this deliverable to edit `CONTRIBUTING` or `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` directly, that is a scope change from this setup session and must be routed for human approval.
-
+> Current deliverable obligation: Create onboarding path for new contributors using package/deliverable decomposition and governance docs. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
+> No source conflicts were detected during setup. If future repo-level onboarding asks this deliverable to edit `CONTRIBUTING` or `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` directly, that is a scope change from the original setup session and must be routed for human approval.
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |

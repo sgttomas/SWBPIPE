@@ -1,5 +1,7 @@
 # MEMORY - DEL-06-03 Required-input Completeness Checker
 
+Current navigation (2026-09-22 record repair): The undated Remaining TBDs below follow the original May 2026 completeness-checker slice. Current schema/status/grammar decisions and implementation evidence are carried by `ScopeOfWork.md`, DEC-022 and the owning contracts. `_STATUS.md` carries remaining integration/security work; history below is preserved without claiming completion.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-RULECHECKLINTUNITS-001 supporting run-check evidence
 
 - Supporting role for DEL-08-05 report-lint inventory: the desktop Report

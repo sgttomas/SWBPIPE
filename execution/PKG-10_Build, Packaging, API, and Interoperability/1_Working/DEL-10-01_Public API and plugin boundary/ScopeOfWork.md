@@ -30,7 +30,6 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 > package_id: PKG-10
 > ---
 >
-
 ### CLM-002 — Datasheet: Public API and Plugin Boundary
 
 > #### Datasheet: Public API and Plugin Boundary
@@ -50,8 +49,8 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 > | Scope item | SOW-030 |
 > | Objective | OBJ-009 |
 > | Anticipated artifacts | `api/openapi.yaml` or equivalent; plugin boundary doc |
-> | Current artifact form | Deliverable-local contract kit; repository-level `api/openapi.yaml` is outside this write scope |
-> | Lifecycle target for setup | `SEMANTIC_READY` after the setup sequence passes |
+> | Current artifact form | Current schema/contract: `api/api_boundary_contract.yaml`; active authorized briefs govern writes. |
+> | Lifecycle | See `_STATUS.md`; record repair does not promote state. |
 > | Transport decision | TBD; no final external transport selected here |
 >
 
@@ -87,6 +86,9 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 
 > ##### Construction
 >
+> Current deliverable obligation: Define public API/plugin boundaries for model import/export, solver invocation, results, and rule-pack hooks. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This deliverable records a contract boundary, not an implementation. The boundary is organized around these contract surfaces:
 >
 > | Surface | Contract role | Setup status |
@@ -98,7 +100,6 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 > | Rule-pack hook boundary | Allows governed rule-pack evaluation hooks while preserving sandboxing, unit safety, checksums, source notes, and private/public markings. | Boundary defined; expression grammar/library TBD. |
 > | Plugin manifest boundary | Candidate manifest concept slots include identity, version, declared extension point, schema/envelope compatibility, capability request, data-boundary declaration, diagnostics compatibility, and review status. | Concept inventory only; exact field names and permission taxonomy TBD. |
 >
-
 ### CLM-008 — References
 
 > ##### References
@@ -106,7 +107,7 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 > - `_CONTEXT.md` for sealed deliverable identity, scope, objective, write scope, and SCA-001 architecture-basis injection.
 > - `docs/CONTRACT.md` for applicable invariants: OPS-K-IP-1/2/3, OPS-K-DATA-1/2/3, OPS-K-UNIT-1, OPS-K-RULE-1/2/3, OPS-K-PRIV-1/2, OPS-K-AUTH-1, and OPS-K-AGENT-1..4.
 > - `docs/SPEC.md` sections 1, 6, 7, 8, 10, and 11 for layer responsibilities, adapter no-bypass language, rule-pack sandboxing, diagnostics/reporting, and deliverable acceptance semantics.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for SOW-030, OBJ-009, AB-00-02/03/04/06/07/08, and OI-004.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis for SOW-030, OBJ-009, AB-00-02/03/04/06/07/08, and OI-004.
 > - `docs/PRD.md` sections 13.4, 13.5, 18.2, 18.3, and 19.3 for public/private data, import warnings, telemetry/private-data protection, and public API capability families.
 
 ## Completion and Reliance Basis — Epistemology
@@ -122,7 +123,6 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 > package_id: PKG-10
 > ---
 >
-
 ### CLM-010 — Specification: Public API and Plugin Boundary
 
 > #### Specification: Public API and Plugin Boundary
@@ -135,7 +135,7 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 >
 > DEL-10-01 defines the public API and plugin boundary for SWBPIPE interoperability. It covers contract obligations for model import/export, solver invocation, result extraction, rule-pack hooks, plugin manifest concepts, diagnostics, provenance, units, privacy, and report controls. SourcePath: `_CONTEXT.md`; SectionRef: Description and Architecture Basis Injection.
 >
-> This deliverable does not choose a final external transport, implement plugin runtime behavior, edit repository-level API files, implement import/export adapters, select concrete external formats, implement a headless runner, or authorize bypass of the domain core, unit system, provenance checks, rule sandbox, diagnostics, report controls, or public/private data boundary. SourcePath: `_CONTEXT.md`; SectionRef: Acceptance/risk notes and write scope; SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-07 and OI-004.
+> This deliverable does not choose a final external transport, implement plugin runtime behavior, implement import/export adapters, select concrete external formats, implement a headless runner, or authorize bypass of the domain core, unit system, provenance checks, rule sandbox, diagnostics, report controls, or public/private data boundary. SourcePath: `_CONTEXT.md`; SectionRef: Acceptance/risk notes and write scope; SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-07 and OI-004.
 >
 
 ### CLM-013 — Requirements
@@ -156,7 +156,7 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 > | DEL-10-01-REQ-10 | Result envelopes shall distinguish invalid input, incomplete model, mechanics solved, rule-inputs incomplete, user-rule checked/failed, human-review-required, and human-approved-for-project states without introducing automatic `CODE_COMPLIANT` status. | SourcePath: `docs/TYPES.md`; SectionRef: 4. Analysis-status vocabulary. |
 > | DEL-10-01-REQ-11 | API, plugin, adapter, and report-facing outputs shall not claim to certify, seal, approve, authenticate, endorse, or declare engineering code compliance for professional reliance (PRD §21.2). | SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-AUTH-1. SourcePath: `docs/DIRECTIVE.md`; SectionRef: 4.2 Out of scope. |
 > | DEL-10-01-REQ-12 | The plugin boundary shall be deny-by-default: no plugin capability, private-data access, filesystem/network/process access, report/export control bypass, or rule-evaluator integration is granted unless a later approved permission/sandbox design authorizes it. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-07 and OI-006. SourcePath: `docs/PRD.md`; SectionRef: 18.2 Telemetry and 18.3 Private Data Protection. |
-> | DEL-10-01-REQ-13 | Public API transport, concrete endpoint syntax, concrete plugin runtime, exact permission taxonomy, exact external import/export formats, exact code-generation tooling, and repository-level `api/openapi.yaml` placement remain TBD until human/architecture approval. | SourcePath: `_CONTEXT.md`; SectionRef: Still TBD and write scope. SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: OI-004 and 8.2. |
+> | DEL-10-01-REQ-13 | Public API transport, concrete endpoint syntax, plugin runtime, permission taxonomy and code-generation choices retain their owning decisions. SCA-004 governs adopted export scope; actual contract artifacts are evidence, not activation of a network/runtime or a waiver of no-bypass guarantees. | SourcePath: `_CONTEXT.md`; SectionRef: Still TBD and write scope. SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: OI-004 and 8.2. |
 > | DEL-10-01-REQ-14 | JSON payloads that are hashed for API manifests, jobs, model snapshots, results, or reproducibility records shall use the accepted canonical JSON/JCS-compatible hash basis where applicable; non-JSON/binary assets require manifest hashes. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-04 and 8.2. |
 > | DEL-10-01-REQ-15 | Verification for this boundary shall include documentation review plus later schema, unit, provenance, diagnostics, protected-content, privacy, rule-sandbox, report-boundary, and adapter/plugin regression gates when concrete implementation artifacts exist. | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: AB-00-08. SourcePath: `docs/VALIDATION_STRATEGY.md`; SectionRef: 2 and 4. |
 >
@@ -173,7 +173,7 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 > - `docs/TYPES.md` for API contract deliverable type, analysis-status vocabulary, epistemic labels, provenance labels, and canonical domain object registry.
 > - `docs/SPEC.md` for layer responsibilities, adapter no-bypass rule, rule-pack evaluator constraints, diagnostics classes, reporting/audit content, and Type 2 acceptance semantics.
 > - `docs/IP_AND_DATA_BOUNDARY.md` for public/private data, provenance, quarantine, private user data, and report boundary policy.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for SOW-030, OBJ-009, AB-00-02/03/04/06/07/08, and OI-004.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis for SOW-030, OBJ-009, AB-00-02/03/04/06/07/08, and OI-004.
 >
 > External implementation standard baseline:
 >
@@ -191,7 +191,7 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 > | REQ-05, REQ-06, REQ-07 | Protected-content/provenance review confirms import/export and plugin contribution paths require units, source, redistribution status, private/public classification, and quarantine behavior. |
 > | REQ-08, REQ-09, REQ-12 | Rule-pack/security review confirms no hook bypasses sandboxing, unit awareness, checksum/version/source metadata, private markings, or required-input blocking. |
 > | REQ-10, REQ-11 | Status/professional-boundary review confirms no automatic code-compliance state or certification/approval claim appears in API, plugin, result, or report outputs (PRD §21.2). |
-> | REQ-13 | TBD review confirms transport, endpoint syntax, plugin runtime, permission taxonomy, format list, code generation, and repository-level API artifact placement are not silently resolved. |
+> | REQ-13 | Check public transport/runtime/taxonomy/code-generation holds separately from the adopted SCA-004 export scope and current API contract artifacts; do not silently expand any interface. |
 > | REQ-14 | Reproducibility review confirms canonical JSON/JCS-compatible hash basis is referenced where hashes are required and non-JSON assets remain manifest-hash governed. |
 > | REQ-15 | Layered gate review confirms later concrete implementation will need schema, unit, provenance, diagnostics, protected-content, privacy, sandbox, report, and regression evidence. |
 >
@@ -209,7 +209,6 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 > | Dependency gate | `Dependencies.csv` exists, validates against v3.1 required columns, uses canonical write-form enums, and `_DEPENDENCIES.md` summarizes the active rows. |
 > | Boundary gate | No transport, plugin runtime, repository-level `api/openapi.yaml`, source code, package manifests, protected data, private engineering data, or compliance/certification claims are introduced. |
 >
-
 ### CLM-017 — Documentation
 
 > ##### Documentation
@@ -232,7 +231,6 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 > | Rule-pack reference/checksum/source notice | Required where rule-pack data or results are referenced; exact layout TBD. | `docs/SPEC.md` section 6; `docs/CONTRACT.md` OPS-K-RULE-3. |
 > | Plugin identity/version/capability request | Candidate concept; exact field names, permission taxonomy, and approval path TBD. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-07 and OI-004. |
 > | Privacy/telemetry posture | Required deny-by-default declaration for private data exposure; exact policy hook TBD. | `docs/PRD.md` 18.2 and 18.3. |
-
 - **AC-001** — The contract preserves schema-first command/query/job/result envelopes, deny-bypass service boundaries, unit and provenance validation, protected/private-data controls, deterministic plugin declarations, current implemented-slice evidence, and visible transport and permission-taxonomy TBDs. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Production and Verification Method — Praxeology
@@ -248,7 +246,6 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 > package_id: PKG-10
 > ---
 >
-
 ### CLM-019 — Procedure: Public API and Plugin Boundary
 
 > #### Procedure: Public API and Plugin Boundary
@@ -258,12 +255,15 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 
 > ##### Purpose
 >
-> Use this procedure to produce, review, and later refine the DEL-10-01 public API/plugin boundary without crossing into product implementation, external transport selection, plugin runtime implementation, repository-level API files, source code, package manifests, or protected/private data.
+> Use `api/api_boundary_contract.yaml` and this procedure to produce, review, and refine the DEL-10-01 public API/plugin boundary without crossing into product implementation, external transport selection, plugin runtime implementation, source code, package manifests, or protected/private data.
 >
 
 ### CLM-021 — Prerequisites
 
 > ##### Prerequisites
+>
+> Current deliverable obligation: Define public API/plugin boundaries for model import/export, solver invocation, results, and rule-pack hooks. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
 >
 > - The sealed DEL-10-01 context is available in `_CONTEXT.md`.
 > - Governing documents and registers named in `_REFERENCES.md` have been read.
@@ -271,7 +271,6 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 > - Current setup write scope is restricted to this deliverable folder.
 > - Public transport, plugin runtime, external format list, rule expression grammar/library, code-generation tooling, and repository-level `api/openapi.yaml` placement remain TBD.
 >
-
 ### CLM-022 — Steps
 
 > ##### Steps
@@ -327,7 +326,6 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 >    - `_run_records/*`.
 >    - `_STATUS.md` with `SEMANTIC_READY` only after setup gates pass.
 >
-
 ### CLM-023 — Verification
 
 > ##### Verification
@@ -335,22 +333,18 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 > | Check | Expected result |
 > |---|---|
 > | Write-scope check | Only files in the DEL-10-01 folder changed. |
-> | Four-document check | Datasheet, Specification, Guidance, and Procedure exist with default sections. |
+> | Scope of Work contract | The consolidated `ScopeOfWork.md` exists with required sections, identity and source/verification traceability; historical four-document setup is not the current production contract. |
 > | Boundary check | No transport, plugin runtime, source code, package manifest, repository-level API file, or external format implementation is introduced. |
 > | Protected-data check | No protected standards content, proprietary commercial data, or private project/rule/component/material data is introduced. |
 > | Professional-boundary check | No certification, sealing, approval, endorsement, or code-compliance claim appears (PRD §21.2). |
 > | Semantic check | `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` exist and preserve lens-not-authority separation. |
 > | Dependency check | `Dependencies.csv` validates against v3.1 schema and canonical enum values. |
 >
-
 ### CLM-024 — Records
 
 > ##### Records
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -358,13 +352,14 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 > - `_run_records/TASK_RUN_*.md`
 > - `_STATUS.md`
 >
-
 ### CLM-025 — Completion Condition
 
 > ##### Completion Condition
 >
+> Current deliverable obligation: Define public API/plugin boundaries for model import/export, solver invocation, results, and rule-pack hooks. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > The setup sequence is complete when the required setup artifacts exist, dependency validation passes, semantic/lensing artifacts are internally consistent, unresolved decisions remain visible as `TBD`, protected-data/professional-boundary checks are clean, and `_STATUS.md` records `SEMANTIC_READY` without any `ISSUED` transition.
-
 - **VER-001** — Validate the contract and review source parity, operation-family and plugin-boundary coverage, current-versus-historical declarations, units/provenance/privacy and deny-bypass controls, diagnostic/result-envelope requirements, retained transport and permission TBDs, and professional-authority limits.
 
 ## Governing Values and Decisions — Axiology
@@ -380,7 +375,6 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 > package_id: PKG-10
 > ---
 >
-
 ### CLM-027 — Guidance: Public API and Plugin Boundary
 
 > #### Guidance: Public API and Plugin Boundary
@@ -426,6 +420,9 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 
 > ##### Trade-offs
 >
+> Current deliverable obligation: Define public API/plugin boundaries for model import/export, solver invocation, results, and rule-pack hooks. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > | Trade-off | Guidance |
 > |---|---|
 > | More public surface vs. safer core boundary | Start with fewer governed operation families and expand only when validation and privacy controls are defined. |
@@ -434,7 +431,6 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 > | External format support vs. protected data risk | External formats remain TBD until each adapter can enforce provenance, redistribution, protected-content, unit, and diagnostics gates. |
 > | Rule-pack integration vs. arbitrary execution risk | Rule hooks should expose declarative, sandboxed, unit-aware evaluation semantics only; exact grammar/library remains TBD. |
 >
-
 ### CLM-033 — Examples
 
 > ##### Examples
@@ -455,12 +451,12 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 > | Topic | Current disposition |
 > |---|---|
 > | Final public API transport | TBD |
-> | Repository-level `api/openapi.yaml` or equivalent schema file layout | TBD; outside this setup write scope |
+> | Repository-level `api/openapi.yaml` or equivalent schema file layout | Current contract is `api/api_boundary_contract.yaml`; local file placement follows DEC-012. Public transport/runtime admission remains separately governed. |
 > | Concrete plugin runtime and loading mechanism | TBD |
 > | Permission taxonomy and capability names | TBD |
-> | Exact import/export format list and priorities | TBD |
-> | Rule expression grammar/library | TBD; PKG-06/security decision path |
-> | CI/provider thresholds for API/plugin validation gates | TBD |
+> | Exact import/export format list and priorities | SCA-004 and the accepted decomposition OI-004/PKG-17 allocation govern named export scope. Per-format interface/provenance guarantees and integration remain separately governed; this does not select a new public API transport or plugin runtime. |
+> | Rule expression grammar/library | DEC-022 governs the bounded JSON AST expression grammar/interpreter; runtime grants and security/integration questions remain independently governed. |
+> | CI/provider thresholds for API/plugin validation gates | DEC-025 governs the local evidence sweep; DEC-059 conditionally governs public sanitized-export CI, and DEC-093 permits the exact-head-bound surface-4 CI alternative. DEC-060 selects coverage telemetry tooling, not numeric floors. Implementation and release evidence remain separately bound. |
 >
 
 ### CLM-035 — Semantic Lensing Hold Points

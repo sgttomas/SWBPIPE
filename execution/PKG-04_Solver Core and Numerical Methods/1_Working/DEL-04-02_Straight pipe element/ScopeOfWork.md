@@ -51,7 +51,7 @@ This Scope of Work defines `DEL-04-02` in service of project scope [SOW-006] and
 > | Analysis model boundary | 3D centerline/frame mechanics with six degrees of freedom per node; shell/solid FEA remains a local-analysis handoff path. |
 > | Covered mechanics | Local stiffness, section-property integration, weight hooks, and element force recovery. |
 > | Excluded mechanics | Code compliance decisions, rule-pack acceptability, protected standard formulas/tables, and repo-bundled protected dimensional or material values. |
-> | Unit policy | All inputs, intermediate values, and outputs are unit-aware and dimensionally checked. Exact unit API is `TBD`. |
+> | Unit policy | All inputs, intermediate values, and outputs are unit-aware and dimensionally checked. Current metadata boundary is `StraightPipeBoundaryMetadata` over `FrameKernelUnitBasis`; product normalization requires its own evidence. |
 > | Data provenance policy | Pipe dimensions, material values, and other solve inputs are user-supplied or lawfully imported private/project data. |
 >
 
@@ -61,10 +61,10 @@ This Scope of Work defines `DEL-04-02` in service of project scope [SOW-006] and
 >
 > | Condition | Status |
 > |---|---|
-> | Solver numerical library | `TBD` from architecture/implementation decision. |
-> | Section-property source contract | `TBD`; must connect to user/project data or lawful library inputs. |
-> | Weight-load integration contract | `TBD`; must remain a hook to load-case behavior, not a hidden default load application. |
-> | Element force recovery conventions | `TBD`; must be unit-aware and consistent with solver result envelopes. |
+> | Solver numerical library | DEC-023 strategy; live/default policy DEC-050/053. |
+> | Section-property source contract | Explicit `StraightPipeSectionProperties` inputs must connect to user/project data or lawful library inputs. |
+> | Weight-load integration contract | Explicit mass/weight-per-length hooks connect to the load owner; product self-weight generation remains user-input mechanics, never a hidden default. |
+> | Element force recovery conventions | Current local end-resultant and displacement/force recovery conventions are in `core/solver/straight_pipe/README.md`; units and result-envelope consistency remain required. |
 > | Test fixture data | Must be synthetic, public-domain, or otherwise cleared for repository use. |
 >
 
@@ -72,9 +72,9 @@ This Scope of Work defines `DEL-04-02` in service of project scope [SOW-006] and
 
 > ##### Construction
 >
-> The setup kit describes the future implementation boundary only. It does not implement solver code, choose element dimensions, choose material values, encode protected formulas, or create repo-level tests.
+> The contract describes the implemented straight-pipe boundary in `core/solver/straight_pipe/`. It supplies no element dimensions, material defaults or protected values; implementation tests remain candidate-bound.
 >
-> The future element is expected to receive validated geometry, section properties, material/mechanical inputs, and load hooks through governed domain/service contracts. Missing solve-required values must produce explicit findings rather than silent defaults.
+> The element must receive validated geometry, section properties, material/mechanical inputs, and load hooks through governed domain/service contracts. Missing solve-required values must produce explicit findings rather than silent defaults.
 >
 
 ### CLM-007 — References
@@ -86,7 +86,7 @@ This Scope of Work defines `DEL-04-02` in service of project scope [SOW-006] and
 > - `docs/_Registers/ScopeLedger.csv` row `SOW-006`.
 > - `docs/_Registers/ContextBudgetQA.csv` row `DEL-04-02`.
 > - `docs/CONTRACT.md` invariants listed in the sealed brief.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 architecture basis IDs `AB-00-01`, `AB-00-02`, `AB-00-03`, `AB-00-04`, `AB-00-06`, and `AB-00-08`.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) architecture basis IDs `AB-00-01`, `AB-00-02`, `AB-00-03`, `AB-00-04`, `AB-00-06`, and `AB-00-08`.
 >
 
 ### CLM-008 — Open Setup Questions
@@ -95,10 +95,10 @@ This Scope of Work defines `DEL-04-02` in service of project scope [SOW-006] and
 >
 > | Question | Status |
 > |---|---|
-> | Which upstream schema owns straight-pipe section-property inputs? | `TBD` |
-> | Which solver-kernel interface owns local-to-global transformation and assembly handoff? | `TBD` |
-> | Which load engine interface receives or invokes weight hooks? | `TBD` |
-> | Which deterministic verification cases are accepted for the element without protected data? | `TBD` |
+> | Which upstream schema owns straight-pipe section-property inputs? | DEL-03-08 owns calculation; DEL-03-02 owns schema; `StraightPipeSectionProperties` is the primitive input contract. |
+> | Which solver-kernel interface owns local-to-global transformation and assembly handoff? | `core/solver/frame_kernel/` owns primitive transforms/assembly; current product integration follows the accepted decomposition. |
+> | Which load engine interface receives or invokes weight hooks? | `core/loads/primitive_loads/` and the product self-weight path; explicit input and no-default obligations remain. |
+> | Which deterministic verification cases are accepted for the element without protected data? | Current straight-pipe crate witnesses are implementation verification evidence; professional/independent validation remains separate. |
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -124,7 +124,7 @@ This Scope of Work defines `DEL-04-02` in service of project scope [SOW-006] and
 > |---|---|---|---|
 > | DEL-04-02-RQ-001 | The straight pipe element shall fit the 3D centerline/frame solver model and shall not bypass the solver kernel boundary. | SOW-006; OPS-K-MECH-1; AB-00-02 | Architecture/module-boundary review once implementation paths are selected. |
 > | DEL-04-02-RQ-002 | Local stiffness behavior shall be derived only from open mechanics and user/project/lawfully imported input values. | SOW-006; OPS-K-IP-1; OPS-K-DATA-1 | Protected-content review and fixture review. |
-> | DEL-04-02-RQ-003 | Section-property integration shall require explicit section-property inputs or validated upstream calculations; missing solve-required properties shall produce explicit findings. | SOW-006; OPS-K-DATA-2; OPS-K-UNIT-1 | Negative tests for missing properties and units; exact cases `TBD`. |
+> | DEL-04-02-RQ-003 | Section-property integration shall require explicit section-property inputs or validated upstream calculations; missing solve-required properties shall produce explicit findings. | SOW-006; OPS-K-DATA-2; OPS-K-UNIT-1 | Negative tests for missing properties and units; current cases are the straight-pipe section-validation and blocking-error tests, with results bound to their candidate. |
 > | DEL-04-02-RQ-004 | Weight hooks shall expose the information needed for load-case application without silently applying hidden load defaults. | SOW-006; OPS-K-DATA-2; AB-00-03 | Load-interface tests once the primitive load contract is accepted. |
 > | DEL-04-02-RQ-005 | Element force recovery shall return unit-aware mechanical result components suitable for downstream stress recovery, without encoding code stress checks. | SOW-006; OPS-K-MECH-2; OPS-K-UNIT-1 | Solver result-envelope tests and downstream interface review. |
 > | DEL-04-02-RQ-006 | Solver changes shall include deterministic verification tests before release use. | OPS-K-SOLVER-1; AB-00-08 | Deterministic solver tests using synthetic or cleared inputs. |
@@ -147,7 +147,7 @@ This Scope of Work defines `DEL-04-02` in service of project scope [SOW-006] and
 > | Solver boundary | Tests and reviews must show the element is a solver component, not a rule-pack or compliance component. |
 > | Unit safety | Tests must cover dimensional checking for section properties, stiffness-related inputs, weight-related inputs, and recovered forces. |
 > | Missing inputs | Tests must show explicit findings for missing solve-required values. |
-> | Force recovery | Tests must show deterministic recovered mechanical result components; exact benchmark cases are `TBD`. |
+> | Force recovery | Tests must show deterministic recovered mechanical result components; current witnesses are the axial, transverse-bending and end-resultant tests in `core/solver/straight_pipe/src/lib.rs`; engineering validation remains separate. |
 > | IP/data boundary | Test data must be synthetic, public-domain, or otherwise cleared for redistribution. |
 >
 
@@ -160,9 +160,7 @@ This Scope of Work defines `DEL-04-02` in service of project scope [SOW-006] and
 > - `core/solver/straight_pipe`;
 > - its deterministic crate tests and rights-safe straight-pipe mechanics witnesses.
 >
-> Module and test paths are now evidenced in-tree. Production numerical-library
-> integration, final governed per-kind tolerances, and full solver-to-result-envelope
-> binding remain `TBD` or separately recorded residual work.
+> Module and test paths are evidenced in-tree. The product/runner route supplies bounded envelope-binding evidence through `core/product_physics/`; DEC-023/050/053 governs the sparse path. Complete per-kind numeric evidence and report vocabulary remain separately assessed; no whole-envelope or engineering acceptance is inferred.
 >
 
 ### CLM-015 — Conflict Table (for human ruling)
@@ -173,7 +171,7 @@ This Scope of Work defines `DEL-04-02` in service of project scope [SOW-006] and
 > |---|---|---|---|
 > | None | No source conflict identified in setup evidence. | N/A | N/A |
 
-- **AC-001** — The contract preserves the accepted straight-pipe mechanics and interface boundaries, including explicit units and lawful input provenance, no hidden load or engineering defaults, rights-cleared fixtures, mechanics-only outputs, and the unresolved governed solver-to-result-envelope integration.
+- **AC-001** — The contract preserves the accepted straight-pipe mechanics and interface boundaries, including explicit units and lawful input provenance, no hidden load or engineering defaults, rights-cleared fixtures, mechanics-only outputs, and the governed product/runner envelope boundary, with uncovered per-kind evidence and report-vocabulary integration retained.
 
 ## Production and Verification Method — Praxeology
 
@@ -203,7 +201,7 @@ This Scope of Work defines `DEL-04-02` in service of project scope [SOW-006] and
 
 > ##### Steps
 >
-> 1. Re-read `_CONTEXT.md`, `Specification.md`, and `_DEPENDENCIES.md`.
+> 1. Re-read `_CONTEXT.md`, `ScopeOfWork.md` (requirements), and `_DEPENDENCIES.md`.
 > 2. Identify the accepted module boundary for the straight pipe element and its relation to the global frame kernel.
 > 3. Identify required input contracts for section properties, material/mechanical values, units, weight hooks, diagnostics, and result envelopes.
 > 4. Maintain only the authorized straight-pipe local element behavior; do not broaden into stress-code or professional-acceptance logic.
@@ -266,7 +264,7 @@ This Scope of Work defines `DEL-04-02` in service of project scope [SOW-006] and
 
 > ##### Considerations
 >
-> The implemented element consumes explicit section properties and mechanics inputs through the frame-kernel boundary, carries unit/boundary metadata, and supports deterministic force/resultant recovery and spanned-load behavior. Full application-service result-envelope production remains separate residual work.
+> The implemented element consumes explicit section properties and mechanics inputs through the frame-kernel boundary, carries unit/boundary metadata, and supports deterministic force/resultant recovery and spanned-load behavior. Bounded product/runner envelope realization is evidenced through `core/product_physics/`; remaining coverage and report vocabulary must be assessed separately.
 >
 > Verification should use open, synthetic, or cleared test cases. Any hand-check examples must avoid copying protected standard examples, tables, or protected formula presentations.
 >

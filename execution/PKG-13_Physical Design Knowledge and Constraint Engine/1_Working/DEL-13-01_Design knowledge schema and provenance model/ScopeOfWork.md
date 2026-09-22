@@ -67,7 +67,7 @@ This candidate defines `DEL-13-01` in service of project scope [SOW-067] and pac
 > | Protected data exclusion | The deliverable must define schema/provenance slots without embedding owner standards, protected code criteria, proprietary project data, protected dimensional tables, protected standards text, or proprietary vendor data. | `docs/IP_AND_DATA_BOUNDARY.md` sections 3 and 6; `execution/_Decomposition/SOFTWARE_DECOMP.md` PKG-13 exclusions |
 > | User-supplied knowledge | Design knowledge remains user/project supplied. Public examples, if later created, must use invented or otherwise cleared data. | `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-067; `docs/IP_AND_DATA_BOUNDARY.md` section 2 |
 > | Provenance need | Public data records require source, location, license or redistribution basis, contributor/certification, redistribution status, and review status. | `docs/IP_AND_DATA_BOUNDARY.md` section 4 |
-> | Dependency evidence | Local `Dependencies.csv` preserves DAG mirror/evidence, anchor, and package-local reconciliation rows with 14 ACTIVE rows; current graph authority is DAG-006, and the local register is not independent graph authority. | `_DEPENDENCIES.md`; `Dependencies.csv` |
+> | Dependency evidence | Local `Dependencies.csv` preserves DAG mirror/evidence, anchor, and package-local reconciliation rows with 14 ACTIVE rows; current graph authority is resolved through `execution/_DAG/_LATEST.md`, and the local register is not independent graph authority. | `_DEPENDENCIES.md`; `Dependencies.csv` |
 > | Architecture-basis context | DEL-13-01 has upstream active architecture-basis rows from DEL-00-01, DEL-00-02, DEL-00-03, DEL-00-04, DEL-00-06, DEL-00-07, and DEL-00-08. | `Dependencies.csv` |
 > | Domain/governance context | DEL-13-01 has upstream active rows for canonical domain model schema, unit system contract, copyright/protected-data boundary policy, and professional responsibility/product-claims policy. | `Dependencies.csv` |
 >
@@ -95,7 +95,7 @@ This candidate defines `DEL-13-01` in service of project scope [SOW-067] and pac
 > |---|---|
 > | `_CONTEXT.md` | Deliverable identity, scope, artifacts, context envelope, architecture-basis injection. |
 > | `_REFERENCES.md` | Reference index and source boundary for this deliverable. |
-> | `_DEPENDENCIES.md` and `Dependencies.csv` | Approved DAG-002 mirror/evidence surface and active upstream dependency context. |
+> | `_DEPENDENCIES.md` and `Dependencies.csv` | approved graph resolved through `execution/_DAG/_LATEST.md` mirror/evidence surface and active upstream dependency context. |
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` | SOW-067, OBJ-014, PKG-13 boundary, DEL-13-01 row, OI-013. |
 > | `docs/_Registers/Deliverables.csv` | Deliverable row and artifacts. |
 > | `docs/_Registers/ScopeLedger.csv` | Scope ledger row for SOW-067. |
@@ -168,7 +168,7 @@ This candidate defines `DEL-13-01` in service of project scope [SOW-067] and pac
 > | Unit metadata | Review all unit-bearing fields. | `Quantity` requires `value`, `unit`, `dimension`, and `provenance`; no dimensionless fallback hides missing units. |
 > | Missing-data behavior | Review schema structure and tests. | Missing values are represented through diagnostics, assumptions, source notes, or `TBD` enums; the test confirms no schema `default` keys are present. |
 > | Professional boundary | Review enum/status/diagnostic strings. | Professional-boundary flags require human review and prohibit software compliance/certification/sealing/approval/authentication claims (PRD §21.2). |
-> | Dependency boundary | Confirm local dependency mirror remains approved DAG-006 evidence and all approved rows remain ACTIVE. | `Dependencies.csv` validates structurally and preserves DAG-002 rows. |
+> | Dependency boundary | Preserve local dependency meanings and the actual statuses recorded under `execution/_DAG/_LATEST.md`; DAG-011 is current authority. Do not force historical duplicates or pending edges to ACTIVE. | Compare with the current approval record; legacy IDs remain provenance. |
 >
 
 ### CLM-012 — Documentation
@@ -182,10 +182,10 @@ This candidate defines `DEL-13-01` in service of project scope [SOW-067] and pac
 >
 > Setup artifacts created by this workflow:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md` definition section
+> - `ScopeOfWork.md` requirements section
+> - `ScopeOfWork.md` guidance section
+> - `ScopeOfWork.md` procedure section
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 >
@@ -223,7 +223,7 @@ This candidate defines `DEL-13-01` in service of project scope [SOW-067] and pac
 > |---|---|
 > | Deliverable context for DEL-13-01 | Present in `_CONTEXT.md`. |
 > | Reference index | Present in `_REFERENCES.md`. |
-> | Approved dependency mirror | Present as `_DEPENDENCIES.md` and `Dependencies.csv`; preserve all approved DAG-006 rows as ACTIVE. |
+> | Approved dependency mirror | Present as `_DEPENDENCIES.md` and `Dependencies.csv`; preserve all approved graph rows with their recorded statuses through `execution/_DAG/_LATEST.md`. |
 > | Decomposition basis | `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register). |
 > | Applicable invariants | `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/SPEC.md`, and `docs/IP_AND_DATA_BOUNDARY.md`. |
 > | Implementation evidence | Present in `RUN_2026-05-04_IMPLEMENTATION.md`, `MEMORY.md`, `schemas/design_knowledge.schema.json`, and `tests/test_design_knowledge_schema.py`. |
@@ -284,7 +284,7 @@ This candidate defines `DEL-13-01` in service of project scope [SOW-067] and pac
 > | Unsupported details | Unsupported downstream/runtime specifics are marked `TBD` or `ASSUMPTION`. |
 > | Public/private boundary | No prohibited protected/private data is introduced. |
 > | Professional boundary | No automatic professional or code-compliance authority is introduced. |
-> | Dependency mirror | Existing approved DAG-006 rows remain ACTIVE and structurally valid. |
+> | Dependency mirror | Preserve local dependency meanings and the actual statuses recorded under `execution/_DAG/_LATEST.md`; DAG-011 is current authority. Do not force historical duplicates or pending edges to ACTIVE. |
 >
 
 ### CLM-019 — Records
@@ -293,13 +293,13 @@ This candidate defines `DEL-13-01` in service of project scope [SOW-067] and pac
 >
 > | Record | Purpose |
 > |---|---|
-> | `Datasheet.md` | Descriptive identity, attributes, conditions, construction status, and references. |
-> | `Specification.md` | Normative scope, requirements, standards, verification, and documentation. |
-> | `Guidance.md` | Directional principles, considerations, trade-offs, examples, and conflicts. |
-> | `Procedure.md` | Operational production/review sequence and evidence expectations. |
+> | `ScopeOfWork.md` definition section | Descriptive identity, attributes, conditions, construction status, and references. |
+> | `ScopeOfWork.md` requirements section | Normative scope, requirements, standards, verification, and documentation. |
+> | `ScopeOfWork.md` guidance section | Directional principles, considerations, trade-offs, examples, and conflicts. |
+> | `ScopeOfWork.md` procedure section | Operational production/review sequence and evidence expectations. |
 > | `_SEMANTIC.md` | Semantic lens generated after initial four-document setup. |
 > | `_SEMANTIC_LENSING.md` | Candidate enrichment register generated from semantic lenses and production docs. |
-> | `Dependencies.csv` | Approved local DAG-002 mirror/evidence surface; not independently regenerated in conflict with the project rule. |
+> | `Dependencies.csv` | Approved local dependency mirror (current authority: `execution/_DAG/_LATEST.md`; earlier graph IDs are provenance)/evidence surface; not independently regenerated in conflict with the project rule. |
 > | `schemas/design_knowledge.schema.json` | Implemented JSON Schema 2020-12 design knowledge contract at repo root. |
 > | `tests/test_design_knowledge_schema.py` | Focused stdlib structural validation for the implemented schema. |
 > | `RUN_2026-05-04_IMPLEMENTATION.md` | Deliverable-local implementation evidence note. |

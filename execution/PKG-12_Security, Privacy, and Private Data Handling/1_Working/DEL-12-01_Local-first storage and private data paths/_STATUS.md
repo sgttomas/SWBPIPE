@@ -51,8 +51,8 @@ PDU-055 cited claim(s): `DEL-12-01-DECL-005`.
 ## Boundary Notes
 
 - No artifact was moved to `ISSUED`.
-- No product source, schema, tests, repo-level docs, storage policy files outside this deliverable, real private paths, real secrets, or cloud storage assumptions were created.
-- Physical project package/container remains `TBD`.
+- Original setup observation: no product source, schema, tests, repo-level docs, external storage policy files, real private paths, real secrets or cloud storage assumptions were created in that setup run.
+- Current physical project container follows DEC-017/028 and SCA-003; native persistence belongs to DEL-02-05. Encryption, key custody, cloud exceptions, rollback guarantees and claim-specific native evidence remain separately governed.
 - 2026-05-11 - Lifecycle correction: prior CHECKING state represented bounded implementation-evidence closeout, not full deliverable readiness; state reset to IN_PROGRESS pending further development. Human ruling recorded in `execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-05-11_2052/Decision_Log.md`.
 - 2026-06-07 — State set to CHECKING (REVIEW)
 - 2026-08-21 - Product source and tests were changed within the authorized local-first runtime-binding slice. No payload inspection, network/cloud/telemetry behavior, storage-root selection, physical-container selection, or lifecycle promotion was introduced.

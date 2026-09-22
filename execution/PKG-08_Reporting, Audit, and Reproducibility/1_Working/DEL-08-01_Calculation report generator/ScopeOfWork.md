@@ -39,7 +39,7 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 > | Scope item | SOW-024 |
 > | Objective | OBJ-007 |
 > | Context envelope | L |
-> | Current setup status | SEMANTIC_READY setup artifacts prepared |
+> | Current setup status | Lifecycle and residual work: see `_STATUS.md`; current implementation evidence is separately bound |
 >
 
 ### CLM-004 — Attributes
@@ -51,7 +51,7 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 > | Production family | Calculation reports for SWBPIPE analysis outputs. |
 > | Required report content | Inputs, sources, warnings, assumptions, results, rule-pack checksums, and limitations. |
 > | Anticipated downstream artifacts | Report renderer, report template, tests. |
-> | Setup-session implementation boundary | Renderer source, templates outside this deliverable, tests, schemas, and repo-level artifacts are out of write scope. |
+> | Setup-session implementation boundary | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle and remaining work are recorded in `_STATUS.md`. Setup-only restrictions describe the originating setup run, not standing product scope. |
 > | Architecture baseline | Rust core/application services, schema-first command/query/job/result envelopes, JSON Schema 2020-12 contracts, canonical JSON/JCS-compatible hash basis where JSON payload hashes are used. |
 > | Report authority boundary | Reports are decision-support artifacts. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
 > | Protected-content boundary | Public templates/examples must not reproduce protected standards text, protected standards tables, protected figures, proprietary formulas, or protected code-derived content. |
@@ -80,10 +80,7 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 >
 > The setup artifact family prepared for this session is:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -91,7 +88,6 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 > - `_run_records/*`
 > - `_STATUS.md`
 >
-
 ### CLM-007 — References
 
 > ##### References
@@ -118,11 +114,13 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 
 > ##### Scope
 >
+> Current deliverable obligation: implement report generation with model input summary, load cases, results, warnings, and rule-pack references. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This deliverable defines the calculation report generator behavior for SWBPIPE reporting. It covers report assembly requirements for model input summaries, load cases, results, warnings, assumptions, source/provenance notes, rule-pack references, checksums, and limitations.
 >
-> This setup session does not implement renderer source, report templates outside this deliverable, tests, schemas, or repo-level artifacts. Those remain future implementation work under sealed deliverable scope and review.
+> The original setup session does not implement renderer source, report templates outside this deliverable, tests, schemas, or repo-level artifacts. Those remain future implementation work under sealed deliverable scope and review.
 >
-
 ### CLM-011 — Requirements
 
 > ##### Requirements
@@ -154,39 +152,39 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 >
 > The future implementation should be accepted only after these checks exist and pass:
 >
-> - Four-document setup artifacts exist for this deliverable.
+> - Scope of Work contract exist for this deliverable.
 > - `Dependencies.csv` is valid v3.1 and every ACTIVE row has evidence.
 > - Report fixtures cover mechanics-only, rule-inputs-incomplete, user-rule-checked, warnings-present, and protected-content-risk cases.
 > - Report reproducibility tests normalize volatile metadata and verify stable report payloads.
 > - Protected-content and prohibited-claim gates scan public report templates/examples.
 > - Human review confirms that the report generator does not assert compliance, certification, sealing, or project acceptance.
 >
-
 ### CLM-014 — Documentation
 
 > ##### Documentation
 >
 > Required setup documentation for this deliverable:
 >
-> - `Datasheet.md` records identity, boundaries, conditions, and reference basis.
-> - `Specification.md` records requirements and verification targets.
-> - `Guidance.md` records rationale, principles, trade-offs, and open questions.
-> - `Procedure.md` records execution and future implementation workflow.
+> - `ScopeOfWork.md` records identity, boundaries, conditions, and reference basis.
+> - `ScopeOfWork.md` records requirements and verification targets.
+> - `ScopeOfWork.md` records rationale, principles, trade-offs, and open questions.
+> - `ScopeOfWork.md` records execution and future implementation workflow.
 > - `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` record semantic setup evidence only.
 > - `Dependencies.csv` and `_DEPENDENCIES.md` record information-flow dependencies.
 > - `_run_records/*` record setup sequence evidence.
 >
-
 ### CLM-015 — Acceptance Criteria For This Setup Session
 
 > ##### Acceptance Criteria For This Setup Session
+>
+> Current deliverable obligation: implement report generation with model input summary, load cases, results, warnings, and rule-pack references. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
 >
 > - No file outside `execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/` is edited.
 > - No renderer source, external report template, test, schema, or repo-level artifact is modified.
 > - Setup artifacts are source-grounded to local governance, decomposition, register, and context files.
 > - No protected standards content or certification/compliance claim is introduced.
 > - `_STATUS.md` reports `SEMANTIC_READY` only after the four-document kit, semantic artifacts, dependency register, and validation checks are complete.
-
 - **AC-001** — The contract preserves report content and status boundaries, explicit missing-data and diagnostic findings, units and provenance, safe rule-pack metadata, protected-content limits, reproducibility requirements, and competent-human-review notices without inventing unresolved renderer or schema choices.
 
 ## Production and Verification Method — Praxeology
@@ -201,12 +199,17 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 
 > ##### Purpose
 >
+> Current deliverable obligation: implement report generation with model input summary, load cases, results, warnings, and rule-pack references. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This procedure records the setup and future implementation workflow for the calculation report generator deliverable. It does not implement renderer code.
 >
-
 ### CLM-019 — Prerequisites
 
 > ##### Prerequisites
+>
+> Current deliverable obligation: implement report generation with model input summary, load cases, results, warnings, and rule-pack references. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
 >
 > | Prerequisite | Status |
 > |---|---|
@@ -214,9 +217,8 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 > | Scope item and objective mapping | Present: SOW-024 and OBJ-007. |
 > | Applicable invariants | Present in `docs/CONTRACT.md` and user brief. |
 > | Architecture basis injection | Present in `_CONTEXT.md` with AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, AB-00-08. |
-> | Renderer/template/test/schema implementation authority | Not present in this setup session; future sealed brief required. |
+> | Renderer/template/test/schema implementation authority | Not present in the original setup session; future sealed brief required. |
 >
-
 ### CLM-020 — Steps
 
 > ##### Steps
@@ -255,7 +257,7 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 >
 > Setup verification for this session:
 >
-> - `tools/validation/check_four_documents.sh <deliverable>` passes.
+> - `python3 tools/scope_of_work/validate_scope_of_work.py <DELIVERABLE_PATH>/ScopeOfWork.md` passes.
 > - `tools/validation/check_min_viable_fileset.sh <deliverable>` passes.
 > - `python3 tools/validation/validate_dependencies_schema.py <deliverable>/Dependencies.csv` passes.
 > - Dependency enum validation passes for all enum fields in ACTIVE rows.
@@ -263,7 +265,6 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 > - `_SEMANTIC_LENSING.md` includes complete lens coverage for matrices A, B, C, F, D, X, and E.
 > - `rg` checks do not identify prohibited certification or protected-standards claims in DEL-08-01 artifacts.
 >
-
 ### CLM-024 — Records
 
 > ##### Records
@@ -314,20 +315,22 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 
 > ##### Considerations
 >
-> The report generator will depend on upstream model/result/rule-pack envelopes that are not implemented in this setup session. Where the current source set does not provide exact field names, template structure, renderer API, or output format, those details remain `TBD` for future sealed implementation briefs.
+> Current deliverable obligation: implement report generation with model input summary, load cases, results, warnings, and rule-pack references. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
+> The report generator will depend on upstream model/result/rule-pack envelopes that are not implemented in the original setup session. Where the current source set does not provide exact field names, template structure, renderer API, or output format, those details remain `TBD` for future sealed implementation briefs.
 >
 > The report generator should be conservative about rule-pack content. A report can identify a rule pack, version, checksum, required-input state, source notice, redistribution status, and user-provided notice. It should not copy protected rule text or proprietary formulas into public templates/examples.
 >
 > The report generator should expose warnings as findings, not as decoration. Missing solve-required values, rule-check-required values, weak provenance, assumptions, nonlinear uncertainty, and IP-boundary concerns should be report-visible when present in the input envelopes.
 >
-
 ### CLM-030 — Trade-offs
 
 > ##### Trade-offs
 >
 > | Topic | Conservative direction |
 > |---|---|
-> | Human-readable PDF/HTML vs structured output | This deliverable can define report assembly behavior, but result export format is a separate DEL-08-04 concern. Avoid binding a public transport/output format here beyond setup requirements. |
+> | Human-readable PDF/HTML vs structured output | DEC-021 selects deterministic self-contained scriptless HTML and a derived print view; DEC-061 adds an in-repository deterministic PDF emitter at its bounded scope. Resolve report assembly and field contracts through `core/reporting/report_generator/`, `core/reporting/report_sections/`, and their schemas. These are implementation references, not new public transport or release acceptance. |
 > | Rich template language vs protected-content control | Prefer constrained placeholders and safe metadata over a template model that encourages copying protected code text into public examples. |
 > | User-private templates vs public templates | User-private templates may contain user-owned content under user responsibility; public templates must stay protected-content-free. |
 > | Completion language vs professional boundary | Use "generated", "computed", "reported", "checked by user rule pack" and "human review required"; avoid compliance/certification language. |
@@ -369,9 +372,9 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 >
 > | ID | Question | Current disposition |
 > |---|---|---|
-> | OQ-08-01-001 | Exact renderer library, file format, and report template language. | TBD; outside setup-session write scope. |
-> | OQ-08-01-002 | Exact report schema fields and result-envelope field names. | TBD; downstream schema/service deliverables must define before implementation. |
-> | OQ-08-01-003 | Redaction/export configuration for private project data in shared reports. | TBD; coordinate with PKG-12 in future sealed work. |
+> | OQ-08-01-001 | Exact renderer library, file format, and report template language. | DEC-021 selects deterministic self-contained scriptless HTML and a derived print view; DEC-061 adds an in-repository deterministic PDF emitter at its bounded scope. Resolve report assembly and field contracts through `core/reporting/report_generator/`, `core/reporting/report_sections/`, and their schemas. These are implementation references, not new public transport or release acceptance. |
+> | OQ-08-01-002 | Exact report schema fields and result-envelope field names. | The report field contract is recorded in `schemas/report_generator.schema.yaml` and `core/reporting/report_generator/src/lib.rs`; resolve the current contract there rather than retaining a global field-name TBD. |
+> | OQ-08-01-003 | Redaction/export configuration for private project data in shared reports. | PKG-12 contract and current bindings are documented in `docs/security/redaction_export_controls.md` §§Application Binding and Final-Sink Route Binding. Preserve route-specific controlled output, explicit intent, source non-mutation and fail-closed behavior; this does not supply legal/privacy acceptance. |
 > | OQ-08-01-004 | Human approval workflow and acceptance-record binding to report hashes. | TBD; outside software authority unless human governance defines a record process. |
 
 ## Output and Evaluation Matrix

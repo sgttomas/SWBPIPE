@@ -63,13 +63,13 @@ This Scope of Work defines `DEL-07-08` in service of project scope [SOW-076] and
 >
 > | Condition | Status |
 > |---|---|
-> | Upstream dependency mirror | `Dependencies.csv` contains 21 rows; all are ACTIVE approved DAG-006 mirror rows. Source: `Dependencies.csv` and `_DEPENDENCIES.md` / Generated Dependency Register. |
+> | Upstream dependency mirror | Resolve the approved graph and adoption record through `execution/_DAG/_LATEST.md`; inspect the local `Dependencies.csv` for its exact mirror. Do not copy old DAG counts/statuses as current authority or infer satisfaction from graph adoption. |
 > | Architecture basis dependencies | AB-00-01, AB-00-02, AB-00-03, AB-00-05, AB-00-06, AB-00-07, and AB-00-08 apply as dispatchable constraints. Source: `_CONTEXT.md` / Architecture Basis Injection. |
 > | GUI predecessor dependencies | DEL-07-01, DEL-07-02, DEL-07-04, and DEL-07-05 are declared upstream GUI foundations. Source: `Dependencies.csv` rows DAG-002-E0840 through DAG-002-E0843. |
 > | Design/constraint dependencies | DEL-13-01, DEL-13-03, and DEL-13-04 are declared upstream design-knowledge, constraint-validation, and transformation inputs. Source: `Dependencies.csv` rows DAG-002-E0844 through DAG-002-E0846. |
 > | State/comparison dependencies | DEL-14-01, DEL-14-03, DEL-14-04, and DEL-14-05 are declared upstream state and comparison inputs. Source: `Dependencies.csv` rows DAG-002-E0847 through DAG-002-E0850. |
 > | Operation workflow dependencies | DEL-16-01, DEL-16-02, and DEL-16-03 are declared upstream operation schema, diff preview, and audit inputs. Source: `Dependencies.csv` rows DAG-002-E0851 through DAG-002-E0853. |
-> | Frontend implementation evidence | TBD; this folder contains setup documents only at this workflow stage. Source: local folder inspection. |
+> | Frontend implementation evidence Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | TBD; this folder contains setup documents only at this workflow stage. Source: local folder inspection. |
 >
 
 ### CLM-006 — Construction
@@ -144,7 +144,7 @@ This Scope of Work defines `DEL-07-08` in service of project scope [SOW-076] and
 > | `docs/CONTRACT.md` | Binding project invariants for data boundary, no silent defaults, professional boundary, agent limits, and review status. |
 > | `docs/SPEC.md` | Technical architecture and GUI diagnostic requirements. |
 > | `docs/IP_AND_DATA_BOUNDARY.md` | Protected-content and private-data boundary for public artifacts. |
-> | `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 | Accepted decomposition basis for SOW-076, OBJ-015, OBJ-016, PKG-07, and architecture-basis constraints. |
+> | `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis | Accepted decomposition basis for SOW-076, OBJ-015, OBJ-016, PKG-07, and architecture-basis constraints. |
 > | PRD v0.2 references | Mentioned by decomposition for SOW-076, SOW-069 through SOW-073, but the PRD source text was not locally read in this workflow. Clause-level requirements from PRD remain TBD unless source text is supplied. |
 >
 
@@ -154,7 +154,7 @@ This Scope of Work defines `DEL-07-08` in service of project scope [SOW-076] and
 >
 > | Requirement | Verification approach |
 > |---|---|
-> | REQ-07-08-001 | Review implemented workspace surfaces against SOW-076 surface list; automated GUI smoke tests are TBD until implementation exists. |
+> | REQ-07-08-001 | Review the current workspace and DesignWorkspacePanel against the SOW-076 surface obligations; bind automated smoke-test evidence to the exercised candidate and preserve untested interactions explicitly. |
 > | REQ-07-08-002 | Inspect data adapters and UI fixtures for dependency-backed contract use; flag placeholder semantics as TBD or implementation blocker. |
 > | REQ-07-08-003 | Test that user edits produce application-service command intents rather than direct project payload mutation. Exact command API is TBD pending upstream contracts. |
 > | REQ-07-08-004 | Test operation review states against upstream operation validation and audit records once those contracts are available. |
@@ -172,10 +172,7 @@ This Scope of Work defines `DEL-07-08` in service of project scope [SOW-076] and
 >
 > Required deliverable-local setup artifacts:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv` and `_DEPENDENCIES.md` preserved as approved DAG-002 mirror/evidence artifacts
@@ -188,7 +185,6 @@ This Scope of Work defines `DEL-07-08` in service of project scope [SOW-076] and
 > - comparison overlays
 >
 > Exact implementation file paths and product code artifacts are TBD because this workflow does not create product code.
-
 - **AC-001** — The contract preserves the declared authoring and comparison surfaces, upstream ownership of backend schemas and engines, proposed/validated/accepted/audited state distinctions, diagnostic visibility, no silent defaults, and no external-validation or professional-approval claim.
 
 ## Production and Verification Method — Praxeology
@@ -213,7 +209,7 @@ This Scope of Work defines `DEL-07-08` in service of project scope [SOW-076] and
 > | Prerequisite | Evidence |
 > |---|---|
 > | Accepted deliverable scope and objectives | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` / DEL-07-08 row, SOW-076, OBJ-015, OBJ-016 |
-> | Approved dependency basis | `_DEPENDENCIES.md` and `Dependencies.csv`; `execution/_DAG/DAG-006/APPROVAL_RECORD.md` / Approval Conditions |
+> | Approved dependency basis | `_DEPENDENCIES.md` and `Dependencies.csv`; `execution/_DAG/_LATEST.md` and the approval/adoption records it selects |
 > | Architecture-basis constraints | `_CONTEXT.md` / Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` / AB-00-01 through AB-00-08 as applicable |
 > | GUI warning and diagnostic vocabulary | `docs/SPEC.md` / GUI requirements; `execution/_Decomposition/SOFTWARE_DECOMP.md` / AB-00-06 |
 > | Data and professional boundaries | `docs/CONTRACT.md`; `docs/IP_AND_DATA_BOUNDARY.md` |
@@ -261,6 +257,9 @@ This Scope of Work defines `DEL-07-08` in service of project scope [SOW-076] and
 
 > ##### Records
 >
+> Current deliverable obligation: implement design knowledge, operation review/apply interaction and ledger presentation, state/run browsing, comparison tables and graphical comparison review. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > Maintain or produce the following records as implementation evidence:
 >
 > - source-grounded requirements or acceptance notes for SOW-076;
@@ -271,7 +270,6 @@ This Scope of Work defines `DEL-07-08` in service of project scope [SOW-076] and
 > - professional-boundary and protected-content review notes.
 >
 > No implementation records exist in this setup workflow.
-
 - **VER-001** — Validate the contract and review source parity, declared workspace surfaces, upstream dependency boundaries, command-intent mutation routing, operation and state distinctions, diagnostics and missing-data visibility, comparison reliance boundaries, and every retained TBD or governed residual.
 
 ## Governing Values and Decisions — Axiology
@@ -306,7 +304,7 @@ This Scope of Work defines `DEL-07-08` in service of project scope [SOW-076] and
 >
 > The workspace is context-envelope L with WATCH risk. Its scope includes several surface families: design knowledge, warnings, operations, state/run browsing, tables, and graphical overlays. If implementation expands beyond one bounded GUI workflow, the decomposition guidance says to confirm scope and split if needed. Source: `_CONTEXT.md` / Context Budget QA.
 >
-> The GUI stack basis is established at an architectural level, but exact dependency versions, state library, package structure, transport API, and final app workflow behavior remain TBD. Source: `_CONTEXT.md` / Architecture Basis Injection; `docs/SPEC.md` / GUI requirements.
+> The GUI stack basis is established. Resolve dependency versions, state management and package composition through the current desktop manifest and workspace consumers under DEC-012. Public transport and unwitnessed workflow behavior remain separate scoped gates. Source: `_CONTEXT.md` / Architecture Basis Injection; `docs/SPEC.md` / GUI requirements.
 >
 > The warning panel should avoid flattening diagnostic meaning into plain prose. The local sources identify warning classes and diagnostic fields; display choices should preserve code, class, severity, source, affected object, message, remediation, and provenance when supplied. Source: `docs/SPEC.md` / GUI requirements; `execution/_Decomposition/SOFTWARE_DECOMP.md` / AB-00-06.
 >
@@ -330,8 +328,7 @@ This Scope of Work defines `DEL-07-08` in service of project scope [SOW-076] and
 
 > ##### Examples
 >
-> No product UI screenshots, component implementations, or locally accessible PRD examples were available in this workflow. Example layout, copy, fixtures, and visual encoding remain TBD until an implementation brief supplies or creates product evidence.
->
+> Use current desktop components and invented fixtures as examples only within their recorded scope: `apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx` and the workspace-session routes provide implementation references. Example layout/copy is not product acceptance; public examples and screenshots require provenance review and cannot supply protected/private engineering values.
 
 ### CLM-029 — Conflict Table (for human ruling)
 

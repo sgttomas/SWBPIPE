@@ -1,5 +1,7 @@
 # MEMORY - DEL-05-01 Primitive Load Case Engine
 
+Current navigation (2026-09-22 record repair): The opening implementation/boundary/TBD blocks below are the May 2026 slice, not the current decision inventory. DEC-018 governs units, DEC-026 numerical verification, and DEC-068 bounded static-equivalent generation. Current requirements and residual work are in `ScopeOfWork.md` and `_STATUS.md`; history is preserved below.
+
 ## Implementation Notes
 
 - 2026-05-01: Implemented the bounded primitive load case engine under

@@ -88,7 +88,7 @@ This Scope of Work defines `DEL-03-03` in service of project scope [SOW-007] and
 > - `_CONTEXT.md` for deliverable identity, objective, scope, and architecture-basis injection.
 > - `docs/_Registers/Deliverables.csv` row `DEL-03-03`.
 > - `docs/_Registers/ScopeLedger.csv` row `SOW-007`.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 rows for `DEL-03-03`, `SOW-007`, `OBJ-004`, `PKG-03`, and applicable architecture basis IDs.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) rows for `DEL-03-03`, `SOW-007`, `OBJ-004`, `PKG-03`, and applicable architecture basis IDs.
 > - `docs/CONTRACT.md` invariants OPS-K-IP-1, OPS-K-IP-3, OPS-K-DATA-1, OPS-K-DATA-2, OPS-K-DATA-3, OPS-K-UNIT-1, OPS-K-RULE-1, OPS-K-MECH-1, and OPS-K-AGENT-1..4.
 
 ## Completion and Reliance Basis — Epistemology
@@ -151,7 +151,7 @@ This Scope of Work defines `DEL-03-03` in service of project scope [SOW-007] and
 > - Confirm `schemas/component.schema.yaml` and `schemas/model.schema.yaml` both include `bend` and `elbow` component types.
 > - Confirm strict component fixture evidence includes the bend/elbow family contract, missing-value bend record, provenance, and diagnostics.
 > - Confirm validation tests cover bend/elbow identity, field kinds, user/private value policy, missing-value diagnostics, and strict component fixture validation.
-> - Confirm review findings remain pending until accepted by a human gate.
+> - Preserve the local `Review_Findings.csv` human dispositions (`ACCEPT_AS_IS` / `RESOLVED`); further source or engineering review is separate.
 >
 
 ### CLM-012 — Documentation
@@ -160,10 +160,10 @@ This Scope of Work defines `DEL-03-03` in service of project scope [SOW-007] and
 >
 > Required local artifacts:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md` (definition)
+> - `ScopeOfWork.md` (requirements)
+> - `ScopeOfWork.md` (rationale)
+> - `ScopeOfWork.md` (procedure)
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`

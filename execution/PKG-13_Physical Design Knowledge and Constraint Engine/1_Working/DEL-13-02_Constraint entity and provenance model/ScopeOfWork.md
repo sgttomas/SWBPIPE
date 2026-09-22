@@ -95,10 +95,10 @@ This candidate defines `DEL-13-02` in service of project scope [SOW-068, SOW-067
 >
 > - `_CONTEXT.md` - deliverable identity, scope, artifacts, context envelope, architecture-basis injection.
 > - `_REFERENCES.md` - deliverable-local reference index.
-> - `_DEPENDENCIES.md` and `Dependencies.csv` - approved DAG-006 mirror/evidence surface for active predecessor context.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - revision 0.7 package and deliverable basis.
+> - `_DEPENDENCIES.md` and `Dependencies.csv` - approved graph resolved through `execution/_DAG/_LATEST.md` mirror/evidence surface for active predecessor context.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current package and deliverable basis.
 > - `docs/_Registers/Deliverables.csv`, `docs/_Registers/ScopeLedger.csv`, `docs/_Registers/ContextBudgetQA.csv` - machine-readable deliverable, scope, and context rows.
-> - `INIT.md`, `docs/CONTRACT.md`, `docs/SPEC.md`, `docs/TYPES.md`, `docs/IP_AND_DATA_BOUNDARY.md` - governing boundaries for schema, provenance, unit safety, privacy/IP, and professional responsibility.
+> - `AGENTS.md` and the applicable `docs/CONTRACT.md` invariants, `docs/CONTRACT.md`, `docs/SPEC.md`, `docs/TYPES.md`, `docs/IP_AND_DATA_BOUNDARY.md` - governing boundaries for schema, provenance, unit safety, privacy/IP, and professional responsibility.
 > - `schemas/constraint.schema.json` - implemented JSON Schema 2020-12 constraint entity and provenance contract.
 > - `tests/test_constraint_schema.py` - stdlib structural evidence for schema identity, required definitions, enum coverage, unit dimensions, data-boundary constants, and professional-boundary constants.
 
@@ -211,9 +211,9 @@ This candidate defines `DEL-13-02` in service of project scope [SOW-068, SOW-067
 > | Prerequisite | Source |
 > |---|---|
 > | Current deliverable context and register rows for DEL-13-02, SOW-067, SOW-068, OBJ-014, and OBJ-018 | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv`; `docs/_Registers/ScopeLedger.csv`; `docs/_Registers/ContextBudgetQA.csv` |
-> | Accepted revision 0.7 current decomposition basis for PKG-13 and DEL-13-02 | `execution/_Decomposition/SOFTWARE_DECOMP.md` |
-> | Project invariants for protected data, missing-data findings, provenance, units, and professional boundaries | `INIT.md`; `docs/CONTRACT.md`; `docs/SPEC.md`; `docs/IP_AND_DATA_BOUNDARY.md` |
-> | Active predecessor context from approved DAG-006 mirror | `_DEPENDENCIES.md`; `Dependencies.csv` |
+> | accepted current decomposition basis for PKG-13 and DEL-13-02 | `execution/_Decomposition/SOFTWARE_DECOMP.md` |
+> | Project invariants for protected data, missing-data findings, provenance, units, and professional boundaries | `AGENTS.md` and the applicable `docs/CONTRACT.md` invariants; `docs/CONTRACT.md`; `docs/SPEC.md`; `docs/IP_AND_DATA_BOUNDARY.md` |
+> | Active predecessor context from approved graph resolved through `execution/_DAG/_LATEST.md` mirror | `_DEPENDENCIES.md`; `Dependencies.csv` |
 > | Architecture basis: Rust core/application services, JSON Schema 2020-12, schema-first envelopes, canonical JSON/JCS-compatible hash basis where JSON payloads are hashed | `_CONTEXT.md#Architecture Basis Injection` |
 > | Implemented constraint schema and focused structural test | `schemas/constraint.schema.json`; `tests/test_constraint_schema.py` |
 >
@@ -248,7 +248,7 @@ This candidate defines `DEL-13-02` in service of project scope [SOW-068, SOW-067
 > | Unit check | Unit-bearing values are unit-aware or blocked as `TBD`. |
 > | Professional-boundary check | No schema field or fixture asserts software-generated approval, certification, sealing, authentication, or code compliance (PRD §21.2). |
 > | Data-boundary check | Public artifacts contain no protected standards text, protected tables, proprietary catalog data, private owner data, or code-specific values. |
-> | Dependency mirror check | Current DAG-006 predecessor context and preserved historical DAG-002 local mirror rows remain unchanged if dependency extraction is run in this folder. |
+> | Dependency mirror check | current approved graph context through `execution/_DAG/_LATEST.md` and preserved historical local dependency mirror (current authority: `execution/_DAG/_LATEST.md`; earlier graph IDs are provenance) rows remain unchanged if dependency extraction is run in this folder. |
 > | JSON syntax check | `python3 -m json.tool schemas/constraint.schema.json` completes successfully. |
 > | Schema structural test | `python3 tests/test_constraint_schema.py` completes successfully. |
 >
@@ -300,7 +300,7 @@ This candidate defines `DEL-13-02` in service of project scope [SOW-068, SOW-067
 > - Design-knowledge associations are source-grounded by SOW-067 and represented through typed `Reference` objects plus `design_knowledge_refs`; runtime interpretation of those references remains downstream.
 > - Unit-bearing quantities referenced by constraints should not bypass the canonical unit contract. The implemented `Quantity` definition requires `value`, `unit`, `dimension`, and `provenance`, and the test fixes the dimension enum to the accepted PKG-02 vocabulary.
 > - Provenance should distinguish known facts from unresolved assumptions or imported claims. The implemented `Provenance` definition requires source, contributor, redistribution, review, and privacy-classification fields.
-> - The approved dependency mirror and current DAG-006 coordination basis indicate upstream architecture, canonical model, unit, persistence, design knowledge, and professional-boundary context. They are evidence for predecessor context, not authority to reclassify dependencies.
+> - The approved dependency mirror and current approved graph context through `execution/_DAG/_LATEST.md` indicate upstream architecture, canonical model, unit, persistence, design knowledge, and professional-boundary context. They are evidence for predecessor context, not authority to reclassify dependencies.
 > - Runtime constraint validation, GUI presentation/blocking behavior, physical-to-analytical transform consumption, and actual public example payload policy remain `TBD`.
 >
 

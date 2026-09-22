@@ -37,8 +37,8 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 > | Package name | Rule Packs and User-Supplied Code Check Engine |
 > | Deliverable type | DOC_UPDATE |
 > | Context envelope | S |
-> | Current execution mode | Setup/document production only |
-> | Write boundary | This deliverable folder only |
+> | Current execution mode | Invented example contract; current carrier `examples/rule_packs/invented_demo.yaml` |
+> | Write boundary | Current brief authorizes specific record, example and notice paths; no lifecycle or release effect is implied. |
 >
 
 ### CLM-004 — Attributes
@@ -63,8 +63,8 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 > |---|---|
 > | Protected standards text, tables, examples, formulas, allowables, SIF/flexibility tables, or protected dimensional data appear in candidate content | Stop, quarantine, and escalate; do not paraphrase into public artifacts |
 > | Candidate values look code-specific or owner-specific | Mark as `TBD` or keep private; do not include in a public example |
-> | Future example artifact is requested outside this deliverable-local setup folder | Requires a separate authorized write scope |
-> | Future checksum is discussed before a concrete JSON/YAML payload exists | Mark checksum as `TBD`; do not invent a digest |
+> | Example maintenance | Current example exists at `examples/rule_packs/invented_demo.yaml`; each brief defines its authorized write scope. |
+> | Payload checksum | Bind the canonical checksum to the actual current payload; any payload change requires fresh checksum evidence. |
 > | Human professional approval is implied by wording | Rewrite to decision-support language and retain `HUMAN_REVIEW_REQUIRED` posture |
 >
 
@@ -72,7 +72,7 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 
 > ##### Construction
 >
-> The setup artifact describes a future invented demonstration rule pack without writing to repo-level example paths. A conforming future example should contain these classes of content only:
+> The contract governs the invented demonstration rule pack in `examples/rule_packs/invented_demo.yaml`. A conforming example must contain only these classes of content:
 >
 > | Class | Setup expectation |
 > |---|---|
@@ -94,7 +94,7 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 > |---|---|
 > | `_CONTEXT.md` | Deliverable identity, package, scope, objectives, accepted decomposition revision, and architecture basis injection |
 > | `_REFERENCES.md` | Local reference inventory |
-> | `INIT.md` | Bootstrap boundaries for protected data and professional reliance |
+> | `loop/LOOP_INIT.md` | Bootstrap boundaries for protected data and professional reliance |
 > | `AGENTS.md` | Type 2 dispatch and write-scope rule |
 > | `docs/CONTRACT.md` | Invariants for rule packs, protected content, data provenance, professional authority, and agent limits |
 > | `docs/DIRECTIVE.md` | Founding intent, non-negotiable product principles, and stop rules |
@@ -116,7 +116,7 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 
 > ##### Scope
 >
-> This deliverable defines the governed setup documentation for an invented, non-code demonstration rule pack. It is limited to the local `DEL-06-05` working folder and does not create or modify repo-level example artifacts such as `examples/rule_packs/invented_demo.yaml`.
+> This deliverable defines the invented non-code demonstration rule-pack contract, realized by `examples/rule_packs/invented_demo.yaml` and its notice. Each maintenance brief supplies its write boundary; no lifecycle or publication follows from example existence.
 >
 > The deliverable covers:
 >
@@ -138,14 +138,14 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 >
 > | Requirement ID | Requirement | Source |
 > |---|---|---|
-> | DEL-06-05-REQ-01 | The setup documentation shall state that public rule-pack examples use invented non-code values and clear non-engineering notices. | `docs/CONTRACT.md` `OPS-K-RULE-1`; `docs/_Registers/ScopeLedger.csv` row `SOW-016` |
-> | DEL-06-05-REQ-02 | The setup documentation shall prohibit protected standards text, tables, figures, copied formulas, material allowables, SIF/flexibility tables, protected dimensional tables, and proprietary commercial data. | `docs/CONTRACT.md` `OPS-K-IP-1`, `OPS-K-IP-3`; `docs/DIRECTIVE.md` sections 3 and 4.2 |
-> | DEL-06-05-REQ-03 | The setup documentation shall distinguish a user-rule check from professional approval and shall not claim certification, sealing, authentication, or code compliance for reliance (PRD §21.2). | `docs/CONTRACT.md` `OPS-K-AUTH-1`; `docs/TYPES.md` sections 4 and 6 |
-> | DEL-06-05-REQ-04 | The setup documentation shall keep code-specific values user-supplied or private and shall mark unknowns as `TBD` rather than supplying defaults. | `docs/CONTRACT.md` `OPS-K-DATA-1`, `OPS-K-DATA-2`; `INIT.md` Agent rule |
-> | DEL-06-05-REQ-05 | A future example rule pack shall carry source/provenance and redistribution status fields; actual checksum values remain `TBD` until a concrete payload exists. | `docs/CONTRACT.md` `OPS-K-DATA-3`, `OPS-K-RULE-3`; `docs/SPEC.md` section 6 |
-> | DEL-06-05-REQ-06 | A future example rule pack shall remain declarative and non-executable; evaluator grammar and sandbox details remain owned by separate PKG-06 deliverables. | `docs/CONTRACT.md` `OPS-K-RULE-2`; `execution/_Decomposition/SOFTWARE_DECOMP.md` `DEL-06-02` and `OI-006` |
-> | DEL-06-05-REQ-07 | This setup run shall not write outside the assigned deliverable folder or move any artifact to `ISSUED`. | `AGENTS.md` dispatch rule; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` section 4 |
-> | DEL-06-05-REQ-08 | Setup outputs shall preserve architecture-basis constraints that are applicable to rule-pack examples: schema-first records, provenance, diagnostics, protected-content gates, and no-bypass boundaries. | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8 |
+> | DEL-06-05-REQ-01 | The contract shall state that public rule-pack examples use invented non-code values and clear non-engineering notices. | `docs/CONTRACT.md` `OPS-K-RULE-1`; `docs/_Registers/ScopeLedger.csv` row `SOW-016` |
+> | DEL-06-05-REQ-02 | The contract shall prohibit protected standards text, tables, figures, copied formulas, material allowables, SIF/flexibility tables, protected dimensional tables, and proprietary commercial data. | `docs/CONTRACT.md` `OPS-K-IP-1`, `OPS-K-IP-3`; `docs/DIRECTIVE.md` sections 3 and 4.2 |
+> | DEL-06-05-REQ-03 | The contract shall distinguish a user-rule check from professional approval and shall not claim certification, sealing, authentication, or code compliance for reliance (PRD §21.2). | `docs/CONTRACT.md` `OPS-K-AUTH-1`; `docs/TYPES.md` sections 4 and 6 |
+> | DEL-06-05-REQ-04 | The contract shall keep code-specific values user-supplied or private and shall mark unknowns as `TBD` rather than supplying defaults. | `docs/CONTRACT.md` `OPS-K-DATA-1`, `OPS-K-DATA-2`; `loop/LOOP_INIT.md` Agent rule |
+> | DEL-06-05-REQ-05 | An example rule pack shall carry source/provenance and redistribution status fields; checksum values must bind the actual payload under the canonical hash contract; no digest is invented or treated as valid after payload changes. | `docs/CONTRACT.md` `OPS-K-DATA-3`, `OPS-K-RULE-3`; `docs/SPEC.md` section 6 |
+> | DEL-06-05-REQ-06 | An example rule pack shall remain declarative and non-executable; evaluator grammar and sandbox details remain owned by separate PKG-06 deliverables. | `docs/CONTRACT.md` `OPS-K-RULE-2`; `execution/_Decomposition/SOFTWARE_DECOMP.md` `DEL-06-02` and `OI-006` |
+> | DEL-06-05-REQ-07 | Work shall remain within the currently authorized brief; document/example maintenance shall not move any artifact to `ISSUED`. | `AGENTS.md` dispatch rule; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` section 4 |
+> | DEL-06-05-REQ-08 | Outputs shall preserve architecture-basis constraints that are applicable to rule-pack examples: schema-first records, provenance, diagnostics, protected-content gates, and no-bypass boundaries. | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8 |
 >
 
 ### CLM-012 — Standards
@@ -158,8 +158,8 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 > |---|---|
 > | SWBPIPE governance and invariant documents | Accessible local governing source |
 > | Any engineering code or standards-body text | Not used; protected or user-supplied unless explicitly licensed and authorized |
-> | Rule-pack evaluator expression grammar | `TBD`; separate PKG-06 implementation decision |
-> | Rule-pack schema final file path | `TBD`; separate `DEL-06-01` implementation deliverable |
+> | Rule-pack evaluator expression grammar | DEC-022 typed AST grammar; evaluator contract owned by DEL-06-02 |
+> | Rule-pack schema final file path | `schemas/rule_pack.schema.yaml`; governed by DEL-06-01 |
 >
 
 ### CLM-013 — Verification
@@ -168,8 +168,8 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 >
 > | Verification ID | Verifies | Method |
 > |---|---|---|
-> | DEL-06-05-VER-01 | Four-document kit exists locally | Run `tools/validation/check_four_documents.sh` on this deliverable folder |
-> | DEL-06-05-VER-02 | No repo-level example path was edited | Check git status for changes under the assigned deliverable folder only |
+> | DEL-06-05-VER-01 | Consolidated scope and source sections exist locally | Run `tools/validation/check_four_documents.sh` on this deliverable folder |
+> | DEL-06-05-VER-02 | Changes stay within the authorized brief | Compare changed record, example and notice paths to the explicit write scope; no automatic issuance. |
 > | DEL-06-05-VER-03 | Dependency register is schema-valid | Run `python3 tools/validation/validate_dependencies_schema.py` on local `Dependencies.csv` |
 > | DEL-06-05-VER-04 | Dependency enums are canonical | Run `python3 tools/validation/validate_enum.py` for emitted enum values |
 > | DEL-06-05-VER-05 | Professional and protected-data boundaries are visible | Review these documents for explicit non-engineering, no-certification, and no-protected-content language |
@@ -182,10 +182,10 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 >
 > Required setup artifacts for this deliverable are:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md` (definition)
+> - `ScopeOfWork.md` (requirements)
+> - `ScopeOfWork.md` (rationale)
+> - `ScopeOfWork.md` (procedure)
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -195,7 +195,7 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 >
 > Repo-level example artifacts remain outside this session's write scope.
 
-- **AC-001** — The contract preserves the accepted invented-only public posture, declarative non-executable boundary, no-silent-default behavior, protected-content exclusions, and professional non-reliance notice while retaining schema, grammar, evaluator, and checksum details as TBD until their owning deliverables resolve them.
+- **AC-001** — The contract preserves the accepted invented-only public posture, declarative non-executable boundary, no-silent-default behavior, protected-content exclusions, and professional non-reliance notice while preserving the DEL-06-01 schema, DEC-022 grammar and canonical checksum contracts with candidate-bound evidence.
 
 ## Production and Verification Method — Praxeology
 
@@ -209,7 +209,7 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 
 > ##### Purpose
 >
-> Define the local setup procedure for preparing, checking, and handing off the invented non-code example rule-pack documentation without editing repo-level examples or introducing protected/proprietary engineering content.
+> Define maintenance, checking and handoff of the invented non-code example within the authorized brief, preserving notices, provenance and the protected-content boundary.
 >
 
 ### CLM-018 — Prerequisites
@@ -219,8 +219,8 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 > | Prerequisite | Required state |
 > |---|---|
 > | Sealed deliverable context | `DEL-06-05`, `PKG-06`, and local write scope are known |
-> | Governing sources | `_CONTEXT.md`, `_REFERENCES.md`, `INIT.md`, `AGENTS.md`, `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, `docs/TYPES.md`, `docs/SPEC.md`, decomposition, and registers are read |
-> | Current lifecycle state | `OPEN`, `INITIALIZED`, or `SEMANTIC_READY` before setup refresh |
+> | Governing sources | `_CONTEXT.md`, `_REFERENCES.md`, `loop/LOOP_INIT.md`, `AGENTS.md`, `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, `docs/TYPES.md`, `docs/SPEC.md`, decomposition, and registers are read |
+> | Current lifecycle state | Preserve the lifecycle recorded in `_STATUS.md`; contract verification does not promote it. |
 > | Protected-data posture | No protected standards text, formulas, tables, examples, or proprietary data are used |
 > | Professional-boundary posture | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
 >
@@ -240,7 +240,7 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 > 9. Run dependency extraction and write only `Dependencies.csv` and `_DEPENDENCIES.md`.
 > 10. Create `_run_records/*` entries for each setup step.
 > 11. Run local validation commands and record pass/fail results.
-> 12. Leave the current state as `SEMANTIC_READY` only if the setup artifacts and local gates pass.
+> - Preserve `_STATUS.md` lifecycle; completion of document or implementation checks is evidence, not an automatic transition.
 >
 
 ### CLM-020 — Verification
@@ -249,10 +249,10 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 >
 > | Check | Command or review |
 > |---|---|
-> | Four-document kit present | `tools/validation/check_four_documents.sh <DELIVERABLE_PATH>` |
+> | Consolidated scope present | Inspect `ScopeOfWork.md` and its required source sections; historical four-document checks remain historical evidence. |
 > | Dependency CSV schema valid | `python3 tools/validation/validate_dependencies_schema.py <DELIVERABLE_PATH>/Dependencies.csv` |
 > | Dependency enums valid | `python3 tools/validation/validate_enum.py <ENUM_NAME> <VALUE>` for emitted enum values |
-> | No repo-level example edited | `git status --short -- <DELIVERABLE_PATH> examples docs` with review focused on assigned write scope |
+> | Authorized write boundary | Inspect actual changed paths against the current brief, including example/notice paths when authorized. |
 > | No protected data | Search local artifacts for standards-derived tables, formulas, allowables, or certification language |
 > | Run records present | Confirm `_run_records/` contains one record for each required setup skill step |
 >
@@ -263,7 +263,7 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 >
 > The setup run should leave these records in the deliverable folder:
 >
-> - four production documents;
+> - consolidated `ScopeOfWork.md` source sections;
 > - semantic matrix and semantic lensing artifacts;
 > - dependency register and dependency summary;
 > - run records for `four-documents` P1/P2, `semantic-matrix-build`, `lens-register`, `four-documents` P3-only, and `dependency-extract`;
@@ -283,7 +283,7 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 
 > ##### Purpose
 >
-> This deliverable prepares the governed local setup record for a future invented rule-pack example. Its value is to show what an example must say and avoid before any public example content is placed in repo-level paths.
+> This deliverable governs the invented rule-pack example and its notices. Current payload/schema/grammar evidence remains separate from rights clearance, engineering validation and publication authority.
 >
 
 ### CLM-025 — Principles
@@ -297,7 +297,7 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 > | Professional boundary | A rule-pack check is software computation using user data. Acceptance, professional judgment, and any certification, sealing, or code-compliance determination remain with the responsible engineer and project authority. |
 > | Provenance first | Every value class in a future example should state whether it is original/invented, user-supplied private, licensed, or unknown. |
 > | No silent defaults | Missing solve-required or rule-check-required information is a finding, not a placeholder to hide with a plausible number. |
-> | Local setup only | This run documents the example concept inside the deliverable folder and does not write the repo-level example file. |
+> | Authorized maintenance | Each brief identifies allowed example, notice and record paths; no lifecycle or release effect is implicit. |
 >
 
 ### CLM-026 — Considerations

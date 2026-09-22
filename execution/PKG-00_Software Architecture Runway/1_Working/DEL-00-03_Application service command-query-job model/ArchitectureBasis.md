@@ -41,9 +41,9 @@ The anticipated `docs/architecture/application_services.md` was never created. T
 | Artifact | Role | Ownership |
 |---|---|---|
 | `apps/desktop/src/services/projectService.ts` | Desktop application-service command/query seam | Implementation packages (not DEL-00-03) |
-| `core/gui/*/engine.py` | GUI-domain service engines (accessibility, design_workspace, editors, model_tree, results_viewer, solve_execution, warnings, viewport_editor) | Implementation packages (not DEL-00-03) |
+| `core/gui/*/engine.py` | Reference GUI-domain engines (accessibility, design_workspace, editors, model_tree, results_viewer, solve_execution, warnings); viewport editing is represented by the Rust `core/gui/viewport_editor/` crate; product callers require their own evidence | Implementation packages (not DEL-00-03) |
 | `schemas/operation_outcome.schema.json` | Diagnostics/result-envelope contract (REQ-03-02) | Schema surface owned by schema deliverables |
-| `schemas/analysis_run.schema.json` | Solve-run reproducibility/progress metadata contract (REQ-03-04) | Schema surface owned by schema deliverables |
+| `schemas/analysis_run.schema.json` | Solve-run reproducibility metadata contract (REQ-03-04); runtime progress belongs to the job/runner state contracts | Schema surface owned by schema deliverables |
 
 ## Open holds and routed questions
 

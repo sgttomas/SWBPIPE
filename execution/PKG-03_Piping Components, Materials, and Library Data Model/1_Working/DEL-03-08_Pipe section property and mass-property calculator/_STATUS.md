@@ -4,8 +4,10 @@
 **Last Updated:** 2026-09-22
 
 ## Remaining
+- Integrate accepted unit/dimension validation at calculator inputs and carry required redistribution status and input provenance through derived outputs; string equality and output-only provenance do not satisfy those requirements. (R5 continuation claim references: DEL-03-08:SOW#CLM-011/DEL-03-08-RQ-003; DEL-03-08-RQ-004; CLM-026.)
 
 ## History
+- 2026-09-22 - Added explicit grouped delivery/evidence tasks from the R5 record-continuation screening to Remaining; lifecycle, existing dispositions and acceptance boundaries remain unchanged. Evidence: `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG00_06/`.
 - 2026-07-12 - D-41 R5 T7 PDU-056 bound the two cited declarations to the implemented dimensional mill-tolerance form and effective-wall equation while preserving fractional/catalog policy as TBD; cited-claim backcheck closed the D-41 bootstrap.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - four-documents P1/P2 setup kit drafted; state advanced to INITIALIZED.

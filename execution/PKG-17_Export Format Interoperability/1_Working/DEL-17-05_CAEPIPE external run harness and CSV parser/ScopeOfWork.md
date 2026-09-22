@@ -38,7 +38,7 @@ This Scope of Work defines `DEL-17-05` in service of project scope [SOW-030, SOW
 > | Type | BACKEND_FEATURE_SLICE |
 > | Scope Items | SOW-030, SOW-046, SOW-075 |
 > | Objectives | OBJ-007, OBJ-009, OBJ-017, OBJ-018 |
-> | Current phase | Phase A four-document contract only |
+> | Historical preparation phase | Phase A four-document contract only |
 > | Upstream dependency | DEL-17-04 CAEPIPE MBF export profile and deterministic writer |
 >
 
@@ -96,7 +96,7 @@ This Scope of Work defines `DEL-17-05` in service of project scope [SOW-030, SOW
 > | DEL-17-01 | `../DEL-17-01_CAEPIPE and export-format source basis/` | Source authority, CAEPIPE questions, TBD register, and boundary facts. |
 > | DEL-17-02 | `../DEL-17-02_Export package, profile, and stable ID map contracts/` | Export manifest, stable-ID map, loss-report, profile, and external-execution policy. |
 > | DEL-17-04 | `../DEL-17-04_CAEPIPE MBF export profile and deterministic writer/` | Upstream CAEPIPE MBF profile/writer contract and unresolved target-profile gates. |
-> | PLAN-EXPORT-INTEROP | `plans/EXPORT_FORMAT_INTEROPERABILITY_PLAN.md` | Strategic source for optional external harness, run directory concept, and boundary framing. |
+> | PLAN-EXPORT-INTEROP | `execution/_ScopeChange/SCA-004_2026-05-18_0000/ACCEPTANCE_RECORD.md` and DEL-17-01 `ScopeOfWork.md` (current export scope/source boundary; the former export-plan path is unavailable historical strategy, not field-level authority) | Strategic source for optional external harness, run directory concept, and boundary framing. |
 > | CAEPIPE-IMPORT-MBF | `https://www.sstusa.com/docs/users_manual/import_mbf_print.htm` | Public evidence for MBF import and command-line CSV behavior. |
 > | CAEPIPE-EXPORT-DATA | `https://www.sstusa.com/docs/users_manual/export_data_from_caepipe.htm` | Public evidence for CAEPIPE CSV/text result and model export surfaces. |
 > | CAEPIPE-BATCH | `https://www.sstusa.com/docs/users_manual/running_caepipe_caepipe_3d__in_batch_mode.htm` | Public evidence for batch-mode CSV output behavior and path/invocation caveats. |
@@ -135,6 +135,8 @@ This Scope of Work defines `DEL-17-05` in service of project scope [SOW-030, SOW
 >
 > This Phase A deliverable shall not implement code, schemas, parser logic, target fixtures, GUI workflow, public API endpoints, CAEPIPE executable discovery, CAEPIPE bundling, license validation bypasses, release behavior, compatibility claims, code-compliance claims, professional acceptance claims, or formal validation claims.
 >
+>
+> Current source evidence: `core/handoff/caepipe_external/run.py` supplies a bounded reference implementation. The original Phase A no-code/no-fixture statement describes that run only. Retain the full accepted contract and explicit runtime, provenance, target/executable and validation holds; reference construction does not retire unmet requirements.
 
 ### CLM-012 — Requirements
 
@@ -205,7 +207,7 @@ This Scope of Work defines `DEL-17-05` in service of project scope [SOW-030, SOW
 >
 > | Verification ID | Verification approach |
 > |---|---|
-> | VER-001 | Four-document review confirms all default sections exist and all CAEPIPE-specific claims cite DEL-17-01 source IDs, DEL-17-02/DEL-17-04 contracts, or public CAEPIPE pages. |
+> | VER-001 | Review of current `ScopeOfWork.md` confirms its required sections exist and all CAEPIPE-specific claims cite DEL-17-01 source IDs, DEL-17-02/DEL-17-04 contracts, or public CAEPIPE pages. |
 > | VER-002 | Boundary review confirms no bundled executable, proprietary example, protected standards data, license-bypass workflow, compatibility claim, release claim, code-compliance claim, professional claim, or formal validation claim. |
 > | VER-003 | TBD review confirms target version/profile, invocation profile, stable CSV sections, and stable ID correlation are not overstated. |
 > | VER-004 | Future implementation review shall confirm skip-without-executable behavior and no external executable requirement in public CI, including the configuration field checked, absence/invalidity evidence, skip reason, parser-only continuation, and public-CI nonfailure classification. |
@@ -526,8 +528,8 @@ This Scope of Work defines `DEL-17-05` in service of project scope [SOW-030, SOW
 >
 > | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 > |---|---|---|---|---|---|---|
-> | DEL-17-05-CONF-001 | Public CAEPIPE pages describe related MBF-to-CSV execution patterns, but the exact first SWBPIPE invocation profile is not selected. | `CAEPIPE-IMPORT-MBF`, command-line operation, lines 15-20. | `CAEPIPE-BATCH`, batch-mode notes, lines 40-52. | `Specification.md` REQ-003/004; `Procedure.md` run-profile steps. | Carry invocation profile as `TBD` until support clarification or human profile decision. | TBD |
-> | DEL-17-05-CONF-002 | CSV export surfaces are documented, but stable parser-section coverage for automated regression is not selected. | `CAEPIPE-EXPORT-DATA`, export list, lines 31-43. | DEL-17-01 `TBD-17-01-004` and CQ-17-01-005. | `Specification.md` REQ-009; parser coverage records. | Keep first parser coverage `TBD`; require fixture-confirmed parser coverage before implementation claims. | TBD |
+> | DEL-17-05-CONF-001 | Public CAEPIPE pages describe related MBF-to-CSV execution patterns, but the exact first SWBPIPE invocation profile is not selected. | `CAEPIPE-IMPORT-MBF`, command-line operation, lines 15-20. | `CAEPIPE-BATCH`, batch-mode notes, lines 40-52. | `ScopeOfWork.md` requirements section REQ-003/004; `ScopeOfWork.md` procedure section run-profile steps. | Carry invocation profile as `TBD` until support clarification or human profile decision. | TBD |
+> | DEL-17-05-CONF-002 | CSV export surfaces are documented, but stable parser-section coverage for automated regression is not selected. | `CAEPIPE-EXPORT-DATA`, export list, lines 31-43. | DEL-17-01 `TBD-17-01-004` and CQ-17-01-005. | `ScopeOfWork.md` requirements section REQ-009; parser coverage records. | Keep first parser coverage `TBD`; require fixture-confirmed parser coverage before implementation claims. | TBD |
 >
 
 ### CLM-041 — Review Guidance

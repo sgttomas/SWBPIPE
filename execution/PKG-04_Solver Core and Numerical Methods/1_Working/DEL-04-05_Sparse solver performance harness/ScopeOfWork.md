@@ -50,8 +50,8 @@ This Scope of Work defines `DEL-04-05` in service of project scope [SOW-035] and
 > |---|---|
 > | Harness purpose | Define a deterministic performance/regression harness for sparse solver behavior on practical piping-model sizes and numerical-conditioning cases. |
 > | Solver boundary | The harness observes solver behavior; it does not implement solver logic, select a numerical library, or change sparse solve algorithms. |
-> | Determinism posture | Repeated runs for the same model, units, solver version, and settings must be reproducible enough for regression comparison; exact tolerances remain `TBD`. |
-> | Performance target posture | Specific runtime, memory, scale, and conditioning thresholds are `TBD` pending solver prototype and human approval. |
+> | Determinism posture | Repeated runs for the same model, units, solver version, and settings must be reproducible enough for regression comparison; numerical verification follows DEC-026; unmeasured release criteria remain explicit. |
+> | Performance target posture | Specific runtime, memory, scale, and conditioning thresholds are `TBD` until their governing acceptance; the implemented harness records bounded DEC-050/053 observations. |
 > | Data posture | Fixtures must use original, invented, public-permissive, or otherwise lawful inputs; no proprietary benchmark data or protected standards examples are introduced. |
 > | Reporting posture | Results and diagnostics must preserve warnings, assumptions, provenance, solver version, and limitations without claiming certification or code compliance. |
 >
@@ -60,7 +60,7 @@ This Scope of Work defines `DEL-04-05` in service of project scope [SOW-035] and
 
 > ##### Conditions
 >
-> The setup context authorizes only documentation of the future harness shape. It does not authorize benchmark implementation, threshold selection, dependency-version selection, or use of proprietary model data.
+> The current performance-harness implementation records bounded observations. New release thresholds, dependency changes and use of proprietary data require their own authorized scope and governing decisions.
 >
 > The harness must remain compatible with the architecture-basis constraints for module boundaries, result/diagnostic envelopes, layered tests, and protected-content review. Numerical library choice, sparse-solver settings, conditioning metrics, practical model-size bands, timing methodology, hardware normalization, and CI gating thresholds remain `TBD`.
 >
@@ -71,8 +71,8 @@ This Scope of Work defines `DEL-04-05` in service of project scope [SOW-035] and
 >
 > | Construction item | Status |
 > |---|---|
-> | Performance tests | Anticipated; no tests are implemented in this setup pass. |
-> | Benchmark harness | Anticipated; module path, command shape, fixture format, and runner integration are `TBD`. |
+> | Performance tests | Current crate tests in `core/solver/performance_harness/src/lib.rs`; results remain candidate-bound. |
+> | Benchmark harness | Current carrier is `core/solver/performance_harness/`; invocation and observation format belong to bound implementation evidence. |
 > | Conditioning cases | Required conceptually by SOW-035; concrete matrices/models and acceptable ranges are `TBD`. |
 > | Regression records | Required conceptually for OBJ-008; retention format and comparison policy are `TBD`. |
 > | Diagnostics/result-envelope hooks | Required by AB-00-06; exact codes/classes for harness failures are `TBD`. |
@@ -84,7 +84,7 @@ This Scope of Work defines `DEL-04-05` in service of project scope [SOW-035] and
 >
 > - `_CONTEXT.md` for deliverable identity, scope, objectives, anticipated artifacts, and architecture-basis injection.
 > - `_REFERENCES.md` for governing local references.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7, rows for PKG-04, DEL-04-05, SOW-035, OBJ-003, OBJ-008, AB-00-01, AB-00-02, AB-00-06, and AB-00-08.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register), rows for PKG-04, DEL-04-05, SOW-035, OBJ-003, OBJ-008, AB-00-01, AB-00-02, AB-00-06, and AB-00-08.
 > - `docs/_Registers/Deliverables.csv` row DEL-04-05.
 > - `docs/_Registers/ScopeLedger.csv` row SOW-035.
 > - `docs/_Registers/ContextBudgetQA.csv` row DEL-04-05.
@@ -97,7 +97,7 @@ This Scope of Work defines `DEL-04-05` in service of project scope [SOW-035] and
 >
 > | Question | Needed from |
 > |---|---|
-> | Which sparse numerical library and solver settings are approved for implementation? | Solver lead / architecture decision |
+> | Which sparse strategy governs current observations? | DEC-023 strategy and DEC-050/053 live/default policy; no new release thresholds |
 > | What practical model-size bands and conditioning metrics are meaningful for release gates? | Solver lead / validation owner |
 > | What deterministic timing methodology is acceptable across local and CI environments? | QA/release owner |
 > | Which invented or public-permissive fixtures may represent practical piping models without protected data? | Validation/IP review owner |
@@ -114,7 +114,7 @@ This Scope of Work defines `DEL-04-05` in service of project scope [SOW-035] and
 
 > ##### Scope
 >
-> This deliverable specifies setup evidence for a future test-suite harness that will exercise sparse solver performance, reproducibility, and numerical-conditioning behavior for practical piping-model sizes.
+> This deliverable defines the performance-harness contract, realized in `core/solver/performance_harness/`, for sparse solver performance, reproducibility, and numerical-conditioning behavior for practical piping-model sizes.
 >
 > This setup pass does not implement a benchmark runner, add tests, choose thresholds, edit solver code, select a numerical library, or introduce proprietary/protected benchmark data.
 >
@@ -158,7 +158,7 @@ This Scope of Work defines `DEL-04-05` in service of project scope [SOW-035] and
 
 > ##### Documentation
 >
-> Expected future artifacts, when implementation is authorized, are:
+> Maintain the current harness artifacts and their bounded evidence:
 >
 > - performance tests;
 > - benchmark harness;
@@ -189,7 +189,7 @@ This Scope of Work defines `DEL-04-05` in service of project scope [SOW-035] and
 
 > ##### Purpose
 >
-> Describe how a future TASK worker should produce or use the sparse-solver performance harness once implementation is authorized, while preserving the current setup-only boundary.
+> Describe maintenance and use of `core/solver/performance_harness/` under the current brief; preserve DEC-023/050/053 and retain open release-threshold decisions.
 >
 
 ### CLM-019 — Prerequisites
@@ -262,7 +262,7 @@ This Scope of Work defines `DEL-04-05` in service of project scope [SOW-035] and
 
 > ##### Purpose
 >
-> This deliverable prepares the evidence boundary for a future deterministic sparse-solver performance/regression harness. It exists to keep performance and conditioning checks observable, repeatable, and reviewable without coupling benchmark code to solver implementation choices.
+> This deliverable prepares the evidence boundary for the deterministic sparse-solver performance/regression harness. It exists to keep performance and conditioning checks observable, repeatable, and reviewable without coupling benchmark code to solver implementation choices.
 >
 
 ### CLM-027 — Principles
@@ -280,7 +280,7 @@ This Scope of Work defines `DEL-04-05` in service of project scope [SOW-035] and
 
 > ##### Considerations
 >
-> Sparse performance measurements are sensitive to solver library, hardware, compiler settings, platform, matrix ordering, and fixture structure. Those implementation variables are not resolved here. The setup kit should therefore describe evidence expected from a future harness while leaving thresholds and tool choices open.
+> Sparse performance measurements are sensitive to solver library, hardware, compiler settings, platform, matrix ordering, and fixture structure. Those implementation variables are not resolved here. DEC-023 resolves solver strategy and deterministic ordering; DEC-053 names bounded size-band observations. Hardware-normalized release thresholds remain open, and each observation must retain its actual environment/candidate binding.
 >
 > Conditioning cases should exercise solver diagnostic behavior without embedding protected standards examples or proprietary commercial models. If a fixture source cannot be proven redistributable, it should not enter the public harness.
 >
@@ -301,7 +301,7 @@ This Scope of Work defines `DEL-04-05` in service of project scope [SOW-035] and
 
 > ##### Examples
 >
-> Concrete benchmark models, numerical thresholds, matrix sizes, timing budgets, and conditioning acceptance values are `TBD`. Future examples must use invented or public-permissive data with provenance.
+> Invented chain/grid fixtures and bounded size bands are recorded in `core/solver/performance_harness/README.md` under DEC-050/053. Release timing, memory and conditioning thresholds remain `TBD`. Future examples must use invented or public-permissive data with provenance.
 >
 
 ### CLM-031 — Conflict Table (for human ruling)
@@ -320,8 +320,8 @@ This Scope of Work defines `DEL-04-05` in service of project scope [SOW-035] and
 > | Item | Status |
 > |---|---|
 > | Approved performance metrics and threshold policy | TBD |
-> | Approved practical model-size taxonomy | TBD |
-> | Approved sparse solver/library choice | TBD |
+> | Bounded practical model-size observations | DEC-053 observation set; no general release-scale claim |
+> | Approved sparse solver/library choice | DEC-023; bounded live/default policy DEC-050/053 |
 > | Public/permissive fixture source list | TBD |
 
 ## Output and Evaluation Matrix

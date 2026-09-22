@@ -17,6 +17,8 @@
 Define project persistence format, schema versioning, migrations, canonicalization, and deterministic round-trip serialization strategy.
 
 ## Anticipated Artifacts
+
+Historical setup inventory. Current architecture constraints and realized-carrier references are in this deliverable’s `ArchitectureBasis.md`; an uncreated historical filename does not supersede that basis or establish delivery completeness.
 - docs/architecture/persistence_versioning.md
 - schema versioning contract
 
@@ -43,7 +45,7 @@ Define project persistence format, schema versioning, migrations, canonicalizati
 
 ## Architecture Gate Rule
 - This deliverable is part of the `PKG-00` architecture runway.
-- `PKG-01` through `PKG-12` package-level document drafting and implementation planning should not proceed until `PKG-00` reaches the selected architecture readiness threshold or the human changes the gate.
+- Historical setup gate (DEC-007): superseded for current dispatch by D-43 / SCA-006. Current work follows the authorized brief and applicable consolidated ArchitectureBasis constraints; this historical gate does not assert PKG-00 lifecycle readiness.
 
 ## Decomposition Reference
 - **Decomposition:** execution/_Decomposition/SOFTWARE_DECOMP.md
@@ -61,7 +63,7 @@ Define project persistence format, schema versioning, migrations, canonicalizati
 - **Canonical Boundary:** JSON Schema 2020-12, canonical JSON/JCS-compatible hashes, and deterministic round-trip persistence remain the domain and interchange authority.
 - **Large File Policy:** Large external files are referenced in place by path/URI plus hash and metadata by default; portable copy/export behavior is a later explicit workflow.
 - **No-Bypass Rule:** Direct plugin/adapter SQL access is prohibited; storage mutation must route through application-service create/open/save/validate/version-check/migrate boundaries.
-- **Still TBD:** Migration framework/tooling, DB migration implementation details, binary asset/export packaging, and optional retrieval-cache implementation details.
+- **Implementation choices and open matters:** DEC-012 permits resolution in a sealed brief or later human ruling. Consult the accepted decisions in `execution/_Decomposition/SOFTWARE_DECOMP.md` §12: solver strategy DEC-023; expression grammar DEC-022; migration/versioning DEC-019/033; package/export baseline DEC-028 and SCA-004; CI/coverage DEC-025/059/060/093. Current mechanisms and versions belong to bound implementation evidence. Public transport, per-format contracts, optional retrieval mechanisms and any unselected choices retain their own scope and decision paths; this reference does not close delivery, privacy, review or validation gaps.
 
 ## PREPARATION Notes
 - Structural scaffold only.

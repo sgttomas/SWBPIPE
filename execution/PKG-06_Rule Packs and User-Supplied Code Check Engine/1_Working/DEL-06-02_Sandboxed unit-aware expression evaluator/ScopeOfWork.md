@@ -47,7 +47,7 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 > | Scope item | SOW-045 | `docs/_Registers/ScopeLedger.csv` row SOW-045 |
 > | Objective | OBJ-005 | `execution/_Decomposition/SOFTWARE_DECOMP.md` objective map |
 > | Context envelope | L | `_CONTEXT.md` |
-> | Setup status | Setup documents and semantic/dependency artifacts only | Human sealed brief |
+> | Setup status | Contract and implementation evidence in `core/rules/expression_evaluator/`; acceptance separate | Human sealed brief |
 >
 
 ### CLM-005 — Attributes
@@ -56,12 +56,12 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 >
 > | Attribute | Value | Source |
 > |---|---|---|
-> | Primary purpose | Bound a future evaluator that can evaluate user-defined rule-pack expressions against solver results and user-owned design bases. | SOW-045; OBJ-005 |
+> | Primary purpose | Define an evaluator that can evaluate user-defined rule-pack expressions against solver results and user-owned design bases. | SOW-045; OBJ-005 |
 > | Required posture | Sandboxed, unit-aware, deterministic, and declarative. | `docs/SPEC.md` section 6; OPS-K-RULE-2; OPS-K-UNIT-1 |
 > | Arbitrary executable code | Not permitted. | OPS-K-RULE-2 |
 > | Unit and dimensional checks | Required for formulas, values, imports, exports, and evaluator results. | OPS-K-UNIT-1 |
 > | Missing required values | Explicit findings, never silent defaults. | OPS-K-DATA-2 |
-> | Expression grammar/library | TBD. No final grammar or library is selected by this setup run. | OI-006; sealed brief |
+> | Expression grammar/library | DEC-022 selects the in-repo declarative typed AST grammar; no writable text parser or arbitrary code is implied. | OI-006; sealed brief |
 > | Protected formulas or code-derived values | Excluded from public setup artifacts. | OPS-K-IP-1; OPS-K-IP-3; `docs/IP_AND_DATA_BOUNDARY.md` |
 > | Professional approval | Outside evaluator authority. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). | OPS-K-MECH-2; OPS-K-AUTH-1; `docs/TYPES.md` section 4 |
 >
@@ -90,10 +90,10 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 > - `Dependencies.csv` and `_DEPENDENCIES.md` for dependency extraction.
 > - `_run_records/` evidence for each required setup step.
 >
-> The anticipated implementation artifacts remain future work:
+> Current implementation evidence includes:
 >
-> - `rule evaluator module` - not produced in this setup run.
-> - `evaluator tests` - not produced in this setup run.
+> - `core/rules/expression_evaluator/` - current evaluator source and contract.
+> - Evaluator crate tests and golden conformance corpus - candidate-bound verification evidence.
 >
 
 ### CLM-008 — References
@@ -102,7 +102,7 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 >
 > | Source | Use |
 > |---|---|
-> | `INIT.md` | Bootstrap boundaries and stop rules. |
+> | `loop/LOOP_INIT.md` | Bootstrap boundaries and stop rules. |
 > | `AGENTS.md` | TASK dispatch discipline and write-scope rule. |
 > | `docs/CONTRACT.md` | Invariants OPS-K-RULE-2, OPS-K-UNIT-1, OPS-K-DATA-2, OPS-K-PRIV, OPS-K-IP, OPS-K-AGENT-1..4. |
 > | `docs/SPEC.md` | Rule-pack evaluator section, diagnostic classes, reporting, and V&V expectations. |
@@ -126,9 +126,9 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 
 > ##### Scope
 >
-> This setup specification bounds the future backend evaluator for user-defined rule-pack expressions. It covers sandboxing, unit awareness, variable binding, deterministic diagnostics, and public/private data boundaries.
+> This contract governs the backend evaluator for user-defined rule-pack expressions. It covers sandboxing, unit awareness, variable binding, deterministic diagnostics, and public/private data boundaries.
 >
-> It does not implement an evaluator module, create evaluator tests, choose an expression grammar or library as final, invent numerical tolerances, include protected formulas, ship code-specific rule content, or claim professional code compliance.
+> Current implementation and tests are in `core/rules/expression_evaluator/` under DEC-022. No numerical tolerance, protected formula, code-specific rule content or professional-compliance claim is supplied by this contract.
 >
 
 ### CLM-012 — PDU-024 Persistence Integration Boundary
@@ -144,17 +144,17 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 >
 > | ReqID | Requirement | Source |
 > |---|---|---|
-> | REQ-06-02-001 | The future evaluator shall be sandboxed and incapable of arbitrary code execution. | SOW-045; OPS-K-RULE-2 |
+> | REQ-06-02-001 | The evaluator shall be sandboxed and incapable of arbitrary code execution. | SOW-045; OPS-K-RULE-2 |
 > | REQ-06-02-002 | The evaluator shall remain declarative: rule packs define expressions and checks, not executable programs. | SOW-045; OI-006 |
 > | REQ-06-02-003 | All expression inputs, intermediate quantities where represented, comparisons, and outputs shall be unit-aware and dimensionally checked. | OPS-K-UNIT-1 |
 > | REQ-06-02-004 | Missing variables, missing required rule-check values, unit mismatches, invalid references, and unsupported expression forms shall produce explicit findings rather than silent defaults. | OPS-K-DATA-2; `docs/SPEC.md` section 7 |
 > | REQ-06-02-005 | Variable binding shall be limited to declared rule-pack variables, solver result fields, and user-supplied design-basis inputs allowed by the sealed schema/interface contract. | `docs/SPEC.md` section 6; AB-00-02; AB-00-07 |
-> | REQ-06-02-006 | The exact expression grammar, parser, and evaluator library remain TBD and require a future human architecture decision before implementation. | OI-006; sealed brief |
+> | REQ-06-02-006 | The evaluator shall preserve the DEC-022 declarative typed AST grammar and sandbox boundary; unadopted grammar extensions require their governing decision. | OI-006; sealed brief |
 > | REQ-06-02-007 | Public artifacts shall not include protected standards text, tables, code-derived formulas, material allowables, SIF/flexibility data, proprietary vendor data, owner standards, or private rule packs. | OPS-K-IP-1; OPS-K-IP-3; `docs/IP_AND_DATA_BOUNDARY.md` |
 > | REQ-06-02-008 | Rule-pack evaluation results shall not be represented as automatic code compliance, certification, sealing, approval, or professional reliance (PRD §21.2). | OPS-K-AUTH-1; OPS-K-MECH-2; `docs/TYPES.md` section 4 |
 > | REQ-06-02-009 | Diagnostics and result envelopes shall preserve mechanics solved, user-rule checked, incomplete data, and human-approved state separation. | AB-00-03; AB-00-06 |
 > | REQ-06-02-010 | Adapters and plugins shall not bypass sandboxing, unit checks, provenance checks, diagnostics, or public/private data boundaries. | AB-00-07 |
-> | REQ-06-02-011 | Future tests shall cover unsafe expression rejection, dimension mismatch, missing binding, deterministic diagnostic emission, protected-content boundaries for public examples, and plugin/adapter bypass attempts. | `docs/VALIDATION_STRATEGY.md`; AB-00-08 |
+> | REQ-06-02-011 | Tests shall cover unsafe expression rejection, dimension mismatch, missing binding, deterministic diagnostic emission, protected-content boundaries for public examples, and plugin/adapter bypass attempts. | `docs/VALIDATION_STRATEGY.md`; AB-00-08 |
 >
 
 ### CLM-014 — Standards
@@ -170,11 +170,11 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 >
 > | Decision | Current status | Required handling |
 > |---|---|---|
-> | Expression grammar and parser/evaluator library | TBD | Do not implement until a future sealed brief records the human architecture decision. |
-> | Quantity representation and unit algebra integration point | TBD | Coordinate with the unit-system contract before implementation. |
+> | Expression grammar and parser/evaluator library | DEC-022 | Preserve the declarative typed AST and sandbox; no arbitrary-code or text-parser extension is selected. |
+> | Quantity representation and unit algebra integration point | DEC-022/018 | Preserve the typed quantity model and unit-contract boundary; runner normalization is separately evidenced in `core/rules/rule_check_runner/`. |
 > | Final diagnostic code taxonomy | TBD | Use explicit finding classes in setup; define final codes in implementation scope. |
 > | Numerical tolerances for comparisons | TBD | Do not invent tolerances in setup artifacts. |
-> | Variable namespace and result-field binding contract | TBD | Coordinate with rule-pack schema and result-envelope contracts. |
+> | Variable namespace and result-field binding contract | DEC-039 and current rule-pack schema | Preserve ratified binding members and explicit unresolved result references; do not invent additional public fields. |
 >
 
 ### CLM-016 — Verification
@@ -204,7 +204,7 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 >
 > Future implementation documentation should add the selected grammar/library decision record, evaluator threat model, unit-binding contract, diagnostic taxonomy, and test evidence. Those artifacts are outside this setup session.
 
-- **AC-001** — The contract preserves the accepted no-arbitrary-code, no-side-effect, unit/provenance, protected-content, private-data, and professional-authority boundaries together with retained grammar/library and integration TBDs, without embedding proprietary rules, formulas, allowables, silent conversions, or compliance meaning.
+- **AC-001** — The contract preserves the accepted no-arbitrary-code, no-side-effect, unit/provenance, protected-content, private-data, and professional-authority boundaries together with the DEC-022 grammar boundary and remaining integration obligations, without embedding proprietary rules, formulas, allowables, silent conversions, or compliance meaning.
 
 ## Production and Verification Method — Praxeology
 
@@ -227,7 +227,7 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 
 > ##### Purpose
 >
-> Describe the setup-to-implementation procedure for a future sandboxed, unit-aware, declarative rule-pack expression evaluator. This procedure is operational guidance only; it does not implement the evaluator in this setup run.
+> Describe maintenance and verification of the sandboxed, unit-aware declarative evaluator under DEC-022, preserving no-side-effect, unit, diagnostic and protected-content obligations.
 >
 
 ### CLM-022 — Prerequisites
@@ -238,10 +238,10 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 > |---|---|
 > | Sealed deliverable context for DEL-06-02 | Present in `_CONTEXT.md`. |
 > | Governing invariants and data boundary read | Completed for this setup run. |
-> | Four-document setup kit | Produced by TASK+four-documents. |
+> | Consolidated contract | Produced by the historical preparation pass; current carrier is ScopeOfWork.md. |
 > | Semantic matrix and lensing artifacts | Produced by TASK+semantic-matrix-build and TASK+lens-register. |
 > | Dependency register | Produced by TASK+dependency-extract. |
-> | Expression grammar/library decision | TBD; required before implementation. |
+> | Expression grammar/library decision | DEC-022 records the grammar decision; conformance evidence remains required. |
 > | Unit-system integration contract | Interface dependency on DEL-02-02 or equivalent sealed unit contract. |
 > | Rule-pack schema interface | Interface dependency on DEL-06-01 or equivalent sealed schema contract. |
 >
@@ -268,22 +268,22 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 >
 > | Check | Evidence |
 > |---|---|
-> | Four-document kit exists | `tools/validation/check_four_documents.sh <deliverable path>` |
+> | Consolidated scope and source sections exist | Inspect `ScopeOfWork.md` and its required consolidated source sections; retain historical four-document check output as historical evidence |
 > | Semantic artifact exists and audit states PASS | `_SEMANTIC.md#Audit-Result` |
 > | Lensing coverage exists for matrices A, B, C, F, D, X, and E | `_SEMANTIC_LENSING.md` |
 > | Dependency register is schema-valid | `python3 tools/validation/validate_dependencies_schema.py <deliverable path>/Dependencies.csv` |
-> | Status value is valid | `python3 tools/validation/validate_enum.py LIFECYCLE_STATE SEMANTIC_READY` |
-> | No ISSUED transition occurred | `_STATUS.md` current state remains `SEMANTIC_READY` |
+> | Status value is valid | Preserve the lifecycle recorded in `_STATUS.md`; contract verification does not promote it. |
+> | No ISSUED transition occurred | Preserve the lifecycle recorded in `_STATUS.md`; contract verification does not promote it. |
 >
 
 ### CLM-025 — Records
 
 > ##### Records
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md` (definition)
+> - `ScopeOfWork.md` (requirements)
+> - `ScopeOfWork.md` (rationale)
+> - `ScopeOfWork.md` (procedure)
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -337,7 +337,7 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 > ##### Considerations
 >
 > - The evaluator is security-sensitive and numerically important, so the large context envelope is justified, but expansion beyond sandboxing/unit-awareness should be split or escalated.
-> - The exact expression grammar/library is deliberately unresolved. A future implementation brief should record the selected option, rejected options, threat model, and validation evidence.
+> - DEC-022 resolves the grammar/library boundary. Maintenance must preserve the selected grammar, threat model, unit/diagnostic contracts and candidate-bound verification; grammar extensions remain separate.
 > - Unit algebra should coordinate with the unit-system contract rather than duplicate a second unit model.
 > - Rule-pack schema, required-input completeness, private lifecycle/checksum handling, and invented examples are sibling deliverables. This deliverable should not absorb those scopes.
 > - Diagnostics should be deterministic and suitable for result envelopes, reports, and review without exposing protected formulas in public examples.
@@ -376,8 +376,8 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 >
 > | Lensing item | Disposition |
 > |---|---|
-> | Unsafe expression and bypass test coverage | Added to `Specification.md` verification and `Procedure.md` checks. |
-> | Diagnostic-code taxonomy | Retained as `TBD` in `Specification.md` open decisions. |
+> | Unsafe expression and bypass test coverage | Added to `ScopeOfWork.md` (requirements) verification and `ScopeOfWork.md` (procedure) checks. |
+> | Diagnostic-code taxonomy | Retained as `TBD` in `ScopeOfWork.md` (requirements) open decisions. |
 > | Grammar/library decision | Retained as `TBD` and future human architecture decision. |
 > | Vocabulary normalization | Standardized on evaluator, expression, variable binding, rule-pack check, user-rule checked, and human review boundary. |
 > | Future interface handoff | Recorded as an implementation-stage dependency/proposal rather than a setup implementation step. |
@@ -389,7 +389,7 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 >
 > | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 > |---|---|---|---|---|---|---|
-> | OI-006 | Expression grammar/library is required before implementation but remains unresolved. | `execution/_Decomposition/SOFTWARE_DECOMP.md` open issue OI-006 | `docs/SPEC.md` section 6 requires sandboxed unit-aware evaluator | `Specification.md#Open-Decisions`; `Procedure.md#Prerequisites` | Future human architecture decision should seal grammar/library before implementation. | TBD |
+> | OI-006 | Grammar decision resolved by DEC-022. | DEC-022 ruling | Rule-pack evaluator contract | Grammar and prerequisites | Preserve the accepted typed AST and bounded conformance evidence. | DEC-022; no new architecture choice. |
 
 ## Output and Evaluation Matrix
 

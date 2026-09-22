@@ -39,7 +39,7 @@ This Scope of Work defines `DEL-07-05` in service of project scope [SOW-023] and
 > | Scope item | SOW-023 |
 > | Objectives | OBJ-006, OBJ-007 |
 > | Context envelope | L |
-> | Current source basis | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7; `docs/_Registers/Deliverables.csv`; `docs/_Registers/ScopeLedger.csv`; `docs/CONTRACT.md`; `docs/SPEC.md`; `docs/TYPES.md`; `docs/DIRECTIVE.md` |
+> | Current source basis | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis; `docs/_Registers/Deliverables.csv`; `docs/_Registers/ScopeLedger.csv`; `docs/CONTRACT.md`; `docs/SPEC.md`; `docs/TYPES.md`; `docs/DIRECTIVE.md` |
 >
 
 ### CLM-004 — Attributes
@@ -66,8 +66,8 @@ This Scope of Work defines `DEL-07-05` in service of project scope [SOW-023] and
 > | Condition | Status |
 > |---|---|
 > | Current evidence includes implemented GUI result review and a translational deformation overlay; this R5 repair changes documentation/status records only | FACT |
-> | Exact UI component library, state library, and visual layout details | TBD |
-> | Exact result-envelope schema fields for each displayed category | TBD, owned by schema/result-envelope implementation deliverables |
+> | Exact UI component library, state library, and visual layout details | Resolve current dependency and component/state choices through `apps/desktop/package.json` and the implemented consumers. DEC-012 permits choices in a sealed brief or later ruling; preserve durable/transient separation and accepted architecture. Release scope follows DEC-057. |
+> | Exact result-envelope schema fields for each displayed category | Resolve the accepted result-envelope fields through `schemas/results.schema.yaml` and `apps/desktop/src/features/results/ResultsPanel.tsx`; preserve category, unit, status, provenance and missing-data contracts. |
 > | Exact stress-ratio formulas, thresholds, allowables, or code categories | Out of scope for public defaults; user/rule-pack supplied |
 > | Professional acceptance or code compliance status | Out of software authority; human review remains required |
 >
@@ -92,7 +92,7 @@ This Scope of Work defines `DEL-07-05` in service of project scope [SOW-023] and
 
 > ##### References
 >
-> - `INIT.md` - bootstrap boundaries and unknown-value rule.
+> - `AGENTS.md` - bootstrap boundaries and unknown-value rule.
 > - `AGENTS.md` - Type 2 sealed dispatch rule.
 > - `docs/CONTRACT.md` - invariants OPS-K-DATA-1/2/3, OPS-K-UNIT-1, OPS-K-RULE-1/2/3, OPS-K-AUTH-1, OPS-K-IP-1/2/3, OPS-K-PRIV-1/2, OPS-K-AGENT-1..4.
 > - `docs/SPEC.md` - architecture, GUI, warnings, reporting, acceptance semantics.
@@ -164,10 +164,7 @@ This Scope of Work defines `DEL-07-05` in service of project scope [SOW-023] and
 >
 > Required setup records for this deliverable are:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -175,13 +172,11 @@ This Scope of Work defines `DEL-07-05` in service of project scope [SOW-023] and
 > - `_run_records/*`
 > - `_STATUS.md`
 >
-
 ### CLM-015 — Acceptance Notes
 
 > ##### Acceptance Notes
 >
-> This setup can be marked `SEMANTIC_READY` only after the four-document pass, semantic matrix build, lens register, Pass 3 consistency sweep, dependency extraction, and local validation gates complete. `SEMANTIC_READY` is a development lifecycle state only; it is not product implementation or an issued deliverable. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
-
+> This setup can be marked `SEMANTIC_READY` only after the contract review, semantic matrix build, lens register, Pass 3 consistency sweep, dependency extraction, and local validation gates complete. `SEMANTIC_READY` is a development lifecycle state only; it is not product implementation or an issued deliverable. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 ### CLM-016 — D-41 R5 T5 PDU-008 current GUI boundary
 
 > ##### D-41 R5 T5 PDU-008 current GUI boundary
@@ -222,28 +217,26 @@ This Scope of Work defines `DEL-07-05` in service of project scope [SOW-023] and
 >
 > 1. Confirm the deliverable identity, package, scope item, objectives, context envelope, and architecture-basis IDs from `_CONTEXT.md`.
 > 2. Read the governing references named in `_REFERENCES.md`, especially `docs/CONTRACT.md`, `docs/SPEC.md`, `docs/TYPES.md`, `docs/DIRECTIVE.md`, and the decomposition/register rows for DEL-07-05.
-> 3. Run `four-documents` with `RUN_PASSES=P1_P2` by drafting `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` from accessible sources.
+> 3. Maintain `ScopeOfWork.md` by drafting `ScopeOfWork.md` from accessible sources.
 > 4. Run `semantic-matrix-build` by replacing `_SEMANTIC.md` with a deliverable-local semantic lens and marking semantic audit status.
 > 5. Run `lens-register` by producing `_SEMANTIC_LENSING.md` with complete matrix-cell coverage and any warranted enrichment items.
-> 6. Run `four-documents` with `RUN_PASSES=P3_ONLY` by checking the lensing register against the four-document kit and applying only warranted, source-supported enrichments.
+> 6. Review `ScopeOfWork.md` against source evidence by checking the lensing register against the Scope of Work contract and applying only warranted, source-supported enrichments.
 > 7. Run `dependency-extract` by producing `Dependencies.csv` v3.1 and refreshing `_DEPENDENCIES.md` with conservative anchor and execution edges.
-> 8. Run local validation gates for four-document presence, dependency schema, status enum, and protected-boundary spot checks.
+> 8. Run local validation gates for Scope of Work contract, dependency schema, status enum, and protected-boundary spot checks.
 > 9. Set `_STATUS.md` Current State to `SEMANTIC_READY` only if all setup gates pass.
 >
-
 ### CLM-022 — Verification
 
 > ##### Verification
 >
 > | Check | Command or method | Expected result |
 > |---|---|---|
-> | Four documents exist | `tools/validation/check_four_documents.sh <deliverable path>` | PASS |
+> | the Scope of Work contract exist | `python3 tools/scope_of_work/validate_scope_of_work.py <DELIVERABLE_PATH>/ScopeOfWork.md` | PASS |
 > | Dependency schema valid | `python3 tools/validation/validate_dependencies_schema.py <deliverable path>/Dependencies.csv` | VALID with 29 required columns |
 > | Lifecycle enum valid | `python3 tools/validation/validate_enum.py LIFECYCLE_STATE SEMANTIC_READY` | VALID |
 > | Protected-data boundary | Text scan for protected standards values, code thresholds, copied formulas, or certification claims | No prohibited content found |
 > | Scope boundary | `git status --short -- <deliverable path>` | Only deliverable-local files changed |
 >
-
 ### CLM-023 — Records
 
 > ##### Records
@@ -256,14 +249,13 @@ This Scope of Work defines `DEL-07-05` in service of project scope [SOW-023] and
 > - run records for all five required setup steps;
 > - status history showing `OPEN -> INITIALIZED -> SEMANTIC_READY`.
 >
-
 ### CLM-024 — Future Implementation Procedure Notes
 
 > ##### Future Implementation Procedure Notes
 >
 > A future implementation brief must not begin from these setup documents alone. It must receive source-code write scope, schema/result-envelope contracts, test requirements, and any human decisions needed for result category layout, unit handling, ratio terminology, equipment-load semantics, and report/export integration.
 >
-> For rotational deformation specifically, the brief must consume DEC-074 O1 / PDU-061 and the emitted `rx`/`ry`/`rz` evidence, preserve the current translational-overlay behavior unless deliberately changed, define the intended rotational visual semantics, and add focused UI/browser evidence. Until that work lands and is backchecked, `_STATUS.md` remains the sole work-discovery home for the residual; documenting the residual does not claim implementation.
+> For rotational deformation specifically, the brief must consume DEC-074 O1 / PDU-061 and the emitted `rx`/`ry`/`rz` evidence, preserve the current translational-overlay behavior unless deliberately changed, define the intended rotational visual semantics, and add focused UI/browser evidence. Until that work lands and is backchecked, the owner-steered work graph selected through `loop/LOOP_INIT.md` selects work; `_STATUS.md` retains the residual; documenting the residual does not claim implementation.
 
 - **VER-001** — Validate the contract and review source parity, result categories and unit labels, diagnostics and provenance, status separation, ratio blocked/unavailable behavior, translational versus rotational visualization boundary, report/export traceability, and every retained governed residual.
 
@@ -351,8 +343,8 @@ This Scope of Work defines `DEL-07-05` in service of project scope [SOW-023] and
 >
 > | Issue | Status |
 > |---|---|
-> | Exact result-envelope schema fields consumed by the viewer | TBD |
-> | Exact UI layout, component library, state library, and broader overlay behavior | TBD; rotational-deformation visualization is a named DEL-07-05 residual under DEC-074 O1 / PDU-061 |
+> | Exact result-envelope schema fields consumed by the viewer | Resolve the accepted result-envelope fields through `schemas/results.schema.yaml` and `apps/desktop/src/features/results/ResultsPanel.tsx`; preserve category, unit, status, provenance and missing-data contracts. |
+> | Exact UI layout, component library, state library, and broader overlay behavior | Layout/component/state choices are local implementation details under DEC-012 and current desktop sources. Rotational-deformation visualization remains the named DEC-074 O1/PDU-061 delivery residual. |
 > | Exact rule-ratio terminology when private rule packs differ by user design basis | TBD |
 > | Exact equipment-load aggregation/display semantics | TBD |
 

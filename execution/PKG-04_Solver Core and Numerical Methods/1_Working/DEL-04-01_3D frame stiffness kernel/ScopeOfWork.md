@@ -57,9 +57,9 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 > | Anticipated verification artifacts | Unit tests |
 > | Sparse performance scope | Required design concern; concrete performance targets are TBD |
 > | Reproducibility scope | Required for practical piping models; exact reproducibility envelope is TBD |
-> | Solver numerical library | TBD |
-> | Tolerance policy | TBD; no numerical tolerances are defined by this setup kit |
-> | Physical formulation details | TBD; future implementation must use lawful, source-grounded mechanics references and avoid protected formulas/data |
+> | Solver numerical library | DEC-023: in-repo sparse skyline/profile direct solver; live-path/default policy follows DEC-050/053 |
+> | Tolerance policy | DEC-026 governs numerical verification; DEC-046 governs nonlinear convergence. Unmeasured values remain explicit; no threshold is invented here. |
+> | Physical formulation details | Current frame-kernel realization is the two-node Euler–Bernoulli frame described in `core/solver/frame_kernel/README.md`; lawful derivation and verification evidence remain required. |
 >
 
 ### CLM-005 — Conditions
@@ -78,16 +78,16 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 
 > ##### Construction
 >
-> The setup kit identifies these future implementation surfaces without creating code:
+> The contract requires these implementation surfaces; current realization and conventions are recorded in `core/solver/frame_kernel/README.md` and `core/solver/sparse_direct/README.md`:
 >
 > | Surface | Setup expectation |
 > |---|---|
 > | Model topology input | Node and element connectivity for a 3D frame/centerline model, details TBD |
-> | Degree-of-freedom mapping | Stable six-DOF-per-node indexing contract, exact ordering TBD |
-> | Coordinate transform handling | Transform interface for local-to-global assembly, convention TBD |
+> | Degree-of-freedom mapping | Stable six-DOF-per-node indexing contract; current `NODE_DOF_ORDER` is `[ux, uy, uz, rx, ry, rz]` |
+> | Coordinate transform handling | Validated local-axis direction-cosine transform contract; current 12-by-12 element transform is in the frame kernel |
 > | Boundary-condition handling | Interface for applying restraints/imposed conditions supplied by other deliverables, details TBD |
-> | Sparse assembly | Sparse global matrix assembly interface, storage format TBD |
-> | Sparse solve interface | Solver adapter boundary for selected numerical library, library TBD |
+> | Sparse assembly | Sparse global matrix assembly boundary; DEC-023 profile/skyline storage is implemented by `sparse_direct` |
+> | Sparse solve interface | Solver boundary under DEC-023; DEC-050/053 governs live-path/default use |
 > | Result envelope | Must fit architecture-basis command/query/job result and diagnostic envelope constraints |
 > | Verification | Deterministic unit tests are required before release use |
 >
@@ -98,7 +98,7 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 >
 > - `_CONTEXT.md` - local sealed context for DEL-04-01.
 > - `_REFERENCES.md` - governing references and register pointers.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 - PKG-04, DEL-04-01, SOW-005, SOW-035, OBJ-003, AB-00-01, AB-00-02, AB-00-03, AB-00-06, AB-00-08.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) - PKG-04, DEL-04-01, SOW-005, SOW-035, OBJ-003, AB-00-01, AB-00-02, AB-00-03, AB-00-06, AB-00-08.
 > - `docs/_Registers/Deliverables.csv` - row DEL-04-01.
 > - `docs/_Registers/ScopeLedger.csv` - rows SOW-005 and SOW-035.
 > - `docs/_Registers/ContextBudgetQA.csv` - row DEL-04-01.
@@ -115,12 +115,12 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 
 > ##### Scope
 >
-> This setup specification covers the future backend feature slice for a 3D frame stiffness kernel. The sealed scope is DEL-04-01 in PKG-04, implementing the global 3D frame stiffness assembly, coordinate transforms, boundary conditions, and sparse solve interface for a 3D centerline/frame model with six degrees of freedom per node.
+> This contract covers the backend feature slice for a 3D frame stiffness kernel. The sealed scope is DEL-04-01 in PKG-04, implementing the global 3D frame stiffness assembly, coordinate transforms, boundary conditions, and sparse solve interface for a 3D centerline/frame model with six degrees of freedom per node.
 >
 > Out of scope for this deliverable:
 >
-> - Solver implementation in this setup run.
-> - Numeric tolerances, convergence thresholds, performance targets, or solver library selection.
+> - Product integration outside this primitive owner; accepted integration scope is resolved through the decomposition.
+> - New numerical or performance criteria: existing DEC-023/026/046/050/053 decisions apply, and unmeasured release thresholds remain open.
 > - Protected standards formulas, examples, tables, or proprietary commercial data.
 > - Straight pipe element details owned by DEL-04-02.
 > - Support/restraint model families owned by DEL-04-03 and DEL-04-04.
@@ -134,18 +134,18 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 >
 > | ID | Requirement | Source |
 > |---|---|---|
-> | DEL-04-01-REQ-001 | Future implementation shall model the primary global analysis system as a 3D centerline/frame model. | SOW-005; OPS-K-MECH-1 |
-> | DEL-04-01-REQ-002 | Future implementation shall represent each frame node with six degrees of freedom. | SOW-005 |
-> | DEL-04-01-REQ-003 | Future implementation shall provide global stiffness assembly for the frame system. | Deliverables.csv row DEL-04-01 |
-> | DEL-04-01-REQ-004 | Future implementation shall provide coordinate transform handling between local and global frame representations; exact convention is TBD. | Deliverables.csv row DEL-04-01 |
-> | DEL-04-01-REQ-005 | Future implementation shall provide a boundary-condition application interface; supported restraint semantics are delegated to later support deliverables unless explicitly sealed in this deliverable. | Deliverables.csv row DEL-04-01; package scope |
-> | DEL-04-01-REQ-006 | Future implementation shall expose a sparse solve interface designed for sparse numerical performance and reproducible practical-model results; performance targets are TBD. | SOW-035 |
-> | DEL-04-01-REQ-007 | Future implementation shall remain unit-aware and dimensionally checked. | OPS-K-UNIT-1 |
-> | DEL-04-01-REQ-008 | Future implementation shall report missing solve-required values as explicit findings and shall not supply silent defaults. | OPS-K-DATA-2 |
+> | DEL-04-01-REQ-001 | The implementation shall model the primary global analysis system as a 3D centerline/frame model. | SOW-005; OPS-K-MECH-1 |
+> | DEL-04-01-REQ-002 | The implementation shall represent each frame node with six degrees of freedom. | SOW-005 |
+> | DEL-04-01-REQ-003 | The implementation shall provide global stiffness assembly for the frame system. | Deliverables.csv row DEL-04-01 |
+> | DEL-04-01-REQ-004 | The implementation shall provide coordinate transform handling between local and global frame representations; the current validated local-axis direction-cosine convention is documented in `core/solver/frame_kernel/README.md` and its unit tests. | Deliverables.csv row DEL-04-01 |
+> | DEL-04-01-REQ-005 | The implementation shall provide a boundary-condition application interface; supported restraint semantics are delegated to later support deliverables unless explicitly sealed in this deliverable. | Deliverables.csv row DEL-04-01; package scope |
+> | DEL-04-01-REQ-006 | The implementation shall expose a sparse solve interface designed for sparse numerical performance and reproducible practical-model results; performance targets are TBD. | SOW-035 |
+> | DEL-04-01-REQ-007 | The implementation shall remain unit-aware and dimensionally checked. | OPS-K-UNIT-1 |
+> | DEL-04-01-REQ-008 | The implementation shall report missing solve-required values as explicit findings and shall not supply silent defaults. | OPS-K-DATA-2 |
 > | DEL-04-01-REQ-009 | Solver outputs shall compute mechanics only and shall not decide rule-pack acceptability or professional compliance. | OPS-K-MECH-2 |
 > | DEL-04-01-REQ-010 | Solver changes shall require deterministic verification tests before release. | OPS-K-SOLVER-1; AB-00-08 |
 > | DEL-04-01-REQ-011 | Diagnostics and result envelopes crossing service boundaries shall preserve code, class, severity, source, affected object, message, remediation, and provenance fields where applicable. | AB-00-03; AB-00-06 |
-> | DEL-04-01-REQ-012 | Future implementation shall not import protected formulas/data or embed protected standards text, tables, figures, examples, or proprietary data. | OPS-K-IP-1 |
+> | DEL-04-01-REQ-012 | The implementation shall not import protected formulas/data or embed protected standards text, tables, figures, examples, or proprietary data. | OPS-K-IP-1 |
 >
 
 ### CLM-011 — Standards
@@ -154,7 +154,7 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 >
 > - Project invariants in `docs/CONTRACT.md` are governing for this setup kit.
 > - Decomposition and register rows cited in `_CONTEXT.md` are governing for scope and objectives.
-> - External mechanics references for future implementation are TBD and must be lawful, source-grounded, and compatible with the protected-data boundary.
+> - Mechanics references and derivation/witness records must be lawful, source-grounded and compatible with the protected-data boundary. Current frame-kernel witnesses are located through `core/solver/frame_kernel/README.md`; their presence is not independent engineering validation.
 > - No code standard clause, protected formula, or professional compliance criterion is adopted by this setup kit.
 >
 
@@ -164,8 +164,8 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 >
 > | Requirement IDs | Verification approach |
 > |---|---|
-> | DEL-04-01-REQ-001, DEL-04-01-REQ-002 | Unit tests should verify model topology and six-DOF mapping after implementation; exact cases TBD. |
-> | DEL-04-01-REQ-003, DEL-04-01-REQ-004 | Unit tests should verify deterministic assembly and transform behavior using rights-cleared fixtures; equations and expected values TBD. |
+> | DEL-04-01-REQ-001, DEL-04-01-REQ-002 | Unit tests should verify model topology and six-DOF mapping against the current `core/solver/frame_kernel/src/lib.rs` topology and DOF-mapping tests; results must be bound to their candidate. |
+> | DEL-04-01-REQ-003, DEL-04-01-REQ-004 | Unit tests should verify deterministic assembly and transform behavior using the frame-kernel local-stiffness, transform, assembly and reduction witnesses; expected values require lawful source/derivation and candidate-bound evidence. |
 > | DEL-04-01-REQ-005 | Unit tests should verify boundary-condition application semantics once restraint interfaces are sealed. |
 > | DEL-04-01-REQ-006 | Sparse performance and reproducibility checks should be coordinated with DEL-04-05; target sizes and metrics TBD. |
 > | DEL-04-01-REQ-007 | Unit and schema tests should verify dimensional compatibility and unit-aware inputs/outputs. |
@@ -179,21 +179,21 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 
 > ##### Documentation
 >
-> Future implementation should maintain:
+> Maintain:
 >
 > - `core/solver/frame_kernel` module documentation.
 > - Unit test records for frame assembly, coordinate transforms, boundary conditions, unit handling, missing-value diagnostics, and sparse solve interface behavior.
 > - Result-envelope and diagnostics examples that disclose assumptions, warnings, model/solver versions, and provenance without certification claims.
-> - TBD register entries for unresolved formulation, tolerance, solver-library, and performance-target decisions.
+> - Decision references for formulation, DEC-023 solver strategy and DEC-026/046 tolerance policies, plus explicit residuals for unmeasured performance criteria.
 >
 
 ### CLM-014 — D-41 R5 T7 PDU-054 current declaration
 
 > ##### D-41 R5 T7 PDU-054 current declaration
 >
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The 3D frame kernel, DOF contract, dense solution path, and DEC-023 sparse evidence now exist in the implemented slice. Sparse-as-default policy and any broader performance/validation thresholds remain held where recorded; lifecycle remains `IN_PROGRESS`.
+> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The 3D frame kernel, DOF contract, dense solution path, and DEC-023 sparse evidence now exist in the implemented slice. DEC-053 selects sparse interactive as the product default with dense scrutiny selectable. Broader performance/validation thresholds remain held where recorded; lifecycle remains `IN_PROGRESS`.
 
-- **AC-001** — The contract preserves the accepted frame-kernel requirements and current declarations, including unit and provenance boundaries, explicit missing-input and solver findings, rights-cleared verification data, and unresolved formulation, tolerance, sparse-policy, arc-pressure-thrust, and mechanics-assessment items without inventing engineering values or approval.
+- **AC-001** — The contract preserves the accepted frame-kernel requirements and current declarations, including unit and provenance boundaries, explicit missing-input and solver findings, rights-cleared verification data, and the accepted formulation and DEC-023/026/046/050/053 policies, with uncovered boundary/engineering-assessment items retained without inventing engineering values or approval.
 
 ## Production and Verification Method — Praxeology
 
@@ -206,7 +206,7 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 
 > ##### Purpose
 >
-> This procedure defines how a future TASK worker should proceed from the local setup kit into implementation without expanding beyond DEL-04-01.
+> This procedure governs maintenance and verification of the frame kernel within DEL-04-01. Current realization is `core/solver/frame_kernel/`; product integration and engineering acceptance retain their own scope and evidence.
 >
 
 ### CLM-017 — Prerequisites
@@ -225,8 +225,8 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 > ##### Steps
 >
 > 1. Reconfirm scope boundaries against SOW-005 and SOW-035.
-> 2. Identify any implementation decisions still TBD, including DOF ordering, coordinate convention, sparse storage, solver library, error handling policy, tolerance policy, and reproducibility target.
-> 3. If a TBD decision is needed to write code, record it as a required human/architecture ruling rather than guessing.
+> 2. Check the implemented frame-kernel DOF/coordinate conventions and accepted DEC-023 solver and DEC-026/046 tolerance policies; identify only genuinely unselected choices and uncovered evidence.
+> 3. Resolve implementation choices through the accepted DEC-012 brief/ruling route; preserve reserved interface, engineering and acceptance criteria without guessing.
 > 4. Define interfaces for model topology, six-DOF node mapping, frame assembly, coordinate transforms, boundary-condition application, sparse solve invocation, unit validation, and result/diagnostic output.
 > 5. Keep straight pipe element behavior, supports, nonlinear supports, loads, stress recovery, diagnostics specialization, reports, and rule packs at their assigned deliverable boundaries.
 > 6. Implement only from lawful, source-grounded mechanics and numerics references after the implementation brief authorizes code work.
@@ -264,7 +264,7 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 
 > ##### D-41 R5 T7 PDU-054 current declaration
 >
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The 3D frame kernel, DOF contract, dense solution path, and DEC-023 sparse evidence now exist in the implemented slice. Sparse-as-default policy and any broader performance/validation thresholds remain held where recorded; lifecycle remains `IN_PROGRESS`.
+> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The 3D frame kernel, DOF contract, dense solution path, and DEC-023 sparse evidence now exist in the implemented slice. DEC-053 selects sparse interactive as the product default with dense scrutiny selectable. Broader performance/validation thresholds remain held where recorded; lifecycle remains `IN_PROGRESS`.
 
 - **VER-001** — Validate the contract and review source parity, frame/DOF and assembly coverage, coordinate and boundary interfaces, sparse/reproducibility obligations, units and diagnostics, protected-content and professional boundaries, and every unresolved governed item.
 
@@ -280,7 +280,7 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 
 > ##### Purpose
 >
-> This deliverable prepares the bounded implementation surface for the central 3D frame stiffness kernel. Its value is to keep global centerline mechanics, sparse numerical behavior, reproducibility, units, diagnostics, protected-data controls, and professional-boundary language aligned before code is written.
+> This deliverable prepares the bounded implementation surface for the central 3D frame stiffness kernel. Its value is to keep global centerline mechanics, sparse numerical behavior, reproducibility, units, diagnostics, protected-data controls, and professional-boundary language aligned through implementation and verification.
 >
 
 ### CLM-025 — Principles
@@ -301,7 +301,7 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 >
 > The accessible source set is the decomposition, registers, contract, and local context. It does not provide detailed mechanics formulas, reference-element derivations, numerical tolerances, sparse storage formats, or benchmark thresholds. Future implementation must therefore source those details from lawful references or human-approved architecture decisions.
 >
-> Architecture basis rows constrain the future implementation shape:
+> Architecture basis rows constrain the implementation boundary:
 >
 > - AB-00-01 requires decision records for accepted architecture choices and reconsideration triggers.
 > - AB-00-02 keeps dependencies pointed inward toward domain contracts and preserves layer responsibilities.
@@ -316,8 +316,8 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 >
 > | Topic | Current guidance |
 > |---|---|
-> | Sparse solver library | TBD. Choosing one now would exceed setup scope. |
-> | Coordinate convention | TBD. Must be consistent across element, support, load, result, and report interfaces. |
+> | Sparse solver library | DEC-023 resolves the strategy; this record selects no new library. |
+> | Coordinate convention | Current frame-kernel local-axis/direction-cosine convention must remain consistent across element, support, load, result and report interfaces. |
 > | Performance targets | TBD. SOW-035 requires sparse performance and reproducibility, but concrete thresholds are not available. |
 > | Verification fixtures | Use invented, rights-cleared, non-authoritative fixtures only after implementation is scoped; label them as test fixtures, not engineering examples. |
 > | Kernel boundaries | Keep element stiffness, support behavior, diagnostics, load application, and stress recovery in their assigned deliverables unless a human-approved change amends the decomposition. |
@@ -327,8 +327,8 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 
 > ##### Examples
 >
-> - `TBD`: A future fixture set may include a minimal frame topology to test DOF mapping, but this setup kit does not define values, tolerances, or expected results.
-> - `TBD`: A future architecture decision may choose a sparse matrix representation, but this setup kit does not select one.
+> - Current invented frame topology/DOF witnesses reside with `core/solver/frame_kernel/src/lib.rs`; numerical verification follows DEC-026, without creating engineering acceptance or new defaults.
+> - Sparse strategy is resolved by DEC-023; its profile representation and ordering are recorded in `core/solver/sparse_direct/`. Implementation evidence does not select release performance limits.
 >
 
 ### CLM-029 — Conflict Table (for human ruling)

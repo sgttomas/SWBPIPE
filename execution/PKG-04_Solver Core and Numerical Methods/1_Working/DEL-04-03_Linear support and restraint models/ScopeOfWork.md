@@ -76,7 +76,7 @@ This Scope of Work defines `DEL-04-03` in service of project scope [SOW-011] and
 > | Boundary preparation | `prepare_boundary` produces restrained DOFs, spring entries, imposed displacement entries, and deterministic support findings for missing, invalid, duplicate, or out-of-range support data. |
 > | Boundary application | `apply_linear_supports` validates a dense global system through the frame kernel, adds prepared spring stiffness to global stiffness diagonals, and reduces rigid plus imposed displacement DOFs through the frame-kernel prescribed-displacement boundary. Sparse solver integration and final result-envelope integration remain downstream. |
 > | Diagnostics | Current crate findings include local support finding code, support ID, and message. AB-00-06 result-envelope mapping remains downstream integration work. |
-> | Tests | Current evidence records `cargo test --manifest-path core/solver/linear_supports/Cargo.toml --locked` passing 14 tests, including frame-kernel DOF parity, unit metadata, boundary preparation, and boundary application coverage. |
+> | Tests | Candidate-bound crate evidence must cover frame-kernel DOF parity, unit metadata, boundary preparation, and boundary application coverage. |
 >
 
 ### CLM-006 — References
@@ -84,7 +84,7 @@ This Scope of Work defines `DEL-04-03` in service of project scope [SOW-011] and
 > ##### References
 >
 > - `_CONTEXT.md` for sealed deliverable identity and applicable architecture basis IDs.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for SOW-011, OBJ-003, PKG-04, DEL-04-03, and AB-00-01/02/03/06/08.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) for SOW-011, OBJ-003, PKG-04, DEL-04-03, and AB-00-01/02/03/06/08.
 > - `docs/_Registers/Deliverables.csv`, `ScopeLedger.csv`, and `ContextBudgetQA.csv` for register rows.
 > - `docs/CONTRACT.md` for applicable invariants.
 > - `docs/SPEC.md`, `docs/TYPES.md`, and `docs/INTENT.md` for public architecture and vocabulary slices.
@@ -174,7 +174,7 @@ This Scope of Work defines `DEL-04-03` in service of project scope [SOW-011] and
 > - deliverable-local run records for the May 15 and June 5 implementation slices;
 > - this `ScopeOfWork.md` and `MEMORY.md`.
 >
-> Decision records are still required for any later resolution of support coordinate policy, sparse solver integration, final result-envelope integration, release criteria, or other governed choices outside the current bounded implementation.
+> Apply the accepted solver strategy under DEC-023 and the applicable sealed-brief route under DEC-012. Evidence actual support-coordinate behavior, sparse integration and final-result integration against their owning contracts; retain release criteria and any genuinely unselected authority matters at their own gates. The earlier bounded implementation description does not make settled policy undecided.
 >
 
 ### CLM-014 — D-41 R5 T7 PDU-054 current declaration
@@ -183,7 +183,7 @@ This Scope of Work defines `DEL-04-03` in service of project scope [SOW-011] and
 >
 > Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The linear-support slice implements the recorded support/restraint families and DEC-049 hanger user data. Its current evidence and residuals are those named by the implemented crate and tests; no review, validation, or lifecycle ruling is made here.
 
-- **AC-001** — The contract preserves the accepted implemented linear-support boundaries, unit-bearing quantities, no-default behavior, frame-kernel indexing and prescribed-displacement integration, rights-safe fixtures, and unresolved support-coordinate, sparse/result-envelope, release, and constant-effort-hanger work without implying nonlinear behavior or approval.
+- **AC-001** — The contract preserves the accepted implemented linear-support boundaries, unit-bearing quantities, no-default behavior, frame-kernel indexing and prescribed-displacement integration, rights-safe fixtures, and unresolved support-coordinate, uncovered result-envelope and release evidence; product sparse assembly follows DEC-050/053 and hanger scope follows DEC-049 without implying nonlinear behavior or approval.
 
 ## Production and Verification Method — Praxeology
 
@@ -220,7 +220,7 @@ This Scope of Work defines `DEL-04-03` in service of project scope [SOW-011] and
 > 4. Confirm `SupportQuantity` preserves value, dimension, optional unit-system reference, and optional unit metadata; verify dimension mismatch is rejected rather than converted or defaulted.
 > 5. Confirm `prepare_boundary` returns restrained DOFs, spring entries, imposed displacement entries, and deterministic support findings for missing, invalid, duplicate, or out-of-range data.
 > 6. Confirm `apply_linear_supports` validates a dense global system through the frame kernel, adds spring stiffness to global diagonals, and reduces rigid plus imposed displacement DOFs through the frame-kernel prescribed-displacement boundary.
-> 7. Confirm current local evidence records 14 passing `linear_supports` tests and does not rely on protected support catalog values, code-derived defaults, or copied commercial benchmarks.
+> 7. Confirm candidate-bound `linear_supports` verification covers the current crate behavior and does not rely on protected support catalog values, code-derived defaults, or copied commercial benchmarks.
 > 8. Confirm nonlinear one-way, gap, lift-off, friction, active-set behavior, sparse solver integration, final result-envelope integration, support coordinate policy, release claims, and professional/code-compliance claims remain outside this deliverable alignment.
 > 9. Record any later resolved architecture or representation choices through the approved decision-record path. The exact repo-level ADR location is outside this task and remains `TBD`.
 >
@@ -232,7 +232,7 @@ This Scope of Work defines `DEL-04-03` in service of project scope [SOW-011] and
 > - `ScopeOfWork.md` exists and uses consistent terminology for linear support/restraint models.
 > - Required support-data gaps are represented as `TBD` or support findings, not defaults.
 > - Current test evidence references deterministic mechanics verification and unit/dimensional checks for support stiffness and imposed displacement values.
-> - Implementation evidence includes `prepare_boundary`, `apply_linear_supports`, frame-kernel `FrameDof` re-export, `node_dof_index` indexing, `SupportQuantity` unit metadata, and 14 passing `linear_supports` tests.
+> - Implementation evidence includes `prepare_boundary`, `apply_linear_supports`, frame-kernel `FrameDof` re-export, `node_dof_index` indexing, `SupportQuantity` unit metadata, and revision-bound `linear_supports` test evidence.
 > - No protected standards text, copied formulas, protected tables, proprietary vendor data, or certification/compliance claims are introduced.
 > - Nonlinear support behavior is not implemented or specified as part of this linear deliverable.
 >

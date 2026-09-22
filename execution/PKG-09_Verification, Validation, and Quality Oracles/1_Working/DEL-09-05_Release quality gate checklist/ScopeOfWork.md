@@ -28,6 +28,9 @@ This Scope of Work defines `DEL-09-05` in service of project scope [SOW-026, SOW
 ### CLM-003 — Identification
 
 > ##### Identification
+>
+> Current deliverable obligation: Define release gates for solver changes, rule-engine changes, GUI releases, and report-template releases. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
 > | Field | Value |
 > |---|---|
 > | Deliverable ID | DEL-09-05 |
@@ -40,7 +43,6 @@ This Scope of Work defines `DEL-09-05` in service of project scope [SOW-026, SOW
 > | Anticipated artifacts | release QA checklist; CI quality gates |
 > | Write boundary | Deliverable-local setup artifacts only |
 >
-
 ### CLM-004 — Attributes
 
 > ##### Attributes
@@ -55,13 +57,15 @@ This Scope of Work defines `DEL-09-05` in service of project scope [SOW-026, SOW
 ### CLM-005 — Conditions
 
 > ##### Conditions
+>
+> Current deliverable obligation: Define release gates for solver changes, rule-engine changes, GUI releases, and report-template releases. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
 > - Scope is process and CI gate definition only. This setup does not modify CI workflows, tests, release files outside this deliverable, or repo-level artifacts.
 > - Final numerical tolerances, coverage percentages, performance thresholds, CI provider details, signing process, release matrix, and maintainer quorum remain `TBD` unless later approved by the human project authority.
 > - Release labels describe software maturity and validation evidence only. They must not imply code compliance, endorsement, sealing, certification, or project-specific engineering acceptance (PRD §21.2).
 > - Benchmark sources and public examples must be original, public-domain, or permissively licensed with documented provenance.
 > - Missing solve-required or rule-check-required data is a finding and cannot be hidden by a release gate.
 >
-
 ### CLM-006 — Gate Outcome Vocabulary
 
 > ##### Gate Outcome Vocabulary
@@ -96,8 +100,7 @@ This Scope of Work defines `DEL-09-05` in service of project scope [SOW-026, SOW
 > - `docs/SPEC.md` - numerical quality, rule-pack evaluator, GUI warning classes, reports, V&V mechanics, and acceptance semantics.
 > - `docs/VALIDATION_STRATEGY.md` - benchmark families, validation manual structure, release gate, and benchmark source rule.
 > - `docs/IP_AND_DATA_BOUNDARY.md` - protected-content, provenance, quarantine, private-data, and report-boundary policy.
-> - `execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-08_Layered software test and acceptance strategy/Specification.md` - layered test obligations and deferred threshold decisions.
-
+> - `execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-08_Layered software test and acceptance strategy/ArchitectureBasis.md` - layered test obligations and deferred threshold decisions.
 ## Completion and Reliance Basis — Epistemology
 
 ### CLM-009 — Specification: DEL-09-05 Release quality gate checklist
@@ -109,6 +112,9 @@ This Scope of Work defines `DEL-09-05` in service of project scope [SOW-026, SOW
 ### CLM-011 — Scope
 
 > ##### Scope
+>
+> Current deliverable obligation: Define release gates for solver changes, rule-engine changes, GUI releases, and report-template releases. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
 > This specification defines the deliverable-local release quality gate checklist for solver changes, rule-engine changes, GUI releases, and report-template releases. It converts PKG-09 verification and validation obligations into process and CI gate criteria without editing CI workflows or setting final thresholds.
 >
 > Out of scope:
@@ -117,38 +123,36 @@ This Scope of Work defines `DEL-09-05` in service of project scope [SOW-026, SOW
 > - selecting final tolerance, coverage, performance, release-matrix, signing, or maintainer-quorum thresholds without human authority;
 > - asserting certification, code compliance, professional approval, or engineering reliance (PRD §21.2).
 >
-
 ### CLM-012 — Requirements
 
 > ##### Requirements
 > | ID | Requirement | Evidence |
 > |---|---|---|
-> | RQG-001 | The checklist shall route each release-impacting change to one or more gate families: solver, rule-engine, GUI, report-template, or mixed. | `Datasheet.md#Attributes`; `Procedure.md#Steps` |
-> | RQG-002 | Solver-change gates shall require deterministic verification/regression evidence for applicable mechanics, stress recovery, nonlinear behavior, unit-aware calculations, numerical-quality diagnostics, and warning/result-envelope behavior before release use. | `docs/SPEC.md#4.5`; `docs/SPEC.md#9`; `docs/VALIDATION_STRATEGY.md#2`; `docs/CONTRACT.md#OPS-K-SOLVER-1` |
-> | RQG-003 | Rule-engine gates shall require evidence for sandboxing, unit awareness, deterministic evaluation, required-input completeness, invented example data, rule-pack checksum/provenance handling, and absence of arbitrary code execution. | `docs/SPEC.md#6`; `docs/CONTRACT.md#OPS-K-RULE-1`; `docs/CONTRACT.md#OPS-K-RULE-2`; `docs/CONTRACT.md#OPS-K-RULE-3` |
-> | RQG-004 | GUI release gates shall require workflow evidence that missing solve data, missing rule-check data, provenance weakness, assumptions, nonlinear uncertainty, and IP-boundary warnings remain visible and cannot be collapsed into generic success states. | `docs/SPEC.md#7`; `docs/TYPES.md#4`; `docs/DIRECTIVE.md#2.2` |
-> | RQG-005 | Report-template gates shall require reproducibility, checksum stability, warning inclusion, provenance disclosure, professional-boundary notice, and protected-content lint evidence. | `docs/SPEC.md#8`; `docs/VALIDATION_STRATEGY.md#2`; `docs/IP_AND_DATA_BOUNDARY.md#7` |
+> | RQG-001 | The checklist shall route each release-impacting change to one or more gate families: solver, rule-engine, GUI, report-template, or mixed. | `ScopeOfWork.md#Attributes`; `ScopeOfWork.md#Steps` |
+> | RQG-002 | Solver-change gates shall require deterministic verification/regression evidence for applicable mechanics, stress recovery, nonlinear behavior, unit-aware calculations, numerical-quality diagnostics, and warning/result-envelope behavior before release use. | `docs/SPEC.md` §5 Solver core requirements and §10 Verification and validation mechanics; `docs/VALIDATION_STRATEGY.md#2`; `docs/CONTRACT.md#OPS-K-SOLVER-1` |
+> | RQG-003 | Rule-engine gates shall require evidence for sandboxing, unit awareness, deterministic evaluation, required-input completeness, invented example data, rule-pack checksum/provenance handling, and absence of arbitrary code execution. | `docs/SPEC.md` §7 Rule-pack evaluator; `docs/CONTRACT.md#OPS-K-RULE-1`; `docs/CONTRACT.md#OPS-K-RULE-2`; `docs/CONTRACT.md#OPS-K-RULE-3` |
+> | RQG-004 | GUI release gates shall require workflow evidence that missing solve data, missing rule-check data, provenance weakness, assumptions, nonlinear uncertainty, and IP-boundary warnings remain visible and cannot be collapsed into generic success states. | `docs/SPEC.md` §8 GUI requirements; `docs/TYPES.md#4`; `docs/DIRECTIVE.md#2.2` |
+> | RQG-005 | Report-template gates shall require reproducibility, checksum stability, warning inclusion, provenance disclosure, professional-boundary notice, and protected-content lint evidence. | `docs/SPEC.md` §9 Reporting and audit; `docs/VALIDATION_STRATEGY.md#2`; `docs/IP_AND_DATA_BOUNDARY.md#7` |
 > | RQG-006 | The checklist shall preserve the distinction between mechanics verification, workflow validation, user-rule checking, and professional review. | `docs/VALIDATION_STRATEGY.md#1`; `docs/TYPES.md#4`; `docs/DIRECTIVE.md#2.2` |
 > | RQG-007 | A release candidate shall not be labeled engineering beta unless the release-gate evidence required by `docs/VALIDATION_STRATEGY.md#4` is present and open risks are listed and accepted by human maintainers. | `docs/VALIDATION_STRATEGY.md#4`; `docs/DIRECTIVE.md#6` |
 > | RQG-008 | Public release-gate artifacts shall not contain protected standards text, copied code formulas, protected examples, material allowables, SIF/flexibility tables, protected dimensional tables, proprietary commercial data, or private user data. | `docs/CONTRACT.md#OPS-K-IP-1`; `docs/IP_AND_DATA_BOUNDARY.md#3`; `docs/DIRECTIVE.md#4.2` |
-> | RQG-009 | Thresholds and release-authority decisions that lack a cited human ruling shall remain `TBD` and shall not be silently selected by this deliverable. | `_CONTEXT.md#Architecture Basis Injection`; `DEL-00-08/Specification.md#Requirements`; `docs/TYPES.md#5` |
-> | RQG-010 | Gate records shall identify evidence commands/results, benchmark source provenance, known limitations, open risks, unresolved `TBD` items, and the human governance decision surface. | `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md#5`; `docs/DIRECTIVE.md#6`; `docs/SPEC.md#11` |
-> | RQG-011 | Mixed changes shall run the union of applicable gate families unless the human release authority records an explicit waiver and risk disposition. | `Guidance.md#Considerations`; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md#5`; `docs/DIRECTIVE.md#6` |
-> | RQG-012 | Human release-governance records shall list validation status, known limitations, open risks, unresolved `TBD` decisions, and professional-boundary notices. | `docs/DIRECTIVE.md#6`; `docs/VALIDATION_STRATEGY.md#4`; `Procedure.md#Records` |
+> | RQG-009 | Thresholds and release-authority decisions that lack a cited human ruling shall remain `TBD` and shall not be silently selected by this deliverable. | `_CONTEXT.md#Architecture Basis Injection`; `DEL-00-08/ScopeOfWork.md#Requirements`; `docs/TYPES.md#5` |
+> | RQG-010 | Gate records shall identify evidence commands/results, benchmark source provenance, known limitations, open risks, unresolved `TBD` items, and the human governance decision surface. | `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md#5`; `docs/DIRECTIVE.md#6`; `docs/SPEC.md` §11 Agentic development mechanics and §12 Acceptance semantics |
+> | RQG-011 | Mixed changes shall run the union of applicable gate families unless the human release authority records an explicit waiver and risk disposition. | `ScopeOfWork.md#Considerations`; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md#5`; `docs/DIRECTIVE.md#6` |
+> | RQG-012 | Human release-governance records shall list validation status, known limitations, open risks, unresolved `TBD` decisions, and professional-boundary notices. | `docs/DIRECTIVE.md#6`; `docs/VALIDATION_STRATEGY.md#4`; `ScopeOfWork.md#Records` |
 >
 
 ### CLM-013 — Standards
 
 > ##### Standards
-> No protected standards text or clause-level code requirements are used as source authority for this setup deliverable. Applicable project-governance sources are the local SWBPIPE governance, specification, validation, IP/data-boundary, decomposition, register, and PKG-00 architecture-basis documents listed in `Datasheet.md#References`.
+> No protected standards text or clause-level code requirements are used as source authority for this setup deliverable. Applicable project-governance sources are the local SWBPIPE governance, specification, validation, IP/data-boundary, decomposition, register, and PKG-00 architecture-basis documents listed in `ScopeOfWork.md#References`.
 >
-
 ### CLM-014 — Verification
 
 > ##### Verification
 > | Requirement | Setup verification approach |
 > |---|---|
-> | RQG-001 | Confirm `Procedure.md` includes deterministic gate-family classification. |
+> | RQG-001 | Confirm `ScopeOfWork.md` includes deterministic gate-family classification. |
 > | RQG-002 | Confirm solver gate criteria mention mechanics, stress recovery, nonlinear behavior where applicable, units, diagnostics, and deterministic regression evidence without selecting final numeric thresholds. |
 > | RQG-003 | Confirm rule-engine gate criteria mention sandboxing, unit awareness, required inputs, invented examples, checksums, provenance, and arbitrary-code exclusion. |
 > | RQG-004 | Confirm GUI gate criteria preserve the warning/status distinctions from `docs/SPEC.md` and `docs/TYPES.md`. |
@@ -156,7 +160,7 @@ This Scope of Work defines `DEL-09-05` in service of project scope [SOW-026, SOW
 > | RQG-006 | Confirm wording separates verification, validation, user-rule checks, and professional review. |
 > | RQG-007 | Confirm engineering-beta wording is conditional and tied to human maintainer risk acceptance. |
 > | RQG-008 | Confirm no protected data, code-derived values, or private user data were introduced. |
-> | RQG-009 | Confirm thresholds and release-authority choices remain `TBD`. |
+> | RQG-009 | Check ruled choices against the decision log (DEC-025/026/027/057/059/060/089/093); keep only unruled criteria, unmet evidence and reserved release acts open. |
 > | RQG-010 | Confirm dependency and run-record artifacts preserve evidence and open issues. |
 > | RQG-011 | Confirm mixed-change examples and procedure use union routing unless a human waiver is recorded. |
 > | RQG-012 | Confirm release-governance record fields include validation status, limitations, risks, `TBD` decisions, and professional-boundary notice. |
@@ -166,10 +170,7 @@ This Scope of Work defines `DEL-09-05` in service of project scope [SOW-026, SOW
 
 > ##### Documentation
 > Required setup artifacts for this deliverable:
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -177,7 +178,6 @@ This Scope of Work defines `DEL-09-05` in service of project scope [SOW-026, SOW
 > - `_run_records/TASK_RUN_*.md`
 > - `_STATUS.md`
 >
-
 ### CLM-016 — Acceptance Criteria
 
 > ##### Acceptance Criteria
@@ -188,7 +188,6 @@ This Scope of Work defines `DEL-09-05` in service of project scope [SOW-026, SOW
 > - `Current State` is `SEMANTIC_READY` only after the setup artifacts and dependency schema validation pass.
 > - No CI workflows, release files outside this folder, tests, or repo-level artifacts are modified.
 > - Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
-
 - **AC-001** — The contract preserves deterministic gate evidence, union routing, provenance, protected/private-data controls, missing-data findings, open risks and TBD thresholds, gate outcome vocabulary, human waiver/risk disposition, and the distinction between release governance and professional engineering approval.
 
 ## Production and Verification Method — Praxeology
@@ -252,7 +251,7 @@ This Scope of Work defines `DEL-09-05` in service of project scope [SOW-026, SOW
 >    - Verify report reproducibility and checksum/hash stability.
 >    - Verify warning, assumption, limitation, provenance, rule-pack reference, and professional-boundary notices are present.
 >    - Run or require protected-content lint for public templates/examples.
->    - Record the protected-content lint command/tool as `TBD` until DEL-10-04 or a human release-governance ruling supplies the automation detail.
+>    - Use `core/reporting/protected_content_linter/` for typed content checks and `tools/release/run_release_candidate_scan.py` for the DEC-058 release scan. Preserve the separate scoped scan record and owner sign-off required by the ruling.
 >    - Confirm public templates do not embed protected standards text, copied tables, protected formulas, proprietary data, or certification/compliance claims.
 >
 > 7. Review open risks and unresolved decisions.
@@ -269,6 +268,9 @@ This Scope of Work defines `DEL-09-05` in service of project scope [SOW-026, SOW
 ### CLM-022 — Verification
 
 > ##### Verification
+>
+> Current deliverable obligation: Define release gates for solver changes, rule-engine changes, GUI releases, and report-template releases. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
 > - Confirm the final checklist covers solver, rule-engine, GUI, and report-template gate families.
 > - Confirm the procedure does not modify CI workflows, tests, release files outside this deliverable, or repo-level artifacts.
 > - Confirm no final thresholds are asserted without human authority.
@@ -276,7 +278,6 @@ This Scope of Work defines `DEL-09-05` in service of project scope [SOW-026, SOW
 > - Confirm no software or agent output claims certification, sealing, endorsement, official compliance, or professional approval (PRD §21.2).
 > - Confirm setup artifacts include semantic matrices, semantic lensing, dependency artifacts, run records, and `SEMANTIC_READY` status only after validation passes.
 >
-
 ### CLM-023 — Records
 
 > ##### Records
@@ -352,9 +353,12 @@ This Scope of Work defines `DEL-09-05` in service of project scope [SOW-026, SOW
 > | Public report template wording change | Report-template gate | Requires protected-content lint, reproducibility evidence, and professional-boundary notice check |
 >
 
-### CLM-032 — Human-Ruling Queue
+### CLM-032 — Decision and delivery boundaries
 
-> ##### Human-Ruling Queue
+> ##### Decision and delivery boundaries
+>
+> Current decision basis: DEC-025 governs the local evidence sweep; DEC-059 conditionally governs public sanitized-export CI, and DEC-093 permits the exact-head-bound surface-4 CI alternative. DEC-060 selects coverage telemetry tooling, not numeric floors. Implementation and release evidence remain separately bound. DEC-057 selects macOS Apple Silicon (`aarch64-apple-darwin`) `.app` distributed as zip with SHA-256 and release records. Windows/Linux require evidence-gated decisions. Current unsigned conditions remain; DEC-089 adopts a policy-only future Developer ID/notarization target without closing its credential, implementation, network, publication or release gates. DEC-026 governs tolerance policy. Numeric floors, unmeasured scopes, engineering-beta criteria and unfulfilled release acts stay open. The following setup-era queue records its originating questions; it is not evidence that the cited later rulings are absent.
+>
 > - TBD: final numerical tolerance policy for solver and stress recovery benchmarks.
 > - TBD: performance thresholds and permitted variance policy for release gates.
 > - TBD: coverage thresholds for Cargo, Vitest, Playwright, validation, and protected-content gates.
@@ -362,7 +366,6 @@ This Scope of Work defines `DEL-09-05` in service of project scope [SOW-026, SOW
 > - TBD: engineering-beta label policy beyond the minimum conditions in `docs/VALIDATION_STRATEGY.md#4`.
 > - TBD: exact CI command names, automation owners, gate owners, and waiver approver roles.
 >
-
 ### CLM-033 — Conflict Table (for human ruling)
 
 > ##### Conflict Table (for human ruling)

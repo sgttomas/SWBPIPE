@@ -4,6 +4,7 @@
 **Last Updated:** 2026-09-22
 
 ## Remaining
+- R5 continuation delivery task: Demonstrate runtime rationale/audit preservation and actual UI/API/report professional-boundary and private/protected-data guards; compare focused reference tests and claims-registry lint with each emitting surface. Standalone schema/persistence and human disposition limits remain explicit (CLM-009/011/019/023; AC-001).
 - Preserve the v0.2 R7/F3 live-binding gate: the T4 persisted-report workflow does not bind agent rationale into downstream runtime integrations or infer human/professional approval.
 - Phase I program: agent rationale + FR-AGENT-005 professional-boundary hard gate over the existing operation seam, plus route/support candidate generation (generator currently has no owning deliverable — ownership needs a decomposition act) (stage-gated: v0.2 R7; gated: app-dev F3 live-binding remains necessary, and D-58 leaves the automation-condition mechanism unresolved after retiring current reliance on the DEC-063 App-era mechanism) (see also DEL-16-01, DEL-16-02, DEL-16-03) (source: PRD plan §3 Forward Horizon row I / DEC-056/DEC-063/D-58)
 - Obtain the owning human disposition for `PKG16-DEL1604-PKG02-001`; preserve `TECHNICALLY_ADDRESSED_PENDING_HUMAN` and `HumanDisposition=TBD` despite the implemented copied-context scanner coverage (PDU-060).

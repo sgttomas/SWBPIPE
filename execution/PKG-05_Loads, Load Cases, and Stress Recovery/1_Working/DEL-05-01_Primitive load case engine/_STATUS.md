@@ -1,11 +1,13 @@
 # Status: DEL-05-01 Primitive load case engine
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-09-05
+**Last Updated:** 2026-09-22
 
 ## Remaining
+- Bind a fresh protected-content and boundary review to the static generator source candidate including DEC-068 additions. (R5 continuation claim references: DEL-05-01:SOW#CLM-016/REQ-05-01-003.)
 
 ## History
+- 2026-09-22 - Added explicit grouped delivery/evidence tasks from the R5 record-continuation screening to Remaining; lifecycle, existing dispositions and acceptance boundaries remain unchanged. Evidence: `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG00_06/`.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - State set/verified as SEMANTIC_READY (TASK+semantic-matrix-build); setup evidence only, not ISSUED.
 - 2026-05-01 - State set to CHECKING after bounded DEL-05-01 implementation commit e3c9695; review/ISSUED acceptance remains a future human gate.

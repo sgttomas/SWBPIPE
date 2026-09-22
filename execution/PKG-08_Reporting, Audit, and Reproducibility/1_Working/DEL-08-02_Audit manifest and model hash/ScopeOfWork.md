@@ -38,7 +38,7 @@ This Scope of Work defines `DEL-08-02` in service of project scope [SOW-039] and
 > | Deliverable type | BACKEND_FEATURE_SLICE |
 > | Scope item | SOW-039 |
 > | Supported objectives | OBJ-007; OBJ-012 |
-> | Setup status | Draft setup artifact; not implementation |
+> | Setup status | Current contract and bounded implementation evidence; lifecycle and residual work: see `_STATUS.md` |
 >
 
 ### CLM-004 — Attributes
@@ -51,21 +51,23 @@ This Scope of Work defines `DEL-08-02` in service of project scope [SOW-039] and
 > | Hash basis for JSON payloads | Canonical JSON with JCS-compatible canonicalization. Source: `docs/_Registers/ScopeLedger.csv` row SOW-039; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2. |
 > | Hash basis for non-JSON or binary assets | Manifest hashes recorded as separate asset entries. Source: `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2. |
 > | Required reproducibility markers | Model hash, solver version, rule-pack checksum, and input manifest. Source: `docs/_Registers/Deliverables.csv` row DEL-08-02. |
-> | Rule-pack boundary | Rule packs are user/private design-basis artifacts; public artifacts may reference ID, version, checksum, and source note without embedding protected formulas. Source: `docs/SPEC.md` sections 6 and 8; `docs/IP_AND_DATA_BOUNDARY.md` section 7. |
+> | Rule-pack boundary | Rule packs are user/private design-basis artifacts; public artifacts may reference ID, version, checksum, and source note without embedding protected formulas. Source: `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections); `docs/IP_AND_DATA_BOUNDARY.md` section 7. |
 > | Professional boundary | The manifest supports review and reproducibility. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Source: `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/DIRECTIVE.md` section 3. |
-> | Physical project container | TBD. The architecture basis says the physical package/container remains implementation-level TBD. Source: `_CONTEXT.md` Architecture Basis Injection. |
+> | Physical project container | DEC-017 retains canonical JSON domain truth and a rebuildable SQLite projection; DEC-028 selects a multi-member zip/directory package with member inventory and per-member JCS hashes. DEC-057 names the `.opsproj` package. Storage roots, integration and unmet controls remain separately governed. |
 >
 
 ### CLM-005 — Conditions
 
 > ##### Conditions
 >
+> Current deliverable obligation: implement canonical input manifest, model hash, solver version stamp, and rule-pack checksum capture. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > - The setup artifact is constrained to document production only; no hashing code, schemas, or test files are implemented here.
 > - The audit manifest must avoid private/protected payload inclusion by default. It may identify private assets by controlled references and checksums, but public templates must not embed protected standards text, proprietary formulas, private rule-pack payloads, or owner data.
 > - Hashes must be deterministic for equivalent canonical input payloads. Solver version, rule-pack checksum, unit system, and manifest inputs are part of the reproducibility context.
 > - Missing source, provenance, version, or rule-pack checksum information is a finding to expose, not a default to fill silently.
 >
-
 ### CLM-006 — Construction
 
 > ##### Construction
@@ -78,7 +80,7 @@ This Scope of Work defines `DEL-08-02` in service of project scope [SOW-039] and
 > | Model hash | Stable digest over the canonical JSON representation of the model payload selected for hashing. | Uses JCS-compatible canonicalization; exact hashing API is implementation work, not this setup run. |
 > | Solver version stamp | Captures solver/application version and deterministic settings relevant to replay. | Does not imply validation or professional approval. |
 > | Rule-pack checksum capture | Records rule-pack identity, version, checksum, source notice, and redistribution status. | Rule-pack formulas and protected values remain user/private unless lawfully redistributable. |
-> | Binary/non-JSON asset manifest | Records digest, media/type, source/provenance, and inclusion policy for assets not covered by canonical JSON hashing. | Physical project container remains TBD. |
+> | Binary/non-JSON asset manifest | Records digest, media/type, source/provenance, and inclusion policy for assets not covered by canonical JSON hashing. | Use the DEC-017/028 and SCA-003 local-container boundary while preserving explicit non-JSON asset digest, provenance and inclusion semantics. |
 >
 
 ### CLM-007 — References
@@ -88,7 +90,7 @@ This Scope of Work defines `DEL-08-02` in service of project scope [SOW-039] and
 > - `_CONTEXT.md` for deliverable identity, architecture basis IDs, and setup constraints.
 > - `docs/_Registers/Deliverables.csv` row DEL-08-02 for artifact and objective mapping.
 > - `docs/_Registers/ScopeLedger.csv` row SOW-039 for hash-basis acceptance notes.
-> - `docs/SPEC.md` sections 6, 8, 9, and 11 for rule-pack, report, V&V, and acceptance constraints.
+> - `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections)for rule-pack, report, V&V, and acceptance constraints.
 > - `docs/IP_AND_DATA_BOUNDARY.md` sections 6 and 7 for private data and report-boundary rules.
 > - `docs/CONTRACT.md` for OPS-K-IP, OPS-K-DATA, OPS-K-UNIT, OPS-K-RULE-3, OPS-K-PRIV, OPS-K-AUTH, and OPS-K-AGENT invariants.
 
@@ -104,32 +106,37 @@ This Scope of Work defines `DEL-08-02` in service of project scope [SOW-039] and
 
 > ##### Scope
 >
+> Current deliverable obligation: implement canonical input manifest, model hash, solver version stamp, and rule-pack checksum capture. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This deliverable defines the setup specification for the audit manifest and model-hash feature slice. The future implementation shall capture reproducibility metadata needed to replay or professionally review an SWBPIPE calculation package: model hash, input manifest, solver version stamp, rule-pack checksum, and referenced asset hashes.
 >
-> This setup run does not implement hashing code, tests, schemas, source files, or a physical project container. Those remain future implementation work under bounded Type 2 briefs.
+> The original setup run does not implement hashing code, tests, schemas, source files, or a physical project container. Those remain future implementation work under bounded Type 2 briefs.
 >
-
 ### CLM-011 — Requirements
 
 > ##### Requirements
 >
 > | ID | Requirement | Source |
 > |---|---|---|
-> | DEL-08-02-R1 | The audit manifest shall identify the exact model input payload used for a solve/report run. | `docs/_Registers/Deliverables.csv` row DEL-08-02; `docs/SPEC.md` section 8 |
+> | DEL-08-02-R1 | The audit manifest shall identify the exact model input payload used for a solve/report run. | `docs/_Registers/Deliverables.csv` row DEL-08-02; `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections)|
 > | DEL-08-02-R2 | JSON payload hashes shall be based on canonical JSON with JCS-compatible canonicalization. | `docs/_Registers/ScopeLedger.csv` row SOW-039; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2 |
 > | DEL-08-02-R3 | Non-JSON and binary assets shall be represented through manifest asset hashes rather than folded into the JSON payload hash. | `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2 |
-> | DEL-08-02-R4 | The manifest shall record software version and solver version sufficient to interpret deterministic result reproduction. | `docs/SPEC.md` sections 4.5 and 8 |
-> | DEL-08-02-R5 | The manifest shall record rule-pack name or ID, version, checksum, source notice, and redistribution status where a rule pack participates in a report/run. | `docs/SPEC.md` sections 6 and 8; `docs/IP_AND_DATA_BOUNDARY.md` section 7 |
-> | DEL-08-02-R6 | The manifest shall preserve unit-system and unit-aware model context so replay does not depend on hidden unit defaults. | `docs/CONTRACT.md` OPS-K-UNIT-1; `docs/SPEC.md` section 8 |
+> | DEL-08-02-R4 | The manifest shall record software version and solver version sufficient to interpret deterministic result reproduction. | `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections)|
+> | DEL-08-02-R5 | The manifest shall record rule-pack name or ID, version, checksum, source notice, and redistribution status where a rule pack participates in a report/run. | `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections); `docs/IP_AND_DATA_BOUNDARY.md` section 7 |
+> | DEL-08-02-R6 | The manifest shall preserve unit-system and unit-aware model context so replay does not depend on hidden unit defaults. | `docs/CONTRACT.md` OPS-K-UNIT-1; `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections)|
 > | DEL-08-02-R7 | Missing provenance, version, checksum, or required manifest inputs shall be surfaced as warnings/findings, not silently defaulted. | `docs/DIRECTIVE.md` sections 2.2 and 3; `docs/CONTRACT.md` OPS-K-DATA-2 |
 > | DEL-08-02-R8 | Public manifest/report templates shall not embed protected standards text, protected tables, proprietary formulas, private rule-pack payloads, or private project data. | `docs/CONTRACT.md` OPS-K-IP-1, OPS-K-IP-3, OPS-K-PRIV-1; `docs/IP_AND_DATA_BOUNDARY.md` sections 3, 6, and 7 |
 > | DEL-08-02-R9 | The manifest shall distinguish mechanics solved, user-rule checked, and human/professional acceptance states; it shall not claim code compliance or professional approval (PRD §21.2). | `docs/TYPES.md` sections 4 and 8; `docs/CONTRACT.md` OPS-K-AUTH-1 |
-> | DEL-08-02-R10 | Hash and manifest tests shall verify deterministic stability, checksum changes on material input changes, binary asset manifest handling, and protected/private data exclusion behavior. | `docs/VALIDATION_STRATEGY.md` sections 2 and 4; `docs/SPEC.md` section 9 |
+> | DEL-08-02-R10 | Hash and manifest tests shall verify deterministic stability, checksum changes on material input changes, binary asset manifest handling, and protected/private data exclusion behavior. | `docs/VALIDATION_STRATEGY.md` sections 2 and 4; `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections)|
 >
 
 ### CLM-012 — Standards
 
 > ##### Standards
+>
+> Current deliverable obligation: implement canonical input manifest, model hash, solver version stamp, and rule-pack checksum capture. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
 >
 > | Standard or basis | Applicability | Status |
 > |---|---|---|
@@ -139,7 +146,6 @@ This Scope of Work defines `DEL-08-02` in service of project scope [SOW-039] and
 >
 > No protected engineering code, standard clause text, commercial example, or proprietary rule content is used as an authority in this setup artifact.
 >
-
 ### CLM-013 — Verification
 
 > ##### Verification
@@ -163,10 +169,7 @@ This Scope of Work defines `DEL-08-02` in service of project scope [SOW-039] and
 >
 > This setup deliverable produces:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -175,7 +178,6 @@ This Scope of Work defines `DEL-08-02` in service of project scope [SOW-039] and
 > - `_STATUS.md`
 >
 > Future implementation artifacts anticipated by the register are `audit manifest` and `hash tests`; they are not created in this setup session.
-
 - **AC-001** — The contract preserves the explicit hash boundary and deterministic canonicalization basis, complete reproducibility metadata, missing-data findings, protected/private payload exclusion, and separation of computation identity from compliance or professional acceptance without selecting an unapproved library or container.
 
 ## Production and Verification Method — Praxeology
@@ -190,9 +192,11 @@ This Scope of Work defines `DEL-08-02` in service of project scope [SOW-039] and
 
 > ##### Purpose
 >
-> This procedure defines how the future audit-manifest feature should be produced and verified. In this setup session it is documentation only; no hashing code, schemas, source implementation, or tests are created.
+> Current deliverable obligation: implement canonical input manifest, model hash, solver version stamp, and rule-pack checksum capture. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
-
+>
+> This procedure defines how the future audit-manifest feature should be produced and verified. In the original setup session it is documentation only; no hashing code, schemas, source implementation, or tests are created.
+>
 ### CLM-018 — Prerequisites
 
 > ##### Prerequisites
@@ -238,9 +242,8 @@ This Scope of Work defines `DEL-08-02` in service of project scope [SOW-039] and
 > - `_STATUS.md` is `SEMANTIC_READY` only after the setup sequence succeeds;
 > - no private/protected payloads or certification claims are introduced.
 >
-> For future implementation, run the hash determinism, manifest stability, protected-content, and report reproducibility tests described in `Specification.md`.
+> For future implementation, run the hash determinism, manifest stability, protected-content, and report reproducibility tests described in `ScopeOfWork.md`.
 >
-
 ### CLM-021 — Records
 
 > ##### Records
@@ -252,7 +255,6 @@ This Scope of Work defines `DEL-08-02` in service of project scope [SOW-039] and
 > - dependency outputs in `Dependencies.csv` and `_DEPENDENCIES.md`;
 > - execution evidence in `_run_records/`;
 > - lifecycle evidence in `_STATUS.md`.
-
 - **VER-001** — Validate the contract and review source parity, canonicalization and hash-boundary rules, deterministic-change behavior, asset-manifest handling, version/unit/provenance fields, protected/private data limits, professional-boundary language, and every retained TBD or governed residual.
 
 ## Governing Values and Decisions — Axiology
@@ -290,7 +292,7 @@ This Scope of Work defines `DEL-08-02` in service of project scope [SOW-039] and
 > | Units | The manifest should make the unit system and unit-bearing values reproducible enough that replay does not depend on implicit defaults. |
 > | Rule packs | Rule-pack checksum capture should reference the user/private artifact without copying protected rule text or proprietary values into public outputs. |
 > | Solver version | Version stamping should be granular enough to explain deterministic replay and regression comparison. Exact versioning format remains implementation work. |
-> | Binary assets | Non-JSON assets should be individually addressed in the manifest with digest and provenance fields, because the physical project container is still TBD. |
+> | Binary assets | Address non-JSON assets individually with digest and provenance under the DEC-028 package/member identity contract; do not hash raw archive bytes as canonical domain identity. |
 > | Reports | Report generation should consume the manifest so report reproducibility and protected-content linting can be tested. |
 >
 

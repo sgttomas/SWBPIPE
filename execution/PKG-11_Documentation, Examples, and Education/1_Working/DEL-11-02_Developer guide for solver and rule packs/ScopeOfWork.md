@@ -40,7 +40,7 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 > | Scope item | SOW-033 |
 > | Objectives | OBJ-001, OBJ-002 |
 > | Context envelope | M |
-> | Current setup status | Prepared for semantic setup and dependency extraction |
+> | Current setup status | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle and remaining work are recorded in `_STATUS.md`. Setup-only restrictions describe the originating setup run, not standing product scope. |
 >
 
 ### CLM-004 — Attributes
@@ -51,7 +51,7 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 > |---|---|
 > | Documentation audience | Solver contributors, rule-pack contributors, reviewers, and maintainers. |
 > | Guide subject | Developer-facing explanation of solver architecture, rule-pack schema expectations, test discipline, and contribution boundaries. |
-> | Architecture basis | AB-00-01, AB-00-02, AB-00-06, AB-00-07, AB-00-08 from SOFTWARE_DECOMP revision 0.7. |
+> | Architecture basis | AB-00-01, AB-00-02, AB-00-06, AB-00-07, AB-00-08 from SOFTWARE_DECOMP accepted current basis. |
 > | Runtime baseline referenced | Rust core/application services; schema-first command/query/job result envelopes; JSON Schema 2020-12; Cargo/Vitest/Playwright/validation/protected-content gates where applicable. |
 > | Solver boundary | The guide must present the solver as open mechanics for a 3D centerline/frame model, not as a code-compliance authority. |
 > | Rule-pack boundary | The guide must present rule packs as user-supplied/private design-basis artifacts with provenance, checksums, and redistribution status. |
@@ -95,7 +95,7 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 >
 > | Source | Use |
 > |---|---|
-> | `INIT.md` | Bootstrap boundaries: open mechanics, private standards data, rule checks vs professional approval, centerline analysis vs local FEA. |
+> | `AGENTS.md` | Bootstrap boundaries: open mechanics, private standards data, rule checks vs professional approval, centerline analysis vs local FEA. |
 > | `AGENTS.md` | TASK dispatch boundaries and documentation package role. |
 > | `docs/DIRECTIVE.md` | Founding intent, stop rules, non-negotiable product principles. |
 > | `docs/CONTRACT.md` | Invariants for IP, data, rule packs, units, privacy, authority, and agent boundaries. |
@@ -119,13 +119,15 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 
 > ##### Scope
 >
+> Current deliverable obligation: Create developer guide for solver architecture, rule-pack schema, test discipline, and contribution boundaries. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This deliverable defines setup evidence for a future developer guide covering solver architecture, rule-pack schema expectations, test discipline, and contribution boundaries for OpenPipeStress.
 >
-> This setup pass does not edit `docs/developer_guide/index.md`, create examples, implement source code, define protected code rules, select a solver numerical library, select a rule expression grammar, update repository-level documentation, or move artifacts to `ISSUED`.
+> The original setup pass does not edit `docs/developer_guide/index.md`, create examples, implement source code, define protected code rules, select a solver numerical library, select a rule expression grammar, update repository-level documentation, or move artifacts to `ISSUED`.
 >
 > The guide is documentation for contributors. It must help developers inspect and extend the open mechanics and rule-pack infrastructure while preserving the boundary between public mechanics and user-supplied/protected code data.
 >
-
 ### CLM-011 — Requirements
 
 > ##### Requirements
@@ -145,7 +147,7 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 > | REQ-11-02-011 | The future guide shall avoid protected code examples, protected formulas, proprietary commercial examples, or invented values that could be mistaken for design guidance. | SOW-033; OPS-K-RULE-1; `docs/IP_AND_DATA_BOUNDARY.md` | Protected-content lint plus human review. |
 > | REQ-11-02-012 | The future guide shall mark unresolved implementation details as `TBD` rather than choosing a dependency version, numerical library, expression grammar, CI threshold, or physical project package format without human approval. | SOFTWARE_DECOMP section 8.2; OPS-K-AGENT-1 | TBD scan and human-ruling review. |
 > | REQ-11-02-013 | The future guide shall state that agent outputs, setup artifacts, generated examples, and software results remain drafts or decision support until accepted by appropriate human review. | OPS-K-AGENT-4; OPS-K-AUTH-1 | Professional-boundary wording review. |
-> | REQ-11-02-014 | This setup deliverable shall keep all writes within the DEL-11-02 execution folder and shall not edit the final `docs/developer_guide/index.md` artifact. | Human brief write scope | Git path review. |
+> | REQ-11-02-014 | This setup deliverable shall keep all writes within the DEL-11-02 execution folder and shall not edit the final `docs/developer_guide/index.md` artifact. Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Human brief write scope | Git path review. |
 >
 
 ### CLM-012 — Standards
@@ -156,7 +158,7 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 > |---|---|
 > | SWBPIPE CONTRACT | Governs IP, data, privacy, rule-pack, unit, professional-authority, and agent-output constraints. |
 > | SWBPIPE SPEC | Provides current architecture, solver, rule-pack, GUI-warning, report, and V&V baseline for developer-guide requirements. |
-> | SOFTWARE_DECOMP revision 0.7 | Provides package/deliverable scope, architecture basis injection, objectives, and remaining `TBD` decisions. |
+> | SOFTWARE_DECOMP accepted current basis | Provides package/deliverable scope, architecture basis injection, objectives, and remaining `TBD` decisions. |
 > | IP and Data Boundary Policy | Governs public/private content rules, provenance, and quarantine behavior. |
 > | Validation Strategy | Governs test families and release-quality expectations to describe in the guide. |
 > | External engineering standards | May be referenced as user-owned/private design bases; protected text, tables, examples, formulas, and values are not public guide content. |
@@ -182,23 +184,19 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 
 > ##### Documentation
 >
-> Expected future product artifact:
+> Existing product documentation artifact (content and review remain claim-bound):
 >
 > - `docs/developer_guide/index.md`
 >
 > Required supporting evidence for this setup deliverable:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
 > - `_DEPENDENCIES.md`
 > - `_run_records/*`
 > - `_STATUS.md`
-
 - **AC-001** — The contract preserves architecture and extension-point descriptions, schema and unit invariants, deterministic test and benchmark expectations, rule-pack provenance and protected-content boundaries, diagnostics and failure behavior, current implementation evidence, visible unresolved interfaces, and the separation of software contribution evidence from engineering approval.
 
 ## Production and Verification Method — Praxeology
@@ -226,7 +224,7 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 > | Current decomposition and registers | `execution/_Decomposition/SOFTWARE_DECOMP.md`, `docs/_Registers/Deliverables.csv`, `docs/_Registers/ScopeLedger.csv`. |
 > | Governing invariants | `docs/CONTRACT.md`, especially IP, data, unit, rule-pack, privacy, authority, and agent invariants. |
 > | Architecture basis | AB-00-01, AB-00-02, AB-00-06, AB-00-07, AB-00-08. |
-> | Source references | `INIT.md`, `docs/DIRECTIVE.md`, `docs/TYPES.md`, `docs/SPEC.md`, `docs/IP_AND_DATA_BOUNDARY.md`, `docs/VALIDATION_STRATEGY.md`, and workflow docs. |
+> | Source references | `AGENTS.md`, `docs/DIRECTIVE.md`, `docs/TYPES.md`, `docs/SPEC.md`, `docs/IP_AND_DATA_BOUNDARY.md`, `docs/VALIDATION_STRATEGY.md`, and workflow docs. |
 > | Human authority for unresolved decisions | Required for license/contributor certification, solver numerical library, rule expression grammar, dependency versions, CI thresholds, and other `TBD` decisions. |
 >
 
@@ -250,7 +248,7 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 >    - Prefer `docs/SPEC.md` for technical architecture and baseline mechanics.
 >    - Prefer `docs/CONTRACT.md` and `docs/IP_AND_DATA_BOUNDARY.md` for boundary constraints.
 >    - Prefer `docs/VALIDATION_STRATEGY.md` for test families and release gates.
->    - Prefer SOFTWARE_DECOMP revision 0.7 for scope, objectives, and architecture basis.
+>    - Prefer SOFTWARE_DECOMP accepted current basis for scope, objectives, and architecture basis.
 >
 > 4. Draft solver sections conservatively.
 >    - Explain centerline/frame mechanics, six degree-of-freedom nodes, loads, stress recovery, diagnostics, and test hooks.
@@ -291,7 +289,7 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 > | Check | Expected result |
 > |---|---|
 > | `ScopeOfWork.md` exists | `ScopeOfWork.md` is present. |
-> | Scope check | Documentation-only setup; no source code, examples, repo-level docs, or final guide artifact edited in this session. |
+> | Scope check Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Documentation-only setup; no source code, examples, repo-level docs, or final guide artifact edited in this session. |
 > | Boundary check | No protected standards text/tables/examples/formulas/proprietary data; no professional approval claims. |
 > | Coverage check | Solver architecture, rule-pack schema, test discipline, and contribution boundaries are all addressed. |
 > | TBD check | Unresolved implementation choices are marked `TBD`. |
@@ -305,13 +303,12 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 >
 > Maintain these records in this deliverable folder:
 >
-> - four-document setup kit;
+> - Scope of Work contract;
 > - semantic matrix file and lensing register;
 > - dependency register and dependency index;
 > - `_STATUS.md` lifecycle history;
 > - `_run_records/*` for the five required setup invocations;
 > - validation command results in the final TASK response.
-
 - **VER-001** — Validate the contract and review source parity, solver and rule-pack extension coverage, architecture and schema boundaries, units/provenance/protected-content controls, deterministic tests and diagnostics, retained interface TBDs, and professional-authority limits.
 
 ## Governing Values and Decisions — Axiology
@@ -442,19 +439,19 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 >
 > | Decision | Status |
 > |---|---|
-> | Exact solver numerical library | `TBD` |
-> | Rule expression grammar/library | `TBD` |
+> | Exact solver numerical library | DEC-023 records the accepted in-repository numerical-library basis; later scoped choices and unmet engineering evidence remain separately governed. |
+> | Rule expression grammar/library | DEC-022 records the accepted bounded JSON AST grammar/interpreter; preserve the ruled restrictions and separately unresolved integration. |
 > | Exact dependency versions | `TBD` |
-> | CI provider, coverage thresholds, and performance thresholds | `TBD` |
-> | Physical project package/container | `TBD` |
-> | License and contributor certification mechanism | `TBD` until human project authority records it |
+> | CI provider, coverage thresholds, and performance thresholds | DEC-025 governs the local evidence sweep; DEC-059 conditionally governs public sanitized-export CI, and DEC-093 permits the exact-head-bound surface-4 CI alternative. DEC-060 selects coverage telemetry tooling, not numeric floors. Implementation and release evidence remain separately bound. Performance and coverage pass/fail thresholds are not invented by this record. |
+> | Physical project package/container | DEC-017 retains canonical JSON domain truth and a rebuildable SQLite projection; DEC-028 selects a multi-member zip/directory package with member inventory and per-member JCS hashes. DEC-057 names the `.opsproj` package. Storage roots, integration and unmet controls remain separately governed. |
+> | License and contributor certification mechanism | The selected project license is `PolyForm-Noncommercial-1.0.0` (2026-06-03 human selection; `LICENSE.md`). DEC-027 governs maintainer/release authority. DEC-079 keeps external contribution intake closed and defers CLA/DCO/equivalent instrument adoption to the owner activation/legal-advice path; do not erase the deliberate instrument TBD. |
 >
 
 ### CLM-034 — Conflict Table (for human ruling)
 
 > ##### Conflict Table (for human ruling)
 >
-> No source conflicts were identified during setup. If later guide drafting discovers conflict between architecture basis, implementation practice, legal/data-boundary policy, or validation requirements, record it here rather than silently resolving it.
+> The original setup reported no source conflict. Subsequent record drift included future-guide framing and superseded decision/basis pointers; current carriers are reconciled to the accepted decisions and existing guide. This is record repair, not a new owner ruling. If later guide drafting discovers conflict between architecture basis, implementation practice, legal/data-boundary policy, or validation requirements, record it here rather than silently resolving it.
 >
 > | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 > |---|---|---|---|---|---|---|

@@ -1,5 +1,7 @@
 # MEMORY - DEL-06-02 Sandboxed Unit-Aware Expression Evaluator
 
+Current navigation (2026-09-22 record repair): The undated Implementation Summary, Verification and Open Items below describe the original May 2026 evaluator slice. DEC-022 resolves the grammar and later bound records describe extensions. Current sandbox, taxonomy, integration and evidence obligations are in `ScopeOfWork.md` and `_STATUS.md`; no historical test result is rebound to current code.
+
 ## 2026-07-12 - D-41 R5 T4 PDU-021 supporting evidence
 
 - The downstream report reader preserves governed run records only. Evaluator execution, final diagnostic taxonomy, and result-envelope producer integration remain open.

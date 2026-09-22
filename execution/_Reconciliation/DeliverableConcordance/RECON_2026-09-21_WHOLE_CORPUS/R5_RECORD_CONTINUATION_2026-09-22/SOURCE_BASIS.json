@@ -1,0 +1,217 @@
+{
+  "baseline": "1b5adbf50142a4c01c454c62a31dfcdc60da1894",
+  "workflow": "bundled:chirality-root/reconciliation",
+  "role": "WORKING_ITEMS",
+  "parent": "/root",
+  "agent": "/root/piping_record_repair_manager",
+  "mechanism": "Codex native collaboration; inherited model/effort, not separately asserted; shared filesystem; write scopes instruction-enforced",
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "1bb670ca339a990b153cf033dac2d8e29ca71bdea0accee4200e6dd1feed3d57"
+    },
+    {
+      "path": "agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d8a1f4380962efcd258571c6fb563722be9e2e89d4fa5898b7f6d24dc61ab879"
+    },
+    {
+      "path": "workflows/reconciliation/WORKFLOW.md",
+      "sha256": "75948a77e7ee3ebd9cd9d8a2089c9aff75ca76b49d87260793e6fbdd152fa380"
+    },
+    {
+      "path": "workflows/reconciliation/resources/contract.md",
+      "sha256": "36eb3a4454e384fae7ea3e5d60dda2f9d63e9b7c2e7758c40048f00cb422b2fb"
+    },
+    {
+      "path": "workflows/reconciliation/resources/method.md",
+      "sha256": "f1c8f54909c0ae4341d53391cb4a96fe377dfc1f167c00b1159d15eab079ea16"
+    },
+    {
+      "path": "docs/DELIVERABLE_CONCORDANCE_METHOD.md",
+      "sha256": "4c292998f171de581aa188c4bf3317b7235b31f491ec700b3f33f463ed422139"
+    },
+    {
+      "path": ".agents/skills/chirality-change/SKILL.md",
+      "sha256": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-73_EXECUTION_ADDENDUM_2026-09-22.md",
+      "sha256": "b4094482d530bad9b9e238999444ce02cabe02e4dcff611e0b58c610f605eb35"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5/RUN_RIDER.md",
+      "sha256": "f512b996b58bfca16bcb16dc20a6d4854fbd7adc5711957738644cf386a67986"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5/TASKS/PACKET_ANALYSIS.md",
+      "sha256": "38f2b27a7146c79e4869af7e6e4ab100357d3cbfa4cd004d770a24836294b2e2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/BACKCHECK/R6_2026-09-22/CLAIM_DISPOSITIONS.csv",
+      "sha256": "84520d1003993725bfdb087fcb5460c5d7de28b0d754a3eb46b81a43c79204c8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/BACKCHECK/R6_2026-09-22/HELD_AND_DEFERRED_AUDIT.md",
+      "sha256": "831b82d241ad4032ff45df73ec6371cc5aaec492a6101b2d9a693d138727022f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/tools/extract_claims_v2.py",
+      "sha256": "724041ef5518ffe1432404b1d8afae5461d05c1a6a671bc4ca313c9520d81c87"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+      "sha256": "c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984",
+      "state": "baseline pre-repair read"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-07b_contributor_intake_mechanism.md",
+      "sha256": "33467c3b130301c03490c597bb0e4c202b13d9d4f724d028258f6d70fc495b8a",
+      "state": "baseline pre-repair read"
+    },
+    {
+      "path": "projects/chirality-piping/software-workflow.json",
+      "sha256": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7",
+      "state": "baseline pre-repair read"
+    },
+    {
+      "path": "projects/chirality-piping/docs/IP_AND_DATA_BOUNDARY.md",
+      "sha256": "87458097809cec9563d95fddfc6fa2e77f0613a51cae80c36401571c71a93ea6",
+      "state": "baseline pre-repair read"
+    },
+    {
+      "path": "projects/chirality-piping/governance/CONTRIBUTION_REVIEW_CHECKLIST.md",
+      "sha256": "f777084539b366315551836c54f41da0e254acd5ac1b12e63b1c63184fc50979",
+      "state": "baseline pre-repair read"
+    },
+    {
+      "path": "projects/chirality-piping/CONTRIBUTING.md",
+      "sha256": "e0d03e4967bc32cfccff904c6650a77e8e9cdee6d032f401371782bfce2e5003",
+      "state": "baseline pre-repair read"
+    },
+    {
+      "path": "projects/chirality-piping/governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md",
+      "sha256": "bd6b48e1a8418c4086c18822e0545eca2ea18e4cd86b2be53e57feb059a2f177",
+      "state": "baseline pre-repair read"
+    },
+    {
+      "path": "projects/chirality-piping/docs/PROFESSIONAL_BOUNDARY.md",
+      "sha256": "9b42d3792a26b5bad57e480f59b622a7f2bfc1247cb23795a122df02d5d2f60d",
+      "state": "baseline pre-repair read"
+    },
+    {
+      "path": "projects/chirality-piping/docs/report_notice_template.md",
+      "sha256": "8bc8ed91f92ff7b1e2ff09043f21064bc303721d5ca72848738beb9783ae054a",
+      "state": "baseline pre-repair read"
+    },
+    {
+      "path": "projects/chirality-piping/docs/developer_guide/index.md",
+      "sha256": "d51d856e2dfd9c403a0d85b47f6e4fbc857d23c3b5a0bb447e91e43157d76001",
+      "state": "baseline inspected; code/test evidence read only, not new verification"
+    },
+    {
+      "path": "projects/chirality-piping/docs/contributor_guide/index.md",
+      "sha256": "6b4f407517cabfd26fa6ebaa5a81b301c4a1e0bc5d0fb190e81a4a89033bc215",
+      "state": "baseline inspected; code/test evidence read only, not new verification"
+    },
+    {
+      "path": "projects/chirality-piping/docs/security/local_first_storage_policy.md",
+      "sha256": "fc31878d589cfd88f555f4d779ce472a217dd11e5896007153a63a4aa5d582a3",
+      "state": "baseline inspected; code/test evidence read only, not new verification"
+    },
+    {
+      "path": "projects/chirality-piping/core/security/redaction/route_control.py",
+      "sha256": "73a6721fe14caa915c3c5199ef40ed4b58d1a67ae1c3d42de21fbf9a9323b82e",
+      "state": "baseline inspected; code/test evidence read only, not new verification"
+    },
+    {
+      "path": "projects/chirality-piping/core/security/local_first_storage/route_control.py",
+      "sha256": "280359c940ac744a2dea625fd1429ba2d940a30409bcae4e25d4badaa13ff880",
+      "state": "baseline inspected; code/test evidence read only, not new verification"
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/src/redaction_binding.rs",
+      "sha256": "16770911c5ea85c533163d45478fe1c4085cdf6c086cb79bc2b985155bad0703",
+      "state": "baseline inspected; code/test evidence read only, not new verification"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "6ea1c8f46a32edc2c5d69cb6f9a94ea64d53e18e3ede324ef5d4e8e9fd56c880",
+      "state": "baseline inspected; code/test evidence read only, not new verification"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx",
+      "sha256": "12409babaca0868ad26addbf32cf4db7a48d6a8468d2594a7a9091d4f766ca08",
+      "state": "baseline inspected; code/test evidence read only, not new verification"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx",
+      "sha256": "4a2df280440156053b956efacb509bffc0168bb954cb3bb0a64271beffc9f749",
+      "state": "baseline inspected; code/test evidence read only, not new verification"
+    },
+    {
+      "path": "projects/chirality-piping/docs/security/redaction_export_controls.md",
+      "sha256": "9735f9f116f99f2b2c48ffc89abffe2da74778df115d36a536e90dd20be67b4c",
+      "state": "baseline inspected; code/test evidence read only, not new verification"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/HANDOFF_STATE.md",
+      "sha256": "df76c921052618a4fa4269a82d6bcd6f60942689e7ed37d76ef1c4a64b60d138",
+      "state": "baseline inspected; code/test evidence read only, not new verification"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/reconciliation/CURRENT_HOOK_BINDINGS.csv",
+      "sha256": "16dde75898bf07c2b56a7a4cc698c570ab9b98de2fd157ad51c8315eac3f428b",
+      "state": "baseline inspected; code/test evidence read only, not new verification"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/reconciliation/SOURCES_RECONCILIATION_ACCEPTED.json",
+      "sha256": "94e983d62eda856668eba80efda927e9839f92b29984572e2251587e34ab5a1c",
+      "state": "baseline inspected; code/test evidence read only, not new verification"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/dependencies/CURRENT_SOURCE_BINDINGS.json",
+      "sha256": "cef64bad15aad0f49112d2e3168cc55e9427707acfe0aa801a4bf579b154d215",
+      "state": "baseline inspected; code/test evidence read only, not new verification"
+    },
+    {
+      "path": "projects/chirality-piping/docs/SPEC.md",
+      "sha256": "d92c1a97b78c0532801a03f3cf3a167c32703cf4468e0a41066b9f887df704bd",
+      "basis": "Baseline source read; current carrier changes are bound in INTEGRATION_EDITS.json and SOURCE_BINDINGS.csv"
+    },
+    {
+      "path": "projects/chirality-piping/docs/user_guide/index.md",
+      "sha256": "a44286a1a03f7aca1d9493d7fe755cc94a773e238c8c632a5b2a27d633f64239",
+      "basis": "Baseline source read; current carrier changes are bound in INTEGRATION_EDITS.json and SOURCE_BINDINGS.csv"
+    },
+    {
+      "path": "projects/chirality-piping/docs/theory/centerline_analysis.md",
+      "sha256": "dce0458021cd0e6285c3df0a2723a382f8f53224cdf160dc230d1163b4eb34f0",
+      "basis": "Baseline source read; current carrier changes are bound in INTEGRATION_EDITS.json and SOURCE_BINDINGS.csv"
+    },
+    {
+      "path": "projects/chirality-piping/docs/README.md",
+      "sha256": "a5de93304893997be56d9409150c6a4ccf5ef982aa5a4c8d001809ebf4ee0f63",
+      "basis": "Baseline source read; current carrier changes are bound in INTEGRATION_EDITS.json and SOURCE_BINDINGS.csv"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/_LATEST.md",
+      "sha256": "6335bc5cb1b0d1c13c41181b0fbd3e3ab4547fa355b6c9ddc49513307b721422",
+      "basis": "Baseline source read; current carrier changes are bound in INTEGRATION_EDITS.json and SOURCE_BINDINGS.csv"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-004_2026-05-18_0000/ACCEPTANCE_RECORD.md",
+      "sha256": "8994baa8429446989006842628cdd94d92921412301e05f89b9e3f8e295cb09b",
+      "basis": "Baseline source read; current carrier changes are bound in INTEGRATION_EDITS.json and SOURCE_BINDINGS.csv"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md",
+      "sha256": "460055be7c3149156b33ff7c2230ce8127fb0c0cfac98470931ae4262185d5f7",
+      "basis": "Baseline source read; current carrier changes are bound in INTEGRATION_EDITS.json and SOURCE_BINDINGS.csv"
+    }
+  ],
+  "final_return_basis": "Original author return points retained; final aggregate ACCOUNTING, SOURCE_BINDINGS and independent review bind the integrated correction state."
+}

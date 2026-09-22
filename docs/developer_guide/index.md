@@ -22,9 +22,9 @@ SWBPIPE keeps three responsibilities separate:
 - professional use remains a human responsibility outside automatic software
   output.
 
-Current authority basis: `execution/_Decomposition/SOFTWARE_DECOMP.md`
-revision `0.7` and approved `execution/_DAG/DAG-007/`. `DAG-007` is graph
-coordination authority only; it does not dispatch implementation work, move
+Current authority basis: the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md`
+and its decision register, with approved graph coordination selected through
+`execution/_DAG/_LATEST.md`. Graph coordination does not dispatch implementation work, move
 lifecycle states, approve deliverables, or create professional, release, or
 code-compliance claims.
 
@@ -47,17 +47,21 @@ Read these project artifacts before changing solver or rule-pack behavior:
 | [`docs/architecture/extension_domain_contracts.md`](../architecture/extension_domain_contracts.md) | Domain rules for plugins and adapters that touch models, rule packs, diagnostics, reports, or results. |
 | [`docs/security/local_first_storage_policy.md`](../security/local_first_storage_policy.md) | Local-first storage, private path, telemetry-off-by-default, and storage no-bypass policy. |
 
-Unresolved implementation choices remain `TBD` unless a human-approved
-architecture or implementation deliverable records the decision. Current `TBD`
-items include the production sparse solver integration, rule-expression
-implementation-library integration, dependency versions, CI thresholds, external transport,
-plugin loading/isolation details, operating-system storage roots, product/DB
-migration rollback semantics, redaction workflow, cloud exception workflow, and
-portable project export/copy workflow. SCA-003 has resolved the MVP storage
-substrate as a local SQLite-backed project store/index. SCA-004 has admitted
-export interoperability as explicit boundary work, but concrete writers,
-runtime invocation, endpoint syntax, target coverage, and permission grant
-mechanics remain governed deliverable work or `TBD`.
+Implementation-level choices follow DEC-012 and may be resolved by a sealed
+brief or later human ruling; accepted changes and lockfiles record their actual
+realization. The numerical solver policy is settled by DEC-023, canonical rule
+expressions by DEC-022/037, and CI/coverage policy by DEC-025/059/060/093. Their
+implementation and candidate-bound verification remain separate obligations.
+SCA-003 and DEC-028 govern the local SQLite project store; SCA-004 and the
+PKG-17 contracts govern admitted export formats. Neither a copied TBD list nor
+a present code file replaces those contracts.
+
+Public transport, plugin loading/isolation and permission grants, migration or
+rollback compatibility, private-data/redaction behavior and external activation
+retain their applicable contract and decision paths. Check the owning deliverable
+and current accepted brief for the exact unresolved requirement or witness;
+local mechanism choices do not waive privacy, public-interface, engineering,
+protected-criterion or release gates.
 
 ## 2. Architecture Map
 
@@ -168,7 +172,7 @@ Existing implementation and module surfaces include:
 
 | Surface | Contributor expectation |
 |---|---|
-| `core/solver/frame_kernel` | Keep frame mechanics deterministic and unit-compatible; sparse production solve policy remains `TBD`. |
+| `core/solver/frame_kernel` | Keep frame mechanics deterministic and unit-compatible under DEC-023; implementation and benchmark evidence must satisfy its governed sparse-solve policy. |
 | `core/solver/straight_pipe` | Adapt user-supplied pipe properties into the frame element boundary without supplying protected pipe tables or code-specific values. |
 | `core/solver/linear_supports` | Map explicit support data to solver degrees of freedom without adding catalog defaults. |
 | `core/solver/nonlinear_supports` | Report active-state and nonconvergence facts; do not hide unresolved nonlinear behavior. |

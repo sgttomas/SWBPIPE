@@ -4,6 +4,7 @@
 **Last Updated:** 2026-09-05
 
 ## Remaining
+- R5 continuation delivery task: Complete durable audit/history and actual-outcome integration with DEL-16-06 under DEC-017/020 and SCA-011, preserving accepted/rejected records, rationale and hash-bound decision evidence. Resolve separately governed retention, identity/clock policy and human dispositions without treating reference in-memory output as durable completion (CLM-005/006/013/028).
 
 - Durable accepted/rejected operation history remains incomplete under SOW-070. Preserving original proposed member intents, author/source metadata and rationale through the existing `editor_intents` storage is bounded provenance retention; it does not persist acceptance decisions, batch grouping, application receipts or acceptance timestamps. Reopened records must remain review context with acceptance unknown, requiring explicit requeue and fresh validation. No full SOW-070 closure is claimed. Basis: [accepted batch implementation](../../../_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/C_ACCEPTED_SNAPSHOT_V1.json), [accepted native integration](../../../_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/NATIVE_ACCEPTED_SNAPSHOT_V1.json), and [owning persistence disposition V2](../../../_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/BATCH_PERSISTENCE_DISPOSITION_V2.md). A durable, hash-bound decision/history contract and its save/load checks remain required; this residual does not release D58 or change lifecycle state.
 

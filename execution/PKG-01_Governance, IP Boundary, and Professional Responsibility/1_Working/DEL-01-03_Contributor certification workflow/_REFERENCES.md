@@ -12,8 +12,8 @@
 - agents/AGENT_PREPARATION.md - PREPARATION scaffolding protocol and file schemas.
 
 ## Decomposition and Registers
-- execution/_Decomposition/SOFTWARE_DECOMP.md - Accepted revision 0.7 current decomposition basis; package PKG-01 and deliverable DEL-01-03.
-- execution/_DAG/DAG-006/ - Approved active graph authority; candidate rows remain non-gating.
+- execution/_Decomposition/SOFTWARE_DECOMP.md - Accepted accepted authority (see decision register) current decomposition basis; package PKG-01 and deliverable DEL-01-03.
+- execution/_DAG/_LATEST.md - Approved active graph authority; candidate rows remain non-gating.
 - docs/_Registers/Deliverables.csv - Deliverable identity, description, artifacts, scope, objectives, and context envelope.
 - docs/_Registers/ScopeLedger.csv - Scope item mapping for SOW-028,SOW-048.
 - docs/_Registers/ContextBudgetQA.csv - Context budget row for DEL-01-03.

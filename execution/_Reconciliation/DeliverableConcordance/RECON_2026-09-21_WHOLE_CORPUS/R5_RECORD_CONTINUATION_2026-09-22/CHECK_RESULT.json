@@ -1,0 +1,56 @@
+{
+  "status": "PASS",
+  "baseline": "1b5adbf50142a4c01c454c62a31dfcdc60da1894",
+  "original_corpus_keys": 9889,
+  "primary_selected_keys": 1685,
+  "supplemental_keys": 95,
+  "original_keys_carried_forward_without_new_disposition": 8109,
+  "dispositions": {
+    "REPAIRED_CURRENT_RECORD": 1610,
+    "RESERVED_AUTHORITY": 4,
+    "NO_CHANGE_CURRENT_REQUIREMENT": 93,
+    "NO_CHANGE_HISTORICAL_EVIDENCE": 54,
+    "DELIVERY_TASK_RETAINED": 19
+  },
+  "original_families": {
+    "T5A": 525,
+    "T4A": 442,
+    "T4B": 397,
+    "T5B": 312,
+    "T7": 9
+  },
+  "source_files_changed": 309,
+  "changed_references": 3251,
+  "selected_references_changed": 1605,
+  "census_deliverables": 106,
+  "census_rows": 239,
+  "affected_sow_format_checks": 91,
+  "lifecycle_unchanged": true,
+  "accepted_manifest_bindings": 418,
+  "negative_controls": {
+    "missing_key_rejected": true,
+    "duplicate_key_rejected": true,
+    "unknown_key_rejected": true,
+    "missing_changed_reference_rejected": true,
+    "missing-key_real_validator_rejection": true,
+    "missing-changed-unit_real_validator_rejection": true
+  },
+  "negative_probe_results": [
+    {
+      "probe": "missing-key",
+      "exit_code": 1,
+      "expected_gate": "Selected accounting key mismatch",
+      "observed_error": "AssertionError: Selected accounting key mismatch",
+      "mutation": "In-memory only; no source/evidence file modified"
+    },
+    {
+      "probe": "missing-changed-unit",
+      "exit_code": 1,
+      "expected_gate": "Changed key extraction/span disagreement",
+      "observed_error": "AssertionError: ('Changed key extraction/span disagreement', 'projects/chirality-piping/CONTRIBUTING.md', {'CARRIER:projects/chirality-piping/CONTRIBUTING.md:DOCUMENT'})",
+      "mutation": "In-memory only; no source/evidence file modified"
+    }
+  ],
+  "independent_review": "See INDEPENDENT_REVIEW.md; this mechanical report does not stand in for it",
+  "limits": "Record repair only; prior product/engineering evidence unchanged; no new lifecycle, release or reliance result."
+}

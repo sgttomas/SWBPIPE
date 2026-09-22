@@ -95,8 +95,8 @@ This Scope of Work defines `DEL-12-04` in service of project scope [SOW-040, SOW
 > | `redistribution_status` | Records private-only, public-permissive, unknown, or protected-suspected posture using project vocabulary | PROPOSAL |
 > | `source_provenance` | Source/provenance summary without protected tables or formulas | PROPOSAL |
 > | `checksum` | Hash/checksum reference when available | PROPOSAL |
-> | `credential_ref` | Optional opaque credential reference; never a credential value | PROPOSAL |
-> | `default_transmission_allowed` | Defaults to false for private assets | PROPOSAL |
+> | `credential_ref` | Use separate `secret_field_reference` / `credential_placeholder` records from the current metadata helper; persist opaque reference descriptors only, never credential values. | PROPOSAL |
+> | `default_transmission_allowed` | Default transmission prohibition is the derived `ReferenceClassification.default_posture` and release guard decision; it is not a persisted registry boolean field. | PROPOSAL |
 > | `review_status` | Pending, accepted, rejected, quarantined, or `TBD` review disposition | PROPOSAL |
 >
 
@@ -122,7 +122,7 @@ This Scope of Work defines `DEL-12-04` in service of project scope [SOW-040, SOW
 >
 > - `_CONTEXT.md` for deliverable identity, scope, anticipated artifacts, and architecture basis injection.
 > - `docs/CONTRACT.md` for OPS-K-IP, OPS-K-DATA, OPS-K-AUTH, OPS-K-PRIV, OPS-K-RULE, and OPS-K-AGENT invariants.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 for SOW-029, SOW-040, OBJ-010, PKG-12, and AB-00-01/02/03/04/06/07/08.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis for SOW-029, SOW-040, OBJ-010, PKG-12, and AB-00-01/02/03/04/06/07/08.
 > - `docs/_Registers/Deliverables.csv`, `docs/_Registers/ScopeLedger.csv`, and `docs/_Registers/ContextBudgetQA.csv` for machine-readable scope.
 > - `docs/PRD.md` sections 12, 13, 15, 17, and 18 for rule-pack, private-library, report, IP, local-first, telemetry, and private-data handling requirements.
 > - `docs/IP_AND_DATA_BOUNDARY.md` sections 2 through 7 for public/private data boundary, provenance, quarantine, and report limits.
@@ -190,7 +190,7 @@ This Scope of Work defines `DEL-12-04` in service of project scope [SOW-040, SOW
 > - `docs/DIRECTIVE.md` non-negotiable product principles and stop rules.
 > - `docs/IP_AND_DATA_BOUNDARY.md` public/private data and quarantine policy.
 > - `docs/PRD.md` sections 12, 13, 15, 17, and 18.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 architecture basis AB-00-01/02/03/04/06/07/08.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis architecture basis AB-00-01/02/03/04/06/07/08.
 >
 
 ### CLM-013 — Verification
@@ -199,11 +199,11 @@ This Scope of Work defines `DEL-12-04` in service of project scope [SOW-040, SOW
 >
 > | Verification item | Acceptance signal |
 > |---|---|
-> | Four-document source boundary | No real credentials, private libraries, protected standards text, proprietary source content, or usable credential examples appear in deliverable artifacts. |
+> | Scope of Work contract | No real credentials, private libraries, protected standards text, proprietary source content, or usable credential examples appear in deliverable artifacts. |
 > | Registry metadata coverage | Current helper/test fixtures cover privacy classification, provenance, redistribution status, checksum status, credential-reference posture, transmission default, and review/quarantine status as metadata-only records; exact registry schema/storage placement remains `TBD`. |
 > | Secret-reference safety | Current tests fail when a project or registry artifact contains secret material instead of an opaque reference or non-sensitive sentinel marker. |
 > | Local-first default | Modeling, solving, rule checking, reporting, and private-library use require no cloud service by default. |
-> | Redaction/export path | June 7 guard evidence aligns with DEL-12-02 redaction/export markers for metadata-only report/shared/downstream release contexts; runtime report/export route integration remains `TBD`. |
+> | Redaction/export path | Metadata markers align with DEL-12-02; actual guarded final-sink bindings are described in `docs/security/redaction_export_controls.md`. Preserve native/legal witness limits and private-library secret-provider gates separately. |
 > | Permission path | Plugin/adapter access semantics are denied by default in the documented no-bypass control surface; exact permission grant persistence remains `TBD`. |
 > | Diagnostic path | Missing provenance, unknown redistribution, suspected protected content, payload markers, cloud/network markers, external secret-manager markers, direct SQL/raw SQLite markers, storage-bypass markers, and concrete path indicators produce structured diagnostics or safe metadata reduction in current focused tests. |
 >
@@ -214,10 +214,7 @@ This Scope of Work defines `DEL-12-04` in service of project scope [SOW-040, SOW
 >
 > Required deliverable-local artifacts:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -232,7 +229,6 @@ This Scope of Work defines `DEL-12-04` in service of project scope [SOW-040, SOW
 > - `_run_records/TASK_RUN_2026-06-07_0942_secret-private-library-alignment.md` and package fan-in `WORKING_ITEMS_RUN_2026-06-07_0957_TP-PKG12-REDACTION-SECRET-GUARD-CLOSEOUT.md` record passing focused and paired PKG-12 validation.
 >
 > Remaining implementation details not resolved by this specification include exact secret provider, encrypted-storage default, storage roots, permission grant persistence, physical project package/container, public API transport, cloud/network behavior, external secret manager behavior, and approval choices.
-
 - **AC-001** — The contract preserves opaque-reference-over-secret behavior, private-library metadata and provenance/checksum posture, redaction/quarantine/permission/no-bypass controls, metadata-only helper and invented-fixture evidence, source-labeled assumptions, and visible provider/encryption/storage/grant/cloud/approval TBDs and conflicts; guard evidence remains separate from legal and security review. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Production and Verification Method — Praxeology
@@ -254,7 +250,7 @@ This Scope of Work defines `DEL-12-04` in service of project scope [SOW-040, SOW
 > ##### Prerequisites
 >
 > - Read `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, and `_STATUS.md`.
-> - Read `INIT.md`, `AGENTS.md`, `docs/CONTRACT.md`, `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7, and the relevant register rows for `DEL-12-04`, `SOW-040`, `SOW-029`, and `OBJ-010`.
+> - Read `AGENTS.md`, `AGENTS.md`, `docs/CONTRACT.md`, `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis, and the relevant register rows for `DEL-12-04`, `SOW-040`, `SOW-029`, and `OBJ-010`.
 > - Confirm write scope is limited to this deliverable folder.
 > - Confirm no real secrets, real private libraries, protected standards text, proprietary values, credential examples, or private project data are needed.
 > - Treat exact secret provider, encrypted-storage default, storage roots, permission grant persistence, physical project package/container, public API transport, cloud/network behavior, external secret manager behavior, and approval choices as `TBD` unless a later human-approved brief resolves them.
@@ -273,7 +269,7 @@ This Scope of Work defines `DEL-12-04` in service of project scope [SOW-040, SOW
 >
 > 2. Define or verify the registry metadata surface.
 >    - Record privacy classification, provenance/source summary, redistribution status, review status, checksum status, path reference, credential reference if needed, and default transmission posture.
->    - Mark exact schema file placement and storage-provider mechanics as `TBD` unless separately approved.
+>    - Reference the current metadata record definitions in `core/security/secret_private_library/controls.py`; secret-provider mechanics and grant persistence remain separately governed.
 >
 > 3. Define or verify secret-reference behavior.
 >    - Persist only opaque credential references or non-sensitive test markers.
@@ -285,7 +281,7 @@ This Scope of Work defines `DEL-12-04` in service of project scope [SOW-040, SOW
 >    - Default to warning, redaction, omission, denied access, quarantine, or human review when classification is missing or suspicious.
 >
 > 5. Define or verify tests.
->    - Current focused tests cover metadata completeness, no-secret persistence, redaction/export behavior, telemetry exclusion markers, denied-by-default private/reference release contexts, payload marker blocking, cloud/network marker blocking, external secret-manager marker blocking, direct SQL/raw SQLite marker blocking, storage-bypass marker blocking, concrete path safe metadata reduction, and protected/private-content source boundaries.
+>    - Current focused tests cover metadata completeness, no-secret persistence, redaction/export behavior, denied-by-default private/reference release contexts, payload marker blocking, cloud/network marker blocking, external secret-manager marker blocking, direct SQL/raw SQLite marker blocking, storage-bypass marker blocking, concrete path safe metadata reduction, and protected/private-content source boundaries.
 >    - Use non-sensitive sentinel markers only.
 >
 > 6. Check no-bypass constraints.
@@ -295,12 +291,11 @@ This Scope of Work defines `DEL-12-04` in service of project scope [SOW-040, SOW
 >    - If provider selection, encryption default, permission grant persistence, or transport behavior is required, record it as `TBD` for a future human-approved implementation brief.
 >
 > 8. Finalize deliverable-local evidence artifacts.
->    - Ensure four documents exist and keep default sections.
+>    - Ensure the Scope of Work contract exist and keep default sections.
 >    - Ensure `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, `Dependencies.csv`, and `_DEPENDENCIES.md` are refreshed.
 >    - Treat `_STATUS.md` as read-only unless a human-gated lifecycle workflow explicitly authorizes status changes; current `_STATUS.md` records `IN_PROGRESS`.
 >    - Add phase run records under `_run_records`.
 >
-
 ### CLM-019 — Verification
 
 > ##### Verification
@@ -308,7 +303,7 @@ This Scope of Work defines `DEL-12-04` in service of project scope [SOW-040, SOW
 > | Check | Pass condition |
 > |---|---|
 > | Scope containment | All changed files are inside the DEL-12-04 folder. |
-> | Four-document sections | Datasheet, Specification, Guidance, and Procedure preserve their default sections. |
+> | Scope of Work contract | Datasheet, Specification, Guidance, and Procedure preserve their default sections. |
 > | Source boundary | No real secrets, real private libraries, private project data, protected standards content, or usable credential examples are present. |
 > | Current helper/docs/tests evidence | June 7 run records cite `core/security/secret_private_library/`, `docs/security/secret_private_library_handling.md`, and `tests/security/test_secret_private_library_handling.py`; focused tests passed. |
 > | Semantic setup evidence | `_SEMANTIC.md` has complete final result tables without matrix errors or operator leakage in final cells. |
@@ -321,10 +316,7 @@ This Scope of Work defines `DEL-12-04` in service of project scope [SOW-040, SOW
 
 > ##### Records
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -338,7 +330,6 @@ This Scope of Work defines `DEL-12-04` in service of project scope [SOW-040, SOW
 > - `_run_records/TASK_RUN_2026-04-30_1435_validation.md`
 > - `_run_records/TASK_RUN_2026-06-07_0942_secret-private-library-alignment.md`
 > - package fan-in `../_run_records/WORKING_ITEMS_RUN_2026-06-07_0957_TP-PKG12-REDACTION-SECRET-GUARD-CLOSEOUT.md`
-
 - **VER-001** — Validate the contract and review source parity, registry and opaque-reference coverage, privacy/provenance/checksum and transmission defaults, redaction/quarantine/permission/no-bypass controls, metadata-only evidence limits, retained assumptions/conflicts/TBDs, and authority boundaries.
 
 ## Governing Values and Decisions — Axiology
@@ -365,7 +356,7 @@ This Scope of Work defines `DEL-12-04` in service of project scope [SOW-040, SOW
 >
 > - `core/security/secret_private_library/` classifies private-library, private-path, and credential-reference metadata without reading referenced files or storing payloads.
 > - `docs/security/secret_private_library_handling.md` records metadata-only guard behavior and non-authority boundaries.
-> - `tests/security/test_secret_private_library_handling.py` covers private reference metadata, public fixture blocking, redaction/export release contexts, telemetry exclusion markers, concrete path reduction, cloud/network markers, external secret-manager markers, direct SQL/raw SQLite markers, and storage-bypass markers.
+> - `tests/security/test_secret_private_library_handling.py` covers private reference metadata, public fixture blocking, redaction/export release contexts, concrete path reduction, cloud/network markers, external secret-manager markers, direct SQL/raw SQLite markers, and storage-bypass markers.
 > - `_run_records/TASK_RUN_2026-06-07_0942_secret-private-library-alignment.md` and package fan-in `WORKING_ITEMS_RUN_2026-06-07_0957_TP-PKG12-REDACTION-SECRET-GUARD-CLOSEOUT.md` record passing focused and paired PKG-12 validation.
 >
 > This evidence does not finalize exact secret provider, encrypted-storage default, storage roots, permission grant persistence, physical project package/container, public API transport, cloud/network behavior, external secret manager behavior, approval choices, legal sufficiency, security certification, professional approval, or code-compliance status (PRD §21.2).
@@ -390,7 +381,7 @@ This Scope of Work defines `DEL-12-04` in service of project scope [SOW-040, SOW
 > ##### Considerations
 >
 > - A private library registry should be treated as a control surface, not a data dump. It should carry enough metadata to validate, warn, hash, redact, and route assets without exposing private values.
-> - The exact physical project package/container and local secret provider remain `TBD`; this deliverable should not lock the product to one platform mechanism without human approval.
+> - The physical project container follows DEC-017/028 and SCA-003; the local secret provider remains `TBD`. Keep key custody, encryption and secret-provider adoption separate from the established container profile and reversible local implementation choices under DEC-012.
 > - Current and future secret handling tests should use non-sensitive sentinel markers and fixture-only paths, not realistic tokens, passwords, API keys, owner data, material tables, or private component values.
 > - Optional encrypted storage for private libraries is called out by the PRD but not fully specified. Treat encryption defaults, key lifecycle, recovery, and platform storage as human/architecture decisions still requiring a later implementation brief.
 > - A checksum identifies a referenced artifact or payload. It is not permission to expose the artifact and does not make protected/private content public.
@@ -433,7 +424,7 @@ This Scope of Work defines `DEL-12-04` in service of project scope [SOW-040, SOW
 > | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 > |---|---|---|---|---|---|---|
 > | DEL-12-04-CF-001 | Exact local secret provider and encrypted-storage default are not specified. | `docs/PRD.md` section 18.3 | `docs/architecture/plugin_boundary.md` Remaining TBDs | Specification Requirements; Procedure Steps | Keep provider/encryption mechanics `TBD`; require opaque secret references and no real secrets in artifacts now. | TBD |
-> | DEL-12-04-CF-002 | Current metadata-only helper/tests exist, but runtime storage roots, permission grant persistence, physical project package/container, public API transport, cloud/network behavior, external secret manager behavior, and approval choices remain unresolved. | June 7 DEL-12-04 TASK run and package fan-in | `_CONTEXT.md` architecture-basis `Still TBD`; `docs/IP_AND_DATA_BOUNDARY.md` private user data policy | Specification Verification; Procedure Verification; Dependencies | Treat current controls as readiness evidence only and carry unresolved mechanics as non-blocking deferrals for owning workflows. | TBD |
+> | DEL-12-04-CF-002 | Current metadata-only helper/tests exist, but permission grant persistence, public API transport, cloud/network behavior, external secret manager behavior, and approval choices remain unresolved. | June 7 DEL-12-04 TASK run and package fan-in | `_CONTEXT.md` architecture-basis `Still TBD`; `docs/IP_AND_DATA_BOUNDARY.md` private user data policy | Specification Verification; Procedure Verification; Dependencies | Refer native placement/container to DEL-02-05 and DEC-017/028. Retain actual secret-provider, permission, public-transport, cloud and approval gates; their blocking effect follows the specific claim and owning decision. | TBD |
 
 ## Output and Evaluation Matrix
 

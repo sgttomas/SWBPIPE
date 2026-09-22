@@ -111,7 +111,7 @@ This Scope of Work defines `DEL-03-02` in service of project scope [SOW-018] and
 > - `docs/_Registers/Deliverables.csv`, row DEL-03-02.
 > - `docs/_Registers/ScopeLedger.csv`, row SOW-018.
 > - `docs/_Registers/ContextBudgetQA.csv`, row DEL-03-02.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md`, revision 0.7, especially PKG-03, DEL-03-02, OBJ-004, SOW-018, and AB-00-01/02/04/06/07/08.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md`, accepted authority through the decision register, especially PKG-03, DEL-03-02, OBJ-004, SOW-018, and AB-00-01/02/04/06/07/08.
 > - `docs/CONTRACT.md`, invariant catalog.
 > - `docs/TYPES.md`, epistemic labels and data provenance labels.
 > - `docs/SPEC.md`, sections 1, 3, 10, and 11.
@@ -177,7 +177,7 @@ This Scope of Work defines `DEL-03-02` in service of project scope [SOW-018] and
 > - `docs/CONTRACT.md`: OPS-K-IP-1, OPS-K-IP-2, OPS-K-IP-3, OPS-K-DATA-1, OPS-K-DATA-2, OPS-K-DATA-3, OPS-K-UNIT-1, OPS-K-PRIV-1, OPS-K-GOV-4, OPS-K-AGENT-1 through OPS-K-AGENT-4.
 > - `docs/TYPES.md`: epistemic labels and data provenance labels.
 > - `docs/SPEC.md`: domain objects, schema-governed development workflow, and acceptance semantics.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7: SOW-018, OBJ-004, and architecture basis AB-00-01, AB-00-02, AB-00-04, AB-00-06, AB-00-07, AB-00-08.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register): SOW-018, OBJ-004, and architecture basis AB-00-01, AB-00-02, AB-00-04, AB-00-06, AB-00-07, AB-00-08.
 > - JSON Schema 2020-12 is the accepted schema-contract basis; this document does not reproduce external specification text.
 >
 
@@ -208,7 +208,7 @@ This Scope of Work defines `DEL-03-02` in service of project scope [SOW-018] and
 > - `fixtures/component/invented_section_library_valid.json` and `fixtures/component/invented_component_library_valid.json` are strict invented/public-safe fixtures with engineering values intentionally omitted.
 > - `fixtures/component/invented_section_component_library_valid.json` remains legacy combined evidence and points to the strict split fixtures.
 > - `tests/test_component_section_schema.py` is the focused verification surface for schema/fixture compatibility.
-> - Public source catalogs, public fixture value policy, source/license disposition, redistribution acceptance, dependency satisfaction, human review disposition, lifecycle state, and persistence round-trip notes remain `TBD` or governed outside this reconciliation scope.
+> - Public source catalogs, public fixture value policy, source/license disposition, redistribution acceptance, dependency satisfaction, further source/review acceptance, lifecycle state, and persistence round-trip notes remain `TBD` or governed outside this reconciliation scope.
 
 - **AC-001** — The contract preserves accepted source requirements for unit-aware, provenance-bearing pipe and component records, rights-safe public fixtures, private data boundaries, explicit unknowns, and no silent engineering defaults.
 
@@ -266,7 +266,7 @@ This Scope of Work defines `DEL-03-02` in service of project scope [SOW-018] and
 > 3. Reconcile schema intent against implemented evidence.
 >    - Identify implemented record classes: section library record and component library record.
 >    - Record implemented concepts: identity, schema version, user-entered dimensions/weights/COG/stiffness/modifier slots where applicable, unit-bearing values, provenance, redistribution status, review status, completeness status, diagnostics hooks, open decisions, and protected-value policies.
->    - Preserve human-owned policy/source/catalog/fixture-value/dependency/lifecycle/review-disposition items as `TBD`.
+>    - Apply existing fixture policy and recorded review dispositions; retain only genuinely unresolved source/catalog, numerical witness, dependency satisfaction and lifecycle matters with their actual authority/evidence boundaries.
 >
 > 4. Apply data-boundary rules.
 >    - Reject protected standards text, protected dimensional tables, proprietary catalog data, code-derived values, copied formulas, and private project data as public defaults.
@@ -288,7 +288,7 @@ This Scope of Work defines `DEL-03-02` in service of project scope [SOW-018] and
 
 > ##### Verification
 >
-> - The four active documents exist and retain required sections.
+> - `ScopeOfWork.md` retains the required consolidated sections.
 > - No repo-level schema files are edited unless the active sealed brief authorizes them.
 > - No protected dimensional tables, standards data, proprietary catalog values, or invented engineering values are introduced.
 > - Unknown policy/source/catalog/fixture-value/dependency/lifecycle/review-disposition items remain `TBD`.
@@ -384,7 +384,7 @@ This Scope of Work defines `DEL-03-02` in service of project scope [SOW-018] and
 >
 > | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 > |---|---|---|---|---|---|---|
-> | DEL-03-02-CF-001 | `_CONTEXT.md` identifies SOFTWARE_DECOMP revision 0.7, while `_REFERENCES.md` still describes the decomposition reference as accepted v0.2. | `_CONTEXT.md#Decomposition Reference` | `_REFERENCES.md#Decomposition and Registers` | Datasheet References; Procedure Records | Treat `_CONTEXT.md` and sealed brief revision 0.7 as current basis for this run; route `_REFERENCES.md` cleanup to a metadata owner because it is outside the four-doc write target. | RESOLVED_BY_HUMAN: current `_CONTEXT.md` and `_REFERENCES.md` both cite SOFTWARE_DECOMP revision 0.7; prior v0.2 reference is stale/superseded. |
+> | DEL-03-02-CF-001 | `_CONTEXT.md` identifies SOFTWARE_DECOMP accepted authority (see the decision register), while `_REFERENCES.md` still describes the decomposition reference as accepted v0.2. | `_CONTEXT.md#Decomposition Reference` | `_REFERENCES.md#Decomposition and Registers` | Datasheet References; Procedure Records | Treat `_CONTEXT.md` and sealed brief accepted authority (see the decision register) as current basis for this run; route `_REFERENCES.md` cleanup to a metadata owner because it is outside the four-doc write target. | RESOLVED_BY_HUMAN: current `_CONTEXT.md` and `_REFERENCES.md` both cite SOFTWARE_DECOMP accepted authority (see the decision register); prior v0.2 reference is stale/superseded. |
 
 ### CLM-030 — SCA-011 DEC-103 hanger schema
 

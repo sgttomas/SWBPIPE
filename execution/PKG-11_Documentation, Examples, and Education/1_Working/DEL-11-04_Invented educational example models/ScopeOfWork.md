@@ -39,7 +39,7 @@ This Scope of Work defines `DEL-11-04` in service of project scope [SOW-033] and
 > | Scope item | SOW-033 |
 > | Supported objectives | OBJ-001, OBJ-008 |
 > | Context envelope | M |
-> | Current production mode | Setup/document production only |
+> | Current production mode Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Setup/document production only |
 >
 
 ### CLM-004 — Attributes
@@ -48,10 +48,10 @@ This Scope of Work defines `DEL-11-04` in service of project scope [SOW-033] and
 >
 > | Attribute | Source-grounded value |
 > |---|---|
-> | Primary purpose | Define the setup boundary for future invented-data educational examples used for mechanics-only demonstrations and fake-rule-pack demonstrations. |
+> | Primary purpose Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Define the setup boundary for future invented-data educational examples used for mechanics-only demonstrations and fake-rule-pack demonstrations. |
 > | Public-data posture | Future public examples must be original or invented and must not reproduce protected standards text, tables, formulas, examples, allowables, SIF or flexibility data, protected dimensional tables, commercial-software examples, or vendor proprietary data. |
 > | Example families | Mechanics-only demonstration examples; fake-rule-pack demonstration examples. |
-> | Materialization status | This setup run does not create actual example model files under `examples/models/invented/*`, tutorials outside this deliverable, source code, schemas, or issued artifacts. |
+> | Materialization status Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | The original setup run does not create actual example model files under `examples/models/invented/*`, tutorials outside this deliverable, source code, schemas, or issued artifacts. |
 > | Rule-pack boundary | Fake rule-pack examples are fictional non-code teaching devices and must not resemble or approximate real code allowables, formulas, load combinations, or acceptance rules. |
 > | Mechanics boundary | Mechanics-only examples may illustrate open centerline mechanics concepts and reproducibility expectations, but they must not be presented as design bases or compliance checks. |
 > | Unit/provenance expectation | Future example data must be unit-aware and must carry provenance such as `PUBLIC_DOMAIN_OR_ORIGINAL` or a stronger documented redistribution basis. |
@@ -76,6 +76,9 @@ This Scope of Work defines `DEL-11-04` in service of project scope [SOW-033] and
 
 > ##### Construction
 >
+> Current deliverable obligation: Create invented-data example models for mechanics-only and fake-rule-pack demonstrations. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This setup artifact defines constraints, acceptance checks, and dependency signals for future invented educational examples. It intentionally does not create external example model files, tutorials outside this deliverable, code, schemas, private data, or `ISSUED` artifacts.
 >
 > Future example artifacts should include:
@@ -87,14 +90,13 @@ This Scope of Work defines `DEL-11-04` in service of project scope [SOW-033] and
 > - a protected-content review record before public use;
 > - a statement that user rule checks and professional approval remain separate from mechanics solve results.
 >
-
 ### CLM-007 — References
 
 > ##### References
 >
 > | Source | Used for |
 > |---|---|
-> | `INIT.md` | Bootstrap boundaries for open mechanics, user rule checks, and professional responsibility. |
+> | `AGENTS.md` | Bootstrap boundaries for open mechanics, user rule checks, and professional responsibility. |
 > | `AGENTS.md` | TASK dispatch boundary and sealed deliverable discipline. |
 > | `docs/CONTRACT.md` | Invariants for protected data, user-supplied rule data, invented public examples, units, agents, and professional authority. |
 > | `docs/DIRECTIVE.md` | Product principles for open mechanics, private code data, no silent defaults, validation before reliance, and stop rules. |
@@ -117,11 +119,13 @@ This Scope of Work defines `DEL-11-04` in service of project scope [SOW-033] and
 
 > ##### Scope
 >
+> Current deliverable obligation: Create invented-data example models for mechanics-only and fake-rule-pack demonstrations. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This deliverable specifies setup constraints for invented educational example models that can later support mechanics-only demonstrations and fake-rule-pack demonstrations. The examples are documentation and testing aids, not engineering templates.
 >
-> This setup run does not create actual model files under `examples/models/invented/*`, tutorials outside this deliverable, source code, schemas, protected standards examples, commercial software comparisons, code allowables, code formulas, or professional-reliance material.
+> The original setup run does not create actual model files under `examples/models/invented/*`, tutorials outside this deliverable, source code, schemas, protected standards examples, commercial software comparisons, code allowables, code formulas, or professional-reliance material.
 >
-
 ### CLM-011 — Requirements
 
 > ##### Requirements
@@ -134,7 +138,7 @@ This Scope of Work defines `DEL-11-04` in service of project scope [SOW-033] and
 > | R-DEL-11-04-004 | Fake-rule-pack demonstrations must use fictional labels and non-engineering placeholder values and must not approximate realistic design-code formulas, allowables, or pass/fail criteria. | OPS-K-RULE-1/3; `docs/SPEC.md` rule-pack evaluator section | Future rule-pack demo review checks fictional notices, checksum/provenance metadata, and no protected rule content. |
 > | R-DEL-11-04-005 | Missing solve-required, rule-check-required, or provenance information in future examples must be explicit as `TBD` or a visible finding, never a silent default. | OPS-K-DATA-2; OPS-K-AGENT-1/2 | Future review checks example manifests for explicit unresolved fields and no invented hidden defaults. |
 > | R-DEL-11-04-006 | Future examples used for regression or validation support must distinguish mechanics verification from code compliance and professional approval (PRD §21.2). | OBJ-008; `docs/SPEC.md` V&V mechanics; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` review checklist | Future validation handoff checks state that examples are original or invented and are not compliance evidence. |
-> | R-DEL-11-04-007 | This setup session must write only inside the DEL-11-04 deliverable folder and must not move artifacts to `ISSUED`. | User sealed brief; OPS-K-AGENT-3/4 | Final file list and git status are scoped to the deliverable folder. |
+> | R-DEL-11-04-007 | The original setup session must write only inside the DEL-11-04 deliverable folder and must not move artifacts to `ISSUED`. Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | User sealed brief; OPS-K-AGENT-3/4 | Final file list and git status are scoped to the deliverable folder. |
 >
 
 ### CLM-012 — Standards
@@ -180,17 +184,13 @@ This Scope of Work defines `DEL-11-04` in service of project scope [SOW-033] and
 > - no actual example files, tutorials outside this deliverable, source code, schemas, repo-level files, or `ISSUED` artifacts are created;
 > - no protected standards examples, commercial software examples, realistic code allowables/formulas, or professional-reliance claims are introduced.
 >
-
 ### CLM-016 — Documentation
 
 > ##### Documentation
 >
 > Required setup artifacts for this deliverable are:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -199,7 +199,6 @@ This Scope of Work defines `DEL-11-04` in service of project scope [SOW-033] and
 > - `_STATUS.md`
 >
 > Register-listed future artifacts under `examples/models/invented/*` and tutorials are not created by this setup session.
-
 - **AC-001** — The contract preserves the source-defined example families, synthetic-data and provenance requirements, units and assumptions, expected diagnostics and learning outcomes, reproducibility and verification evidence, protected/private-data exclusions, non-reliance notice, visible conflicts and TBDs, and separation from benchmark claims. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Production and Verification Method — Praxeology
@@ -214,9 +213,11 @@ This Scope of Work defines `DEL-11-04` in service of project scope [SOW-033] and
 
 > ##### Purpose
 >
+> Current deliverable obligation: Create invented-data example models for mechanics-only and fake-rule-pack demonstrations. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > Define the setup-time procedure and future production checks for invented educational examples without creating external example files, tutorials, source code, schemas, protected data, or issued artifacts in this session.
 >
-
 ### CLM-020 — Prerequisites
 
 > ##### Prerequisites
@@ -224,15 +225,18 @@ This Scope of Work defines `DEL-11-04` in service of project scope [SOW-033] and
 > | Prerequisite | Status for setup | Notes |
 > |---|---|---|
 > | Sealed DEL-11-04 context | Available | `_CONTEXT.md` identifies SOW-033, OBJ-001, and OBJ-008. |
-> | Governing data/IP and professional boundary | Available | `INIT.md`, `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, and `docs/TYPES.md`. |
-> | Future model schema and persistence format | Future dependency | DEL-02-01 and DEL-02-05 are needed before actual public model files are materialized. |
-> | Future rule-pack schema and invented fake rule-pack pattern | Future dependency | DEL-06-01 and DEL-06-05 are needed before fake-rule-pack demonstration files are materialized. |
+> | Governing data/IP and professional boundary | Available | `AGENTS.md`, `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, and `docs/TYPES.md`. |
+> | Future model schema and persistence format | Future dependency | Current schemas and invented model artifacts exist (`schemas/model.schema.yaml`, `examples/models/invented/mechanics_only_toy_span.json`). Match new examples to accepted source contracts; lifecycle issuance is a separate act. |
+> | Future rule-pack schema and invented fake rule-pack pattern | Future dependency | Use `schemas/rule_pack.schema.yaml` and the invented demonstration model; preserve fake/non-code labeling, provenance and no-protected-default requirements. |
 > | Future validation fixture expectations | Future dependency | PKG-09 validation work determines when examples can become regression or validation fixtures. |
 >
 
 ### CLM-021 — Steps
 
 > ##### Steps
+>
+> Current deliverable obligation: Create invented-data example models for mechanics-only and fake-rule-pack demonstrations. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
 >
 > 1. Confirm the deliverable identity and scope match `DEL-11-04`, `PKG-11`, and SOW-033.
 > 2. Preserve the protected-data boundary by excluding standards text, protected examples, code formulas, allowables, SIF/flexibility data, proprietary vendor data, commercial software examples, and private project data.
@@ -243,7 +247,6 @@ This Scope of Work defines `DEL-11-04` in service of project scope [SOW-033] and
 > 7. During this setup run, write only deliverable-local documentation, semantic artifacts, dependency artifacts, run records, and status history.
 > 8. Leave external example model files, external tutorials, source code, schemas, and `ISSUED` movement untouched.
 >
-
 ### CLM-022 — Verification
 
 > ##### Verification
@@ -258,13 +261,11 @@ This Scope of Work defines `DEL-11-04` in service of project scope [SOW-033] and
 > - no external example files, tutorials outside this deliverable, source code, schemas, repo-level artifacts, or `ISSUED` files were created;
 > - no protected standards examples, commercial software examples, realistic code allowables/formulas, or professional-reliance claims appear in the deliverable-local outputs.
 >
-
 ### CLM-023 — Records
 
 > ##### Records
 >
 > The setup records are the `ScopeOfWork.md`, `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, `_STATUS.md`, and `_run_records/*` in this DEL-11-04 folder.
-
 - **VER-001** — Validate the contract and review source parity, example-family and learning-outcome coverage, invented-data provenance, unit/assumption/diagnostic visibility, reproducibility evidence, protected/private-data boundaries, retained conflicts and TBDs, and non-reliance limits.
 
 ## Governing Values and Decisions — Axiology
@@ -322,6 +323,9 @@ This Scope of Work defines `DEL-11-04` in service of project scope [SOW-033] and
 
 > ##### Example Concepts
 >
+> Current deliverable obligation: Create invented-data example models for mechanics-only and fake-rule-pack demonstrations. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > Future work may define non-file concepts such as:
 >
 > - a mechanics-only centerline model that demonstrates unit-aware loads and deterministic result review;
@@ -329,17 +333,16 @@ This Scope of Work defines `DEL-11-04` in service of project scope [SOW-033] and
 > - a fake-rule-pack demonstration that shows required fictional inputs, checksum metadata, and blocked rule-check status when those inputs are absent;
 > - a tutorial path that explains how to inspect provenance and limitations before running a demonstration.
 >
-> These concepts are not actual model files in this setup session. They are constraints for future artifacts.
+> These concepts are not actual model files in the original setup session. They are constraints for future artifacts.
 >
-
 ### CLM-031 — Conflict Table (for human ruling)
 
 > ##### Conflict Table (for human ruling)
 >
 > | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 > |---|---|---|---|---|---|---|
-> | CF-DEL-11-04-001 | The register anticipates future files under `examples/models/invented/*` and tutorials, but this sealed setup brief forbids creating actual example files or tutorials outside this deliverable. | `docs/_Registers/Deliverables.csv` row DEL-11-04 | User sealed brief for DEL-11-04 setup | Datasheet Construction; Specification Scope; Procedure Steps | Treat this run as setup/document production only and leave external artifacts for a later authorized task. | TBD |
-> | CF-DEL-11-04-002 | Exact future model file format and fake-rule-pack schema are not available in this deliverable. | `docs/SPEC.md` repository target and rule-pack section | DEL-02 and DEL-06 dependencies not yet accepted as issued artifacts | Specification External Inputs; Procedure Prerequisites | Keep future model and rule-pack materialization as `TBD` until schema deliverables are available. | TBD |
+> | CF-DEL-11-04-001 | The register anticipates future files under `examples/models/invented/*` and tutorials, but this sealed setup brief forbids creating actual example files or tutorials outside this deliverable. Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | `docs/_Registers/Deliverables.csv` row DEL-11-04 | User sealed brief for DEL-11-04 setup | Datasheet Construction; Specification Scope; Procedure Steps | Treat this run as setup/document production only and leave external artifacts for a later authorized task. | TBD |
+> | CF-DEL-11-04-002 | Historical setup conflict: model and rule-pack artifacts were unavailable in that sealed setup. | `docs/SPEC.md` repository target and rule-pack section | DEL-02 and DEL-06 dependencies not yet accepted as issued artifacts | Specification External Inputs; Procedure Prerequisites | Use current schema and invented-model evidence for artifact presence; preserve source compatibility, content review and actual interface-acceptance gaps. | Current schemas and invented model materializations resolve the former artifact-availability premise. Preserve source/schema compatibility, protected-content review and all unadopted downstream interfaces; this record makes no issuance claim. |
 >
 
 ### CLM-032 — Non-Reliance Notice

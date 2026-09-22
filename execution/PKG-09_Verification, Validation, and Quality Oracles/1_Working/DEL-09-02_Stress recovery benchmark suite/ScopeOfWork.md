@@ -47,7 +47,7 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 >
 > | Attribute | Setup value |
 > |---|---|
-> | Suite purpose | Define setup evidence for future stress recovery benchmark cases covering fundamental mechanics behavior. |
+> | Suite purpose Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Define setup evidence for future stress recovery benchmark cases covering fundamental mechanics behavior. |
 > | Required behavior coverage | Axial, bending, torsion, pressure, and stress range behavior. |
 > | Benchmark source policy | Future sources must be original, public-domain, or permissively licensed with provenance and redistribution review. |
 > | Excluded content | Protected standards text, protected examples, copied code formulas, protected tables, material allowables, code stress equations, and certification claims. |
@@ -62,11 +62,11 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 >
 > | Condition | Status |
 > |---|---|
-> | Axial behavior fixture slot | Required setup slot; source case, expected values, signs, and tolerances are `TBD`. |
-> | Bending behavior fixture slot | Required setup slot; source case, expected values, moment orientation, and tolerances are `TBD`. |
-> | Torsion behavior fixture slot | Required setup slot; source case, expected values, sign convention, and tolerances are `TBD`. |
-> | Pressure behavior fixture slot | Required setup slot; source case, pressure convention, expected values, and tolerances are `TBD`. |
-> | Stress range behavior fixture slot | Required setup slot; load-pair or result-comparison convention and tolerances are `TBD`; no code fatigue or code compliance rule is introduced. |
+> | Axial behavior fixture slot | The current fixture inventory and hand-calculation locations are recorded in `validation/benchmarks/stress/README.md` and `validation/hand_calcs/stress/`. Use the recorded candidate-bound inputs, units and regression values; final source eligibility, unadopted tolerances and engineering acceptance remain separate under DEC-026/027. |
+> | Bending behavior fixture slot | The current fixture inventory and hand-calculation locations are recorded in `validation/benchmarks/stress/README.md` and `validation/hand_calcs/stress/`. Use the recorded candidate-bound inputs, units and regression values; final source eligibility, unadopted tolerances and engineering acceptance remain separate under DEC-026/027. |
+> | Torsion behavior fixture slot | The current fixture inventory and hand-calculation locations are recorded in `validation/benchmarks/stress/README.md` and `validation/hand_calcs/stress/`. Use the recorded candidate-bound inputs, units and regression values; final source eligibility, unadopted tolerances and engineering acceptance remain separate under DEC-026/027. |
+> | Pressure behavior fixture slot | The current fixture inventory and hand-calculation locations are recorded in `validation/benchmarks/stress/README.md` and `validation/hand_calcs/stress/`. Use the recorded candidate-bound inputs, units and regression values; final source eligibility, unadopted tolerances and engineering acceptance remain separate under DEC-026/027. |
+> | Stress range behavior fixture slot | The current fixture inventory and hand-calculation locations are recorded in `validation/benchmarks/stress/README.md` and `validation/hand_calcs/stress/`. Use the recorded candidate-bound inputs, units and regression values; final source eligibility, unadopted tolerances and engineering acceptance remain separate under DEC-026/027. |
 > | Provenance record | Required for each future benchmark case before public repository use. |
 > | Protected-content review | Required before any fixture or hand-calc note is accepted. |
 >
@@ -75,11 +75,13 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 
 > ##### Construction
 >
+> Current deliverable obligation: Create stress recovery benchmark cases for axial, bending, torsion, pressure, and stress range behavior. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This setup kit defines the future benchmark-suite boundary only. It does not create benchmark source files, implement tests, add hand-calculation formulas, choose final numerical tolerances, import external examples, or move anything to `ISSUED`.
 >
 > Future benchmark cases are expected to be small, deterministic, synthetic or cleared, unit-aware, and traceable to public/original/permissive source material. Missing source, unit, convention, or tolerance information must remain explicit `TBD` rather than becoming a silent default.
 >
-
 ### CLM-007 — References
 
 > ##### References
@@ -89,7 +91,7 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 > - `docs/_Registers/ScopeLedger.csv` row `SOW-026`.
 > - `docs/_Registers/ContextBudgetQA.csv` row `DEL-09-02`.
 > - `docs/CONTRACT.md` invariants listed in the sealed brief.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 architecture basis IDs `AB-00-01`, `AB-00-02`, `AB-00-06`, and `AB-00-08`.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis architecture basis IDs `AB-00-01`, `AB-00-02`, `AB-00-06`, and `AB-00-08`.
 >
 
 ### CLM-008 — Open Setup Questions
@@ -98,11 +100,11 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 >
 > | Question | Status |
 > |---|---|
-> | Which human or project authority accepts benchmark source eligibility and final tolerances? | `TBD` |
-> | Which upstream interface defines the canonical recovered stress component names and signs? | `TBD` |
+> | Which human or project authority accepts benchmark source eligibility and final tolerances? | Owner acceptance follows DEC-027 and the protected DEC-026 tolerance route; recorded regression values alone do not establish engineering validation. |
+> | Which upstream interface defines the canonical recovered stress component names and signs? | The upstream interface is `core/loads/stress_recovery/`; canonical names/sign conventions must remain tied to its accepted contract and the governed benchmark basis. |
 > | Which result-envelope fields must every benchmark assertion inspect? | `TBD` |
 > | Which provenance checklist is mandatory before adding public benchmark source files? | `TBD` |
-> | Which exact file layout under `validation/benchmarks/stress` is authorized for implementation? | `TBD` |
+> | Which exact file layout under `validation/benchmarks/stress` is authorized for implementation? | Current fixture/crate organization is recorded by `validation/benchmarks/stress/README.md` and its crate. Source eligibility, final tolerances and engineering acceptance remain separate. |
 >
 > PDU-039 current evidence: one complete invented benchmark output is validated in-memory by `open_pipe_stress_result_export`; six stress values preserve diagnostics, trace, units, deterministic hashes, and human-review boundaries. DEC-026's measured analytic relative seed is governed; unmeasured per-kind relative+absolute pairs and release/validation outcomes remain `TBD`.
 
@@ -118,18 +120,20 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 
 > ##### Scope
 >
+> Current deliverable obligation: Create stress recovery benchmark cases for axial, bending, torsion, pressure, and stress range behavior. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This deliverable specifies setup evidence for a future stress recovery benchmark suite. It covers benchmark planning for axial, bending, torsion, pressure, and stress range behavior under the public/open-mechanics verification boundary.
 >
-> This setup pass does not implement tests, create benchmark source files, edit repository-level validation folders, introduce protected standards content, copy code formulas, encode code stress equations, select final numerical tolerances, or claim engineering compliance.
+> The original setup pass does not implement tests, create benchmark source files, edit repository-level validation folders, introduce protected standards content, copy code formulas, encode code stress equations, select final numerical tolerances, or claim engineering compliance.
 >
-
 ### CLM-012 — Requirements
 
 > ##### Requirements
 >
 > | Req ID | Requirement | Source basis | Verification hook |
 > |---|---|---|---|
-> | DEL-09-02-RQ-001 | The benchmark suite shall include setup coverage slots for axial, bending, torsion, pressure, and stress range behavior. | DEL-09-02 context; SOW-026 | Four-document review confirms all five behavior slots are present. |
+> | DEL-09-02-RQ-001 | The benchmark suite shall include setup coverage slots for axial, bending, torsion, pressure, and stress range behavior. | DEL-09-02 context; SOW-026 | Scope of Work and current fixture-inventory review confirms all five behavior slots are present. |
 > | DEL-09-02-RQ-002 | Benchmark source material shall be original, public-domain, or permissively licensed, with provenance and redistribution review before public use. | SOW-026 note; OPS-K-IP-2 | Provenance review checklist before future fixture acceptance. |
 > | DEL-09-02-RQ-003 | The suite shall exclude protected standards text, protected examples, copied code formulas, protected tables, proprietary data, material allowables, and code stress equations. | OPS-K-IP-1; OPS-K-IP-3; OPS-K-RULE-1 | Protected-content review before future fixture acceptance. |
 > | DEL-09-02-RQ-004 | Benchmarks shall verify mechanics stress recovery behavior only and shall not decide code compliance, fatigue acceptability, certification, sealing, or professional approval (PRD §21.2). | OPS-K-AUTH-1; OPS-K-AGENT-4; package exclusion | Report/review wording check and result-envelope review. |
@@ -164,15 +168,7 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 
 > ##### Documentation
 >
-> Expected future artifacts, when implementation is authorized, are:
->
-> - stress benchmark source files under an approved `validation/benchmarks/stress` layout;
-> - hand-calc notes or oracle notes using original/public/permissive material;
-> - provenance and protected-content review records;
-> - regression-test wiring through the approved validation gates.
->
-> The exact benchmark file names, expected numeric values, sign conventions, stress component names, load-pair convention, assertion tolerances, and CI integration points are `TBD`.
->
+> Maintain stress fixture/crate sources in `validation/benchmarks/stress/`, original/public/permissive oracle notes in `validation/hand_calcs/stress/`, provenance and protected-content review records, and regression wiring. Current source files carry case names, units, stress-component/sign conventions and recorded expected values. Preserve DEC-026 tolerance promotion, unresolved source review and external/professional acceptance separately; do not treat every recorded value as undecided or accepted for reliance.
 
 ### CLM-016 — Conflict Table (for human ruling)
 
@@ -203,9 +199,11 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 
 > ##### Purpose
 >
+> Current deliverable obligation: Create stress recovery benchmark cases for axial, bending, torsion, pressure, and stress range behavior. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > Define the operating procedure for producing the future stress recovery benchmark suite after implementation work is authorized. This procedure is setup-level only and does not create benchmark files, implement tests, or set final numerical tolerances.
 >
-
 ### CLM-021 — Prerequisites
 
 > ##### Prerequisites
@@ -227,7 +225,7 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 > 3. For each candidate case, record source, provenance, license/redistribution status, contributor certification, and review disposition.
 > 4. Reject or quarantine any candidate that contains suspected protected standards content, copied code formulas, protected examples, proprietary values, or unclear redistribution rights.
 > 5. Record unit metadata, sign convention, pressure convention, stress component naming, and result-envelope fields for each accepted candidate.
-> 6. Keep expected values and final tolerances as `TBD` until the responsible authority accepts them.
+> 6. Record candidate-bound regression expected values from lawful oracle notes; keep unmeasured or unadopted comparison criteria explicit under DEC-026 and route final engineering acceptance to its owning authority.
 > 7. Wire accepted cases into the approved regression harness only after source, unit, diagnostic, and tolerance gates are satisfied.
 > 8. Record benchmark outputs as mechanics verification evidence only; do not claim code compliance, certification, sealing, approval, or project-specific professional reliance (PRD §21.2).
 >
@@ -249,7 +247,7 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 
 > ##### Records
 >
-> - Four-document setup kit.
+> - Scope of Work contract.
 > - `_SEMANTIC.md` semantic lens with audit result.
 > - `_SEMANTIC_LENSING.md` coverage and warranted enrichment register.
 > - `Dependencies.csv` and `_DEPENDENCIES.md`.
@@ -257,7 +255,6 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 > - `_STATUS.md` showing `SEMANTIC_READY` only after setup gates pass.
 >
 > For PDU-039, execute the stress benchmark crate with an external `CARGO_TARGET_DIR`; require the governed-envelope test to preserve the six recovered values, trace links, evidence diagnostic, deterministic hashes, `HUMAN_REVIEW_REQUIRED`, and no approval claim. Record the run as verification only.
-
 - **VER-001** — Validate the contract and review source parity, all five behavior slots, provenance and protected-content limits, units and dimensional checks, diagnostic/result-envelope preservation, DEC-026 tolerance limits without generalization, and professional-authority boundaries.
 
 ## Governing Values and Decisions — Axiology
@@ -272,9 +269,11 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 
 > ##### Purpose
 >
+> Current deliverable obligation: Create stress recovery benchmark cases for axial, bending, torsion, pressure, and stress range behavior. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This setup deliverable prepares a verification surface for stress recovery behavior without creating benchmark source files or deciding engineering acceptance values. Its value is to make the required coverage, data boundary, unit boundary, and future evidence records explicit before implementation work begins.
 >
-
 ### CLM-028 — Principles
 
 > ##### Principles
@@ -296,7 +295,7 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 > |---|---|
 > | Mechanics behavior | Keep the behavior under test limited to fundamental stress recovery results. |
 > | Fixture provenance | Record source, license/redistribution status, contributor certification, and review disposition before public use. |
-> | Result comparison | Defer final numerical tolerances and exact oracle values until the responsible authority approves them. |
+> | Result comparison | Recorded oracle values support their bound regression cases; final protected tolerance decisions follow DEC-026 and the owning acceptance route. |
 > | Rule-pack boundary | Do not convert stress range behavior into a code fatigue check or allowable comparison in this suite. |
 > | Professional boundary | Do not state or imply that passing a benchmark certifies project-specific engineering work. |
 >
@@ -307,7 +306,7 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 >
 > | Trade-off | Setup posture |
 > |---|---|
-> | Early coverage vs. source certainty | Coverage slots are recorded now; fixture sources and numeric values remain `TBD`. |
+> | Early coverage vs. source certainty | Current fixture sources and regression values are in `validation/benchmarks/stress/`; source certainty, protected-content review and protected tolerance acceptance remain separately evaluated. |
 > | Simple deterministic cases vs. real-world richness | Start with small mechanics cases that are easy to audit; richer cases require explicit provenance review. |
 > | Regression strictness vs. solver maturity | Record that tolerances are needed, but do not set final thresholds before solver and verification authority decisions. |
 > | Benchmark usefulness vs. IP risk | Exclude any source that cannot be cleared as public/original/permissive. |
@@ -317,9 +316,11 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 
 > ##### Examples
 >
-> Example source patterns for future work are `TBD`. This setup pass intentionally does not include hand-calculation formulas, protected examples, copied standard examples, final expected values, or public fixture files.
+> Current deliverable obligation: Create stress recovery benchmark cases for axial, bending, torsion, pressure, and stress range behavior. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
-
+>
+> Example source patterns for future work are `TBD`. The original setup pass intentionally does not include hand-calculation formulas, protected examples, copied standard examples, final expected values, or public fixture files.
+>
 ### CLM-032 — Conflict Table (for human ruling)
 
 > ##### Conflict Table (for human ruling)

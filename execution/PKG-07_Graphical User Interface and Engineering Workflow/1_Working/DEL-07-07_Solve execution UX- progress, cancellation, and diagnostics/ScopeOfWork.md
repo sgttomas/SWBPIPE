@@ -39,7 +39,7 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 > | Scope item | SOW-055 |
 > | Objectives | OBJ-006, OBJ-007 |
 > | Context envelope | M |
-> | Setup state | SEMANTIC_READY candidate after setup gates pass |
+> | Setup state | Use the current lifecycle recorded in `_STATUS.md`; preserve its state and history. Contract/evidence checks do not authorize a lifecycle transition or issuance. |
 >
 
 ### CLM-004 — Attributes
@@ -54,7 +54,7 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 > | Cancellation basis | User cancellation is routed through the application-service job cancellation contract; direct GUI bypass of solver state is out of scope |
 > | Diagnostics basis | Diagnostic/result-envelope contract from PKG-00, including code, class, severity, source, affected object, message, remediation, and provenance where available |
 > | Result review basis | Mechanics solve status, missing data, assumptions, diagnostics, and reproducibility signals remain visible for professional review |
-> | Implementation status | No GUI source code, tests, schemas, job code, or solver code is implemented by this setup run |
+> | Implementation status | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle and remaining work are recorded in `_STATUS.md`. Setup-only restrictions describe the originating setup run, not standing product scope. |
 >
 
 ### CLM-005 — Conditions
@@ -68,7 +68,7 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 > | Nonlinear or numerical uncertainty | Presented as solver diagnostics and warning classes rather than hidden state |
 > | Protected standards/code data | Not introduced; any code-specific or proprietary data remains user-supplied/private |
 > | Professional reliance | Human review remains required; acceptance stays with the responsible engineer |
-> | Reproducibility | Run records should preserve model/version/hash/checksum inputs when provided by upstream contracts; exact fields remain TBD |
+> | Reproducibility | Preserve model/version/hash/checksum inputs supplied by the accepted result and job contracts; resolve concrete fields through current schema/consumer sources and bind run evidence to its candidate. |
 >
 
 ### CLM-006 — Construction
@@ -77,10 +77,7 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 >
 > This setup constructs only deliverable-local planning artifacts:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -90,14 +87,13 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 >
 > Future implementation work must remain bounded by the GUI/application-service seam defined by PKG-00. It should consume command/job/progress/cancellation and diagnostics/result-envelope contracts rather than inventing GUI-owned solver semantics.
 >
-
 ### CLM-007 — References
 
 > ##### References
 >
 > | Reference | Use |
 > |---|---|
-> | `INIT.md` | Bootstrap boundaries: protected data, mechanics vs rule check, human authority |
+> | `AGENTS.md` | Bootstrap boundaries: protected data, mechanics vs rule check, human authority |
 > | `AGENTS.md` | Type 2 sealed deliverable execution and write-scope discipline |
 > | `docs/CONTRACT.md` | Invariants for data, units, IP, privacy, authority, and agents |
 > | `docs/DIRECTIVE.md` | Product stop rules and no-silent-default principles |
@@ -106,9 +102,9 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 > | `execution/_Decomposition/SOFTWARE_DECOMP.md` | DEL-07-07 package, scope, objectives, and architecture-basis rows |
 > | `docs/_Registers/Deliverables.csv` | Deliverable row for DEL-07-07 |
 > | `docs/_Registers/ScopeLedger.csv` | SOW-055 row |
-> | `execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-03_Application service command-query-job model/Specification.md` | Command, job, cancellation, progress, and result-envelope boundary |
-> | `execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-05_GUI state and interaction architecture/Specification.md` | Durable/transient GUI state and job-progress state separation |
-> | `execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-06_Diagnostics, warning, and result-envelope contract/Specification.md` | Diagnostics fields, warning classes, and no-compliance-claim boundary |
+> | `execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-03_Application service command-query-job model/ArchitectureBasis.md` | Command, job, cancellation, progress, and result-envelope boundary |
+> | `execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-05_GUI state and interaction architecture/ArchitectureBasis.md` | Durable/transient GUI state and job-progress state separation |
+> | `execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-06_Diagnostics, warning, and result-envelope contract/ArchitectureBasis.md` | Diagnostics fields, warning classes, and no-compliance-claim boundary |
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -122,11 +118,13 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 
 > ##### Scope
 >
+> Current deliverable obligation: implement GUI handling for background solve execution, progress display, cancellation, diagnostic logs, and solver warning presentation. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > This deliverable specifies the setup basis for a GUI solve-execution workflow that keeps background solve execution, progress display, cancellation, diagnostic logs, solver warnings, and result-envelope status reviewable.
 >
 > This setup does not implement GUI source code, UI tests, schemas, application-service code, background job code, solver code, report/export code, package manifests, or protected engineering data. Future implementation must consume the command/job/progress/cancellation and diagnostics/result-envelope contracts supplied by PKG-00 rather than inventing product semantics in the GUI slice.
 >
-
 ### CLM-011 — Requirements
 
 > ##### Requirements
@@ -150,11 +148,10 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 
 > ##### Standards
 >
-> No external engineering code or protected standards text is introduced by this deliverable. The controlling references for this setup are the SWBPIPE governance, decomposition, register, and PKG-00 architecture-basis artifacts listed in `_REFERENCES.md` and `Datasheet.md`.
+> No external engineering code or protected standards text is introduced by this deliverable. The controlling references for this setup are the SWBPIPE governance, decomposition, register, and PKG-00 architecture-basis artifacts listed in `_REFERENCES.md` and `ScopeOfWork.md`.
 >
 > Any future code-specific acceptance criterion, stress limit, load-combination default, allowable, SIF/flexibility value, or proprietary component value must be supplied by a user-owned/private source with provenance and redistribution status. This GUI slice may display resulting diagnostics/statuses; it must not define or certify code compliance.
 >
-
 ### CLM-013 — Verification
 
 > ##### Verification
@@ -162,12 +159,12 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 > | Verification ID | Method | Expected evidence |
 > |---|---|---|
 > | VER-07-07-001 | Document review | `ScopeOfWork.md` exists and matches DEL-07-07 scope. |
-> | VER-07-07-002 | Boundary review | No GUI source, tests, schemas, job/solver code, package manifests, repo-level docs, or `ISSUED` artifacts were edited. |
+> | VER-07-07-002 | Boundary review Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | No GUI source, tests, schemas, job/solver code, package manifests, repo-level docs, or `ISSUED` artifacts were edited. |
 > | VER-07-07-003 | Contract review | Requirements explicitly route progress, cancellation, diagnostics, and result status through PKG-00 command/job and result-envelope contracts. |
 > | VER-07-07-004 | Protected-content review | Setup artifacts contain no protected standards text, proprietary engineering values, certification claims, or automatic code-compliance claims. |
 > | VER-07-07-005 | Semantic setup review | `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` exist and provide complete lens coverage. |
 > | VER-07-07-006 | Dependency-register validation | `Dependencies.csv` validates against the v3.1 schema and contains evidence-linked ACTIVE rows. |
-> | VER-07-07-007 | Future implementation test | UI test coverage for job launch state, progress, cancellation, diagnostics, blocked states, and report/export traceability remains `TBD` until implementation work is authorized. |
+> | VER-07-07-007 | Future implementation test | Verify launch, progress, cancellation, diagnostics, blocked states and report/export traceability against the current SolvePanel/workspace-session routes; cite actual candidate-bound results and keep unexecuted checks explicit. |
 >
 
 ### CLM-014 — Documentation
@@ -176,10 +173,7 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 >
 > Required setup records for this deliverable are:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -187,7 +181,6 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 > - `_run_records/*`
 > - `_STATUS.md`
 >
-
 ### CLM-015 — Acceptance Notes
 
 > ##### Acceptance Notes
@@ -224,10 +217,10 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 > | Prerequisite | Status |
 > |---|---|
 > | Sealed deliverable context for DEL-07-07 | Present in `_CONTEXT.md` |
-> | Governing invariants and stop rules | Present in `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, and `INIT.md` |
-> | Command/job/cancellation/progress architecture basis | Present in DEL-00-03 specification and architecture-basis injection |
-> | GUI transient job-progress state basis | Present in DEL-00-05 specification and architecture-basis injection |
-> | Diagnostics/result-envelope basis | Present in DEL-00-06 specification and architecture-basis injection |
+> | Governing invariants and stop rules | Present in `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, and `AGENTS.md` |
+> | Command/job/cancellation/progress architecture basis | Present in DEL-00-03 `ArchitectureBasis.md` and the architecture-basis injection |
+> | GUI transient job-progress state basis | Present in DEL-00-05 `ArchitectureBasis.md` and the architecture-basis injection |
+> | Diagnostics/result-envelope basis | Present in DEL-00-06 `ArchitectureBasis.md` and the architecture-basis injection |
 > | Protected-data and professional-boundary constraints | Present in `docs/CONTRACT.md`, `docs/TYPES.md`, and `docs/SPEC.md` |
 >
 
@@ -239,7 +232,7 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 >    - Verify `Deliverable ID = DEL-07-07`, `Package ID = PKG-07`, and `Scope Coverage = SOW-055` in `_CONTEXT.md`.
 >    - Verify objectives `OBJ-006` and `OBJ-007`.
 >
-> 2. Draft the four-document setup kit.
+> 2. Draft the Scope of Work contract.
 >    - Populate `ScopeOfWork.md`.
 >    - Keep content at setup/specification level.
 >    - Do not create GUI source code, tests, schemas, job/solver implementation, manifests, repo-level docs, or issued artifacts.
@@ -271,21 +264,19 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 >    - Confirm no writes occurred outside the deliverable folder.
 >    - Confirm `_STATUS.md` remains at `SEMANTIC_READY` only if all setup gates pass.
 >
-
 ### CLM-022 — Verification
 
 > ##### Verification
 >
 > | Check | Expected result |
 > |---|---|
-> | Four documents exist | `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` exist |
+> | the Scope of Work contract exist | `ScopeOfWork.md` exist |
 > | Semantic artifacts exist | `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` exist |
 > | Dependency artifacts exist | `Dependencies.csv` and `_DEPENDENCIES.md` exist |
 > | Dependency schema validates | `validate_dependencies_schema.py` reports valid v3.1 schema |
 > | Protected data absent | No protected standards/code text, copied tables, proprietary values, or certification claims appear |
 > | Scope respected | Only DEL-07-07 deliverable-local files are written |
 >
-
 ### CLM-023 — Records
 
 > ##### Records
@@ -305,13 +296,12 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 >
 > The deliverable may be left at `SEMANTIC_READY` when:
 >
-> - all setup artifacts listed in `Specification.md` exist,
+> - all setup artifacts listed in `ScopeOfWork.md` exist,
 > - dependency validation passes,
 > - semantic and lensing artifacts are present,
 > - no protected-data or certification boundary issue is found,
 > - no out-of-scope files were edited,
 > - open implementation choices remain explicitly marked as `TBD` rather than silently chosen.
-
 - **VER-001** — Validate the contract and review source parity, job-boundary routing, progress and cancellation semantics, diagnostic fields and warning classes, missing-data separation, reproducibility metadata, protected-content limits, and every retained TBD or governed residual.
 
 ## Governing Values and Decisions — Axiology
@@ -389,9 +379,9 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 >
 > | ID | Issue | Owner |
 > |---|---|---|
-> | OI-07-07-001 | Exact job state enum, progress payload, and cancellation terminal states remain implementation-level `TBD` until the application-service contract is materialized. | Future implementation TASK |
-> | OI-07-07-002 | Exact diagnostic filtering, grouping, and detail layout remain `TBD` until GUI design work is authorized. | Future GUI TASK |
-> | OI-07-07-003 | Exact report/export handoff fields remain `TBD` until result export and report artifacts are implemented. | PKG-08 / future interface TASK |
+> | OI-07-07-001 | Job/state/progress/cancellation fields are carried by the application-service and current solve consumer; distinguish `core/gui/solve_execution/engine.py` contract evidence from actual desktop runtime routes in SolvePanel/workspaceSession. Preserve missing runtime cancellation or progress witnesses as delivery work. | Future implementation TASK |
+> | OI-07-07-002 | Diagnostic filtering/grouping/detail layout is an implementation choice realized in current desktop consumers; preserve diagnostic classes, stable affected identity and visible blocked/missing states across revisions. | Future GUI TASK |
+> | OI-07-07-003 | Resolve report/export handoff fields through the accepted results/report contracts and current route consumers; retain any missing end-to-end traceability witness instead of treating the entire interface inventory as absent. | PKG-08 / future interface TASK |
 >
 
 ### CLM-033 — Conflict Table (for human ruling)

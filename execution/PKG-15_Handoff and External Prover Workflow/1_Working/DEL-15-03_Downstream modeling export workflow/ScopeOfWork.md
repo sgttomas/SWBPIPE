@@ -92,8 +92,8 @@ This Scope of Work defines `DEL-15-03` in service of project scope [SOW-074] and
 >
 > - `_CONTEXT.md` - deliverable identity, scope, architecture-basis injection, and anticipated artifacts.
 > - `_REFERENCES.md` - source list for this deliverable.
-> - `_DEPENDENCIES.md` and `Dependencies.csv` - approved DAG-006 mirror/evidence surface for upstream workflow context.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - revision 0.7 package, scope, objective, decision, and open-issue context.
+> - `_DEPENDENCIES.md` and `Dependencies.csv` - approved graph resolved through `execution/_DAG/_LATEST.md` mirror/evidence surface for upstream workflow context.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current package, scope, objective, decision, and open-issue context.
 > - `docs/CONTRACT.md` - invariant catalog.
 > - `docs/SPEC.md` - schema-first, unit-aware, provenance, diagnostics, and handoff-related architecture context.
 > - `docs/TYPES.md` - canonical object and boundary vocabulary.
@@ -222,7 +222,7 @@ This Scope of Work defines `DEL-15-03` in service of project scope [SOW-074] and
 > | Deliverable scope, package, artifacts, and architecture basis reviewed. | `_CONTEXT.md` |
 > | Invariants for data boundary, unit handling, professional boundary, and agent output reviewed. | `docs/CONTRACT.md` |
 > | Protected-content and public/private data boundary reviewed. | `docs/IP_AND_DATA_BOUNDARY.md` |
-> | Approved DAG-002 mirror rows preserved as ACTIVE evidence. | `_DEPENDENCIES.md`; `Dependencies.csv` |
+> | Local dependency rows preserve their recorded statuses; resolve current approved graph authority through `execution/_DAG/_LATEST.md`. | Preserve local dependency meanings and the actual statuses recorded under `execution/_DAG/_LATEST.md`; DAG-011 is current authority. Do not force historical duplicates or pending edges to ACTIVE. |
 > | Upstream architecture-basis context available for DEL-00-01, DEL-00-02, DEL-00-03, DEL-00-04, DEL-00-06, DEL-00-07, and DEL-00-08. | Local `Dependencies.csv` |
 > | Upstream interop/handoff/security/model context identified for DEL-15-01, DEL-15-02, DEL-10-02, DEL-10-03, DEL-12-02, DEL-13-04, and DEL-14-05. | Local `Dependencies.csv` |
 >
@@ -255,7 +255,7 @@ This Scope of Work defines `DEL-15-03` in service of project scope [SOW-074] and
 > | Warning/assumption check | Missing data and unsupported target behavior are explicit findings, not silent defaults. |
 > | Boundary check | Output does not claim certification, sealing, approval, authentication, professional acceptance, or code compliance (PRD §21.2). |
 > | Fixture check | Invented target fixture has provenance and does not use protected or commercial-tool example data. |
-> | Dependency check | Approved DAG-002 mirror rows remain preserved; no dependency extraction refresh reclassifies them without human approval. |
+> | Dependency check | approved graph resolved through `execution/_DAG/_LATEST.md` mirror rows remain preserved; no dependency extraction refresh reclassifies them without human approval. |
 >
 
 ### CLM-021 — Records

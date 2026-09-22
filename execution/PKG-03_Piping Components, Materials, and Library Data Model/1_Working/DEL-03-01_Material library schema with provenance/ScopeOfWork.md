@@ -66,11 +66,13 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 
 > ##### Conditions
 >
+> Temperature interpolation follows DEC-077 and DEC-092: use qualifying user-entered points, retain source-point and method provenance, and block when the governed bracket is absent; no protected/default material curve is supplied. Implementation and engineering validation remain separately evidenced.
+>
 > - `schemas/material.schema.yaml` defines structure for temperature-dependent properties and allowables, but it does not provide actual engineering values.
-> - `fixtures/material/invented_material_library_valid.json` is a public schema fixture with omitted engineering values, `TBD` source/license disposition, and explicit blocking diagnostics for missing solve-required data.
+> - Public fixture policy: use invented non-engineering or rights-cleared examples, retain explicit provenance/review state and missing-value diagnostics, and never treat a fixture as accepted engineering data. Current inventory evidence is `fixtures/material/invented_material_library_valid.json`.
 > - Code-specific values and allowables remain user-supplied or lawfully imported private data, not bundled public defaults.
 > - Architecture basis requires JSON Schema 2020-12, deterministic/versioned/provenance-preserving persistence, unit awareness, diagnostics, adapter validation, and protected-content/provenance gates where relevant.
-> - Public material source catalog, public fixture value policy, temperature interpolation policy, allowable storage policy, dependency satisfaction, and human review dispositions remain `TBD`.
+> - Public material source catalog, public fixture value policy, allowable storage policy, dependency satisfaction, and human review dispositions remain `TBD`.
 >
 
 ### CLM-006 — Construction
@@ -86,11 +88,11 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 > | Property definitions | `MaterialPropertyDefinition` declares property kind, dimension ID, quantity kind, unit requirement, required-for context, public fixture policy, and review status. |
 > | Property values | `MaterialPropertyValue` carries property kind, value status, required-for context, provenance, review status, and optional unit-bearing quantity value. |
 > | Allowable slots | `MaterialAllowableSlot` records slot metadata, value status, public repository value policy, required-for context, provenance, and review status without supplying protected/code-specific values. |
-> | Provenance | `Provenance` requires source name/location/license, contributor, contributor certification, redistribution status, and review status. Fixture source/license disposition remains `TBD`. |
+> | Provenance | Required provenance fields remain source/location/license, contributor/certification, redistribution and review status. Each fixture record carries its own disposition; no fixture-wide clearance follows from one populated field. |
 > | Redistribution and privacy | Schema enums record public, private, unknown, rejected, suspected-protected, and `TBD` dispositions. Human acceptance of public material data remains separate. |
 > | Completeness flags | `CompletenessRule` and `MaterialCompletenessFinding` record required property kinds, missing behavior, status, and diagnostic code. |
 > | Diagnostics | `MaterialDiagnostic` records code, class, severity, source, affected reference, message, remediation, and provenance. The fixture emits `MATERIAL_PROPERTY_MISSING` as a blocking solve diagnostic. |
-> | Open decisions | `OpenDecision` preserves unresolved public fixture, source catalog, allowable storage, and interpolation policy topics. |
+> | Open decisions | `OpenDecision` preserves unresolved public fixture, source catalog, and allowable storage topics. Temperature interpolation is governed by DEC-077/092; its bounded evidence and no-extrapolation obligations remain required. |
 >
 
 ### CLM-007 — References
@@ -100,7 +102,7 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 > - docs/_Registers/Deliverables.csv row DEL-03-01
 > - docs/_Registers/ScopeLedger.csv row SOW-017
 > - docs/_Registers/ContextBudgetQA.csv row DEL-03-01
-> - execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register)
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register)
 > - docs/CONTRACT.md invariants OPS-K-IP-1, OPS-K-IP-2, OPS-K-IP-3, OPS-K-DATA-1, OPS-K-DATA-2, OPS-K-DATA-3, OPS-K-UNIT-1, OPS-K-PRIV-1, OPS-K-GOV-4, OPS-K-AGENT-1..4
 
 ## Completion and Reliance Basis — Epistemology
@@ -150,7 +152,7 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 > | Standard or policy source | Use in this setup evidence |
 > |---|---|
 > | SWBPIPE CONTRACT | Governs protected-content, provenance, privacy, data, unit, governance, and agent-output constraints. |
-> | SOFTWARE_DECOMP revision 0.7 | Provides package/deliverable scope and architecture basis IDs. |
+> | SOFTWARE_DECOMP accepted authority (see the decision register) | Provides package/deliverable scope and architecture basis IDs. |
 > | External engineering standards | Referenced only as possible source categories; exact text, tables, values, and clauses are not locally available and remain `TBD`. |
 >
 
@@ -165,7 +167,7 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 > - The invented fixture omits material engineering values and records an incomplete solve-required material record with blocking diagnostics.
 > - The test checks that protected/code-compliance phrases and standards identifiers from the forbidden list are absent from schema and fixture text.
 > - The test checks material dimensions against the accepted PKG-02 dimension vocabulary and retired aliases.
-> - Round-trip persistence integration, public source catalog acceptance, fixture value policy, interpolation policy, allowable storage policy, dependency satisfaction, and human review dispositions remain `TBD`.
+> - Round-trip persistence integration, public source catalog acceptance, fixture value policy, allowable storage policy, dependency satisfaction, and human review dispositions remain `TBD`.
 >
 
 ### CLM-014 — Documentation
@@ -181,7 +183,7 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 > Still-open review evidence:
 >
 > - protected-content and redistribution review disposition
-> - human review of package audit findings
+> - preservation of recorded package-audit dispositions (`Review_Findings.csv`: `ACCEPT_AS_IS` / `RESOLVED`)
 > - dependency satisfaction and downstream readiness disposition
 
 - **AC-001** — The contract preserves accepted material-data requirements and boundaries, including unit awareness, protected-content and redistribution controls, explicit missing-value findings, and unresolved policy decisions without supplying engineering values or professional approval.
@@ -214,7 +216,7 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 > ##### Prerequisites
 >
 > - Sealed DEL-03-01 brief and write scope.
-> - `_CONTEXT.md`, `_REFERENCES.md`, `docs/CONTRACT.md`, register rows, SOFTWARE_DECOMP revision 0.7, and approved DAG-006 context.
+> - `_CONTEXT.md`, `_REFERENCES.md`, `docs/CONTRACT.md`, register rows, SOFTWARE_DECOMP accepted authority (see the decision register), and approved graph context from `execution/_DAG/_LATEST.md`.
 > - Current evidence files: `schemas/material.schema.yaml`, `fixtures/material/invented_material_library_valid.json`, and `tests/test_material_schema.py`.
 > - Human-approved rules for any public fixture source, license, redistribution status, and review disposition.
 > - No protected material tables or proprietary library data in the working folder.
@@ -230,7 +232,7 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 > 4. Inspect `fixtures/material/invented_material_library_valid.json` to confirm it remains invented/schema-shape evidence with omitted engineering values and explicit diagnostics.
 > 5. Run `python3 tests/test_material_schema.py` and record the result in a deliverable-local run record.
 > 6. Run a stale-language check against the active `ScopeOfWork.md` for phrases that incorrectly describe the implemented schema as only setup/future evidence.
-> 7. Preserve unresolved public source, fixture value, interpolation, allowable storage, dependency satisfaction, and human review disposition items as `TBD`.
+> 7. Preserve unresolved public source, fixture value, allowable storage, dependency satisfaction, and human review disposition items as `TBD`.
 > 8. Route public data acceptance, quarantine disposition, package audit finding disposition, dependency satisfaction, and lifecycle transitions through separate human/reconciliation gates.
 >
 
@@ -247,7 +249,7 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 > | Unit validation | Material property dimensions remain aligned with the accepted PKG-02 dimension vocabulary. |
 > | Missing-value behavior | Missing solve-required or rule-check-required values produce explicit diagnostics. |
 > | Privacy check | Private libraries are not transmitted or committed publicly by default. |
-> | Review disposition check | `Review_Findings.csv` remains pending human disposition unless a separate human gate authorizes edits. |
+> | Review disposition check | `Review_Findings.csv` records the local findings as `ACCEPT_AS_IS` / `RESOLVED`; this procedure preserves that disposition without expanding it to source acceptance or lifecycle closure. |
 >
 
 ### CLM-021 — Records
@@ -257,7 +259,7 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 > - Schema review notes: deliverable-local run records.
 > - Fixture provenance review: `TBD` until human/source review accepts a public fixture policy.
 > - Protected-content review disposition: `TBD`.
-> - Human rulings on public fixture sources and package audit findings: `TBD`.
+> - Public fixture/source acceptance remains `TBD`; local package-audit findings have the recorded `ACCEPT_AS_IS` / `RESOLVED` human disposition in `Review_Findings.csv`.
 > - Dependency register and run records in this deliverable folder.
 
 - **VER-001** — Validate the contract and review source parity, schema and fixture coverage, unit and provenance boundaries, missing-value diagnostics, protected-content controls, deterministic persistence compatibility, and unresolved human-review items.
@@ -290,7 +292,7 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 > - Treat material values and allowables as governed data, not as free public defaults.
 > - Separate schema slots from data content: defining an `allowable` field is allowed; populating public tables of protected allowables is not.
 > - Preserve source and rights metadata with every material value that could affect solving, rule checking, reporting, or downstream reliance.
-> - Use `TBD` for unresolved public source catalogs, accepted fixture value policy, interpolation policy, allowable storage policy, dependency satisfaction, and human review dispositions.
+> - Use `TBD` for unresolved public source catalogs, accepted fixture value policy, allowable storage policy, dependency satisfaction, and human review dispositions.
 > - Prefer explicit warnings and blocked states over silent fallbacks when required material data is absent or untrusted.
 >
 
@@ -300,7 +302,7 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 >
 > The implemented schema already distinguishes private/user-supplied values, public-permissive reviewed values, invented non-engineering fixture evidence, suspected protected content, and unresolved `TBD` states. Private records may carry user-entered or lawfully imported values, while public repository fixtures still require documented redistribution rights and review disposition before any real values are accepted.
 >
-> The current invented fixture is schema-shape evidence. Its source/license and redistribution fields intentionally remain `TBD`, and that `TBD` status is not accepted public material data. The fixture omits engineering values and carries blocking diagnostics to demonstrate missing-data behavior.
+> Public fixtures are evidence for schema and missing-data behavior. Invented non-engineering quantities are permitted with truthful provenance; omitted values and unresolved review fields stay explicit. Current inventory and its record-level provenance are in `fixtures/material/invented_material_library_valid.json`; this is not engineering-use acceptance.
 >
 > The schema is structured so importers and adapters have provenance, redistribution, unit, and diagnostic fields to preserve. Concrete import/export formats and adapter behavior remain downstream work.
 >
@@ -311,7 +313,7 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 >
 > | Decision area | Tension | Current position |
 > |---|---|---|
-> | Public examples | Useful for tests and documentation, but risky if derived from protected standards or proprietary libraries. | The current fixture is invented/schema-shape evidence with omitted values. Real public material values require later source and redistribution review. |
+> | Public examples | Useful for tests and documentation, but risky if derived from protected standards or proprietary libraries. | Current fixture evidence must distinguish invented non-engineering quantities from omitted solve-required values, with each record’s provenance/review state explicit. Real public material values require later source and redistribution review. |
 > | Required field strictness | Strict requirements improve safety but may block partial private libraries. | Required-for-solving/checking values produce explicit completeness findings and diagnostics when absent. Additional policy strictness remains downstream. |
 > | Source citations | Detailed source pointers improve traceability but can expose protected content if mishandled. | Store source/provenance pointers and rights status; do not reproduce protected text/tables. |
 > | Allowable values | Needed for some checks, but code-specific tables are protected or user-governed. | Provide schema slots and diagnostics; do not bundle public allowable tables. |
@@ -321,7 +323,7 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 
 > ##### Examples
 >
-> The current public fixture is `fixtures/material/invented_material_library_valid.json`. It is not accepted material data for engineering use: it is an invented schema fixture with omitted values, `TBD` source/license disposition, and explicit blocking diagnostics.
+> - Public fixture policy: use invented non-engineering or rights-cleared examples, retain explicit provenance/review state and missing-value diagnostics, and never treat a fixture as accepted engineering data. Current inventory evidence is `fixtures/material/invented_material_library_valid.json`.
 >
 > Any later material editor fixture that supplies values must use invented non-engineering values or rights-cleared public-permissive data with documented review disposition. It must not include protected material allowable tables, copied standards examples, proprietary library data, or invented values presented as engineering data.
 >

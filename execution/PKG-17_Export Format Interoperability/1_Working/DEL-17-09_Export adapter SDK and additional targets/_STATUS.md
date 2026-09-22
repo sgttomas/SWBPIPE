@@ -4,6 +4,7 @@
 **Last Updated:** 2026-09-22
 
 ## Remaining
+- R5 continuation delivery task: Demonstrate metadata-contract admission and no-bypass/deny-by-default behavior with actual export consumers. Runtime loader/grants and target activation remain unselected; existing SDK metadata schema/builders do not authorize filesystem/network/process access or vendor support (CLM-005/006/013/015/041).
 - Bind any future SDK admission package to a governed runtime loader with complete provenance-detail grains; the current declaration gate remains deny-only and does not admit a target runtime.
 - Select the exact adapter readiness-category taxonomy before PDU-034 closure; current admission evidence remains the implemented nine-category checklist and does not imply syntactic, redistribution, mechanics, or rule-check readiness.
 - Hold PDU-004's exact checklist-category, reviewer-role, signoff-format, and approval-artifact taxonomy for owner selection. Current evidence-backed checklist fields do not include those unselected grains; `human_review_required=true` and the existing `human_review` category are not a reviewer identity or signoff record.

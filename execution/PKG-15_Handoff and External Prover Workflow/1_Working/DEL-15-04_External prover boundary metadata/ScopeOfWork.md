@@ -39,7 +39,7 @@ This Scope of Work defines `DEL-15-04` in service of project scope [SOW-075] and
 > | Scope Coverage | SOW-075 | `_CONTEXT.md`; `docs/_Registers/ScopeLedger.csv` row SOW-075 |
 > | Objective Support | OBJ-017; OBJ-018 | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` objective mapping |
 > | Context Envelope | M | `_CONTEXT.md`; `docs/_Registers/ContextBudgetQA.csv` row DEL-15-04 |
-> | Accepted Decomposition Basis | revision 0.7 | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` |
+> | Accepted Decomposition Basis | Current accepted decomposition and its amendments | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` |
 >
 
 ### CLM-004 — Attributes
@@ -52,7 +52,7 @@ This Scope of Work defines `DEL-15-04` in service of project scope [SOW-075] and
 > | Required metadata posture | Flexible names, tags, notes, external references, attachments, and comparison-report linkage | `execution/_Decomposition/SOFTWARE_DECOMP.md` DEL-15-04 row and SOW-075 note |
 > | Prohibited automatic statuses | No hard-coded approval, certification, code-compliance, formal prover lifecycle, or automatic professional acceptance status (PRD §21.2) | `docs/_Registers/Deliverables.csv` row DEL-15-04; `docs/_Registers/ScopeLedger.csv` row SOW-075; `docs/TYPES.md` section 4 |
 > | Commercial tool result ingestion | Comprehensive commercial-tool result ingestion is out of MVP scope | `docs/_Registers/ScopeLedger.csv` row SOW-075; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-016 |
-> | Professional reliance boundary | Non-authoritative; software output remains decision support until competent human review | `INIT.md` Agent rule; `docs/DIRECTIVE.md` sections 1-3; `docs/CONTRACT.md` OPS-K-AUTH-1 |
+> | Professional reliance boundary | Non-authoritative; software output remains decision support until competent human review | `AGENTS.md` and the applicable `docs/CONTRACT.md` invariants Agent rule; `docs/DIRECTIVE.md` sections 1-3; `docs/CONTRACT.md` OPS-K-AUTH-1 |
 > | Public/private data boundary | External artifacts and examples must not introduce protected standards text, proprietary values, private project data, or commercial software examples without permission | `docs/IP_AND_DATA_BOUNDARY.md` sections 2-6; `docs/SPEC.md` report/result export boundary sections |
 > | Schema basis | JSON Schema 2020-12 contracts and schema-first envelopes are the accepted architecture basis | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-010 |
 > | Concrete schema file path | `schemas/external_prover_metadata.schema.json` | Materialized JSON Schema 2020-12 metadata contract matching the current builder output |
@@ -68,7 +68,7 @@ This Scope of Work defines `DEL-15-04` in service of project scope [SOW-075] and
 > | Upstream architecture basis | AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, AB-00-08 | `_CONTEXT.md` Architecture Basis Injection; `Dependencies.csv` rows DAG-002-E0723 through DAG-002-E0729 |
 > | Upstream professional-boundary dependency | DEL-01-04 | `Dependencies.csv` row DAG-002-E0818 |
 > | Upstream handoff/state dependencies | DEL-15-01, DEL-15-02, DEL-15-03, DEL-14-01 | `Dependencies.csv` rows DAG-002-E0819 through DAG-002-E0822 |
-> | Approved DAG mirror status | 12 ACTIVE rows, synchronized from approved DAG-006 | `_DEPENDENCIES.md`; `Dependencies.csv` |
+> | Approved DAG mirror status | Resolve current graph and row statuses through `execution/_DAG/_LATEST.md`; former synchronization count is historical evidence | `_DEPENDENCIES.md`; `Dependencies.csv` |
 > | Boundary validation tests | `tests/test_external_prover_boundary_metadata.py` validates generated records against schema and boundary behavior | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row DEL-15-04 |
 >
 
@@ -91,12 +91,12 @@ This Scope of Work defines `DEL-15-04` in service of project scope [SOW-075] and
 >
 > - `_CONTEXT.md` - deliverable identity, scope, objectives, architecture basis, and anticipated artifacts.
 > - `_REFERENCES.md` - governing source list for this folder.
-> - `_DEPENDENCIES.md` and `Dependencies.csv` - approved DAG-006 local mirror/evidence surface.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - revision 0.7 package, scope, objective, decision, and issue context.
+> - `_DEPENDENCIES.md` and `Dependencies.csv` - approved graph resolved through `execution/_DAG/_LATEST.md` local mirror/evidence surface.
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current package, scope, objective, decision, and issue context.
 > - `docs/_Registers/Deliverables.csv` - row DEL-15-04.
 > - `docs/_Registers/ScopeLedger.csv` - row SOW-075.
 > - `docs/_Registers/ContextBudgetQA.csv` - row DEL-15-04.
-> - `INIT.md`, `docs/DIRECTIVE.md`, `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/SPEC.md`, and `docs/IP_AND_DATA_BOUNDARY.md` - governance, authority, status, schema, and data-boundary constraints.
+> - `AGENTS.md` and the applicable `docs/CONTRACT.md` invariants, `docs/DIRECTIVE.md`, `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/SPEC.md`, and `docs/IP_AND_DATA_BOUNDARY.md` - governance, authority, status, schema, and data-boundary constraints.
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -124,7 +124,7 @@ This Scope of Work defines `DEL-15-04` in service of project scope [SOW-075] and
 > | DEL-15-04-R2 | The metadata surface shall support flexible names, tags, notes, external references, and attachments. | `execution/_Decomposition/SOFTWARE_DECOMP.md` DEL-15-04 row; SOW-075 note | Schema/review tests check that these categories are representable without requiring a fixed prover lifecycle. |
 > | DEL-15-04-R3 | The metadata model shall not force a formal prover-status lifecycle. | SOW-075 in `docs/_Registers/ScopeLedger.csv`; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-016 | Negative tests reject or flag hard-coded lifecycle authority when represented as automatic software status. |
 > | DEL-15-04-R4 | The metadata model shall not create automatic professional acceptance records. | SOW-075; `docs/TYPES.md` section 4; `docs/SPEC.md` section 4.4 | Tests verify software-generated metadata cannot assert human acceptance. |
-> | DEL-15-04-R5 | The metadata model shall not emit approval, certification, code-compliance, sealing, authentication, endorsement, or professional-reliance equivalents as automatic statuses (PRD §21.2). | `INIT.md` Agent rule; `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` section 4; `docs/SPEC.md` analysis-status boundary | Boundary validation tests cover prohibited status labels and equivalents. |
+> | DEL-15-04-R5 | The metadata model shall not emit approval, certification, code-compliance, sealing, authentication, endorsement, or professional-reliance equivalents as automatic statuses (PRD §21.2). | `AGENTS.md` and the applicable `docs/CONTRACT.md` invariants Agent rule; `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` section 4; `docs/SPEC.md` analysis-status boundary | Boundary validation tests cover prohibited status labels and equivalents. |
 > | DEL-15-04-R6 | External prover metadata shall remain diagnostic/handoff support rather than proof of external verification sufficiency. | `execution/_DAG/DAG-006/DAG-002_EdgeDispositionReview.md` DAG2-RD-010; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-015 | Review/test evidence checks wording and status semantics. |
 > | DEL-15-04-R7 | Any external human acceptance reference, if later represented, shall be external, human-actor-owned, and bound to reviewed payload hashes. | `docs/TYPES.md` section 4; `docs/SPEC.md` section 4.4 and analysis-status boundary | Tests require external/hash-bound representation and prevent content-change survival without re-review. |
 > | DEL-15-04-R8 | Public fixtures, examples, report snippets, and metadata examples shall not copy protected standards text, protected tables, proprietary formulas, proprietary engineering values, private project data, private rule-pack payloads, private library content, real secrets, or unauthorized commercial software examples. | `docs/IP_AND_DATA_BOUNDARY.md` sections 2-6; `docs/SPEC.md` report/result export boundary sections | Protected-content/private-data review or lint evidence is required for public examples. |
@@ -207,7 +207,7 @@ This Scope of Work defines `DEL-15-04` in service of project scope [SOW-075] and
 > ##### Steps
 >
 > 1. Confirm the implementation task is explicitly scoped to DEL-15-04 and has write authority for the intended schema/tests.
-> 2. Read `_CONTEXT.md`, `_REFERENCES.md`, `Specification.md`, and the approved local dependency mirror before drafting any schema or tests.
+> 2. Read `_CONTEXT.md`, `_REFERENCES.md`, `ScopeOfWork.md` requirements section, and the approved local dependency mirror before drafting any schema or tests.
 > 3. Define only descriptive external-prover metadata categories supported by the sources: names, tags, notes, external references, attachments, and diagnostic comparison/handoff links.
 > 4. Use `schemas/external_prover_metadata.schema.json` for schema path, field names, required/optional cardinality, attachment-as-reference behavior, and external artifact checksum references; concrete commercial-tool parser behavior remains out of scope.
 > 5. Add or update schema fields so that they cannot be interpreted as automatic professional approval, certification, sealing, authentication, code compliance, or formal prover lifecycle state (PRD §21.2).
@@ -229,7 +229,7 @@ This Scope of Work defines `DEL-15-04` in service of project scope [SOW-075] and
 > | Status-boundary check | Automatic approval, certification, code-compliance, sealing, authentication, professional reliance, and formal prover lifecycle states are absent or rejected (PRD §21.2). |
 > | Human acceptance check | Any human acceptance reference is external, human-owned, and hash-bound; otherwise it is `TBD` or absent. |
 > | Data-boundary check | Fixtures/examples contain no protected standards text, proprietary values, private project data, unauthorized commercial examples, real secrets, or private rule-pack payloads. |
-> | Dependency check | Upstream dependency context from `Dependencies.csv` is preserved; approved DAG-006 mirror rows are not deleted, retired, or reclassified by this setup pass. |
+> | Dependency check | Upstream dependency context from `Dependencies.csv` is preserved; approved graph resolved through `execution/_DAG/_LATEST.md` mirror rows are not deleted, retired, or reclassified by this setup pass. |
 >
 
 ### CLM-019 — Records
@@ -275,7 +275,7 @@ This Scope of Work defines `DEL-15-04` in service of project scope [SOW-075] and
 > | No lifecycle overclaim | Do not encode a formal prover lifecycle unless later authorized by explicit scope change. | `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-016 |
 > | Human authority remains external | Human acceptance, when it exists, is outside solver authority and must be a human-owned, hash-bound project record. | `docs/TYPES.md` section 4; `docs/SPEC.md` section 4.4 |
 > | Preserve data boundaries | Do not embed protected standards content, commercial software examples, private project data, or proprietary values in public examples or fixtures. | `docs/IP_AND_DATA_BOUNDARY.md` sections 2-6; `docs/SPEC.md` report/result export boundary sections |
-> | Expose unknowns | Missing or unsupported metadata should be recorded as `TBD` or a diagnostic rather than silently defaulted. | `INIT.md` Agent rule; `docs/DIRECTIVE.md` section 2.2; `docs/CONTRACT.md` OPS-K-DATA-2 |
+> | Expose unknowns | Missing or unsupported metadata should be recorded as `TBD` or a diagnostic rather than silently defaulted. | `AGENTS.md` and the applicable `docs/CONTRACT.md` invariants Agent rule; `docs/DIRECTIVE.md` section 2.2; `docs/CONTRACT.md` OPS-K-DATA-2 |
 >
 
 ### CLM-023 — Considerations

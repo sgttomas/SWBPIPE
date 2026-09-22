@@ -24,6 +24,8 @@ Define GUI state, editing, selection, undo/redo, viewport integration, and workf
   implementation or expand either deliverable's accepted scope.
 
 ## Anticipated Artifacts
+
+Historical setup inventory. Current architecture constraints and realized-carrier references are in this deliverable’s `ArchitectureBasis.md`; an uncreated historical filename does not supersede that basis or establish delivery completeness.
 - docs/architecture/gui_state_model.md
 - interaction architecture notes
 
@@ -50,7 +52,7 @@ Define GUI state, editing, selection, undo/redo, viewport integration, and workf
 
 ## Architecture Gate Rule
 - This deliverable is part of the `PKG-00` architecture runway.
-- `PKG-01` through `PKG-12` package-level document drafting and implementation planning should not proceed until `PKG-00` reaches the selected architecture readiness threshold or the human changes the gate.
+- Historical setup gate (DEC-007): superseded for current dispatch by D-43 / SCA-006. Current work follows the authorized brief and applicable consolidated ArchitectureBasis constraints; this historical gate does not assert PKG-00 lifecycle readiness.
 
 ## Decomposition Reference
 - **Decomposition:** execution/_Decomposition/SOFTWARE_DECOMP.md

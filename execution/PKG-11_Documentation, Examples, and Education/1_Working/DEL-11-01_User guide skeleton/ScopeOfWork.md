@@ -49,13 +49,13 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 > | Attribute | Value |
 > |---|---|
 > | Primary purpose | Define a user guide structure for project setup, modeling, solving, rule checks, reports, and limitations. |
-> | Target artifact | `docs/user_guide/index.md` is the anticipated downstream artifact, but this setup run does not edit it. |
+> | Target artifact Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | `docs/user_guide/index.md` is the anticipated downstream artifact, but this setup run does not edit it. |
 > | Guide posture | Help users understand an open, auditable piping stress workflow without hiding missing data, private-data requirements, or professional responsibility limits. |
 > | Required sections | Product scope, setup, project creation, model building, solving, rule checks, results review, reports, limitations, troubleshooting, glossary. |
 > | Data boundary | Public guide content must not include protected standards text, protected examples, proprietary tables, private rule packs, private libraries, or owner data. |
 > | Rule-check boundary | User rule checks are computations using user-supplied or lawful private rule packs; they are not professional authentication. |
 > | Professional boundary | The software assists analysis and reporting; competent human review remains required before project reliance. |
-> | Implementation maturity | Exact packaging, public API transport, import/export formats, solver library, expression grammar, and physical project container remain `TBD`. |
+> | Implementation maturity | Resolve implementation choices through the decision log: DEC-017/019 storage, DEC-022 grammar, DEC-023 numerical-library basis, DEC-028/057 package and release posture, SCA-004 export scope. Public API transport and unfulfilled implementation/acceptance obligations remain open. |
 >
 
 ### CLM-005 — Conditions
@@ -65,7 +65,7 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 > | Condition | Source basis | Effect on the guide skeleton |
 > |---|---|---|
 > | User documentation is in scope for PKG-11. | `docs/_Registers/Deliverables.csv` row DEL-11-01; `docs/_Registers/ScopeLedger.csv` row SOW-033 | The skeleton covers the user-facing workflow, not source code or examples. |
-> | Open mechanics and protected standards data must remain separated. | `INIT.md`; `docs/DIRECTIVE.md` sections 1-4; OPS-K-IP-1 through OPS-K-IP-3 | Guide sections must describe user/private data requirements without copying or paraphrasing protected standards content. |
+> | Open mechanics and protected standards data must remain separated. | `AGENTS.md`; `docs/DIRECTIVE.md` sections 1-4; OPS-K-IP-1 through OPS-K-IP-3 | Guide sections must describe user/private data requirements without copying or paraphrasing protected standards content. |
 > | Mechanics solve, user rule check, and professional approval are separate states. | `docs/TYPES.md` sections 4 and 6; OPS-K-AUTH-1 | The guide outline must explain statuses and warnings without implying automatic code compliance (PRD §21.2). |
 > | Primary global analysis is a 3D centerline/frame model. | `docs/DIRECTIVE.md` section 3; `docs/SPEC.md` sections 1 and 4 | Modeling sections emphasize centerline nodes, elements, components, supports, loads, and unit-aware fields. |
 > | Reports must be auditable and boundary-aware. | `docs/SPEC.md` section 8; OPS-K-REPORT-1 and OPS-K-AUTH-1 | Reporting sections include provenance, warnings, hashes/checksums, limitations, and human review notice. |
@@ -75,6 +75,9 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 ### CLM-006 — Construction
 
 > ##### Construction
+>
+> Current deliverable obligation: Create user guide structure for project setup, modeling, solving, rule checks, reports, and limitations. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
 >
 > The user guide skeleton is organized as a documentation outline. Section content is intentionally skeletal until product features, UI behavior, reports, examples, packaging, and release gates mature.
 >
@@ -92,12 +95,11 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 > | Troubleshooting and warnings | Organize solve blockers, rule-check blockers, provenance warnings, assumption warnings, nonlinear warnings, and IP-boundary warnings. | Skeleton required |
 > | Glossary and status vocabulary | Define user-facing terms from `docs/TYPES.md` without creating new engineering authority. | Skeleton required |
 >
-
 ### CLM-007 — References
 
 > ##### References
 >
-> - `INIT.md`
+> - `AGENTS.md`
 > - `AGENTS.md`
 > - `docs/README.md`
 > - `docs/DIRECTIVE.md`
@@ -125,7 +127,7 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 >
 > This deliverable defines the deliverable-local skeleton for the SWBPIPE user guide. It covers the guide structure needed for project setup, centerline modeling, mechanics solving, user rule checks, result review, report generation, limitations, and professional responsibility notices.
 >
-> This deliverable does not edit `docs/user_guide/index.md`, does not create tutorials or example models, and does not document protected standards content. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+> Maintain `docs/user_guide/index.md` within active authorized briefs, separating guide content from separately owned tutorial/example implementation. Do not document protected standards content. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >
 
 ### CLM-011 — Requirements
@@ -138,7 +140,7 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 > | UG-REQ-002 | Setup content shall preserve unresolved implementation details as `TBD` where packaging, dependency versions, public API transport, import/export formats, solver library, expression grammar, or project container are not yet decided. | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` open issues | Review confirms no invented setup commands or product behavior are asserted. |
 > | UG-REQ-003 | Modeling content shall frame the global model as a unit-aware 3D centerline/frame model with explicit nodes, elements, components, supports, loads, and provenance-bearing fields. | `docs/DIRECTIVE.md` sections 2-3; `docs/SPEC.md` sections 1, 3, 4, and 7 | Datasheet Construction and Guidance Principles cover model-building categories. |
 > | UG-REQ-004 | Solving content shall distinguish mechanics solve status from rule-check status and human professional acceptance. | `docs/TYPES.md` sections 4 and 6; OPS-K-MECH-2; OPS-K-AUTH-1 | Search and review confirm no automatic `CODE_COMPLIANT` status or professional approval claim appears. |
-> | UG-REQ-005 | Rule-check content shall state that code-specific values, allowables, combinations, formulas, SIFs, flexibility factors, owner requirements, and proprietary data are supplied by users through lawful private data or rule packs. | `INIT.md`; `docs/DIRECTIVE.md` sections 1 and 3; OPS-K-DATA-1; OPS-K-RULE-1 and OPS-K-RULE-3 | Guidance examples exclude protected and proprietary source material. |
+> | UG-REQ-005 | Rule-check content shall state that code-specific values, allowables, combinations, formulas, SIFs, flexibility factors, owner requirements, and proprietary data are supplied by users through lawful private data or rule packs. | `AGENTS.md`; `docs/DIRECTIVE.md` sections 1 and 3; OPS-K-DATA-1; OPS-K-RULE-1 and OPS-K-RULE-3 | Guidance examples exclude protected and proprietary source material. |
 > | UG-REQ-006 | Report content shall include auditable-report slots for software/solver version, model hash, input manifest, units, warnings, assumptions, source/provenance notes, rule-pack checksum, results, and limitations. | `docs/SPEC.md` section 8; OPS-K-REPORT-1 | Datasheet Construction includes a reporting section and Procedure checks the slots. |
 > | UG-REQ-007 | Limitation content shall cover professional responsibility, validation status, public/private data boundaries, local FEA handoff, missing data, and unresolved `TBD` items. | `docs/DIRECTIVE.md` sections 3-6; `docs/VALIDATION_STRATEGY.md` section 1; OPS-K-AUTH-1 | Guidance and Procedure include boundary checks. |
 > | UG-REQ-008 | Public guide content shall not reproduce protected standards text, tables, figures, examples, protected dimensional data, proprietary commercial data, or private user/project data. | `docs/IP_AND_DATA_BOUNDARY.md` sections 2-7; OPS-K-IP-1 through OPS-K-IP-3 | Protected-content review finds no prohibited content. |
@@ -161,7 +163,7 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 >
 > | Check | Method | Expected result |
 > |---|---|---|
-> | Four-document presence | Run `tools/validation/check_four_documents.sh` on the deliverable folder. | All four setup documents are present. |
+> | Scope of Work contract | Check the consolidated `ScopeOfWork.md` production format, required sections and source/verification traceability. | Current contract is present and internally consistent; original four-document setup is historical provenance. |
 > | Required guide slots | Compare Datasheet Construction against UG-REQ-001. | Required setup, modeling, solving, rule-check, report, and limitation sections are present. |
 > | Protected-content boundary | Manual review against `docs/IP_AND_DATA_BOUNDARY.md` and OPS-K-IP invariants. | No protected standards data, proprietary examples, or private user data are introduced. |
 > | Professional boundary | Search for certification, approval, sealing, authentication, endorsement, and compliance overclaims (PRD §21.2). | Any hits are prohibitions or boundary statements, not product claims. |
@@ -175,10 +177,7 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 >
 > The setup artifact set for this deliverable consists of:
 >
-> - `Datasheet.md`
-> - `Specification.md`
-> - `Guidance.md`
-> - `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -186,8 +185,7 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 > - `_STATUS.md`
 > - `_run_records/*`
 >
-> The repository-level `docs/user_guide/index.md` remains read-only for this deliverable.
-
+> The current guide is `docs/user_guide/index.md`; its maintenance follows the active authorized brief and scoped review requirements.
 - **AC-001** — The contract preserves the source-defined guide structure, current implementation declarations, unit and missing-data visibility, diagnostics and result interpretation boundaries, invented-example posture, protected/private-data controls, accessibility intent, and visible unresolved documentation decisions. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
 ## Production and Verification Method — Praxeology
@@ -212,7 +210,7 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 > | Prerequisite | Requirement |
 > |---|---|
 > | Sealed context | Confirm `DEL-11-01`, `PKG-11`, SOW-033, OBJ-001, and OBJ-011 from `_CONTEXT.md` and the registers. |
-> | Governing sources | Read the local references listed in `_REFERENCES.md`, especially `INIT.md`, `docs/DIRECTIVE.md`, `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/SPEC.md`, and `docs/IP_AND_DATA_BOUNDARY.md`. |
+> | Governing sources | Read the local references listed in `_REFERENCES.md`, especially `AGENTS.md`, `docs/DIRECTIVE.md`, `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/SPEC.md`, and `docs/IP_AND_DATA_BOUNDARY.md`. |
 > | Data boundary | Do not introduce protected standards data, proprietary commercial data, or private user/project data into public setup artifacts. |
 > | Professional boundary | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
 > | Write scope | Write only inside this deliverable folder. |
@@ -224,10 +222,10 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 >
 > 1. Confirm the deliverable identity and current lifecycle state in `_STATUS.md`.
 > 2. Draft the `ScopeOfWork.md`:
->    - `Datasheet.md` captures identity, source basis, boundaries, and the guide outline.
->    - `Specification.md` captures guide skeleton requirements, exclusions, and acceptance checks.
->    - `Guidance.md` captures interpretation principles, trade-offs, and prohibited overclaims.
->    - `Procedure.md` captures production and verification steps.
+>    - `ScopeOfWork.md` captures identity, source basis, boundaries, and the guide outline.
+>    - `ScopeOfWork.md` captures guide skeleton requirements, exclusions, and acceptance checks.
+>    - `ScopeOfWork.md` captures interpretation principles, trade-offs, and prohibited overclaims.
+>    - `ScopeOfWork.md` captures production and verification steps.
 > 3. Check that the guide outline covers project setup, project creation, centerline modeling, mechanics solving, user rule checks, results review, reports, limitations, troubleshooting, and glossary/status vocabulary.
 > 4. Check that guide language preserves these separations:
 >    - mechanics solve vs user rule check;
@@ -239,18 +237,17 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 > 7. Refresh dependency artifacts with conservative, evidence-cited rows.
 > 8. Run local validation checks and record warnings in `_run_records`.
 >
-
 ### CLM-020 — Verification
 
 > ##### Verification
 >
 > | Check | Command or review method | Pass condition |
 > |---|---|---|
-> | Four-document kit | `tools/validation/check_four_documents.sh <deliverable-folder>` | All four documents are present. |
-> | Required guide sections | Review `Datasheet.md` Construction and `Specification.md` UG-REQ-001. | Required user guide section slots are present. |
+> | Scope of Work contract | `python3 tools/scope_of_work/validate_scope_of_work.py <DELIVERABLE_PATH>/ScopeOfWork.md` | the Scope of Work contract are present. |
+> | Required guide sections | Review `ScopeOfWork.md` Construction and `ScopeOfWork.md` UG-REQ-001. | Required user guide section slots are present. |
 > | Dependency schema | `python3 tools/validation/validate_dependencies_schema.py <deliverable-folder>/Dependencies.csv` | Schema validator reports `VALID`. |
 > | Enum checks | `python3 tools/validation/validate_enum.py <enum> <value>` for emitted dependency enum values | Emitted values are accepted by the enum validator. |
-> | Status check | Inspect `_STATUS.md`. | Current State is `SEMANTIC_READY` only after setup artifacts pass. |
+> | Status check | Inspect `_STATUS.md`. | Use the current lifecycle recorded in `_STATUS.md`; preserve its state and history. Contract/evidence checks do not authorize a lifecycle transition or issuance. |
 > | Protected-content check | Manual review and targeted search for protected/compliance overclaims. | No protected data or software certification/compliance claims are present. |
 >
 
@@ -267,7 +264,6 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 > - refreshed `_DEPENDENCIES.md`;
 > - `_STATUS.md`;
 > - `_run_records/*` entries for the setup sequence and validations.
-
 - **VER-001** — Validate the contract and review source parity, user-journey and guide-structure coverage, current-versus-planned declarations, units and diagnostics, protected/private-data and accessibility controls, retained conflicts and TBDs, and professional-responsibility limits.
 
 ## Governing Values and Decisions — Axiology
@@ -303,6 +299,9 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 
 > ##### Considerations
 >
+> Current deliverable obligation: Create user guide structure for project setup, modeling, solving, rule checks, reports, and limitations. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+>
+>
 > The user guide has to serve multiple audiences without making the product sound more mature or authoritative than the current evidence supports:
 >
 > - New users need a clear workflow from project creation through reports.
@@ -312,7 +311,6 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 >
 > The guide should avoid presenting a future GUI, CLI, or report behavior as already implemented unless that behavior is supported by an accepted implementation deliverable. Where behavior is planned but unresolved, use `TBD` or "future section" language.
 >
-
 ### CLM-026 — Trade-offs
 
 > ##### Trade-offs

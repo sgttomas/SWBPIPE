@@ -1,12 +1,14 @@
 # Status: DEL-00-02 Repository and module boundary architecture
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-09-22
 
 ## Remaining
+- Author or locate the layer-responsibility and module-ownership map, and obtain the required architecture REVIEW sufficiency/disposition; recorded layer names alone do not supply that artifact. (R5 continuation claim references: DEL-00-02:AB#normative-requirements/REQ-02-01; AB#normative-requirements/REQ-02-05.)
 - Hold PDU-007 / `DEL-00-02-REQ-005` until the owning formal REVIEW disposition or evidence-sufficiency act occurs; the gate definition alone does not align or close the governance claim.
 
 ## History
+- 2026-09-22 - Added explicit grouped delivery/evidence tasks from the R5 record-continuation screening to Remaining; lifecycle, existing dispositions and acceptance boundaries remain unchanged. Evidence: `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG00_06/`.
 - 2026-07-12 - D-41 R5 T6/PDU-007 recorded the exact formal-review hold only; no review disposition, governance closure, lifecycle transition, or readiness inference occurred.
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - State set to INITIALIZED (TASK+four-documents P1_P2)

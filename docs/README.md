@@ -41,13 +41,11 @@ This package is written from the perspective of `SOFTWARE_DECOMP`: it converts t
 ## Status
 
 The current decomposition authority is
-`execution/_Decomposition/SOFTWARE_DECOMP.md` revision `0.7`, coordinated by
-approved `DAG-007` under `execution/_DAG/DAG-007/`. `DAG-007` is the current
-canonical dependency type-system rectification graph authority. `DAG-001`
-through `DAG-006` remain immutable historical snapshots; `DAG-006` preserves
-the prior approved legacy-enum graph context. Revision `0.7` carries the accepted
-architecture runway, design-engine and persistence amendments, and
-export-format interoperability scope into the active working surface.
+`execution/_Decomposition/SOFTWARE_DECOMP.md` with its accepted decisions and
+amendments. Resolve approved graph coordination and its approval record through
+`execution/_DAG/_LATEST.md`. Earlier graph artifacts retain their immutable
+historical reach. Current coordination does not advance deliverable lifecycle,
+select implementation work, or establish engineering or release acceptance.
 
 The project license selected by human governance decision is
 `PolyForm-Noncommercial-1.0.0`; see `../LICENSE.md`.
