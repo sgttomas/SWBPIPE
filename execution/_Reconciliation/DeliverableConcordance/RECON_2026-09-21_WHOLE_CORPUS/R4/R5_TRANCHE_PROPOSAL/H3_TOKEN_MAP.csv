@@ -1,0 +1,10 @@
+Token,H3ItemID,Rows,Basis
+H3:T4A-C04,ER-15,68,ER-15 Classes = T4A-C04
+H3:T5A-C01,ER-16,205,ER-16 Classes = T5A-C01
+H3:T5A-C02,ER-17,207,ER-17 Classes = T5A-C02
+H3:T5A-C03,ER-18,94,ER-18 Classes = T5A-C03
+H3:T5A-C04,ER-19,19,ER-19 Classes = T5A-C04
+H3:T5A-C07,ER-20,9,ER-20 Classes = T5A-C07 (6 class rows + 3 T9 census items)
+H3:T5A-C08,ER-02,2,ER-02 Classes = T5A-C08
+H3:T9-C02/DEL-12-01:STATUS#remaining/R01,ER-20,1,ER-20 Question names DEL-12-01 R01
+H3:T9-C04/DEL-13-02:STATUS#remaining/R01,ER-24,1,ER-24 Subject = DEL-13-02 Remaining R01
