@@ -207,3 +207,113 @@ The diff also carries this return file, committed unchanged at sha256 `2f03902f�
 - **T11 and T12:** checks, CSV formats and routes. Only B1-2 is missing.
 
 The common rules (authority, observations, visibility, evidence, DEC-043, claim fence, writes, independence) apply to every task. The brief is sufficient for a context-free agent, provided each launch message states the task's exact filter and count, and supplies `{REPO}` and `{FREEZE}`.
+
+## Integration review
+
+**Integration verdict: FINDINGS.** Nothing is BLOCKING. Six SHOULD-FIX items should change before the seven drafting agents are dispatched.
+
+Scope: commits `fdaedd4f9..5e89655fd`. Reviewed bytes:
+- `tools/index_r3_classes.py`, sha256 `6976ae85e3767e2aa0c925df93d9c2993e560b031cd8766c25e9f78d570257e2`
+- `R3_INTEGRATION_TOPICS.md`, sha256 `53fb08176f7057b5e1e1c9fdc4d0850771643a3cc20e1d5dfbd53765aa8beb8c`
+- `briefs/R3-INTEGRATION_brief.md`, sha256 `fee811e815c821d23bdcbf9d68a8f82aa2eddeffd428b826522e68c4899247fb`
+
+As before, I used only read-only scripts, with scratch files under the session scratchpad.
+
+### Findings
+
+I1. **SHOULD-FIX — The topic file is not a complete crosswalk of owner-decision candidates.** Its header says every candidate from R2/R3 is assigned. I compared it with the task notes' "Owner-decision candidates" lists and the W2/W3 owner lists. The following are either not named in any topic or are only arguably covered.
+   - **Task lists:**
+     - T1 decision 7 (owner of the canonical-JSON crate: CAP-COREB-040, CAP-COREB-041, CAP-DATA-046);
+     - T2 decision 4 (CAP-SHELL-048: DEL-08-01 now, or DEL-02-05 later);
+     - T3 items 7 (FEATC-004/005 key home for annex row 21), 8 (PHYS-007: DEL-03-08 against the product-physics owner; arguably B1) and 10 (COREB-039, COREC-044 runner orchestration owner, DOCS-008 `MANIFEST.json`, COREB-012);
+     - T9-C12 (SRE-5, review and lifecycle states across 82 deliverables; A5 cites only T9-C07);
+     - T11 SS-02 (runtime edit contract FG-DEL-16-01-01, CAP-DATA-009 and CAP-COREB-020; arguably B3) and SS-03 (package manager CAP-CHECKS-021; arguably A3). Both carry route OWNER_DECISION in `T11_METHOD.csv`.
+   - **W2 list:**
+     - the DEL-03-07 question of whether the draft policy `IP_AND_DATA_BOUNDARY.md` §4 counts as governing;
+     - "unit safety only at metadata grain";
+     - the product section and mass routine;
+     - the five W2 convention questions beyond SR-1: schema-only SOW once product physics lands; envelope round-trip against AB-00-04; CP-09 on VER-001; import-checker CONSTRAINS against COVERS. None of these appears in T8, C6 or C7.
+   - **W3 list:**
+     - desktop store root, unmatched-classification list and REXC-CON-002 (B12 names "private-library storage roots" only);
+     - the frozen-contract rename `openpipestress_jcs_ijson_v1`, which could fall to A2, A4 or B12;
+     - the product and code items that are not obviously owner calls: empty rule-pack and library references; PCF writes 0 for a missing coordinate; the desktop millimetre assumption; the missing `unit_system_disclosure.json`; the MBF diagnostic that cannot fire; the `TBD`/`tbd` token.
+
+   Rule 3 of the brief ("report UNASSIGNED") catches omissions only if a writer happens to come across them. Fix: add an explicit crosswalk, one line per W2/W3 bullet and per task candidate. Each line should give one topic, or a handoff (H1–H4), or "resolved in R2/R3" with its reference.
+
+I2. **SHOULD-FIX — Some candidates are double-assigned, and split classes have no row split.**
+   - **DEL-01-01:SOW.** A4 "picks the one route for `DEL-01-01:SOW`". A6 covers "the double-routed SOW row". That is the same decision in two packets, which is exactly the double routing T4B warns about (T4B obs 4). Assign it to one topic and cross-reference it from the other.
+   - **SR-1.** A5 cites T8 SR-1, and C7 carries "SR-1 cause RECORD_DRIFT". State the boundary: A5 takes the lifecycle target and restatement, C7 takes cause-reading confirmation only.
+   - **Acceptance workflow.** C7 (cause DEFERRED_BY_RULING) and B12 (selection of the OI-007 workflow) overlap in the same way. State the boundary.
+   - **Row split.** T4A-C06 (14 rows) is split across A1, A7 and A10. T5B-C07, T5A-C05, T6-C04 (D1–D15) and T7-C06/C07 are also split. Brief rule 2 says a packet "names every affected class and its full row count". Read literally, each packet claims the whole class, and Agent 0 cannot prove that the owner decisions account for every row exactly once. Fix: for each split class, give each topic's portion as a key list or exact filter, and require the portions to sum to the class count.
+
+I3. **SHOULD-FIX — H1–H4 do not cover all non-owner routes (question 4).** My counts by route over `CLASS_ASSIGNMENTS` and the task CSVs:
+
+   | Source | Route | Rows | Status |
+   |---|---|---|---|
+   | T8 | CODE_FIX_CANDIDATE | 17 | 5 missing from H2 (see below) |
+   | T8 | R5_RECORD_REPAIR | 88 | 83 missing from H4 (see below) |
+   | T12 | R5_RECORD_REPAIR | 1 | Missing from H4 |
+   | T9, T11, T12 | ENGINEERING_AUTHORITY, REVIEW | | Covered by H3 |
+   | T11 | R5_RECORD_REPAIR | 4 | Covered by H4 |
+   | T12 | CODE_FIX_CANDIDATE | 17 | Covered by H2 |
+
+   - **Missing from H2:** 5 of the T8 code-fix rows are not code-fix rows in `CLASS_ASSIGNMENTS`. Two are F1_ON_CONTEXT rows that are not divergent. Three are UNIT_VOCABULARY rows whose class route is OWNER_DECISION.
+   - **Missing from H4:** 83 of the T8 record-repair rows (SR-1) have class route OWNER_DECISION (81) or REVIEW (2). The one T12 record-repair row is `DEL-00-03:AB#realized-artifacts.r02` (T12-C06).
+   - **Where T8 disagrees with the class route.** DEC-009: 4 rows, T8 says OWNER, the class says CODE_FIX. ACCEPTANCE_WORKFLOW: 9 rows, T8 says NO_ACTION, the class says OWNER. TIER_IN_SCOPE_REQ: 4 rows, T8 says NO_ACTION, the class says CODE_FIX. The plan says T8's reading shapes the packets, but the H scopes are defined only from `CLASS_ASSIGNMENTS`, so handoff writers will never see T8's view.
+   - **T1–T3 have no Route column**, so "T1–T3 capabilities routed SCOPE_CHANGE_HANDOFF" (H1) and "routed … REVIEW" (H3) select nothing there. H1's classification list is the real scope, and it is adequate. NON_DELIVERABLE (35) and SHARED_OK (34) go to no handoff; see I6.
+
+   Fix: add T8 and T12 to H2 and H4, and T8 to H3. Give every H writer the list of T8/class route disagreements, to show both views.
+
+I4. **SHOULD-FIX — Authority and route diverge, and the handoffs drop the authority.** Several classes have one owning authority but a different route:
+
+   | Classes | Authority | Route | Rows |
+   |---|---|---|---|
+   | T5A-C01–C04, C07 | REVIEW | R5_RECORD_REPAIR | 531 |
+   | T4A-C04 | REVIEW | R5_RECORD_REPAIR | 68 |
+   | T6-C03, T7-C06 | REVIEW | CODE_FIX_CANDIDATE | 76 |
+   | T4A-C02 | OWNER (treatment) | R5_RECORD_REPAIR | 213 |
+   | T6-C08, T6-C09, T7-C08 | OWNER | NO_ACTION | 55 |
+
+   H3 is defined by route, so the REVIEW-authority repair and code-fix rows never reach the review register. Neither the H2 nor the H4 CSV has an Authority column, so the review step is lost. Fix: add `Authority` to the `R5_REPAIR_ROWS` and CFB outputs, and mark rows that need review before repair (or cite an H3 item).
+
+   T6-C09 also needs a topic. It covers the sanctioned SCA-009 re-point, and T6 asks that its six CONTESTED rows go to "Agent 0's contested-resolution set so R4 can confirm or replace". No topic carries it. C7 is the natural home.
+
+I5. **SHOULD-FIX — Brief gaps against method R4 and R6.** The packet format covers every element method R4 lists: decision and holder (with the six holders distinguished), options, evidence and reliability, affected claims and filter, risks, recommended routing, on-ruling mechanism and dependencies. The gaps are:
+   - (a) Rule 2 must allow the split-class portions described in I2.
+   - (b) `{OUT}` is used but never defined. Say that the launch message's output folder is `{OUT}`.
+   - (c) The H4 CSV is keyed by `ClaimKey`, but the T9 and T11 record-repair items it must include are subjects, not claim keys (for example T11 `Check/Subject`). Allow an `ItemID` or `Subject` key for those rows.
+   - (d) The brief says T10 is "context only" but does not add "never evidence or authority", as the R3 plan does. Add it.
+   - (e) Method R4 says "stop affected repair paths until the responsible human acts". H2 and H4 carry `BlockedOnPacket`, which is good, but the brief should say that every row whose class, or whose T8 reading, needs an owner or review decision must carry a blocker.
+
+I6. **SHOULD-FIX — NO_ACTION rows should be recorded explicitly.** Method R6 requires that authorised no-change and no-repair rows be "record[ed] … explicitly rather than dropping them from accounting". NO_ACTION rows total 58 class rows (T6-C08/C09/C10, T7-C08), plus T8 18, T9 80, T11 134 and T12 118. They should appear in a NO_ACTION register in `R3_SYNTHESIS.md` (or an `R3/NO_ACTION_ROWS.csv` Agent 0 builds deterministically), with the task's stated reason, so that R5 and R6 accounting stays exact. The same goes for NON_DELIVERABLE (35) and SHARED_OK (34) capabilities, which belong in the final unmapped-set record. No handoff writer needs them.
+
+I7. **MINOR — `ROUTING_GAPS.csv` counts alternative owners as owners.** `ProposedOwner` is free text. The tool takes every `DEL-xx-yy` it contains, including alternatives and rejected candidates ("DEL-02-05 (alternative DEL-12-01)"); 90 capability rows name several deliverables. So "345 proposed-owner links", "63 never AREA-routed" and "39 of 58" count candidate links, not proposed owners. Label them as such, or take only the first-named deliverable, before C6 cites the numbers.
+
+I8. **MINOR — `class_table` never resets its header.** The table parser keeps its header across every later `|` table in the file. It is safe today: the set and count asserts pass, and I cross-checked each class's Route and Authority against the class section text and found no disagreement. But a later table whose first cell contains `Cnn` could silently overwrite the metadata. Suggest resetting the header on the first non-table line.
+
+### Q1 — Tool
+
+- `--check` prints "CHECK PASS". The asserts confirm three things: the class set equals the CSV set for each task; each class-table row count equals the CSV count; and the assignments cover all 3,299 divergent rows exactly once.
+- `CLASS_INDEX` metadata matches each task's summary table. Where the class detail sections state a route or authority, they agree with it. Spot checks: T4A-C06, T4B-C03, T4B-C04, T4B-C08, T5A-C05, T5A-C06, T6-C07 and T7-C05.
+- Route totals (classes, rows): R5_RECORD_REPAIR 20 classes, 2,099 rows; OWNER_DECISION 16, 444; CODE_FIX_CANDIDATE 5, 375; REVIEW 7, 295; NO_ACTION 4, 58; SCOPE_CHANGE_HANDOFF 1, 17; ENGINEERING_AUTHORITY 2, 11.
+- Caveats: I7 and I8.
+
+### Q2 — Topic assignment
+
+Every class with OWNER authority or OWNER_DECISION route is cited in some topic, except T6-C08 and T6-C09. T6-C08 is a ruling-held NO_ACTION class and needs no packet. T6-C09 does (I4). T7-C08 is in C3. The remaining gaps and overlaps are in I1 and I2.
+
+### Q3 — Brief
+
+- The brief is safe. It forbids repair, ruling and decision. It keeps holders distinct, bounds writes to one output folder with a scratch folder, and states the claim fence, DEC-043, the no-git rule and the no-network rule. Its no-duplication rule is sound once I2 is fixed.
+- It is sufficient apart from I2, I3, I4 and I5.
+
+### Q4 — Handoff scopes
+
+Not complete; see I3 and I4. NO_ACTION needs no handoff but should be recorded explicitly (I6).
+
+### Q5 — Containment
+
+- `git diff --name-only fdaedd4f9..5e89655fd` touches only RUN (`R3/`, `R3/TASKS/`, the tool, the topics file, `RUN_STATE.jsonl`) and the AR brief.
+- No ledger, resolution, inventory, deliverable, code or DAG file changed. The working tree was clean before this append.
+
+Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

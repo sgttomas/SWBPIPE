@@ -17,6 +17,8 @@ independent review.
 | Claim rows carrying non-value corrections (applied by judgment, not substituted) | 580 | `OtherCorrections` non-empty |
 | Capabilities (reverse inventory) | 598. None were left unrouted. | `R3/CAPABILITY_COVERAGE.csv` |
 | Remaining items | 151 across 65 deliverables; 37 deliverables record NONE; matches the inventory for all 102 | `R3/REMAINING_CENSUS.csv` |
+| No-action rows and items (recorded explicitly for R5/R6 accounting) | 408 (classes 58 · T8 18 · T9 80 · T11 134 · T12 118) | `R3/NO_ACTION_ROWS.csv` |
+| Dispositions of capabilities that are not single-owner | 296 | `R3/CAPABILITY_DISPOSITIONS.csv` |
 
 **Structural validity.**
 - All 102 forward ledgers are sealed, and each seal matches its file.
@@ -91,9 +93,10 @@ independent review.
    - R1 routed each capability area to a subset of packages. For example,
      SHELL went only to PKG-00, 07, 10 and 12, and VIEW and WSUI went only to
      PKG-00, 07 and 16.
-   - Of the 58 owner links that T1–T3 proposed for ROUTING_GAP capabilities,
-     39 point to a deliverable whose package was never routed the capability
-     (`R3/ROUTING_GAPS.csv`).
+   - Of the 44 ROUTING_GAP capabilities, 30 have a primary proposed owner
+     (the first deliverable named) whose package was never routed the
+     capability (`R3/ROUTING_GAPS.csv`, `Rank = PRIMARY`). Counting every
+     deliverable named, including alternatives, would inflate this.
    - R3 caught these, as the method intends ("R3 owns the final unmapped
      set"). But R2 never tested the proposed owners' reverse answers for
      them. H1's scope-change items for these capabilities rest on scope text

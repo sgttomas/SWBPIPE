@@ -23,8 +23,9 @@
 
 ## Routing gaps (T1-T3 proposed owners)
 
-- Proposed-owner links: 345; owner package never AREA-routed the capability's area: 63; owner package not routed the capability at all: 55
-- ROUTING_GAP capabilities: 44; of their owner links, 39 of 58 were never routed to the owner's package
+- Deliverables named in ProposedOwner: 345 links (239 primary = first named, 106 further candidates or alternatives)
+- Primary owners whose package was never AREA-routed the capability's area: 46; never routed the capability at all: 40
+- ROUTING_GAP capabilities: 44; primary owner's package never routed the capability: 30 of 44
 
 | Area | Packages AREA-routed |
 |---|---|
@@ -41,8 +42,17 @@
 | VIEW | PKG-00, PKG-07, PKG-16 |
 | WSUI | PKG-00, PKG-07, PKG-16 |
 
+## Registers
+
+- NO_ACTION rows (explicit no-repair accounting): 408 (CLASS 58, T11 134, T12 118, T8 18, T9 80)
+- Capability dispositions (T1-T3): 296
+- T8 rows whose route differs from the class route: 113
+
 ## Outputs (SHA-256)
 
 - `R3/CLASS_INDEX.csv` 44567a75e97617fe20d816dff011bf7d8dae783640f320ff6b943755cea6e307
 - `R3/CLASS_ASSIGNMENTS.csv` eae930fe6c9af5aa4ffa992b2153a8101409894be75fe56d5f4d4eda3730628b
-- `R3/ROUTING_GAPS.csv` 2ed72e7bc613b37622852d84bf605f0718700217188fb35bd3dfe0a206247d24
+- `R3/ROUTING_GAPS.csv` b362d247eeec0cb78c5dd6e4e3d9feda7ba98cf5b55c5a8ee08808f173289b13
+- `R3/NO_ACTION_ROWS.csv` ddcebd9842c607fcfa251094acd082a7143fe7dd1077acd0fbad8f76ed606f6d
+- `R3/CAPABILITY_DISPOSITIONS.csv` 98195faf9ebf853896313bbb8e14e7fd1f9cb4ef9c2fa5f82bf2a65d6767a410
+- `R3/T8_ROUTE_DISAGREEMENTS.csv` 5846efdecf41573d193e9a065a410e47a6bf64c9df7eefac74be2e9dc30b544d

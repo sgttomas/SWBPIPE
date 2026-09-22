@@ -3,7 +3,9 @@
 You are a TASK agent in R3 integration for run
 HELP-HUMAN-PIPING-20260921-RECONCILIATION. Your parent is HELP_HUMAN Agent 0.
 You do not delegate. Your launch message gives you three things: your ID
-({TASK}), your topic list or scope, and your output folder.
+({TASK}), your topic list or scope, and your output folder ({OUT}, a folder
+under `RUN`). Your topic IDs are defined in `RUN/R3_INTEGRATION_TOPICS.md`.
+Read its "Boundaries and split classes" and "Crosswalk" sections first.
 
 ## Purpose
 
@@ -21,7 +23,11 @@ deliverable, code, lifecycle state, DAG or instruction.
   - `RUN/R3/CORPUS_CLAIMS.csv` (effective values, `OtherCorrections`, flags);
   - `CLASS_INDEX.csv` (55 classes: name, rows, authority, route);
   - `CLASS_ASSIGNMENTS.csv` (every divergent row with its class and route);
-  - `CAPABILITY_COVERAGE.csv`, `ROUTING_GAPS.csv`, `REMAINING_CENSUS.csv`,
+  - `NO_ACTION_ROWS.csv`, `CAPABILITY_DISPOSITIONS.csv` and
+    `T8_ROUTE_DISAGREEMENTS.csv` (the 113 T8 rows whose route differs from
+    the class route: show both views for them);
+  - `CAPABILITY_COVERAGE.csv`, `ROUTING_GAPS.csv` (use `Rank = PRIMARY` for
+    proposed owners), `REMAINING_CENSUS.csv`,
     `PACKAGE_SUMMARY.csv`, `CLUSTER_MATRIX.csv`, `CLASS_ROUTE_TOTALS.md`,
     `SYNTHESIS_STATS.md`.
 - **R3 task outputs,** all in `RUN/R3/TASKS/`:
@@ -30,7 +36,7 @@ deliverable, code, lifecycle state, DAG or instruction.
   - `T4A…T7_CLASSES.{csv,md}` (classes);
   - `T8_CLUSTERS.md`, `T8_ROWS.csv` (contested clusters);
   - `T9_LIFECYCLE.*`;
-  - `T10_JULY.*` (July cross-check, context only);
+  - `T10_JULY.*` (July cross-check, context only: never evidence or authority);
   - `T11_METHOD.*`;
   - `T12_UNREACHED.*`.
 
@@ -65,9 +71,12 @@ deliverable, code, lifecycle state, DAG or instruction.
 2. **Coverage.**
    - Account for every item in your assigned topic list or scope, and cite its
      source rows or classes.
-   - A packet names every affected class and its full row count. It lists the
-     claim keys, or points to a filter over `CLASS_ASSIGNMENTS.csv` or a task
-     CSV that reproduces them exactly.
+   - A packet names every affected class and the row count of **its
+     portion**. For a class wholly in your topic, that is the full class
+     count. For a split class (listed in the topic file), list exactly the
+     keys of your portion; never claim the whole class. Give the claim keys,
+     or a filter over `CLASS_ASSIGNMENTS.csv` or a task CSV that reproduces
+     them exactly.
    - Before you return, reconcile your counts against those files with a
      script.
 3. **No duplication.** Stay inside your topic list. If you find a
@@ -81,13 +90,17 @@ deliverable, code, lifecycle state, DAG or instruction.
    - Follow DEC-043: no equation sources.
 5. **Claim fence.** Make no certification, code-compliance, professional
    approval or engineering-acceptance claims (F-PIP-2; DEC-081).
-6. **Writes.**
+6. **Blockers.** Method R4: affected repair paths stop until the responsible
+   holder acts. In H2 and H4, every row whose class, or whose T8 reading,
+   needs an owner or review decision carries a `BlockedOnPacket` (a topic ID
+   or an H3 item ID). Every row also carries its class `Authority`.
+7. **Writes.**
    - Write only inside your output folder.
    - Put scratch files under `{OUT}/_scratch/` and delete them before you
      return.
    - Run Python with `PYTHONDONTWRITEBYTECODE=1`.
    - Use no network. Never write in `{FREEZE}`.
-7. **API overload.** The API returns intermittent 529 errors. Write
+8. **API overload.** The API returns intermittent 529 errors. Write
    incrementally, one packet or section at a time, and keep generations short.
    If you are resumed, continue from what is on disk.
 
@@ -129,8 +142,10 @@ and the holder.
   `{OUT}/SCOPE_CHANGE_ITEMS.csv`, with columns `ItemID, Kind, Capabilities,
   Deliverables, Proposal, BlockedOnPacket, Evidence`. `Kind` is one of
   CREATE, ASSIGN, REASSIGN, MERGE, RETIRE, KEY_ISSUE or DUPLICATE_RESOLVE.
-- **H2 code-fix candidates.** `{OUT}/CODE_FIX_CANDIDATES.md` plus one
-  `{OUT}/CFB-<nn>_<short-name>.md` per candidate brief. Each brief gives
+- **H2 code-fix candidates.** `{OUT}/CODE_FIX_CANDIDATES.md`,
+  `{OUT}/CODE_FIX_ROWS.csv` (columns `ClaimKey, DeliverableID, ClassID,
+  Authority, CFB, BlockedOnPacket`, one row per code-fix row in scope), and
+  one `{OUT}/CFB-<nn>_<short-name>.md` per candidate brief. Each brief gives
   scope, affected claims, evidence, acceptance checks, the protected-content
   status, and `BlockedOnPacket`. None is executed. Group by engine or area.
   Keep each brief to one coherent change.
@@ -138,8 +153,11 @@ and the holder.
   plus `{OUT}/ENGINEERING_AND_REVIEW_ITEMS.csv`, with columns `ItemID, Route,
   Subject, Classes, Rows, Deliverables, Question, Evidence, BlockedOnPacket`.
 - **H4 R5 tranche proposal.** `{OUT}/R5_TRANCHE_PROPOSAL.md` plus
-  `{OUT}/R5_REPAIR_ROWS.csv`, with columns `ClaimKey, DeliverableID, ClassID,
-  Tranche, BlockedOnPacket`. It holds one row per record-repair row.
+  `{OUT}/R5_REPAIR_ROWS.csv`, with columns `Key, KeyKind, DeliverableID,
+  ClassID, Authority, Tranche, BlockedOnPacket`. It holds one row per
+  record-repair row. `KeyKind` is `CLAIM` for a claim key, or `ITEM` for a
+  T9 or T11 subject-keyed item (then `Key` is its `Item` or `Subject` and
+  `ClassID` names the source task and class).
   - Partition the rows by owning deliverable into tranches.
   - Mark the rows that wait on a packet.
   - Give the ISSUED DEL-01-01 its own change-path tranche.
