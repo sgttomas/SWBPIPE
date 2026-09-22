@@ -42,6 +42,14 @@ ruling. It creates or amends deliverables and issues keys.
   answer RC-03-0091 nonetheless answers UNKEYED for
   `core/product_physics::derive_pipe_section`
   (`WAVES/W2/PKG-03/PKG-03_VERIFICATION.md` §7, lines 310-317).
+- **SCA-009 annex row 22** (`execution/_ScopeChange/SCA-009_2026-08-20_0000/Vocabulary_Annex.md:126`,
+  the DEC-094 coverage contract; freeze). The row covers automatic
+  self-weight case generation.
+  - It names the existing mass-per-length computation
+    `compute_pipe_mass_per_length` in `core/product_physics/src/lib.rs`.
+  - Its landing column refers to "mass properties from DEL-03-08".
+  - This governing text bears on sub-question (iii). It is presented as
+    evidence only, not as a ruling on ownership.
 
 **What the code does now (freeze, evidence).**
 - `core/product_physics/src/lib.rs` (17,873 lines) is the linear and
@@ -78,7 +86,7 @@ sub-questions can be ruled together or separately.
 |---|---|
 | (a) CREATE the PKG-04 integration deliverable DEC-044 already ruled | Carries out DEC-044 as written. DEL-04-04's loop wording is re-pointed. CAP-PHYS-009/010, CAP-SOLVER-036..041 get an owner. |
 | (b) Key the loop into DEL-04-04 | Contradicts the DEC-044 text ("does not assemble or solve the global nonlinear system"), so it needs a new ruling that amends DEC-044. |
-| (c) Record the loop as explicitly unowned | Re-express DEL-04-04's PARTIAL answers as COVERS (the PKG-04 verifier's strict reading) and leave the gap visible. No owner for convergence policy, friction or recovery rules (T3-G3). |
+| (c) Record the loop as explicitly unowned | Re-express DEL-04-04's PARTIAL answers as COVERS (the PKG-04 verifier's strict reading, which the verifier itself calls "weak", `PKG-04_VERIFICATION.md:357-358`) and leave the gap visible. No owner for convergence policy, friction or recovery rules (T3-G3). |
 
 **Sub-question (iii): product section and mass routine (CAP-PHYS-007)**
 
@@ -97,6 +105,7 @@ sub-questions can be ruled together or separately.
 | `PKG-04_VERIFICATION.md:350-362` (strict COVERS reading), `PKG-03_VERIFICATION.md:310-339` | R2 verification reports | Verifier findings; the corrosion omission is "confirmed in the frozen code" per §8 |
 | T1 F1, T3-G2, T3-G3, T3-G6 | R3 PROPOSAL | Classifications only |
 | DEL-04-01 MEMORY lines (tranche hosting) | CONTEXT | Worker reading via T1; not rechecked here |
+| SCA-009 annex row 22 (`Vocabulary_Annex.md:126`): `compute_pipe_mass_per_length`, "mass properties from DEL-03-08" | GOVERNING (DEC-094 coverage contract) | Read at the freeze; bears on (iii) |
 
 Verified: the file and function locations above, and the DEC-044 text. Known
 only from worker notes or code reading: the corrosion-allowance omission
@@ -131,6 +140,10 @@ capability level, so the portion is given as capability IDs.
   with BlockedOnPacket B1. The curved-bend crate (CAP-SOLVER-024..027,
   UNKEYED to DEL-04-01) is an H1/R5 keying item. W2 lists it with the
   ownership gaps, but T3 finds DEL-04-01 already its owner of record.
+- **Related item, not in the portion.** CAP-SOLVER-070 (T3-G9,
+  PARTIAL_UNOWNED_REMAINDER). Its unowned part, the `nonlinear_integration`
+  README, is assigned to the "T3-G3 owner", so it follows sub-question (ii).
+  It is an H1 item with BlockedOnPacket B1.
 
 ## 6. Risks
 

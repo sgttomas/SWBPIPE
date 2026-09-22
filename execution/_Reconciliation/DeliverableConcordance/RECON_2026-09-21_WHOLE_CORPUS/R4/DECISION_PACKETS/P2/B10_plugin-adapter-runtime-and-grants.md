@@ -77,7 +77,8 @@ option (b) with the D3 option (a), each of which T6 states separately.
 
 - **Class T6-C04** (87 rows; split between **B10** and **B12**). B10's portion
   is decision groups **D2 and D3, 20 rows**. The filter is the explicit key
-  list below; B12 takes the other 67. All 20 are PARTIALLY_IMPLEMENTED.
+  list below; B12 takes the other 67. Dispositions: 19 PARTIALLY_IMPLEMENTED and 1
+  DOCUMENTED_UNIMPLEMENTED (`DEL-17-09:STATUS#remaining/R03`).
   - **D2** (14):
     - `DEL-00-07:AB#normative-requirements/REQ-07-03`;
     - `DEL-12-01:SOW#CLM-010/LFSP-REQ-010`;
@@ -168,8 +169,15 @@ No recommendation; owner's call.
     the DEL-12-04 helper).
   - B7 (DEL-10-02 panel versus engine follows B7's pattern).
   - A8 (secret provider, CF-001/CF-002; see the B12 overlap note).
-- **Blocks.** Code-fix briefs on the adapter gate and the security helper (H2),
-  and R5 narrowing of the 20 rows (H4).
+- **Blocks.**
+  - Code-fix briefs on the adapter gate and the security helper (H2).
+  - The three DEL-06-02 CP-11 rows whose no-bypass branch waits on the D2
+    runtime (T6-C03, T6 observation O5; CFB-15; H2 marks them B10):
+    `DEL-06-02:SOW#CLM-006.r05`, `DEL-06-02:SOW#CLM-013/REQ-06-02-010` and
+    `DEL-06-02:SOW#CLM-016/REQ-06-02-010`.
+  - The H2 row `DEL-17-09:CONTEXT#description` (T6-C01, CFB-54; H2 adds
+    B10).
+  - R5 narrowing of the 20 rows (H4).
 - **Depends on.** None.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). This

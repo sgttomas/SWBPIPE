@@ -17,10 +17,12 @@ retirement or merger. A production brief follows for wiring.
 
 ## 2. Background
 
-**Earlier decisions.** No ruling selects PKG-13's product role. The PKG-13
-verifier says "No ruling permits this, so it goes to you at R4"
-(`WAVES/W3/PKG-13/PKG-13_VERIFICATION.md:488-491`). DEC-009's Python/Rust
-question for DEL-13-03/13-04 (class T7-C03) is topic A1.
+**Earlier decisions.** This writer located no ruling that selects PKG-13's
+product role. That is the writer's own finding from the register and
+`SD` §12. The PKG-13 verifier's R4 referral at
+`WAVES/W3/PKG-13/PKG-13_VERIFICATION.md:488-491` (§8 item 3) concerns
+something else: the Python engines against DEC-009. That question, for
+DEL-13-03/13-04 (class T7-C03), is topic A1.
 
 **What the code does now (freeze).**
 - `validate_constraint_envelope` is at `core/constraints/validation/engine.py:157`.
@@ -82,8 +84,9 @@ No class in `CLASS_INDEX.csv` is in B9's portion.
     - T12 view: REVIEW;
     - class view: T7-C06 (CODE_FIX_CANDIDATE);
     - T8 view: UNIT_VOCABULARY, CODE_FIX_CANDIDATE.
-    - It is FIRM, with AuthorityNeeded REVIEW (add `force_per_length`, or
-      derive from the units schema).
+    - It is FIRM. Its current AuthorityNeeded is NO. REVIEW comes only from
+      the FIRM OtherCorrections note (add `force_per_length`, or derive from
+      the units schema).
   - `DEL-13-03:SOW#CLM-005.r04`:
     - T12 view: OWNER_DECISION;
     - class view: T6-C01 (CODE_FIX_CANDIDATE).
@@ -140,8 +143,15 @@ under any option.
   - B7 (the handoff exporter names the transform contract).
   - B12 D7 (result-envelope home for ValidationResult and TransformResult).
   - C7 (unit-vocabulary reading for DEL-13-01 CLM-005.r05).
-- **Blocks.** H2 briefs touching the desktop constraint display and the
-  Knowledge panel. H4 foundation-only record repairs.
+- **Blocks.**
+  - H2 briefs touching the desktop constraint display and the Knowledge
+    panel.
+  - The H2 rows of CFB-33 (constraint evaluation):
+    `DEL-13-03:SOW#CLM-005.r04`, `DEL-13-03:SOW#CLM-013.r01`.
+  - The H2 rows of CFB-43 (runtime constraint stage; these also carry B3):
+    `DEL-16-02:CONTEXT#description`, `DEL-16-02:SOW#CLM-010/REQ-16-02-003`,
+    `DEL-16-03:SOW#CLM-010/DEL-16-03-REQ-002`.
+  - H4 foundation-only record repairs.
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). This
 packet makes no certification, code-compliance, professional-approval or

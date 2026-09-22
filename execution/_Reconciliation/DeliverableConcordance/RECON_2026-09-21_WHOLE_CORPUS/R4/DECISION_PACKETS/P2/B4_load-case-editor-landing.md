@@ -62,7 +62,7 @@ row 5 names (CAP-FEATB-024 note).
 | Option | Consequences |
 |---|---|
 | (a) Amend DEL-07-09's envelope so the editor lands there | Makes DEC-094's re-point executable. Envelope L may need re-sizing ("split if it expands", `_CONTEXT.md:36`). DEL-07-09 stops being coverage-only. Interacts with B2 (iii-b) and B11. |
-| (b) Rebind to DEL-07-03 through the change path | Restores R-005/R-006 to DEL-07-03. The DEC-094 re-point needs amending, and DEL-07-03's accepted divergence and CLM-041 are revised. The C7 reading of the six contested T6-C09 rows becomes "replace". |
+| (b) Rebind to DEL-07-03 through the change path | Restores R-005/R-006 to DEL-07-03. The DEC-094 re-point needs amending, and DEL-07-03's accepted divergence and CLM-041 are revised. The C7 reading of the dependent T6-C09 rows (the six W1 CONTESTED rows and the three R-006/r05 rows; §5) becomes "replace". |
 | (c) CREATE a load-case and support editor deliverable | Scope change: new node, SOW and keys. DEC-094's re-point is re-pointed again to the new owner. |
 
 The self-weight panel (CAP-FEATC-031) follows the same choice. Its candidates
@@ -97,14 +97,23 @@ are the editor owner chosen here or DEL-05-01 (T1).
 - **Capabilities (T1_UNMAPPED.csv, PRODUCT_UNOWNED, 4):** CAP-FEATB-022, 023,
   025 and CAP-FEATC-031.
 - **Rows that depend on this ruling but belong to C7** (class T6-C09, not
-  claimed): `DEL-07-03:SOW#CLM-012/DEL-07-03-R-005`,
-  `DEL-07-03:SOW#CLM-005.r04`, `DEL-07-03:SOW#CLM-008/DEL-07-03-R-005`,
-  `DEL-07-03:SOW#CLM-017`, `DEL-07-03:SOW#CLM-018` and
-  `DEL-07-03:SOW#CLM-012/DEL-07-03-R-002`. These are the six W1 CONTESTED rows. Their
-  candidate reading is `UNKNOWN · AUTHORITY_UNCLEAR · PROJECT_BASELINE ·
-  RECORD · OWNER`, and it is known only from `OtherCorrections` in
-  `WAVES/W1/RESOLUTIONS.csv`. C7 confirms or replaces them. Their substance
-  turns on Question 1 here.
+  claimed). All nine have current (effective) values `ACCEPTED_DIVERGENCE ·
+  OWNERSHIP_ELSEWHERE · PROJECT_BASELINE`, route NO_ACTION. C7 confirms or
+  replaces them, and their substance turns on Question 1 here.
+  - **Four W1 CONTESTED rows with a candidate reading:**
+    `DEL-07-03:SOW#CLM-012/DEL-07-03-R-005`, `DEL-07-03:SOW#CLM-005.r04`,
+    `DEL-07-03:SOW#CLM-008/DEL-07-03-R-005` and `DEL-07-03:SOW#CLM-017`.
+    Their candidate reading `UNKNOWN · AUTHORITY_UNCLEAR · PROJECT_BASELINE ·
+    RECORD · OWNER` is known only from `OtherCorrections` in
+    `WAVES/W1/RESOLUTIONS.csv`.
+  - **Two W1 CONTESTED rows with no candidate reading:**
+    `DEL-07-03:SOW#CLM-018` and `DEL-07-03:SOW#CLM-012/DEL-07-03-R-002`.
+    Their resolution note says they rest on the same R-005 reading as W2-W5
+    and were not counted by the verifier.
+  - **Three further T6-C09 rows that turn on option (1b),** because (1b)
+    restores R-006 as well as R-005: `DEL-07-03:SOW#CLM-005.r05`,
+    `DEL-07-03:SOW#CLM-008/DEL-07-03-R-006` and
+    `DEL-07-03:SOW#CLM-012/DEL-07-03-R-006`.
 - **Related keying items (H1/H4, not claimed).** CAP-FEATC-034 and
   CAP-FEATB-024 (DEL-07-02 UNKEYED), CAP-VIEW-029 (routing gap → DEL-07-03),
   CAP-PHYS-028 (self-weight planning, DEL-05-01 UNKEYED).
@@ -114,7 +123,7 @@ are the editor owner chosen here or DEL-05-01 (T1).
 ## 6. Risks
 
 - **Undecided.** As recorded, no deliverable can hold the load-case or support
-  editor (T1 O-2), and it ships unowned. The six DEL-07-03 rows stay contested.
+  editor (T1 O-2), and it ships unowned. The six W1 CONTESTED DEL-07-03 rows stay contested.
   For DEL-07-02 and DEL-07-03, ownership of shipped editing surfaces stays
   ambiguous.
 - **(1a).** DEL-07-09 loses its coverage-only character. That interacts with
@@ -143,7 +152,7 @@ Doing nothing is not a stable state.
   items.
 - **(2b).** A scope-change handoff moving creation and table editing to
   DEL-07-03.
-- C7's reading of the six T6-C09 rows is recorded after this ruling. R5 needs
+- C7's reading of the nine dependent T6-C09 rows is recorded after this ruling. R5 needs
   separate authorization.
 
 ## 9. Dependencies

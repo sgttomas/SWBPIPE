@@ -112,7 +112,8 @@ FIELD correction on DEL-16-01 CLM-009.r01. Nothing here is from a test run.
   - `DEL-16-01:SOW#CLM-009.r01`, `.r03` (T6-C07, SCOPE_CHANGE_HANDOFF; H1;
     FIELD on .r01).
   - `DEL-16-02:SOW#CLM-010/REQ-16-02-002` (T5A-C05; C1; OBSERVED resolution,
-    OtherCorrections give tier PROJECT_BASELINE and AuthorityNeeded OWNER).
+    OtherCorrections give tier PROJECT_BASELINE; AuthorityNeeded OWNER is
+    the row's current effective value).
 - **Packages and deliverables.** PKG-16 (DEL-16-01, 16-02, 16-03), with
   DEL-07-09 and DEL-16-04 as relations.
 

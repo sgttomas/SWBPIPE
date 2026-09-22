@@ -76,14 +76,18 @@ No class in `CLASS_INDEX.csv` is in B8's portion.
   - `DEL-14-01:SOW#CLM-004`, `SOW#CLM-011.r01`, `SOW#CLM-011.r04`:
     - T12 view: OWNER_DECISION;
     - class view: T6-C02 (CODE_FIX_CANDIDATE, H2).
-    - H2 should mark them BlockedOnPacket B8. CLM-004 and CLM-011.r04 are
-      hash-basis rows that T12 routes with the DEC-009 cluster (A1).
+    - H2 should mark them BlockedOnPacket B8.
+    - CLM-004 and CLM-011.r04 are hash-basis rows. In H2 they carry A2.
+    - The T12-C02 prose associates them with the DEC-009 cluster. However,
+      `T8_ROWS.csv` holds only CLM-005 in that cluster, and A1 does not list
+      them, so no A1 routing is claimed here.
   - `DEL-14-01:SOW#CLM-005`:
     - T12 view: OWNER_DECISION;
     - class view: T6-C02 (CODE_FIX_CANDIDATE);
     - T8 view: DEC-009, OWNER_DECISION;
-    - it is CONTESTED and appears in `T8_ROUTE_DISAGREEMENTS.csv`. A1 owns
-      the DEC-009 reading.
+    - it is CONTESTED and appears in `T8_ROUTE_DISAGREEMENTS.csv`.
+    - A1 owns the DEC-009 reading. H2 should also mark this row
+      BlockedOnPacket B8.
   - `DEL-14-01:SOW#CLM-024`:
     - T12 view: OWNER_DECISION;
     - T8 view: F1_ON_CONTEXT, CODE_FIX_CANDIDATE;
