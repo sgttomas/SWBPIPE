@@ -1,0 +1,182 @@
+[
+  {
+    "path": "AGENTS.md",
+    "sha256": "d151dad92a074abebf8e6225c92c4c6e88fd586f2283377b50b5051eff39be7b"
+  },
+  {
+    "path": "agents/AGENT_TASK.md",
+    "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+  },
+  {
+    "path": "projects/chirality-piping/AGENTS.md",
+    "sha256": "eec1b9accc5dc4485fd0aab423678bed4c4c98396dc88b9089703965eb3d2005"
+  },
+  {
+    "path": "docs/DELIVERABLE_CONCORDANCE_METHOD.md",
+    "sha256": "4c292998f171de581aa188c4bf3317b7235b31f491ec700b3f33f463ed422139"
+  },
+  {
+    "path": "workflows/reconciliation/resources/method.md",
+    "sha256": "f1c8f54909c0ae4341d53391cb4a96fe377dfc1f167c00b1159d15eab079ea16"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/CONVENTIONS.md",
+    "sha256": "e1d62a29ad0e19005110c119ad2790518c6cb527a43d5aea3150b8e21ee78a9f"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R3/TASKS/T9_LIFECYCLE.md",
+    "sha256": "be48e5beb518969700e1de810a2ae455d7af13b39346044c894decad50d4ddf2"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R3/TASKS/T9_LIFECYCLE.csv",
+    "sha256": "a969f236e04e107550f9dee3b4f866f0b76a916d1599d2e62a8a42f07069f02e"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R3/TASKS/T4B_CLASSES.csv",
+    "sha256": "1c672d182db835c308bbaf4f0aa79cb49a852692f639234e988252a19fa628cf"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/_REGISTER.md",
+    "sha256": "383f5ac5ae3552d0ee2e2f45daf3bdf67192dc4371b0a800a6540c596cb47d83"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+    "sha256": "fe328b7b8440dde9a94ae2ed2b85a6cb55db66653fe5adf56de8f33e3c6c60c2"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-72_RULING_ADDENDUM_2026-09-18.md",
+    "sha256": "e44fb50e244c614689c8ed98f0db87ac65f8fa899f0aee90d2a499d22e49e2cd"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-06b_RULING_2026-07-25.md",
+    "sha256": "425da859ef768a2f5fdaa1532a6142228b1715dc53095a3d8b1f23b446e53410"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N7_FINAL_REVIEW/V2_BACKCHECK/REVIEW_RETURN_V2.md",
+    "sha256": "3f11e7e1be3a350e436e0a1ff40ca6c4725eeff02c78e7dc831194e0a4a20676"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/PRECOMMIT_PARENT_FAN_IN_V1.md",
+    "sha256": "9661351b7e00417ea83a31ddcde8c6fdc2581d8774f5d308dcda26deaf7681ac"
+  },
+  {
+    "path": "projects/chirality-piping/core/units/README.md",
+    "sha256": "4dd56649d12b76b6b57d5a1bba4d5f444c3e51570f7ec5a841397152dfa3e05f"
+  },
+  {
+    "path": "projects/chirality-piping/docs/RELEASE_QUALITY_GATES.md",
+    "sha256": "effc85b7ea52782c1d99c059fe2bb92d8a266087c061f021b647b4a80143d4ba"
+  },
+  {
+    "path": "projects/chirality-piping/loop/LOOP_RECEIPTS.md",
+    "sha256": "117f3ba4a274b28d5739b1a7e13f3222b80887f3c8cd805971ff4fa7624607ad"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+    "sha256": "f4ebca0acb87a635b1927b768e40e82081110172db691ce766d5e5e0f9f97176"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.ts",
+    "sha256": "4ba14bba2f228399b4dd98fd3f158c4407a749a48a706e4860e0863d31173e7c"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+    "sha256": "6ea1c8f46a32edc2c5d69cb6f9a94ea64d53e18e3ede324ef5d4e8e9fd56c880"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/services/reportPackageSaveService.test.ts",
+    "sha256": "ce55a608e18cd30884a99b08b70d8a034e244664adf3d6094acfa87a13166a7f"
+  },
+  {
+    "path": "projects/chirality-piping/schemas/units.schema.yaml",
+    "sha256": "53233e2b586db0e63eb48c1d7c1a2f47e04a7c7de1fdb89f121a8eb8a96f32c4"
+  },
+  {
+    "path": "projects/chirality-piping/schemas/constraint.schema.json",
+    "sha256": "84a0d53a5c305bc6cd47eea50308da2162a16d989e1f7dbeb359b301bcb525a9"
+  },
+  {
+    "path": "projects/chirality-piping/core/runner/headless/src/bin/openpipestress-runner.rs",
+    "sha256": "f873b5b9ac6518e1361049d101a323fbc8a1e54b67017810f48d97a1ba9f33ee"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W2/PKG-01/DEL-01-03/DEL-01-03_forward.csv",
+    "sha256": "896bcdd0c5dbf30951ac97806814e5aafd9b5f639553a15eecee1aa93f79dfbe"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-05/DEL-05-02/DEL-05-02_forward.csv",
+    "sha256": "8af829a1d0411180134304c36caaab15b5fb89d3cec480a56a5a901b52ac34f1"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-05/DEL-05-04/DEL-05-04_forward.csv",
+    "sha256": "1dd3c26825f7632d6b52b096070027334fed1bdef58fda2a20c110ad80db7255"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W1/PKG-07/DEL-07-01/DEL-07-01_forward.csv",
+    "sha256": "60a41ea639af65acfac4b5373ec000efc7ae19e9a647c9a19164077af26c90c9"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W1/PKG-07/DEL-07-02/DEL-07-02_forward.csv",
+    "sha256": "8a0bb3ffee6e2f3876053e3582571f2223932d257a27ac3fe80e1a2c359d4ff1"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W1/PKG-07/DEL-07-03/DEL-07-03_forward.csv",
+    "sha256": "a41dc568c293f6491ee5fb735e6620c57eba0c97128004adea3b9739ab58fc80"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W1/PKG-07/DEL-07-05/DEL-07-05_forward.csv",
+    "sha256": "3b1b50f66adf0b2c2206988b0805f771a042530ed93fd5e4ec0d08c299e1dfd6"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W1/PKG-07/DEL-07-06/DEL-07-06_forward.csv",
+    "sha256": "421dd0e2bc99eaad4d9bef526d4c4a6ad2919a2a666af0a61d269984903eedc2"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W1/PKG-07/DEL-07-09/DEL-07-09_forward.csv",
+    "sha256": "34fb9f7831ce9002dadb7879f44765af675b9b350bbe25ba91e7c430b56d6cc2"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-08/DEL-08-06/DEL-08-06_forward.csv",
+    "sha256": "fdd8b116e6a0cf6a6d9a5e1dd57a6e69d667f97bef10b9a69a5eff843f7b7da2"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-09/DEL-09-01/DEL-09-01_forward.csv",
+    "sha256": "94ed1bac7c57b891127bcf4e8f5dc05cc251e28713e769741f3009192e578b36"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-09/DEL-09-02/DEL-09-02_forward.csv",
+    "sha256": "9d33fcec4f93dee359e8a6fd1a35c81e784b90509ba50f37f0055e618098d217"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-09/DEL-09-04/DEL-09-04_forward.csv",
+    "sha256": "72d1c2c2e26a79a87634c4f97c19a08c8221981838d24ce950b451373829f5b3"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-09/DEL-09-05/DEL-09-05_forward.csv",
+    "sha256": "50a6756dd20a00ab3bc2933b64f26f48a9aa2c798014d933b2daf31eb57f0989"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-10/DEL-10-02/DEL-10-02_forward.csv",
+    "sha256": "66024ac74274f73bbb2265b3ca21d5a9be1c4b59d9179cb747dcf62281560f62"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-10/DEL-10-03/DEL-10-03_forward.csv",
+    "sha256": "ff3d92a389c1ba56fc3f0d84a0595d468bdf77f37298310dca5dc6973c11b012"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-10/DEL-10-04/DEL-10-04_forward.csv",
+    "sha256": "7db25ba5ce239026fd1e9506041ca2b3c807e64db320e4880f4b4f1d48232940"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-11/DEL-11-02/DEL-11-02_forward.csv",
+    "sha256": "fc15e5ad2f3129ebff71e25e66043e112adb68f567c39269f1671d00df4cf0c8"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-12/DEL-12-01/DEL-12-01_forward.csv",
+    "sha256": "e2019839dc83a518b2b69c0d284bc8fcac101231563093200a4f7da8a61b8f53"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/WAVES/W3/PKG-13/DEL-13-02/DEL-13-02_forward.csv",
+    "sha256": "637db6f46ddb7fd7f546e51c6712c9d4e7cf9316ef173a6d12e8f4d8348aab02"
+  }
+]

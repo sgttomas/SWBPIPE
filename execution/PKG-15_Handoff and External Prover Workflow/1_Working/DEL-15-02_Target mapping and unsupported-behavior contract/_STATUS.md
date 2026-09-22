@@ -1,7 +1,7 @@
 # Status: DEL-15-02 Target mapping and unsupported-behavior contract
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-09-22
 
 ## Remaining
 - Obtain owning human dispositions for `DEL-15-02-PKG02-001`, `RF-001`, and `RF-002`; all remain technically addressed/open with `HumanDisposition=TBD`, and current mapping/privacy/currentness evidence does not create approval or formal closure (PDU-060).
@@ -20,3 +20,4 @@
 - 2026-07-11 - Remaining section added and seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
 - 2026-07-12 - D-41 R5 T3 PDU-017 added blocking diagnostics for unredacted or embedded private/protected/commercial payload flags at the target-mapping builder seam; lifecycle remains IN_PROGRESS.
 - 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).
+- 2026-09-22 - R5 concordance record repair applied under current owner direction and Agent 0's bounded brief; corrected declared-state/Remaining facts or amendment metadata against the recorded basis. Exact before/after operations and evidence are in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5/TASKS/STATUS_REPAIR/operations.json`. Lifecycle state, human/reviewer holds and release/engineering-acceptance boundaries are unchanged.

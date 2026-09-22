@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-07-07
 package_id: PKG-07
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@eaad463c0d481f6f1654e6adb5ee718f566176e9
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-055]
 package_objective_refs: [OBJ-006, OBJ-007]
 ---
 
 # Scope of Work — DEL-07-07
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -22,17 +24,6 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 > #### Datasheet: DEL-07-07 Solve execution UX: progress, cancellation, and diagnostics
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-002 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-07-07-DECL-002`.
->
 
 ### CLM-003 — Identification
 
@@ -127,17 +118,6 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-009 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-07-07-DECL-001`.
->
-
 ### CLM-010 — Scope
 
 > ##### Scope
@@ -170,7 +150,7 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 
 > ##### Standards
 >
-> No external engineering code or protected standards text is introduced by this deliverable. The controlling references for this setup are the OpenPipeStress governance, decomposition, register, and PKG-00 architecture-basis artifacts listed in `_REFERENCES.md` and `Datasheet.md`.
+> No external engineering code or protected standards text is introduced by this deliverable. The controlling references for this setup are the SWBPIPE governance, decomposition, register, and PKG-00 architecture-basis artifacts listed in `_REFERENCES.md` and `Datasheet.md`.
 >
 > Any future code-specific acceptance criterion, stress limit, load-combination default, allowable, SIF/flexibility value, or proprietary component value must be supplied by a user-owned/private source with provenance and redistribution status. This GUI slice may display resulting diagnostics/statuses; it must not define or certify code compliance.
 >
@@ -181,7 +161,7 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 >
 > | Verification ID | Method | Expected evidence |
 > |---|---|---|
-> | VER-07-07-001 | Document review | Four-document kit exists and matches DEL-07-07 scope. |
+> | VER-07-07-001 | Document review | `ScopeOfWork.md` exists and matches DEL-07-07 scope. |
 > | VER-07-07-002 | Boundary review | No GUI source, tests, schemas, job/solver code, package manifests, repo-level docs, or `ISSUED` artifacts were edited. |
 > | VER-07-07-003 | Contract review | Requirements explicitly route progress, cancellation, diagnostics, and result status through PKG-00 command/job and result-envelope contracts. |
 > | VER-07-07-004 | Protected-content review | Setup artifacts contain no protected standards text, proprietary engineering values, certification claims, or automatic code-compliance claims. |
@@ -230,17 +210,6 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-018 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-07-07-DECL-004`.
->
-
 ### CLM-019 — Purpose
 
 > ##### Purpose
@@ -271,7 +240,7 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 >    - Verify objectives `OBJ-006` and `OBJ-007`.
 >
 > 2. Draft the four-document setup kit.
->    - Populate `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md`.
+>    - Populate `ScopeOfWork.md`.
 >    - Keep content at setup/specification level.
 >    - Do not create GUI source code, tests, schemas, job/solver implementation, manifests, repo-level docs, or issued artifacts.
 >
@@ -352,17 +321,6 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 > #### Guidance: DEL-07-07 Solve execution UX: progress, cancellation, and diagnostics
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-026 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-07-07-DECL-003`.
->
 
 ### CLM-027 — Purpose
 

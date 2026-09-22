@@ -1,0 +1,14 @@
+{
+  "status": "PREPARED_NOT_APPLIED",
+  "files": 95,
+  "physical_edits": 165,
+  "sow_pin_changes": 91,
+  "already_bound_pin_noops": [
+    "DEL-04-05:SOW"
+  ],
+  "t5b_c03_source_rows": 15,
+  "primary_sources": {
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N7_FINAL_REVIEW/V2_BACKCHECK/REVIEW_RETURN_V2.md": "3f11e7e1be3a350e436e0a1ff40ca6c4725eeff02c78e7dc831194e0a4a20676",
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/PRECOMMIT_PARENT_FAN_IN_V1.md": "9661351b7e00417ea83a31ddcde8c6fdc2581d8774f5d308dcda26deaf7681ac"
+  }
+}

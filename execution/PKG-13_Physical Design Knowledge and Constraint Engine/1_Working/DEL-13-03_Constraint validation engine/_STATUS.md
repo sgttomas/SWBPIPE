@@ -1,7 +1,7 @@
 # Status: DEL-13-03 Constraint validation engine
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-09-22
 
 ## Remaining
 - Hold PDU-023 runtime result-envelope production: DEL-13-03 has no accepted application-service/result-envelope producer home; paired per-value field paths are schema-valid but are not emitted by this diagnostic validator (source: D-41 R5 T2C E6, 2026-07-12)
@@ -19,3 +19,4 @@
 - 2026-07-11 - Remaining section added and seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
 - 2026-07-12 - D-41 R5 T2C PDU-023 recorded the absent runtime envelope-producer home as held; no application service or lifecycle outcome was invented.
 - 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).
+- 2026-09-22 - R5 concordance record repair applied under current owner direction and Agent 0's bounded brief; corrected declared-state/Remaining facts or amendment metadata against the recorded basis. Exact before/after operations and evidence are in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5/TASKS/STATUS_REPAIR/operations.json`. Lifecycle state, human/reviewer holds and release/engineering-acceptance boundaries are unchanged.

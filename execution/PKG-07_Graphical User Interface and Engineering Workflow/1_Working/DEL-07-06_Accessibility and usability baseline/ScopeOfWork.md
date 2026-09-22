@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-07-06
 package_id: PKG-07
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@eaad463c0d481f6f1654e6adb5ee718f566176e9
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-036]
 package_objective_refs: [OBJ-006]
 ---
 
 # Scope of Work — DEL-07-06
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -28,17 +30,6 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 > #### Datasheet: DEL-07-06 Accessibility and usability baseline
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-002 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-07-06-DECL-002`.
->
 
 ### CLM-003 — Identification
 
@@ -135,22 +126,11 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-010 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-07-06-DECL-001`.
->
-
 ### CLM-011 — Scope
 
 > ##### Scope
 >
-> This deliverable specifies setup evidence for a future accessibility and engineering-review usability baseline for the OpenPipeStress GUI and report-facing review surfaces. It covers baseline keyboard access, labels/tooltips, contrast/readability, large-model navigation, result table copy/export, undo/redo discoverability, inline validation messages, warning separation, and visibility of assumptions needed by engineering reviewers.
+> This deliverable specifies setup evidence for a future accessibility and engineering-review usability baseline for the SWBPIPE GUI and report-facing review surfaces. It covers baseline keyboard access, labels/tooltips, contrast/readability, large-model navigation, result table copy/export, undo/redo discoverability, inline validation messages, warning separation, and visibility of assumptions needed by engineering reviewers.
 >
 > This setup pass does not implement UI behavior, edit GUI source, edit tests, edit schemas, edit package manifests, select a final accessibility standard, assert a WCAG conformance target, or alter report templates. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >
@@ -252,17 +232,6 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-020 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-07-06-DECL-004`.
->
-
 ### CLM-021 — Purpose
 
 > ##### Purpose
@@ -302,7 +271,7 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 >
 > | Check | Expected result |
 > |---|---|
-> | Four-document kit | `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` exist with default sections. |
+> | `ScopeOfWork.md` | `ScopeOfWork.md` exists with default sections. |
 > | Scope control | No files outside the DEL-07-06 working folder are modified by this task. |
 > | Accessibility target | Exact WCAG or equivalent target remains `TBD`; no final conformance claim is made. |
 > | Data boundary | No protected standards content, proprietary values, or private project data are introduced. |
@@ -357,7 +326,7 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 
 > ##### Purpose
 >
-> This deliverable frames accessibility and usability as engineering-review support, not as a standalone visual polish task. The baseline should help a user navigate major GUI panels, find missing inputs, understand warnings, review results, and inspect assumptions without hiding the project boundaries defined by OpenPipeStress governance.
+> This deliverable frames accessibility and usability as engineering-review support, not as a standalone visual polish task. The baseline should help a user navigate major GUI panels, find missing inputs, understand warnings, review results, and inspect assumptions without hiding the project boundaries defined by SWBPIPE governance.
 >
 
 ### CLM-029 — Principles

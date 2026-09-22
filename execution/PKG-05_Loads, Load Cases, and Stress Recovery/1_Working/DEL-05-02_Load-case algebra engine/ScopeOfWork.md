@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-05-02
 package_id: PKG-05
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@eaad463c0d481f6f1654e6adb5ee718f566176e9
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-014]
 package_objective_refs: [OBJ-003, OBJ-005]
 ---
 
 # Scope of Work — DEL-05-02
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -80,19 +82,15 @@ This Scope of Work defines `DEL-05-02` in service of project scope [SOW-014] and
 >
 > - `_CONTEXT.md`
 > - `_REFERENCES.md`
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register)
 > - `docs/_Registers/Deliverables.csv` row DEL-05-02
 > - `docs/_Registers/ScopeLedger.csv` row SOW-014
 > - `docs/_Registers/ContextBudgetQA.csv` row DEL-05-02
 > - `docs/CONTRACT.md`
 >
 
-### CLM-007 — D-41 R5 T7 PDU-054 current declaration
+### CLM-007 — Load-case material-selection requirements
 
-> ##### D-41 R5 T7 PDU-054 current declaration
->
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The load-case algebra basis is implemented and current under SOFTWARE_DECOMP revision 0.8. Remaining breadth, validation, or integration work is limited to the explicit current residuals; no lifecycle transition is made.
->
 > Under `DEC-077` and `DEC-092`, a load case may preserve exact `modulus_basis_ref` selection or provide an explicit solve temperature. Exact selection consumes the user-entered point E and G; declared solve temperatures linearly interpolate user-entered E, G, and applicable alpha only between strictly bracketing adjacent temperature points. Both selected paths record their point-level sources and method, require valid point G, and block at or beyond range edges, on missing/invalid G, or on simultaneous selectors without extrapolating or falling back to base G. The structured operation and private desktop material-authoring surfaces expose explicit point-G value/unit/reference input with user provenance and no inferred point, curve, catalog, code table, or default. Validation is bound to `_run_records/WORKING_ITEMS_RUN_2026-08-02_DEC092_TEMPERATURE_G_IMPLEMENTATION.md`; DEL-05-02 remains `IN_PROGRESS` and no lifecycle or professional-reliance transition is made.
 
 ## Completion and Reliance Basis — Epistemology
@@ -154,7 +152,7 @@ This Scope of Work defines `DEL-05-02` in service of project scope [SOW-014] and
 
 > ##### Documentation
 >
-> Required deliverable-local artifacts are `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, `_STATUS.md`, and `_run_records/`. Implementation evidence is read-only for this TASK run at `core/loads/load_case_algebra/README.md` and `core/loads/load_case_algebra/src/lib.rs`.
+> Required deliverable-local artifacts are `ScopeOfWork.md`, `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, `_STATUS.md`, and `_run_records/`. Implementation evidence is read-only for this TASK run at `core/loads/load_case_algebra/README.md` and `core/loads/load_case_algebra/src/lib.rs`.
 
 - **AC-001** — The contract preserves the accepted bounded algebra surface, explicit units and operand compatibility, user-supplied expressions and factors, deterministic ordering and findings, and unresolved grammar and integration policies without embedding proprietary code combinations, allowables, silent conversions, or compliance meaning.
 
@@ -201,7 +199,7 @@ This Scope of Work defines `DEL-05-02` in service of project scope [SOW-014] and
 >
 > | Check | Expected result |
 > |---|---|
-> | Four-document kit exists | `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` are present. |
+> | `ScopeOfWork.md` exists | `ScopeOfWork.md` is present. |
 > | Implementation evidence present | `core/loads/load_case_algebra/README.md`, `Cargo.toml`, and `src/lib.rs` exist and remain read-only for documentation-alignment runs. |
 > | Algebra crate tests | `cargo test --manifest-path core/loads/load_case_algebra/Cargo.toml` passes before claiming current implementation evidence is validated. |
 > | Data boundary preserved | No code-specific combinations, allowables, or protected standard formulas are introduced. |
@@ -213,7 +211,7 @@ This Scope of Work defines `DEL-05-02` in service of project scope [SOW-014] and
 
 > ##### Records
 >
-> - Four-document kit.
+> - `ScopeOfWork.md`.
 > - `_SEMANTIC.md` and `_SEMANTIC_LENSING.md`.
 > - `Dependencies.csv` and `_DEPENDENCIES.md`.
 > - `MEMORY.md`.

@@ -1,0 +1,3225 @@
+{
+  "source_basis": "after PHYSICAL_EDITS_STAGE2.json; preserved chain",
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-02_Copyright and protected-data boundary policy/ScopeOfWork.md",
+      "before_sha256": "e0a659179116334debcf28bed8cf9f671597398b60e930f2ec7b26a5d94f9b88",
+      "after_sha256": "cecb416825f69aec173083e926ea01cd98a8b47b01c459d5ab302c893a4f5ca9",
+      "edits": [
+        {
+          "start": 87,
+          "end": 87,
+          "old": "> - AGENTS.md \u2014 OpenPipeStress agent index and Type 2 dispatch rule.\n",
+          "new": "> - AGENTS.md \u2014 SWBPIPE agent index and Type 2 dispatch rule.\n",
+          "keys": [
+            "DEL-01-02:SOW#CLM-007",
+            "DEL-01-02:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 5132,
+          "old_end_offset": 5201,
+          "old_sha256": "151bbf395194c027078e9b9c07734e5adefe2a392910b33bcca468ff7c99d0cf",
+          "new_sha256": "c2d7356c529cf72c05464610a0a606c7cbf6a5d840b42217a042ce8b2544c256",
+          "new_start_offset": 5132,
+          "new_end_offset": 5194
+        },
+        {
+          "start": 248,
+          "end": 248,
+          "old": "> The policy exists to protect standards-body and vendor intellectual property while allowing OpenPipeStress to remain a public, educational, auditable implementation of open mechanics. It should give maintainers and contributors a conservative intake path: accept only content with documented rights, keep private/project data private, and escalate suspected protected content before it reaches the public repository.\n",
+          "new": "> The policy exists to protect standards-body and vendor intellectual property while allowing SWBPIPE to remain a public, educational, auditable implementation of open mechanics. It should give maintainers and contributors a conservative intake path: accept only content with documented rights, keep private/project data private, and escalate suspected protected content before it reaches the public repository.\n",
+          "keys": [
+            "DEL-01-02:SOW#CLM-021",
+            "DEL-01-02:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 16141,
+          "old_end_offset": 16560,
+          "old_sha256": "498e441395757fb8681f2bfc3875eebea4d6248d678cf485f68c430a9d9ce4c0",
+          "new_sha256": "ebd85657d78e4af8e63be34774a5820af94f7e2e27e6fef3ea1823961fbb44a8",
+          "new_start_offset": 16134,
+          "new_end_offset": 16546
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-03_Contributor certification workflow/ScopeOfWork.md",
+      "before_sha256": "e6cae95472ae8f5a3f004047a35c39f93b1a1540ef0c1747faf90afdb0b2ec37",
+      "after_sha256": "ad61cdb487e98c78bf9dfd0c00d3083818a5929343537892380914864652eeed",
+      "edits": [
+        {
+          "start": 340,
+          "end": 340,
+          "old": "> This workflow exists to make public contribution intake auditable before data enters the OpenPipeStress public repository. It supports OBJ-002 by separating open mechanics and permissibly redistributable public data from protected standards-body content, proprietary vendor data, private user/project data, and user-supplied code data.\n",
+          "new": "> This workflow exists to make public contribution intake auditable before data enters the SWBPIPE public repository. It supports OBJ-002 by separating open mechanics and permissibly redistributable public data from protected standards-body content, proprietary vendor data, private user/project data, and user-supplied code data.\n",
+          "keys": [
+            "DEL-01-03:SOW#CLM-026",
+            "DEL-01-03:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 21618,
+          "old_end_offset": 21956,
+          "old_sha256": "623fb30870450ae10dc01e5085fd7f41053f9030466cdf567500225033bd80fd",
+          "new_sha256": "10db842efbb661bd218faa00869cc2624f5a2cdab99869a5bbde423237660003",
+          "new_start_offset": 21618,
+          "new_end_offset": 21949
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-04_Professional responsibility and product-claims policy/ScopeOfWork.md",
+      "before_sha256": "87cd3a81b4b3de44f3684dd266c62c62722e140e0fbbce27019b2bab2569a690",
+      "after_sha256": "80bba0908212220387c5b3d29ba815f8c895476836159910a2d18da544d22ff9",
+      "edits": [
+        {
+          "start": 51,
+          "end": 51,
+          "old": "> | Design-engine scope boundary | OpenPipeStress may be framed as an analysis-grade piping design engine and stress-model authoring environment with a full internal solver, but reliance remains non-authoritative without competent human review. | ScopeLedger.csv SOW-064; SOFTWARE_DECOMP.md revision 0.7 |\n",
+          "new": "> | Design-engine scope boundary | SWBPIPE may be framed as an analysis-grade piping design engine and stress-model authoring environment with a full internal solver, but reliance remains non-authoritative without competent human review. | ScopeLedger.csv SOW-064; SOFTWARE_DECOMP.md revision 0.7 |\n",
+          "keys": [
+            "DEL-01-04:SOW#CLM-003.r03",
+            "DEL-01-04:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 2123,
+          "old_end_offset": 2429,
+          "old_sha256": "fc3b43ee78922d8b72fae28c31f5f822df0fbeda181f9523d1d86fe59075ea11",
+          "new_sha256": "09709eafb3c18113ae1cb97313a2b740149e2b9130b1c8259d5d67459b2e6b95",
+          "new_start_offset": 2123,
+          "new_end_offset": 2422
+        },
+        {
+          "start": 132,
+          "end": 132,
+          "old": "> | DEL-01-04-R01 | Policy language shall state that OpenPipeStress software and agents do not certify, seal, approve, authenticate, or declare engineering code compliance for reliance (PRD \u00a721.2). | OPS-K-AUTH-1; SOW-034 | Text review for prohibited-claim absence and explicit notice presence. |\n",
+          "new": "> | DEL-01-04-R01 | Policy language shall state that SWBPIPE software and agents do not certify, seal, approve, authenticate, or declare engineering code compliance for reliance (PRD \u00a721.2). | OPS-K-AUTH-1; SOW-034 | Text review for prohibited-claim absence and explicit notice presence. |\n",
+          "keys": [
+            "DEL-01-04:SOW#CLM-010.r01",
+            "DEL-01-04:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 6728,
+          "old_end_offset": 7025,
+          "old_sha256": "60ea6e49923161d411590a26c66204989957f3e81fb504ae8ea6e7750ec01625",
+          "new_sha256": "c4f11f3fdd011542123bbb143185680ced143f5dba8cd5ceeaec7e65f8578f03",
+          "new_start_offset": 6721,
+          "new_end_offset": 7011
+        },
+        {
+          "start": 141,
+          "end": 141,
+          "old": "> | DEL-01-04-R10 | Product claims may frame OpenPipeStress as an analysis-grade piping design engine and stress-model authoring environment only when acceptance and professional judgment remain with the responsible engineer. | SOW-064; OBJ-018; DIRECTIVE.md \u00a71-\u00a73 | Claim scan confirms design-engine language does not imply certification, sealing, authentication, or code compliance (PRD \u00a721.2). |\n",
+          "new": "> | DEL-01-04-R10 | Product claims may frame SWBPIPE as an analysis-grade piping design engine and stress-model authoring environment only when acceptance and professional judgment remain with the responsible engineer. | SOW-064; OBJ-018; DIRECTIVE.md \u00a71-\u00a73 | Claim scan confirms design-engine language does not imply certification, sealing, authentication, or code compliance (PRD \u00a721.2). |\n",
+          "keys": [
+            "DEL-01-04:SOW#CLM-010.r10",
+            "DEL-01-04:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 9184,
+          "old_end_offset": 9583,
+          "old_sha256": "cadb2b550ac4f41eb4c28d4700434aa75a786c959d64b98032ee33c1aad62ef2",
+          "new_sha256": "adfa2f1a7ea5d87d9441ea05d97449dd6aec66d4bfa2e22cc8dd0fe32391cb67",
+          "new_start_offset": 9170,
+          "new_end_offset": 9562
+        },
+        {
+          "start": 285,
+          "end": 285,
+          "old": "> This guidance explains how to draft professional-boundary and product-claims language for OpenPipeStress without overstating what software, agents, rule packs, reports, or releases can warrant.\n",
+          "new": "> This guidance explains how to draft professional-boundary and product-claims language for SWBPIPE without overstating what software, agents, rule packs, reports, or releases can warrant.\n",
+          "keys": [
+            "DEL-01-04:SOW#CLM-023",
+            "DEL-01-04:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 18106,
+          "old_end_offset": 18302,
+          "old_sha256": "12048c65ac15d5f0fdcff84fd87f55895ce999f058616fff8d36ebf0435d7875",
+          "new_sha256": "3b8bc7fe5156e448cfe10499527ad95f64122d170fabd99a9ac859109060421d",
+          "new_start_offset": 18085,
+          "new_end_offset": 18274
+        },
+        {
+          "start": 287,
+          "end": 287,
+          "old": "> The central boundary is: OpenPipeStress may assist analysis, expose evidence, compute mechanics, evaluate user-defined rule packs, and produce auditable reports; it does not replace competent professional judgment.\n",
+          "new": "> The central boundary is: SWBPIPE may assist analysis, expose evidence, compute mechanics, evaluate user-defined rule packs, and produce auditable reports; it does not replace competent professional judgment.\n",
+          "keys": [
+            "DEL-01-04:SOW#CLM-023",
+            "DEL-01-04:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 18304,
+          "old_end_offset": 18521,
+          "old_sha256": "7dd6799c89fb69d59bde8cee2a3c51c19f3c1ca1d119e98eeb1bc2c264d10131",
+          "new_sha256": "84f9d7dc437f9eb750e72589dc6758186c84cde92bf2172c80127d22bbb79e20",
+          "new_start_offset": 18276,
+          "new_end_offset": 18486
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-01_Canonical domain model schema/ScopeOfWork.md",
+      "before_sha256": "c99df5697f726edf1b50a711203550b1e55cbb9fc815efe83711a97ee6605fe9",
+      "after_sha256": "b04afc35b79a4a6f2c178426168e409c2e698a3e8ea4c8909e0ffff643afa425",
+      "edits": [
+        {
+          "start": 233,
+          "end": 233,
+          "old": "> | OpenPipeStress invariants in `docs/CONTRACT.md` | Binding constraints for IP boundary, data provenance, units, authority, reports, privacy, and agents | Required |\n",
+          "new": "> | SWBPIPE invariants in `docs/CONTRACT.md` | Binding constraints for IP boundary, data provenance, units, authority, reports, privacy, and agents | Required |\n",
+          "keys": [
+            "DEL-02-01:SOW#CLM-018.r03",
+            "DEL-02-01:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 23284,
+          "old_end_offset": 23452,
+          "old_sha256": "1c158b3419d8f1de1b64f851f51608c4b5caf084df3449abb5705235fa05048f",
+          "new_sha256": "be26c9e746fca30115f5e98ce9e2db458a102f67c1184c6e865a870880cb0c6c",
+          "new_start_offset": 23284,
+          "new_end_offset": 23445
+        },
+        {
+          "start": 234,
+          "end": 234,
+          "old": "> | OpenPipeStress vocabulary in `docs/TYPES.md` | Stable IDs, analysis statuses, epistemic labels, and provenance labels | Required unless superseded by human-approved change |\n",
+          "new": "> | SWBPIPE vocabulary in `docs/TYPES.md` | Stable IDs, analysis statuses, epistemic labels, and provenance labels | Required unless superseded by human-approved change |\n",
+          "keys": [
+            "DEL-02-01:SOW#CLM-018.r04",
+            "DEL-02-01:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 23452,
+          "old_end_offset": 23630,
+          "old_sha256": "4c53f1ce5e956848b539860f8386d7f86254e36f8f5678d7900beb5deb9b0894",
+          "new_sha256": "1264e22a84e539c3a5c2b4f348203feb4559f80345ab1bedde67772513b1945d",
+          "new_start_offset": 23445,
+          "new_end_offset": 23616
+        },
+        {
+          "start": 440,
+          "end": 440,
+          "old": "> DEL-02-01 exists to make the OpenPipeStress domain model explicit and machine-readable before solver, GUI, reporting, persistence, plugin, and validation work depend on it. The schema should be a public contract for open mechanics and workflow data while preserving the boundary that code-specific values, protected standards data, proprietary libraries, and professional approval remain user/private or human-controlled. Sources: `docs/DIRECTIVE.md` Sections 1 through 3; `docs/SPEC.md` Sections 1 through 3; `docs/_Registers/ScopeLedger.csv` row SOW-041.\n",
+          "new": "> DEL-02-01 exists to make the SWBPIPE domain model explicit and machine-readable before solver, GUI, reporting, persistence, plugin, and validation work depend on it. The schema should be a public contract for open mechanics and workflow data while preserving the boundary that code-specific values, protected standards data, proprietary libraries, and professional approval remain user/private or human-controlled. Sources: `docs/DIRECTIVE.md` Sections 1 through 3; `docs/SPEC.md` Sections 1 through 3; `docs/_Registers/ScopeLedger.csv` row SOW-041.\n",
+          "keys": [
+            "DEL-02-01:SOW#CLM-030",
+            "DEL-02-01:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 36164,
+          "old_end_offset": 36723,
+          "old_sha256": "303114af539c45e66fcdbe6b170971e4c672c3430e73e8247defff769a1f0aa5",
+          "new_sha256": "cc34913dab79bc957cb3b5be8ae72079af66683bbdd89c0a4dba54018a67dd00",
+          "new_start_offset": 36150,
+          "new_end_offset": 36702
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/ScopeOfWork.md",
+      "before_sha256": "d84a099a6b003774f4b28fb6bb64c7b0180ac06a965208e8441fd8a4ff79d48d",
+      "after_sha256": "c2e69788fcee78bc5275ed7fe190329e5072dcb82a5a4f90def212b7e42675e9",
+      "edits": [
+        {
+          "start": 159,
+          "end": 159,
+          "old": "> This specification covers the DEL-02-02 backend feature slice: a draft contract for unit dimensions, conversion rules, storage conventions, and unit test obligations for OpenPipeStress unit-aware data flow.\n",
+          "new": "> This specification covers the DEL-02-02 backend feature slice: a draft contract for unit dimensions, conversion rules, storage conventions, and unit test obligations for SWBPIPE unit-aware data flow.\n",
+          "keys": [
+            "DEL-02-02:SOW#CLM-013",
+            "DEL-02-02:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 11282,
+          "old_end_offset": 11491,
+          "old_sha256": "ef2b1b13a1fd006335cacab2fe583382e457da797c4944916cafc981d3cf3bf3",
+          "new_sha256": "2c0937b610451894514209841d82f66e8e66c86dde64aeaa77f25ebdfbc95fff",
+          "new_start_offset": 11282,
+          "new_end_offset": 11484
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-04_Plugin and extension domain contracts/ScopeOfWork.md",
+      "before_sha256": "ce7e046c7cf2c471af983a100da65944fc300d1982065144367b44f5659fe1c6",
+      "after_sha256": "010e23c6209a83a3843423be607f128bb17cc9f48dc021341becaeecaa664a3c",
+      "edits": [
+        {
+          "start": 399,
+          "end": 399,
+          "old": "> DEL-02-04 exists so OpenPipeStress can be extensible without turning plugins or adapters into an escape route around the domain model, unit system, provenance model, diagnostics, report controls, or public/private data boundary. This is the PKG-02 domain/API contract for that boundary, not a plugin-loader implementation. SourcePath: `_CONTEXT.md`; SectionRef: Description. SourcePath: `docs/_Registers/ScopeLedger.csv`; SectionRef: SOW-038.\n",
+          "new": "> DEL-02-04 exists so SWBPIPE can be extensible without turning plugins or adapters into an escape route around the domain model, unit system, provenance model, diagnostics, report controls, or public/private data boundary. This is the PKG-02 domain/API contract for that boundary, not a plugin-loader implementation. SourcePath: `_CONTEXT.md`; SectionRef: Description. SourcePath: `docs/_Registers/ScopeLedger.csv`; SectionRef: SOW-038.\n",
+          "keys": [
+            "DEL-02-04:SOW#CLM-027",
+            "DEL-02-04:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 35375,
+          "old_end_offset": 35820,
+          "old_sha256": "d50793371c0e6eacdac46402933d27f0a852cd75a1d416105b533cffeb0dbc71",
+          "new_sha256": "f9f6a0ae31203a80ef6818820cc03d8f24319bd12fa1969e5e3232f3fbbb70e6",
+          "new_start_offset": 35375,
+          "new_end_offset": 35813
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/ScopeOfWork.md",
+      "before_sha256": "e2d53b041c74265a7742654ffb3125bee63a174d3d5a4192decc8da4c8b7d956",
+      "after_sha256": "a1a34bcea3e95ea8c4bfb8fbac6a52c3fa62e153af06546c36c590f28f42adc7",
+      "edits": [
+        {
+          "start": 300,
+          "end": 300,
+          "old": "> | OpenPipeStress invariant catalog | Binding constraints for IP boundary, unit safety, provenance, professional boundary, private data, and agent outputs. | Required by `docs/CONTRACT.md`. |\n",
+          "new": "> | SWBPIPE invariant catalog | Binding constraints for IP boundary, unit safety, provenance, professional boundary, private data, and agent outputs. | Required by `docs/CONTRACT.md`. |\n",
+          "keys": [
+            "DEL-02-05:SOW#CLM-021.r03",
+            "DEL-02-05:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 31600,
+          "old_end_offset": 31793,
+          "old_sha256": "2386c4e63a0573f8b6b20b0b7a960903f29fc507a1db32bca2fd941b2d7e11e9",
+          "new_sha256": "b776af2edb8c96e02e520bd8a1358873aac2e44dda7b6d8b17136178f58a5335",
+          "new_start_offset": 31600,
+          "new_end_offset": 31786
+        },
+        {
+          "start": 301,
+          "end": 301,
+          "old": "> | OpenPipeStress data-boundary policy | Controls public/private data handling and provenance fields. | Required by `docs/IP_AND_DATA_BOUNDARY.md`. |\n",
+          "new": "> | SWBPIPE data-boundary policy | Controls public/private data handling and provenance fields. | Required by `docs/IP_AND_DATA_BOUNDARY.md`. |\n",
+          "keys": [
+            "DEL-02-05:SOW#CLM-021.r04",
+            "DEL-02-05:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 31793,
+          "old_end_offset": 31944,
+          "old_sha256": "32732c17461ae5fa830e23024961f4b7196df308994d083afbe59763a5fac60e",
+          "new_sha256": "1caf2039feb9c221ad6536a65438d73f63f0db48c10c5204a6af9fe625aca53d",
+          "new_start_offset": 31786,
+          "new_end_offset": 31930
+        },
+        {
+          "start": 488,
+          "end": 488,
+          "old": "> DEL-02-05 exists to make project files auditable, deterministic, and reusable across the OpenPipeStress workflow. The persistence layer is the handoff surface between domain schemas, unit-aware modeling, rule-pack references, solver inputs, reports, automation, and future adapters. Source: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-050 and OBJ-012.\n",
+          "new": "> DEL-02-05 exists to make project files auditable, deterministic, and reusable across the SWBPIPE workflow. The persistence layer is the handoff surface between domain schemas, unit-aware modeling, rule-pack references, solver inputs, reports, automation, and future adapters. Source: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-050 and OBJ-012.\n",
+          "keys": [
+            "DEL-02-05:SOW#CLM-035",
+            "DEL-02-05:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 48288,
+          "old_end_offset": 48663,
+          "old_sha256": "cfccb3145a7e763c00319dffdfe764c257468018ceb0016eedebe1783dd1e618",
+          "new_sha256": "61f41517675a1d1b13412b1e15b6976a697d7f1a0de263bae011f6321cf2d08f",
+          "new_start_offset": 48274,
+          "new_end_offset": 48642
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/ScopeOfWork.md",
+      "before_sha256": "a905134bc786829f8e594d76574cdc9609fc91d69cf2bfe4af969a2802eebf22",
+      "after_sha256": "f9f71d767e34cd60e5054a645cedf05c9389ee5b92f7a59ea4f2c6634609b2f5",
+      "edits": [
+        {
+          "start": 152,
+          "end": 152,
+          "old": "> | OpenPipeStress CONTRACT | Governs protected-content, provenance, privacy, data, unit, governance, and agent-output constraints. |\n",
+          "new": "> | SWBPIPE CONTRACT | Governs protected-content, provenance, privacy, data, unit, governance, and agent-output constraints. |\n",
+          "keys": [
+            "DEL-03-01:SOW#CLM-012.r01",
+            "DEL-03-01:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 10662,
+          "old_end_offset": 10796,
+          "old_sha256": "4a0db56351cffb57b39c1991b04d51730e5f4388f6fff4a70464788e623cfb78",
+          "new_sha256": "f28cda6c296f3a3ea143c11d509f6cef8a48c619399deb1dc83745ac644c323d",
+          "new_start_offset": 10662,
+          "new_end_offset": 10789
+        },
+        {
+          "start": 283,
+          "end": 283,
+          "old": "> This deliverable exists so OpenPipeStress can support piping-specific private material libraries without shipping protected material tables, proprietary commercial data, or unreviewed public data. The schema should make provenance, rights, units, and completeness visible enough for later validation, diagnostics, and review gates.\n",
+          "new": "> This deliverable exists so SWBPIPE can support piping-specific private material libraries without shipping protected material tables, proprietary commercial data, or unreviewed public data. The schema should make provenance, rights, units, and completeness visible enough for later validation, diagnostics, and review gates.\n",
+          "keys": [
+            "DEL-03-01:SOW#CLM-024",
+            "DEL-03-01:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 17860,
+          "old_end_offset": 18194,
+          "old_sha256": "5164574314987e2885b81d1754d141be2fe6e6df69330ec0384b3a1a657ed13d",
+          "new_sha256": "46e6b3fe4f46d86ade4d15f6640d4e9fc873077f0488148ab34c6211c7db7da8",
+          "new_start_offset": 17853,
+          "new_end_offset": 18180
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-03_Bend and elbow component model fields/ScopeOfWork.md",
+      "before_sha256": "a4737c1659c94c59892a07e609bf46183e07489b47a0643ebb7a0a7a2ad8fb99",
+      "after_sha256": "d00089d1f81b99dd8354ce3658a193e5d52f7399097f4e0335ed6efb71c00d28",
+      "edits": [
+        {
+          "start": 244,
+          "end": 244,
+          "old": "> This deliverable records bounded schema/fixture/test evidence for a bend/elbow component model slice. The important boundary is that OpenPipeStress can store and validate user-entered or lawfully imported bend/elbow data, but must not publish protected SIF/flexibility tables, formulas, examples, or default code-derived values.\n",
+          "new": "> This deliverable records bounded schema/fixture/test evidence for a bend/elbow component model slice. The important boundary is that SWBPIPE can store and validate user-entered or lawfully imported bend/elbow data, but must not publish protected SIF/flexibility tables, formulas, examples, or default code-derived values.\n",
+          "keys": [
+            "DEL-03-03:SOW#CLM-020",
+            "DEL-03-03:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 12971,
+          "old_end_offset": 13302,
+          "old_sha256": "3c28b50fe407183f3d0c2f12e88fd018781bec8f36c89b6d0b949403d380aa09",
+          "new_sha256": "2a139d5a5bf993c55437a8566498c35706cc95176de00dba9991883c51291e9b",
+          "new_start_offset": 12971,
+          "new_end_offset": 13295
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/ScopeOfWork.md",
+      "before_sha256": "dfe446e67ad2695ccd3f58b43fe6f03835b86b56a402cbfcbd2bdbe012a5862d",
+      "after_sha256": "ad25896ac9af0704df424fe932ad4cf6a30a797fedc1dce2d1276f7439846095",
+      "edits": [
+        {
+          "start": 271,
+          "end": 271,
+          "old": "> The purpose of this deliverable is to document the implemented expansion-joint component data-model slice while preserving OpenPipeStress boundaries: open mechanics and public schemas are allowed, but protected standards content, vendor proprietary values, and invented defaults are not.\n",
+          "new": "> The purpose of this deliverable is to document the implemented expansion-joint component data-model slice while preserving SWBPIPE boundaries: open mechanics and public schemas are allowed, but protected standards content, vendor proprietary values, and invented defaults are not.\n",
+          "keys": [
+            "DEL-03-06:SOW#CLM-025",
+            "DEL-03-06:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 17756,
+          "old_end_offset": 18046,
+          "old_sha256": "14acda7c45ca3826cb5c1d8ec0478d62ddf0131d4e42a6c6e7f5829f556750b0",
+          "new_sha256": "0588115b8591b650b75fa2ad41edb3733cfd6c9e7e745069cce4e45cfa548d04",
+          "new_start_offset": 17756,
+          "new_end_offset": 18039
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/ScopeOfWork.md",
+      "before_sha256": "fc17b86e826e6e77556faec9e03d50507facce3e47f2756c55aa73e8cf624381",
+      "after_sha256": "dc6a42728b6d26bdb6752dad0faa813ee3ce51a45bae1ca26c1974fb149825db",
+      "edits": [
+        {
+          "start": 304,
+          "end": 304,
+          "old": "> This deliverable provides a bounded, unit-aware calculation surface for pipe section and mass properties while preserving OpenPipeStress data-boundary rules. The key distinction is that calculation from explicit user-entered values is allowed, but bundled protected pipe tables, material tables, proprietary data, hidden unit conversion, and silent defaults are not.\n",
+          "new": "> This deliverable provides a bounded, unit-aware calculation surface for pipe section and mass properties while preserving SWBPIPE data-boundary rules. The key distinction is that calculation from explicit user-entered values is allowed, but bundled protected pipe tables, material tables, proprietary data, hidden unit conversion, and silent defaults are not.\n",
+          "keys": [
+            "DEL-03-08:SOW#CLM-025",
+            "DEL-03-08:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 20109,
+          "old_end_offset": 20478,
+          "old_sha256": "3c83c498b733615f05a2411f32be5dcf7cce3aff304d0330e7b49bfbb2669543",
+          "new_sha256": "f1aa948115b0695e75ceb32665223f2fafcd951724887ae1902b4b52c810c127",
+          "new_start_offset": 20109,
+          "new_end_offset": 20471
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/ScopeOfWork.md",
+      "before_sha256": "52f86ba79d2c81748802223321744b5345e7539ca0101358e71f356ff65d9a9d",
+      "after_sha256": "c88296d714116a975677e11cef908b3d479e343efbe06eeb4bc6250557bee89a",
+      "edits": [
+        {
+          "start": 324,
+          "end": 324,
+          "old": "> This deliverable frames primitive load categories as explicit mechanics inputs for the OpenPipeStress solver boundary. The current implementation evidence is the bounded `core/loads/primitive_loads` crate, which preserves primitive category identity, deterministic findings, boundary metadata, load-case record shape, diagnostic bridge records, equivalent-static mechanics handling, lumped equivalent nodal conversion, and straight-pipe axial-effect helpers without adding code-specific combinations or compliance logic.\n",
+          "new": "> This deliverable frames primitive load categories as explicit mechanics inputs for the SWBPIPE solver boundary. The current implementation evidence is the bounded `core/loads/primitive_loads` crate, which preserves primitive category identity, deterministic findings, boundary metadata, load-case record shape, diagnostic bridge records, equivalent-static mechanics handling, lumped equivalent nodal conversion, and straight-pipe axial-effect helpers without adding code-specific combinations or compliance logic.\n",
+          "keys": [
+            "DEL-05-01:SOW#CLM-027",
+            "DEL-05-01:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 26623,
+          "old_end_offset": 27146,
+          "old_sha256": "5badec946356acab34bc25ea494d67e8865cbfb0dcfda1f23cd2d5f78a1e7b11",
+          "new_sha256": "e41637aff963d7ac60250ec56beb77ec90628442003d6a8ac7dd9759fc17f33e",
+          "new_start_offset": 26623,
+          "new_end_offset": 27139
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-01_Rule-pack schema/ScopeOfWork.md",
+      "before_sha256": "1b344e46d96b2837b16bb3ca96382aa3796bcc4e4eb5962991349cbd2d73cbfe",
+      "after_sha256": "2ed06775617e50605145191742eb6a3aa5ba0f4090b91bbab1e101a2ad6e9aed",
+      "edits": [
+        {
+          "start": 149,
+          "end": 149,
+          "old": "> | OpenPipeStress CONTRACT | Governs protected-content, provenance, privacy, unit, rule-pack, professional-boundary, and agent-output constraints. |\n",
+          "new": "> | SWBPIPE CONTRACT | Governs protected-content, provenance, privacy, unit, rule-pack, professional-boundary, and agent-output constraints. |\n",
+          "keys": [
+            "DEL-06-01:SOW#CLM-012.r01",
+            "DEL-06-01:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 11616,
+          "old_end_offset": 11766,
+          "old_sha256": "5d66d81103911bf5e922918da50e3841d32306131a1ce97564078ffb2cda8a02",
+          "new_sha256": "c668e95e90d2d0f5c1ecffada55109d459be2b4d6b1d0eee4cc29b3af4d7a146",
+          "new_start_offset": 11616,
+          "new_end_offset": 11759
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-05_Invented non-code example rule pack/ScopeOfWork.md",
+      "before_sha256": "f639f319ec0f153ee682e758343fca92cbe19dfc0b6365847bb27f4f720bbd54",
+      "after_sha256": "a91754662dff1636a0e8e24cf324fb13d2626c3aec1ec672bbd1afc0785705a9",
+      "edits": [
+        {
+          "start": 159,
+          "end": 159,
+          "old": "> | OpenPipeStress governance and invariant documents | Accessible local governing source |\n",
+          "new": "> | SWBPIPE governance and invariant documents | Accessible local governing source |\n",
+          "keys": [
+            "DEL-06-05:SOW#CLM-012.r01",
+            "DEL-06-05:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 10076,
+          "old_end_offset": 10168,
+          "old_sha256": "06ef925703ff7302cfd250b2c9d9a63dedcc14c84ba496c7d03a97342dbb7dc6",
+          "new_sha256": "39d0ef661bee77da81f55bc9b10f069d0049e3c3021fc4062d5514348ae7e2c9",
+          "new_start_offset": 10076,
+          "new_end_offset": 10161
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/ScopeOfWork.md",
+      "before_sha256": "6b023c9b67bb4c3876240b1f54f1ef26ce822dbabe8992a4638583c5d1ba64db",
+      "after_sha256": "61da2702bcf7ec939ceedff38f1e04dee58a880988048958523736cf66fe38dc",
+      "edits": [
+        {
+          "start": 168,
+          "end": 168,
+          "old": "> | OpenPipeStress governance and invariant documents | Accessible local governing source |\n",
+          "new": "> | SWBPIPE governance and invariant documents | Accessible local governing source |\n",
+          "keys": [
+            "DEL-07-01:SOW#CLM-012.r01",
+            "DEL-07-01:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 12773,
+          "old_end_offset": 12865,
+          "old_sha256": "06ef925703ff7302cfd250b2c9d9a63dedcc14c84ba496c7d03a97342dbb7dc6",
+          "new_sha256": "39d0ef661bee77da81f55bc9b10f069d0049e3c3021fc4062d5514348ae7e2c9",
+          "new_start_offset": 12773,
+          "new_end_offset": 12858
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/ScopeOfWork.md",
+      "before_sha256": "cf7bdd09fe096ff9c7e9cc94b7660a4cba7c446608182a39d3d57a4ee3ca4be2",
+      "after_sha256": "fc78b7b5d59bc9659f260410d4d8ab67bb348e0676173f45b538355aa612baf6",
+      "edits": [
+        {
+          "start": 106,
+          "end": 106,
+          "old": "> - `AGENTS.md` - OpenPipeStress agent index and dispatch rule.\n",
+          "new": "> - `AGENTS.md` - SWBPIPE agent index and dispatch rule.\n",
+          "keys": [
+            "DEL-07-03:SOW#CLM-006",
+            "DEL-07-03:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 6744,
+          "old_end_offset": 6808,
+          "old_sha256": "892894e09658accca01ed62fdefbd764f084a17b87ea11194651aa9578eaf093",
+          "new_sha256": "0e49c2712139402aa2c8800bbec33a859726a4657fb5a4735a2279051c8665fe",
+          "new_start_offset": 6744,
+          "new_end_offset": 6801
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/ScopeOfWork.md",
+      "before_sha256": "e01912ce5a028e4d95f69e6080d5fb5d8be3bfc7fb83af16344ca2d6bab6d0bc",
+      "after_sha256": "4abe15005e07e813efd941ab77e3f0b73d882a9ff01ff4deab2bc41de70236c9",
+      "edits": [
+        {
+          "start": 143,
+          "end": 143,
+          "old": "> No external engineering code or standards text is introduced by this deliverable. The controlling references for this setup are the OpenPipeStress governance and technical documents listed in `_REFERENCES.md`.\n",
+          "new": "> No external engineering code or standards text is introduced by this deliverable. The controlling references for this setup are the SWBPIPE governance and technical documents listed in `_REFERENCES.md`.\n",
+          "keys": [
+            "DEL-07-05:SOW#CLM-012",
+            "DEL-07-05:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 10751,
+          "old_end_offset": 10963,
+          "old_sha256": "3339aee3947befa8f534bd155fefd829df93b6b5c8911f200e98bbdb0a476b94",
+          "new_sha256": "271a6c744d4622bd77dc25e9609f96ce2b4ed313af287fa4fa951e3f423ebeac",
+          "new_start_offset": 10751,
+          "new_end_offset": 10956
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/ScopeOfWork.md",
+      "before_sha256": "2e022af8e2be90fdd7aa80355315c03318e83133cf38ef04a10b5f999c118266",
+      "after_sha256": "753f191312d5b1470f551633b727f14991ccbf2035a0b19e0b2a59b2a406a032",
+      "edits": [
+        {
+          "start": 133,
+          "end": 133,
+          "old": "> This deliverable specifies setup evidence for a future accessibility and engineering-review usability baseline for the OpenPipeStress GUI and report-facing review surfaces. It covers baseline keyboard access, labels/tooltips, contrast/readability, large-model navigation, result table copy/export, undo/redo discoverability, inline validation messages, warning separation, and visibility of assumptions needed by engineering reviewers.\n",
+          "new": "> This deliverable specifies setup evidence for a future accessibility and engineering-review usability baseline for the SWBPIPE GUI and report-facing review surfaces. It covers baseline keyboard access, labels/tooltips, contrast/readability, large-model navigation, result table copy/export, undo/redo discoverability, inline validation messages, warning separation, and visibility of assumptions needed by engineering reviewers.\n",
+          "keys": [
+            "DEL-07-06:SOW#CLM-011",
+            "DEL-07-06:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 7603,
+          "old_end_offset": 8041,
+          "old_sha256": "d7a03aaf2751eba6a1cf69835778f271a2cd9cb1ead64dd928cbf3e75fbda747",
+          "new_sha256": "fa72cee4dd268e1574a17bef685f5dd4f8b7e332df13ab27c357af815af00cf6",
+          "new_start_offset": 7603,
+          "new_end_offset": 8034
+        },
+        {
+          "start": 329,
+          "end": 329,
+          "old": "> This deliverable frames accessibility and usability as engineering-review support, not as a standalone visual polish task. The baseline should help a user navigate major GUI panels, find missing inputs, understand warnings, review results, and inspect assumptions without hiding the project boundaries defined by OpenPipeStress governance.\n",
+          "new": "> This deliverable frames accessibility and usability as engineering-review support, not as a standalone visual polish task. The baseline should help a user navigate major GUI panels, find missing inputs, understand warnings, review results, and inspect assumptions without hiding the project boundaries defined by SWBPIPE governance.\n",
+          "keys": [
+            "DEL-07-06:SOW#CLM-028",
+            "DEL-07-06:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 20982,
+          "old_end_offset": 21324,
+          "old_sha256": "01d4afd8968f19fbd5d527ff981ea5b3b31b39a97bc4db9e2b5a5bf9706432a5",
+          "new_sha256": "ed788b9aa4675ff45693aaee684936000f8732205e1586fb306a499b88d9053d",
+          "new_start_offset": 20975,
+          "new_end_offset": 21310
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/ScopeOfWork.md",
+      "before_sha256": "eb1ed12d69bfe0ab8dbf9ed11c3ebe612d6d624f880d7fdcb2042708d0bec259",
+      "after_sha256": "99a4d0ef9c5d632e2f24d0aadf204bbc31f497ae6dbfdd39bb289b295c37240d",
+      "edits": [
+        {
+          "start": 153,
+          "end": 153,
+          "old": "> No external engineering code or protected standards text is introduced by this deliverable. The controlling references for this setup are the OpenPipeStress governance, decomposition, register, and PKG-00 architecture-basis artifacts listed in `_REFERENCES.md` and `Datasheet.md`.\n",
+          "new": "> No external engineering code or protected standards text is introduced by this deliverable. The controlling references for this setup are the SWBPIPE governance, decomposition, register, and PKG-00 architecture-basis artifacts listed in `_REFERENCES.md` and `Datasheet.md`.\n",
+          "keys": [
+            "DEL-07-07:SOW#CLM-012",
+            "DEL-07-07:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 10430,
+          "old_end_offset": 10713,
+          "old_sha256": "12f75133820c232128d69d66f7454d18e18868b171f95aff1bc36ac038f70103",
+          "new_sha256": "d4f3be85564aef4382bd36288be80da480a8a3e48b9f8d235dae7a12157f381d",
+          "new_start_offset": 10430,
+          "new_end_offset": 10706
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/ScopeOfWork.md",
+      "before_sha256": "71ff4e0e0d23a69a9046a47e205909d821d4e435ee6ba828cb59e48824f188a0",
+      "after_sha256": "b3a661cbd8472e110e3c60df64e373eef253163dddb4f1850360f09474bd2db5",
+      "edits": [
+        {
+          "start": 51,
+          "end": 51,
+          "old": "> | Production family | Calculation reports for OpenPipeStress analysis outputs. |\n",
+          "new": "> | Production family | Calculation reports for SWBPIPE analysis outputs. |\n",
+          "keys": [
+            "DEL-08-01:SOW#CLM-004.r01",
+            "DEL-08-01:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 2127,
+          "old_end_offset": 2210,
+          "old_sha256": "687916d2c61628db273363ad5dc66d735db66cf29dc9c863d73ed192cc6f737d",
+          "new_sha256": "149e75738e59fb5ddba1957ea368791aa762d11997da1746c4155dcf574d44b3",
+          "new_start_offset": 2127,
+          "new_end_offset": 2203
+        },
+        {
+          "start": 121,
+          "end": 121,
+          "old": "> This deliverable defines the calculation report generator behavior for OpenPipeStress reporting. It covers report assembly requirements for model input summaries, load cases, results, warnings, assumptions, source/provenance notes, rule-pack references, checksums, and limitations.\n",
+          "new": "> This deliverable defines the calculation report generator behavior for SWBPIPE reporting. It covers report assembly requirements for model input summaries, load cases, results, warnings, assumptions, source/provenance notes, rule-pack references, checksums, and limitations.\n",
+          "keys": [
+            "DEL-08-01:SOW#CLM-010",
+            "DEL-08-01:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 6569,
+          "old_end_offset": 6853,
+          "old_sha256": "c22fb37cfc7b0a0f689730fb82d81d8b436cf1ccb0d622ad3d5fe2290739cd24",
+          "new_sha256": "62a039e013e3006e06e46ca67ad0475432b10f02a478d9ffe8f1e01ed2fd2223",
+          "new_start_offset": 6562,
+          "new_end_offset": 6839
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-02_Audit manifest and model hash/ScopeOfWork.md",
+      "before_sha256": "612c66a249251822bffeb77913f0924611cf4b3a779ea1421c5d7892aa5418a0",
+      "after_sha256": "39374e624fd1d1780e676a998b7b248afff80dc02e0ae88e489a5c8ac9403f8d",
+      "edits": [
+        {
+          "start": 50,
+          "end": 50,
+          "old": "> | Primary artifact family | Audit manifest and reproducibility metadata for OpenPipeStress runs. |\n",
+          "new": "> | Primary artifact family | Audit manifest and reproducibility metadata for SWBPIPE runs. |\n",
+          "keys": [
+            "DEL-08-02:SOW#CLM-004.r01",
+            "DEL-08-02:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 2106,
+          "old_end_offset": 2207,
+          "old_sha256": "d13d758883bbb2580234f5b1af4cb82f8a6bacc857b56002b0bd371d2f980622",
+          "new_sha256": "ccabd09e4ce0ee6f6972dd9dc7d65e7e48da1e65e3fc25061a50be3da3b5f3ca",
+          "new_start_offset": 2106,
+          "new_end_offset": 2200
+        },
+        {
+          "start": 107,
+          "end": 107,
+          "old": "> This deliverable defines the setup specification for the audit manifest and model-hash feature slice. The future implementation shall capture reproducibility metadata needed to replay or professionally review an OpenPipeStress calculation package: model hash, input manifest, solver version stamp, rule-pack checksum, and referenced asset hashes.\n",
+          "new": "> This deliverable defines the setup specification for the audit manifest and model-hash feature slice. The future implementation shall capture reproducibility metadata needed to replay or professionally review an SWBPIPE calculation package: model hash, input manifest, solver version stamp, rule-pack checksum, and referenced asset hashes.\n",
+          "keys": [
+            "DEL-08-02:SOW#CLM-010",
+            "DEL-08-02:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 6335,
+          "old_end_offset": 6684,
+          "old_sha256": "17798f4d501cb73077034f2b4325dddaba9b5f8a5a97c89a9562e0ea9c7a5031",
+          "new_sha256": "a2ce3740bfb15198c57785285c65a5bc888c5e48ca307e5ff667bbf739a88030",
+          "new_start_offset": 6328,
+          "new_end_offset": 6670
+        },
+        {
+          "start": 138,
+          "end": 138,
+          "old": "> | OpenPipeStress invariant catalog | Legal/data/professional boundary for public artifacts. | Binding project governance draft. |\n",
+          "new": "> | SWBPIPE invariant catalog | Legal/data/professional boundary for public artifacts. | Binding project governance draft. |\n",
+          "keys": [
+            "DEL-08-02:SOW#CLM-012.r03",
+            "DEL-08-02:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 9762,
+          "old_end_offset": 9894,
+          "old_sha256": "d786f01da2a05838363c00c4900e5e37261ab0b9ff334444c077fe4d66cac50f",
+          "new_sha256": "3ab4e55aa3ab5317101a6d3944088e04cf581e1ab7612124e0b0dc8c3be9d9b9",
+          "new_start_offset": 9748,
+          "new_end_offset": 9873
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-03_Warnings, assumptions, and provenance report section/ScopeOfWork.md",
+      "before_sha256": "0c0eb6fced916634e8aa4b13d0078ea45d6943b56f4848817b55d9296bc219b9",
+      "after_sha256": "3b8d58b5d71a9bdc322831b0440a32c21e8b1e219cfd48b27c7d24ef6e4b0519",
+      "edits": [
+        {
+          "start": 135,
+          "end": 135,
+          "old": "> This deliverable specifies the report section that exposes missing data, warnings, assumptions, user-supplied values, and source/provenance notes for OpenPipeStress calculation reports.\n",
+          "new": "> This deliverable specifies the report section that exposes missing data, warnings, assumptions, user-supplied values, and source/provenance notes for SWBPIPE calculation reports.\n",
+          "keys": [
+            "DEL-08-03:SOW#CLM-011",
+            "DEL-08-03:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 8513,
+          "old_end_offset": 8701,
+          "old_sha256": "b0b8f847f525aaf56d9728f61d1df5e63365d75d3ccd47f96c7a4ce7c18f4429",
+          "new_sha256": "aa4a603bda2f0b728be8363e1841096149e333000fdcaa7dbd5759cbfab9a52e",
+          "new_start_offset": 8513,
+          "new_end_offset": 8694
+        },
+        {
+          "start": 178,
+          "end": 178,
+          "old": "> No protected standards text is required or authorized for this deliverable. Governing standards-body content is intentionally not embedded in public artifacts. Applicable project standards are the OpenPipeStress governance artifacts listed in `_REFERENCES.md`, especially `docs/CONTRACT.md`, `docs/SPEC.md`, `docs/TYPES.md`, `docs/IP_AND_DATA_BOUNDARY.md`, and `execution/_Decomposition/SOFTWARE_DECOMP.md`.\n",
+          "new": "> No protected standards text is required or authorized for this deliverable. Governing standards-body content is intentionally not embedded in public artifacts. Applicable project standards are the SWBPIPE governance artifacts listed in `_REFERENCES.md`, especially `docs/CONTRACT.md`, `docs/SPEC.md`, `docs/TYPES.md`, `docs/IP_AND_DATA_BOUNDARY.md`, and `execution/_Decomposition/SOFTWARE_DECOMP.md`.\n",
+          "keys": [
+            "DEL-08-03:SOW#CLM-013",
+            "DEL-08-03:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 14218,
+          "old_end_offset": 14628,
+          "old_sha256": "1d9813670d055b442d5e4ba0db9631b4376e9f6ce467f51965fca5455ac92956",
+          "new_sha256": "af0f7c26fbb7da7f359b98e8539587e2372a2a330453d8c046f523661301d4d1",
+          "new_start_offset": 14211,
+          "new_end_offset": 14614
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/ScopeOfWork.md",
+      "before_sha256": "a196f9c18788c620f64620515feb4d508feaadc8d5989a948931c27374ae2e91",
+      "after_sha256": "33986390a6b235398845fbb4c574b3b153af019129318ab28b10f5c376e78ee8",
+      "edits": [
+        {
+          "start": 147,
+          "end": 147,
+          "old": "> | OpenPipeStress invariant catalog | IP, data, units, rule-pack, privacy, professional-responsibility, and agent-boundary constraints. | Binding project governance draft. |\n",
+          "new": "> | SWBPIPE invariant catalog | IP, data, units, rule-pack, privacy, professional-responsibility, and agent-boundary constraints. | Binding project governance draft. |\n",
+          "keys": [
+            "DEL-08-04:SOW#CLM-012.r04",
+            "DEL-08-04:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 12183,
+          "old_end_offset": 12358,
+          "old_sha256": "1b9707204727aef9fb5ce371ebc58d38ec8867ff96c221669d941a5b6d3ac508",
+          "new_sha256": "7430cf070c2530da8f1929c250e5509d990a312682103a990cc61b8d5219a702",
+          "new_start_offset": 12183,
+          "new_end_offset": 12351
+        },
+        {
+          "start": 276,
+          "end": 276,
+          "old": "> The result export format exists to make solver and rule-check outputs reviewable, reproducible, comparable, and consumable by downstream tools without losing the project boundaries that make OpenPipeStress code-neutral. The setup baseline is a schema-first JSON result envelope; other export formats remain `TBD`.\n",
+          "new": "> The result export format exists to make solver and rule-check outputs reviewable, reproducible, comparable, and consumable by downstream tools without losing the project boundaries that make SWBPIPE code-neutral. The setup baseline is a schema-first JSON result envelope; other export formats remain `TBD`.\n",
+          "keys": [
+            "DEL-08-04:SOW#CLM-023",
+            "DEL-08-04:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 20530,
+          "old_end_offset": 20846,
+          "old_sha256": "c299e19adcd06d487974ec9efd82aa63852aa9026b4c48d53d0679b4fdb726ec",
+          "new_sha256": "aee8a0b494c243bc2b161f4c9c649f4afb3d2c06244b2b5e7ba7d74dd416b016",
+          "new_start_offset": 20523,
+          "new_end_offset": 20832
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-05_Report protected-content linter/ScopeOfWork.md",
+      "before_sha256": "4c992a7b53710e581b55c5900f1787657a4e79fe6caa7b92d4131126147f8d65",
+      "after_sha256": "a8c7a3a7d88c27f00e33e60dcf75cde511162f88b3171d5ff09621109ba65d9e",
+      "edits": [
+        {
+          "start": 163,
+          "end": 163,
+          "old": "> No protected standards text, standards tables, protected examples, or proprietary formulas are needed or authorized for this deliverable. Applicable public project standards are the OpenPipeStress governance artifacts listed in `_REFERENCES.md`, especially `docs/CONTRACT.md`, `docs/SPEC.md`, `docs/IP_AND_DATA_BOUNDARY.md`, `docs/TYPES.md`, and `execution/_Decomposition/SOFTWARE_DECOMP.md`.\n",
+          "new": "> No protected standards text, standards tables, protected examples, or proprietary formulas are needed or authorized for this deliverable. Applicable public project standards are the SWBPIPE governance artifacts listed in `_REFERENCES.md`, especially `docs/CONTRACT.md`, `docs/SPEC.md`, `docs/IP_AND_DATA_BOUNDARY.md`, `docs/TYPES.md`, and `execution/_Decomposition/SOFTWARE_DECOMP.md`.\n",
+          "keys": [
+            "DEL-08-05:SOW#CLM-012",
+            "DEL-08-05:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 13648,
+          "old_end_offset": 14043,
+          "old_sha256": "f1a7be05fc5a89889c45d82248ab47833a20e27b7ca484c6b8d925c37ed11238",
+          "new_sha256": "c6365ef735e254b07c5c572ca6836327f0a41150963da3b273edd491b3e06209",
+          "new_start_offset": 13648,
+          "new_end_offset": 14036
+        },
+        {
+          "start": 346,
+          "end": 346,
+          "old": "> The protected-content linter exists to reduce the risk that public report templates or examples accidentally carry content the OpenPipeStress public repository must not redistribute. It supports the IP/data boundary and reproducible professional review, but it remains a heuristic guard plus review workflow, not a legal opinion or engineering acceptance decision.\n",
+          "new": "> The protected-content linter exists to reduce the risk that public report templates or examples accidentally carry content the SWBPIPE public repository must not redistribute. It supports the IP/data boundary and reproducible professional review, but it remains a heuristic guard plus review workflow, not a legal opinion or engineering acceptance decision.\n",
+          "keys": [
+            "DEL-08-05:SOW#CLM-027",
+            "DEL-08-05:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 22913,
+          "old_end_offset": 23280,
+          "old_sha256": "b97d830f74bdd2b284da7d54b4849d4a93cb380521398184aef8b51c895ed99b",
+          "new_sha256": "8a83c5b9253c9ed4fd3c4c6db400b31f847fd27fdc5e1b7042fc1a49e1b71490",
+          "new_start_offset": 22906,
+          "new_end_offset": 23266
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/ScopeOfWork.md",
+      "before_sha256": "a3d7efe05122e7b951d085e613d1178ed176a4a7fdb70a0810cbd2c111e0b94c",
+      "after_sha256": "6b3a572a82d2fb557986f438d1209395c99d8df90377d7dcbe5a9916f1a6d052",
+      "edits": [
+        {
+          "start": 146,
+          "end": 146,
+          "old": "> | OpenPipeStress invariant catalog | Applicable through `docs/CONTRACT.md`. |\n",
+          "new": "> | SWBPIPE invariant catalog | Applicable through `docs/CONTRACT.md`. |\n",
+          "keys": [
+            "DEL-09-03:SOW#CLM-012.r01",
+            "DEL-09-03:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 8861,
+          "old_end_offset": 8941,
+          "old_sha256": "f70690a8f551139a6a52fab76a2508a9d7a124da3556a4050c734628671205a3",
+          "new_sha256": "450956f6bb689d78240b943124bd8e99408b4a781cd174e02ade5827dea21486",
+          "new_start_offset": 8861,
+          "new_end_offset": 8934
+        },
+        {
+          "start": 147,
+          "end": 147,
+          "old": "> | OpenPipeStress technical specification | Applicable through `docs/SPEC.md`. |\n",
+          "new": "> | SWBPIPE technical specification | Applicable through `docs/SPEC.md`. |\n",
+          "keys": [
+            "DEL-09-03:SOW#CLM-012.r02",
+            "DEL-09-03:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 8941,
+          "old_end_offset": 9023,
+          "old_sha256": "5cf9dbe7cf393c9f224d25ead722cff0e981dac97e436f0489d8b52c87153f3a",
+          "new_sha256": "d80b9017523cf20e8108e6feed7faffb65ec66433c53ecf0e9223b04b85eed75",
+          "new_start_offset": 8934,
+          "new_end_offset": 9009
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/ScopeOfWork.md",
+      "before_sha256": "6de7c3f24f4058af1e3b1b171152cd8425e2b943599baeb5674879b90db0b13e",
+      "after_sha256": "41947eefff9f16776790d6ffef4b4cf22c80fc6c65795287e0d3cc3f1ac179e0",
+      "edits": [
+        {
+          "start": 81,
+          "end": 81,
+          "old": "> | Product scope and limitations | Define what OpenPipeStress assists with and what remains outside software authority. | Skeleton required |\n",
+          "new": "> | Product scope and limitations | Define what SWBPIPE assists with and what remains outside software authority. | Skeleton required |\n",
+          "keys": [
+            "DEL-09-04:SOW#CLM-006.r01",
+            "DEL-09-04:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 4599,
+          "old_end_offset": 4742,
+          "old_sha256": "779a63a821d813af4516ffe1cd80c5170bf1a0706a8392d23cc39111e474c6df",
+          "new_sha256": "e04298d5f35004a89784cfe93cad6136679a987b16f6612746e74b705cbb3f5a",
+          "new_start_offset": 4599,
+          "new_end_offset": 4735
+        },
+        {
+          "start": 155,
+          "end": 155,
+          "old": "> No external engineering code or standard is used as source authority for this skeleton. The governing sources are the OpenPipeStress project documents and registers listed in `_REFERENCES.md`.\n",
+          "new": "> No external engineering code or standard is used as source authority for this skeleton. The governing sources are the SWBPIPE project documents and registers listed in `_REFERENCES.md`.\n",
+          "keys": [
+            "DEL-09-04:SOW#CLM-012",
+            "DEL-09-04:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 10166,
+          "old_end_offset": 10361,
+          "old_sha256": "c99701fc2590b5ab141cb3d8d642e8f08be53c5251b16925665a8b666b91b9b8",
+          "new_sha256": "6922da261570d2d98d29b19cca0e7a3547219680a44790bac9f50b01b5c6464f",
+          "new_start_offset": 10159,
+          "new_end_offset": 10347
+        },
+        {
+          "start": 281,
+          "end": 281,
+          "old": "> This guidance explains how to interpret the validation manual skeleton without blurring the OpenPipeStress authority boundary. The manual is intended to organize verification and validation evidence for software quality. It is not an engineering seal, code-compliance ruling, or project-specific acceptance record.\n",
+          "new": "> This guidance explains how to interpret the validation manual skeleton without blurring the SWBPIPE authority boundary. The manual is intended to organize verification and validation evidence for software quality. It is not an engineering seal, code-compliance ruling, or project-specific acceptance record.\n",
+          "keys": [
+            "DEL-09-04:SOW#CLM-023",
+            "DEL-09-04:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 16320,
+          "old_end_offset": 16637,
+          "old_sha256": "cfd45b86305fc9c14c11a3bbef7faa7468b1ebe304d350d33975eb07685f48f3",
+          "new_sha256": "fa8501d4fcc023c2f019ab71a6483059a2ebfeb146fe42422b941b623657d5fa",
+          "new_start_offset": 16306,
+          "new_end_offset": 16616
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-05_Release quality gate checklist/ScopeOfWork.md",
+      "before_sha256": "8c08bf66dc2a7e643dba1a313d1be603539a1b0e40844bcc54639123d65a94b4",
+      "after_sha256": "87ae6b6e56216a16ecf430d65ab6f8d02f39d1edd31209bf7678a539970e0e16",
+      "edits": [
+        {
+          "start": 143,
+          "end": 143,
+          "old": "> No protected standards text or clause-level code requirements are used as source authority for this setup deliverable. Applicable project-governance sources are the local OpenPipeStress governance, specification, validation, IP/data-boundary, decomposition, register, and PKG-00 architecture-basis documents listed in `Datasheet.md#References`.\n",
+          "new": "> No protected standards text or clause-level code requirements are used as source authority for this setup deliverable. Applicable project-governance sources are the local SWBPIPE governance, specification, validation, IP/data-boundary, decomposition, register, and PKG-00 architecture-basis documents listed in `Datasheet.md#References`.\n",
+          "keys": [
+            "DEL-09-05:SOW#CLM-013",
+            "DEL-09-05:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 11169,
+          "old_end_offset": 11516,
+          "old_sha256": "914f0b2857604802069c47b6d27061cc1aca50e8830449e278f082d9ee62c0de",
+          "new_sha256": "b46168602ab6f452ac0f87af5ffdc1151cc55d41acb9967ba136ba0c8ccc2608",
+          "new_start_offset": 11169,
+          "new_end_offset": 11509
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-01_Public API and plugin boundary/ScopeOfWork.md",
+      "before_sha256": "ca87f15ffd72e300d1987d9744d08b6da676a41315b4b185d3355c7d1459a7a0",
+      "after_sha256": "7ff7c3b8ce4e7c2f351cf6697351770cafee2ede7d45fd6c9cb15f0075ea9c77",
+      "edits": [
+        {
+          "start": 136,
+          "end": 136,
+          "old": "> DEL-10-01 defines the public API and plugin boundary for OpenPipeStress interoperability. It covers contract obligations for model import/export, solver invocation, result extraction, rule-pack hooks, plugin manifest concepts, diagnostics, provenance, units, privacy, and report controls. SourcePath: `_CONTEXT.md`; SectionRef: Description and Architecture Basis Injection.\n",
+          "new": "> DEL-10-01 defines the public API and plugin boundary for SWBPIPE interoperability. It covers contract obligations for model import/export, solver invocation, result extraction, rule-pack hooks, plugin manifest concepts, diagnostics, provenance, units, privacy, and report controls. SourcePath: `_CONTEXT.md`; SectionRef: Description and Architecture Basis Injection.\n",
+          "keys": [
+            "DEL-10-01:SOW#CLM-012",
+            "DEL-10-01:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 7724,
+          "old_end_offset": 8100,
+          "old_sha256": "2e68295a767490a781201f54fa96d56d842dd3071581978e3b0846ee469b6b4a",
+          "new_sha256": "e2088244067eb0873f7174bd6099881cc8a804c07d579790da67e6694bc38aed",
+          "new_start_offset": 7724,
+          "new_end_offset": 8093
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-03_Local FEA handoff data contract/ScopeOfWork.md",
+      "before_sha256": "2d1e277ffe635e216d424616002fea032c34f7cc96197657286f331ff483a78c",
+      "after_sha256": "c745637bcd0149d36d2ac76536f7dd9bd54e4bd9d1e49bf42d901ba81b766ccc",
+      "edits": [
+        {
+          "start": 66,
+          "end": 66,
+          "old": "> | Normal global method | OpenPipeStress primary analysis remains a 3D centerline/frame model. | `INIT.md` boundaries; `docs/DIRECTIVE.md` section 3; `docs/CONTRACT.md` OPS-K-MECH-1 |\n",
+          "new": "> | Normal global method | SWBPIPE primary analysis remains a 3D centerline/frame model. | `INIT.md` boundaries; `docs/DIRECTIVE.md` section 3; `docs/CONTRACT.md` OPS-K-MECH-1 |\n",
+          "keys": [
+            "DEL-10-03:SOW#CLM-005.r02",
+            "DEL-10-03:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 2695,
+          "old_end_offset": 2880,
+          "old_sha256": "8defcceebea57ce322e8b13f82e3b8737cccca7b8d6d5e040a56430f966e1c8c",
+          "new_sha256": "8cd583930e9863747cc1ec5297f5c5e1cd516bb72fe4d16ee661ab90fbccc17f",
+          "new_start_offset": 2695,
+          "new_end_offset": 2873
+        },
+        {
+          "start": 97,
+          "end": 97,
+          "old": "> | Handoff package identity | Package ID, source project/model IDs, originating OpenPipeStress version, package schema version, creation timestamp, privacy/export posture. | Concept defined; final schema field names TBD. |\n",
+          "new": "> | Handoff package identity | Package ID, source project/model IDs, originating SWBPIPE version, package schema version, creation timestamp, privacy/export posture. | Concept defined; final schema field names TBD. |\n",
+          "keys": [
+            "DEL-10-03:SOW#CLM-007.r01",
+            "DEL-10-03:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 5687,
+          "old_end_offset": 5911,
+          "old_sha256": "30efd373d5671d570e394bcd2b2d27b140295f9af499b0bd32480c52d68adbcc",
+          "new_sha256": "315deb032d97485d766c536bc967faeb7f94bcd87cbad9cec46680728d230989",
+          "new_start_offset": 5680,
+          "new_end_offset": 5897
+        },
+        {
+          "start": 395,
+          "end": 395,
+          "old": "> - Treat local FEA handoff as an optional interoperability path. The OpenPipeStress global model remains a 3D centerline/frame model unless later scope explicitly changes that boundary.\n",
+          "new": "> - Treat local FEA handoff as an optional interoperability path. The SWBPIPE global model remains a 3D centerline/frame model unless later scope explicitly changes that boundary.\n",
+          "keys": [
+            "DEL-10-03:SOW#CLM-031",
+            "DEL-10-03:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 27837,
+          "old_end_offset": 28024,
+          "old_sha256": "7771470732ea414efe7aeb406e3d7a629928221965fbc95e9d24a83b9dc8451c",
+          "new_sha256": "03e43fde6da8cca0a4e2ad77a2d5bd2726c7e34b5962c68d5ae4dbc870b8b9f7",
+          "new_start_offset": 27823,
+          "new_end_offset": 28003
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-04_Build, packaging, and CI-CD pipeline/ScopeOfWork.md",
+      "before_sha256": "da3a49e33efce40dd8badcc17150431a1f4db955208e9e0a11640430e72f1c54",
+      "after_sha256": "4405c6467df6335be45cfdf866f62c85afac94eaa2a032d9f25231a2d44cff57",
+      "edits": [
+        {
+          "start": 80,
+          "end": 80,
+          "old": "> The build and packaging pipeline must preserve the OpenPipeStress boundaries:\n",
+          "new": "> The build and packaging pipeline must preserve the SWBPIPE boundaries:\n",
+          "keys": [
+            "DEL-10-04:SOW#CLM-006",
+            "DEL-10-04:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 4142,
+          "old_end_offset": 4222,
+          "old_sha256": "9d02326bcd245f5b888ffef19df053ab7d2442f14c18f4dd3c5103a58d572750",
+          "new_sha256": "0d0563d1c7ae632356b9646499b52a9d94286b02666fafb4840320402126d556",
+          "new_start_offset": 4142,
+          "new_end_offset": 4215
+        },
+        {
+          "start": 200,
+          "end": 200,
+          "old": "> No external engineering code or standards-body text is incorporated by this deliverable. Governing project standards for this setup pass are internal OpenPipeStress governance artifacts: `INIT.md`, `docs/DIRECTIVE.md`, `docs/CONTRACT.md`, `docs/SPEC.md`, `docs/IP_AND_DATA_BOUNDARY.md`, `docs/VALIDATION_STRATEGY.md`, and `execution/_Decomposition/SOFTWARE_DECOMP.md`.\n",
+          "new": "> No external engineering code or standards-body text is incorporated by this deliverable. Governing project standards for this setup pass are internal SWBPIPE governance artifacts: `INIT.md`, `docs/DIRECTIVE.md`, `docs/CONTRACT.md`, `docs/SPEC.md`, `docs/IP_AND_DATA_BOUNDARY.md`, `docs/VALIDATION_STRATEGY.md`, and `execution/_Decomposition/SOFTWARE_DECOMP.md`.\n",
+          "keys": [
+            "DEL-10-04:SOW#CLM-014",
+            "DEL-10-04:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 11762,
+          "old_end_offset": 12133,
+          "old_sha256": "86feb91abbf28adc1e49de63f0be2cc3ef185a64784d49457667b696a232eeb1",
+          "new_sha256": "cebb857adaf2ffed974da2bc07b774d65e2934b044aa02be2972515c0ba6d245",
+          "new_start_offset": 11755,
+          "new_end_offset": 12119
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-01_User guide skeleton/ScopeOfWork.md",
+      "before_sha256": "a997bc6713cbf1cce552c31fdbc4f519a6be4f4b13df1527ad35a76aa3ed36e2",
+      "after_sha256": "5412a92732b247d0b7068b1893f382882e5f00a4e14e3df8e4535ee4d6354ba0",
+      "edits": [
+        {
+          "start": 83,
+          "end": 83,
+          "old": "> | Scope and authority boundary | Explain OpenPipeStress as decision-support software with open mechanics and user-supplied design-basis data. | Skeleton required |\n",
+          "new": "> | Scope and authority boundary | Explain SWBPIPE as decision-support software with open mechanics and user-supplied design-basis data. | Skeleton required |\n",
+          "keys": [
+            "DEL-11-01:SOW#CLM-006.r01",
+            "DEL-11-01:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 5183,
+          "old_end_offset": 5349,
+          "old_sha256": "d1eb34fff2feda8ec197ddc8cf0ffe3dfb23b679071666b1ca47e9080d3f458f",
+          "new_sha256": "83a5852f9168dc3e33888145424430289d2dbb89739286ef44384819eaef7602",
+          "new_start_offset": 5183,
+          "new_end_offset": 5342
+        },
+        {
+          "start": 126,
+          "end": 126,
+          "old": "> This deliverable defines the deliverable-local skeleton for the OpenPipeStress user guide. It covers the guide structure needed for project setup, centerline modeling, mechanics solving, user rule checks, result review, report generation, limitations, and professional responsibility notices.\n",
+          "new": "> This deliverable defines the deliverable-local skeleton for the SWBPIPE user guide. It covers the guide structure needed for project setup, centerline modeling, mechanics solving, user rule checks, result review, report generation, limitations, and professional responsibility notices.\n",
+          "keys": [
+            "DEL-11-01:SOW#CLM-010",
+            "DEL-11-01:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 7772,
+          "old_end_offset": 8067,
+          "old_sha256": "dc9055df89e57cf4a1111be7f1add161e1baf4a25159886e66bfb734fb81c34f",
+          "new_sha256": "d3d731237aadcd6306e25049fc28732e90b641744735765d266ed8b8bb63dd08",
+          "new_start_offset": 7765,
+          "new_end_offset": 8053
+        },
+        {
+          "start": 153,
+          "end": 153,
+          "old": "> No external engineering code or standard is used as source authority for this user guide skeleton. The governing sources are the OpenPipeStress project documents and registers listed in `_REFERENCES.md`.\n",
+          "new": "> No external engineering code or standard is used as source authority for this user guide skeleton. The governing sources are the SWBPIPE project documents and registers listed in `_REFERENCES.md`.\n",
+          "keys": [
+            "DEL-11-01:SOW#CLM-012",
+            "DEL-11-01:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 11735,
+          "old_end_offset": 11941,
+          "old_sha256": "6cdd8693e6a8e303dddd6424d04e2f1470e62e4bb7db7300bcbd3d5d1665b1b9",
+          "new_sha256": "a9ea6f8e88f28dca706b72cbf75caca93086fccabd2b64c311a142ff94643014",
+          "new_start_offset": 11721,
+          "new_end_offset": 11920
+        },
+        {
+          "start": 284,
+          "end": 284,
+          "old": "> This guidance explains how to interpret the user guide skeleton without blurring the OpenPipeStress data, rule-check, and professional responsibility boundaries. The user guide should help a user move through setup, modeling, solving, rule checking, reports, and limitations while making missing data and human decision points visible.\n",
+          "new": "> This guidance explains how to interpret the user guide skeleton without blurring the SWBPIPE data, rule-check, and professional responsibility boundaries. The user guide should help a user move through setup, modeling, solving, rule checking, reports, and limitations while making missing data and human decision points visible.\n",
+          "keys": [
+            "DEL-11-01:SOW#CLM-023",
+            "DEL-11-01:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 18524,
+          "old_end_offset": 18862,
+          "old_sha256": "2dbb903fd8e4533cc836e0e8d824bc88b6936f9912114013c6f4974638b75cb8",
+          "new_sha256": "d75987fd85807799ff7708e6650ce1466792c27511da13af9482328af0bd6662",
+          "new_start_offset": 18503,
+          "new_end_offset": 18834
+        },
+        {
+          "start": 293,
+          "end": 293,
+          "old": "> | Start with the authority boundary. | The guide should explain what OpenPipeStress computes and what remains user-supplied or human-reviewed before it teaches button-by-button workflows. |\n",
+          "new": "> | Start with the authority boundary. | The guide should explain what SWBPIPE computes and what remains user-supplied or human-reviewed before it teaches button-by-button workflows. |\n",
+          "keys": [
+            "DEL-11-01:SOW#CLM-024.r01",
+            "DEL-11-01:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 18951,
+          "old_end_offset": 19143,
+          "old_sha256": "a5c1d15567ebd026e6b37be1b61d8a606583ad9c196cf1ac8da26b30ec2c6e83",
+          "new_sha256": "4fa4e0f7a459f1a102f94e31e95a9284f9f1d20927a7535be504409ad9cc283f",
+          "new_start_offset": 18923,
+          "new_end_offset": 19108
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-02_Developer guide for solver and rule packs/ScopeOfWork.md",
+      "before_sha256": "e75193e031b60afb29c75f834504a0fb262e4a6f52afc9b3ebfcd01489a4d731",
+      "after_sha256": "606861cc22eb467154fdb65879e54bd8d66c947cccf65818e50ed4e2a3527ea5",
+      "edits": [
+        {
+          "start": 157,
+          "end": 157,
+          "old": "> | OpenPipeStress CONTRACT | Governs IP, data, privacy, rule-pack, unit, professional-authority, and agent-output constraints. |\n",
+          "new": "> | SWBPIPE CONTRACT | Governs IP, data, privacy, rule-pack, unit, professional-authority, and agent-output constraints. |\n",
+          "keys": [
+            "DEL-11-02:SOW#CLM-012.r01",
+            "DEL-11-02:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 12450,
+          "old_end_offset": 12580,
+          "old_sha256": "9c685e81845f8118715ccf52c70a76157782745610299ea5fb04f51f659d2dfa",
+          "new_sha256": "116445fa44b330f5bf296194405746e237561cb77406a209f35392f5731adb21",
+          "new_start_offset": 12450,
+          "new_end_offset": 12573
+        },
+        {
+          "start": 158,
+          "end": 158,
+          "old": "> | OpenPipeStress SPEC | Provides current architecture, solver, rule-pack, GUI-warning, report, and V&V baseline for developer-guide requirements. |\n",
+          "new": "> | SWBPIPE SPEC | Provides current architecture, solver, rule-pack, GUI-warning, report, and V&V baseline for developer-guide requirements. |\n",
+          "keys": [
+            "DEL-11-02:SOW#CLM-012.r02",
+            "DEL-11-02:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 12580,
+          "old_end_offset": 12730,
+          "old_sha256": "a301c4f5761c105875402a7eba89e65d6a7fcee1dfe485c37fe63869a72cf21d",
+          "new_sha256": "487fc2dbca6c3266af7637aee0cdc3367dca89e5031096e0db93e420be772d9d",
+          "new_start_offset": 12573,
+          "new_end_offset": 12716
+        },
+        {
+          "start": 216,
+          "end": 216,
+          "old": "> This procedure defines how a future authorized session should produce or refresh the developer guide artifact for solver and rule-pack contributors while preserving OpenPipeStress architecture, IP, data, unit, test, and professional-responsibility boundaries.\n",
+          "new": "> This procedure defines how a future authorized session should produce or refresh the developer guide artifact for solver and rule-pack contributors while preserving SWBPIPE architecture, IP, data, unit, test, and professional-responsibility boundaries.\n",
+          "keys": [
+            "DEL-11-02:SOW#CLM-017",
+            "DEL-11-02:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 15338,
+          "old_end_offset": 15600,
+          "old_sha256": "1a22df212dc6758f05e404c09efeb061e6044d834ec72567380e4cc367ed06ab",
+          "new_sha256": "517ca0e366d4ef2b99f3eb5244d7dbe4dc021f1b793101b7e92b8dc5e3fd8a59",
+          "new_start_offset": 15324,
+          "new_end_offset": 15579
+        },
+        {
+          "start": 329,
+          "end": 329,
+          "old": "> The developer guide should give contributors enough structure to extend OpenPipeStress without weakening its governing boundaries. It should explain how the open solver mechanics, user-supplied rule packs, tests, reports, and adapter boundaries fit together, while making clear that protected standards data and professional approval remain outside the public software authority.\n",
+          "new": "> The developer guide should give contributors enough structure to extend SWBPIPE without weakening its governing boundaries. It should explain how the open solver mechanics, user-supplied rule packs, tests, reports, and adapter boundaries fit together, while making clear that protected standards data and professional approval remain outside the public software authority.\n",
+          "keys": [
+            "DEL-11-02:SOW#CLM-024",
+            "DEL-11-02:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 21174,
+          "old_end_offset": 21556,
+          "old_sha256": "2f97d840a5fae7961f95722b9118cac66edf3755a9d94d6211e055f3e48a56bd",
+          "new_sha256": "6575de626649871f4f37cd761b7c5a1613912bcf4eb7b8e3010821e50fcbc207",
+          "new_start_offset": 21153,
+          "new_end_offset": 21528
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-03_Theory notes- classical to modern centerline analysis/ScopeOfWork.md",
+      "before_sha256": "bf8ce05117f0f3e707654904d5f9e59f11c684e4852abe19f52dd80082979fce",
+      "after_sha256": "9d3e1fc72310f40338aa3e37868e016dc42ad60071bca526b3a9ea167c08fa69",
+      "edits": [
+        {
+          "start": 142,
+          "end": 142,
+          "old": "> The future theory note shall explain the classical flexibility lineage and modern 3D centerline/frame implementation approach for OpenPipeStress, while preserving protected-data, rule-check, professional-responsibility, and unit-awareness boundaries.\n",
+          "new": "> The future theory note shall explain the classical flexibility lineage and modern 3D centerline/frame implementation approach for SWBPIPE, while preserving protected-data, rule-check, professional-responsibility, and unit-awareness boundaries.\n",
+          "keys": [
+            "DEL-11-03:SOW#CLM-010",
+            "DEL-11-03:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 11266,
+          "old_end_offset": 11519,
+          "old_sha256": "dbf80ff927e767235daccebe467298527b95125c765666cfebb0e785f09527de",
+          "new_sha256": "2966b73b7beb860bedfb3a6629cf0a78bc992a7f98b1e4c1c2a4cdcb35a845ca",
+          "new_start_offset": 11266,
+          "new_end_offset": 11512
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-04_Invented educational example models/ScopeOfWork.md",
+      "before_sha256": "888a3ac1d146298f676c21c25cd46670075fd1892785d63916ca7c1e85060a09",
+      "after_sha256": "b01fc6e31f2282711e87e82ff999f3f2708d5d42a23bb0199d3502a57a245c2c",
+      "edits": [
+        {
+          "start": 282,
+          "end": 282,
+          "old": "> Invented educational examples let future users and contributors inspect OpenPipeStress mechanics and rule-pack workflow boundaries without importing protected standards data or implying engineering reliance.\n",
+          "new": "> Invented educational examples let future users and contributors inspect SWBPIPE mechanics and rule-pack workflow boundaries without importing protected standards data or implying engineering reliance.\n",
+          "keys": [
+            "DEL-11-04:SOW#CLM-026",
+            "DEL-11-04:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 17702,
+          "old_end_offset": 17912,
+          "old_sha256": "aa1db3cc87a7a6d7d2937ff46b6cfad86013aca68e404bc2772259765050bc27",
+          "new_sha256": "3fb7fff0a6cf2b88e5929f58e9c743cfad2903c4bdc58227a627099c2efba436",
+          "new_start_offset": 17702,
+          "new_end_offset": 17905
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-05_Contributor tutorial and onboarding/ScopeOfWork.md",
+      "before_sha256": "fb19fcb34e21a5fe14a58f80ec7de17a8569c66fa25903b0a41302d8e86d07c8",
+      "after_sha256": "04011c9f0648573b904a6cc8535e00cd64b81a0d8f974c249c4e12b6a324c308",
+      "edits": [
+        {
+          "start": 52,
+          "end": 52,
+          "old": "> | Intended audience | docs/AGENTIC_DEVELOPMENT_WORKFLOW.md section 1; AGENTS.md project-specific TASK profiles | New contributors and Type 2 TASK workers who need a safe first path through OpenPipeStress governance, decomposition, and bounded execution. |\n",
+          "new": "> | Intended audience | docs/AGENTIC_DEVELOPMENT_WORKFLOW.md section 1; AGENTS.md project-specific TASK profiles | New contributors and Type 2 TASK workers who need a safe first path through SWBPIPE governance, decomposition, and bounded execution. |\n",
+          "keys": [
+            "DEL-11-05:SOW#CLM-004.r03",
+            "DEL-11-05:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 2443,
+          "old_end_offset": 2701,
+          "old_sha256": "7a9ee06de9b5905d0826c90a2d6394980ef7889bd79f0c68af6028e88ef6f77e",
+          "new_sha256": "b594573417779c2b6ee5efc322106cb15af608706867f2ca31a6a62d7e84104b",
+          "new_start_offset": 2443,
+          "new_end_offset": 2694
+        },
+        {
+          "start": 81,
+          "end": 81,
+          "old": "> | Orientation | Explains OpenPipeStress intent, agent roles, decomposition hierarchy, and sealed-deliverable execution. | Must remain descriptive and source-grounded. |\n",
+          "new": "> | Orientation | Explains SWBPIPE intent, agent roles, decomposition hierarchy, and sealed-deliverable execution. | Must remain descriptive and source-grounded. |\n",
+          "keys": [
+            "DEL-11-05:SOW#CLM-006.r01",
+            "DEL-11-05:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 5000,
+          "old_end_offset": 5171,
+          "old_sha256": "7254c41bd0b5cd9cecee17a72f98032f0d4f7da845b006999bff8ff7e283e407",
+          "new_sha256": "23e345c62b1c117c430585667b9cad7be9f46f070ab8b81c5f6f45cab601adab",
+          "new_start_offset": 4993,
+          "new_end_offset": 5157
+        },
+        {
+          "start": 120,
+          "end": 120,
+          "old": "> This deliverable defines a contributor onboarding tutorial draft inside the DEL-11-05 working folder. It covers how contributors should orient to OpenPipeStress governance, the package/deliverable decomposition, sealed Type 2 execution, evidence production, review handoff, and protected-data boundaries.\n",
+          "new": "> This deliverable defines a contributor onboarding tutorial draft inside the DEL-11-05 working folder. It covers how contributors should orient to SWBPIPE governance, the package/deliverable decomposition, sealed Type 2 execution, evidence production, review handoff, and protected-data boundaries.\n",
+          "keys": [
+            "DEL-11-05:SOW#CLM-010",
+            "DEL-11-05:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 7453,
+          "old_end_offset": 7760,
+          "old_sha256": "5bc21f64aa837540ebc74617de7bf29dde1ab8def73f057ac534ca3edd945ba3",
+          "new_sha256": "814e31ccd8ccb4d9af94c58f6494ddb9d5f7308c8149bcc41259684d3f71ed59",
+          "new_start_offset": 7439,
+          "new_end_offset": 7739
+        },
+        {
+          "start": 320,
+          "end": 320,
+          "old": "> 1. Start with boundaries before mechanics. Contributors need the OpenPipeStress rule that public code may implement open mechanics while protected standards and proprietary engineering data remain outside public defaults.\n",
+          "new": "> 1. Start with boundaries before mechanics. Contributors need the SWBPIPE rule that public code may implement open mechanics while protected standards and proprietary engineering data remain outside public defaults.\n",
+          "keys": [
+            "DEL-11-05:SOW#CLM-026",
+            "DEL-11-05:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 20375,
+          "old_end_offset": 20599,
+          "old_sha256": "0ed8ed9aecf46f5910fad59480a81e9023657a0196e997718760e89b056cfe67",
+          "new_sha256": "49e89a64619b1b6e80409f0ba64166be58eacb72acbe757d083a4c19014b1390",
+          "new_start_offset": 20354,
+          "new_end_offset": 20571
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-01_Local-first storage and private data paths/ScopeOfWork.md",
+      "before_sha256": "afc2af3ebbce7355aa454361f802ccafdc3931e9b352b650692823fdda263f14",
+      "after_sha256": "a8d940451d6fe5c034344678dae301df902a533f4b9d9946fddcb46cb6d21bb4",
+      "edits": [
+        {
+          "start": 171,
+          "end": 171,
+          "old": "> The controlling project sources for this deliverable are the OpenPipeStress governance and decomposition artifacts listed in `Datasheet.md` and `_REFERENCES.md`, plus the June 7 readiness-evidence run records cited in this alignment.\n",
+          "new": "> The controlling project sources for this deliverable are the SWBPIPE governance and decomposition artifacts listed in `Datasheet.md` and `_REFERENCES.md`, plus the June 7 readiness-evidence run records cited in this alignment.\n",
+          "keys": [
+            "DEL-12-01:SOW#CLM-011",
+            "DEL-12-01:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 14406,
+          "old_end_offset": 14642,
+          "old_sha256": "6aa7345bb70e462362e8d9102f0a150e3781cccc21ae3d1fcda0e91faa786950",
+          "new_sha256": "fd9faafbc4a9f8cda172be335f6bca8171f7a1ce805f9946e7c6c88c3141f642",
+          "new_start_offset": 14406,
+          "new_end_offset": 14635
+        },
+        {
+          "start": 341,
+          "end": 341,
+          "old": "> This deliverable keeps OpenPipeStress private-data handling aligned with the product stance: open mechanics and public schemas, but user-controlled private project, rule-pack, material, component, owner, and code/design-basis data.\n",
+          "new": "> This deliverable keeps SWBPIPE private-data handling aligned with the product stance: open mechanics and public schemas, but user-controlled private project, rule-pack, material, component, owner, and code/design-basis data.\n",
+          "keys": [
+            "DEL-12-01:SOW#CLM-023",
+            "DEL-12-01:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 24969,
+          "old_end_offset": 25203,
+          "old_sha256": "9b3f61901400dc7a618151596fe927921010af4ec75d49be91a9f331f9a13ae0",
+          "new_sha256": "ad9bf31a2a2d02c3c31f39f289430cb98047e5025bdfad94547eea21031d453c",
+          "new_start_offset": 24962,
+          "new_end_offset": 25189
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-02_Private data redaction and export controls/ScopeOfWork.md",
+      "before_sha256": "7990d4527bee11ff972ce1d267453d07c4607418b8138c781e6ceae8856fc4ad",
+      "after_sha256": "421da98c976a31bee1c16b0f6d71dd653a11d334de579ca7722041be8dd2f077",
+      "edits": [
+        {
+          "start": 198,
+          "end": 198,
+          "old": "> The controlling project sources for this deliverable are the OpenPipeStress governance and decomposition artifacts listed in `Datasheet.md` and `_REFERENCES.md`.\n",
+          "new": "> The controlling project sources for this deliverable are the SWBPIPE governance and decomposition artifacts listed in `Datasheet.md` and `_REFERENCES.md`.\n",
+          "keys": [
+            "DEL-12-02:SOW#CLM-013",
+            "DEL-12-02:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 19778,
+          "old_end_offset": 19942,
+          "old_sha256": "5173cf5bbb2478e6b65808b345d97ae570dd016b3afa763caae033ec7c2bd79c",
+          "new_sha256": "250140566f0b10276709c2caa1ab94bf91604bde188b2e0493dd7ebf135d61f5",
+          "new_start_offset": 19778,
+          "new_end_offset": 19935
+        },
+        {
+          "start": 374,
+          "end": 374,
+          "old": "> This deliverable keeps OpenPipeStress report and export workflows aligned with the product boundary: public mechanics and schemas are allowed, while private project values, user-supplied code data, rule-pack details, component/vendor data, material allowables, and protected standards content remain controlled.\n",
+          "new": "> This deliverable keeps SWBPIPE report and export workflows aligned with the product boundary: public mechanics and schemas are allowed, while private project values, user-supplied code data, rule-pack details, component/vendor data, material allowables, and protected standards content remain controlled.\n",
+          "keys": [
+            "DEL-12-02:SOW#CLM-026",
+            "DEL-12-02:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 32134,
+          "old_end_offset": 32448,
+          "old_sha256": "71cd0428e9993e17c8c5a255c7a5e2bcd06b2119bddbec6105781b67bc881988",
+          "new_sha256": "dcdbb06c55e133d63878e0892176fe7708bab23565d4b99255f4073704ea5da3",
+          "new_start_offset": 32127,
+          "new_end_offset": 32434
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-03_Telemetry off-by-default design/ScopeOfWork.md",
+      "before_sha256": "453e79ea3c5951a89669975b777f1ed0fb7d21fe98daeadb59bca8eac8303669",
+      "after_sha256": "1705aef8c0b65e64a8c9bc3e092eaa56364fadc5dde23ed3f7afdebf09d0c9a1",
+      "edits": [
+        {
+          "start": 236,
+          "end": 236,
+          "old": "> Use this procedure to produce or review a telemetry design for OpenPipeStress without breaching the local-first privacy boundary. The current evidence set includes design documents, `docs/security/telemetry_policy.md`, a metadata-only guard helper in `core/security/telemetry_policy/`, focused tests in `tests/security/test_telemetry_policy.py`, and the DEL-12-03 desktop policy-review panel in `apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx`. The panel constructs only a local review artifact and does not implement runtime telemetry transport, telemetry payload construction, endpoint, vendor, upload queue/job, telemetry persistence, product config schema/storage, consent UI/CLI, retention, support-bundle workflow, allowlist approval, or approval records.\n",
+          "new": "> Use this procedure to produce or review a telemetry design for SWBPIPE without breaching the local-first privacy boundary. The current evidence set includes design documents, `docs/security/telemetry_policy.md`, a metadata-only guard helper in `core/security/telemetry_policy/`, focused tests in `tests/security/test_telemetry_policy.py`, and the DEL-12-03 desktop policy-review panel in `apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx`. The panel constructs only a local review artifact and does not implement runtime telemetry transport, telemetry payload construction, endpoint, vendor, upload queue/job, telemetry persistence, product config schema/storage, consent UI/CLI, retention, support-bundle workflow, allowlist approval, or approval records.\n",
+          "keys": [
+            "DEL-12-03:SOW#CLM-018",
+            "DEL-12-03:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 20029,
+          "old_end_offset": 20809,
+          "old_sha256": "fb1c5465aa6826b81b54571aba8cabba535b3b726881bd2f2e16fb69f40cb77b",
+          "new_sha256": "0cd3ecd975a09cbfc2815234d0b159c7c0073da5f2d06f343f46a56d621c3fbb",
+          "new_start_offset": 20029,
+          "new_end_offset": 20802
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-04_Secret and private-library handling/ScopeOfWork.md",
+      "before_sha256": "c300ed65f3bdb25b27bcfd21e02aafd6140bcb323de9d5735ecd2a4d4c0eb6e7",
+      "after_sha256": "ee2b335a912ac5a8082e424a284d0e1f778aed7dbebb765248e1da9411af1347",
+      "edits": [
+        {
+          "start": 355,
+          "end": 355,
+          "old": "> This deliverable gives downstream implementation work a bounded, local-first privacy control surface for private libraries and credential references. It exists so OpenPipeStress can support user-owned rule packs, material libraries, component libraries, owner design bases, and project models without treating private or protected content as public repository data.\n",
+          "new": "> This deliverable gives downstream implementation work a bounded, local-first privacy control surface for private libraries and credential references. It exists so SWBPIPE can support user-owned rule packs, material libraries, component libraries, owner design bases, and project models without treating private or protected content as public repository data.\n",
+          "keys": [
+            "DEL-12-04:SOW#CLM-022",
+            "DEL-12-04:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 27455,
+          "old_end_offset": 27823,
+          "old_sha256": "824977c8239b9c5092c18770981e4693faf84a3d87acbe41a5745f2825d2134b",
+          "new_sha256": "7851a48be77c8f9f3b14263d61b7baee62464878514b7a14233116486f45a211",
+          "new_start_offset": 27455,
+          "new_end_offset": 27816
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-05_Security threat model/ScopeOfWork.md",
+      "before_sha256": "5c6193f4d42c0664101321aa01454380f4966bf4a52a227552cf9075fa09a47f",
+      "after_sha256": "712e54f0717a5d9db61fd7e33b453989d89818cf1fd3222dde1ab931d71d0470",
+      "edits": [
+        {
+          "start": 198,
+          "end": 198,
+          "old": "> This specification defines the deliverable-local setup content for the planned OpenPipeStress security threat model. It covers private data handling threats for local-first workflows, report sharing, shared model/export paths, plugins, imports, rule packs, private libraries, and supply chain exposure.\n",
+          "new": "> This specification defines the deliverable-local setup content for the planned SWBPIPE security threat model. It covers private data handling threats for local-first workflows, report sharing, shared model/export paths, plugins, imports, rule packs, private libraries, and supply chain exposure.\n",
+          "keys": [
+            "DEL-12-05:SOW#CLM-016",
+            "DEL-12-05:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 12782,
+          "old_end_offset": 13087,
+          "old_sha256": "0615e0025da5dcb0fa13a5b6f8a1327cbac20485700ecac1754195524e5b32ac",
+          "new_sha256": "e4c3337c0abb791e1e3e7fb543d4e036fd2e8a17680bb17687c9dd9cc232cfc8",
+          "new_start_offset": 12782,
+          "new_end_offset": 13080
+        },
+        {
+          "start": 251,
+          "end": 251,
+          "old": "> | OpenPipeStress `CONTRACT.md` invariants | Binding project constraints for this setup work. |\n",
+          "new": "> | SWBPIPE `CONTRACT.md` invariants | Binding project constraints for this setup work. |\n",
+          "keys": [
+            "DEL-12-05:SOW#CLM-019.r01",
+            "DEL-12-05:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 20730,
+          "old_end_offset": 20827,
+          "old_sha256": "13d2f425e1cc08d48ad415aa66bb02066d945a1bbadeba6585c585c3f51a6c98",
+          "new_sha256": "1ac5d122d231eb0e0458bd9642b0cec6144767e7ac4f28f67350afd90693a640",
+          "new_start_offset": 20723,
+          "new_end_offset": 20813
+        },
+        {
+          "start": 252,
+          "end": 252,
+          "old": "> | OpenPipeStress `DIRECTIVE.md` stop rules | Binding stop/escalation rules for protected data, missing values, and overclaims. |\n",
+          "new": "> | SWBPIPE `DIRECTIVE.md` stop rules | Binding stop/escalation rules for protected data, missing values, and overclaims. |\n",
+          "keys": [
+            "DEL-12-05:SOW#CLM-019.r02",
+            "DEL-12-05:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 20827,
+          "old_end_offset": 20958,
+          "old_sha256": "60f103a0727321cec1dfc6119090eb71178e25ed896d39347154fe5180c63bff",
+          "new_sha256": "a3d8f0d7d61da0b10cb3f838b61f0e6da2f4aef6d940f7b46f7ea92f1ff5a6de",
+          "new_start_offset": 20813,
+          "new_end_offset": 20937
+        },
+        {
+          "start": 253,
+          "end": 253,
+          "old": "> | OpenPipeStress `IP_AND_DATA_BOUNDARY.md` | Governing policy for public/private data, provenance, and quarantine. |\n",
+          "new": "> | SWBPIPE `IP_AND_DATA_BOUNDARY.md` | Governing policy for public/private data, provenance, and quarantine. |\n",
+          "keys": [
+            "DEL-12-05:SOW#CLM-019.r03",
+            "DEL-12-05:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 20958,
+          "old_end_offset": 21077,
+          "old_sha256": "d054514ecfef700264844752bf43cbe9d7ccd63dcb6c0261ccb1acc509ffec55",
+          "new_sha256": "4b7d0f84442dd4afb6a3e7070a9bab43ddaad3cc0957b6810d3f70e71b06eeb9",
+          "new_start_offset": 20937,
+          "new_end_offset": 21049
+        },
+        {
+          "start": 254,
+          "end": 254,
+          "old": "> | OpenPipeStress `SPEC.md` | Technical baseline for layers, rule-pack evaluator, diagnostics, reporting, and acceptance semantics. |\n",
+          "new": "> | SWBPIPE `SPEC.md` | Technical baseline for layers, rule-pack evaluator, diagnostics, reporting, and acceptance semantics. |\n",
+          "keys": [
+            "DEL-12-05:SOW#CLM-019.r04",
+            "DEL-12-05:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 21077,
+          "old_end_offset": 21212,
+          "old_sha256": "01de3c74f665116d54d51e049850043d1c08fe6bbd58d176278a9f071b583ef0",
+          "new_sha256": "94284541153c8d09e7ef9c5578a7b3ace6a118c8483a1f4ebb361141e8fb0920",
+          "new_start_offset": 21049,
+          "new_end_offset": 21177
+        },
+        {
+          "start": 440,
+          "end": 440,
+          "old": "> This guidance explains how to interpret and maintain the OpenPipeStress security threat model setup content for private data handling. The deliverable exists to make privacy, protected-content, report-sharing, plugin/import, and supply-chain risks visible before implementation details harden.\n",
+          "new": "> This guidance explains how to interpret and maintain the SWBPIPE security threat model setup content for private data handling. The deliverable exists to make privacy, protected-content, report-sharing, plugin/import, and supply-chain risks visible before implementation details harden.\n",
+          "keys": [
+            "DEL-12-05:SOW#CLM-032",
+            "DEL-12-05:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 31575,
+          "old_end_offset": 31871,
+          "old_sha256": "77a4091c87e0c7c77c82ce0fa979d4091aa13a6c9a718bf879d79a4dd095fd8f",
+          "new_sha256": "f4899c730f97e7af304d0af17e7d94824418b51bb022f2f6b288890588730c14",
+          "new_start_offset": 31540,
+          "new_end_offset": 31829
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-01_Immutable model state records/ScopeOfWork.md",
+      "before_sha256": "b583f5c488402b523250fcf991b0dd290096e84a1626221f9bdda72579c055c9",
+      "after_sha256": "dee55cd78a07ff2741b16214a9297dc6b15fcc086d1e0dd5e671fab899eb29bf",
+      "edits": [
+        {
+          "start": 64,
+          "end": 64,
+          "old": "> - The model state record must respect OpenPipeStress data-boundary invariants: protected standards text, copied tables, proprietary values, and private project/rule data must not be committed publicly by default (`docs/CONTRACT.md` OPS-K-IP-1, OPS-K-PRIV-1; `docs/IP_AND_DATA_BOUNDARY.md` sections 3 and 6).\n",
+          "new": "> - The model state record must respect SWBPIPE data-boundary invariants: protected standards text, copied tables, proprietary values, and private project/rule data must not be committed publicly by default (`docs/CONTRACT.md` OPS-K-IP-1, OPS-K-PRIV-1; `docs/IP_AND_DATA_BOUNDARY.md` sections 3 and 6).\n",
+          "keys": [
+            "DEL-14-01:SOW#CLM-005",
+            "DEL-14-01:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 4128,
+          "old_end_offset": 4438,
+          "old_sha256": "f113b3c6f168d61650ea1311abf837fffb292b60f1a2384e0a4591f930f14e71",
+          "new_sha256": "82417f8ec27a909181f52fbbadcc840ad177481f70debc22654f65161730af43",
+          "new_start_offset": 4128,
+          "new_end_offset": 4431
+        },
+        {
+          "start": 157,
+          "end": 157,
+          "old": "> | OpenPipeStress governance invariants | Data-boundary, provenance, no-silent-default, and no-professional-approval constraints. | Source-supported by `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, and `docs/IP_AND_DATA_BOUNDARY.md` |\n",
+          "new": "> | SWBPIPE governance invariants | Data-boundary, provenance, no-silent-default, and no-professional-approval constraints. | Source-supported by `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, and `docs/IP_AND_DATA_BOUNDARY.md` |\n",
+          "keys": [
+            "DEL-14-01:SOW#CLM-012.r03",
+            "DEL-14-01:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 11260,
+          "old_end_offset": 11491,
+          "old_sha256": "743bedeb94a97a6369068a09a7a1e66e0ffff1cb4c1b523b5bd1a86df4b85aa8",
+          "new_sha256": "9ab8fdd2aa38cf2c3b2c5f53b9603f00fab59c58d8045a2f746be48dac06d1db",
+          "new_start_offset": 11253,
+          "new_end_offset": 11477
+        },
+        {
+          "start": 275,
+          "end": 275,
+          "old": "> Immutable model state records give OpenPipeStress a reproducible saved-state surface for design iteration, comparison, reporting, and handoff workflows. The deliverable is a schema/data-model change, not a professional approval workflow.\n",
+          "new": "> Immutable model state records give SWBPIPE a reproducible saved-state surface for design iteration, comparison, reporting, and handoff workflows. The deliverable is a schema/data-model change, not a professional approval workflow.\n",
+          "keys": [
+            "DEL-14-01:SOW#CLM-024",
+            "DEL-14-01:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 18120,
+          "old_end_offset": 18360,
+          "old_sha256": "0ab6995f1e9cd94497025282e38752a3383ab7395698960c4bad0b80f2df40de",
+          "new_sha256": "84d9a37027c16f34ff672107a6a992b42c79247fbb2b2fcea86c399e9fa6a77a",
+          "new_start_offset": 18106,
+          "new_end_offset": 18339
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine/ScopeOfWork.md",
+      "before_sha256": "54632e73b61c84ba91eac6834cfd35d23776f4a1893df041a126f2a68ead4787",
+      "after_sha256": "5500254724429cc35e16bbb7413fb4aaade137c8e2061ccb541ce9c67bed9983",
+      "edits": [
+        {
+          "start": 153,
+          "end": 153,
+          "old": "> No external engineering standard text is locally available or required for this deliverable. Governing project standards are the local OpenPipeStress documents listed in `_REFERENCES.md`, especially:\n",
+          "new": "> No external engineering standard text is locally available or required for this deliverable. Governing project standards are the local SWBPIPE documents listed in `_REFERENCES.md`, especially:\n",
+          "keys": [
+            "DEL-14-03:SOW#CLM-013",
+            "DEL-14-03:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 11541,
+          "old_end_offset": 11743,
+          "old_sha256": "b50400ddac2613f6e0807bbeff4f02d5e0178d9c0ab63778e2ad5baa8daac5a9",
+          "new_sha256": "128b93cef4048c83acd7faa4befd07790bd354a99bac8897ca645c7a30939ea3",
+          "new_start_offset": 11541,
+          "new_end_offset": 11736
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/ScopeOfWork.md",
+      "before_sha256": "8076687d24e8646b6f8c17ae4ac1845f3324d4e3a6e4f875e839620a90d26c9f",
+      "after_sha256": "d1bff66d136e64d7fd5a943ad4f5a4e0e2c0dc4f4a4eea2e26eadb093a5407c6",
+      "edits": [
+        {
+          "start": 164,
+          "end": 164,
+          "old": "> | OpenPipeStress unit boundary | Unit-aware, dimensionally checked values and exports. | Source: `docs/CONTRACT.md#OPS-K-UNIT-1`; `docs/SPEC.md#unit-system-and-dimensional-analysis`. |\n",
+          "new": "> | SWBPIPE unit boundary | Unit-aware, dimensionally checked values and exports. | Source: `docs/CONTRACT.md#OPS-K-UNIT-1`; `docs/SPEC.md#unit-system-and-dimensional-analysis`. |\n",
+          "keys": [
+            "DEL-14-05:SOW#CLM-012.r03",
+            "DEL-14-05:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 11881,
+          "old_end_offset": 12068,
+          "old_sha256": "8c08d6306d42c541de0c713ac7e065193c5cfacbb1d72696594d91eb6fb13ce8",
+          "new_sha256": "f957c08cfeac8d57f9d77ccb58d5f0b6271d56b6d5c3350359df1c88a4575c2a",
+          "new_start_offset": 11881,
+          "new_end_offset": 12061
+        },
+        {
+          "start": 165,
+          "end": 165,
+          "old": "> | OpenPipeStress IP/data boundary | Protected/private data exclusion for public artifacts. | Source: `docs/IP_AND_DATA_BOUNDARY.md`. |\n",
+          "new": "> | SWBPIPE IP/data boundary | Protected/private data exclusion for public artifacts. | Source: `docs/IP_AND_DATA_BOUNDARY.md`. |\n",
+          "keys": [
+            "DEL-14-05:SOW#CLM-012.r04",
+            "DEL-14-05:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 12068,
+          "old_end_offset": 12205,
+          "old_sha256": "00368af54a926f221327ad6dbd2d1758b377375d4eb409b6d40aef410ba28cb5",
+          "new_sha256": "2b04e84eca526acb2d605ef45726c2a434675a707b8fd8db5bf648e78c7dc5e0",
+          "new_start_offset": 12061,
+          "new_end_offset": 12191
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-02_Target mapping and unsupported-behavior contract/ScopeOfWork.md",
+      "before_sha256": "42fee9a2c02f238a63d152b93b1cc239bb2fea5c4f1bc60edcb69af2f6ad045d",
+      "after_sha256": "d2cc7931c5a46da78161e9e21391091c52e8df121bc9d3489ba156cc335fa55a",
+      "edits": [
+        {
+          "start": 155,
+          "end": 155,
+          "old": "> | OpenPipeStress invariant catalog | Governs unit, provenance, data, professional-boundary, report, and privacy constraints. | Applicable via `docs/CONTRACT.md`. |\n",
+          "new": "> | SWBPIPE invariant catalog | Governs unit, provenance, data, professional-boundary, report, and privacy constraints. | Applicable via `docs/CONTRACT.md`. |\n",
+          "keys": [
+            "DEL-15-02:SOW#CLM-012.r03",
+            "DEL-15-02:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 13023,
+          "old_end_offset": 13189,
+          "old_sha256": "d1ee2b661354efa22fb02474ed6fd47501fb705172c54e7964ca1c1ca5e2a471",
+          "new_sha256": "61ac081ae76ee315d94db783f1ec609d3aff331272fa19e29d6b4fa148af9ddf",
+          "new_start_offset": 13023,
+          "new_end_offset": 13182
+        },
+        {
+          "start": 325,
+          "end": 325,
+          "old": "> This deliverable prevents silent loss of critical handoff assumptions or unsupported target behavior. It supplies the contract surface for explaining how internal OpenPipeStress entities map into a handoff target and where a target cannot carry the source semantics exactly.\n",
+          "new": "> This deliverable prevents silent loss of critical handoff assumptions or unsupported target behavior. It supplies the contract surface for explaining how internal SWBPIPE entities map into a handoff target and where a target cannot carry the source semantics exactly.\n",
+          "keys": [
+            "DEL-15-02:SOW#CLM-026",
+            "DEL-15-02:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 22739,
+          "old_end_offset": 23016,
+          "old_sha256": "1318348a7ff8e5f8e3234fb2471140b1fa4c15fcefb41a5884273ee176d1006a",
+          "new_sha256": "5d11eb19fff31088150ef6eea608edca8defb8b50866ce0ca190d483bf900b3a",
+          "new_start_offset": 22732,
+          "new_end_offset": 23002
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-03_Downstream modeling export workflow/ScopeOfWork.md",
+      "before_sha256": "33cf2962c5b681a1f3accd28fb4e369daf45d3bd798a8bfb9eb33b6185ba371f",
+      "after_sha256": "9eb4a20e5b5b7bfc29dddf6d631eaad936e0d8efeac369fa47052e157388aa5d",
+      "edits": [
+        {
+          "start": 163,
+          "end": 163,
+          "old": "> | OpenPipeStress invariant catalog | Governs data, unit, professional-boundary, IP, privacy, and agent-output constraints. | Applicable from `docs/CONTRACT.md`. |\n",
+          "new": "> | SWBPIPE invariant catalog | Governs data, unit, professional-boundary, IP, privacy, and agent-output constraints. | Applicable from `docs/CONTRACT.md`. |\n",
+          "keys": [
+            "DEL-15-03:SOW#CLM-012.r03",
+            "DEL-15-03:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 13211,
+          "old_end_offset": 13376,
+          "old_sha256": "3387c740560ab84d7639782f9e94e99cd9004f7d62dd511676861ed9b00cbd3e",
+          "new_sha256": "a1e657b8dcb8ff683815c162620fd08e5b7a7bf86808dd73fd9a3f1925d1648a",
+          "new_start_offset": 13211,
+          "new_end_offset": 13369
+        },
+        {
+          "start": 292,
+          "end": 292,
+          "old": "> This deliverable exists to provide the generic handoff export workflow that turns OpenPipeStress model and analysis context into schema-compliant downstream modeling handoff packages. Its purpose is traceable transfer, not external-tool validation or professional approval.\n",
+          "new": "> This deliverable exists to provide the generic handoff export workflow that turns SWBPIPE model and analysis context into schema-compliant downstream modeling handoff packages. Its purpose is traceable transfer, not external-tool validation or professional approval.\n",
+          "keys": [
+            "DEL-15-03:SOW#CLM-024",
+            "DEL-15-03:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 22089,
+          "old_end_offset": 22365,
+          "old_sha256": "e25eb6f9c7b049142f069057eb552af2942b527d01b4f4b24dac617ca2dc21fd",
+          "new_sha256": "767ebf0644e68ada462c481d93d1ae1726d907c70f5e1cc491bc77eacc2e8ce4",
+          "new_start_offset": 22082,
+          "new_end_offset": 22351
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-04_External prover boundary metadata/ScopeOfWork.md",
+      "before_sha256": "b844913d69d055d9c7791eaec60a08426886c8c74398283fda5908440cdaf304",
+      "after_sha256": "abd67204017c5ce858755d4e5e768450533c98f93812c3c45634d31260a5b764",
+      "edits": [
+        {
+          "start": 141,
+          "end": 141,
+          "old": "> | OpenPipeStress governance invariants | Binding project constraints for authority, data boundary, provenance, and agent behavior | Available in `docs/CONTRACT.md` |\n",
+          "new": "> | SWBPIPE governance invariants | Binding project constraints for authority, data boundary, provenance, and agent behavior | Available in `docs/CONTRACT.md` |\n",
+          "keys": [
+            "DEL-15-04:SOW#CLM-011.r01",
+            "DEL-15-04:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 12377,
+          "old_end_offset": 12545,
+          "old_sha256": "a98c7972bc45820c552661de988149a5d7aaee33f520fd9d823dd1a9a434a05a",
+          "new_sha256": "0a350f55effad8a8df43b1cc88f6ddaad0befe42be490fb6ee7e0b8892326ed8",
+          "new_start_offset": 12377,
+          "new_end_offset": 12538
+        },
+        {
+          "start": 142,
+          "end": 142,
+          "old": "> | OpenPipeStress vocabulary/status model | Defines automatic status limitations and epistemic labels | Available in `docs/TYPES.md` |\n",
+          "new": "> | SWBPIPE vocabulary/status model | Defines automatic status limitations and epistemic labels | Available in `docs/TYPES.md` |\n",
+          "keys": [
+            "DEL-15-04:SOW#CLM-011.r02",
+            "DEL-15-04:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 12545,
+          "old_end_offset": 12681,
+          "old_sha256": "7f0f159e56b13eda66b2bcb8ba0376db3b2847582a0c48b5353f0622323717a3",
+          "new_sha256": "6692dd501e33f0226847e5024e0e5d3234bf75d43f7a78666bb4e9435f860bd7",
+          "new_start_offset": 12538,
+          "new_end_offset": 12667
+        },
+        {
+          "start": 143,
+          "end": 143,
+          "old": "> | OpenPipeStress technical specification | Defines schema-first domain surfaces, persistence, adapter, report, result, and authority-boundary behavior | Available in `docs/SPEC.md` |\n",
+          "new": "> | SWBPIPE technical specification | Defines schema-first domain surfaces, persistence, adapter, report, result, and authority-boundary behavior | Available in `docs/SPEC.md` |\n",
+          "keys": [
+            "DEL-15-04:SOW#CLM-011.r03",
+            "DEL-15-04:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 12681,
+          "old_end_offset": 12866,
+          "old_sha256": "c36f96185a84490f9db30e86451e577969e7d782c6d5e3cd0ea3d80d6547f805",
+          "new_sha256": "9787c1154f2cb7584189ab50ad9bb1da82f60932fb6220679f2924cdbe0a3e50",
+          "new_start_offset": 12667,
+          "new_end_offset": 12845
+        },
+        {
+          "start": 144,
+          "end": 144,
+          "old": "> | OpenPipeStress IP/data boundary policy | Governs protected/private data and public contribution provenance | Available in `docs/IP_AND_DATA_BOUNDARY.md` |\n",
+          "new": "> | SWBPIPE IP/data boundary policy | Governs protected/private data and public contribution provenance | Available in `docs/IP_AND_DATA_BOUNDARY.md` |\n",
+          "keys": [
+            "DEL-15-04:SOW#CLM-011.r04",
+            "DEL-15-04:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 12866,
+          "old_end_offset": 13025,
+          "old_sha256": "55ed91348653270824b026f2b88768ab1b3ca266a4bdc37b857a97e750f6204a",
+          "new_sha256": "fc2f1b310491888dc3642dda06c5323c0cfc71eb9aec33daff358cf33bb2ee29",
+          "new_start_offset": 12845,
+          "new_end_offset": 12997
+        },
+        {
+          "start": 264,
+          "end": 264,
+          "old": "> DEL-15-04 exists to let OpenPipeStress record external-prover workflow context without converting that context into automatic professional approval. The useful metadata is descriptive and traceable: names, tags, notes, external references, attachments, and links to handoff/comparison evidence. Source: `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row DEL-15-04; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEL-15-04 row.\n",
+          "new": "> DEL-15-04 exists to let SWBPIPE record external-prover workflow context without converting that context into automatic professional approval. The useful metadata is descriptive and traceable: names, tags, notes, external references, attachments, and links to handoff/comparison evidence. Source: `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row DEL-15-04; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEL-15-04 row.\n",
+          "keys": [
+            "DEL-15-04:SOW#CLM-021",
+            "DEL-15-04:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 20874,
+          "old_end_offset": 21305,
+          "old_sha256": "def37d0f9f430faee9ba480fd52f669e9f49248d58e4300ebcf5bcb1f3e1ba3e",
+          "new_sha256": "0be048c3b070c903689fce9d42136327abcbb63e678d89d8604f8776839101ed",
+          "new_start_offset": 20846,
+          "new_end_offset": 21270
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-01_CAEPIPE and export-format source basis/ScopeOfWork.md",
+      "before_sha256": "bbaf6b4d9acbc23646b9d2503248644f0c5db0f126697b2b7fe0cd9cd23627ea",
+      "after_sha256": "b3450ab06a6d4db460749d4a2205ec2c2ca9a5d94d3527d4f228c571ad1a1daf",
+      "edits": [
+        {
+          "start": 143,
+          "end": 143,
+          "old": "> | DEL-17-01-REQ-003 | PCF-specific facts shall distinguish documented translator behavior from OpenPipeStress export intentions. |\n",
+          "new": "> | DEL-17-01-REQ-003 | PCF-specific facts shall distinguish documented translator behavior from SWBPIPE export intentions. |\n",
+          "keys": [
+            "DEL-17-01:SOW#CLM-011/DEL-17-01-REQ-003",
+            "DEL-17-01:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 9586,
+          "old_end_offset": 9719,
+          "old_sha256": "6821fd10bec67f8dd73a6b5811e7e39d654eb75ee186266171cc815b817b1c51",
+          "new_sha256": "076f3fb21081da795e3c840479d4601b24df3f3f4d743c4d2756441a1eb7594b",
+          "new_start_offset": 9586,
+          "new_end_offset": 9712
+        },
+        {
+          "start": 157,
+          "end": 157,
+          "old": "> | DEL-17-01-REQ-013 | Target solver options may be recorded as pass-through configuration, but shall not become OpenPipeStress local code-checking logic. |\n",
+          "new": "> | DEL-17-01-REQ-013 | Target solver options may be recorded as pass-through configuration, but shall not become SWBPIPE local code-checking logic. |\n",
+          "keys": [
+            "DEL-17-01:SOW#CLM-012/DEL-17-01-REQ-013",
+            "DEL-17-01:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 10746,
+          "old_end_offset": 10904,
+          "old_sha256": "8d379a99ad9523abc40ee78372b73e2fb84dddaba8e95990d5d2e7b29c796adb",
+          "new_sha256": "a078e4228a62ec92c85f94a05ac02d03945175b4de62fba8bb5f795869b9249b",
+          "new_start_offset": 10739,
+          "new_end_offset": 10890
+        },
+        {
+          "start": 330,
+          "end": 330,
+          "old": "> CAEPIPE is the first CAEPIPE-focused source-basis target because the admitted references support a text model handoff and optional external execution workflow. This does not make OpenPipeStress a CAEPIPE replacement, does not bundle CAEPIPE, and does not create a claim that exported models are accepted engineering work.\n",
+          "new": "> CAEPIPE is the first CAEPIPE-focused source-basis target because the admitted references support a text model handoff and optional external execution workflow. This does not make SWBPIPE a CAEPIPE replacement, does not bundle CAEPIPE, and does not create a claim that exported models are accepted engineering work.\n",
+          "keys": [
+            "DEL-17-01:SOW#CLM-028",
+            "DEL-17-01:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 19736,
+          "old_end_offset": 20060,
+          "old_sha256": "e798c9d13f1855b26dfa36d1b2c9126c94078ff43e9148b02fa1001f4e7be9b7",
+          "new_sha256": "e7fc4081442366a322577b8c966223bc45a17d4cbca15cb89481ccb445d37412",
+          "new_start_offset": 19722,
+          "new_end_offset": 20039
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts/ScopeOfWork.md",
+      "before_sha256": "fec6ceae9586c56de392b4bd94d1f58e7c3996a672d888a68b11628d11aa1d5d",
+      "after_sha256": "a0ad2f9970f137aba26ef02ae45d2081a1fccf194d81b8c2010440d213020b6a",
+      "edits": [
+        {
+          "start": 59,
+          "end": 59,
+          "old": "> | Stable ID map | Maps OpenPipeStress canonical IDs to target record IDs, file names, sidecars, metadata slots, or omitted-target entries. | Every target artifact shall preserve identity directly or through a sidecar map. |\n",
+          "new": "> | Stable ID map | Maps SWBPIPE canonical IDs to target record IDs, file names, sidecars, metadata slots, or omitted-target entries. | Every target artifact shall preserve identity directly or through a sidecar map. |\n",
+          "keys": [
+            "DEL-17-02:SOW#CLM-005.r03",
+            "DEL-17-02:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 3124,
+          "old_end_offset": 3350,
+          "old_sha256": "23d32bf6ffd104cf3e445f0709c4028bc56fe8cb3eb3415011c283c765659979",
+          "new_sha256": "6c9ea810e5fabda489086b85c6cda382cf5890cfc7184d27d9b2f820982f8bf3",
+          "new_start_offset": 3124,
+          "new_end_offset": 3343
+        },
+        {
+          "start": 113,
+          "end": 113,
+          "old": "> | `profile_version` | Version of the OpenPipeStress profile contract. |\n",
+          "new": "> | `profile_version` | Version of the SWBPIPE profile contract. |\n",
+          "keys": [
+            "DEL-17-02:SOW#CLM-009.r02",
+            "DEL-17-02:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 7578,
+          "old_end_offset": 7652,
+          "old_sha256": "3045df35657cc12ecaf100802d7d684bd254bf1f1244ed029accaa4b19d1224a",
+          "new_sha256": "a5e07f41d676b826a0ce9e5e3355c7cb326d1a373cdb654d51515899a9872851",
+          "new_start_offset": 7571,
+          "new_end_offset": 7638
+        },
+        {
+          "start": 145,
+          "end": 145,
+          "old": "> | Direct target-carried ID | The target artifact contains the canonical OpenPipeStress ID in a source-confirmed target field, metadata slot, name, or equivalent target-carried location. | Allowed only when the downstream target profile cites admitted evidence for the carrier. |\n",
+          "new": "> | Direct target-carried ID | The target artifact contains the canonical SWBPIPE ID in a source-confirmed target field, metadata slot, name, or equivalent target-carried location. | Allowed only when the downstream target profile cites admitted evidence for the carrier. |\n",
+          "keys": [
+            "DEL-17-02:SOW#CLM-011.r01",
+            "DEL-17-02:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 9277,
+          "old_end_offset": 9558,
+          "old_sha256": "c0eaf0ad580732910ab1b02284490eab0ea5548651c9f135b8ab51de9c9caac3",
+          "new_sha256": "b4f0354db65bda9b75328d9c1755c1b514e25426cc3f0485f34ac3aa969bf43d",
+          "new_start_offset": 9263,
+          "new_end_offset": 9537
+        },
+        {
+          "start": 266,
+          "end": 266,
+          "old": "> | DEL-17-02-REQ-030 | The ID map shall preserve links from canonical OpenPipeStress IDs to emitted target records, files, metadata fields, or sidecar rows. |\n",
+          "new": "> | DEL-17-02-REQ-030 | The ID map shall preserve links from canonical SWBPIPE IDs to emitted target records, files, metadata fields, or sidecar rows. |\n",
+          "keys": [
+            "DEL-17-02:SOW#CLM-021/DEL-17-02-REQ-030",
+            "DEL-17-02:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 17576,
+          "old_end_offset": 17736,
+          "old_sha256": "b68279d1f37d944fc8fe7be8fc734cb0f4ae7faa7b2e1252b799c4c4fe59ad95",
+          "new_sha256": "5fb1478fe8c7a9f10ab26e317ad2f51e8139b8d17c233f1eb410db5e9ccf5f57",
+          "new_start_offset": 17555,
+          "new_end_offset": 17708
+        },
+        {
+          "start": 504,
+          "end": 504,
+          "old": "> Stable IDs are the recovery path when a target format cannot preserve the OpenPipeStress model structure directly. The map should be useful for:\n",
+          "new": "> Stable IDs are the recovery path when a target format cannot preserve the SWBPIPE model structure directly. The map should be useful for:\n",
+          "keys": [
+            "DEL-17-02:SOW#CLM-042",
+            "DEL-17-02:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 33267,
+          "old_end_offset": 33414,
+          "old_sha256": "5d09585d51e8f6e6cd59e3b86d98110eb86c1c0093ba09078048711324480cad",
+          "new_sha256": "dd8b70229469b606f7468867611c1832c8390132b6eb7fb880ebe3a4299a4155",
+          "new_start_offset": 33239,
+          "new_end_offset": 33379
+        },
+        {
+          "start": 509,
+          "end": 509,
+          "old": "> - reconciling external run outputs with OpenPipeStress records;\n",
+          "new": "> - reconciling external run outputs with SWBPIPE records;\n",
+          "keys": [
+            "DEL-17-02:SOW#CLM-042",
+            "DEL-17-02:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 33567,
+          "old_end_offset": 33633,
+          "old_sha256": "1f055744a3246dd47b7009c53690015ac6d2cd267c966cc1503bef6cf3522c71",
+          "new_sha256": "6d595525a59952dff1e9033760aacb08218265ca94663ac485aa2933d0b8d0e3",
+          "new_start_offset": 33532,
+          "new_end_offset": 33591
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-03_Native open JSON export package/ScopeOfWork.md",
+      "before_sha256": "0e46eb6f89ee0f95683aadd54add3c6b3a84a9af5aacfda51f9871ddca2ace9a",
+      "after_sha256": "c59c6cbba4c9c949979985d242a0341d62be85e66dcfa271e9e1698d3f31844f",
+      "edits": [
+        {
+          "start": 55,
+          "end": 55,
+          "old": "> | `stable_id_map` | Maps canonical OpenPipeStress IDs to package-local records. |\n",
+          "new": "> | `stable_id_map` | Maps canonical SWBPIPE IDs to package-local records. |\n",
+          "keys": [
+            "DEL-17-03:SOW#CLM-004.r03",
+            "DEL-17-03:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 2191,
+          "old_end_offset": 2275,
+          "old_sha256": "e6f9961a25f3d9a201b1e14fac64ac77665d9cb8a0d0df96a03adbac90e6a5cc",
+          "new_sha256": "5c3c67911fdeb2da169ad0172960c9a9f632876b15658bc36d717851232bae54",
+          "new_start_offset": 2191,
+          "new_end_offset": 2268
+        },
+        {
+          "start": 123,
+          "end": 123,
+          "old": "> | DEL-17-03-REQ-002 | The package contract shall preserve canonical OpenPipeStress identity directly in JSON records or through a package-local ID map. |\n",
+          "new": "> | DEL-17-03-REQ-002 | The package contract shall preserve canonical SWBPIPE identity directly in JSON records or through a package-local ID map. |\n",
+          "keys": [
+            "DEL-17-03:SOW#CLM-010/DEL-17-03-REQ-002",
+            "DEL-17-03:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 5971,
+          "old_end_offset": 6127,
+          "old_sha256": "4ff0fdbdac76a60fb523743192fff7b5e9261dac8ec76d680381ef4139097014",
+          "new_sha256": "362707deec31a1779e294b8532b2b9cce04b64be82774eeba030dde23e7d8639",
+          "new_start_offset": 5964,
+          "new_end_offset": 6113
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-04_CAEPIPE MBF export profile and deterministic writer/ScopeOfWork.md",
+      "before_sha256": "0021cb04797baa938e9d4e0ecef2f9ef8f44acb1ea656c73dd7508f646eeec21",
+      "after_sha256": "265cc0db012738e6865fddf376aa108e79554ec130369994a37a14d81c6a7356",
+      "edits": [
+        {
+          "start": 56,
+          "end": 56,
+          "old": "> | CAEPIPE public MBF export reference | Treat as evidence that CAEPIPE exports MBF model data and version-flavoured MBF output; OpenPipeStress support claims remain `TBD`. |\n",
+          "new": "> | CAEPIPE public MBF export reference | Treat as evidence that CAEPIPE exports MBF model data and version-flavoured MBF output; SWBPIPE support claims remain `TBD`. |\n",
+          "keys": [
+            "DEL-17-04:SOW#CLM-004.r04",
+            "DEL-17-04:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 2632,
+          "old_end_offset": 2808,
+          "old_sha256": "4725561e84e068b5f44541381c95412d215f4acd1cac31144730a896fbac89e4",
+          "new_sha256": "e4d8d22c4dd6a782736982d1739d4bedc4bd534eb430d7cf1d58de590a85f414",
+          "new_start_offset": 2632,
+          "new_end_offset": 2801
+        },
+        {
+          "start": 116,
+          "end": 116,
+          "old": "> | DEL-17-04-REQ-006 | Pass-through target options shall remain target configuration metadata and shall not become OpenPipeStress local code-checking logic. |\n",
+          "new": "> | DEL-17-04-REQ-006 | Pass-through target options shall remain target configuration metadata and shall not become SWBPIPE local code-checking logic. |\n",
+          "keys": [
+            "DEL-17-04:SOW#CLM-009/DEL-17-04-REQ-006",
+            "DEL-17-04:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 7201,
+          "old_end_offset": 7361,
+          "old_sha256": "afb64e342f7e303d76e09d5223690a6cae937dbdf7ca1f59be08e582f7b0d23f",
+          "new_sha256": "b7f01f0885d5141448af78b437279b413f9349b98d9b3ff36e1abbbedd6f53ec",
+          "new_start_offset": 7194,
+          "new_end_offset": 7347
+        },
+        {
+          "start": 282,
+          "end": 282,
+          "old": "> Pass-through CAEPIPE options are metadata for the target profile because they may name target-side analysis settings. They must not become OpenPipeStress local code-checking logic, local professional acceptance logic, or a substitute for user-supplied rule packs and human review.\n",
+          "new": "> Pass-through CAEPIPE options are metadata for the target profile because they may name target-side analysis settings. They must not become SWBPIPE local code-checking logic, local professional acceptance logic, or a substitute for user-supplied rule packs and human review.\n",
+          "keys": [
+            "DEL-17-04:SOW#CLM-021",
+            "DEL-17-04:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 19972,
+          "old_end_offset": 20255,
+          "old_sha256": "36fa505da7d90acd08146eb39f969706baad8a421a548380ef7e67ffe3396eb2",
+          "new_sha256": "8790a7dd7bcbca0690a54a069e02b1fb12ebefc691bf94fd714bc00e7da00b8a",
+          "new_start_offset": 19958,
+          "new_end_offset": 20234
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-05_CAEPIPE external run harness and CSV parser/ScopeOfWork.md",
+      "before_sha256": "0360ed612638dbfc7d8654a3060bcaf022f9e5a46e7eaa571b54a535faad48c3",
+      "after_sha256": "db163b5070d671a75c7c19d655516def3ca1c074eecbbc2b969f981656543c3c",
+      "edits": [
+        {
+          "start": 57,
+          "end": 57,
+          "old": "> | Stable identity | Correlation to OpenPipeStress canonical IDs shall use DEL-17-02/DEL-17-04 manifest and sidecar ID-map evidence where possible; direct CSV identity coverage remains `TBD`. |\n",
+          "new": "> | Stable identity | Correlation to SWBPIPE canonical IDs shall use DEL-17-02/DEL-17-04 manifest and sidecar ID-map evidence where possible; direct CSV identity coverage remains `TBD`. |\n",
+          "keys": [
+            "DEL-17-05:SOW#CLM-004.r07",
+            "DEL-17-05:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 3156,
+          "old_end_offset": 3351,
+          "old_sha256": "8622a6492824524dbcf6eba7803575fc5c1ae225409107c8978bdde21d9ee210",
+          "new_sha256": "d019134e60bafbd19a439bfe89e6e37e76f586a7ddbfebe9046d56f342760abb",
+          "new_start_offset": 3156,
+          "new_end_offset": 3344
+        },
+        {
+          "start": 199,
+          "end": 199,
+          "old": "> | Official CAEPIPE public documentation | Evidence supports MBF import/export, CSV output surfaces, and batch/command-line CSV production, but does not close parser-section coverage or OpenPipeStress compatibility. |\n",
+          "new": "> | Official CAEPIPE public documentation | Evidence supports MBF import/export, CSV output surfaces, and batch/command-line CSV production, but does not close parser-section coverage or SWBPIPE compatibility. |\n",
+          "keys": [
+            "DEL-17-05:SOW#CLM-015.r06",
+            "DEL-17-05:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 16153,
+          "old_end_offset": 16372,
+          "old_sha256": "1ad46124bc97ba7fb18841ca1bdffead481cb64b249204424aedf77cb58b0f70",
+          "new_sha256": "87fd5804a1887e6666271a1284a0a3639d77955229ec93baea334885e93117a1",
+          "new_start_offset": 16146,
+          "new_end_offset": 16358
+        },
+        {
+          "start": 483,
+          "end": 483,
+          "old": "> The export-data documentation supports CSV/text output surfaces for model and result data. It does not, by itself, define which CSV sections are stable enough for automated parser coverage in the first OpenPipeStress harness. Parser coverage should be explicit, small, and test-backed.\n",
+          "new": "> The export-data documentation supports CSV/text output surfaces for model and result data. It does not, by itself, define which CSV sections are stable enough for automated parser coverage in the first SWBPIPE harness. Parser coverage should be explicit, small, and test-backed.\n",
+          "keys": [
+            "DEL-17-05:SOW#CLM-037",
+            "DEL-17-05:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 32290,
+          "old_end_offset": 32578,
+          "old_sha256": "674e0d1adc7f54f4227ffca84882e830140152ef83016c550399474198efe23d",
+          "new_sha256": "2d68a93213c88cda1036590134fe0693cef8759a9e0f8204b05f5c97ae74e879",
+          "new_start_offset": 32276,
+          "new_end_offset": 32557
+        },
+        {
+          "start": 518,
+          "end": 518,
+          "old": "> - A claim that OpenPipeStress is CAEPIPE-compatible because a CSV file was produced.\n",
+          "new": "> - A claim that SWBPIPE is CAEPIPE-compatible because a CSV file was produced.\n",
+          "keys": [
+            "DEL-17-05:SOW#CLM-039",
+            "DEL-17-05:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 35120,
+          "old_end_offset": 35207,
+          "old_sha256": "cf84a5d0e3cdb40949a715a6e335866518e916da164dd554fac424a37062eb17",
+          "new_sha256": "0dc2810a2e0c91036be7ceb8193b000b8a7b2d305aa122223e13db9f29076c5c",
+          "new_start_offset": 35099,
+          "new_end_offset": 35179
+        },
+        {
+          "start": 529,
+          "end": 529,
+          "old": "> | DEL-17-05-CONF-001 | Public CAEPIPE pages describe related MBF-to-CSV execution patterns, but the exact first OpenPipeStress invocation profile is not selected. | `CAEPIPE-IMPORT-MBF`, command-line operation, lines 15-20. | `CAEPIPE-BATCH`, batch-mode notes, lines 40-52. | `Specification.md` REQ-003/004; `Procedure.md` run-profile steps. | Carry invocation profile as `TBD` until support clarification or human profile decision. | TBD |\n",
+          "new": "> | DEL-17-05-CONF-001 | Public CAEPIPE pages describe related MBF-to-CSV execution patterns, but the exact first SWBPIPE invocation profile is not selected. | `CAEPIPE-IMPORT-MBF`, command-line operation, lines 15-20. | `CAEPIPE-BATCH`, batch-mode notes, lines 40-52. | `Specification.md` REQ-003/004; `Procedure.md` run-profile steps. | Carry invocation profile as `TBD` until support clarification or human profile decision. | TBD |\n",
+          "keys": [
+            "DEL-17-05:SOW#CLM-040/DEL-17-05-CONF-001",
+            "DEL-17-05:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 35682,
+          "old_end_offset": 36125,
+          "old_sha256": "967c0c5b91f0c775551562a202f7c98d4f6e972391079311cfea5f07846f9c7e",
+          "new_sha256": "5bbe9563f961706ac3db5c755b3306310eaaf3af6b7f1314428c739feb9a2ca6",
+          "new_start_offset": 35654,
+          "new_end_offset": 36090
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/ScopeOfWork.md",
+      "before_sha256": "c49c12790547c657b8c982c9de7a81c6bce270b9560577224307d134b6da2ada",
+      "after_sha256": "e1f141cd8d938c9a9b07ea7b298dadb72aeaa2ff40716b8df4264753e139463a",
+      "edits": [
+        {
+          "start": 88,
+          "end": 88,
+          "old": "> | ID map | Maps canonical OpenPipeStress IDs to package rows, JSON objects, or sidecars. | Exact layout `TBD`; consume DEL-17-02 rules. |\n",
+          "new": "> | ID map | Maps canonical SWBPIPE IDs to package rows, JSON objects, or sidecars. | Exact layout `TBD`; consume DEL-17-02 rules. |\n",
+          "keys": [
+            "DEL-17-06:SOW#CLM-006.r10",
+            "DEL-17-06:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 6192,
+          "old_end_offset": 6332,
+          "old_sha256": "9df7bc774bbfc9c64984ba9b73dc43f1448ea8dec5bc46d2da75c4313282ae63",
+          "new_sha256": "e75757786e36eddc076bcee0b908d7cf877d56b4aaf0d0bcfcd2751134a3e7d7",
+          "new_start_offset": 6192,
+          "new_end_offset": 6325
+        },
+        {
+          "start": 156,
+          "end": 156,
+          "old": "> | DEL-17-06-REQ-003 | The package shall preserve canonical OpenPipeStress identity through direct row/object fields or sidecar ID-map records. Exact field names are `TBD`. | `DEL-17-02/Specification.md` stable ID map requirements |\n",
+          "new": "> | DEL-17-06-REQ-003 | The package shall preserve canonical SWBPIPE identity through direct row/object fields or sidecar ID-map records. Exact field names are `TBD`. | `DEL-17-02/Specification.md` stable ID map requirements |\n",
+          "keys": [
+            "DEL-17-06:SOW#CLM-013/DEL-17-06-REQ-003",
+            "DEL-17-06:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 11613,
+          "old_end_offset": 11847,
+          "old_sha256": "ec55d49455882574816b5c2faab83432a30ff789ad3e1635ae4943e7f50bef17",
+          "new_sha256": "7c659bdee13fb08bbbafbbd11ac057d5971a1cef9e891460fd4244c76a4c2d77",
+          "new_start_offset": 11606,
+          "new_end_offset": 11833
+        },
+        {
+          "start": 175,
+          "end": 175,
+          "old": "> | OpenPipeStress result export envelope | Governs result identity, model/run references, unit-aware values, diagnostics, provenance, reproducibility refs, statuses, rule-pack refs, and downstream-use declarations. | Source-grounded contract basis; additional CSV/JSON package layout remains `TBD`. |\n",
+          "new": "> | SWBPIPE result export envelope | Governs result identity, model/run references, unit-aware values, diagnostics, provenance, reproducibility refs, statuses, rule-pack refs, and downstream-use declarations. | Source-grounded contract basis; additional CSV/JSON package layout remains `TBD`. |\n",
+          "keys": [
+            "DEL-17-06:SOW#CLM-014.r03",
+            "DEL-17-06:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 14788,
+          "old_end_offset": 15090,
+          "old_sha256": "aa5c72c9f6a3ae49fecb3972a6a4a4d7023f91c37ba26e33039ae52535067ed7",
+          "new_sha256": "9ea1908daeaa34d11b089f8a78be5f4759f87c200a478816a8fb3d9672ad53d1",
+          "new_start_offset": 14774,
+          "new_end_offset": 15069
+        },
+        {
+          "start": 405,
+          "end": 405,
+          "old": "> The package should describe stress-model and result concepts in OpenPipeStress terms, then preserve enough identity, units, diagnostics, provenance, and loss reporting for consumers to understand what was exported. It should not encode target-solver hidden defaults or code-specific acceptance criteria.\n",
+          "new": "> The package should describe stress-model and result concepts in SWBPIPE terms, then preserve enough identity, units, diagnostics, provenance, and loss reporting for consumers to understand what was exported. It should not encode target-solver hidden defaults or code-specific acceptance criteria.\n",
+          "keys": [
+            "DEL-17-06:SOW#CLM-033",
+            "DEL-17-06:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 29401,
+          "old_end_offset": 29707,
+          "old_sha256": "7d636ac85c9506c933e4fe280498ead9cc8054de137848efe557a2084aacba33",
+          "new_sha256": "c11c6f7d1222d0b7f3333830222045d558d38987e72d14a715f80a23318f9c5b",
+          "new_start_offset": 29380,
+          "new_end_offset": 29679
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-07_Conservative PCF subset exporter/ScopeOfWork.md",
+      "before_sha256": "7bca88c68cbdd23edd15aba1db64f0d9a029f473c52beaf8986c6e41f136cc6f",
+      "after_sha256": "ed5130dac9b6c751bdd982e41d43e236d5a3dae04804808bf31c9ac4f4298f12",
+      "edits": [
+        {
+          "start": 89,
+          "end": 89,
+          "old": "> | PCF-to-CAEPIPE conversion can depend on translator dialog fields such as piping code, specific gravity, node numbering, size filtering, vertical axis, flange handling, and valve handling. | DEL-17-07 shall not encode those settings as hidden OpenPipeStress defaults. Any downstream CAEPIPE translation expectation remains `TBD` or delegated target-tool behavior. | `CAEPIPE-PCF`, pages 1-2 |\n",
+          "new": "> | PCF-to-CAEPIPE conversion can depend on translator dialog fields such as piping code, specific gravity, node numbering, size filtering, vertical axis, flange handling, and valve handling. | DEL-17-07 shall not encode those settings as hidden SWBPIPE defaults. Any downstream CAEPIPE translation expectation remains `TBD` or delegated target-tool behavior. | `CAEPIPE-PCF`, pages 1-2 |\n",
+          "keys": [
+            "DEL-17-07:SOW#CLM-006.r01",
+            "DEL-17-07:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 6771,
+          "old_end_offset": 7167,
+          "old_sha256": "280858094e54955402ee3a78c9ee32a3673d4e67fa7057d9197d488e711f031d",
+          "new_sha256": "277d914216e7407acc8b94f131b74105ce8bf7ae6c6865fa088bc816270ce930",
+          "new_start_offset": 6771,
+          "new_end_offset": 7160
+        },
+        {
+          "start": 181,
+          "end": 181,
+          "old": "> | DEL-17-07-REQ-020 | The PCF writer shall emit only profile-supported content from unit-aware, provenance-bearing OpenPipeStress model data. |\n",
+          "new": "> | DEL-17-07-REQ-020 | The PCF writer shall emit only profile-supported content from unit-aware, provenance-bearing SWBPIPE model data. |\n",
+          "keys": [
+            "DEL-17-07:SOW#CLM-015/DEL-17-07-REQ-020",
+            "DEL-17-07:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 14107,
+          "old_end_offset": 14253,
+          "old_sha256": "e2c1609b0fa3f89b4b228f1cddf21be03ada911888383c018e3e1b78250f835a",
+          "new_sha256": "de85c092f7f26537a56f3b7447acde72ab31c4a50584956973de06974080c1e3",
+          "new_start_offset": 14100,
+          "new_end_offset": 14239
+        },
+        {
+          "start": 184,
+          "end": 184,
+          "old": "> | DEL-17-07-REQ-023 | The writer shall preserve canonical OpenPipeStress identity through target metadata when explicitly supported or through a sidecar stable ID map when direct PCF carriage is not source-confirmed. |\n",
+          "new": "> | DEL-17-07-REQ-023 | The writer shall preserve canonical SWBPIPE identity through target metadata when explicitly supported or through a sidecar stable ID map when direct PCF carriage is not source-confirmed. |\n",
+          "keys": [
+            "DEL-17-07:SOW#CLM-015/DEL-17-07-REQ-023",
+            "DEL-17-07:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 14752,
+          "old_end_offset": 14973,
+          "old_sha256": "dd584dba6ef87aad8d2021af53388b90933cb136a808d19b04e1d83b20961bb6",
+          "new_sha256": "25123d2e20a3bfb112a5602e7d42a138ac0f29154b01b157ee2b52b626886a86",
+          "new_start_offset": 14738,
+          "new_end_offset": 14952
+        },
+        {
+          "start": 185,
+          "end": 185,
+          "old": "> | DEL-17-07-REQ-024 | The writer shall record target-generated identity separately from canonical OpenPipeStress identity. |\n",
+          "new": "> | DEL-17-07-REQ-024 | The writer shall record target-generated identity separately from canonical SWBPIPE identity. |\n",
+          "keys": [
+            "DEL-17-07:SOW#CLM-015/DEL-17-07-REQ-024",
+            "DEL-17-07:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 14973,
+          "old_end_offset": 15100,
+          "old_sha256": "43710a6ab7048ae30b4f35bb51f798feb079f305203d666cfd006865e47d3abc",
+          "new_sha256": "e1780ba89eb1e51fa68e2fd6d998ec786c8910dfa858f35be66f1a7c7c76565e",
+          "new_start_offset": 14952,
+          "new_end_offset": 15072
+        },
+        {
+          "start": 218,
+          "end": 218,
+          "old": "> | Public CAEPIPE PCF translator documentation (`CAEPIPE-PCF`) | Accessible source for translator behavior, defaults, and mappings; not authority for OpenPipeStress completeness or compatibility claims. |\n",
+          "new": "> | Public CAEPIPE PCF translator documentation (`CAEPIPE-PCF`) | Accessible source for translator behavior, defaults, and mappings; not authority for SWBPIPE completeness or compatibility claims. |\n",
+          "keys": [
+            "DEL-17-07:SOW#CLM-018.r01",
+            "DEL-17-07:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 16911,
+          "old_end_offset": 17117,
+          "old_sha256": "7609b874f4aa4425c269f23ea74ea5ed3a30fdbeb60ca15ef0a2874f999211d3",
+          "new_sha256": "465e7595c70473ba8a78c2d55416b9cfdf1749a810c14abe56d32fbe61542235",
+          "new_start_offset": 16883,
+          "new_end_offset": 17082
+        },
+        {
+          "start": 370,
+          "end": 370,
+          "old": "> | Invented line IDs and component IDs | Artificial IDs traceable to canonical OpenPipeStress IDs |\n",
+          "new": "> | Invented line IDs and component IDs | Artificial IDs traceable to canonical SWBPIPE IDs |\n",
+          "keys": [
+            "DEL-17-07:SOW#CLM-031.r04",
+            "DEL-17-07:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 27220,
+          "old_end_offset": 27321,
+          "old_sha256": "80a46f34ea2f24517a0539a98f44a98d88b4d6c5a45373e0ce218399d0048bfe",
+          "new_sha256": "7e818a48fe0ebf52ec5a81d61f1548301f818c655bfb9be4c6aba7579f74ce12",
+          "new_start_offset": 27185,
+          "new_end_offset": 27279
+        },
+        {
+          "start": 457,
+          "end": 457,
+          "old": "> The CAEPIPE PCF translator source documents default or external behaviors for areas such as units, load data, fluid specific gravity, weight, OD/wall thickness, support mapping, material mapping, boundary conditions, and component simulation. Those are target-path facts, not OpenPipeStress exporter defaults.\n",
+          "new": "> The CAEPIPE PCF translator source documents default or external behaviors for areas such as units, load data, fluid specific gravity, weight, OD/wall thickness, support mapping, material mapping, boundary conditions, and component simulation. Those are target-path facts, not SWBPIPE exporter defaults.\n",
+          "keys": [
+            "DEL-17-07:SOW#CLM-039",
+            "DEL-17-07:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 31607,
+          "old_end_offset": 31919,
+          "old_sha256": "850dffa601590701565ebd7e51c67536ada6a9f2be2fd665668129b659a604ed",
+          "new_sha256": "fd3ecdd59a34792080359c80b5dc3884984b401ccda1cf0adae9dc612f3de215",
+          "new_start_offset": 31565,
+          "new_end_offset": 31870
+        },
+        {
+          "start": 461,
+          "end": 461,
+          "old": "> - if OpenPipeStress has explicit source data and the PCF profile can carry it, export it;\n",
+          "new": "> - if SWBPIPE has explicit source data and the PCF profile can carry it, export it;\n",
+          "keys": [
+            "DEL-17-07:SOW#CLM-039",
+            "DEL-17-07:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 31991,
+          "old_end_offset": 32083,
+          "old_sha256": "2067ac384a8daaded9360d3cc902294b5d094d5090ca1a8d63c1691a330e4132",
+          "new_sha256": "b73722fd95737261665c8349f6e7a40b4bbf3f66dced71d420da024f303d812d",
+          "new_start_offset": 31942,
+          "new_end_offset": 32027
+        },
+        {
+          "start": 485,
+          "end": 485,
+          "old": "> | Delegated | The downstream translator or user-owned mapping database may decide the final support type or properties, and OpenPipeStress can identify that delegation without treating it as local support preservation. |\n",
+          "new": "> | Delegated | The downstream translator or user-owned mapping database may decide the final support type or properties, and SWBPIPE can identify that delegation without treating it as local support preservation. |\n",
+          "keys": [
+            "DEL-17-07:SOW#CLM-041.r02",
+            "DEL-17-07:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 33669,
+          "old_end_offset": 33892,
+          "old_sha256": "a8d97108203fb68aa28291dec4e30e12e4f5f20459603b2c49024390dfcb4964",
+          "new_sha256": "0fe2bbfbbb0fd09e97f6b9a255bf4820aa73d9d19eac5a107ba1559b086a72b1",
+          "new_start_offset": 33613,
+          "new_end_offset": 33829
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-08_GLB glTF review geometry export/ScopeOfWork.md",
+      "before_sha256": "2e987018f3c99295cc66f2c707a7909d9aea61ceb4d84ff9ccbe8ece080746b9",
+      "after_sha256": "330f543454d7cab6f7250cc709fb0b18b0a70cf31423c60175877f2548793a44",
+      "edits": [
+        {
+          "start": 58,
+          "end": 58,
+          "old": "> | Stable identity basis | Canonical OpenPipeStress IDs must be preserved directly through target metadata where supported or through a manifest-referenced sidecar | DEL-17-02 stable ID map requirements |\n",
+          "new": "> | Stable identity basis | Canonical SWBPIPE IDs must be preserved directly through target metadata where supported or through a manifest-referenced sidecar | DEL-17-02 stable ID map requirements |\n",
+          "keys": [
+            "DEL-17-08:SOW#CLM-004.r08",
+            "DEL-17-08:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 3226,
+          "old_end_offset": 3432,
+          "old_sha256": "a6b6e5f412cf47668633d554c1e63ec0f53f7dc0fc2a76354e069e910332108e",
+          "new_sha256": "9608001fa7e616704904086b80a1ce07b6922ddb29e227081cbb5953c3a9f51a",
+          "new_start_offset": 3226,
+          "new_end_offset": 3425
+        },
+        {
+          "start": 184,
+          "end": 184,
+          "old": "> | DEL-17-08-REQ-023 | The ID map shall distinguish canonical OpenPipeStress IDs from glTF node indices, mesh indices, primitive indices, generated display names, and sidecar row IDs. |\n",
+          "new": "> | DEL-17-08-REQ-023 | The ID map shall distinguish canonical SWBPIPE IDs from glTF node indices, mesh indices, primitive indices, generated display names, and sidecar row IDs. |\n",
+          "keys": [
+            "DEL-17-08:SOW#CLM-015/DEL-17-08-REQ-023",
+            "DEL-17-08:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 12713,
+          "old_end_offset": 12900,
+          "old_sha256": "d47e949b9c056308df4f80b5526323667fd81711d2b5bd9d503ad999c26152cc",
+          "new_sha256": "c15a93d44d1470c035793a6ef9913ba2aa311ef25648c139003f5b996d160436",
+          "new_start_offset": 12706,
+          "new_end_offset": 12886
+        },
+        {
+          "start": 221,
+          "end": 221,
+          "old": "> | OpenPipeStress CONTRACT | Binding project invariants for IP/data boundary, no hidden defaults, no professional authority claims, and sealed TASK execution | Governance source, not legal or professional advice |\n",
+          "new": "> | SWBPIPE CONTRACT | Binding project invariants for IP/data boundary, no hidden defaults, no professional authority claims, and sealed TASK execution | Governance source, not legal or professional advice |\n",
+          "keys": [
+            "DEL-17-08:SOW#CLM-018.r02",
+            "DEL-17-08:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 15618,
+          "old_end_offset": 15833,
+          "old_sha256": "44e303a30f3675c5e491755adaa5fa34b90356c89d0fd526af8b321e1215f601",
+          "new_sha256": "ef1110821691096aa0a82b1a68ae44a992ef24eb5d6403c5b71ea07dd03015c2",
+          "new_start_offset": 15604,
+          "new_end_offset": 15812
+        },
+        {
+          "start": 419,
+          "end": 419,
+          "old": "> Use DEL-17-08 as a narrow JSON glTF visual-review export surface. The selected profile lets a user inspect centerline shape and correlate emitted objects back to OpenPipeStress canonical IDs through direct `extras` plus an authoritative sidecar. It is not binary GLB, a solver model, an analysis result, a compatibility claim, engineering validation, or professional acceptance evidence.\n",
+          "new": "> Use DEL-17-08 as a narrow JSON glTF visual-review export surface. The selected profile lets a user inspect centerline shape and correlate emitted objects back to SWBPIPE canonical IDs through direct `extras` plus an authoritative sidecar. It is not binary GLB, a solver model, an analysis result, a compatibility claim, engineering validation, or professional acceptance evidence.\n",
+          "keys": [
+            "DEL-17-08:SOW#CLM-035",
+            "DEL-17-08:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 29319,
+          "old_end_offset": 29709,
+          "old_sha256": "1417ea8c64cbc7a1a2f33e0b0087e987062a50ba83c6fba1257aa0715edc23b0",
+          "new_sha256": "159287fd525d4265fb96e70a2a3bd43c76b125a33470db63cda7443b6589203c",
+          "new_start_offset": 29298,
+          "new_end_offset": 29681
+        },
+        {
+          "start": 440,
+          "end": 440,
+          "old": "> The review artifact is only useful to OpenPipeStress workflows if visible objects can be traced back to the canonical model. Prefer stable canonical IDs over display-order assumptions. Use direct metadata only where the profile says it is reliable enough; otherwise pair the geometry artifact with a sidecar ID map and reference it from the manifest.\n",
+          "new": "> The review artifact is only useful to SWBPIPE workflows if visible objects can be traced back to the canonical model. Prefer stable canonical IDs over display-order assumptions. Use direct metadata only where the profile says it is reliable enough; otherwise pair the geometry artifact with a sidecar ID map and reference it from the manifest.\n",
+          "keys": [
+            "DEL-17-08:SOW#CLM-038",
+            "DEL-17-08:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 30593,
+          "old_end_offset": 30946,
+          "old_sha256": "b684335fdf53e19a5e9281ad2f46361830a1b24add43f5523bcb0585390729cf",
+          "new_sha256": "8957aeeda008495af1c18c01696ad02b497df42ea72b6317ef5009ac7ea612bc",
+          "new_start_offset": 30565,
+          "new_end_offset": 30911
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-09_Export adapter SDK and additional targets/ScopeOfWork.md",
+      "before_sha256": "98468a230257a7ff4a8006f030a2ccbfc24d90193842197d83f258e71de4454f",
+      "after_sha256": "69a39fec3614f56e0757d4ba414f18195a7633edabab0377c782b41cc4d208e2",
+      "edits": [
+        {
+          "start": 148,
+          "end": 148,
+          "old": "> | DEL-17-09-REQ-005 | Adapter targets shall preserve canonical identity directly or through sidecar mapping when target artifacts cannot carry OpenPipeStress IDs. | SourcePath: `DEL-17-02/Specification.md`; SectionRef: Stable ID Map Requirements. |\n",
+          "new": "> | DEL-17-09-REQ-005 | Adapter targets shall preserve canonical identity directly or through sidecar mapping when target artifacts cannot carry SWBPIPE IDs. | SourcePath: `DEL-17-02/Specification.md`; SectionRef: Stable ID Map Requirements. |\n",
+          "keys": [
+            "DEL-17-09:SOW#CLM-013/DEL-17-09-REQ-005",
+            "DEL-17-09:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 12437,
+          "old_end_offset": 12688,
+          "old_sha256": "b88e4a5cd0cf725de8d5b3c1f586594cd77715b89af3e2569e53937f57f47213",
+          "new_sha256": "079de6847eded5962902015e9874eca5e26e0ed04632f45c0b89c2b74b70d64c",
+          "new_start_offset": 12437,
+          "new_end_offset": 12681
+        },
+        {
+          "start": 322,
+          "end": 322,
+          "old": "> 3. Confirm target options are treated as pass-through configuration and not as OpenPipeStress code-checking logic.\n",
+          "new": "> 3. Confirm target options are treated as pass-through configuration and not as SWBPIPE code-checking logic.\n",
+          "keys": [
+            "DEL-17-09:SOW#CLM-028",
+            "DEL-17-09:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 26230,
+          "old_end_offset": 26347,
+          "old_sha256": "da33427b4d0f4cb64c4cf907198cbeac08721cb63d35219611e09583fe4cdd36",
+          "new_sha256": "906855355f07f865103bb4d86204835435d6e2b197b31e13f2698ca2bcb9fada",
+          "new_start_offset": 26223,
+          "new_end_offset": 26333
+        },
+        {
+          "start": 502,
+          "end": 502,
+          "old": "> | Target-specific options vs. local code-checking | Pass-through target options may be recorded as target configuration, but shall not become OpenPipeStress code-checking logic. |\n",
+          "new": "> | Target-specific options vs. local code-checking | Pass-through target options may be recorded as target configuration, but shall not become SWBPIPE code-checking logic. |\n",
+          "keys": [
+            "DEL-17-09:SOW#CLM-044.r05",
+            "DEL-17-09:SOW"
+          ],
+          "classes": [
+            "A4"
+          ],
+          "posture": "b",
+          "reason": "Previously authorized current product-prose rename; all inline code, URLs, explicit history and actual identifiers preserved.",
+          "old_start_offset": 39614,
+          "old_end_offset": 39796,
+          "old_sha256": "404d88977827c6601c897c0e8eac8d9165795517379e296a3e1dfa825d868b16",
+          "new_sha256": "358b2dde7ca93a21136488cfc06f797003ba0e2b2da89d9ee9be2c25f9e5efda",
+          "new_start_offset": 39600,
+          "new_end_offset": 39775
+        }
+      ]
+    }
+  ]
+}

@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-08-06
 package_id: PKG-08
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@eaad463c0d481f6f1654e6adb5ee718f566176e9
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-024]
 package_objective_refs: [OBJ-007, OBJ-016, OBJ-017, OBJ-018]
 ---
 
 # Scope of Work — DEL-08-06
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -22,17 +24,6 @@ This Scope of Work defines `DEL-08-06` in service of project scope [SOW-024] and
 > #### Datasheet: DEL-08-06 State, comparison, and handoff report sections
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-002 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-08-06-DECL-002`.
->
 
 ### CLM-003 — Identification
 
@@ -131,17 +122,6 @@ This Scope of Work defines `DEL-08-06` in service of project scope [SOW-024] and
 > #### Specification: DEL-08-06 State, comparison, and handoff report sections
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-010 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-08-06-DECL-001`.
->
 
 ### CLM-011 — Scope
 
@@ -242,17 +222,6 @@ This Scope of Work defines `DEL-08-06` in service of project scope [SOW-024] and
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-018 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-08-06-DECL-004`.
->
-
 ### CLM-019 — Purpose
 
 > ##### Purpose
@@ -313,7 +282,7 @@ This Scope of Work defines `DEL-08-06` in service of project scope [SOW-024] and
 
 > ##### Records
 >
-> - `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` for setup context.
+> - `ScopeOfWork.md` for setup context.
 > - `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` for semantic lensing, not engineering authority.
 > - `Dependencies.csv` and `_DEPENDENCIES.md` as the approved DAG-006 local mirror/evidence surface.
 > - Future implementation tests and review notes for section assembly, protected-content avoidance, professional-boundary wording, provenance/checksum preservation, deterministic output, and missing-data findings.
@@ -343,17 +312,6 @@ This Scope of Work defines `DEL-08-06` in service of project scope [SOW-024] and
 > #### Guidance: DEL-08-06 State, comparison, and handoff report sections
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-026 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-08-06-DECL-003`.
->
 
 ### CLM-027 — Purpose
 

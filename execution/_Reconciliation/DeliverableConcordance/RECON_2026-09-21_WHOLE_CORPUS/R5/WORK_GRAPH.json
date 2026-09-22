@@ -1,0 +1,71 @@
+{
+  "kind": "run-specific work graph",
+  "authority": "D-73_EXECUTION_ADDENDUM_2026-09-22",
+  "owner": "/root HELP_HUMAN Agent0",
+  "manager": "/root/piping_manager WORKING_ITEMS",
+  "selection": "Current human brief and C9 owner-steered graph; Remaining is a residual record",
+  "nodes": [
+    {
+      "id": "P0",
+      "work": "prospective Rev2 posture and all29 packet dispositions",
+      "state": "complete",
+      "evidence": "R5/RUN_RIDER.md; R5/TASKS/PACKET_ANALYSIS.md"
+    },
+    {
+      "id": "P1",
+      "work": "initial authorized carrier repairs",
+      "state": "independent_review_passed_first_freeze",
+      "evidence": "R5/TASKS/REPAIR_DESIGN/RETURN.md"
+    },
+    {
+      "id": "P2",
+      "work": "Remaining/history/date repairs",
+      "state": "independent_review_passed_first_freeze",
+      "evidence": "R5/TASKS/STATUS_REPAIR/RETURN.md"
+    },
+    {
+      "id": "P3",
+      "work": "30 DAG010 Status mirror corrections",
+      "state": "independent_review_passed_first_freeze",
+      "evidence": "R5/DEPENDENCY_MIRROR_REPAIRS.json"
+    },
+    {
+      "id": "P4",
+      "work": "required schema pins and snapshot-only T5B-C03 supplement",
+      "state": "complete_pending_delta_review",
+      "depends_on": [
+        "P1"
+      ],
+      "evidence": "R5/TASKS/REPAIR_DESIGN/STAGE4/RETURN.md"
+    },
+    {
+      "id": "P5",
+      "work": "final source-bound R6 extraction/accounting/census/lessons",
+      "state": "complete_pending_integration_review",
+      "depends_on": [
+        "P1",
+        "P2",
+        "P3",
+        "P4"
+      ],
+      "evidence": "BACKCHECK/R6_2026-09-22/BACKCHECK.md"
+    },
+    {
+      "id": "P6",
+      "work": "fresh independent final review and registered Git checks",
+      "state": "root_owned",
+      "depends_on": [
+        "P5"
+      ]
+    },
+    {
+      "id": "P7",
+      "work": "bounded source integration and final handoff",
+      "state": "root_owned",
+      "depends_on": [
+        "P6"
+      ]
+    }
+  ],
+  "unactivated": "Product fixes, scope/DAG rebuild, engineering/validation acceptance, lifecycle, release and ISSUED changes remain routed residuals, not selected by this graph."
+}

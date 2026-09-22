@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-17-07
 package_id: PKG-17
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@e8f59a63372f38d9e788ac39b39995558f5aba73
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-030, SOW-074]
 package_objective_refs: [OBJ-009, OBJ-017, OBJ-018]
 ---
 
 # Scope of Work — DEL-17-07
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -22,17 +24,6 @@ This Scope of Work defines `DEL-17-07` in service of project scope [SOW-030, SOW
 > #### Datasheet: DEL-17-07 Conservative PCF subset exporter
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-002 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-17-07-DECL-002`.
->
 
 ### CLM-003 — Identification
 
@@ -95,7 +86,7 @@ This Scope of Work defines `DEL-17-07` in service of project scope [SOW-030, SOW
 >
 > | Condition | PCF exporter implication | Source |
 > |---|---|---|
-> | PCF-to-CAEPIPE conversion can depend on translator dialog fields such as piping code, specific gravity, node numbering, size filtering, vertical axis, flange handling, and valve handling. | DEL-17-07 shall not encode those settings as hidden OpenPipeStress defaults. Any downstream CAEPIPE translation expectation remains `TBD` or delegated target-tool behavior. | `CAEPIPE-PCF`, pages 1-2 |
+> | PCF-to-CAEPIPE conversion can depend on translator dialog fields such as piping code, specific gravity, node numbering, size filtering, vertical axis, flange handling, and valve handling. | DEL-17-07 shall not encode those settings as hidden SWBPIPE defaults. Any downstream CAEPIPE translation expectation remains `TBD` or delegated target-tool behavior. | `CAEPIPE-PCF`, pages 1-2 |
 > | Unit interpretation depends on PCF `UNITS-BORE`. | The profile shall declare PCF unit policy and shall produce diagnostics when source units cannot be represented explicitly. | `CAEPIPE-PCF`, Reference/Units |
 > | Temperature, pressure, fluid density, weights, OD, wall thickness, support type, and material mapping have translator-specific fallback behavior. | Missing values and fallback sources shall be reported rather than silently supplied by the exporter. | `CAEPIPE-PCF`, Reference sections |
 > | Free ends may be anchored by CAEPIPE translator behavior because PCF lacks certain connection details. | End-connection and boundary-condition semantics shall be marked explicit, unsupported, delegated, or `TBD`; no solver-ready restraint claim is allowed from PCF alone. | `CAEPIPE-PCF`, Boundary Conditions |
@@ -140,17 +131,6 @@ This Scope of Work defines `DEL-17-07` in service of project scope [SOW-030, SOW
 > #### Specification: DEL-17-07 Conservative PCF subset exporter
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-010 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-17-07-DECL-001`.
->
 
 ### CLM-011 — Scope
 
@@ -198,11 +178,11 @@ This Scope of Work defines `DEL-17-07` in service of project scope [SOW-030, SOW
 >
 > | Req ID | Requirement |
 > |---|---|
-> | DEL-17-07-REQ-020 | The PCF writer shall emit only profile-supported content from unit-aware, provenance-bearing OpenPipeStress model data. |
+> | DEL-17-07-REQ-020 | The PCF writer shall emit only profile-supported content from unit-aware, provenance-bearing SWBPIPE model data. |
 > | DEL-17-07-REQ-021 | The writer shall produce diagnostics for missing or ambiguous units, coordinates, nominal size, OD, wall thickness, material/spec labels, component identity, end-connection data, and support/restraint semantics when those fields affect the selected profile. |
 > | DEL-17-07-REQ-022 | The writer shall not invent pressure, temperature, fluid density, component weight, OD, wall thickness, material properties, support type, equipment connection, or boundary-condition data. |
-> | DEL-17-07-REQ-023 | The writer shall preserve canonical OpenPipeStress identity through target metadata when explicitly supported or through a sidecar stable ID map when direct PCF carriage is not source-confirmed. |
-> | DEL-17-07-REQ-024 | The writer shall record target-generated identity separately from canonical OpenPipeStress identity. |
+> | DEL-17-07-REQ-023 | The writer shall preserve canonical SWBPIPE identity through target metadata when explicitly supported or through a sidecar stable ID map when direct PCF carriage is not source-confirmed. |
+> | DEL-17-07-REQ-024 | The writer shall record target-generated identity separately from canonical SWBPIPE identity. |
 >
 
 ### CLM-016 — Unsupported and Loss-Report Requirements
@@ -235,7 +215,7 @@ This Scope of Work defines `DEL-17-07` in service of project scope [SOW-030, SOW
 >
 > | Source | Status in this phase |
 > |---|---|
-> | Public CAEPIPE PCF translator documentation (`CAEPIPE-PCF`) | Accessible source for translator behavior, defaults, and mappings; not authority for OpenPipeStress completeness or compatibility claims. |
+> | Public CAEPIPE PCF translator documentation (`CAEPIPE-PCF`) | Accessible source for translator behavior, defaults, and mappings; not authority for SWBPIPE completeness or compatibility claims. |
 > | DEL-17-01 source basis | Governing project source-basis authority for downstream PCF claims. |
 > | DEL-17-02 export contract | Governing project contract for profile, manifest, ID map, and loss reporting. |
 > | PCF format specification | `TBD`; no redistributed proprietary specification text is admitted in this phase. |
@@ -300,17 +280,6 @@ This Scope of Work defines `DEL-17-07` in service of project scope [SOW-030, SOW
 > #### Procedure: DEL-17-07 Conservative PCF subset exporter
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-023 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-17-07-DECL-004`.
->
 
 ### CLM-024 — Purpose
 
@@ -398,7 +367,7 @@ This Scope of Work defines `DEL-17-07` in service of project scope [SOW-030, SOW
 > | Fixture ID | Stable invented fixture identifier |
 > | Fixture purpose | Positive or negative case covered by the PCF profile |
 > | Invented model name | Artificial name with no client/vendor/project source |
-> | Invented line IDs and component IDs | Artificial IDs traceable to canonical OpenPipeStress IDs |
+> | Invented line IDs and component IDs | Artificial IDs traceable to canonical SWBPIPE IDs |
 > | Coordinates and unit-bearing values | Explicit units, dimensions, and provenance note that values are invented |
 > | Entity classes covered | Candidate PCF component/support/attribute classes exercised |
 > | Redistribution status | `public_permissive`, `private_only`, `unknown`, or `protected_suspected` as applicable |
@@ -426,7 +395,7 @@ This Scope of Work defines `DEL-17-07` in service of project scope [SOW-030, SOW
 >
 > For this Phase A documentation pass, verification consists of:
 >
-> - confirming the four-document kit exists;
+> - confirming the `ScopeOfWork.md` exists;
 > - checking the default section headings required by the four-documents skill;
 > - checking that source-grounding gaps remain `TBD`, assumptions, or conflict-table entries;
 > - checking that no implementation code, schema files, protected standards data, proprietary examples, or professional/release/compatibility claims were introduced.
@@ -485,11 +454,11 @@ This Scope of Work defines `DEL-17-07` in service of project scope [SOW-030, SOW
 
 > ###### Make defaults explicit
 >
-> The CAEPIPE PCF translator source documents default or external behaviors for areas such as units, load data, fluid specific gravity, weight, OD/wall thickness, support mapping, material mapping, boundary conditions, and component simulation. Those are target-path facts, not OpenPipeStress exporter defaults.
+> The CAEPIPE PCF translator source documents default or external behaviors for areas such as units, load data, fluid specific gravity, weight, OD/wall thickness, support mapping, material mapping, boundary conditions, and component simulation. Those are target-path facts, not SWBPIPE exporter defaults.
 >
 > For this deliverable, a hidden default is a reportable condition:
 >
-> - if OpenPipeStress has explicit source data and the PCF profile can carry it, export it;
+> - if SWBPIPE has explicit source data and the PCF profile can carry it, export it;
 > - if the target path may infer it from translator configuration, record delegated behavior;
 > - if the behavior affects solver-ready interpretation and is not source-confirmed, block or mark `TBD`;
 > - if a component is represented by a target-side approximation, record the approximation and affected canonical IDs.
@@ -513,7 +482,7 @@ This Scope of Work defines `DEL-17-07` in service of project scope [SOW-030, SOW
 > | Outcome | Use when |
 > |---|---|
 > | Reliably preserved | The selected profile has source-confirmed PCF attributes, mapping rules, units, coordinates, support type, stiffness/gap/friction semantics where applicable, and stable ID traceability for the supported support/restraint class. |
-> | Delegated | The downstream translator or user-owned mapping database may decide the final support type or properties, and OpenPipeStress can identify that delegation without treating it as local support preservation. |
+> | Delegated | The downstream translator or user-owned mapping database may decide the final support type or properties, and SWBPIPE can identify that delegation without treating it as local support preservation. |
 > | `TBD` | Public/project-owned evidence does not yet resolve whether the selected profile can preserve the support/restraint class. |
 > | Unsupported | The selected profile cannot carry the required semantics or the project intentionally excludes the class from the conservative subset. |
 > | Blocked | Loss of support/restraint meaning would make the exported package misleading for solver-ready or compatibility-sensitive use. |

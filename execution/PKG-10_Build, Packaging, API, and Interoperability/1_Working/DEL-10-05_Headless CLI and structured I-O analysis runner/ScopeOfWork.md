@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-10-05
 package_id: PKG-10
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@4d153302c3c4cd42578936db160c2bac1270225a
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-054, SOW-032]
 package_objective_refs: [OBJ-008, OBJ-009, OBJ-012]
 ---
 
 # Scope of Work — DEL-10-05
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -105,17 +107,6 @@ This Scope of Work defines `DEL-10-05` in service of project scope [SOW-054, SOW
 > #### Specification: DEL-10-05 Headless CLI and structured I/O analysis runner
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-008 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-10-05-DECL-001`.
->
 
 ### CLM-009 — Scope
 
@@ -223,17 +214,6 @@ This Scope of Work defines `DEL-10-05` in service of project scope [SOW-054, SOW
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-016 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-10-05-DECL-004`.
->
-
 ### CLM-017 — Purpose
 
 > ##### Purpose
@@ -257,13 +237,13 @@ This Scope of Work defines `DEL-10-05` in service of project scope [SOW-054, SOW
 > ##### Steps
 >
 > 1. Read `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, `_STATUS.md`, decomposition and register rows for DEL-10-05, SOW-054, and SOW-032.
-> 2. Draft the four-document kit from accessible governance, decomposition, and register sources.
+> 2. Draft the `ScopeOfWork.md` from accessible governance, decomposition, and register sources.
 > 3. Keep exact CLI commands, schema fields, public API transport, CI provider, release matrix, and package/container details as `TBD` unless a cited source or human ruling resolves them.
 > 4. Generate `_SEMANTIC.md` from the deliverable-local perspective and production documents.
 > 5. Generate `_SEMANTIC_LENSING.md` from `_SEMANTIC.md` and the four production documents.
 > 6. Apply warranted semantic-lensing items conservatively, with source reread evidence and no new implementation particulars.
 > 7. Generate `Dependencies.csv` and `_DEPENDENCIES.md` from local source documents and the decomposition basis.
-> 8. Validate the four-document kit, dependency schema, semantic coverage, lens coverage, and status state.
+> 8. Validate the `ScopeOfWork.md`, dependency schema, semantic coverage, lens coverage, and status state.
 > 9. Record run evidence under `_run_records/`.
 >
 
@@ -273,7 +253,7 @@ This Scope of Work defines `DEL-10-05` in service of project scope [SOW-054, SOW
 >
 > Setup is acceptable for `SEMANTIC_READY` only when:
 >
-> - `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` exist.
+> - `ScopeOfWork.md` exists.
 > - `_SEMANTIC.md` is populated and has no failed final-cell semantic gate.
 > - `_SEMANTIC_LENSING.md` includes all required lens coverage rows.
 > - `Dependencies.csv` validates against v3.1 schema.
@@ -309,17 +289,6 @@ This Scope of Work defines `DEL-10-05` in service of project scope [SOW-054, SOW
 > #### Guidance: DEL-10-05 Headless CLI and structured I/O analysis runner
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-023 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-10-05-DECL-003`.
->
 
 ### CLM-024 — Purpose
 

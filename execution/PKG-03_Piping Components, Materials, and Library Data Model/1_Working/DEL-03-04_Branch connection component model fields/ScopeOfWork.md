@@ -2,7 +2,7 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-03-04
 package_id: PKG-03
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@69ac259a7113d5a838fb22aa2e84df0e0f109713
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-008]
 package_objective_refs: [OBJ-004]
 ---
@@ -326,7 +326,7 @@ This Scope of Work defines `DEL-03-04` in service of project scope [SOW-008] and
 >    Documentation maintenance must not rewrite that review disposition.
 > 7. Run relevant validation when feasible: `python3 -m pytest
 >    tests/test_component_section_schema.py` and a stale-language search scoped to
->    `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md`.
+>    `ScopeOfWork.md`.
 > 8. Do not introduce protected tables, formulas, examples, dimensional data,
 >    material allowables, or certification/compliance claims.
 >
@@ -335,7 +335,7 @@ This Scope of Work defines `DEL-03-04` in service of project scope [SOW-008] and
 
 > ##### Verification
 >
-> - Four-document kit exists and preserves Datasheet, Specification, Guidance, and Procedure sections.
+> - `ScopeOfWork.md` exists and preserves its required sections.
 > - Requirements trace to local context, decomposition/register rows, CONTRACT invariants, schema evidence, fixture evidence, and test evidence.
 > - Implemented branch schema slots are no longer described as absent or future-only.
 > - Unknown policy/source/dependency/human/lifecycle gates are still `TBD`; assumptions are labeled.

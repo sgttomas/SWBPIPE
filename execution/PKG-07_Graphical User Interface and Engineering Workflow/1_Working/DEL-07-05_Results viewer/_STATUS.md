@@ -1,11 +1,11 @@
 # Status: DEL-07-05 Results viewer
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-09-22
 
 ## Remaining
 - Implement rotational-deformation visualization for emitted `rx`/`ry`/`rz` result rows; the current graphical deformation overlay visualizes translational `ux`/`uy`/`uz` only (source: DEC-074 O1 / PDU-061)
-- Preserve ratio producer/rule-pack sufficiency as upstream responsibilities; the PDU-008 viewer now shows supplied ratio rows and an explicit unavailable state when none are present, without synthesizing criteria.
+- Preserve ratio producer/rule-pack sufficiency as upstream responsibilities and never synthesize missing criteria. The current result-semantic contract provides no eligible governing-ratio family, so the viewer reports governing ratio unavailable rather than treating a supplied unrecognized row as an eligible ratio. Evidence: `fixtures/results/semantic_contract_v0_2.json`, `apps/desktop/src/features/results/ResultsPanel.test.tsx` and `apps/desktop/src/App.test.tsx` (PR #787 result-integrity basis). A future eligible producer/semantic basis remains separately governed.
 
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
@@ -23,3 +23,4 @@
 - 2026-07-11 - Remaining seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
 - 2026-07-12 - D-41 R5 T1 / PDU-061 recorded rotational-deformation visualization as DEL-07-05's sole Remaining home under DEC-074 O1; current `rx`/`ry`/`rz` emission is preserved as evidence and no GUI implementation or lifecycle change is claimed.
 - 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).
+- 2026-09-22 - R5 concordance record repair applied under current owner direction and Agent 0's bounded brief; corrected declared-state/Remaining facts or amendment metadata against the recorded basis. Exact before/after operations and evidence are in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5/TASKS/STATUS_REPAIR/operations.json`. Lifecycle state, human/reviewer holds and release/engineering-acceptance boundaries are unchanged.

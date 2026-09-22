@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-09-03
 package_id: PKG-09
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@eaad463c0d481f6f1654e6adb5ee718f566176e9
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-026]
 package_objective_refs: [OBJ-008]
 ---
 
 # Scope of Work — DEL-09-03
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -22,17 +24,6 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 > #### Datasheet: DEL-09-03 Nonlinear support regression suite
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-002 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-09-03-DECL-002`.
->
 
 ### CLM-003 — Identification
 
@@ -106,17 +97,6 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-009 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-09-03-DECL-001`.
->
-
 ### CLM-010 — Scope
 
 > ##### Scope
@@ -163,8 +143,8 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 >
 > | Standard or governance source | Status |
 > |---|---|
-> | OpenPipeStress invariant catalog | Applicable through `docs/CONTRACT.md`. |
-> | OpenPipeStress technical specification | Applicable through `docs/SPEC.md`. |
+> | SWBPIPE invariant catalog | Applicable through `docs/CONTRACT.md`. |
+> | SWBPIPE technical specification | Applicable through `docs/SPEC.md`. |
 > | External protected design codes | Not used as public source material; any future user-private use remains outside this public setup artifact. |
 >
 
@@ -221,17 +201,6 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-017 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-09-03-DECL-004`.
->
-
 ### CLM-018 — Purpose
 
 > ##### Purpose
@@ -256,7 +225,7 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 > ##### Steps
 >
 > 1. Confirm the working folder is the DEL-09-03 deliverable folder and that writes are deliverable-local.
-> 2. Maintain the four-document kit describing scope, requirements, guidance, and future execution procedure.
+> 2. Maintain the `ScopeOfWork.md` describing scope, requirements, guidance, and future execution procedure.
 > 3. Define future case categories only at the setup level: active-set, gap, friction, lift-off, convergence, and non-convergence behavior.
 > 4. For each future case, require a source/provenance record before implementation. Mark source gaps as `TBD`.
 > 5. Do not use protected standards examples, code tables, proprietary commercial software outputs, or vendor data without documented redistribution rights.
@@ -272,7 +241,7 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 >
 > For this setup pass, verify:
 >
-> - the four-document kit exists;
+> - the `ScopeOfWork.md` exists;
 > - semantic matrix and lensing artifacts exist and are internally structured;
 > - dependency artifacts exist and use the v3.1 schema;
 > - `_STATUS.md` records `SEMANTIC_READY` only after setup artifacts are generated;
@@ -296,7 +265,7 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 >
 > Maintain these setup records in the deliverable folder:
 >
-> - four-document kit;
+> - `ScopeOfWork.md`;
 > - `_SEMANTIC.md`;
 > - `_SEMANTIC_LENSING.md`;
 > - `Dependencies.csv`;
@@ -313,17 +282,6 @@ This Scope of Work defines `DEL-09-03` in service of project scope [SOW-026] and
 > #### Guidance: DEL-09-03 Nonlinear support regression suite
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-024 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-09-03-DECL-003`.
->
 
 ### CLM-025 — Purpose
 

@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-17-08
 package_id: PKG-17
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@e8f59a63372f38d9e788ac39b39995558f5aba73
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-030, SOW-074]
 package_objective_refs: [OBJ-009, OBJ-017]
 ---
 
 # Scope of Work — DEL-17-08
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -22,17 +24,6 @@ This Scope of Work defines `DEL-17-08` in service of project scope [SOW-030, SOW
 > #### Datasheet: DEL-17-08 GLB/glTF review geometry export
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-002 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-17-08-DECL-002`.
->
 
 ### CLM-003 — Identification
 
@@ -64,7 +55,7 @@ This Scope of Work defines `DEL-17-08` in service of project scope [SOW-030, SOW
 > | Binary container | Binary `.glb` remains outside the selected bounded profile. | `DEC-074` O11/E7 |
 > | Selected JSON profile | `model.gltf` with embedded buffer data, line-mode centerline segments, direct identity `extras`, and authoritative `id_map.json`. | Current implementation; `DEC-074` O11/E7 |
 > | Coordinate and unit basis | glTF is right-handed, +Y-up, and uses meters for linear distances | GLTF-2.0 section 3.4 |
-> | Stable identity basis | Canonical OpenPipeStress IDs must be preserved directly through target metadata where supported or through a manifest-referenced sidecar | DEL-17-02 stable ID map requirements |
+> | Stable identity basis | Canonical SWBPIPE IDs must be preserved directly through target metadata where supported or through a manifest-referenced sidecar | DEL-17-02 stable ID map requirements |
 > | Loss reporting | Required even for successful review-geometry exports | DEL-17-02 loss report requirements |
 >
 
@@ -123,8 +114,8 @@ This Scope of Work defines `DEL-17-08` in service of project scope [SOW-030, SOW
 > |---|---|
 > | GLTF-2.0 | Khronos glTF 2.0 specification, `https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html` |
 > | PLAN-EXPORT-INTEROP | `plans/EXPORT_FORMAT_INTEROPERABILITY_PLAN.md` |
-> | DEL-17-01 | `DEL-17-01_CAEPIPE and export-format source basis` four-document kit and `Source_Basis_Register.md` |
-> | DEL-17-02 | `DEL-17-02_Export package, profile, and stable ID map contracts` four-document kit |
+> | DEL-17-01 | `DEL-17-01_CAEPIPE and export-format source basis` `ScopeOfWork.md` and `Source_Basis_Register.md` |
+> | DEL-17-02 | `DEL-17-02_Export package, profile, and stable ID map contracts` `ScopeOfWork.md` |
 > | CONTRACT | `docs/CONTRACT.md` |
 > | IP-DATA | `docs/IP_AND_DATA_BOUNDARY.md` |
 > | SPEC / TYPES | `docs/SPEC.md`, `docs/TYPES.md` |
@@ -139,17 +130,6 @@ This Scope of Work defines `DEL-17-08` in service of project scope [SOW-030, SOW
 > #### Specification: DEL-17-08 GLB/glTF review geometry export
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-010 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-17-08-ACC-005`, `DEL-17-08-DECL-001`, `DEL-17-08-EXC-001`, `DEL-17-08-EXC-002`.
->
 
 ### CLM-011 — Scope
 
@@ -201,7 +181,7 @@ This Scope of Work defines `DEL-17-08` in service of project scope [SOW-030, SOW
 > | DEL-17-08-REQ-020 | Within the selected centerline JSON glTF profile, every emitted entity shall round trip one-to-one between canonical identity in node/primitive `extras` and the authoritative sidecar ID map; intentionally omitted entities remain represented through the loss report. |
 > | DEL-17-08-REQ-021 | Direct glTF metadata may use `name`, `extras`, or a declared extension only when the profile records the target location and stripping/consumer-risk policy. |
 > | DEL-17-08-REQ-022 | A sidecar ID map shall be emitted when direct glTF metadata is unavailable, insufficient, not profile-approved, or not reliable for a receiving workflow. |
-> | DEL-17-08-REQ-023 | The ID map shall distinguish canonical OpenPipeStress IDs from glTF node indices, mesh indices, primitive indices, generated display names, and sidecar row IDs. |
+> | DEL-17-08-REQ-023 | The ID map shall distinguish canonical SWBPIPE IDs from glTF node indices, mesh indices, primitive indices, generated display names, and sidecar row IDs. |
 > | DEL-17-08-REQ-024 | Omitted canonical entities shall appear in the ID map or loss report with omission reason, affected canonical ID, severity, and downstream implication. |
 >
 
@@ -238,7 +218,7 @@ This Scope of Work defines `DEL-17-08` in service of project scope [SOW-030, SOW
 > | Standard or source | Use | Boundary |
 > |---|---|---|
 > | Khronos glTF 2.0 specification | Public target-format reference for asset structure, coordinate/unit convention, GLB container behavior, nodes, meshes, primitive modes, extensions, and `extras` metadata slots | Not a piping stress, solver, code-compliance, or professional-review standard |
-> | OpenPipeStress CONTRACT | Binding project invariants for IP/data boundary, no hidden defaults, no professional authority claims, and sealed TASK execution | Governance source, not legal or professional advice |
+> | SWBPIPE CONTRACT | Binding project invariants for IP/data boundary, no hidden defaults, no professional authority claims, and sealed TASK execution | Governance source, not legal or professional advice |
 > | DEL-17-02 common export contract | Required package/profile/stable-ID/loss-report basis for PKG-17 target exporters | Contract-level only in this Phase A task |
 >
 
@@ -250,7 +230,7 @@ This Scope of Work defines `DEL-17-08` in service of project scope [SOW-030, SOW
 >
 > | Check | Expected result |
 > |---|---|
-> | Four-document kit exists | `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` are present. |
+> | `ScopeOfWork.md` exists | `ScopeOfWork.md` is present. |
 > | Default section check | Each document retains its required default schema sections. |
 > | Source grounding | Claims cite GLTF-2.0, DEL-17-01, DEL-17-02, PLAN-EXPORT-INTEROP, or governance/schema sources. |
 > | Stable-ID round trip | Written `model.gltf` node/primitive identity metadata and `id_map.json` round trip to the same canonical centerline IDs; mismatches block package acceptance. |
@@ -310,17 +290,6 @@ This Scope of Work defines `DEL-17-08` in service of project scope [SOW-030, SOW
 > #### Procedure: DEL-17-08 GLB/glTF review geometry export
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-024 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-17-08-DECL-004`.
->
 
 ### CLM-025 — Purpose
 
@@ -443,22 +412,11 @@ This Scope of Work defines `DEL-17-08` in service of project scope [SOW-030, SOW
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-034 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-17-08-DECL-003`.
->
-
 ### CLM-035 — Purpose
 
 > ##### Purpose
 >
-> Use DEL-17-08 as a narrow JSON glTF visual-review export surface. The selected profile lets a user inspect centerline shape and correlate emitted objects back to OpenPipeStress canonical IDs through direct `extras` plus an authoritative sidecar. It is not binary GLB, a solver model, an analysis result, a compatibility claim, engineering validation, or professional acceptance evidence.
+> Use DEL-17-08 as a narrow JSON glTF visual-review export surface. The selected profile lets a user inspect centerline shape and correlate emitted objects back to SWBPIPE canonical IDs through direct `extras` plus an authoritative sidecar. It is not binary GLB, a solver model, an analysis result, a compatibility claim, engineering validation, or professional acceptance evidence.
 >
 
 ### CLM-036 — Principles
@@ -479,7 +437,7 @@ This Scope of Work defines `DEL-17-08` in service of project scope [SOW-030, SOW
 
 > ###### Preserve identity before appearance polish
 >
-> The review artifact is only useful to OpenPipeStress workflows if visible objects can be traced back to the canonical model. Prefer stable canonical IDs over display-order assumptions. Use direct metadata only where the profile says it is reliable enough; otherwise pair the geometry artifact with a sidecar ID map and reference it from the manifest.
+> The review artifact is only useful to SWBPIPE workflows if visible objects can be traced back to the canonical model. Prefer stable canonical IDs over display-order assumptions. Use direct metadata only where the profile says it is reliable enough; otherwise pair the geometry artifact with a sidecar ID map and reference it from the manifest.
 >
 > For the selected centerline profile, direct node/primitive `extras` are paired with an always-authoritative sidecar; package acceptance blocks when those representations do not correlate one-to-one after deterministic write/read round trip. This establishes package identity integrity only, not receiving-viewer retention or compatibility.
 >

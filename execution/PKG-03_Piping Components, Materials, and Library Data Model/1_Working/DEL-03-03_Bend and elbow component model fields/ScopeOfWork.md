@@ -2,7 +2,7 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-03-03
 package_id: PKG-03
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@69ac259a7113d5a838fb22aa2e84df0e0f109713
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-007]
 package_objective_refs: [OBJ-004]
 ---
@@ -34,7 +34,7 @@ This Scope of Work defines `DEL-03-03` in service of project scope [SOW-007] and
 > | Type | BACKEND_FEATURE_SLICE |
 > | Scope Item | SOW-007 |
 > | Objective | OBJ-004 |
-> | Decomposition Basis | `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 |
+> | Decomposition Basis | `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register) |
 > | Evidence Artifacts | `schemas/component.schema.yaml`; `fixtures/component/invented_component_library_valid.json`; `tests/test_component_section_schema.py` |
 >
 
@@ -147,7 +147,7 @@ This Scope of Work defines `DEL-03-03` in service of project scope [SOW-007] and
 
 > ##### Verification
 >
-> - Confirm the four-document kit contains no protected standards text, SIF/flexibility tables, copied formulas, or invented engineering values.
+> - Confirm the `ScopeOfWork.md` contains no protected standards text, SIF/flexibility tables, copied formulas, or invented engineering values.
 > - Confirm `schemas/component.schema.yaml` and `schemas/model.schema.yaml` both include `bend` and `elbow` component types.
 > - Confirm strict component fixture evidence includes the bend/elbow family contract, missing-value bend record, provenance, and diagnostics.
 > - Confirm validation tests cover bend/elbow identity, field kinds, user/private value policy, missing-value diagnostics, and strict component fixture validation.
@@ -223,7 +223,7 @@ This Scope of Work defines `DEL-03-03` in service of project scope [SOW-007] and
 
 > ##### Records
 >
-> - Active four-document kit.
+> - Active `ScopeOfWork.md`.
 > - Review findings and review notes.
 > - Focused validation output.
 > - Local run record for this evidence-reconciliation pass.
@@ -241,7 +241,7 @@ This Scope of Work defines `DEL-03-03` in service of project scope [SOW-007] and
 
 > ##### Purpose
 >
-> This deliverable records bounded schema/fixture/test evidence for a bend/elbow component model slice. The important boundary is that OpenPipeStress can store and validate user-entered or lawfully imported bend/elbow data, but must not publish protected SIF/flexibility tables, formulas, examples, or default code-derived values.
+> This deliverable records bounded schema/fixture/test evidence for a bend/elbow component model slice. The important boundary is that SWBPIPE can store and validate user-entered or lawfully imported bend/elbow data, but must not publish protected SIF/flexibility tables, formulas, examples, or default code-derived values.
 >
 
 ### CLM-021 — Principles

@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-09-04
 package_id: PKG-09
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@eaad463c0d481f6f1654e6adb5ee718f566176e9
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-027]
 package_objective_refs: [OBJ-008, OBJ-011]
 ---
 
 # Scope of Work — DEL-09-04
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -22,17 +24,6 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 > #### Datasheet: DEL-09-04 Validation manual skeleton
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-002 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-09-04-DECL-002`.
->
 
 ### CLM-003 — Identification
 
@@ -87,7 +78,7 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 >
 > | Manual section | Purpose | Initial state |
 > |---|---|---|
-> | Product scope and limitations | Define what OpenPipeStress assists with and what remains outside software authority. | Skeleton required |
+> | Product scope and limitations | Define what SWBPIPE assists with and what remains outside software authority. | Skeleton required |
 > | Solver theory summary | Summarize open mechanics at a non-protected, public level. | Skeleton required |
 > | Unit and schema verification | Record dimensional, schema, and invalid-input checks. | Skeleton required |
 > | Element verification | Record frame/pipe element benchmark families and evidence links. | Skeleton required |
@@ -125,17 +116,6 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-009 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-09-04-DECL-001`.
->
-
 ### CLM-010 — Scope
 
 > ##### Scope
@@ -172,7 +152,7 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 
 > ##### Standards
 >
-> No external engineering code or standard is used as source authority for this skeleton. The governing sources are the OpenPipeStress project documents and registers listed in `_REFERENCES.md`.
+> No external engineering code or standard is used as source authority for this skeleton. The governing sources are the SWBPIPE project documents and registers listed in `_REFERENCES.md`.
 >
 > Any future validation manual reference to an external standard, protected code, commercial benchmark, vendor data, or owner requirement is `TBD` until provenance, redistribution rights, and human/legal review are recorded.
 >
@@ -219,17 +199,6 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-016 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-09-04-DECL-004`.
->
-
 ### CLM-017 — Purpose
 
 > ##### Purpose
@@ -255,7 +224,7 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 > ##### Steps
 >
 > 1. Confirm the deliverable identity and current lifecycle state in `_STATUS.md`.
-> 2. Draft the four-document kit:
+> 2. Draft the `ScopeOfWork.md`:
 >    - `Datasheet.md` captures identity, source basis, boundaries, and the manual outline.
 >    - `Specification.md` captures requirements, exclusions, and acceptance checks.
 >    - `Guidance.md` captures interpretation principles, trade-offs, and prohibited overclaims.
@@ -288,7 +257,7 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 >
 > Required records for this setup run:
 >
-> - four-document kit;
+> - `ScopeOfWork.md`;
 > - `_SEMANTIC.md`;
 > - `_SEMANTIC_LENSING.md`;
 > - `Dependencies.csv`;
@@ -309,7 +278,7 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 
 > ##### Purpose
 >
-> This guidance explains how to interpret the validation manual skeleton without blurring the OpenPipeStress authority boundary. The manual is intended to organize verification and validation evidence for software quality. It is not an engineering seal, code-compliance ruling, or project-specific acceptance record.
+> This guidance explains how to interpret the validation manual skeleton without blurring the SWBPIPE authority boundary. The manual is intended to organize verification and validation evidence for software quality. It is not an engineering seal, code-compliance ruling, or project-specific acceptance record.
 >
 
 ### CLM-024 — Principles

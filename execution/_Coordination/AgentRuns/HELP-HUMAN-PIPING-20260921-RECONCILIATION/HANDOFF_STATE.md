@@ -5,7 +5,17 @@ A cold session starts here. Read in order: this file, `OWNER_DIRECTIONS.md`,
 `../../_DECISIONS/`. After R0 opens, the evidence folder's `RESUME.md` and
 `RUN_STATE.jsonl` take over as the phase cursor.
 
-## Where things stand (2026-09-21)
+## Current continuation (2026-09-22)
+
+PR #843 merged the accepted R3/R4 record. The current owner has directed
+Agent 0 to carry out justified R5/R6 in Piping and App. See
+`execution/_Coordination/_DECISIONS/D-73_EXECUTION_ADDENDUM_2026-09-22.md`,
+run `R5/WORK_GRAPH.json`, and `BACKCHECK/R6_2026-09-22/HANDOFF.md` for the
+current source-bound continuation and exact residuals. Source repairs are
+executed; independent final review and Git integration remain root Agent
+0-owned. The entries below preserve the earlier handoff context.
+
+## Earlier state (2026-09-21)
 
 - Piping development is paused by the owner until this run is done.
 - Frozen source: `00115c71931bcae79909602d653740d3bb72dfa1`.
@@ -37,7 +47,7 @@ A cold session starts here. Read in order: this file, `OWNER_DIRECTIONS.md`,
 
 ## Next actions
 
-Status (2026-09-22): R3/R4 drafted and integrated; independent review next.
+Historical status before PR #843: R3/R4 drafted and integrated; independent review next. Superseded by the current continuation above.
 
 1. Fresh independent review of the R3/R4 set, with backchecks until no
    blocking finding remains.

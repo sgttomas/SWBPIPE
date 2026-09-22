@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-11-01
 package_id: PKG-11
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@4d153302c3c4cd42578936db160c2bac1270225a
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-033]
 package_objective_refs: [OBJ-001, OBJ-011]
 ---
 
 # Scope of Work — DEL-11-01
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -22,17 +24,6 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 > #### Datasheet: DEL-11-01 User guide skeleton
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-002 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-11-01-DECL-002`.
->
 
 ### CLM-003 — Identification
 
@@ -89,7 +80,7 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 >
 > | Guide section | Purpose | Initial state |
 > |---|---|---|
-> | Scope and authority boundary | Explain OpenPipeStress as decision-support software with open mechanics and user-supplied design-basis data. | Skeleton required |
+> | Scope and authority boundary | Explain SWBPIPE as decision-support software with open mechanics and user-supplied design-basis data. | Skeleton required |
 > | Installation and project setup | Reserve setup instructions for supported builds, local-first storage, project files, units, and privacy posture. | `TBD` where packaging is unresolved |
 > | Creating a project | Cover unit selection, project metadata, model identity, provenance expectations, and private rule-pack/library references. | Skeleton required |
 > | Building the centerline model | Cover nodes, elements, pipe runs, components, supports/restraints, load cases, combinations, and missing-data warnings. | Skeleton required |
@@ -128,22 +119,11 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-009 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-11-01-DECL-001`.
->
-
 ### CLM-010 — Scope
 
 > ##### Scope
 >
-> This deliverable defines the deliverable-local skeleton for the OpenPipeStress user guide. It covers the guide structure needed for project setup, centerline modeling, mechanics solving, user rule checks, result review, report generation, limitations, and professional responsibility notices.
+> This deliverable defines the deliverable-local skeleton for the SWBPIPE user guide. It covers the guide structure needed for project setup, centerline modeling, mechanics solving, user rule checks, result review, report generation, limitations, and professional responsibility notices.
 >
 > This deliverable does not edit `docs/user_guide/index.md`, does not create tutorials or example models, and does not document protected standards content. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 >
@@ -170,7 +150,7 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 
 > ##### Standards
 >
-> No external engineering code or standard is used as source authority for this user guide skeleton. The governing sources are the OpenPipeStress project documents and registers listed in `_REFERENCES.md`.
+> No external engineering code or standard is used as source authority for this user guide skeleton. The governing sources are the SWBPIPE project documents and registers listed in `_REFERENCES.md`.
 >
 > Any future guide content that references an external code, standard, vendor catalog, owner requirement, commercial software example, or licensed data source is `TBD` until provenance, redistribution rights, and human/legal review are recorded.
 >
@@ -218,17 +198,6 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-016 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-11-01-DECL-004`.
->
-
 ### CLM-017 — Purpose
 
 > ##### Purpose
@@ -254,7 +223,7 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 > ##### Steps
 >
 > 1. Confirm the deliverable identity and current lifecycle state in `_STATUS.md`.
-> 2. Draft the four-document kit:
+> 2. Draft the `ScopeOfWork.md`:
 >    - `Datasheet.md` captures identity, source basis, boundaries, and the guide outline.
 >    - `Specification.md` captures guide skeleton requirements, exclusions, and acceptance checks.
 >    - `Guidance.md` captures interpretation principles, trade-offs, and prohibited overclaims.
@@ -291,7 +260,7 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 >
 > Required records for this setup run:
 >
-> - four-document kit;
+> - `ScopeOfWork.md`;
 > - `_SEMANTIC.md`;
 > - `_SEMANTIC_LENSING.md`;
 > - `Dependencies.csv`;
@@ -312,7 +281,7 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 
 > ##### Purpose
 >
-> This guidance explains how to interpret the user guide skeleton without blurring the OpenPipeStress data, rule-check, and professional responsibility boundaries. The user guide should help a user move through setup, modeling, solving, rule checking, reports, and limitations while making missing data and human decision points visible.
+> This guidance explains how to interpret the user guide skeleton without blurring the SWBPIPE data, rule-check, and professional responsibility boundaries. The user guide should help a user move through setup, modeling, solving, rule checking, reports, and limitations while making missing data and human decision points visible.
 >
 
 ### CLM-024 — Principles
@@ -321,7 +290,7 @@ This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and
 >
 > | Principle | Guidance |
 > |---|---|
-> | Start with the authority boundary. | The guide should explain what OpenPipeStress computes and what remains user-supplied or human-reviewed before it teaches button-by-button workflows. |
+> | Start with the authority boundary. | The guide should explain what SWBPIPE computes and what remains user-supplied or human-reviewed before it teaches button-by-button workflows. |
 > | Keep setup factual. | Packaging, install steps, storage containers, external transports, and dependency versions remain `TBD` until accepted elsewhere. Do not invent setup commands. |
 > | Teach the centerline model. | Modeling guidance should orient users around projects, units, nodes, elements, components, supports, loads, combinations, and provenance. |
 > | Keep mechanics and rule checks separate. | A mechanics solve produces displacements, forces, moments, reactions, stresses, and diagnostics. A user rule pack can evaluate those results only when required private/user data is present. |

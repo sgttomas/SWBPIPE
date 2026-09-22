@@ -2,7 +2,7 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-12-04
 package_id: PKG-12
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@4d153302c3c4cd42578936db160c2bac1270225a
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-040, SOW-029]
 package_objective_refs: [OBJ-010]
 ---
@@ -352,7 +352,7 @@ This Scope of Work defines `DEL-12-04` in service of project scope [SOW-040, SOW
 
 > ##### Purpose
 >
-> This deliverable gives downstream implementation work a bounded, local-first privacy control surface for private libraries and credential references. It exists so OpenPipeStress can support user-owned rule packs, material libraries, component libraries, owner design bases, and project models without treating private or protected content as public repository data.
+> This deliverable gives downstream implementation work a bounded, local-first privacy control surface for private libraries and credential references. It exists so SWBPIPE can support user-owned rule packs, material libraries, component libraries, owner design bases, and project models without treating private or protected content as public repository data.
 >
 > Sources: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-029, SOW-040, and OBJ-010; `docs/PRD.md` sections 17.3 and 18.3.
 >

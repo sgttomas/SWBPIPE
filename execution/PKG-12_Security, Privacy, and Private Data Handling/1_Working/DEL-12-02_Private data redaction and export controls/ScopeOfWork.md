@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-12-02
 package_id: PKG-12
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@4d153302c3c4cd42578936db160c2bac1270225a
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-040]
 package_objective_refs: [OBJ-010]
 ---
 
 # Scope of Work — DEL-12-02
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -155,17 +157,6 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-010 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-12-02-DECL-001`.
->
-
 ### CLM-011 — Scope
 
 > ##### Scope
@@ -204,7 +195,7 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 >
 > No external engineering code, standards clause, protected table, protected formula, material allowable, SIF/flexibility table, protected dimensional table, proprietary report template, vendor catalog, real private project, or real secret is used or reproduced by this deliverable.
 >
-> The controlling project sources for this deliverable are the OpenPipeStress governance and decomposition artifacts listed in `Datasheet.md` and `_REFERENCES.md`.
+> The controlling project sources for this deliverable are the SWBPIPE governance and decomposition artifacts listed in `Datasheet.md` and `_REFERENCES.md`.
 >
 
 ### CLM-014 — Verification
@@ -213,7 +204,7 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 >
 > | Verification ID | Check | Expected Result |
 > |---|---|---|
-> | REXC-VER-001 | Confirm `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` exist and preserve default sections. | Four-document kit is present. |
+> | REXC-VER-001 | Confirm `ScopeOfWork.md` exists and preserves required sections. | `ScopeOfWork.md` is present. |
 > | REXC-VER-002 | Validate `Dependencies.csv` with `python3 tools/validation/validate_dependencies_schema.py <deliverable>/Dependencies.csv`. | Schema valid with all 29 v3.1 columns. |
 > | REXC-VER-003 | Confirm `_SEMANTIC.md` has no `MatrixError` or `MATRIX_ERROR` and no algebra/operator leaks in final result tables. | Semantic setup gate passes. |
 > | REXC-VER-004 | Confirm `_SEMANTIC_LENSING.md` has complete coverage for matrices A, B, C, F, D, X, and E. | 96 required lens coverage rows are present. |
@@ -272,17 +263,6 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-017 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-12-02-DECL-004`.
->
-
 ### CLM-018 — Purpose
 
 > ##### Purpose
@@ -320,7 +300,7 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 > | 8 | Apply P3 lensing by surfacing warranted TBDs, verification gaps, or conflicts only when source evidence supports the edit. | Open issues and verification gaps remain visible. |
 > | 9 | Extract dependency register rows for anchors and explicit execution information flow. | `Dependencies.csv` and `_DEPENDENCIES.md`. |
 > | 10 | During the historical setup workflow, run validation checks before any authorized lifecycle update. | Final setup run records. |
-> | 11 | During readiness-evidence alignment, replace stale setup-only language where current run evidence proves schema/helper/docs/tests exist. | Four-document kit reflects current evidence without lifecycle promotion. |
+> | 11 | During readiness-evidence alignment, replace stale setup-only language where current run evidence proves schema/helper/docs/tests exist. | `ScopeOfWork.md` reflects current evidence without lifecycle promotion. |
 > | 12 | Keep unresolved runtime report/export integration, destructive quarantine movement, legal review, cloud exception workflow, storage roots, UI/CLI/public transport/export-format choices, and approval choices as explicit `TBD` deferrals. | No hidden dependency closure or overclaim. |
 > | 13 | Refresh dependency and review evidence only where cited upstream statuses, reviews, or run records warrant the change. | `Dependencies.csv`, `_DEPENDENCIES.md`, `_REVIEW.md`, and `Review_Findings.csv` remain evidence-first. |
 >
@@ -348,7 +328,7 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 >
 > | Check | Method | Expected Result |
 > |---|---|---|
-> | Four-document presence | Confirm `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` exist. | Present. |
+> | Scope of Work presence | Confirm `ScopeOfWork.md` exists. | Present. |
 > | Default sections | Confirm Datasheet has Identification/Attributes/Conditions/Construction/References; Specification has Scope/Requirements/Standards/Verification/Documentation; Guidance has Purpose/Principles/Considerations/Trade-offs/Examples; Procedure has Purpose/Prerequisites/Steps/Verification/Records. | Present. |
 > | Dependency schema | Run `python3 tools/validation/validate_dependencies_schema.py <deliverable>/Dependencies.csv`. | Valid v3.1 schema. |
 > | Current implementation evidence | Confirm `schemas/redaction_export_controls.schema.yaml`, `core/security/redaction/`, `tests/security/test_redaction_export_controls.py`, and `docs/security/redaction_export_controls.md` exist. | Present as June 7 evidence. |
@@ -387,22 +367,11 @@ This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-025 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-12-02-DECL-003`.
->
-
 ### CLM-026 — Purpose
 
 > ##### Purpose
 >
-> This deliverable keeps OpenPipeStress report and export workflows aligned with the product boundary: public mechanics and schemas are allowed, while private project values, user-supplied code data, rule-pack details, component/vendor data, material allowables, and protected standards content remain controlled.
+> This deliverable keeps SWBPIPE report and export workflows aligned with the product boundary: public mechanics and schemas are allowed, while private project values, user-supplied code data, rule-pack details, component/vendor data, material allowables, and protected standards content remain controlled.
 >
 > The original guidance was setup-level. Current June 7 evidence now includes a concrete schema contract, metadata-only helper, focused invented-fixture tests, and security documentation. This guidance still does not select final persisted profile storage, UI design, CLI/API/public transport behavior, export format, cloud exception workflow, legal review workflow, destructive quarantine movement, or approval workflow.
 >

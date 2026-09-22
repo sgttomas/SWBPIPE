@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-02-01
 package_id: PKG-02
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@69ac259a7113d5a838fb22aa2e84df0e0f109713
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-041, SOW-065]
 package_objective_refs: [OBJ-001, OBJ-012, OBJ-014]
 ---
 
 # Scope of Work — DEL-02-01
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -22,17 +24,6 @@ This Scope of Work defines `DEL-02-01` in service of project scope [SOW-041, SOW
 > #### Datasheet: DEL-02-01 Canonical domain model schema
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-002 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-02-01-DECL-002`.
->
 
 ### CLM-003 — Identification
 
@@ -120,17 +111,6 @@ This Scope of Work defines `DEL-02-01` in service of project scope [SOW-041, SOW
 > #### Specification: DEL-02-01 Canonical domain model schema
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-009 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-02-01-DECL-001`.
->
 
 ### CLM-010 — Scope
 
@@ -250,8 +230,8 @@ This Scope of Work defines `DEL-02-01` in service of project scope [SOW-041, SOW
 > |---|---|---|
 > | JSON Schema 2020-12 | Public schema/interchange baseline for `schemas/model.schema.yaml` | Required by SOW-041 and SCA-001 |
 > | Canonical JSON / JCS-compatible hashing | Applies where JSON payload hashes are generated for reproducibility/audit | Required by AB-00-04 for hashed JSON payloads; exact implementation details TBD |
-> | OpenPipeStress invariants in `docs/CONTRACT.md` | Binding constraints for IP boundary, data provenance, units, authority, reports, privacy, and agents | Required |
-> | OpenPipeStress vocabulary in `docs/TYPES.md` | Stable IDs, analysis statuses, epistemic labels, and provenance labels | Required unless superseded by human-approved change |
+> | SWBPIPE invariants in `docs/CONTRACT.md` | Binding constraints for IP boundary, data provenance, units, authority, reports, privacy, and agents | Required |
+> | SWBPIPE vocabulary in `docs/TYPES.md` | Stable IDs, analysis statuses, epistemic labels, and provenance labels | Required unless superseded by human-approved change |
 > | Protected engineering standards/codes | May be referenced as user/private source context only; must not be embedded as public schema content or examples | Public redistribution prohibited without explicit rights |
 >
 
@@ -296,17 +276,6 @@ This Scope of Work defines `DEL-02-01` in service of project scope [SOW-041, SOW
 > #### Procedure: DEL-02-01 Canonical domain model schema
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-022 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-02-01-DECL-004`.
->
 
 ### CLM-023 — Purpose
 
@@ -401,7 +370,7 @@ This Scope of Work defines `DEL-02-01` in service of project scope [SOW-041, SOW
 > | Check | Expected result |
 > |---|---|
 > | Scope check | Only DEL-02-01 authorized files are modified during this run. |
-> | Default document check | `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` exist and retain their default sections. |
+> | Default document check | `ScopeOfWork.md` exists and retains its required sections. |
 > | Source-grounding check | Non-trivial requirements cite local governance/register/source slices or are labeled `ASSUMPTION`/`TBD`. |
 > | Schema baseline check | JSON Schema 2020-12 remains the declared baseline. |
 > | Object-family check | Project, Model, Node, Element, Material, Component, Load/LoadCase, Result, and Report are covered. |
@@ -464,22 +433,11 @@ This Scope of Work defines `DEL-02-01` in service of project scope [SOW-041, SOW
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-029 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-02-01-DECL-003`.
->
-
 ### CLM-030 — Purpose
 
 > ##### Purpose
 >
-> DEL-02-01 exists to make the OpenPipeStress domain model explicit and machine-readable before solver, GUI, reporting, persistence, plugin, and validation work depend on it. The schema should be a public contract for open mechanics and workflow data while preserving the boundary that code-specific values, protected standards data, proprietary libraries, and professional approval remain user/private or human-controlled. Sources: `docs/DIRECTIVE.md` Sections 1 through 3; `docs/SPEC.md` Sections 1 through 3; `docs/_Registers/ScopeLedger.csv` row SOW-041.
+> DEL-02-01 exists to make the SWBPIPE domain model explicit and machine-readable before solver, GUI, reporting, persistence, plugin, and validation work depend on it. The schema should be a public contract for open mechanics and workflow data while preserving the boundary that code-specific values, protected standards data, proprietary libraries, and professional approval remain user/private or human-controlled. Sources: `docs/DIRECTIVE.md` Sections 1 through 3; `docs/SPEC.md` Sections 1 through 3; `docs/_Registers/ScopeLedger.csv` row SOW-041.
 >
 
 ### CLM-031 — Principles

@@ -3,7 +3,7 @@
 
 Classification: `ARCHITECTURE_BASIS_REFERENCE`
 Consolidates: `Datasheet.md`, `Specification.md`, `Procedure.md`, `Guidance.md` (four-document kit, consolidated 2026-07-15 per piping decision D-43; source bytes hash-bound in the package `CONSOLIDATION_MANIFEST.md` and preserved in git history)
-Authority basis: `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.9, architecture-basis row AB-00-04
+Authority basis: `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see `execution/_Coordination/_DECISIONS/_REGISTER.md`), architecture-basis row AB-00-04
 Dependency direction: one-way — project packages depend on this member; this member depends on no package deliverable (HUMAN-STEER-PKG00-EXCLUSION-001)
 
 ## Purpose

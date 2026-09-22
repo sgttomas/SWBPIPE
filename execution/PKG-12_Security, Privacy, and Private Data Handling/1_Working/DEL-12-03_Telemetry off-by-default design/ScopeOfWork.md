@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-12-03
 package_id: PKG-12
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@4d153302c3c4cd42578936db160c2bac1270225a
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-037]
 package_objective_refs: [OBJ-010]
 ---
 
 # Scope of Work — DEL-12-03
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -22,17 +24,6 @@ This Scope of Work defines `DEL-12-03` in service of project scope [SOW-037] and
 > #### Datasheet: DEL-12-03 Telemetry off-by-default design
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-002 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-12-03-DECL-002`.
->
 
 ### CLM-003 — Identification
 
@@ -242,7 +233,7 @@ This Scope of Work defines `DEL-12-03` in service of project scope [SOW-037] and
 
 > ##### Purpose
 >
-> Use this procedure to produce or review a telemetry design for OpenPipeStress without breaching the local-first privacy boundary. The current evidence set includes design documents, `docs/security/telemetry_policy.md`, a metadata-only guard helper in `core/security/telemetry_policy/`, focused tests in `tests/security/test_telemetry_policy.py`, and the DEL-12-03 desktop policy-review panel in `apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx`. The panel constructs only a local review artifact and does not implement runtime telemetry transport, telemetry payload construction, endpoint, vendor, upload queue/job, telemetry persistence, product config schema/storage, consent UI/CLI, retention, support-bundle workflow, allowlist approval, or approval records.
+> Use this procedure to produce or review a telemetry design for SWBPIPE without breaching the local-first privacy boundary. The current evidence set includes design documents, `docs/security/telemetry_policy.md`, a metadata-only guard helper in `core/security/telemetry_policy/`, focused tests in `tests/security/test_telemetry_policy.py`, and the DEL-12-03 desktop policy-review panel in `apps/desktop/src/features/telemetry/TelemetryBoundaryPanel.tsx`. The panel constructs only a local review artifact and does not implement runtime telemetry transport, telemetry payload construction, endpoint, vendor, upload queue/job, telemetry persistence, product config schema/storage, consent UI/CLI, retention, support-bundle workflow, allowlist approval, or approval records.
 >
 
 ### CLM-019 — Prerequisites
@@ -283,7 +274,7 @@ This Scope of Work defines `DEL-12-03` in service of project scope [SOW-037] and
 >
 > | Check | Pass condition |
 > |---|---|
-> | Four-document kit exists | `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` are present. |
+> | `ScopeOfWork.md` exists | `ScopeOfWork.md` is present. |
 > | Telemetry policy artifact exists | `docs/security/telemetry_policy.md` is present and documents default-off policy plus metadata-only helper boundaries. |
 > | Metadata-only helper exists | `core/security/telemetry_policy/` is present and evaluates config/event metadata before payload construction. |
 > | Default sections preserved | Each document retains its required default section headings. |

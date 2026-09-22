@@ -1,0 +1,17 @@
+{
+  "verdict": "PASS",
+  "base_commit": "379df923927d157be3ebb51d8a1dcf783d970112",
+  "discovery_commit": "00115c71931bcae79909602d653740d3bb72dfa1",
+  "changed_references": 1721,
+  "changed_files": 287,
+  "minted_subclaim_parent_envelopes": 252,
+  "remaining_deliverables": 102,
+  "remaining_census_rows": 188,
+  "negative_controls": {
+    "missing-key": "REJECTED",
+    "duplicate-key": "REJECTED",
+    "missing-census-row": "REJECTED",
+    "duplicate-census-row": "REJECTED"
+  },
+  "scope": "exact changed-reference and file binding; no semantic acceptance inferred"
+}

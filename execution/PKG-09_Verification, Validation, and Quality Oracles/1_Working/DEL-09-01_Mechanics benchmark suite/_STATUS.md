@@ -1,11 +1,11 @@
 # Status: DEL-09-01 Mechanics benchmark suite
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-08-12
+**Last Updated:** 2026-09-22
 
 ## Remaining
 - Keep PDU-037's dedicated provenance/redistribution index, release integration, and acceptance thresholds open. The suite-to-headless observation binding is now bounded implementation evidence only; it does not select the still-open public result-comparison number or close validation/release gates.
-- Hold PDU-013 project-grain unit-system acceptance until the upstream canonical unit catalog and conversion constants are accepted; current benchmark evidence remains explicit and dimensionally checked only against its fixture-local unit basis (source: D-41 R5 T2B E2/E4/E8 evidence-only backcheck, 2026-07-12)
+- Complete RQ-004 project-grain unit-system binding and rerun the mechanics benchmarks against that basis. DEC-018 accepted the canonical unit catalog and conversion constants on 2026-06-10; the current fixture-local evidence alone does not establish project-grain acceptance. Preserve upstream DEL-02-02 binding holds and existing tolerance/validation authority. Evidence: `core/units/README.md`, `validation/benchmarks/mechanics/src/lib.rs::FIXTURE_UNIT_BASIS` and `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T2B-PDU013.md`.
 - Complete the PRD §16.2 benchmark evidence system named residual by the conditional R4 gate (see also DEL-09-04 for §16.5) (source: PRD plan §3 D9 exit-refresh row / DEC-054)
 - Obtain the owning human disposition for `PKG09-0901-PKG02-001`; preserve `TECHNICALLY_ADDRESSED_PENDING_HUMAN` and `HumanDisposition=TBD` until that act occurs, and do not infer formal closure from the implemented fixture-local unit evidence (PDU-060).
 
@@ -28,3 +28,4 @@
 - 2026-07-12 - D-41 R5 T2B recorded the PDU-013 project-unit-system gap as a held residual. Existing rights-safe fixture-local evidence was not promoted to project-grain acceptance; no threshold, outcome, disposition, or lifecycle state changed.
 - 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).
 - 2026-07-20 - R14 W4 T6 benchmark-evidence-system bounded construction assembled the derivative evidence bundle `validation/evidence/benchmarks/BENCHEVID_DEL0901_20260720T062342Z_e315fb8406d4/` (whole-suite head capture 11 matched / 0 mismatched / 13 blocked, recorded exit 1 per DEC-065; 24-fixture family/provenance/redistribution index; 38-test verification refresh). The PRD §16.2 residual Remaining row remains open and is judged at the owner's gate; no lifecycle, tolerance, threshold, promotion, or hold changed.
+- 2026-09-22 - R5 concordance record repair applied under current owner direction and Agent 0's bounded brief; corrected declared-state/Remaining facts or amendment metadata against the recorded basis. Exact before/after operations and evidence are in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5/TASKS/STATUS_REPAIR/operations.json`. Lifecycle state, human/reviewer holds and release/engineering-acceptance boundaries are unchanged.

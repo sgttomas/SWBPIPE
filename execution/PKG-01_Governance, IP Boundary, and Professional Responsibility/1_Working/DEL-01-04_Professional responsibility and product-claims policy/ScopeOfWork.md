@@ -2,7 +2,7 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-01-04
 package_id: PKG-01
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@69ac259a7113d5a838fb22aa2e84df0e0f109713
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-034, SOW-064]
 package_objective_refs: [OBJ-011, OBJ-018]
 ---
@@ -35,7 +35,7 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 > | Type | DOC_UPDATE |
 > | Scope Items | SOW-034, SOW-064 |
 > | Objectives | OBJ-011, OBJ-018 |
-> | Decomposition Basis | execution/_Decomposition/SOFTWARE_DECOMP.md revision 0.7 |
+> | Decomposition Basis | execution/_Decomposition/SOFTWARE_DECOMP.md (accepted authority; see the project decision register) |
 > | DAG Context | execution/_DAG/DAG-006/ approved active graph authority |
 > | Local Status | IN_PROGRESS; draft governance/report-notice evidence, not issued or professionally accepted |
 >
@@ -48,7 +48,7 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 > |---|---|---|
 > | Primary purpose | Define permitted/prohibited claims, report disclaimers, human approval boundaries, and product-claim boundaries for the design-engine scope. | _CONTEXT.md; Deliverables.csv row DEL-01-04 |
 > | Professional boundary | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). | CONTRACT.md OPS-K-AUTH-1; ScopeLedger.csv SOW-034 |
-> | Design-engine scope boundary | OpenPipeStress may be framed as an analysis-grade piping design engine and stress-model authoring environment with a full internal solver, but reliance remains non-authoritative without competent human review. | ScopeLedger.csv SOW-064; SOFTWARE_DECOMP.md revision 0.7 |
+> | Design-engine scope boundary | SWBPIPE may be framed as an analysis-grade piping design engine and stress-model authoring environment with a full internal solver, but reliance remains non-authoritative without competent human review. | ScopeLedger.csv SOW-064; SOFTWARE_DECOMP.md revision 0.7 |
 > | Solver/rule boundary | The solver computes mechanics; rule packs evaluate user-defined acceptability; professional compliance remains human judgment. | CONTRACT.md OPS-K-MECH-2 |
 > | Report boundary | Reports must disclose provenance, warnings, assumptions, limitations, and professional-responsibility notices. | CONTRACT.md OPS-K-REPORT-1; SPEC.md Section 8 |
 > | Release boundary | Public releases must disclose scope, validation status, known limitations, data-boundary constraints, and professional-responsibility limitations. | CONTRACT.md OPS-K-GOV-3 |
@@ -129,7 +129,7 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 >
 > | Req ID | Requirement | Source | Verification |
 > |---|---|---|---|
-> | DEL-01-04-R01 | Policy language shall state that OpenPipeStress software and agents do not certify, seal, approve, authenticate, or declare engineering code compliance for reliance (PRD §21.2). | OPS-K-AUTH-1; SOW-034 | Text review for prohibited-claim absence and explicit notice presence. |
+> | DEL-01-04-R01 | Policy language shall state that SWBPIPE software and agents do not certify, seal, approve, authenticate, or declare engineering code compliance for reliance (PRD §21.2). | OPS-K-AUTH-1; SOW-034 | Text review for prohibited-claim absence and explicit notice presence. |
 > | DEL-01-04-R02 | Policy language shall distinguish mechanics solve, user-rule-pack check, and competent human professional approval (PRD §21.2). | OPS-K-MECH-2; TYPES.md Analysis-status vocabulary | Cross-check terms against `MECHANICS_SOLVED`, `USER_RULE_CHECKED`, `HUMAN_REVIEW_REQUIRED`, and `HUMAN_APPROVED_FOR_PROJECT`. |
 > | DEL-01-04-R03 | Report notice language shall say that code-specific data is user-supplied and that professional reliance requires competent human review. | SPEC.md Section 8; OPS-K-REPORT-1 | Report-template checklist includes both notices. |
 > | DEL-01-04-R04 | Product and release claims shall disclose scope, validation status, known limitations, data-boundary constraints, and professional-responsibility limitations. | OPS-K-GOV-3 | Release/review checklist references these disclosure categories. |
@@ -138,7 +138,7 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 > | DEL-01-04-R07 | Unknown policy choices, legal interpretations, or jurisdiction-specific professional obligations shall be marked `TBD` and escalated for human/legal/professional review. | OPS-K-AGENT-1; DIRECTIVE.md stop rules | Review confirms no legal conclusion is stated as fact. |
 > | DEL-01-04-R08 | Public notices and examples shall not reproduce protected standards content or proprietary engineering data. | OPS-K-IP-1; OPS-K-REPORT-2 | Protected-content review gate. |
 > | DEL-01-04-R09 | Repo-level professional-boundary and report-notice text shall remain draft until a human review gate accepts it; local evidence must not present draft text as issued policy. | _CONTEXT.md write-scope limit; OPS-K-AGENT-4 | Review confirms this local kit does not present repo-level text as issued policy. |
-> | DEL-01-04-R10 | Product claims may frame OpenPipeStress as an analysis-grade piping design engine and stress-model authoring environment only when acceptance and professional judgment remain with the responsible engineer. | SOW-064; OBJ-018; DIRECTIVE.md §1-§3 | Claim scan confirms design-engine language does not imply certification, sealing, authentication, or code compliance (PRD §21.2). |
+> | DEL-01-04-R10 | Product claims may frame SWBPIPE as an analysis-grade piping design engine and stress-model authoring environment only when acceptance and professional judgment remain with the responsible engineer. | SOW-064; OBJ-018; DIRECTIVE.md §1-§3 | Claim scan confirms design-engine language does not imply certification, sealing, authentication, or code compliance (PRD §21.2). |
 >
 
 ### CLM-011 — Standards
@@ -255,7 +255,7 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 
 > ##### Records
 >
-> - Deliverable-local four-document kit.
+> - Deliverable-local `ScopeOfWork.md`.
 > - `_SEMANTIC.md` semantic matrix output.
 > - `_SEMANTIC_LENSING.md` enrichment register.
 > - `Dependencies.csv` and `_DEPENDENCIES.md` dependency extraction outputs.
@@ -282,9 +282,9 @@ This Scope of Work defines `DEL-01-04` in service of project scope [SOW-034, SOW
 
 > ##### Purpose
 >
-> This guidance explains how to draft professional-boundary and product-claims language for OpenPipeStress without overstating what software, agents, rule packs, reports, or releases can warrant.
+> This guidance explains how to draft professional-boundary and product-claims language for SWBPIPE without overstating what software, agents, rule packs, reports, or releases can warrant.
 >
-> The central boundary is: OpenPipeStress may assist analysis, expose evidence, compute mechanics, evaluate user-defined rule packs, and produce auditable reports; it does not replace competent professional judgment.
+> The central boundary is: SWBPIPE may assist analysis, expose evidence, compute mechanics, evaluate user-defined rule packs, and produce auditable reports; it does not replace competent professional judgment.
 >
 
 ### CLM-024 — Principles

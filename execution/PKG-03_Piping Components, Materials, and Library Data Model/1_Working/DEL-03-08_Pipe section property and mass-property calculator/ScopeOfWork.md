@@ -2,7 +2,7 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-03-08
 package_id: PKG-03
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@69ac259a7113d5a838fb22aa2e84df0e0f109713
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-051, SOW-018]
 package_objective_refs: [OBJ-004, OBJ-012]
 ---
@@ -32,7 +32,7 @@ This Scope of Work defines `DEL-03-08` in service of project scope [SOW-051, SOW
 > | Package ID | PKG-03 |
 > | Package | Piping Components, Materials, and Library Data Model |
 > | Deliverable type | BACKEND_FEATURE_SLICE |
-> | Decomposition basis | `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 |
+> | Decomposition basis | `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register) |
 > | Scope items | SOW-051, SOW-018 |
 > | Objectives | OBJ-004, OBJ-012 |
 > | Context envelope | M |
@@ -253,7 +253,7 @@ This Scope of Work defines `DEL-03-08` in service of project scope [SOW-051, SOW
 > 5. Confirm output shape preserves magnitude, unit, dimension, and provenance for section properties and mass properties.
 > 6. Confirm tests use synthetic or cleared values only and do not encode protected/reference-table content.
 > 7. Run `python3 -m pytest tests/test_section_properties.py` when feasible.
-> 8. Run a stale-language search over `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md`; reconcile implementation evidence while preserving unresolved `TBD` items.
+> 8. Run a stale-language search over `ScopeOfWork.md`; reconcile implementation evidence while preserving unresolved `TBD` items.
 > 9. Record unresolved policy, source catalog, fixture-value, dependency satisfaction, human disposition, lifecycle, and downstream integration inputs as `TBD` and route them to the responsible schema/unit/diagnostic/human owner.
 >
 
@@ -275,7 +275,7 @@ This Scope of Work defines `DEL-03-08` in service of project scope [SOW-051, SOW
 
 > ##### Records
 >
-> - Updated four-document kit in this folder.
+> - Updated `ScopeOfWork.md` in this folder.
 > - `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` historical semantic artifacts.
 > - `Dependencies.csv` v3.1 and `_DEPENDENCIES.md`.
 > - `_run_records/TASK_RUN_*.md` records for each TASK sequence step.
@@ -301,7 +301,7 @@ This Scope of Work defines `DEL-03-08` in service of project scope [SOW-051, SOW
 
 > ##### Purpose
 >
-> This deliverable provides a bounded, unit-aware calculation surface for pipe section and mass properties while preserving OpenPipeStress data-boundary rules. The key distinction is that calculation from explicit user-entered values is allowed, but bundled protected pipe tables, material tables, proprietary data, hidden unit conversion, and silent defaults are not.
+> This deliverable provides a bounded, unit-aware calculation surface for pipe section and mass properties while preserving SWBPIPE data-boundary rules. The key distinction is that calculation from explicit user-entered values is allowed, but bundled protected pipe tables, material tables, proprietary data, hidden unit conversion, and silent defaults are not.
 >
 
 ### CLM-026 — Principles

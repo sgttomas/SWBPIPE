@@ -2,7 +2,7 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-06-04
 package_id: PKG-06
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@eaad463c0d481f6f1654e6adb5ee718f566176e9
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-042]
 package_objective_refs: [OBJ-002, OBJ-005]
 ---
@@ -263,7 +263,7 @@ This Scope of Work defines `DEL-06-04` in service of project scope [SOW-042] and
 >
 > | Check | Expected result |
 > |---|---|
-> | Four-document kit | `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` exist. |
+> | `ScopeOfWork.md` | `ScopeOfWork.md` exists. |
 > | Data boundary scan | No private rule-pack payloads, protected standards data, proprietary formulas, or code-compliance claims are present. |
 > | Checksum basis | Specification and guidance state JCS-compatible canonical JSON for JSON payload hashes. |
 > | Deferred decisions | Storage, encryption, access-control defaults, and physical container decisions remain deferred. |

@@ -1,7 +1,7 @@
 # Status: DEL-07-08 Design-authoring state and comparison workspace
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-09-13
+**Last Updated:** 2026-09-22
 
 ## Remaining
 
@@ -22,3 +22,4 @@
 - 2026-09-13 — Bounded workflow/contact technical implementation and required local verification accepted by HELP_HUMAN; see `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/FINAL_TECHNICAL_ACCEPTANCE_V1.json`. Git publication remains pending in the run handoff; lifecycle stays `IN_PROGRESS`.
 - 2026-09-19 - SWBPIPE Tranche B slice B2 (shell lane): the workspace session (state, handlers and effects) moved out of `App.tsx` into fourteen modules under `src/features/workspace/` with no executable line edited and no behaviour change; the generation gates, the solve-input basis, the Current and Historical designation, reviewed application, undo and redo are byte-identical; run record `_run_records/HELP_HUMAN_RUN_2026-09-19_SWBPIPE_B2_STATE_EXTRACTION.md`. State remains IN_PROGRESS; no lifecycle change.
 - 2026-09-19 - SWBPIPE Tranche B slices B2F and B2G (shell lane): project-handler repairs, test first; a failed, empty or superseded open, create or save no longer removes a recorded hash mismatch from a project that stays open, and a landed write clears the open-time record even when a model edit drops its response; run record `_run_records/HELP_HUMAN_RUN_2026-09-19_SWBPIPE_B2F_B2G_HANDLER_REPAIRS.md`. State remains IN_PROGRESS; no lifecycle change.
+- 2026-09-22 - R5 concordance record repair applied under current owner direction and Agent 0's bounded brief; corrected declared-state/Remaining facts or amendment metadata against the recorded basis. Exact before/after operations and evidence are in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5/TASKS/STATUS_REPAIR/operations.json`. Lifecycle state, human/reviewer holds and release/engineering-acceptance boundaries are unchanged.

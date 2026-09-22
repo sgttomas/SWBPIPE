@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-08-04
 package_id: PKG-08
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@eaad463c0d481f6f1654e6adb5ee718f566176e9
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-046]
 package_objective_refs: [OBJ-007, OBJ-009]
 ---
 
 # Scope of Work — DEL-08-04
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -22,17 +24,6 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 > #### Datasheet: DEL-08-04 Result export format
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-002 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-08-04-DECL-002`.
->
 
 ### CLM-003 — Identification
 
@@ -115,17 +106,6 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-009 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-08-04-DECL-001`.
->
-
 ### CLM-010 — Scope
 
 > ##### Scope
@@ -164,7 +144,7 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 > | JSON Schema 2020-12 | Baseline schema technology for public result envelope contracts. | Architecture basis; schema file editing is outside this setup write scope. |
 > | Schema-first command/query/job result envelope baseline | Result export/API boundary and no-bypass contract. | Required by PKG-00 architecture basis referenced in `_CONTEXT.md`. |
 > | Canonical JSON / JCS-compatible canonicalization | Relevant when exported JSON payloads or manifests are hashed for reproducibility. | Hash implementation belongs primarily to DEL-08-02 / future implementation; this deliverable shall preserve compatible references. |
-> | OpenPipeStress invariant catalog | IP, data, units, rule-pack, privacy, professional-responsibility, and agent-boundary constraints. | Binding project governance draft. |
+> | SWBPIPE invariant catalog | IP, data, units, rule-pack, privacy, professional-responsibility, and agent-boundary constraints. | Binding project governance draft. |
 >
 > No protected engineering code, standard clause text, standards table, commercial example, or proprietary rule content is used as an authority in this setup artifact.
 >
@@ -215,17 +195,6 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 > #### Procedure: DEL-08-04 Result export format
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-016 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-08-04-DECL-004`.
->
 
 ### CLM-017 — Purpose
 
@@ -304,7 +273,7 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 
 > ##### Purpose
 >
-> The result export format exists to make solver and rule-check outputs reviewable, reproducible, comparable, and consumable by downstream tools without losing the project boundaries that make OpenPipeStress code-neutral. The setup baseline is a schema-first JSON result envelope; other export formats remain `TBD`.
+> The result export format exists to make solver and rule-check outputs reviewable, reproducible, comparable, and consumable by downstream tools without losing the project boundaries that make SWBPIPE code-neutral. The setup baseline is a schema-first JSON result envelope; other export formats remain `TBD`.
 >
 
 ### CLM-024 — Principles

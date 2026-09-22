@@ -2,7 +2,7 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-03-07
 package_id: PKG-03
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@69ac259a7113d5a838fb22aa2e84df0e0f109713
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-019, SOW-044]
 package_objective_refs: [OBJ-002, OBJ-004]
 ---
@@ -35,7 +35,7 @@ This Scope of Work defines `DEL-03-07` in service of project scope [SOW-019, SOW
 > | Scope Items | SOW-019; SOW-044 |
 > | Objectives | OBJ-002; OBJ-004 |
 > | Anticipated Artifacts | library import validator; provenance tests |
-> | Decomposition Basis | execution/_Decomposition/SOFTWARE_DECOMP.md revision 0.7 |
+> | Decomposition Basis | execution/_Decomposition/SOFTWARE_DECOMP.md (accepted authority; see the project decision register) |
 > | Status | Implementation evidence reconciled; lifecycle remains governed by `_STATUS.md` |
 >
 
@@ -236,7 +236,7 @@ This Scope of Work defines `DEL-03-07` in service of project scope [SOW-019, SOW
 
 > ##### Records
 >
-> - `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md`.
+> - `ScopeOfWork.md`.
 > - `core/library_import/provenance_checker.py`, `core/library_import/README.md`, and `tests/test_library_import_provenance.py` as implementation evidence.
 > - `_SEMANTIC.md` semantic matrix lens.
 > - `_SEMANTIC_LENSING.md` lensing register.

@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-02-04
 package_id: PKG-02
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@69ac259a7113d5a838fb22aa2e84df0e0f109713
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-038]
 package_objective_refs: [OBJ-009]
 ---
 
 # Scope of Work — DEL-02-04
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -35,17 +37,6 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-003 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-02-04-DECL-002`.
->
-
 ### CLM-004 — Identification
 
 > ##### Identification
@@ -59,7 +50,7 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 > | Scope item | SOW-038 | SourcePath: `docs/_Registers/ScopeLedger.csv`; SectionRef: row SOW-038 |
 > | Objective | OBJ-009 | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: Objective-to-deliverable mapping, OBJ-009 |
 > | Anticipated artifacts | plugin interface spec; sandbox/permission model notes | SourcePath: `_CONTEXT.md`; SectionRef: Anticipated Artifacts |
-> | Decomposition basis | `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 | SourcePath: `_CONTEXT.md`; SectionRef: Decomposition Reference |
+> | Decomposition basis | `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register) | SourcePath: `_CONTEXT.md`; SectionRef: Decomposition Reference |
 > | Discipline/domain | API and domain-contract governance for plugins/adapters | ASSUMPTION from Type=`API_CONTRACT`, package scope, and SOW-038 |
 > | Responsible party | TBD | Not stated in accessible sources |
 > | Governance/ruling owner | TBD | SourcePath: `docs/CONTRACT.md`; SectionRef: OPS-K-AGENT-4. No project authority is assigned in the accessible sources for plugin-contract rulings. |
@@ -284,17 +275,6 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-019 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-02-04-DECL-004`.
->
-
 ### CLM-020 — Purpose
 
 > ##### Purpose
@@ -368,7 +348,7 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 >
 > Completion checks for this deliverable:
 >
-> - `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` exist and retain the default required sections.
+> - `ScopeOfWork.md` exists and retains the required sections.
 > - Scope remains DEL-02-04 and PKG-02; no files outside the allowed write targets are modified.
 > - Requirements cite accessible source slices or are labeled ASSUMPTION/TBD.
 > - No protected standards/code text, copied tables, copied code formulas, proprietary commercial data, or private project/rule/library data is introduced.
@@ -416,7 +396,7 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 
 > ##### Purpose
 >
-> DEL-02-04 exists so OpenPipeStress can be extensible without turning plugins or adapters into an escape route around the domain model, unit system, provenance model, diagnostics, report controls, or public/private data boundary. This is the PKG-02 domain/API contract for that boundary, not a plugin-loader implementation. SourcePath: `_CONTEXT.md`; SectionRef: Description. SourcePath: `docs/_Registers/ScopeLedger.csv`; SectionRef: SOW-038.
+> DEL-02-04 exists so SWBPIPE can be extensible without turning plugins or adapters into an escape route around the domain model, unit system, provenance model, diagnostics, report controls, or public/private data boundary. This is the PKG-02 domain/API contract for that boundary, not a plugin-loader implementation. SourcePath: `_CONTEXT.md`; SectionRef: Description. SourcePath: `docs/_Registers/ScopeLedger.csv`; SectionRef: SOW-038.
 >
 
 ### CLM-028 — Principles

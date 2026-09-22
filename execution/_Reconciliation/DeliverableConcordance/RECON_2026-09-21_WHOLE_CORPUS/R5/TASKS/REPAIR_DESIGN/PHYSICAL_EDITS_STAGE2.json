@@ -1,0 +1,202 @@
+{
+  "source_basis": "after PHYSICAL_EDITS.json; preserved chain",
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-01_Architecture decision record baseline/ArchitectureBasis.md",
+      "before_sha256": "92e2c241aa3ab7e6e753f422afa59f16096d92028878b29c971dfc138b6b9cbf",
+      "after_sha256": "3a781660b40b4edce983f5111e79dc661423a05758cd0388d53a9d111c306d5f",
+      "edits": [
+        {
+          "start": 56,
+          "end": 56,
+          "old": "- Exact dependency versions, component/state libraries, rule expression grammar/library, public API transport, CI provider, and coverage thresholds remain implementation-level TBDs under the DEC-012 boundary unless a sealed brief or later human ruling resolves them (DEC-009 codification note; DEC-012).",
+          "new": "- Implementation-level choices are governed by DEC-012 and may be resolved in a sealed brief or later human ruling. Current dependency versions, local GUI component/state choices and repository tooling are recorded in their implementation and accepted change evidence. Changes to the DEC-009 runtime/UI baseline, public interfaces, dimensional semantics, privacy boundaries or registered acceptance criteria retain their own decision paths. The current state-hook realization is evidenced by the adopted UI program and `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/briefs/B2-STATE.md`; lockfile-bound installation is recorded in the adopted `execution/_Coordination/CANDIDATE_BRIEF_2026-07-15_DEL-10-04_CI_BROWSER_MAPPING.md` T1. These references settle only their scoped implementation choices; unresolved rule-expression, public-transport, CI and coverage-policy portions retain their respective decision records.",
+          "keys": [
+            "DEL-00-01:AB#open-holds-and-routed-questions.s01"
+          ],
+          "classes": [
+            "A3"
+          ],
+          "posture": "b",
+          "reason": "Apply named existing decisions and sealed-brief authority; preserve unrelated holds and acceptance limits.",
+          "old_start_offset": 6017,
+          "old_end_offset": 6320,
+          "old_sha256": "ef1e91f195184f16c06d3a85cca273738d5ce9a8a093a45b076e458221baed6f",
+          "new_sha256": "63b190eef6be5633aa5ca42424bb74afbfce150f84b65fceb6ee6d00f96faddf",
+          "new_start_offset": 6017,
+          "new_end_offset": 6984
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-02_Repository and module boundary architecture/ArchitectureBasis.md",
+      "before_sha256": "38c668b3c89c2bf5bdeb1914488f0779f1d9a21ae508d1c2cae8366ef6dae432",
+      "after_sha256": "abcef91a18cf537f93e63e59a9387c908e334b6cd0effb65c967391f832e1368",
+      "edits": [
+        {
+          "start": 58,
+          "end": 58,
+          "old": "- **Still-open TBDs:** monorepo/package-manager selection and lint tooling have no cited human ruling and remain open under the DEC-012 boundary (kit `TBD and Human-Ruling Slots`); language-specific module syntax is constrained by the DEC-009 stack but has no dedicated ruling.",
+          "new": "- Repository/package-manager and lint-tool choices are implementation-level choices under DEC-012; a sealed brief or later human ruling may resolve them. Lockfile-bound `npm ci` use is recorded in the adopted `execution/_Coordination/CANDIDATE_BRIEF_2026-07-15_DEL-10-04_CI_BROWSER_MAPPING.md` T1; this is bounded implementation evidence, not an exclusive package-manager mandate. Language-specific module syntax follows the DEC-009 stack; it requires no additional architecture ruling unless it changes a governed boundary. Lint-policy portions not resolved by an accepted brief remain open; the separate PDU-007 formal-review hold above is unchanged.",
+          "keys": [
+            "DEL-00-02:AB#open-holds-and-routed-questions.s03"
+          ],
+          "classes": [
+            "A3"
+          ],
+          "posture": "b",
+          "reason": "Apply named existing decisions and sealed-brief authority; preserve unrelated holds and acceptance limits.",
+          "old_start_offset": 7912,
+          "old_end_offset": 8189,
+          "old_sha256": "8ec4208b61aeb70939816770d6381ac9b3a81d1eeaccfeca714f037b90a11715",
+          "new_sha256": "0d917a7129a421a838d5c9169ad01aa769b2f0e21f9ae44214098c2b33521e7b",
+          "new_start_offset": 7912,
+          "new_end_offset": 8564
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-05_GUI state and interaction architecture/ArchitectureBasis.md",
+      "before_sha256": "c5824196212c8a29a2b9ca76f547bb94cb733dd963ec664b6cde92ab3d1e5f7b",
+      "after_sha256": "3f0ce7eaaae982cfb4fb384d5802524396adccc3330379d0f29b5eb8a2a1d073",
+      "edits": [
+        {
+          "start": 49,
+          "end": 49,
+          "old": "- OPEN: GUI component/state-management-library choice. `DEC-009` fixed the runtime/UI stack but left \"exact dependency versions, component/state-management libraries, platform release matrix\" implementation-level TBD (`execution/_Decomposition/SOFTWARE_DECOMP.md` \u00a78.2). Routed to human architecture ruling; not silently selectable.",
+          "new": "- The GUI follows the DEC-009 TypeScript/React/Vite and Three.js baseline. Component and state-management mechanisms are implementation choices under DEC-012, resolved through accepted bounded briefs/change evidence. The adopted `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/briefs/B2-STATE.md` records the current React-hook extraction with no new dependency and names byte-preservation, build, unit and browser checks. This is evidence of the current local mechanism, not a permanent library mandate or a claim that all GUI behavior is accepted; governed state, operation and interface contracts remain binding.",
+          "keys": [
+            "DEL-00-05:AB#open-holds-and-routed-questions.s01"
+          ],
+          "classes": [
+            "A3"
+          ],
+          "posture": "b",
+          "reason": "Apply named existing decisions and sealed-brief authority; preserve unrelated holds and acceptance limits.",
+          "old_start_offset": 5908,
+          "old_end_offset": 6240,
+          "old_sha256": "5a12a11bdb732dd32f540053d6c86b38995e1d525ba7844dbe3b8744d6320880",
+          "new_sha256": "4292445115e7522fb446522803a7458c8f1b08251e4b351b4fa26cd9f0a71ad9",
+          "new_start_offset": 5908,
+          "new_end_offset": 6573
+        },
+        {
+          "start": 50,
+          "end": 50,
+          "old": "- OPEN: undo/redo storage mechanism and accessibility target details (kit TBDs never ruled; remain visible pending human authority).",
+          "new": "- Undo/redo must preserve the governed operation route, model history, busy-state and result-invalidation contracts. Current focus-aware shortcut ownership and its native witness requirement are recorded in `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B3_UNDO_OWNERSHIP_DECISION.md`; this does not assert that every undo/persistence behavior passed. Accessibility criteria for touched controls are WCAG 2.2 AA under D-68 (`execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md`); these are candidate checks, not certification or an independent-usability result. Independent usability/security validation remains held under its owning criteria and workflow.",
+          "keys": [
+            "DEL-00-05:AB#open-holds-and-routed-questions.s02",
+            "DEL-00-05:AB#open-holds-and-routed-questions.s03"
+          ],
+          "classes": [
+            "A3",
+            "A10"
+          ],
+          "posture": "b",
+          "reason": "Apply named existing decisions and sealed-brief authority; preserve unrelated holds and acceptance limits.",
+          "old_start_offset": 6241,
+          "old_end_offset": 6373,
+          "old_sha256": "66f9ff7c1f2c0d1073ecebe8eb7704383b50a6a83ced0cd31f6a040d3ee00228",
+          "new_sha256": "8467c55b342f5f933820e6688e4e1b2cb9db43092e791355ab09df355af211f5",
+          "new_start_offset": 6574,
+          "new_end_offset": 7317
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-05_Report protected-content linter/ScopeOfWork.md",
+      "before_sha256": "6f61ed9c1c351858c180779548184ff8b4708cb8c5d37a78262af541e3be67b2",
+      "after_sha256": "4c992a7b53710e581b55c5900f1787657a4e79fe6caa7b92d4131126147f8d65",
+      "edits": [
+        {
+          "start": 430,
+          "end": 430,
+          "old": "> | OQ-08-05-003 | Exact severity policy for fail, warn, quarantine, and review-required outcomes. | TBD; must be confirmed before CI guard implementation. |",
+          "new": "> | OQ-08-05-003 | Severity and disposition policy for release scans and CI guards. | DEC-058 / D-20 \u00a79 governs the release-artifact scan: Blocking findings halt publication; unknown provenance routes to human review, and unknown/TBD/missing-certification provenance blocks. CI-guard severity policy remains open and is not selected by that release-scan ruling. |",
+          "keys": [
+            "DEL-08-05:SOW#CLM-033/OQ-08-05-003"
+          ],
+          "classes": [
+            "A10"
+          ],
+          "posture": "b",
+          "reason": "Apply named existing decisions and sealed-brief authority; preserve unrelated holds and acceptance limits.",
+          "old_start_offset": 27990,
+          "old_end_offset": 28147,
+          "old_sha256": "155eeebacd392428e9c6848d6e1c22614a841d95c93f0857f1aade84c56a1c6c",
+          "new_sha256": "0ecd907512da9df407659c0e1784ab4b8de5d588ba7b3de89e0e5bcdb6f0a42b",
+          "new_start_offset": 27990,
+          "new_end_offset": 28353
+        },
+        {
+          "start": 432,
+          "end": 432,
+          "old": "> | OQ-08-05-005 | Human/legal review ownership for protected-content findings. | TBD; governance process must record disposition authority. |",
+          "new": "> | OQ-08-05-005 | Human/legal review ownership for release-artifact protected-content findings. | DEC-058 / D-20 \u00a79 records the owner as scan owner and sole signatory of the legal/protected-data release gate; DEL-08-05 owns scanner tooling. Each release candidate requires the scoped machine-readable scan record and owner sign-off. This records the adopted procedure, not scan execution, legal clearance or publication acceptance; non-release review questions retain their owning authority. |",
+          "keys": [
+            "DEL-08-05:SOW#CLM-033/OQ-08-05-005"
+          ],
+          "classes": [
+            "A10"
+          ],
+          "posture": "b",
+          "reason": "Apply named existing decisions and sealed-brief authority; preserve unrelated holds and acceptance limits.",
+          "old_start_offset": 28280,
+          "old_end_offset": 28422,
+          "old_sha256": "6cd847c0b6c184acb1e2810db5ed4561fb43b0606cca07824d3667cbe6bb647a",
+          "new_sha256": "407050b132c76a32dbe947b1d4ab3b89fcdfcaac68a0b0c1c983999108ed2a5b",
+          "new_start_offset": 28486,
+          "new_end_offset": 28980
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-05_Security threat model/ScopeOfWork.md",
+      "before_sha256": "5f458ea56de28d0ac91976e56229e4a198d9c5ee5d89e408c520937748cb4e89",
+      "after_sha256": "5c6193f4d42c0664101321aa01454380f4966bf4a52a227552cf9075fa09a47f",
+      "edits": [
+        {
+          "start": 148,
+          "end": 148,
+          "old": "> | Explicit disclosure action | Require user intent before private data leaves local control. | `docs/PRD.md` 18.2-18.3 |",
+          "new": "> | Disclosure and runtime-provider boundary | Public contributions and exported artifacts retain their governed user-intent, rights, warning and redaction controls. For the owner's own private model/Class-B data, DEC-051 permits transmission through an owner-configured agent/model-provider channel with no further app-side residency guard, opt-in gate or indicator. Telemetry stays off by default and third-party-IP/public-commit prohibitions remain. | `DEC-051`; `docs/CONTRACT.md` OPS-K-PRIV-1/2; `docs/IP_AND_DATA_BOUNDARY.md` \u00a76.1 |",
+          "keys": [
+            "DEL-12-05:SOW#CLM-011.r02"
+          ],
+          "classes": [
+            "A10"
+          ],
+          "posture": "b",
+          "reason": "Apply named existing decisions and sealed-brief authority; preserve unrelated holds and acceptance limits.",
+          "old_start_offset": 8888,
+          "old_end_offset": 9010,
+          "old_sha256": "505b3ef784046d3a693667c9428931d25e40aac54a8703dfce55b121a83df83e",
+          "new_sha256": "f6a3187b12e2be41e89766190eb067e0ef1ea0eda8487938ebb1041a15cd90b4",
+          "new_start_offset": 8888,
+          "new_end_offset": 9426
+        },
+        {
+          "start": 452,
+          "end": 452,
+          "old": "> | Explicit disclosure | Treat private data leaving local control as a user-intent event requiring warning, review, redaction, or explicit attachment/export action. |",
+          "new": "> | Disclosure by channel | Apply user-intent, rights, warning and redaction controls to the public-contribution and artifact-export channels under their governing contracts. The owner-configured agent/model-provider channel follows DEC-051 OPEN RESIDENCY for the owner's own private model/Class-B data, without an additional app-side guard, opt-in gate or indicator. This exception leaves telemetry off by default and the public-commit and third-party-IP boundaries intact; it neither establishes a live provider path nor closes unmet security controls. |",
+          "keys": [
+            "DEL-12-05:SOW#CLM-033.r02"
+          ],
+          "classes": [
+            "A10"
+          ],
+          "posture": "b",
+          "reason": "Apply named existing decisions and sealed-brief authority; preserve unrelated holds and acceptance limits.",
+          "old_start_offset": 32004,
+          "old_end_offset": 32171,
+          "old_sha256": "ce77e65965ac9d0ea314906c7b61e48d8d8968ba0be57432f35669eee3a58f63",
+          "new_sha256": "3e757f805b98e9ce1897b529a164fb2e183378eb1ae638f80619af1f475e7759",
+          "new_start_offset": 32420,
+          "new_end_offset": 32976
+        }
+      ]
+    }
+  ]
+}

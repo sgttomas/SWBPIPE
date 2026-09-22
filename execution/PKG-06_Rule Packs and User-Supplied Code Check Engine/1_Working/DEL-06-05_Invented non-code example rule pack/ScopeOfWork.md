@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-06-05
 package_id: PKG-06
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@eaad463c0d481f6f1654e6adb5ee718f566176e9
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-016]
 package_objective_refs: [OBJ-005, OBJ-011]
 ---
 
 # Scope of Work — DEL-06-05
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -22,17 +24,6 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 > #### Datasheet: DEL-06-05 Invented non-code example rule pack
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-002 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-06-05-DECL-002`.
->
 
 ### CLM-003 — Identification
 
@@ -121,17 +112,6 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-009 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-06-05-DECL-001`.
->
-
 ### CLM-010 — Scope
 
 > ##### Scope
@@ -176,7 +156,7 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 >
 > | Standard or governing source | Status |
 > |---|---|
-> | OpenPipeStress governance and invariant documents | Accessible local governing source |
+> | SWBPIPE governance and invariant documents | Accessible local governing source |
 > | Any engineering code or standards-body text | Not used; protected or user-supplied unless explicitly licensed and authorized |
 > | Rule-pack evaluator expression grammar | `TBD`; separate PKG-06 implementation decision |
 > | Rule-pack schema final file path | `TBD`; separate `DEL-06-01` implementation deliverable |
@@ -225,17 +205,6 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-016 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-06-05-DECL-004`.
->
-
 ### CLM-017 — Purpose
 
 > ##### Purpose
@@ -262,9 +231,9 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 >
 > 1. Confirm the working path is `execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-05_Invented non-code example rule pack`.
 > 2. Read the local context, dependency placeholder, references, semantic placeholder, and status files.
-> 3. Draft or refresh `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` from local governing sources.
+> 3. Draft or refresh `ScopeOfWork.md` from local governing sources.
 > 4. Mark unknown engineering or schema-specific values as `TBD`; do not invent checksums, code formulas, allowables, or pass/fail criteria.
-> 5. Include explicit non-engineering, protected-content, and professional-responsibility boundary language in the four-document kit.
+> 5. Include explicit non-engineering, protected-content, and professional-responsibility boundary language in the `ScopeOfWork.md`.
 > 6. Run the semantic matrix setup and write `_SEMANTIC.md` only inside the deliverable folder.
 > 7. Run the lens-register setup and write `_SEMANTIC_LENSING.md` only inside the deliverable folder.
 > 8. Run the P3-only four-document pass using `_SEMANTIC_LENSING.md` as a candidate worklist, not as authority.
@@ -309,17 +278,6 @@ This Scope of Work defines `DEL-06-05` in service of project scope [SOW-016] and
 > #### Guidance: DEL-06-05 Invented non-code example rule pack
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-023 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-06-05-DECL-003`.
->
 
 ### CLM-024 — Purpose
 

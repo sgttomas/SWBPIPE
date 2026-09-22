@@ -2,7 +2,7 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-12-01
 package_id: PKG-12
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@4d153302c3c4cd42578936db160c2bac1270225a
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-029]
 package_objective_refs: [OBJ-010]
 ---
@@ -168,7 +168,7 @@ This Scope of Work defines `DEL-12-01` in service of project scope [SOW-029] and
 >
 > No external engineering code, code clause, standards table, protected formula, material allowable, SIF/flexibility table, protected dimensional table, or proprietary catalog source is used or reproduced by this deliverable.
 >
-> The controlling project sources for this deliverable are the OpenPipeStress governance and decomposition artifacts listed in `Datasheet.md` and `_REFERENCES.md`, plus the June 7 readiness-evidence run records cited in this alignment.
+> The controlling project sources for this deliverable are the SWBPIPE governance and decomposition artifacts listed in `Datasheet.md` and `_REFERENCES.md`, plus the June 7 readiness-evidence run records cited in this alignment.
 >
 
 ### CLM-012 — Verification
@@ -177,7 +177,7 @@ This Scope of Work defines `DEL-12-01` in service of project scope [SOW-029] and
 >
 > | Verification ID | Check | Expected Result |
 > |---|---|---|
-> | LFSP-VER-001 | Confirm `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` exist. | Four-document kit is present. |
+> | LFSP-VER-001 | Confirm `ScopeOfWork.md` exists. | `ScopeOfWork.md` is present. |
 > | LFSP-VER-002 | Validate `Dependencies.csv` with `tools/validation/validate_dependencies_schema.py`. | Schema valid with all 29 v3.1 columns. |
 > | LFSP-VER-003 | Confirm `_SEMANTIC.md` audit result is PASS and `_SEMANTIC_LENSING.md` has complete matrix coverage for A, B, C, F, D, X, and E. | Semantic setup gates pass. |
 > | LFSP-VER-004 | Confirm June 7 code, policy documentation, and focused tests exist for the metadata-only guard helper. | `core/security/local_first_storage/`, `docs/security/local_first_storage_policy.md`, `tests/security/test_local_first_storage_policy.py`, and `TASK_RUN_2026-06-07_0140.md` are present. |
@@ -291,7 +291,7 @@ This Scope of Work defines `DEL-12-01` in service of project scope [SOW-029] and
 >
 > | Check | Method | Expected Result |
 > |---|---|---|
-> | Four-document presence | Confirm `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` exist. | Present. |
+> | Scope of Work presence | Confirm `ScopeOfWork.md` exists. | Present. |
 > | Dependency schema | Run `python3 tools/validation/validate_dependencies_schema.py <deliverable>/Dependencies.csv`. | Valid v3.1 schema. |
 > | Enum spot checks | Run `python3 tools/validation/validate_enum.py` against dependency enum values used in the register. | Valid enums. |
 > | Semantic audit | Confirm `_SEMANTIC.md` contains `Audit: PASS`. | PASS. |
@@ -338,7 +338,7 @@ This Scope of Work defines `DEL-12-01` in service of project scope [SOW-029] and
 
 > ##### Purpose
 >
-> This deliverable keeps OpenPipeStress private-data handling aligned with the product stance: open mechanics and public schemas, but user-controlled private project, rule-pack, material, component, owner, and code/design-basis data.
+> This deliverable keeps SWBPIPE private-data handling aligned with the product stance: open mechanics and public schemas, but user-controlled private project, rule-pack, material, component, owner, and code/design-basis data.
 >
 > The guidance remains policy and evidence level. June 7 evidence adds a metadata-only guard helper and tests, but this deliverable still does not select OS-specific roots, create real private paths, store payloads or secrets, implement encryption/key management, or close runtime storage behavior.
 >

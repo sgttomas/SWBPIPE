@@ -3,7 +3,7 @@
 
 Classification: `ARCHITECTURE_BASIS_REFERENCE`
 Consolidates: `Datasheet.md`, `Specification.md`, `Procedure.md`, `Guidance.md` (four-document kit, consolidated 2026-07-15 per piping decision D-43; source bytes hash-bound in the package `CONSOLIDATION_MANIFEST.md` and preserved in git history)
-Authority basis: `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.9, architecture-basis row AB-00-02
+Authority basis: `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see `execution/_Coordination/_DECISIONS/_REGISTER.md`), architecture-basis row AB-00-02
 Dependency direction: one-way — project packages depend on this member; this member depends on no package deliverable (HUMAN-STEER-PKG00-EXCLUSION-001)
 
 ## Purpose
@@ -55,7 +55,7 @@ Boundary: this member authorizes no product implementation code and does not adv
 
 - **D-41 R5 T6 PDU-007 formal-review hold on REQ-02-05.** The architecture review gate is defined, but the owning formal REVIEW disposition / evidence-sufficiency act has not occurred for `DEL-00-02-REQ-005`. Drift-detection review checks exist only as kit-hygiene / sufficiency-gate checks; no concrete check compares package-local choices against AB-00-02. PDU-007 therefore remains partially implemented at governance grain; the hold remains until the owning formal REVIEW disposition or evidence-sufficiency act occurs (mirrors `_STATUS.md ## Remaining`). No alignment, closure, readiness, acceptance, or issuance may be inferred. Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T6-PDU007-HOLD.md`.
 - **Routed-to-REVIEW boundary anomaly (record-hosting).** This documentation-only member's `_run_records/WORKING_ITEMS_RUN_2026-06-11_t3_wasm_enablement_*` files are the primary record for the TP-SEAM-WASM-001 module-boundary implementation work (wasm build seam: crate → browser asset; DEC-020 / ADR-0001), whose code landed outside this folder (`apps/desktop/...`, `core/model_operations/operation_applier`) via a separate Type 1 tranche. Routed `AuthorityNeeded=REVIEW` in the D-41 W1 concordance for whether hosting implementation run records under a doc-only architecture member is intended.
-- **Still-open TBDs:** monorepo/package-manager selection and lint tooling have no cited human ruling and remain open under the DEC-012 boundary (kit `TBD and Human-Ruling Slots`); language-specific module syntax is constrained by the DEC-009 stack but has no dedicated ruling.
+- Repository/package-manager and lint-tool choices are implementation-level choices under DEC-012; a sealed brief or later human ruling may resolve them. Lockfile-bound `npm ci` use is recorded in the adopted `execution/_Coordination/CANDIDATE_BRIEF_2026-07-15_DEL-10-04_CI_BROWSER_MAPPING.md` T1; this is bounded implementation evidence, not an exclusive package-manager mandate. Language-specific module syntax follows the DEC-009 stack; it requires no additional architecture ruling unless it changes a governed boundary. Lint-policy portions not resolved by an accepted brief remain open; the separate PDU-007 formal-review hold above is unchanged.
 
 ## Currency and provenance
 

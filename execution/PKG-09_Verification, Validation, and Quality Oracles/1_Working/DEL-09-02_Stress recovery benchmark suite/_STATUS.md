@@ -1,10 +1,10 @@
 # Status: DEL-09-02 Stress recovery benchmark suite
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-09-22
 
 ## Remaining
-- Keep final tolerance, release-threshold, CI-gate, publication, canonical conversion, and professional-reliance choices `TBD`; PDU-039's governed result-envelope witness is verification evidence only.
+- Keep final stress tolerance, release-threshold, publication and professional-reliance choices open. DEC-018 already rules the canonical conversion basis; it does not establish benchmark binding or acceptance. DEC-025 rules the commit-bound evidence-sweep merge-gate posture, with later surface-specific amendments in the decision register; it does not settle stress release thresholds, release authority or publication. PDU-039's result-envelope witness and `validation/benchmarks/stress/src/lib.rs::STRESS_BENCHMARK_READINESS_BOUNDARY` remain verification evidence only.
 
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-052 reconciled RQ-007 to DEC-026's analytic `1e-9` relative seed and class-tiered relative+absolute policy while retaining unmeasured per-kind values as TBD; cited-claim backcheck closed the D-41 bootstrap.
@@ -20,3 +20,4 @@
 - 2026-07-02 - State set to IN_PROGRESS (affirmed; human K-CONFLICT-1 ruling, bridge Loop 2): records the 2026-06-16 header reversal from CHECKING that commit 28219696d left unlogged; ruling record at execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-07-02_2050/Decision_Log.md.
 - 2026-07-11 - Remaining section added and seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
 - 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).
+- 2026-09-22 - R5 concordance record repair applied under current owner direction and Agent 0's bounded brief; corrected declared-state/Remaining facts or amendment metadata against the recorded basis. Exact before/after operations and evidence are in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5/TASKS/STATUS_REPAIR/operations.json`. Lifecycle state, human/reviewer holds and release/engineering-acceptance boundaries are unchanged.

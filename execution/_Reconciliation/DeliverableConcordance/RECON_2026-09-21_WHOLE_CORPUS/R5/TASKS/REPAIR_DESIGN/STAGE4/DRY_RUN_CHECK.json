@@ -1,0 +1,17 @@
+{
+  "source_states": {
+    "before": 95
+  },
+  "files": 95,
+  "sow_structural_pass": 91,
+  "csv_only_allowed_fields": {
+    "current_coverage_state": 24,
+    "current_basis": 27,
+    "current_derivative_status": 27,
+    "CurrentAcceptance": 24,
+    "CurrentEvidenceBasis": 24
+  },
+  "history_deferred_residual_cells": "PRESERVED",
+  "inverse_replay": "PASS",
+  "production_written": false
+}

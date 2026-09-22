@@ -38,7 +38,7 @@ Implement an optional external harness that invokes a user-provided licensed CAE
 
 ## Decomposition Reference
 - **Decomposition:** execution/_Decomposition/SOFTWARE_DECOMP.md
-- **Accepted Revision:** 0.7
+- **Authority basis:** Resolve `execution/_Decomposition/SOFTWARE_DECOMP.md` and its accepted amendments through `execution/_Coordination/_DECISIONS/_REGISTER.md`; source-state-bound evidence records the evaluated revision.
 - **Status:** current_basis_after_SCA-004
 
 ## Register References

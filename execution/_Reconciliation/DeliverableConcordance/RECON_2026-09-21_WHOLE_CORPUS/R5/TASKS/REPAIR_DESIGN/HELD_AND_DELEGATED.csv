@@ -1,0 +1,402 @@
+Key,ClassID,Outcome,Detail
+DEL-12-01:STATUS#d-41-r5-t7-pdu-055-current-declaration,T4A-C02,PARENT_OWNS_STATUS,A9 annotation delegated to status child
+DEL-00-01:AB#currency-and-provenance,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-00-01:AB#purpose.s02,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-00-02:AB#currency-and-provenance,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-00-02:AB#purpose.s02,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-00-05:AB#currency-and-provenance,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-00-06:AB#currency-and-provenance,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-00-07:AB#currency-and-provenance,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-00-08:AB#currency-and-provenance,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-01-02:CONTEXT#package-reference,T4A-C01,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-01-02:SOW#CLM-007,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-01-03:CONTEXT#package-reference,T4A-C01,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-01-03:SOW#CLM-002,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-01-03:SOW#CLM-008,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-01-03:SOW#CLM-009,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-01-03:SOW#CLM-017,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-01-03:SOW#CLM-020.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-01-03:SOW#CLM-024,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-01-04:CONTEXT#package-reference,T4A-C01,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-01-04:CONTEXT#architecture-basis-injection.s02,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-01-04:SOW#CLM-007,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-01-04:SOW#CLM-017,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-01-04:SOW#CLM-021,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-02-01:CONTEXT#revision-0-5-supplemental-acceptance-criteria.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-02-01:SOW#CLM-003,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-02-01:SOW#CLM-007,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-02-01:SOW#CLM-035/C-02-01-002,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-02-02:CONTEXT#package-reference,T4A-C01,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-02-02:SOW#CLM-003,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-02-02:SOW#CLM-007,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-02-02:SOW#CLM-016,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-02-02:SOW#CLM-045/C-DEL-02-02-001,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-02-03:CONTEXT#package-reference,T4A-C01,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-02-03:SOW,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-02-03:SOW#CLM-006,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-02-03:SOW#CLM-012,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-02-03:SOW#CLM-018,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-02-04:CONTEXT#package-reference,T4A-C01,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-02-04:SOW#CLM-008,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-02-04:SOW#CLM-013,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-02-05:CONTEXT#package-reference,T4A-C01,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-02-05:SOW#CLM-004.r10,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-02-05:SOW#CLM-009,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-02-05:SOW#CLM-028,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-02-05:SOW.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-03-01:SOW#CLM-012.r02,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-03-01:SOW#CLM-018,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-03-02:SOW#CLM-007,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-03-02:SOW#CLM-012,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-03-03:SOW#CLM-006,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-03-04:SOW#CLM-007,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-03-05:SOW#CLM-006,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-03-06:SOW#CLM-008,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-03-07:SOW#CLM-006,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-03-07:SOW#CLM-010.r02,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-03-07:SOW#CLM-015,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-04-01:SOW#CLM-007,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-04-02:SOW,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-04-02:SOW#CLM-007,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-04-03:SOW#CLM-006,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-04-03:SOW.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-04-04:SOW#CLM-006,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-04-05:SOW#CLM-007,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-05-03:SOW#CLM-006,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-05-04:SOW#CLM-018,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-05-05:SOW,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-05-05:SOW#CLM-006,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-05-05:SOW#CLM-011,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-05-05:SOW#CLM-017,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-06-01:SOW#CLM-012.r02,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-06-02:SOW.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-06-03:SOW.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-06-04:SOW,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-06-05:SOW.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-07-01:CONTEXT#package-reference,T4A-C01,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-07-02:CONTEXT#package-reference,T4A-C01,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-07-02:SOW#CLM-009.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-07-03:CONTEXT#package-reference,T4A-C01,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-07-04:CONTEXT#package-reference,T4A-C01,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-07-05:CONTEXT#package-reference,T4A-C01,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-07-05:SOW#CLM-003.r09,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-07-05:SOW.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-07-06:CONTEXT#package-reference,T4A-C01,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-07-07:CONTEXT#package-reference,T4A-C01,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-07-07:SOW.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-07-08:CONTEXT#package-reference,T4A-C01,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-07-08:SOW#CLM-018,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-07-08:SOW.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-08-04:SOW.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-08-05:SOW.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-08-06:SOW#CLM-007,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-08-06:SOW.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-09-01:SOW#CLM-007,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-09-02:SOW#CLM-007,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-09-02:SOW.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-09-03:SOW.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-10-01:SOW#CLM-014,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-10-03:SOW#CLM-008,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-11-01:SOW.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-11-02:SOW#CLM-004.r03,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-11-02:SOW#CLM-012.r03,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-11-02:SOW#CLM-019,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-11-02:SOW.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-11-03:SOW.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-11-05:SOW#CLM-007.r11,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-12-04:SOW#CLM-008,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-12-04:SOW#CLM-012,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-12-05:SOW#CLM-027.s02,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-13-01:SOW#CLM-004.r04,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-13-01:SOW#CLM-006,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-13-01:SOW#CLM-011.r07,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-13-01:SOW#CLM-018.r06,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-13-01:SOW#CLM-019.r07,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-13-02:SOW#CLM-017.r02,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-13-02:SOW#CLM-017.r04,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-13-02:SOW#CLM-019.r07,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-13-03:SOW#CLM-005.r05,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-13-03:SOW#CLM-006.r05,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-13-03:SOW#CLM-007,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-13-03:SOW#CLM-014,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-13-03:SOW#CLM-022.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-13-03:SOW#CLM-023.r07,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-13-04:SOW#CLM-006,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-13-04:SOW#CLM-034.r10,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-14-01:SOW#CLM-007,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-14-01:SOW#CLM-018,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-14-02:SOW#CLM-007,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-14-02:SOW#CLM-018,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-14-03:SOW#CLM-005,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-14-03:SOW#CLM-007,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-14-03:SOW#CLM-013,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-14-03:SOW#CLM-020,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-14-04:SOW,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-14-04:SOW#CLM-005.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-14-04:SOW#CLM-007,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-14-04:SOW#CLM-014,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-14-04:SOW#CLM-022,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-14-05:SOW#CLM-007,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-14-05:SOW#CLM-018.r02,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-14-05:SOW#CLM-018.r04,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-14-05:SOW#CLM-020.r07,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-14-05:SOW#CLM-026,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-15-01:SOW#CLM-013/V-05,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-15-01:SOW#CLM-020,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-15-02:SOW#CLM-007,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-15-02:SOW#CLM-019.r02,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-15-03:SOW#CLM-007,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-15-03:SOW#CLM-018,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-15-03:SOW#CLM-020.r07,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-15-04:SOW#CLM-003,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-15-04:SOW#CLM-005.r04,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-15-04:SOW#CLM-018,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-16-01:SOW#CLM-006,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-16-01:SOW#CLM-016,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-16-01:SOW.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-16-02:SOW#CLM-007,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-16-02:SOW.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-16-03:SOW#CLM-017,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-16-04:SOW#CLM-016,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-16-04:SOW.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-17-01:CONTEXT#architecture-basis-injection,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-17-01:SOW.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-17-02:CONTEXT#architecture-basis-injection,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-17-02:SOW#CLM-006.r03,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-17-02:SOW#CLM-007.r08,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-17-02:SOW.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-17-03:SOW.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-17-04:SOW.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-17-05:SOW.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-17-06:SOW#CLM-013.s03,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-17-06:SOW.s01,T4A-C03,HELD,No unique snapshot-only line outside other edits; broader narrative/amendment/scope or minted sibling requires separate claim review
+DEL-01-03:SOW#CLM-015,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-01-04:SOW#CLM-005,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-02-01:SOW#CLM-020,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-02-01:SOW#CLM-025,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-02-01:SOW#CLM-027,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-02-02:SOW#CLM-001,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-02-02:SOW#CLM-011,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-02-02:SOW#CLM-022,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-02-02:SOW#CLM-032,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-02-03:SOW#CLM-014,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-02-03:SOW#CLM-019,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-02-03:SOW#CLM-021,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-02-04:SOW#CLM-001,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-02-04:SOW#CLM-009,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-02-04:SOW#CLM-017,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-02-04:SOW#CLM-022,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-02-04:SOW#CLM-024,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-02-04:SOW#CLM-025,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-03-02:SOW#CLM-001,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-03-02:SOW#CLM-008,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-03-02:SOW#CLM-015,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-03-02:SOW#CLM-020,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-03-02:SOW#CLM-022,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-03-03:SOW#CLM-012,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-03-04:SOW#CLM-022,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-03-05:SOW#CLM-021,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-03-05:SOW#CLM-022,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-03-06:SOW#CLM-020,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-04-02:SOW#CLM-019,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-04-04:SOW#CLM-013,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-04-04:SOW#CLM-018,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-04-04:SOW#CLM-019,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-04-06:SOW#CLM-022,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-04-06:SOW#CLM-023,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-05-01:SOW#CLM-009,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-05-02:SOW#CLM-017,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-05-03:SOW#CLM-019,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-05-05:SOW#CLM-019,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-05-05:SOW#CLM-020,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-06-02:SOW#CLM-022.r03,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-06-02:SOW#CLM-024.r01,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-06-02:SOW#CLM-025,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-06-03:SOW#CLM-015,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-06-04:SOW#CLM-012/V-06-04-001,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-06-04:SOW#CLM-013,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-06-04:SOW#CLM-018,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-06-04:SOW#CLM-020,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-06-05:SOW#CLM-013/DEL-06-05-VER-01,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-06-05:SOW#CLM-014,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-06-05:SOW#CLM-020.r01,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-06-05:SOW#CLM-021,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-07-01:SOW#CLM-013/DEL-07-01-VER-01,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-07-01:SOW#CLM-014,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-07-01:SOW#CLM-022.r01,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-07-01:SOW#CLM-023,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-07-02:SOW#CLM-024,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-07-03:SOW#CLM-014/DEL-07-03-V-006,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-07-03:SOW#CLM-015,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-07-03:SOW#CLM-025,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-07-04:SOW#CLM-014,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-07-05:SOW#CLM-014,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-07-05:SOW#CLM-015,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-07-05:SOW#CLM-021,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-07-05:SOW#CLM-022,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-07-06:SOW#CLM-023,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-07-06:SOW#CLM-025,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-07-07:SOW#CLM-006,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-07-07:SOW#CLM-007.r10,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-07-07:SOW#CLM-007.r11,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-07-07:SOW#CLM-007.r12,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-07-07:SOW#CLM-012.s01,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-07-07:SOW#CLM-014,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-07-07:SOW#CLM-020.r03,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-07-07:SOW#CLM-020.r04,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-07-07:SOW#CLM-020.r05,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-07-07:SOW#CLM-022,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-07-07:SOW#CLM-024,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-07-08:SOW#CLM-014,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-08-01:SOW#CLM-006,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-08-01:SOW#CLM-013,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-08-01:SOW#CLM-014,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-08-01:SOW#CLM-023,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-08-02:SOW#CLM-014,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-08-02:SOW#CLM-020,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-08-03:SOW#CLM-015,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-08-03:SOW#CLM-021,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-08-03:SOW#CLM-022,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-08-04:SOW#CLM-014,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-08-04:SOW#CLM-020.r01,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-08-04:SOW#CLM-021,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-08-05:SOW#CLM-004.r05,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-08-05:SOW#CLM-014,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-08-05:SOW#CLM-023,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-08-05:SOW#CLM-024.r01,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-08-05:SOW#CLM-024.r02,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-08-05:SOW#CLM-024.r03,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-08-05:SOW#CLM-024.r04,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-09-02:SOW#CLM-012/DEL-09-02-RQ-001.s01,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-09-02:SOW#CLM-024,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-09-03:SOW#CLM-013,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-09-03:SOW#CLM-015,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-09-04:SOW#CLM-011/VAL-REQ-001,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-09-04:SOW#CLM-011/VAL-REQ-005,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-09-04:SOW#CLM-013,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-09-04:SOW#CLM-014,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-09-04:SOW#CLM-020,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-09-05:SOW#CLM-008,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-09-05:SOW#CLM-012/RQG-001,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-09-05:SOW#CLM-012/RQG-009,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-09-05:SOW#CLM-012/RQG-011,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-09-05:SOW#CLM-012/RQG-012,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-09-05:SOW#CLM-013,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-09-05:SOW#CLM-014/RQG-001,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-09-05:SOW#CLM-015,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-09-05:SOW#CLM-016,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-10-01:SOW#CLM-001,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-10-01:SOW#CLM-009,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-10-01:SOW#CLM-018,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-10-01:SOW#CLM-023,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-10-01:SOW#CLM-024,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-10-01:SOW#CLM-026,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-10-02:SOW#CLM-007,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-10-02:SOW#CLM-018,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-10-03:SOW#CLM-001,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-10-03:SOW#CLM-009,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-10-03:SOW#CLM-015/REQ-12,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-10-03:SOW#CLM-018,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-10-03:SOW#CLM-024,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-10-03:SOW#CLM-025,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-10-03:SOW#CLM-027,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-10-04:SOW#CLM-016.s01,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-10-04:SOW#CLM-020.s01,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-10-04:SOW#CLM-022,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-10-04:SOW#CLM-023,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-10-05:SOW#CLM-013,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-10-05:SOW#CLM-021,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-11-01:SOW#CLM-013.r01,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-11-01:SOW#CLM-014.s01,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-11-01:SOW#CLM-020.r01,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-11-01:SOW#CLM-020.r02,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-11-02:SOW#CLM-014.s02,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-11-02:SOW#CLM-021,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-11-03:SOW#CLM-014.r01,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-11-03:SOW#CLM-015.s01,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-11-03:SOW#CLM-019,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-11-03:SOW#CLM-020,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-11-04:SOW#CLM-016,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-11-05:SOW#CLM-011/REQ-11-05-02,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-11-05:SOW#CLM-011/REQ-11-05-03,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-11-05:SOW#CLM-011/REQ-11-05-04,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-11-05:SOW#CLM-011/REQ-11-05-05,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-11-05:SOW#CLM-011/REQ-11-05-08,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-11-05:SOW#CLM-011/REQ-11-05-09,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-11-05:SOW#CLM-013,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-11-05:SOW#CLM-014,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-11-05:SOW#CLM-023,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-12-01:SOW#CLM-006.s01,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-12-01:SOW#CLM-011.s02,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-12-01:SOW#CLM-013.s01,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-12-01:SOW#CLM-018,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-12-01:SOW#CLM-021.s01,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-12-02:SOW#CLM-007,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-12-02:SOW#CLM-013.s02,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-12-02:SOW#CLM-015.s01,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-12-02:SOW#CLM-022.r02,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-12-02:SOW#CLM-023.s01,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-12-03:SOW#CLM-015.s01,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-12-03:SOW#CLM-021.r04,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-12-03:SOW#CLM-022.s01,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-12-04:SOW#CLM-013.r01,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-12-04:SOW#CLM-014,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-12-04:SOW#CLM-018,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-12-04:SOW#CLM-019.r02,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-12-04:SOW#CLM-020,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-12-05:SOW#CLM-020.r01,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-12-05:SOW#CLM-027,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-12-05:SOW#CLM-028.r01,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-12-05:SOW#CLM-028.r02,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-13-01:SOW#CLM-012,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-13-01:SOW#CLM-019.r01,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-13-01:SOW#CLM-019.r02,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-13-01:SOW#CLM-019.r03,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-13-01:SOW#CLM-019.r04,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-13-03:SOW#CLM-021,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-13-04:SOW#CLM-020,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-13-04:SOW#CLM-035,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-14-05:SOW#CLM-021,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-15-01:SOW#CLM-014,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-15-01:SOW#CLM-021,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-15-02:SOW#CLM-014,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-15-02:SOW#CLM-022,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-15-04:SOW#CLM-017,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-16-01:SOW#CLM-019,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-16-04:SOW#CLM-012,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-01:SOW#CLM-015,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-01:SOW#CLM-023,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-02:SOW#CLM-032,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-02:SOW#CLM-034,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-02:SOW#CLM-047,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-03:SOW#CLM-011.r01,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-03:SOW#CLM-015,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-05:SOW#CLM-016/VER-001,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-05:SOW#CLM-017,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-05:SOW#CLM-023,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-05:SOW#CLM-029,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-05:SOW#CLM-034,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-05:SOW#CLM-040/DEL-17-05-CONF-001,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-05:SOW#CLM-040/DEL-17-05-CONF-002,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-06:SOW#CLM-013.s02,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-06:SOW#CLM-015/DEL-17-06-VER-001,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-06:SOW#CLM-015/DEL-17-06-VER-003,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-06:SOW#CLM-015/DEL-17-06-VER-004,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-06:SOW#CLM-016,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-06:SOW#CLM-022,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-06:SOW#CLM-024,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-06:SOW#CLM-026,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-07:SOW#CLM-004,T4B-C05,HELD,Existing packet blocker A7
+DEL-17-07:SOW#CLM-027,T4B-C05,HELD,Existing packet blocker A7
+DEL-17-08:SOW#CLM-020/C-002,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-08:SOW#CLM-020/F-001,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-08:SOW#CLM-020/X-003,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-08:SOW#CLM-021,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-08:SOW#CLM-028,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-08:SOW#CLM-031,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-08:SOW#CLM-032,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-09:SOW#CLM-004,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-09:SOW#CLM-007,T4B-C05,HELD,Existing packet blocker A7
+DEL-17-09:SOW#CLM-016,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-09:SOW#CLM-031,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"
+DEL-17-09:SOW#CLM-032,T4B-C05,HELD,"No exact current-surface combination; component references, historical provenance, or task-specific scope require separate review"

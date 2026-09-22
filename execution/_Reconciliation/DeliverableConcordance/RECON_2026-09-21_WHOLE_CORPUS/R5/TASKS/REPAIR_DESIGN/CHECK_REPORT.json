@@ -1,0 +1,15 @@
+{
+  "files": 202,
+  "patches": 829,
+  "changed_extractor_refs": 1240,
+  "source_key_outcomes": {
+    "PARTIAL_REPAIR": 416,
+    "DIRECT_REPAIRED": 397
+  },
+  "sow_pass": 90,
+  "inverse_replay": "PASS",
+  "changed_reference_multiset": "PASS",
+  "missing_negative_control": "REJECTED",
+  "duplicate_negative_control": "REJECTED",
+  "issued_and_status_writes": 0
+}

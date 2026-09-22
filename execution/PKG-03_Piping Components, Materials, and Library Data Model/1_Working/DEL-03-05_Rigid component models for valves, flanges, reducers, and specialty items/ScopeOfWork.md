@@ -2,7 +2,7 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-03-05
 package_id: PKG-03
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@69ac259a7113d5a838fb22aa2e84df0e0f109713
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-009]
 package_objective_refs: [OBJ-004]
 ---
@@ -233,7 +233,7 @@ This Scope of Work defines `DEL-03-05` in service of project scope [SOW-009] and
 > 6. Preserve review finding semantics: `Review_Findings.csv` records PKG03-DEL-03-05-PKG02-001 and PKG03-DEL-03-05-PKG02-002 as `ACCEPT_AS_IS` / `RESOLVED` under Gate C on 2026-06-05; documentation maintenance must not rewrite that formal disposition.
 > 7. Preserve architecture constraints from AB-00-01, AB-00-02, AB-00-04, AB-00-06, AB-00-07, and AB-00-08 for any downstream implementation handoff.
 > 8. Surface gaps as diagnostics, `TBD` markers, or human-ruling items rather than resolving them silently.
-> 9. Run targeted validation when feasible: `python3 -m pytest tests/test_component_section_schema.py` and a stale-language `rg` scoped to `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md`.
+> 9. Run targeted validation when feasible: `python3 -m pytest tests/test_component_section_schema.py` and a stale-language `rg` scoped to `ScopeOfWork.md`.
 >
 
 ### CLM-021 — Verification

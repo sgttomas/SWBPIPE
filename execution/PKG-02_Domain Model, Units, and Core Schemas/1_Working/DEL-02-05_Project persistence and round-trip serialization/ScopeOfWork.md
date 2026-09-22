@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-02-05
 package_id: PKG-02
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@69ac259a7113d5a838fb22aa2e84df0e0f109713
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-050, SOW-041]
 package_objective_refs: [OBJ-001, OBJ-012]
 ---
 
 # Scope of Work — DEL-02-05
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -22,17 +24,6 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 > #### Datasheet - DEL-02-05 Project Persistence and Round-Trip Serialization
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-002 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-02-05-DECL-002`.
->
 
 ### CLM-003 — PDU-024 Runtime Version Evidence
 
@@ -152,17 +143,6 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 > #### Specification - DEL-02-05 Project Persistence and Round-Trip Serialization
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-011 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-02-05-DECL-001`.
->
 
 ### CLM-012 — Scope
 
@@ -317,8 +297,8 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 > |---|---|---|
 > | JSON Schema 2020-12 | Public schema/interchange baseline for the project file schema. | Required by SCA-001; exact schema file layout TBD. |
 > | Canonical JSON / JCS-compatible canonicalization | Hash basis for JSON payloads. | Required by SCA-001; exact library/tooling TBD. |
-> | OpenPipeStress invariant catalog | Binding constraints for IP boundary, unit safety, provenance, professional boundary, private data, and agent outputs. | Required by `docs/CONTRACT.md`. |
-> | OpenPipeStress data-boundary policy | Controls public/private data handling and provenance fields. | Required by `docs/IP_AND_DATA_BOUNDARY.md`. |
+> | SWBPIPE invariant catalog | Binding constraints for IP boundary, unit safety, provenance, professional boundary, private data, and agent outputs. | Required by `docs/CONTRACT.md`. |
+> | SWBPIPE data-boundary policy | Controls public/private data handling and provenance fields. | Required by `docs/IP_AND_DATA_BOUNDARY.md`. |
 >
 > No piping design code or protected standards dataset is a governing input to this deliverable. The persistence schema may carry user-supplied rule-pack references and provenance, but it must not bundle protected code content.
 >
@@ -361,17 +341,6 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 > #### Procedure - DEL-02-05 Project Persistence and Round-Trip Serialization
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-025 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-02-05-DECL-004`.
->
 
 ### CLM-026 — PDU-024 Version Contract Check
 
@@ -505,17 +474,6 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-033 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-02-05-DECL-003`.
->
-
 ### CLM-034 — PDU-024 Version Handling Guidance
 
 > ##### PDU-024 Version Handling Guidance
@@ -527,7 +485,7 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 
 > ##### Purpose
 >
-> DEL-02-05 exists to make project files auditable, deterministic, and reusable across the OpenPipeStress workflow. The persistence layer is the handoff surface between domain schemas, unit-aware modeling, rule-pack references, solver inputs, reports, automation, and future adapters. Source: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-050 and OBJ-012.
+> DEL-02-05 exists to make project files auditable, deterministic, and reusable across the SWBPIPE workflow. The persistence layer is the handoff surface between domain schemas, unit-aware modeling, rule-pack references, solver inputs, reports, automation, and future adapters. Source: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-050 and OBJ-012.
 >
 
 ### CLM-036 — Principles

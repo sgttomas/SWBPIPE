@@ -1,7 +1,7 @@
 # Status: DEL-15-01 Canonical handoff package schema and manifest
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-09-22
 
 ## Remaining
 - Phase H program: design-knowledge schema/entry and constraint engine, physical-to-analytical transform contract, canonical handoff package + manifest, target-mapping/unsupported-behavior contract, downstream export workflow, external-prover boundary metadata, and remaining PKG-17 wire-format completion (stage-gated: v0.2 R6; DEL-17-01 vendor questions gate CAEPIPE MBF-specific claims) (see also DEL-13-01..04, DEL-15-02, DEL-15-03, DEL-15-04, DEL-17-01..09) (source: PRD plan §3 Forward Horizon row H / DEC-056)
@@ -22,3 +22,4 @@
 - 2026-07-11 - Remaining seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
 - 2026-07-12 - D-41 R5 T2A prerequisite under `DEC-074` E1 added the non-JCS `deterministic_sorted_compact_json_payload_hash` schema vocabulary for the existing Python sorted-key compact-JSON basis and retained `JCS_compatible_json_payload_hash` for backward compatibility. Producer outputs were not changed and RFC 8785 conformance is not claimed. Both genuine Remaining items, including the exact D-41 program item, remain unchanged; no lifecycle change.
 - 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).
+- 2026-09-22 - R5 concordance record repair applied under current owner direction and Agent 0's bounded brief; corrected declared-state/Remaining facts or amendment metadata against the recorded basis. Exact before/after operations and evidence are in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5/TASKS/STATUS_REPAIR/operations.json`. Lifecycle state, human/reviewer holds and release/engineering-acceptance boundaries are unchanged.

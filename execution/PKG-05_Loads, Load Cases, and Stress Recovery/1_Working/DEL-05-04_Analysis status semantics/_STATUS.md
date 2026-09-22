@@ -1,10 +1,10 @@
 # Status: DEL-05-04 Analysis status semantics
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-08-20
+**Last Updated:** 2026-09-22
 
 ## Remaining
-- None.
+- Resolve the held stale human-acceptance reuse negative (FG-DEL-05-04-01; ScopeOfWork.md REQ-05-04-008/014 and CLM-008/023) against an authorized implementation and verification basis, or obtain a scope disposition. The landed operation-applier stale-model-hash check does not establish invalidation of external human-acceptance records; external acceptance ownership/storage/presentation remain held. This record does not declare warranted-empty Remaining.
 
 ## History
 - 2026-08-20 - The authoritative Rust operation-applier runtime now compares supported claimed model hashes against the current RFC8785/JCS backend model hash and fails closed for stale, malformed, or unsupported claims; matching and no-claim behavior remain covered. Native/Wasm corpus cases 79–81 and the registered test surfaces provide implementation evidence. Lifecycle remains IN_PROGRESS; no release or professional-reliance effect occurs.
@@ -20,3 +20,4 @@
 - 2026-07-11 - Remaining section added and seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
 - 2026-07-12 - D-41 R5 T7/PDU-054 reconciled 2 cited declaration claims to the live implemented slice, current authority, and surviving residuals; per-deliverable backcheck removed the exact D-41 bootstrap item. State remains IN_PROGRESS; no review, validation, issuance, or lifecycle ruling was made.
 - 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).
+- 2026-09-22 - R5 concordance record repair applied under current owner direction and Agent 0's bounded brief; corrected declared-state/Remaining facts or amendment metadata against the recorded basis. Exact before/after operations and evidence are in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5/TASKS/STATUS_REPAIR/operations.json`. Lifecycle state, human/reviewer holds and release/engineering-acceptance boundaries are unchanged.

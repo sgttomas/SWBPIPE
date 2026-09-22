@@ -2,7 +2,7 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-05-04
 package_id: PKG-05
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@eaad463c0d481f6f1654e6adb5ee718f566176e9
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-047]
 package_objective_refs: [OBJ-005, OBJ-011]
 ---
@@ -96,7 +96,7 @@ This Scope of Work defines `DEL-05-04` in service of project scope [SOW-047] and
 >
 > - `_CONTEXT.md`
 > - `_REFERENCES.md`
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register)
 > - `docs/_Registers/Deliverables.csv` row DEL-05-04
 > - `docs/_Registers/ScopeLedger.csv` row SOW-047
 > - `docs/_Registers/ContextBudgetQA.csv` row DEL-05-04
@@ -189,7 +189,7 @@ This Scope of Work defines `DEL-05-04` in service of project scope [SOW-047] and
 
 > ##### Documentation
 >
-> Required local artifacts are `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, `_STATUS.md`, `MEMORY.md`, `_REVIEW.md`, `Review_Findings.csv`, and `_run_records/`. These local artifacts summarize and cite implemented evidence; they are not lifecycle approval records.
+> Required local artifacts are `ScopeOfWork.md`, `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, `_STATUS.md`, `MEMORY.md`, `_REVIEW.md`, `Review_Findings.csv`, and `_run_records/`. These local artifacts summarize and cite implemented evidence; they are not lifecycle approval records.
 >
 
 ### CLM-015 — Conflict Table (for human ruling)
@@ -237,7 +237,7 @@ This Scope of Work defines `DEL-05-04` in service of project scope [SOW-047] and
 > |---|---|---|
 > | 1 | Read the sealed context and confirm the deliverable is DEL-05-04 / PKG-05 / SOW-047. | `_CONTEXT.md`; run record |
 > | 2 | Read governing vocabulary and invariants for analysis statuses, authority boundaries, missing data, report provenance, and human acceptance records. | `docs/TYPES.md`; `docs/CONTRACT.md`; architecture note |
-> | 3 | Maintain the four-document kit as deliverable-local evidence for the analysis-status state model. | `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md` |
+> | 3 | Maintain the `ScopeOfWork.md` as deliverable-local evidence for the analysis-status state model. | `ScopeOfWork.md` |
 > | 4 | Build the semantic matrix lens as question-shaping evidence, not engineering authority. | `_SEMANTIC.md` |
 > | 5 | Build the semantic lensing register and capture warranted gaps/questions with `HumanRuling=TBD`. | `_SEMANTIC_LENSING.md` |
 > | 6 | Apply only source-supported Pass 3 refinements, preserving unresolved items as `TBD`. | Four documents and run record |
@@ -264,7 +264,7 @@ This Scope of Work defines `DEL-05-04` in service of project scope [SOW-047] and
 >
 > | Check | Expected result |
 > |---|---|
-> | Four-document kit exists | `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` are present. |
+> | `ScopeOfWork.md` exists | `ScopeOfWork.md` is present. |
 > | Local write boundary | No schema, API, Rust, TypeScript, GUI, or test implementation files are created or edited inside this deliverable-local maintenance tranche. |
 > | Status distinction preserved | Mechanics, rule-pack, incomplete-data, and human-acceptance statuses remain distinct. |
 > | Human approval boundary preserved | Automatic software approval/compliance claims are absent; human acceptance remains external and `TBD` where unresolved. |

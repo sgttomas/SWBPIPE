@@ -2,7 +2,7 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-02-03
 package_id: PKG-02
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@69ac259a7113d5a838fb22aa2e84df0e0f109713
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-002]
 package_objective_refs: [OBJ-001, OBJ-011]
 ---
@@ -376,7 +376,7 @@ This Scope of Work defines `DEL-02-03` in service of project scope [SOW-002] and
 > | Data-boundary check | No protected standards/code data, code tables, copied formulas, proprietary examples, or certification/compliance claims are introduced. |
 > | TBD/ASSUMPTION check | Unknown implementation details remain `TBD`; inferred design choices are labeled `ASSUMPTION`. |
 > | Architecture-basis check | Applicable SCA-001 basis IDs are referenced as constraints without copying full PKG-00 prose. |
-> | Cross-document check | Datasheet, Specification, Guidance, and Procedure use consistent terms and status meanings. |
+> | Cross-document check | `ScopeOfWork.md` uses consistent terms and status meanings. |
 >
 
 ### CLM-021 — Records

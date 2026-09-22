@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-04-01
 package_id: PKG-04
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@69ac259a7113d5a838fb22aa2e84df0e0f109713
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-005, SOW-035]
 package_objective_refs: [OBJ-003]
 ---
 
 # Scope of Work — DEL-04-01
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -23,17 +25,6 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-002 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-04-01-DECL-002`.
->
-
 ### CLM-003 — Identification
 
 > ##### Identification
@@ -45,7 +36,7 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 > | Package ID | PKG-04 |
 > | Package name | Solver Core and Numerical Methods |
 > | Type | BACKEND_FEATURE_SLICE |
-> | Decomposition basis | execution/_Decomposition/SOFTWARE_DECOMP.md revision 0.7 |
+> | Decomposition basis | execution/_Decomposition/SOFTWARE_DECOMP.md (accepted authority; see the project decision register) |
 > | Register basis | docs/_Registers/Deliverables.csv row DEL-04-01 |
 > | Scope items | SOW-005, SOW-035 |
 > | Objective support | OBJ-003 |
@@ -223,7 +214,7 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 > ##### Prerequisites
 >
 > - Confirm the active deliverable is DEL-04-01 and the write scope is the assigned deliverable or future implementation path explicitly authorized by a sealed brief.
-> - Read `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, `_SEMANTIC.md`, and `_SEMANTIC_LENSING.md`.
+> - Read `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, `ScopeOfWork.md`, `_SEMANTIC.md`, and `_SEMANTIC_LENSING.md`.
 > - Confirm applicable invariants: OPS-K-MECH-1, OPS-K-MECH-2, OPS-K-UNIT-1, OPS-K-SOLVER-1, OPS-K-DATA-2, OPS-K-REPORT-1, OPS-K-AGENT-1..4, and OPS-K-IP-1.
 > - Confirm architecture basis IDs AB-00-01, AB-00-02, AB-00-03, AB-00-06, and AB-00-08.
 > - Obtain or cite lawful mechanics/numerics references before implementing formulas, expected numerical values, tolerances, or benchmark thresholds.
@@ -284,17 +275,6 @@ This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW
 > #### Guidance: DEL-04-01 3D frame stiffness kernel
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-023 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-04-01-DECL-003`.
->
 
 ### CLM-024 — Purpose
 

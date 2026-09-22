@@ -2,7 +2,7 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-12-05
 package_id: PKG-12
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@4d153302c3c4cd42578936db160c2bac1270225a
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-040]
 package_objective_refs: [OBJ-010]
 ---
@@ -145,7 +145,7 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 > | Theme | Control intent | Source |
 > |---|---|---|
 > | Local-first default | Prevent hidden network dependency or hidden cloud storage for ordinary workflows. | `docs/PRD.md` 18.1; `docs/DIRECTIVE.md` section 4.2 |
-> | Explicit disclosure action | Require user intent before private data leaves local control. | `docs/PRD.md` 18.2-18.3 |
+> | Disclosure and runtime-provider boundary | Public contributions and exported artifacts retain their governed user-intent, rights, warning and redaction controls. For the owner's own private model/Class-B data, DEC-051 permits transmission through an owner-configured agent/model-provider channel with no further app-side residency guard, opt-in gate or indicator. Telemetry stays off by default and third-party-IP/public-commit prohibitions remain. | `DEC-051`; `docs/CONTRACT.md` OPS-K-PRIV-1/2; `docs/IP_AND_DATA_BOUNDARY.md` §6.1 |
 > | Redaction and warning | Warn before export and redact private data from bug reports. | `docs/PRD.md` 18.3; `execution/_Decomposition/SOFTWARE_DECOMP.md` `SOW-040` |
 > | Provenance and redistribution | Record source, license/redistribution status, and review disposition. | `docs/IP_AND_DATA_BOUNDARY.md` section 4; `docs/CONTRACT.md` `OPS-K-IP-2` |
 > | Sandboxed evaluation | Keep rule packs from executing arbitrary code. | `docs/SPEC.md` section 6; `docs/CONTRACT.md` `OPS-K-RULE-2` |
@@ -195,7 +195,7 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 
 > ##### Scope
 >
-> This specification defines the deliverable-local setup content for the planned OpenPipeStress security threat model. It covers private data handling threats for local-first workflows, report sharing, shared model/export paths, plugins, imports, rule packs, private libraries, and supply chain exposure.
+> This specification defines the deliverable-local setup content for the planned SWBPIPE security threat model. It covers private data handling threats for local-first workflows, report sharing, shared model/export paths, plugins, imports, rule packs, private libraries, and supply chain exposure.
 >
 > This document is not the product artifact `docs/security/threat_model.md`; it is the setup-stage source content inside the sealed DEL-12-05 folder. It must not introduce protected standards content, real private project data, real secrets, legal sufficiency claims, certification claims, or professional approval claims (PRD §21.2).
 >
@@ -248,10 +248,10 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 >
 > | Standard or policy basis | Status in this deliverable |
 > |---|---|
-> | OpenPipeStress `CONTRACT.md` invariants | Binding project constraints for this setup work. |
-> | OpenPipeStress `DIRECTIVE.md` stop rules | Binding stop/escalation rules for protected data, missing values, and overclaims. |
-> | OpenPipeStress `IP_AND_DATA_BOUNDARY.md` | Governing policy for public/private data, provenance, and quarantine. |
-> | OpenPipeStress `SPEC.md` | Technical baseline for layers, rule-pack evaluator, diagnostics, reporting, and acceptance semantics. |
+> | SWBPIPE `CONTRACT.md` invariants | Binding project constraints for this setup work. |
+> | SWBPIPE `DIRECTIVE.md` stop rules | Binding stop/escalation rules for protected data, missing values, and overclaims. |
+> | SWBPIPE `IP_AND_DATA_BOUNDARY.md` | Governing policy for public/private data, provenance, and quarantine. |
+> | SWBPIPE `SPEC.md` | Technical baseline for layers, rule-pack evaluator, diagnostics, reporting, and acceptance semantics. |
 > | JSON Schema 2020-12 | Architecture baseline for future schemas/interchange; no schema is authored here. |
 > | External legal/compliance standards | `TBD`; not interpreted here. |
 >
@@ -405,7 +405,7 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 >
 > Required records for this run:
 >
-> - `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`
+> - `ScopeOfWork.md`
 > - `_SEMANTIC.md`
 > - `_SEMANTIC_LENSING.md`
 > - `Dependencies.csv`
@@ -437,7 +437,7 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 
 > ##### Purpose
 >
-> This guidance explains how to interpret and maintain the OpenPipeStress security threat model setup content for private data handling. The deliverable exists to make privacy, protected-content, report-sharing, plugin/import, and supply-chain risks visible before implementation details harden.
+> This guidance explains how to interpret and maintain the SWBPIPE security threat model setup content for private data handling. The deliverable exists to make privacy, protected-content, report-sharing, plugin/import, and supply-chain risks visible before implementation details harden.
 >
 > The threat model is a development artifact. It supports architecture and review; it is not legal advice (PRD §21.2). Acceptance, professional judgment, and any certification, sealing, or code-compliance determination remain with the responsible engineer and project authority.
 >
@@ -449,7 +449,7 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 > | Principle | Guidance |
 > |---|---|
 > | Local-first by default | Treat ordinary modeling, solving, rule checking, reporting, and private-library use as local workflows. Cloud operation requires separate approval. |
-> | Explicit disclosure | Treat private data leaving local control as a user-intent event requiring warning, review, redaction, or explicit attachment/export action. |
+> | Disclosure by channel | Apply user-intent, rights, warning and redaction controls to the public-contribution and artifact-export channels under their governing contracts. The owner-configured agent/model-provider channel follows DEC-051 OPEN RESIDENCY for the owner's own private model/Class-B data, without an additional app-side guard, opt-in gate or indicator. This exception leaves telemetry off by default and the public-commit and third-party-IP boundaries intact; it neither establishes a live provider path nor closes unmet security controls. |
 > | Private by default | Treat project files, rule packs, private material/component libraries, owner standards, diagnostics, reports, and secrets as private unless the user intentionally contributes or exports them with documented rights. |
 > | Provenance before reuse | Treat imported or contributed data without source/license/redistribution metadata as incomplete or suspect. |
 > | Sandboxed extensibility | Treat plugins, adapters, importers, script APIs, and rule evaluators as untrusted boundaries until validation, sandboxing, permissions, diagnostics, and no-bypass controls are specified. |

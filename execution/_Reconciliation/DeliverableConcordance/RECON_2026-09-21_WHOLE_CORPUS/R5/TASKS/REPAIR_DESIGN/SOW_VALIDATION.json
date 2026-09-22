@@ -1,0 +1,524 @@
+[
+  {
+    "path": "projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-02_Copyright and protected-data boundary policy/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-03_Contributor certification workflow/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-04_Professional responsibility and product-claims policy/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-01_Canonical domain model schema/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-03_Code-neutral analysis boundary model/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-04_Plugin and extension domain contracts/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-03_Bend and elbow component model fields/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-04_Branch connection component model fields/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-05_Rigid component models for valves, flanges, reducers, and specialty items/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-05_Sparse solver performance harness/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-02_Load-case algebra engine/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-04_Analysis status semantics/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-01_Rule-pack schema/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-02_Sandboxed unit-aware expression evaluator/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-03_Required-input completeness checker/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-04_Private rule-pack lifecycle and checksum handling/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-05_Invented non-code example rule pack/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-02_Audit manifest and model hash/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-03_Warnings, assumptions, and provenance report section/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-05_Report protected-content linter/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-06_State, comparison, and handoff report sections/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-02_Stress recovery benchmark suite/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-05_Release quality gate checklist/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-01_Public API and plugin boundary/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-02_Import-export adapter framework/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-03_Local FEA handoff data contract/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-04_Build, packaging, and CI-CD pipeline/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-01_User guide skeleton/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-02_Developer guide for solver and rule packs/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-03_Theory notes- classical to modern centerline analysis/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-04_Invented educational example models/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-05_Contributor tutorial and onboarding/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-01_Local-first storage and private data paths/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-02_Private data redaction and export controls/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-03_Telemetry off-by-default design/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-05_Security threat model/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-01_Design knowledge schema and provenance model/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-02_Constraint entity and provenance model/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-01_Immutable model state records/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-01_Canonical handoff package schema and manifest/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-02_Target mapping and unsupported-behavior contract/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-03_Downstream modeling export workflow/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-04_External prover boundary metadata/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-04_Agent rationale and professional-boundary controls/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-01_CAEPIPE and export-format source basis/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-04_CAEPIPE MBF export profile and deterministic writer/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-05_CAEPIPE external run harness and CSV parser/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-07_Conservative PCF subset exporter/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-08_GLB glTF review geometry export/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-09_Export adapter SDK and additional targets/ScopeOfWork.md",
+    "valid": true,
+    "state": "SOW_V1",
+    "issues": []
+  }
+]

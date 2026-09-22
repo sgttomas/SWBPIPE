@@ -2,7 +2,7 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-17-03
 package_id: PKG-17
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@e8f59a63372f38d9e788ac39b39995558f5aba73
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-030, SOW-074]
 package_objective_refs: [OBJ-009, OBJ-017]
 ---
@@ -52,7 +52,7 @@ This Scope of Work defines `DEL-17-03` in service of project scope [SOW-030, SOW
 > |---|---|
 > | `manifest` | Records source model identity, export profile, package member inventory, hashes, diagnostics, and boundary notes. |
 > | `model_payload` | Carries the project-owned JSON representation selected by a future exporter. |
-> | `stable_id_map` | Maps canonical OpenPipeStress IDs to package-local records. |
+> | `stable_id_map` | Maps canonical SWBPIPE IDs to package-local records. |
 > | `loss_report` | Records exported, omitted, approximated, delegated, unsupported, and TBD behavior. |
 > | `validation_report` | Records package-shape and source-boundary checks without claiming solver validation. |
 > | `diagnostics` | Carries warnings and blocking messages from export preparation. |
@@ -120,7 +120,7 @@ This Scope of Work defines `DEL-17-03` in service of project scope [SOW-030, SOW
 > | Req ID | Requirement |
 > |---|---|
 > | DEL-17-03-REQ-001 | The native JSON package shall include a manifest, model payload, stable ID map, loss report, validation report, and diagnostics concept. |
-> | DEL-17-03-REQ-002 | The package contract shall preserve canonical OpenPipeStress identity directly in JSON records or through a package-local ID map. |
+> | DEL-17-03-REQ-002 | The package contract shall preserve canonical SWBPIPE identity directly in JSON records or through a package-local ID map. |
 > | DEL-17-03-REQ-003 | The manifest shall identify source model reference, export profile ID, package members, deterministic hash basis, and boundary notes. |
 > | DEL-17-03-REQ-004 | The loss report shall use the DEL-17-02 categories: exported, omitted, approximated, delegated, unsupported, and TBD. |
 > | DEL-17-03-REQ-005 | Validation report content shall be package-shape and source-boundary evidence only; it shall not claim solver validation or professional acceptance. |

@@ -1,11 +1,11 @@
 # Status: DEL-10-04 Build, packaging, and CI/CD pipeline
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-08-21
+**Last Updated:** 2026-09-22
 
 ## Remaining
 - Activate public sanitized-export repo CI at the DEC-059 conditions: pipeline landed pending owner review (TP-E5-EXPORTPIPE-001, PR #161); still needed — owner-signed D-20/DEC-058 green scan of the staged export, public-repo creation/naming per DEC-057, making the export self-verifying or trimming its test set, and owner review of the v1 include/exclude allowlist (gated: D-05b; stage-gated: first public publication) (source: PRD plan §3 E5 row / DEC-059 / TP-E5-EXPORTPIPE-001 residuals)
-- Sign/notarize release artifacts or record the explicit deviation from the historical v0.1 PRD §22.6 read through the D-21 Annex A crosswalk (forward home: the DEC-056 R6-entry release-machinery residuals) (gated: D-06b) (source: PRD plan §3 E5 row / register row D-06b / DEC-057)
+- Carry the DEC-089 policy-only future Apple Developer ID signing/notarization target through its separately applicable gates. D-06b is already ruled; DEC-057's current unsigned posture continues with checksum, commit-bound sweep, release record and unsigned-install caveat until signing/notarization requirements are satisfied and accepted. The registered App ID (subsequently amended by DEC-106) is not evidence of signing/notarization or a release. Historical v0.1 PRD §22.6 remains an R6-entry release-machinery residual under D-21/DEC-056; no release action is authorized here.
 
 ## History
 - 2026-08-21 - Accepted N3 preventive CI hardening: Playwright GitCommitInfo capture is disabled at the source config because run identity is already commit-bound by the evidence sweep; governance Candidate whitespace now has a three-minute step timeout and a legible failure annotation. G4 validation passed and its public derivative export remains explicitly deferred. Existing publication/signing residuals and lifecycle are unchanged.
@@ -37,3 +37,4 @@
 - 2026-07-11 - Remaining seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
 - 2026-07-12 - D-41 R5 T1 recorded the `DEC-074` O3/PDU-077 scope clarification that root `projects/chirality-piping/package.json` is DEL-10-04 implementation/build evidence for desktop workspace scripts and the preview-mechanics fixture-generator command. All five Remaining items are preserved verbatim pending other applicable R5 backchecks; no lifecycle change. The separate D-42 build-readiness panel conflict remains unresolved and untouched.
 - 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).
+- 2026-09-22 - R5 concordance record repair applied under current owner direction and Agent 0's bounded brief; corrected declared-state/Remaining facts or amendment metadata against the recorded basis. Exact before/after operations and evidence are in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5/TASKS/STATUS_REPAIR/operations.json`. Lifecycle state, human/reviewer holds and release/engineering-acceptance boundaries are unchanged.

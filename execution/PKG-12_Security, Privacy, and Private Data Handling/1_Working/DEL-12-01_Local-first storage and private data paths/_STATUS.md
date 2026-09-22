@@ -3,6 +3,8 @@
 <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 ## D-41 R5 T7 PDU-055 current declaration
 
+> Historical declaration, superseded as current on 2026-09-22 by the authorized R5 record repair under concordance method Rev2 §3.1. The following D-41 text is retained verbatim as history, including its former revision/DAG pins. Current authority comes from the accepted decomposition and decision register; this old blanket declaration does not supersede sibling claims. Lifecycle and closure fences in the preserved text continue to apply.
+
 Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
 
 Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
@@ -10,10 +12,10 @@ Surviving deliverable-local residuals and gates are those recorded in `_STATUS.m
 PDU-055 cited claim(s): `DEL-12-01-DECL-005`.
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-08-21
+**Last Updated:** 2026-09-22
 
 ## Remaining
-- Complete LFSP-REQ-011's runtime path-resolution, storage round-trip/migration, and report/export integration test families only when their owning implementations exist. PDU-036's transform trace-gap fixture is adjacent verification evidence and does not validate or substitute for these absent storage families.
+- Complete LFSP-REQ-011 runtime private-path resolution and obtain a bounded review mapping its required test families to the existing storage round-trip/migration and report/export evidence. Candidate evidence exists at `apps/desktop/src-tauri/src/lib.rs::saved_edited_load_model_round_trips_and_solves_from_restored_payload`, `::store_migration_ledger_reconciles_legacy_store_and_preserves_rows`, and `apps/desktop/src/services/reportPackageSaveService.test.ts` (missing/blocked local-first evidence rejection). This corrects the claim that all storage families are absent; it does not establish that these tests satisfy LFSP-REQ-011. PDU-036's adjacent trace-gap fixture remains no substitute, and RF-001/RF-002 below remain human-held.
 - Obtain owner/human-review dispositions for open `RF-001` and `RF-002`; current status wording and T3/T4 runtime/storage residual homes do not close either finding, and `HumanDisposition` remains `TBD` (PDU-060).
 
 ## History
@@ -34,6 +36,7 @@ PDU-055 cited claim(s): `DEL-12-01-DECL-005`.
 - 2026-07-02 - State set to IN_PROGRESS (affirmed; human K-CONFLICT-1 ruling, bridge Loop 2): records the 2026-06-16 header reversal from CHECKING that commit 28219696d left unlogged; ruling record at execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-07-02_2050/Decision_Log.md.
 - 2026-07-11 - Remaining section added and seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
 - 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).
+- 2026-09-22 - R5 concordance record repair applied under current owner direction and Agent 0's bounded brief; corrected declared-state/Remaining facts or amendment metadata against the recorded basis. Exact before/after operations and evidence are in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5/TASKS/STATUS_REPAIR/operations.json`. Lifecycle state, human/reviewer holds and release/engineering-acceptance boundaries are unchanged.
 
 ## Setup Gate Evidence
 

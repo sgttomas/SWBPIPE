@@ -2,7 +2,7 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-04-03
 package_id: PKG-04
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@69ac259a7113d5a838fb22aa2e84df0e0f109713
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-011]
 package_objective_refs: [OBJ-003]
 ---
@@ -172,7 +172,7 @@ This Scope of Work defines `DEL-04-03` in service of project scope [SOW-011] and
 > - `core/solver/linear_supports/README.md`;
 > - `core/solver/linear_supports/src/lib.rs`;
 > - deliverable-local run records for the May 15 and June 5 implementation slices;
-> - this four-document kit and `MEMORY.md`.
+> - this `ScopeOfWork.md` and `MEMORY.md`.
 >
 > Decision records are still required for any later resolution of support coordinate policy, sparse solver integration, final result-envelope integration, release criteria, or other governed choices outside the current bounded implementation.
 >
@@ -229,7 +229,7 @@ This Scope of Work defines `DEL-04-03` in service of project scope [SOW-011] and
 
 > ##### Verification
 >
-> - Four-document kit exists and uses consistent terminology for linear support/restraint models.
+> - `ScopeOfWork.md` exists and uses consistent terminology for linear support/restraint models.
 > - Required support-data gaps are represented as `TBD` or support findings, not defaults.
 > - Current test evidence references deterministic mechanics verification and unit/dimensional checks for support stiffness and imposed displacement values.
 > - Implementation evidence includes `prepare_boundary`, `apply_linear_supports`, frame-kernel `FrameDof` re-export, `node_dof_index` indexing, `SupportQuantity` unit metadata, and 14 passing `linear_supports` tests.
@@ -241,7 +241,7 @@ This Scope of Work defines `DEL-04-03` in service of project scope [SOW-011] and
 
 > ##### Records
 >
-> - `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md`.
+> - `ScopeOfWork.md`.
 > - `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` historical semantic artifacts.
 > - `Dependencies.csv` v3.1 and `_DEPENDENCIES.md`.
 > - `_run_records/TASK_RUN_*.md` entries for four-documents P1/P2, semantic matrix, lens register, four-documents P3, dependency extraction, implementation evidence, support boundary hardening, and this review-readiness alignment.

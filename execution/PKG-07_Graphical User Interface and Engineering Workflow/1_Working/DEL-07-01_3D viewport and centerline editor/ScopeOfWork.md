@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-07-01
 package_id: PKG-07
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@eaad463c0d481f6f1654e6adb5ee718f566176e9
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-020]
 package_objective_refs: [OBJ-006]
 ---
 
 # Scope of Work — DEL-07-01
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -22,17 +24,6 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 > #### Datasheet: DEL-07-01 3D viewport and centerline editor
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-002 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-07-01-DECL-002`.
->
 
 ### CLM-003 — Identification
 
@@ -127,17 +118,6 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-009 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-07-01-DECL-001`.
->
-
 ### CLM-010 — Scope
 
 > ##### Scope
@@ -185,7 +165,7 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 >
 > | Standard or governing source | Status |
 > |---|---|
-> | OpenPipeStress governance and invariant documents | Accessible local governing source |
+> | SWBPIPE governance and invariant documents | Accessible local governing source |
 > | PRD GUI requirements | Accessible local product source |
 > | SCA-001 architecture basis | Accepted downstream dispatch basis, not `ISSUED` product implementation |
 > | Exact GUI dependency versions | `TBD`; future implementation decision |
@@ -243,17 +223,6 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-017 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-07-01-DECL-004`.
->
-
 ### CLM-018 — Purpose
 
 > ##### Purpose
@@ -292,7 +261,7 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 > 7. Run `four-documents` with `RUN_PASSES=P3_ONLY` by treating `_SEMANTIC_LENSING.md` as a candidate worklist only; incorporate only source-supported changes.
 > 8. Run `dependency-extract` for this deliverable and write `Dependencies.csv` plus `_DEPENDENCIES.md` with anchor and execution dependencies.
 > 9. Validate local artifacts:
->    - four-document kit exists;
+>    - `ScopeOfWork.md` exists;
 >    - dependency schema is valid;
 >    - dependency enum values are canonical;
 >    - semantic artifacts and run records exist;
@@ -354,17 +323,6 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 > #### Guidance: DEL-07-01 3D viewport and centerline editor
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-025 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-07-01-DECL-003`.
->
 
 ### CLM-026 — Purpose
 

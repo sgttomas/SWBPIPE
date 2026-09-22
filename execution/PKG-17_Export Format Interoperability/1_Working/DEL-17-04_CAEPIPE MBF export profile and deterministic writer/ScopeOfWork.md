@@ -2,7 +2,7 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-17-04
 package_id: PKG-17
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@e8f59a63372f38d9e788ac39b39995558f5aba73
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-030, SOW-074, SOW-075]
 package_objective_refs: [OBJ-009, OBJ-017, OBJ-018]
 ---
@@ -53,7 +53,7 @@ This Scope of Work defines `DEL-17-04` in service of project scope [SOW-030, SOW
 > | DEL-17-01 source basis | Carry CAEPIPE source findings, TBD register entries, and question-dossier gates into the target profile. |
 > | DEL-17-02 export contract | Carry export profile, stable-ID map, manifest, and loss-report vocabulary into the writer contract. |
 > | CAEPIPE public MBF import reference | Treat as evidence for MBF text input, keyword-ordered sections, and command-line behavior only; profile coverage remains source-gated. |
-> | CAEPIPE public MBF export reference | Treat as evidence that CAEPIPE exports MBF model data and version-flavoured MBF output; OpenPipeStress support claims remain `TBD`. |
+> | CAEPIPE public MBF export reference | Treat as evidence that CAEPIPE exports MBF model data and version-flavoured MBF output; SWBPIPE support claims remain `TBD`. |
 > | Implementation evidence | `core/handoff/caepipe_mbf/`, `schemas/caepipe_mbf_export.schema.json`, `fixtures/caepipe_mbf/invented/`, and `tests/test_caepipe_mbf_export_package.py` provide bounded foundation evidence. |
 >
 
@@ -113,7 +113,7 @@ This Scope of Work defines `DEL-17-04` in service of project scope [SOW-030, SOW
 > | DEL-17-04-REQ-003 | The writer contract shall not silently approximate unsupported physical or analytical model entities. |
 > | DEL-17-04-REQ-004 | The writer contract shall require a loss report for omitted, approximated, delegated, unsupported, and TBD behavior. |
 > | DEL-17-04-REQ-005 | Stable canonical ID carrying inside MBF shall remain `TBD`; sidecar mapping shall be required when direct carrying is not source-confirmed. |
-> | DEL-17-04-REQ-006 | Pass-through target options shall remain target configuration metadata and shall not become OpenPipeStress local code-checking logic. |
+> | DEL-17-04-REQ-006 | Pass-through target options shall remain target configuration metadata and shall not become SWBPIPE local code-checking logic. |
 > | DEL-17-04-REQ-007 | Later implementation shall use invented fixtures only. |
 > | DEL-17-04-REQ-008 | The first implementation foundation shall use sidecar stable-ID mapping while `TBD-17-01-003` remains open. |
 > | DEL-17-04-REQ-009 | The first implementation foundation shall expose blocking diagnostics when the invented smoke subset, sidecar stable-ID map, or loss report is missing. |
@@ -174,7 +174,7 @@ This Scope of Work defines `DEL-17-04` in service of project scope [SOW-030, SOW
 >
 > 1. Read DEL-17-01 source-basis dossier and CAEPIPE question dossier.
 > 2. Read DEL-17-02 export package/profile/stable-ID/loss-report contract.
-> 3. Draft the CAEPIPE MBF profile/writer four-document kit at contract/design level only.
+> 3. Draft the CAEPIPE MBF profile/writer `ScopeOfWork.md` at contract/design level only.
 > 4. Generate `_SEMANTIC.md` with `semantic-matrix-build`.
 > 5. Generate `_SEMANTIC_LENSING.md` with `lens-register`.
 > 6. Apply warranted P3 enrichment through `four-documents P3_ONLY`.
@@ -203,7 +203,7 @@ This Scope of Work defines `DEL-17-04` in service of project scope [SOW-030, SOW
 
 > ##### Implementation Readiness Checks
 >
-> Before a later writer tranche begins, re-read DEL-17-01, DEL-17-02, the admitted public MBF references, and this four-document kit. The tranche must record:
+> Before a later writer tranche begins, re-read DEL-17-01, DEL-17-02, the admitted public MBF references, and this `ScopeOfWork.md`. The tranche must record:
 >
 > 1. Target version/profile closure or explicit carried `TBD`.
 > 2. MBF record-family and required-field subset closure or explicit carried `TBD`.
@@ -279,7 +279,7 @@ This Scope of Work defines `DEL-17-04` in service of project scope [SOW-030, SOW
 >
 > For this foundation, explicit unsupported behavior defaults to warning-level loss-report evidence unless the loss entry marks it blocking. Missing unsupported loss coverage, malformed unsupported references, or `info` severity for unsupported behavior are blocking because they would hide material target-scope limits.
 >
-> Pass-through CAEPIPE options are metadata for the target profile because they may name target-side analysis settings. They must not become OpenPipeStress local code-checking logic, local professional acceptance logic, or a substitute for user-supplied rule packs and human review.
+> Pass-through CAEPIPE options are metadata for the target profile because they may name target-side analysis settings. They must not become SWBPIPE local code-checking logic, local professional acceptance logic, or a substitute for user-supplied rule packs and human review.
 >
 
 ### CLM-022 — Open Questions

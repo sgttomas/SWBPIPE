@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-17-01
 package_id: PKG-17
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@e8f59a63372f38d9e788ac39b39995558f5aba73
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-030, SOW-074, SOW-075]
 package_objective_refs: [OBJ-009, OBJ-017, OBJ-018]
 ---
 
 # Scope of Work — DEL-17-01
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -138,7 +140,7 @@ This Scope of Work defines `DEL-17-01` in service of project scope [SOW-030, SOW
 > | DEL-17-01-REQ-001 | The deliverable shall use only public, official, project-owned, or otherwise admitted source references listed in `_REFERENCES.md` and `PKG-17/0_References/_REFERENCE_INDEX.md`. |
 > | DEL-17-01-REQ-002 | CAEPIPE-specific facts shall be grounded in official/public CAEPIPE documentation or explicitly marked `TBD`. |
 > | DEL-17-01-REQ-002A | Every non-trivial governed claim in the source-basis register and CAEPIPE question dossier shall include a source path plus best-effort section/heading reference, or explicit `location TBD`. |
-> | DEL-17-01-REQ-003 | PCF-specific facts shall distinguish documented translator behavior from OpenPipeStress export intentions. |
+> | DEL-17-01-REQ-003 | PCF-specific facts shall distinguish documented translator behavior from SWBPIPE export intentions. |
 > | DEL-17-01-REQ-004 | glTF/GLB facts shall be limited to review-geometry export semantics and shall not imply solver geometry equivalence. |
 > | DEL-17-01-REQ-005 | Later `DEL-17-*` deliverables shall consume this deliverable before making target-format claims. |
 >
@@ -152,7 +154,7 @@ This Scope of Work defines `DEL-17-01` in service of project scope [SOW-030, SOW
 > | DEL-17-01-REQ-010 | The source basis shall not include bundled CAEPIPE binaries, copied commercial examples, proprietary model files, reverse-engineered binary behavior, or license-bypass instructions. |
 > | DEL-17-01-REQ-011 | The source basis shall not include protected standards text, protected tables, proprietary formulas, standards-derived examples, material allowables, SIF/flexibility tables, or owner criteria. |
 > | DEL-17-01-REQ-012 | A CAEPIPE run, import, export, or parsed CSV result shall be described only as non-authoritative regression/handoff evidence unless a later human professional review process separately accepts it. |
-> | DEL-17-01-REQ-013 | Target solver options may be recorded as pass-through configuration, but shall not become OpenPipeStress local code-checking logic. |
+> | DEL-17-01-REQ-013 | Target solver options may be recorded as pass-through configuration, but shall not become SWBPIPE local code-checking logic. |
 > | DEL-17-01-REQ-014 | Unknown or version-sensitive target behavior shall remain `TBD` and shall gate implementation claims in downstream deliverables. |
 >
 
@@ -202,17 +204,6 @@ This Scope of Work defines `DEL-17-01` in service of project scope [SOW-030, SOW
 > #### Procedure: DEL-17-01 CAEPIPE and export-format source basis
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-017 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-17-01-DECL-004`.
->
 
 ### CLM-018 — Procedure Purpose
 
@@ -265,7 +256,7 @@ This Scope of Work defines `DEL-17-01` in service of project scope [SOW-030, SOW
 >
 > Before a downstream `DEL-17-*` deliverable is populated or modified:
 >
-> 1. Read this four-document kit.
+> 1. Read this `ScopeOfWork.md`.
 > 2. Read `Source_Basis_Register.md`.
 > 3. Read `CAEPIPE_Question_Dossier.md`.
 > 4. Confirm all relevant TBDs are either closed or explicitly carried forward.
@@ -336,7 +327,7 @@ This Scope of Work defines `DEL-17-01` in service of project scope [SOW-030, SOW
 
 > ##### CAEPIPE Guidance
 >
-> CAEPIPE is the first CAEPIPE-focused source-basis target because the admitted references support a text model handoff and optional external execution workflow. This does not make OpenPipeStress a CAEPIPE replacement, does not bundle CAEPIPE, and does not create a claim that exported models are accepted engineering work.
+> CAEPIPE is the first CAEPIPE-focused source-basis target because the admitted references support a text model handoff and optional external execution workflow. This does not make SWBPIPE a CAEPIPE replacement, does not bundle CAEPIPE, and does not create a claim that exported models are accepted engineering work.
 >
 > For downstream work:
 >

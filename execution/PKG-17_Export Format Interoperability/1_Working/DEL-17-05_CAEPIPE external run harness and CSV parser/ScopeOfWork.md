@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-17-05
 package_id: PKG-17
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@e8f59a63372f38d9e788ac39b39995558f5aba73
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-030, SOW-046, SOW-075]
 package_objective_refs: [OBJ-007, OBJ-009, OBJ-017, OBJ-018]
 ---
 
 # Scope of Work — DEL-17-05
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -22,17 +24,6 @@ This Scope of Work defines `DEL-17-05` in service of project scope [SOW-030, SOW
 > #### Datasheet: DEL-17-05 CAEPIPE external run harness and CSV parser
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-002 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-17-05-DECL-002`.
->
 
 ### CLM-003 — Identification
 
@@ -63,7 +54,7 @@ This Scope of Work defines `DEL-17-05` in service of project scope [SOW-030, SOW
 > | Input target | CAEPIPE MBF emitted by DEL-17-04 or a later accepted implementation tranche; exact supported MBF profile remains `TBD`. |
 > | Expected target output | CAEPIPE CSV result file when the user-owned external run produces one; output filename/location behavior is source-supported but invocation profile details remain `TBD`. |
 > | CSV parser role | Regression and handoff evidence extraction only. Parsed CSV rows are not professional acceptance, code compliance, formal validation, or proof of CAEPIPE compatibility. |
-> | Stable identity | Correlation to OpenPipeStress canonical IDs shall use DEL-17-02/DEL-17-04 manifest and sidecar ID-map evidence where possible; direct CSV identity coverage remains `TBD`. |
+> | Stable identity | Correlation to SWBPIPE canonical IDs shall use DEL-17-02/DEL-17-04 manifest and sidecar ID-map evidence where possible; direct CSV identity coverage remains `TBD`. |
 > | Test posture | Automated tests without a configured executable shall skip with an explicit reason; parser-only tests shall use invented or rights-cleared fixtures. |
 >
 
@@ -126,17 +117,6 @@ This Scope of Work defines `DEL-17-05` in service of project scope [SOW-030, SOW
 > #### Specification: DEL-17-05 CAEPIPE external run harness and CSV parser
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-010 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-17-05-DECL-001`, `DEL-17-05-EXC-001`, `DEL-17-05-EXC-002`.
->
 
 ### CLM-011 — Scope
 
@@ -216,7 +196,7 @@ This Scope of Work defines `DEL-17-05` in service of project scope [SOW-030, SOW
 > | DEL-17-01 source basis | CAEPIPE-specific facts require official/public CAEPIPE evidence or explicit `TBD`; external runs and parsed CSVs remain non-authoritative regression/handoff evidence. |
 > | DEL-17-02 export contract | Export packages require manifest, stable-ID map, loss report, boundary notes, and external execution as optional user-owned metadata. |
 > | DEL-17-04 MBF profile | CAEPIPE version/profile, MBF record subset, stable-ID strategy, and unsupported-entity severity remain carried gates for the harness. |
-> | Official CAEPIPE public documentation | Evidence supports MBF import/export, CSV output surfaces, and batch/command-line CSV production, but does not close parser-section coverage or OpenPipeStress compatibility. |
+> | Official CAEPIPE public documentation | Evidence supports MBF import/export, CSV output surfaces, and batch/command-line CSV production, but does not close parser-section coverage or SWBPIPE compatibility. |
 >
 
 ### CLM-016 — Verification
@@ -285,17 +265,6 @@ This Scope of Work defines `DEL-17-05` in service of project scope [SOW-030, SOW
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-021 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-17-05-DECL-004`.
->
-
 ### CLM-022 — Purpose
 
 > ##### Purpose
@@ -337,7 +306,7 @@ This Scope of Work defines `DEL-17-05` in service of project scope [SOW-030, SOW
 
 > ###### Phase A document population
 >
-> 1. Create the four-document kit: `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md`.
+> 1. Create the `ScopeOfWork.md`.
 > 2. Ground CAEPIPE-specific facts in DEL-17-01 source IDs and official/public CAEPIPE references.
 > 3. Carry forward unresolved target behavior as `TBD`, especially:
 >    - first CAEPIPE version/profile;
@@ -442,7 +411,7 @@ This Scope of Work defines `DEL-17-05` in service of project scope [SOW-030, SOW
 >
 > Phase A records:
 >
-> - four-document kit;
+> - `ScopeOfWork.md`;
 > - updated `_STATUS.md`;
 > - `_run_records/TASK_RUN_2026-05-18_1156.md`;
 > - validation command output summarized in the run record.
@@ -474,17 +443,6 @@ This Scope of Work defines `DEL-17-05` in service of project scope [SOW-030, SOW
 > #### Guidance: DEL-17-05 CAEPIPE external run harness and CSV parser
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-033 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-17-05-DECL-003`.
->
 
 ### CLM-034 — Purpose
 
@@ -522,7 +480,7 @@ This Scope of Work defines `DEL-17-05` in service of project scope [SOW-030, SOW
 >
 > The public CAEPIPE import documentation supports MBF as a text model input path and describes command-line CSV creation from an MBF input. The batch-mode documentation also describes CSV output from MBF input, but its command shape includes a batch-mode argument pattern. DEL-17-05 should therefore carry the exact first invocation profile as `TBD` until the project chooses a documented profile or receives support clarification.
 >
-> The export-data documentation supports CSV/text output surfaces for model and result data. It does not, by itself, define which CSV sections are stable enough for automated parser coverage in the first OpenPipeStress harness. Parser coverage should be explicit, small, and test-backed.
+> The export-data documentation supports CSV/text output surfaces for model and result data. It does not, by itself, define which CSV sections are stable enough for automated parser coverage in the first SWBPIPE harness. Parser coverage should be explicit, small, and test-backed.
 >
 > The harness should not attempt to infer CAEPIPE solver validity. It can record operational facts such as input file written, executable invoked, CSV discovered, parser completed, counts matched where meaningful, and rows correlated to canonical IDs where possible.
 >
@@ -557,7 +515,7 @@ This Scope of Work defines `DEL-17-05` in service of project scope [SOW-030, SOW
 > Not acceptable:
 >
 > - A committed CAEPIPE executable, installer, commercial example model, or copied vendor fixture.
-> - A claim that OpenPipeStress is CAEPIPE-compatible because a CSV file was produced.
+> - A claim that SWBPIPE is CAEPIPE-compatible because a CSV file was produced.
 > - A claim that a successful CAEPIPE run proves code compliance, professional acceptance, or formal validation.
 > - A parser that silently treats unknown sections or unmapped rows as supported.
 >
@@ -568,7 +526,7 @@ This Scope of Work defines `DEL-17-05` in service of project scope [SOW-030, SOW
 >
 > | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
 > |---|---|---|---|---|---|---|
-> | DEL-17-05-CONF-001 | Public CAEPIPE pages describe related MBF-to-CSV execution patterns, but the exact first OpenPipeStress invocation profile is not selected. | `CAEPIPE-IMPORT-MBF`, command-line operation, lines 15-20. | `CAEPIPE-BATCH`, batch-mode notes, lines 40-52. | `Specification.md` REQ-003/004; `Procedure.md` run-profile steps. | Carry invocation profile as `TBD` until support clarification or human profile decision. | TBD |
+> | DEL-17-05-CONF-001 | Public CAEPIPE pages describe related MBF-to-CSV execution patterns, but the exact first SWBPIPE invocation profile is not selected. | `CAEPIPE-IMPORT-MBF`, command-line operation, lines 15-20. | `CAEPIPE-BATCH`, batch-mode notes, lines 40-52. | `Specification.md` REQ-003/004; `Procedure.md` run-profile steps. | Carry invocation profile as `TBD` until support clarification or human profile decision. | TBD |
 > | DEL-17-05-CONF-002 | CSV export surfaces are documented, but stable parser-section coverage for automated regression is not selected. | `CAEPIPE-EXPORT-DATA`, export list, lines 31-43. | DEL-17-01 `TBD-17-01-004` and CQ-17-01-005. | `Specification.md` REQ-009; parser coverage records. | Keep first parser coverage `TBD`; require fixture-confirmed parser coverage before implementation claims. | TBD |
 >
 

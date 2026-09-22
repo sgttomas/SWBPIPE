@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-10-03
 package_id: PKG-10
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@4d153302c3c4cd42578936db160c2bac1270225a
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-031, SOW-049]
 package_objective_refs: [OBJ-009]
 ---
 
 # Scope of Work — DEL-10-03
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -35,17 +37,6 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-003 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-10-03-DECL-002`.
->
-
 ### CLM-004 — Identification
 
 > ##### Identification
@@ -72,7 +63,7 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 > | Attribute | Value | Source |
 > |---|---|---|
 > | Boundary purpose | Define an export package for selected local shell/solid FEA handoff and advisory labels for when handoff is recommended. | `_CONTEXT.md` Description; `docs/_Registers/Deliverables.csv` row DEL-10-03 |
-> | Normal global method | OpenPipeStress primary analysis remains a 3D centerline/frame model. | `INIT.md` boundaries; `docs/DIRECTIVE.md` section 3; `docs/CONTRACT.md` OPS-K-MECH-1 |
+> | Normal global method | SWBPIPE primary analysis remains a 3D centerline/frame model. | `INIT.md` boundaries; `docs/DIRECTIVE.md` section 3; `docs/CONTRACT.md` OPS-K-MECH-1 |
 > | Handoff role | Local FEA handoff is a specialized interoperability path for local-detail problems, not the normal global analysis method. | `docs/_Registers/ScopeLedger.csv` rows SOW-031 and SOW-049 |
 > | Contract baseline | Schema-first command/query/job result envelopes; JSON Schema 2020-12 public schema/interchange basis; canonical JSON/JCS-compatible hash basis where JSON payloads are hashed. | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2 |
 > | Adapter boundary | Handoff exports are governed adapter payloads and cannot bypass unit checks, provenance, diagnostics, privacy, protected-content screening, report controls, or professional-boundary language. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-02, AB-00-06, AB-00-07; `docs/SPEC.md` section 1 |
@@ -103,7 +94,7 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 >
 > | Contract surface | Minimum concept slots | Setup status |
 > |---|---|---|
-> | Handoff package identity | Package ID, source project/model IDs, originating OpenPipeStress version, package schema version, creation timestamp, privacy/export posture. | Concept defined; final schema field names TBD. |
+> | Handoff package identity | Package ID, source project/model IDs, originating SWBPIPE version, package schema version, creation timestamp, privacy/export posture. | Concept defined; final schema field names TBD. |
 > | Selected local-detail scope | Region selection reference, included components/elements/nodes, cut boundary description, selection rationale, advisory criteria label. | Concept defined; selection UX and storage details TBD. |
 > | Global model context | Units, coordinate frame, model hash, relevant materials/sections/components by reference, solve status, load case/result basis, diagnostics summary. | Concept defined; exact result reference structure TBD. |
 > | Boundary condition transfer | Cut locations, coordinate frames, displacement/force/moment/resultant context, load-case association, sign convention notes, unit metadata. | Concept defined; no external solver mapping chosen. |
@@ -144,17 +135,6 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 > #### Specification: Local FEA Handoff Data Contract
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-011 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-10-03-DECL-001`.
->
 
 ### CLM-012 — Scope
 
@@ -227,7 +207,7 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 > | Gate | Pass condition |
 > |---|---|
 > | Scope gate | Only DEL-10-03 deliverable-local files are edited. |
-> | Document gate | Datasheet, Specification, Guidance, and Procedure exist and include default sections. |
+> | Document gate | `ScopeOfWork.md` exists and includes required sections. |
 > | Semantic gate | `_SEMANTIC.md` exists, contains matrices A, B, C, F, D, K, G, X, T, E, and passes the local result-cell audit. |
 > | Lensing gate | `_SEMANTIC_LENSING.md` exists, covers every cell in matrices A, B, C, F, D, X, E, and preserves lens-not-authority separation. |
 > | Dependency gate | `Dependencies.csv` exists, validates against v3.1 required columns, uses canonical write-form enums, and `_DEPENDENCIES.md` summarizes active rows. |
@@ -240,7 +220,7 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 >
 > Required setup artifacts for DEL-10-03:
 >
-> - Deliverable-local local FEA handoff contract kit: `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`.
+> - Deliverable-local local FEA handoff contract kit: `ScopeOfWork.md`.
 > - Semantic setup artifacts: `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, and `_run_records/*`.
 > - Dependency artifacts: `Dependencies.csv` and `_DEPENDENCIES.md`.
 >
@@ -277,17 +257,6 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 > #### Procedure: Local FEA Handoff Data Contract
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-020 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-10-03-DECL-004`.
->
 
 ### CLM-021 — Purpose
 
@@ -343,7 +312,7 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 >    - Confirm no protected standards text, tables, copied formulas, proprietary vendor data, private project data, private rule-pack values, or commercial software examples are embedded.
 >    - Confirm no wording claims certification, sealing, approval, endorsement, or code compliance (PRD §21.2).
 > 8. Produce setup artifacts:
->    - Four-document kit.
+>    - `ScopeOfWork.md`.
 >    - `_SEMANTIC.md`.
 >    - `_SEMANTIC_LENSING.md`.
 >    - `Dependencies.csv`.
@@ -412,17 +381,6 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-029 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-10-03-DECL-003`.
->
-
 ### CLM-030 — Purpose
 
 > ##### Purpose
@@ -434,7 +392,7 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 
 > ##### Principles
 >
-> - Treat local FEA handoff as an optional interoperability path. The OpenPipeStress global model remains a 3D centerline/frame model unless later scope explicitly changes that boundary.
+> - Treat local FEA handoff as an optional interoperability path. The SWBPIPE global model remains a 3D centerline/frame model unless later scope explicitly changes that boundary.
 > - Keep the handoff package descriptive and reproducible. It should identify the source model, selected local region, units, load/result basis, diagnostics, assumptions, provenance, and hashes.
 > - Keep criteria labels advisory. They can help a user decide where further local review may be warranted. Acceptance, professional judgment, and any certification, sealing, or code-compliance determination remain with the responsible engineer and project authority.
 > - Prefer schema-ready concepts and `TBD` placeholders over invented external solver fields, mesh settings, or proprietary exchange behavior.

@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-15-02
 package_id: PKG-15
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@e8f59a63372f38d9e788ac39b39995558f5aba73
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-074]
 package_objective_refs: [OBJ-017]
 ---
 
 # Scope of Work — DEL-15-02
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -22,17 +24,6 @@ This Scope of Work defines `DEL-15-02` in service of project scope [SOW-074] and
 > #### Datasheet: DEL-15-02 Target mapping and unsupported-behavior contract
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-002 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-15-02-DECL-002`.
->
 
 ### CLM-003 — Identification
 
@@ -161,7 +152,7 @@ This Scope of Work defines `DEL-15-02` in service of project scope [SOW-074] and
 > |---|---|---|
 > | JSON Schema 2020-12 | The architecture basis identifies JSON Schema 2020-12 contracts for schema-first boundaries. | Applicable; schema file path is `schemas/target_mapping.schema.json`. |
 > | Canonical JSON / JCS-compatible hash basis | The architecture basis identifies canonical JSON/JCS-compatible hashing where JSON payloads are hashed. | Applicable to hashed JSON payloads; provider-neutral binding fields are in `source_context`, while package container remains TBD. |
-> | OpenPipeStress invariant catalog | Governs unit, provenance, data, professional-boundary, report, and privacy constraints. | Applicable via `docs/CONTRACT.md`. |
+> | SWBPIPE invariant catalog | Governs unit, provenance, data, professional-boundary, report, and privacy constraints. | Applicable via `docs/CONTRACT.md`. |
 > | Protected data boundary policy | Governs public/private data handling, protected content, and public export defaults. | Applicable via `docs/IP_AND_DATA_BOUNDARY.md`. |
 > | External commercial tool standards | Not established in accessible source material. | TBD; do not infer target-specific clauses or behavior. |
 >
@@ -210,17 +201,6 @@ This Scope of Work defines `DEL-15-02` in service of project scope [SOW-074] and
 > #### Procedure: DEL-15-02 Target mapping and unsupported-behavior contract
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-017 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-15-02-DECL-004`.
->
 
 ### CLM-018 — Purpose
 
@@ -296,7 +276,7 @@ This Scope of Work defines `DEL-15-02` in service of project scope [SOW-074] and
 >
 > | Check | Expected result |
 > |---|---|
-> | Four-document consistency | Datasheet, Specification, Guidance, and Procedure use the same deliverable ID, package ID, scope item, objective, and TBD boundaries. |
+> | Scope of Work consistency | `ScopeOfWork.md` uses the same deliverable ID, package ID, scope item, objective, and TBD boundaries. |
 > | Source grounding | Non-trivial claims cite `_CONTEXT.md`, decomposition/registers, approved dependency mirror, or listed governing docs. |
 > | Unsupported behavior | Unsupported and approximate behavior are explicit; no silent defaults are introduced. |
 > | Privacy/IP boundary | Public artifacts do not copy private/protected payloads. |
@@ -338,22 +318,11 @@ This Scope of Work defines `DEL-15-02` in service of project scope [SOW-074] and
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-025 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-15-02-DECL-003`.
->
-
 ### CLM-026 — Purpose
 
 > ##### Purpose
 >
-> This deliverable prevents silent loss of critical handoff assumptions or unsupported target behavior. It supplies the contract surface for explaining how internal OpenPipeStress entities map into a handoff target and where a target cannot carry the source semantics exactly.
+> This deliverable prevents silent loss of critical handoff assumptions or unsupported target behavior. It supplies the contract surface for explaining how internal SWBPIPE entities map into a handoff target and where a target cannot carry the source semantics exactly.
 >
 
 ### CLM-027 — Principles

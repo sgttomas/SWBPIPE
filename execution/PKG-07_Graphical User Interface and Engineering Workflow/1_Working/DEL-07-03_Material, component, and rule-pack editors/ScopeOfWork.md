@@ -2,7 +2,7 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-07-03
 package_id: PKG-07
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@eaad463c0d481f6f1654e6adb5ee718f566176e9
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-021]
 package_objective_refs: [OBJ-006]
 ---
@@ -103,7 +103,7 @@ This Scope of Work defines `DEL-07-03` in service of project scope [SOW-021] and
 > - `_CONTEXT.md` - sealed deliverable identity, architecture basis injection, and write-scope context.
 > - `_REFERENCES.md` - preparation reference index.
 > - `INIT.md` - bootstrap and project boundaries.
-> - `AGENTS.md` - OpenPipeStress agent index and dispatch rule.
+> - `AGENTS.md` - SWBPIPE agent index and dispatch rule.
 > - `docs/DIRECTIVE.md` - founding intent, product boundaries, and stop rules.
 > - `docs/CONTRACT.md` - invariant catalog.
 > - `docs/TYPES.md` - statuses, data provenance labels, and domain object vocabulary.
@@ -205,7 +205,7 @@ This Scope of Work defines `DEL-07-03` in service of project scope [SOW-021] and
 > | Verification ID | Requirement(s) | Verification approach |
 > |---|---|---|
 > | DEL-07-03-V-001 | R-001 | Confirm changed paths remain within the assigned deliverable folder and no `ISSUED` path exists. |
-> | DEL-07-03-V-002 | R-002 to R-007 | Review the four-document kit for all editor surface names: materials, sections, components, load cases, supports, rule packs, and private libraries. |
+> | DEL-07-03-V-002 | R-002 to R-007 | Review the `ScopeOfWork.md` for all editor surface names: materials, sections, components, load cases, supports, rule packs, and private libraries. |
 > | DEL-07-03-V-003 | R-003 to R-007, R-010 | Confirm all missing engineering values are `TBD`, user-supplied, or provenance-marked rather than defaulted. |
 > | DEL-07-03-V-004 | R-008 to R-009 | Confirm application-service command routing and durable/transient state split are recorded as constraints, with exact state library `TBD`. |
 > | DEL-07-03-V-005 | R-010 to R-012 | Confirm warning classes and professional-boundary text are present and no compliance/certification claim appears. |
@@ -311,7 +311,7 @@ This Scope of Work defines `DEL-07-03` in service of project scope [SOW-021] and
 >
 > 2. Run `four-documents` with `RUN_PASSES=P1_P2`.
 >    - Read `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, and the decomposition/register source slices.
->    - Produce `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md`.
+>    - Produce `ScopeOfWork.md`.
 >    - Keep default sections present in all four documents.
 >    - Mark unknown engineering values and implementation choices as `TBD`.
 >    - Update `_STATUS.md` from `OPEN` to `INITIALIZED` only if current state is `OPEN`.

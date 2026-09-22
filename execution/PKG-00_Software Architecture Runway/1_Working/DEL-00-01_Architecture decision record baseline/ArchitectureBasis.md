@@ -3,7 +3,7 @@
 
 Classification: `ARCHITECTURE_BASIS_REFERENCE`
 Consolidates: `Datasheet.md`, `Specification.md`, `Procedure.md`, `Guidance.md` (four-document kit, consolidated 2026-07-15 per piping decision D-43; source bytes hash-bound in the package `CONSOLIDATION_MANIFEST.md` and preserved in git history)
-Authority basis: `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.9, architecture-basis row AB-00-01
+Authority basis: `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see `execution/_Coordination/_DECISIONS/_REGISTER.md`), architecture-basis row AB-00-01
 Dependency direction: one-way — project packages depend on this member; this member depends on no package deliverable (HUMAN-STEER-PKG00-EXCLUSION-001)
 
 ## Purpose
@@ -53,7 +53,7 @@ Boundary: this member authorizes no product implementation code and does not adv
 
 ## Open holds and routed questions
 
-- Exact dependency versions, component/state libraries, rule expression grammar/library, public API transport, CI provider, and coverage thresholds remain implementation-level TBDs under the DEC-012 boundary unless a sealed brief or later human ruling resolves them (DEC-009 codification note; DEC-012).
+- Implementation-level choices are governed by DEC-012 and may be resolved in a sealed brief or later human ruling. Current dependency versions, local GUI component/state choices and repository tooling are recorded in their implementation and accepted change evidence. Changes to the DEC-009 runtime/UI baseline, public interfaces, dimensional semantics, privacy boundaries or registered acceptance criteria retain their own decision paths. The current state-hook realization is evidenced by the adopted UI program and `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/B-SHELL/briefs/B2-STATE.md`; lockfile-bound installation is recorded in the adopted `execution/_Coordination/CANDIDATE_BRIEF_2026-07-15_DEL-10-04_CI_BROWSER_MAPPING.md` T1. These references settle only their scoped implementation choices; unresolved rule-expression, public-transport, CI and coverage-policy portions retain their respective decision records.
 - Signing/notarization re-decision is deferred to register row D-06b (`NOT_PREPARED`); v0.1 ships unsigned per DEC-057.
 - Licensing constraints for numerical library policy: DEC-023 selected a zero-dependency in-repo solver, mooting third-party solver licensing for the current basis; broader dependency-licensing policy has no dedicated ruling and remains open under DEC-012.
 

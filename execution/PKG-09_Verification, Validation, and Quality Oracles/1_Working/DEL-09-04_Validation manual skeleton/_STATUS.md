@@ -1,10 +1,10 @@
 # Status: DEL-09-04 Validation manual skeleton
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-08-20
+**Last Updated:** 2026-09-22
 
 ## Remaining
-- Close E2 manual residuals (first assembly landed TP-E2-VALMANUAL-001, PR #154): runner benchmark/regression payload bindings landed via DEL-10-05 / PR #287 (Receipt-59; `export-results` remains the only structured runner stub, bounded DEL-10-05 work); MAINTAINER_REVIEWED case-page promotion remains open; evidence-bundle storage policy resolved by DEC-080 — ruled home `validation/evidence/reproduction/<run-id>/` (source: TP-E2-VALMANUAL-001 residuals / Receipt 10)
+- Complete owner/maintainer review and MAINTAINER_REVIEWED promotion of the validation-manual case pages. Runner benchmark/regression and export-results report-package payload bindings are landed evidence; export-results is not a remaining runner stub (see `core/runner/headless/src/bin/openpipestress-runner.rs` and `validation/witness/generated/del1005_export_results_*.json`). DEC-080 establishes the evidence-bundle home `validation/evidence/reproduction/<run-id>/`; binding witnesses do not promote case-page review or engineering validation.
 - Select final public-benchmark result-comparison values after the ruled V-D measurement/design derivative; DEC-046 C-B nonlinear convergence values are recorded at release scope as policy only (`0 count` relative field, `0 count` absolute floor, cap `4` for all five classes, inclusive final changed-support count zero), not as a release act (source: owner rulings 2026-08-11 / `HELP-HUMAN-PIPING-20260810-DEL0904-OWNER-GATES`)
 
 ## History
@@ -28,3 +28,4 @@
 - 2026-07-10 - Remaining section added: open scope rehomed from plans/ per owner-adopted consolidation (loop Receipt 12); no state change.
 - 2026-07-11 - Remaining seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
 - 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).
+- 2026-09-22 - R5 concordance record repair applied under current owner direction and Agent 0's bounded brief; corrected declared-state/Remaining facts or amendment metadata against the recorded basis. Exact before/after operations and evidence are in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5/TASKS/STATUS_REPAIR/operations.json`. Lifecycle state, human/reviewer holds and release/engineering-acceptance boundaries are unchanged.

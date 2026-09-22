@@ -1,10 +1,10 @@
 # Status: DEL-13-02 Constraint entity and provenance model
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-09-22
 
 ## Remaining
-- Obtain the owning human disposition for `PKG13-DEL-13-02-PKG02-001`; preserve `TECHNICALLY_ADDRESSED_PENDING_HUMAN` and `HumanDisposition=TBD` despite current unit-vocabulary evidence (PDU-060).
+- Obtain the owning human disposition for `PKG13-DEL-13-02-PKG02-001`; the review record remains `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`. Reassess its technical premise: `schemas/units.schema.yaml` includes `force_per_length`, while the constraint dimension enum in `schemas/constraint.schema.json` does not. Current vocabulary evidence therefore does not establish enum parity. No reviewer finding or human gate is closed by this factual correction (PDU-060).
 
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 1 cited declaration claim to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
@@ -19,3 +19,4 @@
 - 2026-07-02 - State set to IN_PROGRESS (affirmed; human K-CONFLICT-1 ruling, bridge Loop 2): records the 2026-06-16 header reversal from CHECKING that commit 28219696d left unlogged; ruling record at execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-07-02_2050/Decision_Log.md.
 - 2026-07-11 - Remaining section added and seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
 - 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).
+- 2026-09-22 - R5 concordance record repair applied under current owner direction and Agent 0's bounded brief; corrected declared-state/Remaining facts or amendment metadata against the recorded basis. Exact before/after operations and evidence are in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5/TASKS/STATUS_REPAIR/operations.json`. Lifecycle state, human/reviewer holds and release/engineering-acceptance boundaries are unchanged.

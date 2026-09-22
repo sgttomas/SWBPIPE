@@ -1,0 +1,14 @@
+{
+  "files": 95,
+  "patches": 165,
+  "changed_references": 146,
+  "source_key_outcomes": {
+    "PARTIAL_REPAIR": 93,
+    "DIRECT_REPAIRED": 13
+  },
+  "paired_csv_extraction": "accepted extractor bespoke_surfaces",
+  "changed_reference_multiset": "PASS",
+  "missing_negative_control": "REJECTED",
+  "duplicate_negative_control": "REJECTED",
+  "no_status_or_issued_edits": true
+}

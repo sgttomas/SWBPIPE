@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-15-03
 package_id: PKG-15
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@e8f59a63372f38d9e788ac39b39995558f5aba73
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-074]
 package_objective_refs: [OBJ-017]
 ---
 
 # Scope of Work — DEL-15-03
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -22,17 +24,6 @@ This Scope of Work defines `DEL-15-03` in service of project scope [SOW-074] and
 > #### Datasheet: DEL-15-03 Downstream modeling export workflow
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-002 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-15-03-DECL-002`.
->
 
 ### CLM-003 — Identification
 
@@ -169,7 +160,7 @@ This Scope of Work defines `DEL-15-03` in service of project scope [SOW-074] and
 > |---|---|---|
 > | JSON Schema 2020-12 | Contract basis for schema-backed handoff/package validation. | Applicable from `_CONTEXT.md#Architecture Basis Injection`; current upstream schemas are `schemas/handoff_package.schema.json` and `schemas/target_mapping.schema.json`. |
 > | Producer-declared JSON hash basis | Carry supplied checksum algorithm, payload scope, digest, and canonicalization label unchanged; no recomputation or conformance ruling by this workflow. | Applicable from `_CONTEXT.md#Architecture Basis Injection`; exact producer payload boundaries remain external to DEL-15-03. |
-> | OpenPipeStress invariant catalog | Governs data, unit, professional-boundary, IP, privacy, and agent-output constraints. | Applicable from `docs/CONTRACT.md`. |
+> | SWBPIPE invariant catalog | Governs data, unit, professional-boundary, IP, privacy, and agent-output constraints. | Applicable from `docs/CONTRACT.md`. |
 > | IP and Data Boundary Policy | Governs protected-content, private-data, fixture, and provenance handling. | Applicable from `docs/IP_AND_DATA_BOUNDARY.md`. |
 > | Commercial stress tool formats | Target-specific parsers and commercial examples are out of scope. | Deferred; concrete mappings, target field coverage, and target-specific implementation remain gated by OI-015, DEL-17-01, and DEL-17-02. |
 >
@@ -298,7 +289,7 @@ This Scope of Work defines `DEL-15-03` in service of project scope [SOW-074] and
 
 > ##### Purpose
 >
-> This deliverable exists to provide the generic handoff export workflow that turns OpenPipeStress model and analysis context into schema-compliant downstream modeling handoff packages. Its purpose is traceable transfer, not external-tool validation or professional approval.
+> This deliverable exists to provide the generic handoff export workflow that turns SWBPIPE model and analysis context into schema-compliant downstream modeling handoff packages. Its purpose is traceable transfer, not external-tool validation or professional approval.
 >
 
 ### CLM-025 — Principles

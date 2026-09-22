@@ -2,7 +2,7 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-01-03
 package_id: PKG-01
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@69ac259a7113d5a838fb22aa2e84df0e0f109713
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-028, SOW-048]
 package_objective_refs: [OBJ-002]
 ---
@@ -203,7 +203,7 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 
 > ##### Acceptance Criteria
 >
-> - The local kit contains the required four documents and generated semantic/dependency artifacts.
+> - The local kit contains the required `ScopeOfWork.md` and generated semantic/dependency artifacts.
 > - Repo-level contributor workflow artifacts exist as drafts, but this current-basis refresh does not modify them.
 > - Final contributor legal mechanism, legal sufficiency, reviewer authority, and acceptance require recorded human project authority approval.
 > - No protected standards/code data, copied tables, proprietary values, or legal conclusions are introduced.
@@ -337,7 +337,7 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 
 > ##### Purpose
 >
-> This workflow exists to make public contribution intake auditable before data enters the OpenPipeStress public repository. It supports OBJ-002 by separating open mechanics and permissibly redistributable public data from protected standards-body content, proprietary vendor data, private user/project data, and user-supplied code data.
+> This workflow exists to make public contribution intake auditable before data enters the SWBPIPE public repository. It supports OBJ-002 by separating open mechanics and permissibly redistributable public data from protected standards-body content, proprietary vendor data, private user/project data, and user-supplied code data.
 >
 
 ### CLM-027 — Principles

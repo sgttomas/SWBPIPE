@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-13-01
 package_id: PKG-13
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@2770fda4c63c98ee9f18cffbafd14c9aa59f497f
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-067]
 package_objective_refs: [OBJ-014]
 ---
 
 # Scope of Work — DEL-13-01
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -206,17 +208,6 @@ This candidate defines `DEL-13-01` in service of project scope [SOW-067] and pac
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-014 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-13-01-DECL-004`.
->
-
 ### CLM-015 — Purpose
 
 > ##### Purpose
@@ -233,7 +224,7 @@ This candidate defines `DEL-13-01` in service of project scope [SOW-067] and pac
 > | Deliverable context for DEL-13-01 | Present in `_CONTEXT.md`. |
 > | Reference index | Present in `_REFERENCES.md`. |
 > | Approved dependency mirror | Present as `_DEPENDENCIES.md` and `Dependencies.csv`; preserve all approved DAG-006 rows as ACTIVE. |
-> | Decomposition basis | `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7. |
+> | Decomposition basis | `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register). |
 > | Applicable invariants | `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/SPEC.md`, and `docs/IP_AND_DATA_BOUNDARY.md`. |
 > | Implementation evidence | Present in `RUN_2026-05-04_IMPLEMENTATION.md`, `MEMORY.md`, `schemas/design_knowledge.schema.json`, and `tests/test_design_knowledge_schema.py`. |
 > | Product schema artifact | Present at repo root: `schemas/design_knowledge.schema.json`. |
@@ -289,7 +280,7 @@ This candidate defines `DEL-13-01` in service of project scope [SOW-067] and pac
 > | Check | Expected result |
 > |---|---|
 > | Scope check | DEL-13-01, PKG-13, SOW-067, and OBJ-014 match `_CONTEXT.md` and decomposition. |
-> | Four-document consistency | Datasheet, Specification, Guidance, and Procedure use the same category list and boundary terms. |
+> | Scope of Work consistency | `ScopeOfWork.md` uses the same category list and boundary terms. |
 > | Unsupported details | Unsupported downstream/runtime specifics are marked `TBD` or `ASSUMPTION`. |
 > | Public/private boundary | No prohibited protected/private data is introduced. |
 > | Professional boundary | No automatic professional or code-compliance authority is introduced. |

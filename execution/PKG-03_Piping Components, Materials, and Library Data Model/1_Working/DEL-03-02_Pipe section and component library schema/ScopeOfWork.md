@@ -2,7 +2,7 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-03-02
 package_id: PKG-03
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@69ac259a7113d5a838fb22aa2e84df0e0f109713
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-018]
 package_objective_refs: [OBJ-004]
 ---
@@ -47,7 +47,7 @@ This Scope of Work defines `DEL-03-02` in service of project scope [SOW-018] and
 > | Scope item | SOW-018 | SourcePath: `docs/_Registers/ScopeLedger.csv`; SectionRef: row SOW-018 |
 > | Objective | OBJ-004 | SourcePath: `execution/_Decomposition/SOFTWARE_DECOMP.md`; SectionRef: objective row OBJ-004 |
 > | Implemented schema artifacts | `schemas/component.schema.yaml`; `schemas/section.schema.yaml` | SourcePath: `schemas/component.schema.yaml`; SourcePath: `schemas/section.schema.yaml` |
-> | Decomposition basis | `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7 | SourcePath: `_CONTEXT.md`; SectionRef: Decomposition Reference |
+> | Decomposition basis | `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register) | SourcePath: `_CONTEXT.md`; SectionRef: Decomposition Reference |
 > | Responsible party | TBD | Not assigned in accessible sources |
 >
 
@@ -277,7 +277,7 @@ This Scope of Work defines `DEL-03-02` in service of project scope [SOW-018] and
 >    - Use invented/public-safe fixtures only.
 >
 > 6. Perform consistency review.
->    - Confirm Datasheet, Specification, Guidance, and Procedure use consistent terms: section library record, component library record, provenance, redistribution status, unit-aware value, protected-content gate, and private/public data boundary.
+>    - Confirm `ScopeOfWork.md` uses consistent terms: section library record, component library record, provenance, redistribution status, unit-aware value, protected-content gate, and private/public data boundary.
 >    - Convert unsupported details to `TBD`, `ASSUMPTION`, or a Conflict Table entry.
 >
 > 7. Stop and escalate when needed.
@@ -300,7 +300,7 @@ This Scope of Work defines `DEL-03-02` in service of project scope [SOW-018] and
 
 > ##### Records
 >
-> - `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` record active deliverable evidence.
+> - `ScopeOfWork.md` records active deliverable evidence.
 > - `_SEMANTIC.md` records the semantic lens generated for this deliverable.
 > - `_SEMANTIC_LENSING.md` records warranted enrichment items.
 > - `Dependencies.csv` and `_DEPENDENCIES.md` record extracted dependency evidence.

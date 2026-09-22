@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-17-06
 package_id: PKG-17
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@e8f59a63372f38d9e788ac39b39995558f5aba73
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-046, SOW-074]
 package_objective_refs: [OBJ-007, OBJ-017, OBJ-018]
 ---
 
 # Scope of Work — DEL-17-06
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -22,17 +24,6 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 > #### Datasheet: DEL-17-06 Stress-neutral CSV/JSON package
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-002 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-17-06-DECL-002`.
->
 
 ### CLM-003 — Identification
 
@@ -94,7 +85,7 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 > | Section table | Reference identity/provenance surface only; no protected dimensional tables or catalog defaults. | Table fields `TBD`. |
 > | Load/design case table | Reviewable load/design case identity and basis. | Table fields `TBD`. |
 > | Units metadata | Declares unit system, dimensions, and conversion basis needed by CSV and JSON consumers. | Exact layout `TBD`. |
-> | ID map | Maps canonical OpenPipeStress IDs to package rows, JSON objects, or sidecars. | Exact layout `TBD`; consume DEL-17-02 rules. |
+> | ID map | Maps canonical SWBPIPE IDs to package rows, JSON objects, or sidecars. | Exact layout `TBD`; consume DEL-17-02 rules. |
 > | Validation report | Records parse/shape checks, loss entries, warnings, and boundary notes. | Exact layout `TBD`; machine-readable and human-readable forms expected where applicable. |
 >
 
@@ -126,8 +117,8 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 > | `docs/TYPES.md` | Result/export, stable identity, data-boundary, no-bypass, and professional-boundary vocabulary. |
 > | `docs/CONTRACT.md` | IP, data, unit, and professional-responsibility invariants. |
 > | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private/protected data boundary and contribution constraints. |
-> | `DEL-17-01` four-document kit | Source-basis and target-claim boundaries for PKG-17. |
-> | `DEL-17-02` four-document kit | Common export package, profile, stable ID map, manifest, and loss-report contract consumed by DEL-17-06. |
+> | `DEL-17-01` `ScopeOfWork.md` | Source-basis and target-claim boundaries for PKG-17. |
+> | `DEL-17-02` `ScopeOfWork.md` | Common export package, profile, stable ID map, manifest, and loss-report contract consumed by DEL-17-06. |
 
 ### CLM-009 — D-41 R5 T2A canonicalization evidence (2026-07-12)
 
@@ -142,17 +133,6 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 > #### Specification: DEL-17-06 Stress-neutral CSV/JSON package
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-011 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-17-06-DECL-001`.
->
 
 ### CLM-012 — Scope
 
@@ -173,7 +153,7 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 > |---|---|---|
 > | DEL-17-06-REQ-001 | The package shall support review, debugging, community adapter development, and comparison across target exporters without presenting itself as a vendor format. | `plans/EXPORT_FORMAT_INTEROPERABILITY_PLAN.md` "Stress Neutral CSV/JSON Package" |
 > | DEL-17-06-REQ-002 | The package shall provide CSV output for inspection/spreadsheet review and JSON output for structured import/export. | `plans/EXPORT_FORMAT_INTEROPERABILITY_PLAN.md` "Stress Neutral CSV/JSON Package" |
-> | DEL-17-06-REQ-003 | The package shall preserve canonical OpenPipeStress identity through direct row/object fields or sidecar ID-map records. Exact field names are `TBD`. | `DEL-17-02/Specification.md` stable ID map requirements |
+> | DEL-17-06-REQ-003 | The package shall preserve canonical SWBPIPE identity through direct row/object fields or sidecar ID-map records. Exact field names are `TBD`. | `DEL-17-02/Specification.md` stable ID map requirements |
 > | DEL-17-06-REQ-004 | The package shall include or reference a manifest that records source model/run basis, package member inventory, hashes where applicable, diagnostics, and boundary notes. Exact manifest layout is `TBD`. | `DEL-17-02/Specification.md` manifest requirements; `docs/SPEC.md` result export section |
 > | DEL-17-06-REQ-005 | The package shall include a loss report even when export succeeds, with exported, omitted, approximated, delegated, unsupported, and `TBD` behavior visible. | `DEL-17-02/Specification.md` loss report requirements |
 > | DEL-17-06-REQ-006 | Result values shall carry explicit unit and dimensional metadata or produce blocking diagnostics. Exact CSV/JSON representation is `TBD`. | `docs/SPEC.md` result export section; `docs/CONTRACT.md` OPS-K-UNIT-1 |
@@ -192,7 +172,7 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 > |---|---|---|
 > | JSON Schema 2020-12 | Baseline for future public JSON schemas/interchange contracts. | Applicable architecture basis; no schema file is created in this Phase A task. |
 > | Declared deterministic JSON hash basis | JSON package members use sorted-key compact ASCII-escaped Python JSON labeled `deterministic_sorted_compact_json_payload_hash`; this is explicitly not JCS. CSV normalization is separately labeled. | D-41 R5 T2A; exact non-current payload partitioning remains `TBD`. |
-> | OpenPipeStress result export envelope | Governs result identity, model/run references, unit-aware values, diagnostics, provenance, reproducibility refs, statuses, rule-pack refs, and downstream-use declarations. | Source-grounded contract basis; additional CSV/JSON package layout remains `TBD`. |
+> | SWBPIPE result export envelope | Governs result identity, model/run references, unit-aware values, diagnostics, provenance, reproducibility refs, statuses, rule-pack refs, and downstream-use declarations. | Source-grounded contract basis; additional CSV/JSON package layout remains `TBD`. |
 > | DEL-17-02 common export contract | Governs export package, profile, stable ID map, manifest, and loss-report behavior. | Required upstream contract for DEL-17-06. |
 > | IP and data-boundary policy | Governs public/private/protected data use and contribution review. | Required for fixtures, examples, reports, and exported artifacts. |
 >
@@ -268,22 +248,11 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-020 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-17-06-DECL-004`.
->
-
 ### CLM-021 — Purpose
 
 > ##### Purpose
 >
-> This procedure describes how to produce and review the Phase A four-document kit for the stress-neutral CSV/JSON package, and how later implementation work should consume it without crossing into code, schema, release, compatibility, or professional-approval claims.
+> This procedure describes how to produce and review the Phase A `ScopeOfWork.md` for the stress-neutral CSV/JSON package, and how later implementation work should consume it without crossing into code, schema, release, compatibility, or professional-approval claims.
 >
 
 ### CLM-022 — Prerequisites
@@ -309,7 +278,7 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 > 3. Read `_REFERENCES.md`, `_DEPENDENCIES.md`, `MEMORY.md`, and the local `_SEMANTIC.md` placeholder.
 > 4. Read the relevant decomposition, export plan, governance, data-boundary, and result-export source slices.
 > 5. Read DEL-17-01 and DEL-17-02 four-document kits for source-basis, target-boundary, stable-ID, manifest, and loss-report carryforward.
-> 6. Populate `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` with source-grounded statements only.
+> 6. Populate `ScopeOfWork.md` with source-grounded statements only.
 > 7. Preserve `TBD` for unresolved target behavior, including exact CSV table names, CSV columns, JSON schema/object layout, package-member paths, comparison tolerances, validation thresholds, and external-target mappings.
 > 8. Exclude proprietary examples, protected standards content, private project data, code-specific allowables, SIF/flexibility values, and professional/code-compliance claims.
 > 9. Run local validation checks allowed for this Phase A documentation task.
@@ -347,7 +316,7 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 >
 > Expected Phase A verification result:
 >
-> - four-document kit exists;
+> - `ScopeOfWork.md` exists;
 > - minimum viable fileset remains present;
 > - professional-boundary terms appear only as prohibited-claim language;
 > - no implementation code, schema files, fixtures, or dependency extraction artifacts are created;
@@ -415,17 +384,6 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-030 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-17-06-DECL-003`.
->
-
 ### CLM-031 — Purpose
 
 > ##### Purpose
@@ -444,7 +402,7 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 
 > ###### Keep the package stress-neutral
 >
-> The package should describe stress-model and result concepts in OpenPipeStress terms, then preserve enough identity, units, diagnostics, provenance, and loss reporting for consumers to understand what was exported. It should not encode target-solver hidden defaults or code-specific acceptance criteria.
+> The package should describe stress-model and result concepts in SWBPIPE terms, then preserve enough identity, units, diagnostics, provenance, and loss reporting for consumers to understand what was exported. It should not encode target-solver hidden defaults or code-specific acceptance criteria.
 >
 
 ### CLM-034 — Prefer explicit gaps over silent meaning

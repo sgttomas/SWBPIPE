@@ -1,12 +1,12 @@
 # Status: DEL-09-05 Release quality gate checklist
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-09-22
 
 ## Remaining
 - Restrict release labels to maturity/evidence vocabulary with no reliance/compliance language (gated: PB-TBD-003, human) (see also DEL-01-04) (source: PRD plan §3 E8 row / RGAP-007)
 - Propose coverage-floor promotion once ≥5 clean-head telemetry artifacts span ≥2 commits per lane (gated: new D-XX row per DEC-060) (source: DEC-060 / Receipt 7)
-- F1: prepare W1–W7 issuance wave review packets for the CHECKING deliverables to the DEC-062 five-point evidence bar; each issuance is a separate owner lifecycle act on deliverable-local `_STATUS.md` (gated: D-11 waves, owner-paced; DEL-01-01 is the ISSUED precedent) (source: PRD plan §3 F1 row / DEC-062)
+- No issuance-wave packet preparation is presently actionable under this item: D-40/DEC-072 returned the only CHECKING deliverables to IN_PROGRESS, and the reconciliation census has no CHECKING candidate. Any future candidate requires its own declared checking basis, evidence and owner lifecycle act; DEC-062's issuance evidence bar remains applicable. DEL-01-01 remains the untouched ISSUED baseline.
 
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 5 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
@@ -24,3 +24,4 @@
 - 2026-07-10 - Remaining section added: open scope rehomed from plans/ per owner-adopted consolidation (loop Receipt 12); no state change.
 - 2026-07-11 - Remaining seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
 - 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).
+- 2026-09-22 - R5 concordance record repair applied under current owner direction and Agent 0's bounded brief; corrected declared-state/Remaining facts or amendment metadata against the recorded basis. Exact before/after operations and evidence are in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5/TASKS/STATUS_REPAIR/operations.json`. Lifecycle state, human/reviewer holds and release/engineering-acceptance boundaries are unchanged.

@@ -1,0 +1,27 @@
+{
+  "corpus_claims": 9889,
+  "original_divergent": 3299,
+  "corpus_outcomes": {
+    "CHANGED_BINDING_RESIDUAL_RETAINED": 227,
+    "DIRECT_REPAIRED": 475,
+    "HELD_UNCHANGED": 2183,
+    "NO_REPAIR_REQUIRED": 58,
+    "PARTIAL_REPAIR": 410,
+    "PRESERVED_CLAIM_REBOUND": 523,
+    "REPAIRED_RECORD_RESIDUAL_PRESERVED": 29,
+    "UNCHANGED_ORIGINAL_DISPOSITION": 5984
+  },
+  "h4_rows": 2234,
+  "h4_outcomes": {
+    "BACKCHECKED_CENSUS": 13,
+    "CHANGED_BINDING_RESIDUAL_RETAINED": 190,
+    "DIRECT_REPAIRED": 463,
+    "HELD_OR_PARTIAL_VIEW": 24,
+    "HELD_UNCHANGED": 1248,
+    "PARTIAL_REPAIR": 254,
+    "REPAIRED_RECORD_RESIDUAL_PRESERVED": 27,
+    "REPAIRED_STATUS_MIRROR": 15
+  },
+  "capabilities": 598,
+  "closure": "BOUNDED_RECORD_REPAIR; substantive authority/production residuals preserved"
+}

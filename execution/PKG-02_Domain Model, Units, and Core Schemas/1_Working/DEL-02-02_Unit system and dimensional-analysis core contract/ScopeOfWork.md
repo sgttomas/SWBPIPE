@@ -2,7 +2,7 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-02-02
 package_id: PKG-02
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@69ac259a7113d5a838fb22aa2e84df0e0f109713
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-025]
 package_objective_refs: [OBJ-001, OBJ-012]
 ---
@@ -156,7 +156,7 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 
 > ##### Scope
 >
-> This specification covers the DEL-02-02 backend feature slice: a draft contract for unit dimensions, conversion rules, storage conventions, and unit test obligations for OpenPipeStress unit-aware data flow.
+> This specification covers the DEL-02-02 backend feature slice: a draft contract for unit dimensions, conversion rules, storage conventions, and unit test obligations for SWBPIPE unit-aware data flow.
 >
 > In scope:
 >

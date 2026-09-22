@@ -39,9 +39,9 @@ boundaries, and product-claim boundaries for the design-engine scope.
 
 ## Decomposition Reference
 - **Decomposition:** execution/_Decomposition/SOFTWARE_DECOMP.md
-- **Accepted Revision:** 0.7
+- **Authority basis:** Resolve `execution/_Decomposition/SOFTWARE_DECOMP.md` and its accepted amendments through `execution/_Coordination/_DECISIONS/_REGISTER.md`; source-state-bound evidence records the evaluated revision.
 - **Status:** current_basis
-- **Approved DAG Context:** execution/_DAG/DAG-006/
+- **Approved DAG Context:** Resolve `execution/_DAG/_LATEST.md` for the accepted graph.
 
 ## Register References
 - **Deliverables Register:** docs/_Registers/Deliverables.csv row DEL-01-04
@@ -51,9 +51,9 @@ boundaries, and product-claim boundaries for the design-engine scope.
 
 ## Architecture Basis Injection
 - **Scope Change:** SCA-001
-- **Architecture Basis:** `PKG-00 - Software Architecture Runway` at `SEMANTIC_READY` supplies dispatchable architecture-basis constraints for this sealed context. This does not mark PKG-00 as `ISSUED`.
+- **Architecture Basis:** Applicable `PKG-00 - Software Architecture Runway` constraints are carried by the consolidated `ArchitectureBasis.md` references under D-43 / SCA-006 and their cited decisions. Use applicable basis IDs as context constraints; this reference makes no lifecycle or issuance assertion.
 - **Current Scope-Change Basis:** SCA-002 adds the design-engine/product-claims scope carried by SOW-064 and OBJ-018; SCA-003 and SCA-004 remain downstream architecture/interoperability context and are not resolved by this deliverable.
-- **Decomposition Revision:** execution/_Decomposition/SOFTWARE_DECOMP.md revision 0.7
+- **Decomposition Reference:** `execution/_Decomposition/SOFTWARE_DECOMP.md`; accepted decisions and amendments are recorded in `execution/_Coordination/_DECISIONS/_REGISTER.md`.
 - **Applicable Basis IDs:** AB-00-01, AB-00-02, AB-00-06, AB-00-08
 - **Resolved Baseline:** Rust core/application services; Tauri 2 desktop shell where GUI-facing; TypeScript/React/Vite GUI where GUI-facing; Three.js viewport where 3D viewport-facing; JSON Schema 2020-12 contracts; schema-first command/query/job result envelopes; canonical JSON/JCS-compatible hash basis where JSON payloads are hashed; Cargo/Vitest/Playwright/validation/protected-content test gates as applicable.
 - **Still TBD:** Jurisdiction-specific professional-practice wording, exact human-acceptance record storage/invalidation workflow, release-label vocabulary, final release policy language, legal-review authority, and final human acceptance of repo-level policy/template text.

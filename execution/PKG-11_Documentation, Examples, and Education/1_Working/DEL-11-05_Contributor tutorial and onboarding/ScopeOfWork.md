@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-11-05
 package_id: PKG-11
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@4d153302c3c4cd42578936db160c2bac1270225a
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-033]
 package_objective_refs: [OBJ-001, OBJ-002]
 ---
 
 # Scope of Work — DEL-11-05
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -22,17 +24,6 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 > #### Datasheet: DEL-11-05 Contributor tutorial and onboarding
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-002 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-11-05-DECL-002`.
->
 
 ### CLM-003 — Identification
 
@@ -58,7 +49,7 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 > |---|---|---|
 > | Primary purpose | _CONTEXT.md; Deliverables.csv row DEL-11-05 | Create an onboarding path for new contributors using package/deliverable decomposition and governance docs. |
 > | Production surface | Human brief | Deliverable-local setup/document production only. Repo-level `CONTRIBUTING`, `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`, documentation outside this deliverable, source code, and repo-level artifacts are excluded from this session. |
-> | Intended audience | docs/AGENTIC_DEVELOPMENT_WORKFLOW.md section 1; AGENTS.md project-specific TASK profiles | New contributors and Type 2 TASK workers who need a safe first path through OpenPipeStress governance, decomposition, and bounded execution. |
+> | Intended audience | docs/AGENTIC_DEVELOPMENT_WORKFLOW.md section 1; AGENTS.md project-specific TASK profiles | New contributors and Type 2 TASK workers who need a safe first path through SWBPIPE governance, decomposition, and bounded execution. |
 > | Documentation targets | _CONTEXT.md; Deliverables.csv row DEL-11-05 | Future CONTRIBUTING tutorial material and future AGENTIC_DEVELOPMENT_WORKFLOW onboarding material, staged here only. |
 > | Data boundary | INIT.md; docs/DIRECTIVE.md sections 3-5; docs/IP_AND_DATA_BOUNDARY.md sections 2-6 | Public onboarding must not introduce protected standards text, copied tables, protected examples, proprietary vendor data, private rule packs, owner standards, or company design bases. |
 > | Professional boundary | docs/CONTRACT.md OPS-K-AUTH-1; docs/TYPES.md section 4; docs/AGENTIC_DEVELOPMENT_WORKFLOW.md section 4 | Onboarding must not state or imply that software, agents, maintainers, or contributors certify, approve, seal, authenticate, or declare engineering code compliance for reliance (PRD §21.2). |
@@ -87,7 +78,7 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 >
 > | Component | Role | Boundary |
 > |---|---|---|
-> | Orientation | Explains OpenPipeStress intent, agent roles, decomposition hierarchy, and sealed-deliverable execution. | Must remain descriptive and source-grounded. |
+> | Orientation | Explains SWBPIPE intent, agent roles, decomposition hierarchy, and sealed-deliverable execution. | Must remain descriptive and source-grounded. |
 > | Safe contribution checklist | Lists protected-data, provenance, privacy, and professional-responsibility checks before public contribution. | Does not replace legal or professional review. |
 > | Type 2 task walkthrough | Shows how a contributor reads `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, `_STATUS.md`, and register rows before working. | Does not authorize cross-deliverable edits. |
 > | Evidence and review handoff | Describes expected outputs, validation evidence, warnings, and review readiness. | Does not mark any artifact accepted or ISSUED. |
@@ -122,22 +113,11 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-009 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-11-05-DECL-001`.
->
-
 ### CLM-010 — Scope
 
 > ##### Scope
 >
-> This deliverable defines a contributor onboarding tutorial draft inside the DEL-11-05 working folder. It covers how contributors should orient to OpenPipeStress governance, the package/deliverable decomposition, sealed Type 2 execution, evidence production, review handoff, and protected-data boundaries.
+> This deliverable defines a contributor onboarding tutorial draft inside the DEL-11-05 working folder. It covers how contributors should orient to SWBPIPE governance, the package/deliverable decomposition, sealed Type 2 execution, evidence production, review handoff, and protected-data boundaries.
 >
 > This setup run does not edit repo-level `CONTRIBUTING`, `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`, documentation outside this deliverable, source code, examples, schemas, or release artifacts. Future publication of the tutorial into repo-level onboarding surfaces requires a separate approved task or human action.
 >
@@ -232,17 +212,6 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-018 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-11-05-DECL-004`.
->
-
 ### CLM-019 — Purpose
 
 > ##### Purpose
@@ -273,7 +242,7 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 >    - Read `INIT.md`, `AGENTS.md`, `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/SPEC.md`, `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`, `docs/IP_AND_DATA_BOUNDARY.md`, and the decomposition/register rows listed in `_REFERENCES.md`.
 >    - Use source locations in the document kit where requirements or constraints are stated.
 >
-> 3. Draft the contributor tutorial concept in the four-document kit.
+> 3. Draft the contributor tutorial concept in the `ScopeOfWork.md`.
 >    - Put descriptive identity, boundaries, and references in `Datasheet.md`.
 >    - Put normative onboarding requirements, invariants, and acceptance criteria in `Specification.md`.
 >    - Put rationale, trade-offs, safe/unsafe examples, and source-boundary advice in `Guidance.md`.
@@ -348,7 +317,7 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 
 > ##### Principles
 >
-> 1. Start with boundaries before mechanics. Contributors need the OpenPipeStress rule that public code may implement open mechanics while protected standards and proprietary engineering data remain outside public defaults.
+> 1. Start with boundaries before mechanics. Contributors need the SWBPIPE rule that public code may implement open mechanics while protected standards and proprietary engineering data remain outside public defaults.
 > 2. Treat the decomposition as the work identity. A contributor works on one `DEL-XX-YY` inside one `PKG-XX` unless a human changes scope.
 > 3. Keep authority labels clear. Type 2 outputs are drafts/proposals until accepted; deterministic tools provide evidence, not judgment; humans resolve scope changes and acceptance gates.
 > 4. Prefer `TBD` over invention. Missing policy choices, engineering values, source citations, or legal conclusions are surfaced rather than guessed.
@@ -391,7 +360,7 @@ This Scope of Work defines `DEL-11-05` in service of project scope [SOW-033] and
 
 > ###### Architecture-Basis Handling
 >
-> SCA-001 allows `PKG-00` `SEMANTIC_READY` content to be used as an architecture-basis candidate for sealed brief injection. Contributors should use applicable basis IDs as context constraints, especially the no-bypass API/adapter baseline, without treating PKG-00 as `ISSUED` or copying full PKG-00 prose into new artifacts.
+> Applicable PKG-00 architecture constraints are supplied by the consolidated `ArchitectureBasis.md` references under D-43 / SCA-006 and their cited decisions. Contributors use applicable basis IDs as context constraints, including the no-bypass API/adapter baseline, without treating PKG-00 as `ISSUED` or copying full PKG-00 prose into new artifacts.
 >
 
 ### CLM-032 — Trade-offs

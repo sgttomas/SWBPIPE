@@ -1,0 +1,487 @@
+{
+  "status": "APPLIED",
+  "manifest": "PROPOSED_PHYSICAL_EDITS_STAGE4_V2.json",
+  "manifest_sha256": "b05be13f50bc15ce38f88163787d5216543b88f0df81e375643d5c9959386895",
+  "applied_utc": "2026-09-22T07:12:31.079106+00:00",
+  "authority": "Parent /root/piping_manager explicit apply message after initial independent claim review PASS; stage4 followup scope only",
+  "files": 95,
+  "physical_edits": 165,
+  "production_scope": "91 non-ISSUED schema pins plus selected T5B-C03 snapshot/event-status carriers; no STATUS writes",
+  "source_bindings": [
+    {
+      "Path": "projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-02_Copyright and protected-data boundary policy/ScopeOfWork.md",
+      "BeforeSHA256": "cecb416825f69aec173083e926ea01cd98a8b47b01c459d5ab302c893a4f5ca9",
+      "AfterSHA256": "071cebef5e8939fa587e0a9f5bcaba934cf60a8d1f04da5132c12c32c8708e1d"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-03_Contributor certification workflow/ScopeOfWork.md",
+      "BeforeSHA256": "ad61cdb487e98c78bf9dfd0c00d3083818a5929343537892380914864652eeed",
+      "AfterSHA256": "7d6a4fd04f81f71d39b7b536f0523c756cf5700e0275c443a82f51f26cd2324e"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-04_Professional responsibility and product-claims policy/ScopeOfWork.md",
+      "BeforeSHA256": "80bba0908212220387c5b3d29ba815f8c895476836159910a2d18da544d22ff9",
+      "AfterSHA256": "ddfed7b7cecc457aa2af2ee0573ef976c9a71238a18b3fe7a316cc049eb04402"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-01_Canonical domain model schema/ScopeOfWork.md",
+      "BeforeSHA256": "b04afc35b79a4a6f2c178426168e409c2e698a3e8ea4c8909e0ffff643afa425",
+      "AfterSHA256": "6ff5ec77bb79c49b19429dc3ce73b306bfc6fac4771e6df73906dd10e4804f63"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/ScopeOfWork.md",
+      "BeforeSHA256": "c2e69788fcee78bc5275ed7fe190329e5072dcb82a5a4f90def212b7e42675e9",
+      "AfterSHA256": "d110395d86de6f68249a11674c5dee6999b6b7330687e92e1f5f3de8f4f71b4f"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-03_Code-neutral analysis boundary model/ScopeOfWork.md",
+      "BeforeSHA256": "f276f8e3cdbeebd3aa3253d08e2e596ddcbfb3d4dd5ca65d6e197ea9431febf9",
+      "AfterSHA256": "e185c041aaf1de564fdb19d42180333c073d3a989f00a77c07b27000a14b82a6"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-04_Plugin and extension domain contracts/ScopeOfWork.md",
+      "BeforeSHA256": "010e23c6209a83a3843423be607f128bb17cc9f48dc021341becaeecaa664a3c",
+      "AfterSHA256": "76971d588002732af3645d59774b89c67320872ca69130c1d37fdbec30b7b122"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/ScopeOfWork.md",
+      "BeforeSHA256": "a1a34bcea3e95ea8c4bfb8fbac6a52c3fa62e153af06546c36c590f28f42adc7",
+      "AfterSHA256": "2232fe3846e3b73839cdcdf622540e83e7ce3f90a48a7164a98de59cdf38c57f"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/ScopeOfWork.md",
+      "BeforeSHA256": "f9f71d767e34cd60e5054a645cedf05c9389ee5b92f7a59ea4f2c6634609b2f5",
+      "AfterSHA256": "1d83fcb985617dfaa4e96cc572e295f8ab6a22e34fe6b2f1725fe0b8e212c235"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/ScopeOfWork.md",
+      "BeforeSHA256": "fc58e308ab1f41e7ee5a6d0b8840336572c724039116f8104722c863480553cc",
+      "AfterSHA256": "b50b42cbe64ad13bfe564e96d4be2238c0555f0e669ebd80002c5da6bd778495"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-03_Bend and elbow component model fields/ScopeOfWork.md",
+      "BeforeSHA256": "d00089d1f81b99dd8354ce3658a193e5d52f7399097f4e0335ed6efb71c00d28",
+      "AfterSHA256": "de7a99c57308bd780f7694cb36b308b644c673c536de3527381d2419e6751776"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-04_Branch connection component model fields/ScopeOfWork.md",
+      "BeforeSHA256": "f80cdf40124511db4ee137052d854cdcf76c91e79dc1a8cbbdff6503ea4a5a9f",
+      "AfterSHA256": "6d2f5c778a0838ee3fd9f85461fb97c43097465d85a28d70ace02bbab1c71391"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-05_Rigid component models for valves, flanges, reducers, and specialty items/ScopeOfWork.md",
+      "BeforeSHA256": "cee3d930782cede866f45ee0fdcbd2de894f826997e52ce7962a55bef0f36932",
+      "AfterSHA256": "9e0d656951e33ae825a8ab0eae18e177df33a296050d13ff1bd07f2100ecc74a"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/ScopeOfWork.md",
+      "BeforeSHA256": "ad25896ac9af0704df424fe932ad4cf6a30a797fedc1dce2d1276f7439846095",
+      "AfterSHA256": "f4b70ee1e9fca163bfff8e210e20a2530bc509306730e844a8c9c21e6e4cfe7a"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-07_Public-private library import provenance checker/ScopeOfWork.md",
+      "BeforeSHA256": "78cdc0edc7a4911fb0261be32ecc9469437a815b96dd90968cf98c28704d5110",
+      "AfterSHA256": "8a8cb1aac0c5fddfef2d03036cc3b08031196428881372dd2a007287b0ace2bc"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/ScopeOfWork.md",
+      "BeforeSHA256": "dc6a42728b6d26bdb6752dad0faa813ee3ce51a45bae1ca26c1974fb149825db",
+      "AfterSHA256": "4d3d2a9d661b768061badafda1c99abc7d1e4b4cd502e906c843513e2fd458e9"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/ScopeOfWork.md",
+      "BeforeSHA256": "be09f46429e8d778ceb4370d62914581301f66782e927b2822a004edc015400f",
+      "AfterSHA256": "415a9e38b5d44955b6f16bba2ba290499204a30076f4b5e1a0432e64d48124a7"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/ScopeOfWork.md",
+      "BeforeSHA256": "40996bd0bdab06536c4df5828d9393eee7ac9ec9ee0711dc3a7f5e7fe4eed961",
+      "AfterSHA256": "ff5c83172df33e70b7588cb7e906a5b5bd1f5c74dead21b562a4b3679f29f41b"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/ScopeOfWork.md",
+      "BeforeSHA256": "d5e220b77bf42f93f878d879d67c627e6db51d21d1135bfc41561f51085ddfe2",
+      "AfterSHA256": "9c532f5ab569e74642e9daeddbe039cfdbce2c135ccceb35098e075698fe6dd4"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/ScopeOfWork.md",
+      "BeforeSHA256": "95838d7a1ddc626265e444e7b4250c4f1475ea1ca86276417ca5a071853a7f44",
+      "AfterSHA256": "d2d45d57329b8fd12983664386491f05bf68988b47591b522d92b6bfbd676e1f"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/ScopeOfWork.md",
+      "BeforeSHA256": "4a632186131e53e757edc776d67e9ee4e4203d28162823552bf9be94dc5ab3a3",
+      "AfterSHA256": "e9422ba1ae5518461ea897ef2f84b214ce6cda04ead036b3dcf4a05c125e86bd"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/ScopeOfWork.md",
+      "BeforeSHA256": "c88296d714116a975677e11cef908b3d479e343efbe06eeb4bc6250557bee89a",
+      "AfterSHA256": "06c3e86d622be4006341fec9c5b788d96f6fc5f5eb6b5d244e6fed9fc4c8a3e7"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-02_Load-case algebra engine/ScopeOfWork.md",
+      "BeforeSHA256": "4b609831d74c791d2f981111c156873f8d6800f64c06b00ff1b25d756c61cbd3",
+      "AfterSHA256": "2718eba07b6d26f6fda830f51b95547c15fdf34e89135208a0ecf79a15b83abe"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/ScopeOfWork.md",
+      "BeforeSHA256": "ac00bcf4d2985eec1bb47792de5aa47c17742e8b1973c8be831f81dc97677f28",
+      "AfterSHA256": "695db194ea40f911dcd9e451d349c8c73ab398a2148ca2e774224f4c79c62862"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-04_Analysis status semantics/ScopeOfWork.md",
+      "BeforeSHA256": "5237c069569aa8d4445a15c56d6e2cef7d9c251a8b2c963d83574e501f0e75e9",
+      "AfterSHA256": "8ab192ebefffd0710e1b6f199ea5952f928647f93628066b6d03925b636a4dd5"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-05_Concentrated and distributed user load application/ScopeOfWork.md",
+      "BeforeSHA256": "a632b8df86eb8c9eb32b404d0e1b23148803684cc47dcb103434c2c7d5e2dc0e",
+      "AfterSHA256": "8a963309bc7d83dbeec7478875bd8c9f82e0e4ac1f977c9de4ea9bd9473f18c9"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-01_Rule-pack schema/ScopeOfWork.md",
+      "BeforeSHA256": "2ed06775617e50605145191742eb6a3aa5ba0f4090b91bbab1e101a2ad6e9aed",
+      "AfterSHA256": "5621f4f7525c6b1d39ece0603ddc42dd229efbfeee4e016487372d69912bf753"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-02_Sandboxed unit-aware expression evaluator/ScopeOfWork.md",
+      "BeforeSHA256": "b659c2ba2ca23c005e892b5a9c42fbf45387109ab405639f9e5c737020afa2d8",
+      "AfterSHA256": "2feb8ed1be1e07dcff5547e1fbfdc37453269a87dc7bef2eda0c177cc209ca24"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-03_Required-input completeness checker/ScopeOfWork.md",
+      "BeforeSHA256": "a08aad1850eb533ac2be82013c7cbfe8b77f796c5610bbef754fb5740c2b63b0",
+      "AfterSHA256": "714db9d71f75c9d68d37b63971f9352a222afd010e693b2f23e52498c005e9db"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-04_Private rule-pack lifecycle and checksum handling/ScopeOfWork.md",
+      "BeforeSHA256": "0834f19e9fb8026af74202224de6494682dc529ae03ea1c12f289a21c3e21c3b",
+      "AfterSHA256": "0dd446165ba598e32de0cbcc3a8cd0a80da288d19c753f1ddf1b5e89cf442eed"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-06_Rule Packs and User-Supplied Code Check Engine/1_Working/DEL-06-05_Invented non-code example rule pack/ScopeOfWork.md",
+      "BeforeSHA256": "a91754662dff1636a0e8e24cf324fb13d2626c3aec1ec672bbd1afc0785705a9",
+      "AfterSHA256": "9a2ac95d67532008ee370b43ca5b94477faa27d076b1b4fc9028e46da4800783"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/ScopeOfWork.md",
+      "BeforeSHA256": "61da2702bcf7ec939ceedff38f1e04dee58a880988048958523736cf66fe38dc",
+      "AfterSHA256": "bcaa5784306dd980ee852b1a440adaa5eb682db94ee1ad5a269ec878b6be40b3"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/ScopeOfWork.md",
+      "BeforeSHA256": "d687e89261f7978c41165da3d76c8cc1440abe2c8b8bb53e761e115e9ef0e8ee",
+      "AfterSHA256": "80bc243696753933d909122188c4831a6ab33e525c029120be0de27215fbedfc"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/ScopeOfWork.md",
+      "BeforeSHA256": "fc78b7b5d59bc9659f260410d4d8ab67bb348e0676173f45b538355aa612baf6",
+      "AfterSHA256": "2a65686eda78d1fa8489726b7218cce63685526270832b68f307702cbdbbef54"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/ScopeOfWork.md",
+      "BeforeSHA256": "6f3a38dcbd8c517527480b0ec21aa49d75b66ce362c5997ad41df4137249ea21",
+      "AfterSHA256": "a48fd2d5b337593a3292c5a801b0d2bc01845c18ecf0cd937cb712546763b4a0"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/ScopeOfWork.md",
+      "BeforeSHA256": "4abe15005e07e813efd941ab77e3f0b73d882a9ff01ff4deab2bc41de70236c9",
+      "AfterSHA256": "c3a96a3e92c428ec788317bdf6679956dcc15ea8c0af72812925fc88e70c1082"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/ScopeOfWork.md",
+      "BeforeSHA256": "753f191312d5b1470f551633b727f14991ccbf2035a0b19e0b2a59b2a406a032",
+      "AfterSHA256": "862abff27bda78c7c652426a7131fd503b2f35d9ae715677032949f34b87b676"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/ScopeOfWork.md",
+      "BeforeSHA256": "99a4d0ef9c5d632e2f24d0aadf204bbc31f497ae6dbfdd39bb289b295c37240d",
+      "AfterSHA256": "3a0ad7f2aac2371677311b91c32c68dd55bd204aba858c8d3be18b0f22999cdf"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/ScopeOfWork.md",
+      "BeforeSHA256": "fba8890193c2abb2beeb22cf09951b53a8223acdc4c107f0f41341713004954f",
+      "AfterSHA256": "e367dbf581dab361ad78bcd8aba6d2edc4ea51a063522fc8dd085bc15890c961"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Capability_Comparison.csv",
+      "BeforeSHA256": "9272401803316ecdd53b4aaf52be16fe06b4165951743b504a3a6d518e4fbc10",
+      "AfterSHA256": "e88d2e7b3c1ee69d6ebc9fe60dcdee34e25bb679059421e1d6f1247b69ba4ed9"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Palette_Operation_Routing.md",
+      "BeforeSHA256": "fa87653ae52947b845a7d8fb20a499f1c6c5b963911b798f2b0035d385bd6620",
+      "AfterSHA256": "14b550b5234227f767f478d5966c9480afbfd47d5f783fb0f426b695953a88a5"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Palette_Organization_Contract.md",
+      "BeforeSHA256": "2a35b68cd8ad3696bcef564d8f744920935c4b221ede56b11e2d3e0b5e1e7a06",
+      "AfterSHA256": "757200900cee5cd565a8bb031ada194521174271569df655ec70b45388c00315"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Vocabulary_Coverage.csv",
+      "BeforeSHA256": "13f20a35ca177f28655f7e765d6d40a238a636f513ce921213e7dd4dcbd42f27",
+      "AfterSHA256": "18eed0593e472ca651520ba4e832000f91b81579797b1ac76faac1480e01386e"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/ScopeOfWork.md",
+      "BeforeSHA256": "b3a661cbd8472e110e3c60df64e373eef253163dddb4f1850360f09474bd2db5",
+      "AfterSHA256": "080204fe7219e5a752f6d2fd629af1cbc1cfac5e6d9fb44da5b144a669dac40a"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-02_Audit manifest and model hash/ScopeOfWork.md",
+      "BeforeSHA256": "39374e624fd1d1780e676a998b7b248afff80dc02e0ae88e489a5c8ac9403f8d",
+      "AfterSHA256": "f6d81f58d54bf3c95a2ca404954015d93286c224a6bce7559f96cf87baf84e6b"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-03_Warnings, assumptions, and provenance report section/ScopeOfWork.md",
+      "BeforeSHA256": "3b8d58b5d71a9bdc322831b0440a32c21e8b1e219cfd48b27c7d24ef6e4b0519",
+      "AfterSHA256": "597a66ae469de2b656bcc6631600f30b8d1cea56353dbb2adaecc9593efaa66a"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/ScopeOfWork.md",
+      "BeforeSHA256": "33986390a6b235398845fbb4c574b3b153af019129318ab28b10f5c376e78ee8",
+      "AfterSHA256": "09801fa7cce4236796564ef72e02444e15d1455b1608418704ccc3229e9d0dc7"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-05_Report protected-content linter/ScopeOfWork.md",
+      "BeforeSHA256": "a8c7a3a7d88c27f00e33e60dcf75cde511162f88b3171d5ff09621109ba65d9e",
+      "AfterSHA256": "71b48071c1b3d6a4451a3e04c6db1c5b690c38ee131789c761711bcbe40abb95"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-06_State, comparison, and handoff report sections/ScopeOfWork.md",
+      "BeforeSHA256": "4c5bcb313ae8ff110781074600cc1d7af94a5806a4ed9b4503b4b49756781b8b",
+      "AfterSHA256": "4ad46fdcc5315d7b04b2d6f2fd7ca4f0ef0a6f693171df85e174b099e8b5ea59"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/ScopeOfWork.md",
+      "BeforeSHA256": "864b4aaf77bdc85c344bead36f4069227787349033d7186caa2c2b960325b2c9",
+      "AfterSHA256": "e5b635cfe86b4d7bc1bd3c0772441260e17e0bf5a5a49f62350f140351ce7ff4"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-02_Stress recovery benchmark suite/ScopeOfWork.md",
+      "BeforeSHA256": "e3b2a555d8de7b476f40e504c04c909ad643ad22a4e103391a21df87bbeb8c5d",
+      "AfterSHA256": "72d3eddc1c7e45e049e0378ac2955b02cdcc5f398141623866ee784e61955ece"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/ScopeOfWork.md",
+      "BeforeSHA256": "6b3a572a82d2fb557986f438d1209395c99d8df90377d7dcbe5a9916f1a6d052",
+      "AfterSHA256": "4ac624445f8f822fff631cd33a3168c1a336e98d93ff2c6d9d23e191a9924d3f"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/ScopeOfWork.md",
+      "BeforeSHA256": "41947eefff9f16776790d6ffef4b4cf22c80fc6c65795287e0d3cc3f1ac179e0",
+      "AfterSHA256": "dccfe1efd71a0b4614576dad12056b205e18ed8b44a2c4bb94a99404172b26e1"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-05_Release quality gate checklist/ScopeOfWork.md",
+      "BeforeSHA256": "87ae6b6e56216a16ecf430d65ab6f8d02f39d1edd31209bf7678a539970e0e16",
+      "AfterSHA256": "bb1442f839eae48a973a3939b123c216cc51e2f1e6215dcd63da4374d6b57bd1"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-01_Public API and plugin boundary/ScopeOfWork.md",
+      "BeforeSHA256": "7ff7c3b8ce4e7c2f351cf6697351770cafee2ede7d45fd6c9cb15f0075ea9c77",
+      "AfterSHA256": "06acf7e8b037f4608961dfe97f4f3247075f991479b77f7896abae2f011e3df8"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-02_Import-export adapter framework/ScopeOfWork.md",
+      "BeforeSHA256": "ef21e0c98a6fe5315402434980460f00af51546f0d64885b8d8dbc3837d12863",
+      "AfterSHA256": "883bf344f3f2d5457b5ccb79aefc25d97a60c2aa0078e9eeaf2443cd4c55d172"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-03_Local FEA handoff data contract/ScopeOfWork.md",
+      "BeforeSHA256": "c745637bcd0149d36d2ac76536f7dd9bd54e4bd9d1e49bf42d901ba81b766ccc",
+      "AfterSHA256": "9caddf626f223813255f0edeec78e21a2d59c6a38a18d7b5a73500738e531133"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-04_Build, packaging, and CI-CD pipeline/ScopeOfWork.md",
+      "BeforeSHA256": "4405c6467df6335be45cfdf866f62c85afac94eaa2a032d9f25231a2d44cff57",
+      "AfterSHA256": "e81f00b2b843a5facbf2a0a865f51346230c8b5f5ad5838fcfd7333340114438"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/ScopeOfWork.md",
+      "BeforeSHA256": "07969cd6eaa73199d61b2b0cffb86fbaca51594f1a2f5ad6844ae479f93a12b4",
+      "AfterSHA256": "ddd3fc7b2f63f7c8a135acc22987dee8988486d8a0c0bea8e636b0dd03e95d70"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-01_User guide skeleton/ScopeOfWork.md",
+      "BeforeSHA256": "5412a92732b247d0b7068b1893f382882e5f00a4e14e3df8e4535ee4d6354ba0",
+      "AfterSHA256": "628fa710509be854d019252ff564463f07bba4c23354e747bdb5997944a04f74"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-02_Developer guide for solver and rule packs/ScopeOfWork.md",
+      "BeforeSHA256": "606861cc22eb467154fdb65879e54bd8d66c947cccf65818e50ed4e2a3527ea5",
+      "AfterSHA256": "548ee22976ca40a2f8a43256ba60ed265630344528b130598ba8ad789379cfc7"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-03_Theory notes- classical to modern centerline analysis/ScopeOfWork.md",
+      "BeforeSHA256": "9d3e1fc72310f40338aa3e37868e016dc42ad60071bca526b3a9ea167c08fa69",
+      "AfterSHA256": "648fc1e93573fcf8102e6e20cc5f892c1af5e84f1d46f1e695d7ab7befda3bff"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-04_Invented educational example models/ScopeOfWork.md",
+      "BeforeSHA256": "b01fc6e31f2282711e87e82ff999f3f2708d5d42a23bb0199d3502a57a245c2c",
+      "AfterSHA256": "48815e4c490cf8132a80f4d7c2454b34393257061a6fef97f9ea204ce4a79a76"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-05_Contributor tutorial and onboarding/ScopeOfWork.md",
+      "BeforeSHA256": "04011c9f0648573b904a6cc8535e00cd64b81a0d8f974c249c4e12b6a324c308",
+      "AfterSHA256": "cb6a1fe423ec38324bbf718b5c01018a17176a82d4554d7bca9126efe48a7b04"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-01_Local-first storage and private data paths/ScopeOfWork.md",
+      "BeforeSHA256": "a8d940451d6fe5c034344678dae301df902a533f4b9d9946fddcb46cb6d21bb4",
+      "AfterSHA256": "816f8ffcba8c631cdc414c76ce9c5e1e814297019d136b8766aef2c532bf1327"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-02_Private data redaction and export controls/ScopeOfWork.md",
+      "BeforeSHA256": "421da98c976a31bee1c16b0f6d71dd653a11d334de579ca7722041be8dd2f077",
+      "AfterSHA256": "2ea5201cd8ec471f0eb127704ca7ab23f42c2fe5a368ab11ebb8cf0829d29629"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-03_Telemetry off-by-default design/ScopeOfWork.md",
+      "BeforeSHA256": "1705aef8c0b65e64a8c9bc3e092eaa56364fadc5dde23ed3f7afdebf09d0c9a1",
+      "AfterSHA256": "8b6265467ce713df463c39dc653a3b53221d8f7ceec574e520cb0ea4318a1b5c"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-04_Secret and private-library handling/ScopeOfWork.md",
+      "BeforeSHA256": "ee2b335a912ac5a8082e424a284d0e1f778aed7dbebb765248e1da9411af1347",
+      "AfterSHA256": "0e6370bfe3cc077ef200c2abbd2ef321fbc1e80d3dd651576997b6851d155943"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-05_Security threat model/ScopeOfWork.md",
+      "BeforeSHA256": "712e54f0717a5d9db61fd7e33b453989d89818cf1fd3222dde1ab931d71d0470",
+      "AfterSHA256": "3f0b1093b786399014c9a943ace180dd92767dfc35074b38f2112bdac0ca1068"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-01_Design knowledge schema and provenance model/ScopeOfWork.md",
+      "BeforeSHA256": "a47a2f3104fc0fbcc9177ff8ddb45021842935c921360d7a7622067b87361b0d",
+      "AfterSHA256": "3bfc17908c86174a3d00f0ae74217ea938e3dc4dbb767ac9afdb9ec10838586c"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-02_Constraint entity and provenance model/ScopeOfWork.md",
+      "BeforeSHA256": "b3071f2b6b5cd44ed5966554e1cb940e94a3ae0be71139688244e60e308bcce2",
+      "AfterSHA256": "b517f6c9eeaa4f87554b2f3d3bcbca8d7f1e7f5238af4ea8e93f7d27de5e2ed3"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/ScopeOfWork.md",
+      "BeforeSHA256": "19842c2df369ac575dc3c448da9c8d12b8b124caa7e9ce9efa54ef1054381bad",
+      "AfterSHA256": "ae31eb13cf45dac21b279b0028c4a7ceb52ce3fda5af797fdbd7b51f4cae1c6f"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/ScopeOfWork.md",
+      "BeforeSHA256": "4c1fac8c3cfb348f9337ded7e7c950fe0334ff758b84743d033de621fc268486",
+      "AfterSHA256": "509967877c1bde9fce0bd4ea41913d38bc29b84e915428da8e4d1c796a844fc5"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-01_Immutable model state records/ScopeOfWork.md",
+      "BeforeSHA256": "dee55cd78a07ff2741b16214a9297dc6b15fcc086d1e0dd5e671fab899eb29bf",
+      "AfterSHA256": "2c4f97861c512c9ec5265d1fad7b99b9cbf2ccffb7880ecdea6c33524b5dd91a"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/ScopeOfWork.md",
+      "BeforeSHA256": "5bfc6b956f80e96e0d8e1dd42d24268158643017139df258a370bde768357e5b",
+      "AfterSHA256": "278d0e41dc22d98e534025175be742b8ea0583d093d0c8dfd95949a94cd98df4"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-03_Model-state comparison engine/ScopeOfWork.md",
+      "BeforeSHA256": "5500254724429cc35e16bbb7413fb4aaade137c8e2061ccb541ce9c67bed9983",
+      "AfterSHA256": "2273f8775aaf2a4102952fcb2ee262f6f8365b4abe901ea70dc418333b162daa"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/ScopeOfWork.md",
+      "BeforeSHA256": "fced075261a30dbcfd81799933f0816c801856a874578660e27171d04cc8e068",
+      "AfterSHA256": "9cfc033fe7c3e97181fa13086b8adcbf3605cedf7a6559e16a188872fc491bd8"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/ScopeOfWork.md",
+      "BeforeSHA256": "d1bff66d136e64d7fd5a943ad4f5a4e0e2c0dc4f4a4eea2e26eadb093a5407c6",
+      "AfterSHA256": "9b19965b79b3923fe92a89c84c040245a2cd2b9392a28ecaced20138ff6baa73"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-01_Canonical handoff package schema and manifest/ScopeOfWork.md",
+      "BeforeSHA256": "5fbe0a2f75c2780ab0b498bd164669b30dd45169bc232df236d701ee07cf018e",
+      "AfterSHA256": "55fe2f406210a75625762cec6e7ad57305fc007b11db9f9f5bee9c6e7553148e"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-02_Target mapping and unsupported-behavior contract/ScopeOfWork.md",
+      "BeforeSHA256": "d2cc7931c5a46da78161e9e21391091c52e8df121bc9d3489ba156cc335fa55a",
+      "AfterSHA256": "727f0f5c8a17d1c515c93a0fda3c461039387162862f64f666f8c10b16af846f"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-03_Downstream modeling export workflow/ScopeOfWork.md",
+      "BeforeSHA256": "9eb4a20e5b5b7bfc29dddf6d631eaad936e0d8efeac369fa47052e157388aa5d",
+      "AfterSHA256": "e4072e9ce2cd9d0da7f574e1c558d4a3f803e846b2347d0c0d51ffe3482478bb"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-04_External prover boundary metadata/ScopeOfWork.md",
+      "BeforeSHA256": "abd67204017c5ce858755d4e5e768450533c98f93812c3c45634d31260a5b764",
+      "AfterSHA256": "c2793d6568d9459e22c0ca6fdec10164ad88c74064efc027b1baa8aa57259cfb"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema/ScopeOfWork.md",
+      "BeforeSHA256": "f2c6a425b0f635c491695f9abca1f24d24ea8a6d20e914feb748a6ef9349d02a",
+      "AfterSHA256": "193c4e6b761aa6ef462af38e13d7b87e606eeeb7eaadbe0582b07d650c95627f"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/ScopeOfWork.md",
+      "BeforeSHA256": "f5b27c6ffa35dd2213f9efd8cc7d6bf630e6ad44d25b78418e1eb690f92b8baa",
+      "AfterSHA256": "529841e94183ff9b77532c6b0187a795602e8faf585e6b9da21bbfbb9baacaf0"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/ScopeOfWork.md",
+      "BeforeSHA256": "33a95c1d052813de7e79635566a85dbb757b0e0955f636b28f8638867e0e2280",
+      "AfterSHA256": "8e29df53945f768bbfe831d7c376446e19ee242493936b4d4f98f2bdae41b2fb"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-04_Agent rationale and professional-boundary controls/ScopeOfWork.md",
+      "BeforeSHA256": "c00d745d56bd59a0a85eae70dbd55fe546d9b52f43cfb2694a4e2449d0750780",
+      "AfterSHA256": "7327a0e174f61b953be78c8740feac3a56365fadd887a8674c70eb939a785802"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-01_CAEPIPE and export-format source basis/ScopeOfWork.md",
+      "BeforeSHA256": "b3450ab06a6d4db460749d4a2205ec2c2ca9a5d94d3527d4f228c571ad1a1daf",
+      "AfterSHA256": "b2e2a357ab0f153721e4ecadff9306ecd0ec227051fbccff1d2540bd3d27be00"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts/ScopeOfWork.md",
+      "BeforeSHA256": "a0ad2f9970f137aba26ef02ae45d2081a1fccf194d81b8c2010440d213020b6a",
+      "AfterSHA256": "a48959c2de0fc98382c98132a6b30c09b092a2cbd667903655e858fd7d04ee6e"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-03_Native open JSON export package/ScopeOfWork.md",
+      "BeforeSHA256": "c59c6cbba4c9c949979985d242a0341d62be85e66dcfa271e9e1698d3f31844f",
+      "AfterSHA256": "5b637bea7de7f5dc72468ffe7cea8552367e0e19aae6caa23884d96cfab22518"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-04_CAEPIPE MBF export profile and deterministic writer/ScopeOfWork.md",
+      "BeforeSHA256": "265cc0db012738e6865fddf376aa108e79554ec130369994a37a14d81c6a7356",
+      "AfterSHA256": "e0fe2008e5512d8548d32bc9e7fddb47e5d3a2dde6db3bc1f71b1d21fc734dad"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-05_CAEPIPE external run harness and CSV parser/ScopeOfWork.md",
+      "BeforeSHA256": "db163b5070d671a75c7c19d655516def3ca1c074eecbbc2b969f981656543c3c",
+      "AfterSHA256": "b3b26fbf07fd5a8fcf92d5520d9059c03c4d9114e5ee32eb5fad5b23390f5026"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/ScopeOfWork.md",
+      "BeforeSHA256": "e1f141cd8d938c9a9b07ea7b298dadb72aeaa2ff40716b8df4264753e139463a",
+      "AfterSHA256": "83d9daede9a67a4f90fae95d508dfb028d4a1ad75b798b7c5009d2e3e53c9cd8"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-07_Conservative PCF subset exporter/ScopeOfWork.md",
+      "BeforeSHA256": "ed5130dac9b6c751bdd982e41d43e236d5a3dae04804808bf31c9ac4f4298f12",
+      "AfterSHA256": "7dd5982d955c44e93922a299bb8a715afe718a2aa30c826300a5ab81fc880e53"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-08_GLB glTF review geometry export/ScopeOfWork.md",
+      "BeforeSHA256": "330f543454d7cab6f7250cc709fb0b18b0a70cf31423c60175877f2548793a44",
+      "AfterSHA256": "0b3c8a83d8752f8927d3f31385e61a2dbf4368b962e02fd3017e6762860e30bb"
+    },
+    {
+      "Path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-09_Export adapter SDK and additional targets/ScopeOfWork.md",
+      "BeforeSHA256": "69a39fec3614f56e0757d4ba414f18195a7633edabab0377c782b41cc4d208e2",
+      "AfterSHA256": "b466e35c1a6b2a961ab38c4d1e760ed9281bc32829d13f37f87489499ce54d9e"
+    }
+  ]
+}

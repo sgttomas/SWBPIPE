@@ -2,7 +2,7 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-03-01
 package_id: PKG-03
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@69ac259a7113d5a838fb22aa2e84df0e0f109713
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-017]
 package_objective_refs: [OBJ-004]
 ---
@@ -100,7 +100,7 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 > - docs/_Registers/Deliverables.csv row DEL-03-01
 > - docs/_Registers/ScopeLedger.csv row SOW-017
 > - docs/_Registers/ContextBudgetQA.csv row DEL-03-01
-> - execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7
+> - execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register)
 > - docs/CONTRACT.md invariants OPS-K-IP-1, OPS-K-IP-2, OPS-K-IP-3, OPS-K-DATA-1, OPS-K-DATA-2, OPS-K-DATA-3, OPS-K-UNIT-1, OPS-K-PRIV-1, OPS-K-GOV-4, OPS-K-AGENT-1..4
 
 ## Completion and Reliance Basis — Epistemology
@@ -149,7 +149,7 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 >
 > | Standard or policy source | Use in this setup evidence |
 > |---|---|
-> | OpenPipeStress CONTRACT | Governs protected-content, provenance, privacy, data, unit, governance, and agent-output constraints. |
+> | SWBPIPE CONTRACT | Governs protected-content, provenance, privacy, data, unit, governance, and agent-output constraints. |
 > | SOFTWARE_DECOMP revision 0.7 | Provides package/deliverable scope and architecture basis IDs. |
 > | External engineering standards | Referenced only as possible source categories; exact text, tables, values, and clauses are not locally available and remain `TBD`. |
 >
@@ -229,7 +229,7 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 > 3. Inspect `schemas/material.schema.yaml` for identity, property, allowable, provenance, redistribution, completeness, diagnostic, and open-decision coverage.
 > 4. Inspect `fixtures/material/invented_material_library_valid.json` to confirm it remains invented/schema-shape evidence with omitted engineering values and explicit diagnostics.
 > 5. Run `python3 tests/test_material_schema.py` and record the result in a deliverable-local run record.
-> 6. Run a stale-language check against the active four-document kit for phrases that incorrectly describe the implemented schema as only setup/future evidence.
+> 6. Run a stale-language check against the active `ScopeOfWork.md` for phrases that incorrectly describe the implemented schema as only setup/future evidence.
 > 7. Preserve unresolved public source, fixture value, interpolation, allowable storage, dependency satisfaction, and human review disposition items as `TBD`.
 > 8. Route public data acceptance, quarantine disposition, package audit finding disposition, dependency satisfaction, and lifecycle transitions through separate human/reconciliation gates.
 >
@@ -241,7 +241,7 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 > | Check | Expected result |
 > |---|---|
 > | Material schema test | `python3 tests/test_material_schema.py` passes. |
-> | Stale active-doc language | Active four-document kit no longer says implementation evidence is only setup/future work. |
+> | Stale active-doc language | Active `ScopeOfWork.md` no longer says implementation evidence is only setup/future work. |
 > | Protected-content scan | No protected standards text, material allowable tables, copied examples, or proprietary material data is introduced. |
 > | Provenance validation | Every governed material value has source/provenance and rights status, or produces an explicit finding. |
 > | Unit validation | Material property dimensions remain aligned with the accepted PKG-02 dimension vocabulary. |
@@ -280,7 +280,7 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 
 > ##### Purpose
 >
-> This deliverable exists so OpenPipeStress can support piping-specific private material libraries without shipping protected material tables, proprietary commercial data, or unreviewed public data. The schema should make provenance, rights, units, and completeness visible enough for later validation, diagnostics, and review gates.
+> This deliverable exists so SWBPIPE can support piping-specific private material libraries without shipping protected material tables, proprietary commercial data, or unreviewed public data. The schema should make provenance, rights, units, and completeness visible enough for later validation, diagnostics, and review gates.
 >
 
 ### CLM-025 — Principles

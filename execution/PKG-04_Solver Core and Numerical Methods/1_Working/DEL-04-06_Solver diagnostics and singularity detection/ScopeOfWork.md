@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-04-06
 package_id: PKG-04
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@69ac259a7113d5a838fb22aa2e84df0e0f109713
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-053, SOW-035]
 package_objective_refs: [OBJ-003, OBJ-008, OBJ-012]
 ---
 
 # Scope of Work — DEL-04-06
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -22,17 +24,6 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 > #### Datasheet: DEL-04-06 Solver diagnostics and singularity detection
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-002 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-04-06-DECL-002`.
->
 
 ### CLM-003 — Identification
 
@@ -108,12 +99,12 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 > | Status reporting | Machine-readable solver-local statuses map to PKG-02 analysis-boundary mechanics statuses. | Implemented; final result-envelope integration remains deferred |
 >
 
-### CLM-008 — Evidence Snapshot
+### CLM-008 — Historical verification snapshot
 
-> ##### Evidence Snapshot
+> ##### Historical verification snapshot
 >
 > - `core/solver/diagnostics/README.md` states this crate is the bounded implementation slice for `DEL-04-06`.
-> - `_run_records/TASK_RUN_2026-06-05_0736_TP-DEL-04-03-04-06_SUPPORT-BOUNDARY-HARDENING_B.md` records `cargo test --manifest-path core/solver/diagnostics/Cargo.toml --locked` passing with 19 tests.
+> - `_run_records/TASK_RUN_2026-06-05_0736_TP-DEL-04-03-04-06_SUPPORT-BOUNDARY-HARDENING_B.md` records `cargo test --manifest-path core/solver/diagnostics/Cargo.toml --locked` passing with 19 tests. This is the recorded result for that run's source; it is not a current suite count or engineering-validation claim.
 > - The same June 5 evidence preserves deferrals for sparse solver selection, tolerance policy, nonlinear support behavior, release claims, professional approval, and code-compliance claims (PRD §21.2).
 >
 
@@ -124,7 +115,7 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 > - `_CONTEXT.md`
 > - `_REFERENCES.md`
 > - `MEMORY.md`
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register)
 > - `docs/_Registers/Deliverables.csv` row DEL-04-06
 > - `docs/_Registers/ScopeLedger.csv` rows SOW-053 and SOW-035
 > - `docs/CONTRACT.md`
@@ -141,17 +132,6 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 > #### Specification: DEL-04-06 Solver diagnostics and singularity detection
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-011 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-04-06-DECL-001`.
->
 
 ### CLM-012 — Scope
 
@@ -194,7 +174,7 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 >
 > | Requirement | Verification approach |
 > |---|---|
-> | REQ-04-06-001 | The June 5 Worker B evidence records `cargo test --manifest-path core/solver/diagnostics/Cargo.toml --locked` passing with 19 tests. |
+> | REQ-04-06-001 | Verification hook: `cargo test --manifest-path core/solver/diagnostics/Cargo.toml --locked`, with result and source recorded in the governing run evidence. The June 5 Worker B record is historical evidence of 19 passing tests on its bound source, not a result for a later source basis. |
 > | REQ-04-06-002 | Source inspection verifies the `SolverDiagnostic` fields listed above. |
 > | REQ-04-06-003 | Source inspection verifies `DiagnosticProvenance`, `default_remediation`, `with_canonical_ref`, and `with_quantity_unit`. |
 > | REQ-04-06-004 | Unit coverage includes solver-status analysis-boundary mapping without human authority emission. |
@@ -211,7 +191,7 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 
 > ##### Documentation
 >
-> Current local documentation artifacts are `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, `MEMORY.md`, `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, `_STATUS.md`, and `_run_records/`. This document update does not edit lifecycle state, dependency registers, review finding dispositions, DAG files, coordination prompts, code, or tests.
+> Current local documentation artifacts are `ScopeOfWork.md`, `MEMORY.md`, `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, `_STATUS.md`, and `_run_records/`. This document update does not edit lifecycle state, dependency registers, review finding dispositions, DAG files, coordination prompts, code, or tests.
 
 - **AC-001** — The contract preserves the accepted diagnostic codes and mappings, caller-supplied threshold and tolerance behavior, explicit sparse-solver and tolerance-policy TBD diagnostics, stable affected and canonical references, unit-aware provenance, rights-cleared verification evidence, and mechanics-only authority without inventing numerical policy or release readiness. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
 
@@ -238,7 +218,7 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 > - Applicable architecture basis rows AB-00-01, AB-00-02, AB-00-03, AB-00-06, and AB-00-08.
 > - Contract invariants OPS-K-SOLVER-1, OPS-K-SOLVER-2, OPS-K-UNIT-1, OPS-K-MECH-2, OPS-K-DATA-2, OPS-K-REPORT-1, OPS-K-AUTH-1, and OPS-K-AGENT-1 through OPS-K-AGENT-4.
 > - Current implementation evidence in `core/solver/diagnostics/README.md` and `core/solver/diagnostics/src/lib.rs`.
-> - Recent validation evidence in `_run_records/TASK_RUN_2026-06-05_0736_TP-DEL-04-03-04-06_SUPPORT-BOUNDARY-HARDENING_B.md`.
+> - Source-bound verification evidence for the diagnostics test suite; `_run_records/TASK_RUN_2026-06-05_0736_TP-DEL-04-03-04-06_SUPPORT-BOUNDARY-HARDENING_B.md` is the historical June 5 result. A later candidate uses evidence bound to its own source; unit-test results do not establish engineering validation.
 >
 
 ### CLM-020 — Steps
@@ -246,7 +226,7 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 > ##### Steps
 >
 > 1. Confirm the deliverable identity and write scope from `_CONTEXT.md`.
-> 2. Read the deliverable-local truth set: `_CONTEXT.md`, `_STATUS.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, `MEMORY.md`, `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md`.
+> 2. Read the deliverable-local truth set: `_CONTEXT.md`, `_STATUS.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, `MEMORY.md`, `ScopeOfWork.md`.
 > 3. Read the implementation evidence in `core/solver/diagnostics/README.md` and `core/solver/diagnostics/src/lib.rs`.
 > 4. Confirm the diagnostic envelope fields: `code`, `class`, `severity`, `source`, `message`, optional `affected_ref`, optional `canonical_ref`, optional `remediation`, `provenance`, and `quantity_units`.
 > 5. Confirm provenance/remediation/unit metadata surfaces through `DiagnosticProvenance`, default remediation text, `with_canonical_ref`, and `with_quantity_unit`.
@@ -314,17 +294,6 @@ This Scope of Work defines `DEL-04-06` in service of project scope [SOW-053, SOW
 > #### Guidance: DEL-04-06 Solver diagnostics and singularity detection
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-026 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-04-06-DECL-003`.
->
 
 ### CLM-027 — Purpose
 

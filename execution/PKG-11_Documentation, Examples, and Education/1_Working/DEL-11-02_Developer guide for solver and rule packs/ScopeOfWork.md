@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-11-02
 package_id: PKG-11
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@4d153302c3c4cd42578936db160c2bac1270225a
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-033]
 package_objective_refs: [OBJ-001, OBJ-002]
 ---
 
 # Scope of Work — DEL-11-02
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -22,17 +24,6 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 > #### Datasheet: DEL-11-02 Developer guide for solver and rule packs
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-002 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-11-02-DECL-002`.
->
 
 ### CLM-003 — Identification
 
@@ -124,17 +115,6 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-009 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-11-02-DECL-001`.
->
-
 ### CLM-010 — Scope
 
 > ##### Scope
@@ -174,8 +154,8 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 >
 > | Standard or policy source | Use in this setup evidence |
 > |---|---|
-> | OpenPipeStress CONTRACT | Governs IP, data, privacy, rule-pack, unit, professional-authority, and agent-output constraints. |
-> | OpenPipeStress SPEC | Provides current architecture, solver, rule-pack, GUI-warning, report, and V&V baseline for developer-guide requirements. |
+> | SWBPIPE CONTRACT | Governs IP, data, privacy, rule-pack, unit, professional-authority, and agent-output constraints. |
+> | SWBPIPE SPEC | Provides current architecture, solver, rule-pack, GUI-warning, report, and V&V baseline for developer-guide requirements. |
 > | SOFTWARE_DECOMP revision 0.7 | Provides package/deliverable scope, architecture basis injection, objectives, and remaining `TBD` decisions. |
 > | IP and Data Boundary Policy | Governs public/private content rules, provenance, and quarantine behavior. |
 > | Validation Strategy | Governs test families and release-quality expectations to describe in the guide. |
@@ -229,22 +209,11 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-016 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-11-02-DECL-004`.
->
-
 ### CLM-017 — Purpose
 
 > ##### Purpose
 >
-> This procedure defines how a future authorized session should produce or refresh the developer guide artifact for solver and rule-pack contributors while preserving OpenPipeStress architecture, IP, data, unit, test, and professional-responsibility boundaries.
+> This procedure defines how a future authorized session should produce or refresh the developer guide artifact for solver and rule-pack contributors while preserving SWBPIPE architecture, IP, data, unit, test, and professional-responsibility boundaries.
 >
 
 ### CLM-018 — Prerequisites
@@ -321,7 +290,7 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 >
 > | Check | Expected result |
 > |---|---|
-> | Four-document kit exists | `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` are present. |
+> | `ScopeOfWork.md` exists | `ScopeOfWork.md` is present. |
 > | Scope check | Documentation-only setup; no source code, examples, repo-level docs, or final guide artifact edited in this session. |
 > | Boundary check | No protected standards text/tables/examples/formulas/proprietary data; no professional approval claims. |
 > | Coverage check | Solver architecture, rule-pack schema, test discipline, and contribution boundaries are all addressed. |
@@ -353,22 +322,11 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-023 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-11-02-DECL-003`.
->
-
 ### CLM-024 — Purpose
 
 > ##### Purpose
 >
-> The developer guide should give contributors enough structure to extend OpenPipeStress without weakening its governing boundaries. It should explain how the open solver mechanics, user-supplied rule packs, tests, reports, and adapter boundaries fit together, while making clear that protected standards data and professional approval remain outside the public software authority.
+> The developer guide should give contributors enough structure to extend SWBPIPE without weakening its governing boundaries. It should explain how the open solver mechanics, user-supplied rule packs, tests, reports, and adapter boundaries fit together, while making clear that protected standards data and professional approval remain outside the public software authority.
 >
 
 ### CLM-025 — Principles

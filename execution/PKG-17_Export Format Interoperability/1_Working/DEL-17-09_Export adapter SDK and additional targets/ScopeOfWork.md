@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-17-09
 package_id: PKG-17
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@e8f59a63372f38d9e788ac39b39995558f5aba73
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-030, SOW-074, SOW-075]
 package_objective_refs: [OBJ-009, OBJ-017, OBJ-018]
 ---
 
 # Scope of Work — DEL-17-09
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -22,17 +24,6 @@ This Scope of Work defines `DEL-17-09` in service of project scope [SOW-030, SOW
 > #### Datasheet: DEL-17-09 Export adapter SDK and additional targets
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-002 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-17-09-DECL-002`.
->
 
 ### CLM-003 — Identification
 
@@ -135,17 +126,6 @@ This Scope of Work defines `DEL-17-09` in service of project scope [SOW-030, SOW
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-011 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-17-09-DECL-001`.
->
-
 ### CLM-012 — Scope
 
 > ##### Scope
@@ -165,7 +145,7 @@ This Scope of Work defines `DEL-17-09` in service of project scope [SOW-030, SOW
 > | DEL-17-09-REQ-002 | Additional targets shall provide their own admitted source basis before any target-specific behavior is described as supported, compatible, validated, or ready for use. | SourcePath: `DEL-17-01/Specification.md`; SectionRef: Source Authority Requirements; SourcePath: `DEL-17-02/Guidance.md`; SectionRef: Target-Specific Carryforward. |
 > | DEL-17-09-REQ-003 | Unknown, unsupported, version-sensitive, or source-insufficient target behavior shall remain `TBD`, `unsupported`, `omitted`, `approximated`, or `delegated` rather than becoming a support claim. | SourcePath: `DEL-17-02/Specification.md`; SectionRef: Export Profile Requirements and Loss Report Requirements. |
 > | DEL-17-09-REQ-004 | Adapter participation shall require target version basis, unit policy, coordinate policy, stable-ID policy, source-basis IDs, loss-report policy, diagnostics policy, and boundary notes at the contract level. Exact field names/layout remain `TBD` until later schema work. | SourcePath: `DEL-17-02/Datasheet.md`; SectionRef: Required Export-Profile Fields; SourcePath: `DEL-17-02/Specification.md`; SectionRef: Export Profile Requirements; SourcePath: `docs/SPEC.md`; SectionRef: 4.5 Plugin and extension domain contracts. |
-> | DEL-17-09-REQ-005 | Adapter targets shall preserve canonical identity directly or through sidecar mapping when target artifacts cannot carry OpenPipeStress IDs. | SourcePath: `DEL-17-02/Specification.md`; SectionRef: Stable ID Map Requirements. |
+> | DEL-17-09-REQ-005 | Adapter targets shall preserve canonical identity directly or through sidecar mapping when target artifacts cannot carry SWBPIPE IDs. | SourcePath: `DEL-17-02/Specification.md`; SectionRef: Stable ID Map Requirements. |
 > | DEL-17-09-REQ-006 | Every target adapter shall require a loss report, including successful exports, so exported, omitted, approximated, delegated, unsupported, and `TBD` behavior remains visible. | SourcePath: `DEL-17-02/Specification.md`; SectionRef: Loss Report Requirements; SourcePath: `DEL-17-02/Guidance.md`; SectionRef: Loss report. |
 > | DEL-17-09-REQ-007 | Adapter validation shall distinguish syntactic readiness, schema validation, unit and dimensional validation, provenance completeness, redistribution review, privacy classification, protected-content screening, mechanics readiness, rule-check readiness, export review, and human review. | SourcePath: `docs/SPEC.md`; SectionRef: 4.5 Plugin and extension domain contracts. |
 > | DEL-17-09-REQ-008 | Adapter and target registry records shall not grant filesystem, network, process, private-data, report-control, solver, rule-pack, or storage access by default. Runtime grant mechanics remain `TBD`. | SourcePath: `DEL-10-01/Specification.md`; SectionRef: REQ-12 and REQ-13. |
@@ -275,17 +255,6 @@ This Scope of Work defines `DEL-17-09` in service of project scope [SOW-030, SOW
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-021 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-17-09-DECL-004`.
->
-
 ### CLM-022 — Purpose
 
 > ##### Purpose
@@ -299,8 +268,8 @@ This Scope of Work defines `DEL-17-09` in service of project scope [SOW-030, SOW
 >
 > Before a future target adapter or additional target can move beyond candidate status:
 >
-> 1. Read the DEL-17-01 four-document kit, `Source_Basis_Register.md`, and `CAEPIPE_Question_Dossier.md` when the target is affected by PKG-17 source-basis rules.
-> 2. Read the DEL-17-02 four-document kit and use its export package, profile, stable-ID, manifest, and loss-report contract objects.
+> 1. Read the DEL-17-01 `ScopeOfWork.md`, `Source_Basis_Register.md`, and `CAEPIPE_Question_Dossier.md` when the target is affected by PKG-17 source-basis rules.
+> 2. Read the DEL-17-02 `ScopeOfWork.md` and use its export package, profile, stable-ID, manifest, and loss-report contract objects.
 > 3. Confirm the target has public, official, project-owned, user-provided-with-rights, or otherwise rights-cleared source evidence.
 > 4. Confirm protected standards data, proprietary examples, private project data, copied vendor files, and license-bypass material are not being introduced.
 > 5. Confirm runtime permission, sandbox, public API transport, package layout, concrete schema layout, external execution, and target-specific validation remain `TBD` unless a later sealed brief authorizes them.
@@ -350,7 +319,7 @@ This Scope of Work defines `DEL-17-09` in service of project scope [SOW-030, SOW
 >
 > 1. Confirm adapter operations cannot bypass schema validation, unit checks, provenance checks, diagnostics/result envelopes, protected-content screening, private-data controls, report controls, solver boundaries, rule-pack sandboxing, or professional-boundary wording.
 > 2. Confirm any filesystem, network, process, storage, private-data, or rule-pack access remains denied unless a later approved runtime/sandbox design grants a bounded capability.
-> 3. Confirm target options are treated as pass-through configuration and not as OpenPipeStress code-checking logic.
+> 3. Confirm target options are treated as pass-through configuration and not as SWBPIPE code-checking logic.
 >
 
 ### CLM-029 — 5. Prepare validation checklist
@@ -445,17 +414,6 @@ This Scope of Work defines `DEL-17-09` in service of project scope [SOW-030, SOW
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-036 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-17-09-DECL-003`.
->
-
 ### CLM-037 — Purpose
 
 > ##### Purpose
@@ -541,7 +499,7 @@ This Scope of Work defines `DEL-17-09` in service of project scope [SOW-030, SOW
 > | Broad target list vs. source quality | Keep unsupported targets as candidates. Admit fewer targets with stronger source basis instead of naming many targets as supported. |
 > | Adapter convenience vs. stable identity | Require stable ID maps and sidecars where target artifacts cannot carry canonical IDs directly. |
 > | Fast file writing vs. auditability | Validation, manifests, diagnostics, and loss reports are part of the export outcome, not optional extras. |
-> | Target-specific options vs. local code-checking | Pass-through target options may be recorded as target configuration, but shall not become OpenPipeStress code-checking logic. |
+> | Target-specific options vs. local code-checking | Pass-through target options may be recorded as target configuration, but shall not become SWBPIPE code-checking logic. |
 >
 
 ### CLM-045 — Examples

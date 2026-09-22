@@ -1,0 +1,21 @@
+{
+  "result": "PASS",
+  "files": 64,
+  "operations": 158,
+  "remaining_repairs": 29,
+  "eligible_stale_date_rows": 57,
+  "declaration_annotations": 1,
+  "lifecycle_changes": 0,
+  "csv_json_equality": true,
+  "scripts_compile": true,
+  "product_suites_run": false,
+  "hashes": {
+    "operations.json": "4f61cba77ffe793ec9117dca37441daa27c382b9e81732287e3149a0f33abd2d",
+    "operations.csv": "d865282199f2dfb5354de155dc5b3315de7b580e00d4be9d7321dd434b2adeb6",
+    "REMAINING_RESULTS.csv": "fb55571fe3ed15327b313c322002942a6612626f7579f1083e94881ba0b423c7",
+    "INPUT_HASHES.json": "049f44056ee86878eb5cb48de0d3cf9aa6223fea8f61647c218a0cd5f6fb74b5",
+    "RETURN.md": "cccd29cb07fccfe43be3ec6badc43455eae73918ace4f23f4e1d7bd0eed463e2",
+    "apply_check.py": "e46383ae1af8deb93f375e77a46a1d23e73020c6b10ca328c2fe8a2a7542df4a",
+    "prepare.py": "bb10db653fe8437f5d5eb9fa84d2b566d53ea1193d92d565d9fdc161ef9260c8"
+  }
+}

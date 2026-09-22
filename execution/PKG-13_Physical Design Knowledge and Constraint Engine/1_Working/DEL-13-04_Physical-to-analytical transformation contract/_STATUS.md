@@ -1,7 +1,7 @@
 # Status: DEL-13-04 Physical-to-analytical transformation contract
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-09-22
 
 ## Remaining
 - Hold PDU-023 continuation from analytical field-scalar trace paths into a runtime result envelope until an accepted producer/home binds those existing contracts (source: D-41 R5 T2C E6, 2026-07-12)
@@ -23,3 +23,4 @@
 - 2026-07-12 - D-41 R5 T2C PDU-023 added paired field-scalar paths for valid copied component geometry quantities and held runtime result-envelope continuation; lifecycle remains IN_PROGRESS.
 - 2026-07-12 - D-41 R5 T4 PDU-036 added a bounded invented omission/warning/assumption trace-gap fixture and focused test; evidence remains verification-only and lifecycle remains IN_PROGRESS.
 - 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).
+- 2026-09-22 - R5 concordance record repair applied under current owner direction and Agent 0's bounded brief; corrected declared-state/Remaining facts or amendment metadata against the recorded basis. Exact before/after operations and evidence are in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5/TASKS/STATUS_REPAIR/operations.json`. Lifecycle state, human/reviewer holds and release/engineering-acceptance boundaries are unchanged.

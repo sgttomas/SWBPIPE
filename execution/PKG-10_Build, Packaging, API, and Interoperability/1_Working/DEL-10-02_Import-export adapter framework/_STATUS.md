@@ -1,12 +1,12 @@
 # Status: DEL-10-02 Import/export adapter framework
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-09-22
 
 ## Remaining
 - Concrete rule/report adapter runtime hooks remain unselected; the T4 persisted-record reader is not adapter dispatch and does not close runtime or end-to-end interop.
 - Select and govern the adapter execution model, plugin runtime, and bounded capability grants before any runtime dispatch; the current DEC-074 O7/E5 seam is deny-only and proves no-bypass behavior only at declaration admission.
-- Close the FR-023 residual GUI import/export round-trip, dispositioned with the handoff work or D-12 (gated: D-12; stage-gated: v0.2 R6 handoff) (see also DEL-17-03..08) (source: PRD plan §4 FR-023 row)
+- Close the FR-023 GUI import/export round-trip residual through the v0.2 R6 handoff work and its owning deliverables (including DEL-17-03..08). D-12/DEC-078 dispositioned FR-024 and FR-025 only; it neither closes FR-023 nor remains an outstanding ruling gate for it. Scope and acceptance stay with the authorized handoff work graph.
 
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
@@ -24,3 +24,4 @@
 - 2026-07-11 - Remaining seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
 - 2026-07-12 - D-41 R5 T3 applied DEC-074 O7-before-E5 for PDU-018/PDU-028: the selected declaration-to-runtime seam now rejects/quarantines no-bypass violations and never dispatches, including after a valid declaration. No runtime model, capability grant, whole-product security claim, or lifecycle change.
 - 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).
+- 2026-09-22 - R5 concordance record repair applied under current owner direction and Agent 0's bounded brief; corrected declared-state/Remaining facts or amendment metadata against the recorded basis. Exact before/after operations and evidence are in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5/TASKS/STATUS_REPAIR/operations.json`. Lifecycle state, human/reviewer holds and release/engineering-acceptance boundaries are unchanged.

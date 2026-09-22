@@ -1,7 +1,7 @@
 # Status: DEL-12-03 Telemetry off-by-default design
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-09-22
 
 ## Remaining
 - Preserve PDU-043 as documented absence until separately authorized: plugin, adapter, import/export, report, and private-library runtime paths do not yet route telemetry attempts through the selected DEL-12-03 guard seam; adapter approval/allowlist remains unselected, and the DEL-10-02 deny-only declaration-admission gate does not close this runtime binding; do not infer whole-runtime no-bypass or security closure (source: DEC-074 O7-before-E5; PDU-043, 2026-07-12)
@@ -24,3 +24,4 @@
 - 2026-07-12 - D-41 R5 T3/PDU-026 bound the telemetry panel's modeled attempts to a fail-closed desktop pre-payload guard with negative/no-network/no-persistence evidence; PDU-043 consumer interception remains explicitly absent, lifecycle remains IN_PROGRESS, and no security-review closure is claimed.
 - 2026-07-12 - D-41 R5 T5/PDU-042 added a distinct affirmative review-request interaction inside the existing telemetry panel. Focused evidence proves initial render/open state records no request, the exported action identity is distinct from solve, and the explicit request remains fail-closed without consent/allowlist, config mutation, payload, persistence, or network behavior; lifecycle remains IN_PROGRESS.
 - 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).
+- 2026-09-22 - R5 concordance record repair applied under current owner direction and Agent 0's bounded brief; corrected declared-state/Remaining facts or amendment metadata against the recorded basis. Exact before/after operations and evidence are in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5/TASKS/STATUS_REPAIR/operations.json`. Lifecycle state, human/reviewer holds and release/engineering-acceptance boundaries are unchanged.

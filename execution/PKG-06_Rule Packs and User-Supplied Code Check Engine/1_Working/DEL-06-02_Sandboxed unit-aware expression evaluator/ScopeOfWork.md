@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-06-02
 package_id: PKG-06
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@eaad463c0d481f6f1654e6adb5ee718f566176e9
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-045]
 package_objective_refs: [OBJ-005]
 ---
 
 # Scope of Work — DEL-06-02
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -22,17 +24,6 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 > #### Datasheet: DEL-06-02 Sandboxed unit-aware expression evaluator
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-002 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-06-02-DECL-002`.
->
 
 ### CLM-003 — PDU-024 Version Integration
 
@@ -94,7 +85,7 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 >
 > This setup run produces deliverable-local planning and readiness artifacts only:
 >
-> - `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md`.
+> - `ScopeOfWork.md`.
 > - `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` for semantic readiness.
 > - `Dependencies.csv` and `_DEPENDENCIES.md` for dependency extraction.
 > - `_run_records/` evidence for each required setup step.
@@ -130,17 +121,6 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 > #### Specification: DEL-06-02 Sandboxed unit-aware expression evaluator
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-010 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-06-02-DECL-001`.
->
 
 ### CLM-011 — Scope
 
@@ -220,7 +200,7 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 
 > ##### Documentation
 >
-> Required setup artifacts are `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, `_STATUS.md`, and `_run_records/`.
+> Required setup artifacts are `ScopeOfWork.md`, `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, `_STATUS.md`, and `_run_records/`.
 >
 > Future implementation documentation should add the selected grammar/library decision record, evaluator threat model, unit-binding contract, diagnostic taxonomy, and test evidence. Those artifacts are outside this setup session.
 
@@ -233,17 +213,6 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 > #### Procedure: DEL-06-02 Sandboxed unit-aware expression evaluator
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-019 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-06-02-DECL-004`.
->
 
 ### CLM-020 — PDU-024 Integration Check
 
@@ -335,17 +304,6 @@ This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and
 > #### Guidance: DEL-06-02 Sandboxed unit-aware expression evaluator
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-027 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-06-02-DECL-003`.
->
 
 ### CLM-028 — PDU-024 Guidance
 

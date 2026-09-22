@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-05-01
 package_id: PKG-05
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@eaad463c0d481f6f1654e6adb5ee718f566176e9
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-013]
 package_objective_refs: [OBJ-003]
 ---
 
 # Scope of Work — DEL-05-01
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -22,17 +24,6 @@ This Scope of Work defines `DEL-05-01` in service of project scope [SOW-013] and
 > #### Datasheet: DEL-05-01 Primitive load case engine
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-002 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-05-01-DECL-002`.
->
 
 ### CLM-003 — Identification
 
@@ -120,8 +111,8 @@ This Scope of Work defines `DEL-05-01` in service of project scope [SOW-013] and
 > | Evidence | Result |
 > |---|---|
 > | Historical run records | `MEMORY.md` records successful cargo formatting/testing tranches for primitive implementation, lumping, solver-vector assembly, axial effects, boundary dimension update, load-case records, and diagnostic bridge. |
-> | Current crate tests | `src/lib.rs` contains 40 tests for all primitive categories, boundary metadata, retired dimension aliases, equivalent-static handling, load-case records, deterministic sorting, lumping, axial effects, diagnostic records, missing/invalid inputs, and solver-vector assembly findings. |
-> | Current validation evidence | `cargo test --manifest-path core/loads/primitive_loads/Cargo.toml --locked` passed with 40 tests in the 2026-06-05 foundational hardening tranche; doc-alignment closeout should still run diff hygiene for touched files. |
+> | Verification hook | Run the source-bound suite in `core/loads/primitive_loads/src/lib.rs` for primitive categories, boundary metadata, retired dimension aliases, equivalent-static handling, load-case records, deterministic sorting, lumping, axial effects, diagnostic records, missing/invalid inputs, and solver-vector assembly findings; record the evaluated inventory and result in the run evidence. |
+> | Historical verification evidence | `cargo test --manifest-path core/loads/primitive_loads/Cargo.toml --locked` passed with 40 tests in the 2026-06-05 foundational hardening tranche on that run's source; this is not a current suite count or engineering-validation result. Doc-alignment closeout should still run diff hygiene for touched files. |
 >
 
 ### CLM-009 — Conditions
@@ -145,7 +136,7 @@ This Scope of Work defines `DEL-05-01` in service of project scope [SOW-013] and
 > - `MEMORY.md`
 > - `core/loads/primitive_loads/README.md`
 > - `core/loads/primitive_loads/src/lib.rs`
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.7
+> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register)
 > - `docs/_Registers/Deliverables.csv` row DEL-05-01
 > - `docs/_Registers/ScopeLedger.csv` row SOW-013
 > - `docs/_Registers/ContextBudgetQA.csv` row DEL-05-01
@@ -160,17 +151,6 @@ This Scope of Work defines `DEL-05-01` in service of project scope [SOW-013] and
 > #### Specification: DEL-05-01 Primitive load case engine
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-012 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-05-01-DECL-001`.
->
 
 ### CLM-013 — Scope
 
@@ -222,7 +202,7 @@ This Scope of Work defines `DEL-05-01` in service of project scope [SOW-013] and
 > | REQ-05-01-006 | Unit tests cover conversion from primitive-load findings and load-case assembly findings into diagnostic records with provenance. |
 > | REQ-05-01-007 | Unit tests cover load-case schema binding, schema load-type mapping, sorted load IDs, missing metadata, duplicate IDs, empty loads, and mixed-category rejection. |
 > | REQ-05-01-008 | Unit tests cover wind/seismic/occasional explicit equivalent mechanics loads, required equivalent-static basis/provenance refs, and rejection of acceleration/dynamic-placeholder dimensions. |
-> | REQ-05-01-009 | Current crate evidence is the focused 40-test primitive-load suite; broader release gates remain under project validation/review authority. |
+> | REQ-05-01-009 | Verification uses the source-bound primitive-load suite (`cargo test --manifest-path core/loads/primitive_loads/Cargo.toml --locked`); counts and outcomes belong to the corresponding run record. Broader release gates remain under project validation/review authority. |
 > | REQ-05-01-010 | Unit tests cover missing provenance rejection for boundary records and diagnostic records. |
 > | REQ-05-01-011 | Unit tests cover lumped nodal splitting, accepted translational directions, unsupported pressure/thermal/dynamic inputs, missing/invalid spans, invalid indices, and unchanged base `prepare_loads` behavior. |
 > | REQ-05-01-012 | Unit tests cover thermal and pressure axial force preparation, finding fan-in, missing/invalid properties, non-finite magnitude, and overflowing computed force rejection. |
@@ -244,7 +224,7 @@ This Scope of Work defines `DEL-05-01` in service of project scope [SOW-013] and
 
 > ##### Documentation
 >
-> Required local deliverable artifacts are `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`, `MEMORY.md`, `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, `_STATUS.md`, and `_run_records/`. Implementation evidence is in `core/loads/primitive_loads/README.md` and `core/loads/primitive_loads/src/lib.rs`.
+> Required local deliverable artifacts are `ScopeOfWork.md`, `MEMORY.md`, `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, `_STATUS.md`, and `_run_records/`. Implementation evidence is in `core/loads/primitive_loads/README.md` and `core/loads/primitive_loads/src/lib.rs`.
 
 - **AC-001** — The contract preserves the accepted primitive-load mechanics, unit, provenance, diagnostic, and rule-separation boundaries, including explicit missing-input findings, caller-supplied equivalent-static bases, and unresolved production policies without inventing code factors, combinations, allowables, defaults, or professional approval.
 
@@ -278,7 +258,7 @@ This Scope of Work defines `DEL-05-01` in service of project scope [SOW-013] and
 > ##### Steps
 >
 > 1. Confirm the deliverable identity, package, scope item, objective, architecture basis, and current lifecycle state from `_CONTEXT.md` and `_STATUS.md`.
-> 2. Read the deliverable-local truth set before edits: `_CONTEXT.md`, `_STATUS.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, `MEMORY.md`, `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md`.
+> 2. Read the deliverable-local truth set before edits: `_CONTEXT.md`, `_STATUS.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, `MEMORY.md`, `ScopeOfWork.md`.
 > 3. Read the implementation evidence in `core/loads/primitive_loads/README.md` and `core/loads/primitive_loads/src/lib.rs`.
 > 4. Confirm all SOW-013 primitive categories remain represented: weight, pressure, thermal expansion, imposed displacement, hydrotest, wind, seismic, and occasional.
 > 5. Confirm primitive mechanics boundaries: nodal, element-uniform, imposed-displacement, equivalent-static preparation, lumped equivalent nodal conversion, straight-pipe axial effects, and solver load-vector assembly are documented only to the extent implemented.
@@ -313,7 +293,7 @@ This Scope of Work defines `DEL-05-01` in service of project scope [SOW-013] and
 
 > ##### Records
 >
-> - Four-document kit: `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md`
+> - `ScopeOfWork.md`
 > - Working memory: `MEMORY.md`
 > - Semantic evidence: `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`
 > - Dependency evidence: `Dependencies.csv`, `_DEPENDENCIES.md`
@@ -341,7 +321,7 @@ This Scope of Work defines `DEL-05-01` in service of project scope [SOW-013] and
 
 > ##### Purpose
 >
-> This deliverable frames primitive load categories as explicit mechanics inputs for the OpenPipeStress solver boundary. The current implementation evidence is the bounded `core/loads/primitive_loads` crate, which preserves primitive category identity, deterministic findings, boundary metadata, load-case record shape, diagnostic bridge records, equivalent-static mechanics handling, lumped equivalent nodal conversion, and straight-pipe axial-effect helpers without adding code-specific combinations or compliance logic.
+> This deliverable frames primitive load categories as explicit mechanics inputs for the SWBPIPE solver boundary. The current implementation evidence is the bounded `core/loads/primitive_loads` crate, which preserves primitive category identity, deterministic findings, boundary metadata, load-case record shape, diagnostic bridge records, equivalent-static mechanics handling, lumped equivalent nodal conversion, and straight-pipe axial-effect helpers without adding code-specific combinations or compliance logic.
 >
 
 ### CLM-028 — Principles

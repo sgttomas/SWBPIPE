@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-14-01
 package_id: PKG-14
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@e8f59a63372f38d9e788ac39b39995558f5aba73
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-071]
 package_objective_refs: [OBJ-016]
 ---
 
 # Scope of Work — DEL-14-01
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -22,17 +24,6 @@ This Scope of Work defines `DEL-14-01` in service of project scope [SOW-071] and
 > #### Datasheet: DEL-14-01 Immutable model state records
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-002 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-14-01-DECL-002`.
->
 
 ### CLM-003 — Identification
 
@@ -70,7 +61,7 @@ This Scope of Work defines `DEL-14-01` in service of project scope [SOW-071] and
 > ##### Conditions
 >
 > - The deliverable belongs to a schema-first architecture baseline: Rust core/application services, JSON Schema 2020-12 contracts, schema-first command/query/job result envelopes, and JCS-compatible canonical JSON hash basis where JSON payloads are hashed (`_CONTEXT.md`, Architecture Basis Injection).
-> - The model state record must respect OpenPipeStress data-boundary invariants: protected standards text, copied tables, proprietary values, and private project/rule data must not be committed publicly by default (`docs/CONTRACT.md` OPS-K-IP-1, OPS-K-PRIV-1; `docs/IP_AND_DATA_BOUNDARY.md` sections 3 and 6).
+> - The model state record must respect SWBPIPE data-boundary invariants: protected standards text, copied tables, proprietary values, and private project/rule data must not be committed publicly by default (`docs/CONTRACT.md` OPS-K-IP-1, OPS-K-PRIV-1; `docs/IP_AND_DATA_BOUNDARY.md` sections 3 and 6).
 > - Missing or unsupported data remains explicit and visible; silent engineering defaults are disallowed (`docs/CONTRACT.md` OPS-K-DATA-2; `docs/DIRECTIVE.md` section 3).
 > - Human acceptance or external approval, if referenced later, remains external and hash-bound; the software must not emit professional approval, certification, sealing, authentication, or code-compliance equivalents as automatic statuses (PRD §21.2) (`docs/SPEC.md` sections 4.4 and 9; `docs/CONTRACT.md` OPS-K-AUTH-1 and OPS-K-AUTH-2).
 > - Approved DAG-002 mirror rows identify architecture-basis predecessors plus dependencies on canonical model, persistence, audit/hash, and analysis-status vocabulary surfaces (`Dependencies.csv`; `execution/_DAG/DAG-006/APPROVAL_RECORD.md`).
@@ -113,17 +104,6 @@ This Scope of Work defines `DEL-14-01` in service of project scope [SOW-071] and
 > #### Specification: DEL-14-01 Immutable model state records
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-009 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-14-01-DECL-001`.
->
 
 ### CLM-010 — Scope
 
@@ -174,7 +154,7 @@ This Scope of Work defines `DEL-14-01` in service of project scope [SOW-071] and
 > |---|---|---|
 > | JSON Schema 2020-12 | Public schema/interchange baseline for this data-model change. | Source-supported by `_CONTEXT.md`; exact schema file content TBD |
 > | Canonical JSON / JCS-compatible basis | Applies to JSON payload hashing where the state payload is JSON. | Source-supported by `_CONTEXT.md` and `docs/SPEC.md` section 4.4; exact library/algorithm binding TBD |
-> | OpenPipeStress governance invariants | Data-boundary, provenance, no-silent-default, and no-professional-approval constraints. | Source-supported by `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, and `docs/IP_AND_DATA_BOUNDARY.md` |
+> | SWBPIPE governance invariants | Data-boundary, provenance, no-silent-default, and no-professional-approval constraints. | Source-supported by `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, and `docs/IP_AND_DATA_BOUNDARY.md` |
 >
 > No external code clause text or protected standards text is available or required for this deliverable setup.
 >
@@ -212,17 +192,6 @@ This Scope of Work defines `DEL-14-01` in service of project scope [SOW-071] and
 > #### Procedure: DEL-14-01 Immutable model state records
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-016 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-14-01-DECL-004`.
->
 
 ### CLM-017 — Purpose
 
@@ -299,22 +268,11 @@ This Scope of Work defines `DEL-14-01` in service of project scope [SOW-071] and
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-023 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-14-01-DECL-003`.
->
-
 ### CLM-024 — Purpose
 
 > ##### Purpose
 >
-> Immutable model state records give OpenPipeStress a reproducible saved-state surface for design iteration, comparison, reporting, and handoff workflows. The deliverable is a schema/data-model change, not a professional approval workflow.
+> Immutable model state records give SWBPIPE a reproducible saved-state surface for design iteration, comparison, reporting, and handoff workflows. The deliverable is a schema/data-model change, not a professional approval workflow.
 >
 > Sources: `_CONTEXT.md`; OBJ-016 and PKG-14 in `execution/_Decomposition/SOFTWARE_DECOMP.md`; `docs/SPEC.md` sections 4.4 and 9.
 >

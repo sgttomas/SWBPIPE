@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-13-04
 package_id: PKG-13
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@2770fda4c63c98ee9f18cffbafd14c9aa59f497f
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-066]
 package_objective_refs: [OBJ-014]
 ---
 
 # Scope of Work — DEL-13-04
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -23,15 +25,9 @@ This candidate defines `DEL-13-04` in service of project scope [SOW-066] and pac
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-002 — D-41 R5 T7 PDU-055 current declaration
+### CLM-002 — Historical source provenance
 
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-13-04-DECL-002`.
+> Historical source metadata; no current-state assertion.
 >
 > **Generated:** 2026-05-03
 > **Status:** Evidence refresh applied 2026-06-07
@@ -185,15 +181,9 @@ This candidate defines `DEL-13-04` in service of project scope [SOW-066] and pac
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-012 — D-41 R5 T7 PDU-055 current declaration
+### CLM-012 — Historical source provenance
 
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-13-04-DECL-001`.
+> Historical source metadata; no current-state assertion.
 >
 > **Generated:** 2026-05-03
 > **Status:** Evidence refresh applied 2026-06-07
@@ -481,7 +471,7 @@ This candidate defines `DEL-13-04` in service of project scope [SOW-066] and pac
 >
 > | Check | Expected evidence |
 > |---|---|
-> | Four-doc consistency | `Datasheet.md`, `Specification.md`, `Guidance.md`, and `Procedure.md` use the same DEL ID, package, scope, objective, and terminology. |
+> | Scope of Work consistency | `ScopeOfWork.md` uses the same DEL ID, package, scope, objective, and terminology. |
 > | Requirement coverage | Specification requirements trace to SOW-066, OBJ-014, project invariants, or local DAG mirror rows. |
 > | Determinism | Tests or planned tests cover repeated transform behavior. |
 > | Warning behavior | Tests or planned tests cover warnings for non-representable physical data. |

@@ -2,12 +2,14 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-17-02
 package_id: PKG-17
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@e8f59a63372f38d9e788ac39b39995558f5aba73
+decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
 project_scope_refs: [SOW-030, SOW-074]
 package_objective_refs: [OBJ-009, OBJ-017]
 ---
 
 # Scope of Work — DEL-17-02
+
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -22,17 +24,6 @@ This Scope of Work defines `DEL-17-02` in service of project scope [SOW-030, SOW
 > #### Datasheet: DEL-17-02 Export package, profile, and stable ID map contracts
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-002 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-17-02-DECL-002`.
->
 
 ### CLM-003 — Identity
 
@@ -65,7 +56,7 @@ This Scope of Work defines `DEL-17-02` in service of project scope [SOW-030, SOW
 > |---|---|---|
 > | Export package | Binds payloads, target files, manifests, ID maps, diagnostics, and loss reports into one reproducible package concept. | Every exporter shall identify which package members it emits and which are outside its tranche. |
 > | Export profile | Declares target name, profile version, target version basis, unit policy, coordinate policy, entity coverage, and target-specific TBDs. | Target exporters shall consume a profile rather than encode hidden target assumptions. |
-> | Stable ID map | Maps OpenPipeStress canonical IDs to target record IDs, file names, sidecars, metadata slots, or omitted-target entries. | Every target artifact shall preserve identity directly or through a sidecar map. |
+> | Stable ID map | Maps SWBPIPE canonical IDs to target record IDs, file names, sidecars, metadata slots, or omitted-target entries. | Every target artifact shall preserve identity directly or through a sidecar map. |
 > | Export manifest | Records source model identity, profile identity, package members, hashes where applicable, diagnostics, and boundary notes. | Export packages shall be auditable without relying on unstated runtime context. |
 > | Loss report | Records exported, omitted, approximated, delegated, unsupported, and TBD behavior. | Exporters shall not silently approximate unsupported target concepts. |
 >
@@ -105,7 +96,7 @@ This Scope of Work defines `DEL-17-02` in service of project scope [SOW-030, SOW
 >
 > | Artifact | Contract role |
 > |---|---|
-> | `Datasheet.md`, `Specification.md`, `Guidance.md`, `Procedure.md` | Human-readable contract kit for the export package/profile/stable-ID/loss-report surface. |
+> | `ScopeOfWork.md` | Human-readable contract kit for the export package/profile/stable-ID/loss-report surface. |
 > | `_SEMANTIC.md` | Semantic matrix lens for coverage review; not an engineering authority. |
 > | `_SEMANTIC_LENSING.md` | Warranted enrichment register applied by Pass 3; not an authority source by itself. |
 > | `Dependencies.csv` | v3.1 dependency register tying DEL-17-02 to upstream source-basis evidence and downstream PKG-17 consumers. |
@@ -119,7 +110,7 @@ This Scope of Work defines `DEL-17-02` in service of project scope [SOW-030, SOW
 > | Field | Meaning |
 > |---|---|
 > | `profile_id` | Stable identifier for the export profile. |
-> | `profile_version` | Version of the OpenPipeStress profile contract. |
+> | `profile_version` | Version of the SWBPIPE profile contract. |
 > | `target_family` | Target family such as native JSON, CAEPIPE MBF, stress-neutral CSV/JSON, PCF, GLB/glTF, or adapter SDK target. |
 > | `target_version_basis` | Cited target version or `TBD` when not yet source-confirmed. |
 > | `source_basis_ids` | DEL-17-01 source IDs and project references used by the profile. |
@@ -151,7 +142,7 @@ This Scope of Work defines `DEL-17-02` in service of project scope [SOW-030, SOW
 >
 > | Mode | Required meaning | DEL-17-02 boundary |
 > |---|---|---|
-> | Direct target-carried ID | The target artifact contains the canonical OpenPipeStress ID in a source-confirmed target field, metadata slot, name, or equivalent target-carried location. | Allowed only when the downstream target profile cites admitted evidence for the carrier. |
+> | Direct target-carried ID | The target artifact contains the canonical SWBPIPE ID in a source-confirmed target field, metadata slot, name, or equivalent target-carried location. | Allowed only when the downstream target profile cites admitted evidence for the carrier. |
 > | Metadata-carried ID | The target artifact carries canonical IDs through a documented metadata surface. | Allowed only when the target metadata behavior is source-confirmed and does not imply solver equivalence. |
 > | Sidecar mapping | The target artifact does not carry the canonical ID directly; the export package includes a separate ID-map member referenced from the manifest. | Required fallback whenever direct or metadata carriage is unsupported, ambiguous, or `TBD`. |
 > | Omitted-target entry | A canonical ID has no target artifact representation. | Must appear in the ID map and loss report with category, reason, and affected canonical IDs. |
@@ -272,7 +263,7 @@ This Scope of Work defines `DEL-17-02` in service of project scope [SOW-030, SOW
 >
 > | Req ID | Requirement |
 > |---|---|
-> | DEL-17-02-REQ-030 | The ID map shall preserve links from canonical OpenPipeStress IDs to emitted target records, files, metadata fields, or sidecar rows. |
+> | DEL-17-02-REQ-030 | The ID map shall preserve links from canonical SWBPIPE IDs to emitted target records, files, metadata fields, or sidecar rows. |
 > | DEL-17-02-REQ-031 | The ID map shall record unmapped canonical IDs with omission or unsupported reasons. |
 > | DEL-17-02-REQ-032 | The ID map shall be stable across deterministic re-export when the source model identity and profile are unchanged. |
 > | DEL-17-02-REQ-033 | A target file that cannot carry canonical IDs shall be paired with a sidecar mapping referenced by the manifest. |
@@ -343,7 +334,7 @@ This Scope of Work defines `DEL-17-02` in service of project scope [SOW-030, SOW
 >
 > DEL-17-02 is acceptable when:
 >
-> - the four-document kit exists;
+> - the `ScopeOfWork.md` exists;
 > - semantic and dependency artifacts exist;
 > - `Dependencies.csv` validates against the v3.1 dependency schema;
 > - the DAG-005/root blocker queue uses the active evidence register and records `DEL-17-01` as committed;
@@ -360,29 +351,18 @@ This Scope of Work defines `DEL-17-02` in service of project scope [SOW-030, SOW
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-028 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-17-02-DECL-004`.
->
-
 ### CLM-029 — Population Procedure
 
 > ##### Population Procedure
 >
 > 1. Confirm DAG-006 is the approved active graph authority.
 > 2. Confirm `DEL-17-01` has committed implementation evidence before treating `DEL-17-02` as the next unblocked PKG-17 population target.
-> 3. Read the local `DEL-17-01` four-document kit, `Source_Basis_Register.md`, and `CAEPIPE_Question_Dossier.md`.
-> 4. Populate this four-document kit at contract level only.
+> 3. Read the local `DEL-17-01` `ScopeOfWork.md`, `Source_Basis_Register.md`, and `CAEPIPE_Question_Dossier.md`.
+> 4. Populate this `ScopeOfWork.md` at contract level only.
 > 5. Build semantic artifacts that map source basis, requirements, downstream consumers, and boundary exclusions.
 > 6. Extract the local dependency register into `Dependencies.csv`.
 > 7. Refresh deliverable memory and create a run record.
-> 8. Validate the four-document kit, minimum fileset, dependency schema, coordination blocker queue, and diff hygiene.
+> 8. Validate the `ScopeOfWork.md`, minimum fileset, dependency schema, coordination blocker queue, and diff hygiene.
 >
 
 ### CLM-030 — Downstream Consumption Procedure
@@ -434,15 +414,15 @@ This Scope of Work defines `DEL-17-02` in service of project scope [SOW-030, SOW
 > ```
 >
 
-### CLM-033 — Current validator-path evidence (D-41 R5 T7 PDU-059)
+### CLM-033 — Historical validator-path evidence (D-41 R5 T7 PDU-059)
 
-> ###### Current validator-path evidence (D-41 R5 T7 PDU-059)
+> ###### Historical validator-path evidence (D-41 R5 T7 PDU-059)
 >
 > On 2026-07-12 all five repository-local validator commands above were re-run
 > from the repository root and passed: four-document, minimum-fileset,
 > dependency-schema (22 rows), semantic-matrix, and lens-register validation.
 > `Review_Findings.csv` RF-001 is retained unchanged as a historical formal
-> review record with `HumanDisposition=TBD`; this current evidence does not
+> review record with `HumanDisposition=TBD`; this historical evidence does not
 > retroactively rewrite that review.
 >
 > If an unscoped worktree check reports findings outside this project's write scope, record the finding as external-scope noise and do not treat it as a blocker for DEL-17-02 closeout. Scoped deliverable checks remain the controlling diff-hygiene evidence for this deliverable.
@@ -485,17 +465,6 @@ This Scope of Work defines `DEL-17-02` in service of project scope [SOW-030, SOW
 >
 > <!-- D41-R5-T7-PDU055-CURRENTNESS -->
 
-### CLM-037 — D-41 R5 T7 PDU-055 current declaration
-
-> ##### D-41 R5 T7 PDU-055 current declaration
->
-> Current authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.8, approved `execution/_DAG/DAG-007/` graph context, and D-41/`DEC-074` through the completed T1-T6 bounded records. The implemented working-tree slice and its evidence supersede this surface's setup-only, future-only, or overtaken TBD wording as a current declaration; that earlier wording remains historical setup context only.
->
-> Surviving deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining`; dated MEMORY and formal-review history remain unchanged. This refresh does not imply lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
->
-> PDU-055 cited claim(s): `DEL-17-02-DECL-003`.
->
-
 ### CLM-038 — Reader Orientation
 
 > ##### Reader Orientation
@@ -532,12 +501,12 @@ This Scope of Work defines `DEL-17-02` in service of project scope [SOW-030, SOW
 
 > ###### Stable ID map
 >
-> Stable IDs are the recovery path when a target format cannot preserve the OpenPipeStress model structure directly. The map should be useful for:
+> Stable IDs are the recovery path when a target format cannot preserve the SWBPIPE model structure directly. The map should be useful for:
 >
 > - locating a target artifact from a canonical model entity;
 > - tracing a target result row back to a model entity;
 > - explaining omitted entities;
-> - reconciling external run outputs with OpenPipeStress records;
+> - reconciling external run outputs with SWBPIPE records;
 > - diagnosing target-specific approximations.
 >
 > Do not use target-generated record order as the only identity mechanism unless the manifest also records why no stronger identity is available.
