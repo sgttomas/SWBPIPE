@@ -250,3 +250,6 @@
 {"t": "2026-09-22T00:38:13Z", "event": "LIVE", "count": 14, "cap": 16}
 {"t": "2026-09-22T00:38:34Z", "event": "LAUNCH", "node": "W3-PKG-17-MANAGER", "agent": "a757c2c4453512367", "role": "WORKING_ITEMS", "parent": "ROOT (Agent 0)", "mechanism": "harness-native Agent tool, general-purpose, background (D-GOV-35); workers nested foreground", "model": "opus", "reasoning": "assumed inherited (not verifiable)", "launch_message": "_run_records/launches/W3-PKG-17-MANAGER_LAUNCH.md", "launch_sha256": "4e31db6cea469177a7f1c30d71c529b49e20b70ed2f89d8b3fcda367b82046e6", "worker_budget": 1}
 {"t": "2026-09-22T00:38:34Z", "event": "LIVE", "count": 16, "cap": 16}
+{"t": "2026-09-22T00:39:15Z", "event": "RETURN", "node": "W3-PKG-05-VERIFIER", "agent": "a06997dd7458008ca", "file": "WAVES/W3/PKG-05/PKG-05_VERIFICATION.md", "sha256": "86ab8fdc75fbb0e7d5bc6fa2ec9b31d2415eefc1ff5c8a42d200edbd3556b333", "verdict": "ACCEPT WITH CONTESTED ROWS", "firm_false_alignment": "2.5% (1/40)", "firm": 1, "weak": 9, "field": 1}
+{"t": "2026-09-22T00:39:15Z", "event": "LIVE", "count": 15, "cap": 16}
+{"t": "2026-09-22T00:39:15Z", "event": "BUDGET_RAISE", "node": "W3-PKG-17-MANAGER", "agent": "a757c2c4453512367", "worker_budget": 2, "via": "SendMessage", "note": "applies from the manager next launch; live count planned 16"}
