@@ -1,0 +1,3 @@
+# PKG-08 batch mode over all 6 forward ledgers
+PASS batch of 6 ledgers: 0 consistency findings
+exit=0

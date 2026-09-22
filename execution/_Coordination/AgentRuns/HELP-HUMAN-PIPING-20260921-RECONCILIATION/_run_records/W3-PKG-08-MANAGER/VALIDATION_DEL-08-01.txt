@@ -1,0 +1,8 @@
+# DEL-08-01 single-mode validation (--reverse --inventory --notes-gap)
+PASS DEL-08-01: 106 forward rows, 75 required keys, 7 canonical, 0 findings
+exit=0
+
+# seal check
+forward_sha256=7e8d5b07edb3e223c4cb6b1b0b28adf6ad59d147e4a9c631961f585b9adb46b7
+reverse_sha256=395b90bd411ddfe6dae5c387894860fdc096b8868dc29d6b66aac493536a66eb
+seal: SEALED DEL-08-01 7e8d5b07edb3e223c4cb6b1b0b28adf6ad59d147e4a9c631961f585b9adb46b7 2026-09-22T00:15:24Z
