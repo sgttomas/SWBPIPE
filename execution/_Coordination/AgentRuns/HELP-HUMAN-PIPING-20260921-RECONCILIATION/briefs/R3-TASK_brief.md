@@ -16,10 +16,15 @@ that synthesis. You classify and propose. You never repair, rule or decide.
 `RUN` is `{REPO}/projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS`.
 
 - **`RUN/R3_PLAN.md`.** Your task's row, the partition rules and the class contents.
-- **`RUN/R3/CORPUS_CLAIMS.csv`.** One row per claim key, all 102 deliverables. Effective values are the sealed values with adopted resolutions applied. `Sealed*` columns keep the sealed values, and `ResolutionClasses` lists every resolution row for the key. Your row population comes from this file, filtered as your launch message states.
+- **`RUN/R3/CORPUS_CLAIMS.csv`.** One row per claim key, all 102 deliverables.
+  - **Effective values.** Where an adopted resolution row sets a Disposition, its five value fields replace the sealed ones: Disposition, CauseTag, AuthorityTier, BaselineClass and DivergenceLayers. `Sealed*` columns keep the sealed values.
+  - **Other corrections.** Anything else a resolution corrects is **not** applied: AuthorityNeeded, CanonicalSituation, FindingGroup, RemainingWork, evidence and notes. It is carried word for word in `OtherCorrections`, prefixed by the resolution class. Take it into account wherever it bears on your work. For example, a corrected AuthorityNeeded changes the owning authority you propose.
+  - **`ResolutionClasses`** lists every resolution row for the key.
+  - **Flags.** `Divergent = YES` marks every row whose effective Disposition is not ALIGNED, NOT_ASSESSED or COVERED_BY_CHILDREN. `ProductCallerNone = YES` marks rows whose Notes carry `PRODUCT_CALLER: NONE` (F7).
+  - **Your population** comes from this file, filtered exactly as your launch message states.
 - **The other `RUN/R3/` tables.** `CAPABILITY_COVERAGE.csv`, `CLUSTER_MATRIX.csv`, `PACKAGE_SUMMARY.csv` and `REMAINING_CENSUS.csv`. `R3/SYNTHESIS_STATS.md` records their hashes.
 - **The sealed ledgers**, `RUN/WAVES/W*/PKG-*/DEL-*/DEL-*_{forward,reverse,notes}.*`. Ignore every `superseded_<n>/` folder. Read them for a row's Notes, evidence and RemainingWork.
-- **The adopted resolutions**, `RUN/WAVES/{W1,W2,W3,CROSS_WAVE}/RESOLUTIONS.csv`. The verification reports are `RUN/WAVES/*/PKG-*/*_VERIFICATION.md` and the cross-package and cross-wave reports. The assessments are `RUN/WAVES/W1/W1_GATE_ASSESSMENT.md`, `W1_GATE_RULING.md`, `RUN/WAVES/W2/W2_GATE_ASSESSMENT.md` and `RUN/WAVES/W3/W3_ASSESSMENT.md`.
+- **The adopted resolutions**, `RUN/WAVES/{W1,W2,W3,CROSS_WAVE}/RESOLUTIONS.csv`. Ignore the draft and merged-draft files (`RESOLUTIONS_DRAFT_*.csv` and `CROSS_PACKAGE/RESOLUTIONS_MERGED_DRAFT.csv`). They are superseded working files. The verification reports are `RUN/WAVES/*/PKG-*/*_VERIFICATION.md` and the cross-package and cross-wave reports. The assessments are `RUN/WAVES/W1/W1_GATE_ASSESSMENT.md`, `W1_GATE_RULING.md`, `RUN/WAVES/W2/W2_GATE_ASSESSMENT.md` and `RUN/WAVES/W3/W3_ASSESSMENT.md`.
 - **Conventions and vocabulary.** `RUN/CONVENTIONS.md` (Parts A–F), `RUN/CANONICAL_SITUATIONS.md`, `RUN/AUTHORITY_AND_SOURCE_RELIABILITY_MAP.md`, `RUN/IMPLEMENTATION_SURFACES.csv` and `RUN/ROUTING_SAMPLE/SAMPLE_MANIFEST.csv`.
 - **The frozen source**, `{FREEZE}`. It is a read-only checkout of `00115c71931bcae79909602d653740d3bb72dfa1`. It is evidence, never authority. Code shows what was built, not what was decided.
 - **T10 only:** `{REPO}/projects/chirality-piping/execution/_Reconciliation/DeliverableConcordance/DELIVERABLE_CONCORDANCE_2026-07-11_1305/` (the July concordance). It is a cross-check, not evidence or authority. No other task reads it.
@@ -48,8 +53,7 @@ that synthesis. You classify and propose. You never repair, rule or decide.
    - its population count, packages and deliverables;
    - the owning authority: OWNER, ENGINEERING, REVIEW, SCOPE_CHANGE,
      HELPS_HUMANS, EXTERNAL or NONE;
-   - the recommended routing: R5_RECORD_REPAIR, SCOPE_CHANGE_HANDOFF,
-     CODE_FIX_CANDIDATE, ENGINEERING_AUTHORITY or OWNER_DECISION;
+   - the recommended routing, one route from the route vocabulary below;
    - the exact on-ruling mechanism, meaning what a ruling would authorise and
      through which workflow or change path;
    - the risk if left unrepaired;
@@ -68,6 +72,8 @@ that synthesis. You classify and propose. You never repair, rule or decide.
    - DUPLICATE: two owners conflict. Say which owner is better supported,
      with evidence.
    - UNKEYED_SCOPE_GAP: owned, but no issued key covers it.
+   - PARTIAL_UNOWNED_REMAINDER: owned only in part, and the rest is unowned.
+     Name the unowned part and its best owner.
 
    Also give a confidence (HIGH, MEDIUM or LOW) and evidence (file:line at
    the freeze, or scope-text references).
@@ -79,16 +85,32 @@ that synthesis. You classify and propose. You never repair, rule or decide.
 7. **Claim fence.** Make no claims of certification, code compliance,
    professional approval or engineering acceptance (F-PIP-2, claims taxonomy
    per DEC-081). You describe records and evidence, not engineering adequacy.
-8. **Writes.**
+8. **Other tasks.** Do not read other tasks' files under `RUN/R3/TASKS/`.
+   Your work must be independent. T10's July material is visible to T10
+   alone.
+9. **Writes.**
    - Write only your named output files, under `RUN/R3/TASKS/`.
    - Scratch files go under `RUN/R3/TASKS/_scratch_{TASK}/`. Delete them
      before you return.
    - Do not use git or the network, or write anywhere else. Never write in
      `{FREEZE}`.
-9. **API overload.** The API returns intermittent 529 errors. Write your
+   - Run Python with `PYTHONDONTWRITEBYTECODE=1`.
+10. **API overload.** The API returns intermittent 529 errors. Write your
    output incrementally, for example per class or per area, and keep each
    generation short. If you are resumed after an interruption, check what
    is on disk and continue from there; don't start over.
+
+## Route vocabulary (every Route or routing field)
+
+- `R5_RECORD_REPAIR`: a deliverable text or record repair under a later R5 ruling.
+- `SCOPE_CHANGE_HANDOFF`: retire, merge, create or reassign deliverables.
+- `CODE_FIX_CANDIDATE`: a candidate brief for a code or test change. It is not executed.
+- `ENGINEERING_AUTHORITY`: an engineering or validation decision.
+- `OWNER_DECISION`: a product, authority or baseline decision.
+- `REVIEW`: a review under the review workflow.
+- `NO_ACTION`: nothing to change, for example an accepted divergence or a correct record. Say why.
+
+Note that `OwnerKeys` in `CAPABILITY_COVERAGE.csv` separates owners with ` | `. A single owner's keys may themselves contain `;`.
 
 ## Output formats
 
@@ -99,6 +121,8 @@ that synthesis. You classify and propose. You never repair, rule or decide.
   - T8 `_ROWS.csv` columns: `ClaimKey, DeliverableID, Cluster, ProposedReading, Route`.
   - T9 CSV columns: `DeliverableID, Item, Finding, Evidence, Route`.
   - T10 CSV columns: `DeliverableID, Topic, JulyStatus, CurrentStatus, Change, Evidence`.
+  - T11 CSV columns: `Check, Subject, Deliverables, Finding, Evidence, Route`. `Check` is one of DEPENDENCY, TERMINOLOGY, REUSED_EVIDENCE, SUBCLAIM_SPLIT or SHARED_SURFACE.
+  - T12 CSV columns: `ClaimKey, DeliverableID, Engine, Area, ClusterID, Route`, one row per `ProductCallerNone = YES` row.
 - **Markdown files.** Start with a one-paragraph summary, then give the
   classes or findings. End with a `## Coverage` section (the counts and the
   check you ran) and a `## R3 observations` section, which may be empty.

@@ -2,7 +2,8 @@
 
 - Deliverables: 102; forward ledgers: 102; reverse files: 102
 - Claim rows: 9889; divergent (effective): 3299; values changed by resolutions: 63
-- Resolution rows: 599 over 597 keys
+- Resolution rows: 599 over 597 keys; claim rows with other (non-value) corrections: 580
+- Rows marked PRODUCT_CALLER: NONE: 666 (641 not divergent)
 - Capabilities: 598; DUPLICATE_OWNERSHIP 1; OWNED 302; OWNED_SHARED 15; OWNED_UNKEYED 45; PARTIAL_ONLY 105; UNMAPPED 63; UNMAPPED_RELATION_ONLY 67
 - Remaining rows: 151 across 65 deliverables; 37 deliverables record NONE
 
@@ -16,8 +17,8 @@
 
 ## Outputs (SHA-256)
 
-- `R3/CORPUS_CLAIMS.csv` 301e894c3309a66a600fee3e3086d8acca7accfc2149b07388d0a06a1161d539
+- `R3/CORPUS_CLAIMS.csv` a44dc9084bad5c3a6f4e6ee0a9c6ef37c89734f894f0c7ec13eedb9c1823c2b6
 - `R3/PACKAGE_SUMMARY.csv` 0bca0f5a27093bb276b703b1199ee6e10307e3fded78810ffe3b74b3aef6c0f4
 - `R3/CLUSTER_MATRIX.csv` 85e70d409ce450f08c06fe8545ac61d1ac9bcad24ddff9cbda7763375dda5b13
-- `R3/CAPABILITY_COVERAGE.csv` f5f25a76adf73a424c4b7c623e9b67fc1995c0be732a48dfe56c40fe492ac9a8
+- `R3/CAPABILITY_COVERAGE.csv` 8e32f8a4e663a9c1ef4e4bde7476957571d27cfb52b4758e615ecab980ef6eb1
 - `R3/REMAINING_CENSUS.csv` 2dbe87f2c5435ce634ec3f9adafc03e95f58fded20d34f06b239efebee099c0a

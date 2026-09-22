@@ -96,6 +96,11 @@ def build(run):
                 for k in VALUE_FIELDS:
                     row[k] = setters[0][k]
             row["ResolutionClasses"] = ";".join(sorted({x["Class"] for x in rr}))
+            # Only the five value fields are substituted; every other correction a resolution states
+            # (AuthorityNeeded, CanonicalSituation, FindingGroup, RemainingWork, evidence, Notes...) is
+            # carried verbatim so R3 readers apply it by judgment.
+            row["OtherCorrections"] = " || ".join(f"[{x['Class']}] {x['OtherCorrections']}" for x in rr if x["OtherCorrections"])
+            row["ProductCallerNone"] = "YES" if re.search(r"PRODUCT_CALLER:\s*NONE", r["Notes"]) else "NO"
             row["ValuesResolved"] = "YES" if setters and any(row[k] != row["Sealed" + k] for k in VALUE_FIELDS) else "NO"
             row["Divergent"] = "NO" if row["Disposition"] in NEUTRAL else "YES"
             row["Remaining"] = "YES" if "#remaining/" in r["ClaimKey"] or r["ClaimType"] == "REMAINING_WORK" else "NO"
@@ -160,7 +165,7 @@ def build(run):
             "Owners": ";".join(f"{x[0]}:{x[2]}" for x in sorted(own)),
             "Relations": ";".join(f"{x[0]}:{x[2]}" for x in sorted(rel)),
             "SampleRoutedOwnership": ";".join(x[0] for x in sorted(own) if x[1] == "SAMPLE"),
-            "OwnerKeys": ";".join(f"{x[0]}={x[3]}" for x in sorted(own) if x[3]),
+            "OwnerKeys": " | ".join(f"{x[0]}={x[3]}" for x in sorted(own) if x[3]),
             "Capability": caps[cid]["Capability"]})
     unrouted_answers = sorted(set(answers) - set(caps))
     assert not unrouted_answers, unrouted_answers[:5]
@@ -184,7 +189,7 @@ def build(run):
     claim_hdr = ["ClaimKey", "DeliverableID", "PackageID", "Wave", "UnitKind", "ClaimType", "ClaimClass",
                  "LifecycleState", "CanonicalSituation", "FindingGroup", "AuthorityNeeded", "Confidence"] + \
                 VALUE_FIELDS + ["Sealed" + k for k in VALUE_FIELDS] + \
-                ["ValuesResolved", "ResolutionClasses", "Divergent", "Remaining"]
+                ["ValuesResolved", "ResolutionClasses", "OtherCorrections", "Divergent", "Remaining", "ProductCallerNone"]
     outs = {
         "CORPUS_CLAIMS.csv": to_csv(claim_hdr, claims),
         "PACKAGE_SUMMARY.csv": to_csv(["PackageID", "Rows"] + disps, pkg_rows),
@@ -204,7 +209,10 @@ def build(run):
              f"- Deliverables: {len(inv)}; forward ledgers: {len(fwd)}; reverse files: {len(rev)}",
              f"- Claim rows: {len(claims)}; divergent (effective): {sum(1 for c in claims if c['Divergent'] == 'YES')}; "
              f"values changed by resolutions: {sum(1 for c in claims if c['ValuesResolved'] == 'YES')}",
-             f"- Resolution rows: {sum(len(v) for v in res.values())} over {len(res)} keys",
+             f"- Resolution rows: {sum(len(v) for v in res.values())} over {len(res)} keys; "
+             f"claim rows with other (non-value) corrections: {sum(1 for c in claims if c['OtherCorrections'])}",
+             f"- Rows marked PRODUCT_CALLER: NONE: {sum(1 for c in claims if c['ProductCallerNone'] == 'YES')} "
+             f"({sum(1 for c in claims if c['ProductCallerNone'] == 'YES' and c['Divergent'] == 'NO')} not divergent)",
              f"- Capabilities: {len(cov_rows)}; " + "; ".join(f"{k} {v}" for k, v in sorted(st.items())),
              f"- Remaining rows: {sum(r['RemainingRows'] for r in rem_rows)} across "
              f"{sum(1 for r in rem_rows if r['RemainingRows'])} deliverables; "
