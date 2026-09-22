@@ -170,7 +170,11 @@ No recommendation; owner's call.
   - B7 (DEL-10-02 panel versus engine follows B7's pattern).
   - A8 (secret provider, CF-001/CF-002; see the B12 overlap note).
 - **Blocks.**
-  - Code-fix briefs on the adapter gate and the security helper (H2).
+  - Every H2 row whose `BlockedOnPacket` includes B10 (filter on
+    `R3/CODE_FIX_BRIEF_CANDIDATES/CODE_FIX_ROWS.csv`). This covers the
+    code-fix briefs on the adapter gate and the security helper. It also
+    covers rows in CFB-06, CFB-14, CFB-22, CFB-29 and CFB-54, including
+    `DEL-17-09:STATUS#remaining/R01`. The rows named below are examples.
   - The three DEL-06-02 CP-11 rows whose no-bypass branch waits on the D2
     runtime (T6-C03, T6 observation O5; CFB-15; H2 marks them B10):
     `DEL-06-02:SOW#CLM-006.r05`, `DEL-06-02:SOW#CLM-013/REQ-06-02-010` and
