@@ -23,10 +23,24 @@ A cold session starts here. Read in order: this file, `OWNER_DIRECTIONS.md`,
 
 ## Next actions
 
-1. On manager returns: check the thin summaries, then launch one fresh
-   verifier per package (R2-VERIFIER brief, DOUBLE sampling).
-2. Gate per `WAVE_PLAN.md`; owner checkpoint with the canonical table,
-   the 13-deliverable disclosure, and any reruns or contested rows.
+Status (2026-09-22): R2 status.
+- W1 (PKG-07, PKG-16) and gate wave 2 (PKG-00 to PKG-04) are complete and
+  verified.
+- W3 (rolling queue): PKG-05, 06, 08, 09 and 10 are verified.
+- PKG-11, 12, 13, 14, 15 and 17 were interrupted by a sustained API 529
+  overload. See `RUN_STATE.jsonl` (the PAUSE event) for the exact agent IDs
+  and what each had sealed.
+
+To resume:
+1. Resume interrupted workers by message (they keep context; sealed files
+   stand). Do this a few at a time.
+2. When a worker returns, resume its manager with the worker's return, so
+   it finishes its checks and remaining groups. Any manager or worker that
+   cannot be resumed is relaunched fresh; a fresh worker moves the old files
+   into `superseded_<n>/`.
+3. Verify each package (STANDARD sampling). Adopt the W3 resolutions from
+   `WAVES/W3/RESOLUTIONS_DRAFT_PART1.csv` plus the rest.
+4. Then R3 synthesis.
 
 ## Departures from the approved plan
 
