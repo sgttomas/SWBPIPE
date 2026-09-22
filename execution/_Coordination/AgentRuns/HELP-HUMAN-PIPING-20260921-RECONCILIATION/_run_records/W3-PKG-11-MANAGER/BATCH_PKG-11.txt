@@ -1,0 +1,2 @@
+PASS batch of 5 ledgers: 0 consistency findings
+exit=0

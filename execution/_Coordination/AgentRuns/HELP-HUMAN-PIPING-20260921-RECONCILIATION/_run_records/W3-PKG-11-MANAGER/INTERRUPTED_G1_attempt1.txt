@@ -1,0 +1,15 @@
+== DEL-11-01 interrupted-attempt forward check 2026-09-22T01:00:51Z
+seal: SEALED DEL-11-01 cd1f14a1ee8587dd123facc25db7487d85120fc504d1b63942c1b3948d363eaf 2026-09-22T00:38:57Z
+recomputed: cd1f14a1ee8587dd123facc25db7487d85120fc504d1b63942c1b3948d363eaf
+PASS DEL-11-01: 119 forward rows, 66 required keys, 7 canonical, 0 findings
+exit=0
+== DEL-11-02 interrupted-attempt forward check 2026-09-22T01:00:52Z
+seal: SEALED DEL-11-02 fc15e5ad2f3129ebff71e25e66043e112adb68f567c39269f1671d00df4cf0c8 2026-09-22T00:44:36Z
+recomputed: fc15e5ad2f3129ebff71e25e66043e112adb68f567c39269f1671d00df4cf0c8
+PASS DEL-11-02: 137 forward rows, 76 required keys, 7 canonical, 0 findings
+exit=0
+== DEL-11-03 interrupted-attempt forward check 2026-09-22T01:00:52Z
+seal: SEALED DEL-11-03 c5c5eb51b4252af07a9bdd48e45805e5b152e6742a3d808148fe7edc7b8a2c49 2026-09-22T00:50:07Z
+recomputed: c5c5eb51b4252af07a9bdd48e45805e5b152e6742a3d808148fe7edc7b8a2c49
+PASS DEL-11-03: 139 forward rows, 69 required keys, 7 canonical, 0 findings
+exit=0
