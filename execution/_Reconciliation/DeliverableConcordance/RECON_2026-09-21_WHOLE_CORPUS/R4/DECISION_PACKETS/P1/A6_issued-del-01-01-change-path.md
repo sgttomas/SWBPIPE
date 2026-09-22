@@ -12,7 +12,7 @@ DEL-01-01 is ISSUED (2026-06-03). Its SOW text was true at issuance and has sinc
 
 ## 2. Background
 
-- **Issuance.** `F:execution/PKG-01_…/DEL-01-01_…/_STATUS.md:3` reads ISSUED; l.14 records the human approval (licence selection, RF-001, CHECKING to ISSUED) and that remaining governance TBDs "may be resolved later or not at human discretion". l.15 records the 2026-07-16 DEC-081 claims-language edit to `ScopeOfWork.md` (D-48 Wave 2, commit `8fac6631a`).
+- **Issuance.** `F:execution/PKG-01_…/1_Working/DEL-01-01_…/_STATUS.md:3` reads ISSUED; l.14 records the human approval (licence selection, RF-001, CHECKING to ISSUED) and that remaining governance TBDs "may be resolved later or not at human discretion". l.15 records the 2026-07-16 DEC-081 claims-language edit to `ScopeOfWork.md` (D-48 Wave 2, commit `8fac6631a`).
 - **Rulings that overtook the text.** DEC-027 (2026-06-11; sole maintainer and release authority, quorum one; `F:execution/_Decomposition/SOFTWARE_DECOMP.md:618`); DEC-057 and DEC-089 (v0.1 unsigned with checksum and release-record attestation; `:648`, `:680`); DEC-081 (claims language; `:672`, which says its execution is "not an SCA — no PRD text or scope-item change"); DEC-105 (maturity sentence retired; `:696`); DEC-101 (rename; `:692`). Still open: the legal review process (DEC-079, `CLM-018.s02`) and the maturity sentence (T9-C05).
 - **Run rules.** C6(d) and R0 ruling item 4: an ISSUED claim true at issuance but overtaken is LIFECYCLE_REASSESSMENT_REQUIRED with a FindingGroup, and goes to R4 as one item on the ISSUED change path (`RUN/CONVENTIONS.md` C6(d)). C6(e) / ruling item 3: rename residue in SOWs is a finding. C6(g): ACCEPTED_DIVERGENCE needs a named ruling or an A3a record. The profile: "`ISSUED` deliverables (currently DEL-01-01): read-only in discovery; any change routes through the governed scope-change process" (`{REPO}/projects/chirality-piping/docs/RECONCILIATION_PROFILE.md:84-85`).
 - **What is inconsistent today.** The same deliverable is recorded two ways: BaselineClass ISSUED and AuthorityNeeded OWNER on SOW pin rows, but NONE/NO on its four `_CONTEXT.md` pin rows and on the MAINTAINERS.md row (T4A observation 1). `DEL-01-01:SOW` is routed to R4 twice, through FG-DEL-01-01-02 and through the rename class (T4B observation 4; T9-C06).
@@ -35,7 +35,7 @@ As they stand in the evidence (T9-C05, C06, C10; T5B-C07 items 1–2; T4B-C02 it
 
 **Routing of `DEL-01-01:SOW` rename residue (T9-C06; T4B-C01 item 4):**
 - **(a)** CP-04 as written with BaselineClass ISSUED, repaired inside A4's rename ruling through the ISSUED change path;
-- **(b)** fold it into the C6(d) ISSUED group (and extend C6(d) to the five ISSUED pin rows). Either way this packet is its one route.
+- **(b)** fold it into the C6(d) ISSUED group (and extend C6(d) to the five ISSUED pin rows). Extending C6(d) amends a RULED run convention: holder OWNER, with the amendment drafted through HELPS_HUMANS (as A3 does for CP-10). Either way this packet is its one route.
 
 **Sub-question on grouping (T5B-C07 item 1; FIELD resolutions).** `CLM-004.r05` rests on DEC-081 and DEC-105, not on DEC-027 / DEC-057 / DEC-089; it can be a separate group or FG-DEL-01-01-01 with the extension disclosed. `CLM-014` adds DEC-081 to its basis.
 
@@ -104,7 +104,7 @@ The evidence supports one procedural recommendation: rule all DEL-01-01 edits as
 ## 8. On-ruling mechanism
 
 - **Option 1 or 2.** An R4 owner ruling authorises an ISSUED change for DEL-01-01 through the scope-change workflow (WORKING_ITEMS, workflow: scope-change), per the profile and C6(d) ruling item 4. Under option 1 the lifecycle workflow handles reissue. The text repair is then carried out under that change's authority (R5 or R6), together with the MAINTAINERS.md brief (T4A-C07) if the owner includes it, and with A8's posture ruling applied to CLM-009.s01.
-- **Option 3.** An owner record (A3a) naming the drift and the pointer to the rulings; an R5 edit of the non-ISSUED surfaces only (`_STATUS.md` history pointer), leaving the SOW unchanged.
+- **Option 3.** An owner record (A3a) naming the drift and the pointer to the rulings. DEL-01-01's `_STATUS.md` belongs to the ISSUED deliverable, so the history-pointer edit is made under that A3a record through the ISSUED change path (profile `:84-85`), not as an ordinary R5 edit; the SOW stays unchanged.
 - **DEC-081 (a).** Owner confirmation recorded; AC-001 row closed as ACCEPTED_DIVERGENCE under that confirmation. **(b)** The edit joins the option 1/2 change bundle.
 - **`DEL-01-01:SOW` rename.** Carried by whichever option is chosen; A4's rename wording applies to the text.
 

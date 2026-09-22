@@ -18,35 +18,52 @@ def packet_text(pid):
     return next(PKT.glob(f"P*/{pid}_*.md")).read_text()
 
 
-def mentioned(pid, key):
-    return re.search(re.escape(key) + r"(?![\w.#/-])", packet_text(pid)) is not None
+def section5_keys(pid):
+    """Claim keys written in a packet's section 5 (its stated key list)."""
+    text = packet_text(pid)
+    body = re.split(r"^#+ *5\.?", text, flags=re.M)[1]
+    body = re.split(r"^#+ *6\.?", body, flags=re.M)[0]
+    return set(re.findall(r"DEL-\d\d-\d\d:[^\s`;,|)]+", body))
 
 
 def whole(r):
     return True
 
 
-# (ClassID, packet, predicate on the row); first match wins, order matters.
+INJ = "CONTEXT#architecture-basis-injection"
+B10_KEYS = None
+
+
+def in_b10(r):
+    global B10_KEYS
+    if B10_KEYS is None:
+        B10_KEYS = section5_keys("B10")
+    return r["ClaimKey"] in B10_KEYS
+
+
+# (ClassID, packet, predicate) as each packet states its portion in section 5.
+# Every predicate is evaluated; a row matching none or more than one is an error.
 PORTIONS = [
-    ("T4A-C06", "A1", lambda r: mentioned("A1", r["ClaimKey"])),
-    ("T4A-C06", "A7", lambda r: mentioned("A7", r["ClaimKey"])),
-    ("T4A-C06", "A10", lambda r: mentioned("A10", r["ClaimKey"])),
+    ("T4A-C06", "A1", lambda r: r["ClaimKey"].endswith(INJ)),
+    ("T4A-C06", "A7", lambda r: r["DeliverableID"] in ("DEL-17-07", "DEL-17-08", "DEL-17-09")
+                                and not r["ClaimKey"].endswith(INJ)),
+    ("T4A-C06", "A10", lambda r: r["DeliverableID"] == "DEL-09-05"),
     ("T4A-C08", "A6", whole),
     ("T4B-C01", "A6", lambda r: r["ClaimKey"] == "DEL-01-01:SOW"),
-    ("T4B-C01", "A4", whole),
+    ("T4B-C01", "A4", lambda r: r["ClaimKey"] != "DEL-01-01:SOW"),
     ("T4B-C02", "A6", lambda r: r["DeliverableID"] == "DEL-01-01"),
     ("T4B-C02", "A2", lambda r: r["DeliverableID"] == "DEL-17-03"),
     ("T4B-C03", "A5", whole),
     ("T4B-C04", "A7", whole),
     ("T5A-C05", "B6", lambda r: r["DeliverableID"] == "DEL-17-04"),
-    ("T5A-C05", "C1", whole),
+    ("T5A-C05", "C1", lambda r: r["DeliverableID"] != "DEL-17-04"),
     ("T5B-C04", "A5", whole),
     ("T5B-C07", "A6", lambda r: r["DeliverableID"] == "DEL-01-01"),
-    ("T5B-C07", "A10", whole),
-    ("T5B-C09", "B4", lambda r: r["ClaimKey"] == "DEL-07-02:SOW#CLM-034"),
+    ("T5B-C07", "A10", lambda r: r["DeliverableID"] != "DEL-01-01"),
+    ("T5B-C09", "B4", lambda r: r["DeliverableID"] == "DEL-07-02"),
     ("T5B-C09", "C4", lambda r: r["DeliverableID"] == "DEL-11-01"),
-    ("T6-C04", "B10", lambda r: mentioned("B10", r["ClaimKey"])),
-    ("T6-C04", "B12", whole),
+    ("T6-C04", "B10", in_b10),
+    ("T6-C04", "B12", lambda r: not in_b10(r)),
     ("T7-C01", "A3", whole),
     ("T7-C02", "A2", whole),
     ("T7-C03", "A1", whole),
@@ -70,17 +87,18 @@ def build():
             if r["Route"] == "OWNER_DECISION"]
     out, errors, got = [], [], {}
     for r in rows:
-        hit = next((p for c, p, f in PORTIONS if c == r["ClassID"] and f(r)), None)
-        if hit is None:
-            errors.append(f"unclaimed {r['ClaimKey']} {r['ClassID']}")
+        hits = [p for c, p, f in PORTIONS if c == r["ClassID"] and f(r)]
+        if len(hits) != 1:
+            errors.append(f"{r['ClaimKey']} {r['ClassID']} claimed by {hits or 'none'}")
             continue
+        hit = hits[0]
         got[(r["ClassID"], hit)] = got.get((r["ClassID"], hit), 0) + 1
         out.append((r["ClaimKey"], r["DeliverableID"], r["ClassID"], hit))
     for k, n in STATED.items():
         if got.get(k, 0) != n:
             errors.append(f"portion {k} stated {n} got {got.get(k, 0)}")
     buf = io.StringIO()
-    w = csv.writer(buf, lineterminator="\n")
+    w = csv.writer(buf, lineterminator="\r\n")
     w.writerow(["ClaimKey", "DeliverableID", "ClassID", "Packet"])
     w.writerows(sorted(out))
     return buf.getvalue(), len(rows), errors
@@ -91,10 +109,10 @@ def main():
     for e in errors:
         print("ERROR", e)
     if "--check" in sys.argv:
-        same = OUT.exists() and OUT.read_text() == text
+        same = OUT.exists() and OUT.read_bytes() == text.encode()
         print("PACKET_CLAIMS", "OK" if same else "DIFFERS")
         sys.exit(0 if same and not errors else 1)
-    OUT.write_text(text)
+    OUT.write_bytes(text.encode())
     print(f"{n} owner-route rows; {len(errors)} errors")
     sys.exit(1 if errors else 0)
 

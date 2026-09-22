@@ -135,8 +135,9 @@ independent review.
 8. **Classification drift across workers.** The same fact was sometimes
    classified differently: F7 markers, the DEC-009 cause, CONTEXT row
    treatment and CP-10 routing. T8 proposes corpus-wide readings (packet C7),
-   and T12 proposes a single F7 ruling. The known lower bound: 98 more
-   ALIGNED rows cite unreached engines without the F7 marker.
+   and T12 proposes a single F7 ruling. 98 further ALIGNED rows cite
+   unreached engines without the F7 marker (unsampled or absence claims), so
+   the rows relying on those engines may exceed 666.
 9. **Process departures.** All are disclosed in `RUN_STATE.jsonl`:
    - The API overload forced two pauses. Agents were resumed rather than
      relaunched.
@@ -155,9 +156,12 @@ independent review.
 Seven drafters (P1–P3, H1–H4) turned the classes into 29 decision packets and
 four handoffs. `R4/R4_GATE_INDEX.md` is the integration record.
 
-- **Owner rows.** `tools/check_r4_coverage.py` places every one of the 444
-  OWNER_DECISION rows in exactly one packet and checks all 24 stated portions
-  (`R4/PACKET_CLAIMS.csv`, with a `--check` mode). Seven classes are split
+- **Owner rows.** `tools/check_r4_coverage.py` codes each packet's portion
+  as the packet states it in §5 and evaluates every portion on every
+  OWNER_DECISION row. It reports an error when a row matches no portion or
+  more than one, and when a portion's count differs from the packet's stated
+  count. All 444 rows match exactly one packet (`R4/PACKET_CLAIMS.csv`, with
+  a `--check` mode). Seven classes are split
   across packets. Three of them were not on the topic file's split list;
   each still splits cleanly.
 - **Other routes.** Agent 0 checked each handoff at its return:

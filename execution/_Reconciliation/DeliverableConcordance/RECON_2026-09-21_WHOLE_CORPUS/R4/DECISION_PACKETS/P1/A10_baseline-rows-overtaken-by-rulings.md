@@ -17,11 +17,11 @@ Five baseline-tier questions where a later ruling (or a lost source) overtook a 
 
 ## 2. Background
 
-- **Item 1.** DEL-00-05's ArchitectureBasis keeps "accessibility target details" OPEN as never ruled (`F:execution/PKG-00_…/DEL-00-05_…/ArchitectureBasis.md:50`). D-68 (RULED 2026-09-15) adopted "bounded accessibility criteria" with the PKG07 workspace foundation (REG: row D-68, l.105; `F:execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md`).
-- **Item 2.** DEL-00-07's ArchitectureBasis keeps "External format list and the per-format export contracts" TBD (`F:execution/PKG-00_…/DEL-00-07_…/ArchitectureBasis.md:80`), while SCA-004 added PKG-17 export packages and formats (`F:execution/_Decomposition/SOFTWARE_DECOMP.md:33`). AB-00-07 at revision 0.12 still says TBD (W2 owner list).
-- **Item 3.** DEL-08-05 OQ-08-05-003 says severity policy is "TBD; must be confirmed before CI guard implementation" (`F:execution/PKG-08_…/DEL-08-05_…/ScopeOfWork.md:472`). DEC-058 (D-20 ruling) set release-artifact scan ownership and procedure (`SOFTWARE_DECOMP.md:649`). The CI-guard part stays open.
-- **Item 4.** DEL-12-05 states an explicit-disclosure principle: private data leaving local control is a user-intent event (`F:execution/PKG-12_…/DEL-12-05_…/ScopeOfWork.md:148`, `:452`). DEC-051 (D-24; `SOFTWARE_DECOMP.md:642`) adopted OPEN RESIDENCY: owner-configured agent visibility and networked model providers with no app-side egress guard. No provider channel is live at the freeze (T5B-C07).
-- **Item 5.** DEL-09-05 RQG-007 ties the engineering-beta label to the release gate in `docs/VALIDATION_STRATEGY.md#4` (`F:execution/PKG-09_…/DEL-09-05_…/ScopeOfWork.md:152`); section 4 ("Release gate", `F:docs/VALIDATION_STRATEGY.md:105`) lost its engineering-beta minimum condition on 2026-06-07 (c8748a04a, per T4A-C06; not re-derived here). PB-TBD-003 holds "Release-label vocabulary and final release policy language" for the human project authority (`F:docs/PROFESSIONAL_BOUNDARY.md:174`); release tooling defers labels to it (`F:tools/release/run_release_gate_records.py:25-30`).
+- **Item 1.** DEL-00-05's ArchitectureBasis keeps "accessibility target details" OPEN as never ruled (`F:execution/PKG-00_…/1_Working/DEL-00-05_…/ArchitectureBasis.md:50`). D-68 (RULED 2026-09-15) adopted "bounded accessibility criteria" with the PKG07 workspace foundation (REG: row D-68, l.105; `F:execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md`).
+- **Item 2.** DEL-00-07's ArchitectureBasis keeps "External format list and the per-format export contracts" TBD (`F:execution/PKG-00_…/1_Working/DEL-00-07_…/ArchitectureBasis.md:80`), while SCA-004 added PKG-17 export packages and formats (`F:execution/_Decomposition/SOFTWARE_DECOMP.md:33`). AB-00-07 at revision 0.12 still says TBD (W2 owner list).
+- **Item 3.** DEL-08-05 OQ-08-05-003 says severity policy is "TBD; must be confirmed before CI guard implementation" (`F:execution/PKG-08_…/1_Working/DEL-08-05_…/ScopeOfWork.md:472`). DEC-058 (D-20 ruling) set release-artifact scan ownership and procedure (`SOFTWARE_DECOMP.md:649`). The CI-guard part stays open.
+- **Item 4.** DEL-12-05 states an explicit-disclosure principle: private data leaving local control is a user-intent event (`F:execution/PKG-12_…/1_Working/DEL-12-05_…/ScopeOfWork.md:148`, `:452`). DEC-051 (D-24; `SOFTWARE_DECOMP.md:642`) adopted OPEN RESIDENCY: owner-configured agent visibility and networked model providers with no app-side egress guard. No provider channel is live at the freeze (T5B-C07).
+- **Item 5.** DEL-09-05 RQG-007 ties the engineering-beta label to the release gate in `docs/VALIDATION_STRATEGY.md#4` (`F:execution/PKG-09_…/1_Working/DEL-09-05_…/ScopeOfWork.md:152`); section 4 ("Release gate", `F:docs/VALIDATION_STRATEGY.md:105`) lost its engineering-beta minimum condition on 2026-06-07 (c8748a04a, per T4A-C06; not re-derived here). PB-TBD-003 holds "Release-label vocabulary and final release policy language" for the human project authority (`F:docs/PROFESSIONAL_BOUNDARY.md:174`); release tooling defers labels to it (`F:tools/release/run_release_gate_records.py:25-30`).
 
 ## 3. Options
 
@@ -63,7 +63,7 @@ Portion keys:
 - Item 1: `DEL-00-05:AB#open-holds-and-routed-questions.s03`.
 - Item 2: `DEL-00-07:AB#open-holds-and-routed-questions.s02` (OBSERVED).
 - Item 3: `DEL-08-05:SOW#CLM-033/OQ-08-05-003`, `DEL-08-05:SOW#CLM-033/OQ-08-05-005` (PROJECT_BASELINE, RULED_CRITERION, AuthorityNeeded NO).
-- Item 4: `DEL-12-05:SOW#CLM-011.r02`, `DEL-12-05:SOW#CLM-033.r02` (CONTESTED).
+- Item 4: `DEL-12-05:SOW#CLM-011.r02`; `DEL-12-05:SOW#CLM-033.r02` (CONTESTED).
 - Item 5: `DEL-09-05:SOW#CLM-012/RQG-007`, `DEL-09-05:SOW#CLM-029` (both CONTESTED).
 
 T5B-C07's other 16 rows are A6's; T4A-C06's other rows are A1's (7) and A7's (5).

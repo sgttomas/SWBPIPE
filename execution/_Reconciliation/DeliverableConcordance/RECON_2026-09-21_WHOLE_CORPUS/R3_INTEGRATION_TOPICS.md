@@ -65,6 +65,10 @@ come from `R3/TASKS/T8_CLUSTERS.md`.
   B12). A packet lists **exactly the keys of its portion**, never the whole
   class count. At integration, Agent 0 checks that the packet portions of each
   split class add up to the class count, and reports any row no packet claims.
+  *Integration addendum (2026-09-22, after drafting):* the drafters also
+  split T4B-C01 (A4, A6), T4B-C02 (A2, A6) and T5B-C09 (B4, C4). Each split
+  is clean. All seven are checked in `tools/check_r4_coverage.py` and listed
+  in `R4/R4_GATE_INDEX.md` §2.
 - **Handoffs cover their whole route.** Handoffs (H1–H4) take every row on
   their route, including rows that a packet also discusses (for example the
   DEL-04-04 row of T7-C06, decided in C2, or the SR-1 rows, decided in A5).

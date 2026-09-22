@@ -68,7 +68,7 @@ Portion keys:
 T4B-C02 is not listed as a split class in the topic file; its other four rows (DEL-01-01) are A6's portion. Reported to Agent 0.
 
 **Rows on other routes that the answer settles (not claimed).**
-- T6-C02 (CODE_FIX_CANDIDATE, H2) rows whose gap is the hash basis: `DEL-14-01:SOW#CLM-005`, `#CLM-011.r04`, `#CLM-012`, `#CLM-019`, `DEL-14-01:CONTEXT#architecture-basis-injection.s03`, `DEL-02-05:SOW#CLM-005.r05`, `DEL-02-05:SOW#CLM-014/REQ-02-05-005`. H2 should mark them `BlockedOnPacket = A2`.
+- T6-C02 (CODE_FIX_CANDIDATE, H2) rows whose gap is the hash basis: `DEL-14-01:SOW#CLM-005`, `DEL-14-01:SOW#CLM-011.r04`, `DEL-14-01:SOW#CLM-012`, `DEL-14-01:SOW#CLM-019`, `DEL-14-01:CONTEXT#architecture-basis-injection.s03`, `DEL-14-01:SOW#CLM-004`, `DEL-02-05:SOW#CLM-005.r05`, `DEL-02-05:SOW#CLM-014/REQ-02-05-005`, `DEL-02-05:SOW#CLM-021.r02`, `DEL-02-05:SOW#CLM-030.r05`, `DEL-02-05:CONTEXT#context-envelope`, `DEL-02-05:CONTEXT#sca-003-storage-profile-injection` (12 rows, matching H2 brief CFB-07 in `R3/CODE_FIX_BRIEF_CANDIDATES/CODE_FIX_ROWS.csv`, where `DEL-14-01:SOW#CLM-005` also carries A1). H2 marks them `BlockedOnPacket = A2`.
 - T5B-C10 (R5, H4): the six DEL-14-02 CONTRACT_VERSION_ADVANCED rows (T-01 reading (f)).
 - ALIGNED rows that T-01 reads as resting on a label (not divergent): `DEL-13-04:SOW#CLM-031`, `DEL-02-04:SOW#CLM-005.r06`, `DEL-10-01:SOW#CLM-013/DEL-10-01-REQ-14`, `DEL-10-01:SOW#CLM-015/REQ-14`, `DEL-16-03:SOW#CLM-011`, `DEL-00-04:AB#normative-requirements/REQ-04-03`, `DEL-02-05:SOW#CLM-014/REQ-02-05-012`.
 - The three FROZEN_CONTRACT rename rows for `openpipestress_jcs_ijson_v1` are A4's portion (T4B-C01). This packet owns only the contract-version question: whether the profile's content stays valid under the chosen basis.
@@ -88,7 +88,7 @@ T4B-C02 is not listed as a split class in the topic file; its other four rows (D
 
 ## 7. Recommended routing
 
-No recommendation on substance; owner's call. One point the evidence supports under any option: the MBF `JCS_compatible_json_payload_hash` label and the DEL-08-02 project-local label on RFC 8785 bytes are inaccurate as labels, so a label correction is needed whichever basis is chosen.
+No recommendation on substance; owner's call. One point the evidence supports under any option: the MBF `JCS_compatible_json_payload_hash` label and the DEL-08-02 project-local label on RFC 8785 bytes do not describe their bytes, so label and bytes must be made to agree under any option (under option 1 by changing the MBF bytes to RFC 8785, under options 2 and 3 by correcting the labels).
 
 ## 8. On-ruling mechanism
 

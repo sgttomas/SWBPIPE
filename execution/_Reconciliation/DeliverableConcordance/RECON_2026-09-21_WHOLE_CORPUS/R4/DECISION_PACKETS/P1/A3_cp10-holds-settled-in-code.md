@@ -70,7 +70,7 @@ Verified: the CP-10 text, the rulings' TBD clauses, the two code facts above. Fr
 
 **This packet's portion: 50 rows**, the whole of T7-C01 (Authority OWNER). Filter: `CLASS_ASSIGNMENTS.csv` `ClassID == 'T7-C01'`. Packages PKG-00, 02, 03, 06, 07, 09, 10, 12, 14; 20 deliverables.
 
-**Exceptions kept visible.** `DEL-03-07:SOW#CLM-026.r01` is CONTESTED: whether draft `IP_AND_DATA_BOUNDARY.md` §4 counts as governing decides both its CP-10 treatment and its owner routing. That draft-policy question is C6's; this packet only needs its answer for topic 7. `DEL-07-01:SOW#CLM-005.r05` is FIRM (effective AuthorityNeeded NO; the correction says CP-10 and OWNER).
+**Exceptions kept visible.** `DEL-03-07:SOW#CLM-026.r01` is CONTESTED: whether draft `IP_AND_DATA_BOUNDARY.md` §4 counts as governing decides both its CP-10 treatment and its owner routing. That draft-policy question is C6's; this packet only needs its answer for topic 7. `DEL-07-01:SOW#CLM-005.r05` carries a FIRM correction (its effective Confidence is LOW and effective AuthorityNeeded NO; the FIRM correction says CP-10 and OWNER).
 
 **Rows on other routes that the rule affects (not claimed).**
 - `DEL-00-01:AB#open-holds-and-routed-questions.s01` (T4B-C08, R5): CONTESTED; the verifier would split the state-library clause into a CP-10 `.sNN` like DEL-00-05 .s01 (topic 1).

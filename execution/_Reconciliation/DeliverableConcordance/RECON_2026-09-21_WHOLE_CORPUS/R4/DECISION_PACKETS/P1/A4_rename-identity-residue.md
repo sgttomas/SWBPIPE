@@ -21,7 +21,7 @@ One ruling on how the former product name OpenPipeStress is removed from deliver
 
 Per variant, as they stand in the evidence (T4B-C01):
 
-1. **Deliverable text residue** (SOW, AB, STATUS, CONTEXT). One R5 record-repair sweep replacing the former name, leaving history, run records and references to past states untouched. R0 item 3 rules out accepted divergence, so this is the only option the rulings leave open for deliverable text.
+1. **Deliverable text residue** (SOW, AB, STATUS, CONTEXT). One R5 record-repair sweep replacing the former **prose product name**, leaving history, run records and references to past states untouched. R0 item 3 rules out accepted divergence, so this is the only option the rulings leave open for deliverable prose. It does **not** reach text that names an active code identifier: those rows (at least the 9 PROJECT_BASELINE rows, 6 persistence and 3 frozen-contract, and the default-variant rows or passages that name crate, binary, schema `$id` or document-kind identifiers) wait for the option 2/3 ruling and follow it, so the text never names an identifier that does not exist (2a/3a) or is re-read as not residue (2b/3b).
 2. **Active code identifiers, default variant** (crate, binary, schema `$id`, document kinds):
    - **2a.** Rename through code-fix briefs, following DEC-101 (iv) (the owner's R0 addendum words point here);
    - **2b.** Record them as retained identifiers.
@@ -70,11 +70,11 @@ Packages (rows): PKG-00 5, 01 3, 02 6, 03 5, 04 1, 05 5, 06 2, 07 5, 08 7, 09 4,
 
 ## 7. Recommended routing
 
-Option 1 is the only option the rulings leave open for deliverable text (R0 item 3 excludes accepted divergence), so the evidence supports authorising it. The code-identifier variants (2 and 3) have no recommendation; owner's call, in particular on whether Agent 0's reading of the four kept identifiers is correct.
+Option 1 is the only option the rulings leave open for deliverable prose (R0 item 3 excludes accepted divergence), so the evidence supports authorising it **for prose product-name residue only**. Rows and passages naming active identifiers (at least the 9 PROJECT_BASELINE rows) wait for the 2/3 ruling and are repaired with it. The code-identifier variants (2 and 3) have no recommendation; owner's call, in particular on whether Agent 0's reading of the four kept identifiers is correct.
 
 ## 8. On-ruling mechanism
 
-- **Option 1.** Under the owner's separate R5 authorisation (D-73), an R5 record-repair tranche per package through the ordinary change path (`.agents/skills/chirality-change/SKILL.md`), over the 85 rows' surfaces, leaving history untouched.
+- **Option 1.** Under the owner's separate R5 authorisation (D-73), an R5 record-repair tranche per package through the ordinary change path (`.agents/skills/chirality-change/SKILL.md`), over the prose product-name residue on the 85 rows' surfaces, leaving history untouched. Identifier-naming text (the 9 PROJECT_BASELINE rows and identifier passages in default-variant rows) is repaired only after, and consistent with, the 2/3 ruling (in the same tranche as the code rename under 2a/3a, or as a not-residue re-read under 2b/3b).
 - **2a.** CODE_FIX_CANDIDATE briefs (H2) for crate, binary, `$id` and document-kind renames, executed under the owner-authorised DEC-101 implementation tranche, with the persistence-compatibility tests DEC-101 requires.
 - **3a.** As 2a; for `openpipestress_jcs_ijson_v1` and `openpipestress_result_semantics_v0_2`, a new contract version through the baseline change path (combinable with A2's outcome); for `.opsproj` and the store filename, a read-compatibility test obligation.
 - **2b / 3b.** An owner record naming the retained identifiers, then an R5 repair that re-reads those rows as not residue.

@@ -41,7 +41,7 @@ the limits before relying on any figure here.
   are:
   - DEC-009 (Python engines where a Rust core was adopted);
   - the JSON hash basis;
-  - about 12 holds the code settled without a ruling;
+  - 13 hold topics the code settled without a ruling;
   - one rename ruling;
   - the SEMANTIC_READY lifecycle advance (Direction 8);
   - the ISSUED DEL-01-01 change path;
@@ -280,8 +280,8 @@ surfaces (H3, engineering).
 **Unreached engines (T12).** 666 rows sit on code that no product path
 calls, in eight clusters. 436 need an owner decision on whether the code
 enters the product (B7–B10). 118 need no action (test harness and fixtures).
-666 is a lower bound: 98 more ALIGNED rows cite the same engines without the
-F7 marker.
+98 further ALIGNED rows cite these engines without the marker (unsampled or
+absence claims), so the rows relying on them may exceed 666.
 
 ## 8. July cross-check (T10)
 
@@ -294,7 +294,7 @@ its claim grain is about four times coarser.
   - 22 are resolved;
   - 21 persist, mostly partial slices;
   - 86 that July called aligned now diverge. Eleven of those are possible
-    defects, routed to review.
+    defects, proposed for review.
 - **Unmapped surfaces.** Five of July's eight unmapped surfaces are still
   unowned.
 - **D-42.** It was ruled on 2026-07-15 (DEC-076). SURF-021 is shared export

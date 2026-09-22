@@ -90,7 +90,7 @@ and are not H1 items.
   (PKG-07 scope names modeler, editors, warning, solve and results UX, not a
   shell), `:600` (DEC-009 shell as runtime basis), `:635` (DEC-044 PKG-04
   integration tranche), `:665` (DEC-074), `:667` (DEC-076), `:685`
-  (DEC-094), `:694` (DEC-103 item 5); SCA-009 `Vocabulary_Annex.md:116,125-128`
+  (DEC-094), `:694` (DEC-103 item 5); SCA-009 `execution/_ScopeChange/SCA-009_2026-08-20_0000/Vocabulary_Annex.md:116,125-128`
   (rows 17, 21–24); `core/model_operations/operation_applier/src/lib.rs:866`
   (`apply_operation`) and `:2003` (`deliverable_refs` DEL-16-02/DEL-16-03);
   `apps/desktop/src-tauri/tauri.conf.json:23` (CSP null);
@@ -126,7 +126,7 @@ themselves are drafted in the packets and are not repeated here.
   DEL-04-01 and PHYS-021 with DEL-03-06, so both are ASSIGN; PHYS-007 is a
   KEY_ISSUE whose home B1 settles (DEL-03-08 or the product-physics owner).
 - **Held route.** PHYS-021 is also routed REVIEW by T1 (DEL-03-06 reverse
-  re-ask). See section 7.
+  re-ask); token `ER-35` (H3). See section 7.
 - **Linked items outside the group.** H1-175 (PHYS-028 key in DEL-05-01;
   code in `product_physics`), H1-215 (SOLVER-070, nonlinear README part) and
   H1-225 (DEL-04-03 CLM-010.r12, product support path).
@@ -163,7 +163,7 @@ themselves are drafted in the packets and are not repeated here.
   `deliverable_refs` DEL-16-02/DEL-16-03 at `:2003`; DEL-16-02 REQ-16-02-005
   puts application outside its slice; DEL-16-03 answers UNKEYED
   (RC-16-0151, -0248, -0252); PKG-16 verifier: "No issued key owns runtime
-  application" (`PKG-16_VERIFICATION.md:356`).
+  application" (`RUN/WAVES/W1/PKG-16/PKG-16_VERIFICATION.md:356`).
 - **Amendment shape once B3 rules.** ASSIGN to DEL-16-03 or DEL-16-02 by SOW
   amendment and key issue, or CREATE a PKG-16 application deliverable.
 - **Linked items.** H1-239/H1-240 (DEL-16-01 runtime edit contract, T6-C07,
@@ -305,10 +305,11 @@ claim). No code change is implied unless the assignment moves behaviour.
 | H1-237 | DEL-12-04:SOW#CLM-007.r04 | plugin-verification default deny; grant model unselected | B10 |
 | H1-238 | DEL-13-01:SOW#CLM-005.r07 | desktop Design Knowledge panel | B9 |
 | H1-239, 240 | DEL-16-01:SOW#CLM-009.r01, r03 (FIELD) | applier intent contract (FG-DEL-16-01-01; T11 SS-02) | B3 |
-| H1-241 | DEL-17-02:CONTEXT#anticipated-artifacts | contract-level tables (DEC-076) or common schema files | UNASSIGNED |
+| H1-241 | DEL-17-02:CONTEXT#anticipated-artifacts | contract-level tables (DEC-076) or common schema files | B7 (U3) |
 
-H1-241 needs an owner choice that no topic list carries; it is reported to
-Agent 0 as UNASSIGNED and not drafted here.
+H1-241 needs an owner choice that no topic list carried. Agent 0 placed it as
+U3 with B7 (`R4_GATE_INDEX.md` §4); the B7 packet text does not draft it, and
+it is not drafted here.
 
 ## 5. Packet dependencies
 
@@ -328,16 +329,21 @@ counted under both; 117 distinct items are blocked).
 | B8 model-state persistence and comparison | 1 | H1-119 |
 | B9 PKG-13 product status | 1 | H1-238 |
 | B10 plugin and adapter grant model | 1 | H1-237 |
-| REVIEW (T1 route; no H3 item) | 4 | H1-017, H1-110, H1-116, H1-117 |
-| ENGINEERING (T3 route; no H3 item or packet) | 1 | H1-176 |
-| UNASSIGNED owner choice | 1 | H1-241 |
+| ER-35 (H3 review item for the four T1 REVIEW rows) | 4 | H1-017 (also B1), H1-110, H1-116, H1-117 |
+| B7 canonical handoff path (U3, attached by Agent 0) | 1 | H1-241 |
+| C3 validation holds (attached by Agent 0) | 1 | H1-176 |
 
 Packets that bear on H1 items without blocking them: A2 (hash basis, for
 H1-103/H1-104), B11 (DEL-07-09 is OPEN; any DEL-07-09 landing in groups D and
 I), B12 D4 (storage roots, for H1-134/H1-214), C7 (F1 reach on CONTEXT rows,
 for H1-218). H1 blocks nothing in P1–P3; H4 record repairs that re-point keys
 into a newly scoped owner wait on the corresponding H1 item once it is
-accepted.
+accepted. Capability-side R5 repair for the 84 T1–T3 capabilities routed
+R5_RECORD_REPAIR follows the key issue and needs separate R5 authorization.
+
+Token placements (Agent 0, after RV5 finding 2): H1-241 → B7 (U3); H1-176 →
+C3; H1-017, H1-110, H1-116, H1-117 → ER-35, a new H3 item. B7 and C3 carry
+these as attached questions without packet text (`R4_GATE_INDEX.md` §4).
 
 ## 6. Crosswalk placements
 
@@ -358,19 +364,20 @@ classification scope; it is blocked on B1.
 
 ## 7. Held items and coverage notes
 
-- **REVIEW routes with no H3 item.** T1 routes CAP-COREC-053, CAP-FEATB-029,
+- **REVIEW routes (token ER-35).** T1 routes CAP-COREC-053, CAP-FEATB-029,
   CAP-FEATB-030 and CAP-PHYS-021 to REVIEW (a reverse re-ask of DEL-02-04,
   DEL-02-05 and DEL-03-06) before any record repair. The H3 scope excludes
   T1–T3 ("T1–T3 carry no route column"), but these T1 rows state a route in
-  Notes. They are held here and reported to Agent 0.
-- **ENGINEERING_AUTHORITY route with no holder.** CAP-PHYS-029 (dormant D-67
+  Notes. Agent 0 is adding H3 item ER-35 for them.
+- **ENGINEERING_AUTHORITY route (token C3).** CAP-PHYS-029 (dormant D-67
   kernel; nearest key DEL-05-03 RQ-001.s01 waits on the owner-held pressure
-  reference model; `T3_OWNERSHIP.csv`). No packet or H3 item names it.
-  Reported to Agent 0.
-- **UNASSIGNED owner choice.** `DEL-17-02:CONTEXT#anticipated-artifacts`
+  reference model; `T3_OWNERSHIP.csv`). Agent 0 attached it to C3
+  (`R4_GATE_INDEX.md` §4); the C3 packet text does not draft it.
+- **Owner choice attached to B7 (U3).** `DEL-17-02:CONTEXT#anticipated-artifacts`
   (T6-C07; AuthorityNeeded OWNER): keep the four export schemas as
   contract-level tables under DEC-076, or author common schema files
-  (`T6_CLASSES.md` T6-C07 class notes). No topic list carries it.
+  (`T6_CLASSES.md` T6-C07 class notes). No topic list carried it; Agent 0
+  placed it with B7.
 - **Routes inside H1 scope that are not SCOPE_CHANGE_HANDOFF.** The task routes
   of the 227 capabilities are SCOPE_CHANGE_HANDOFF 94, R5_RECORD_REPAIR 84,
   OWNER_DECISION 27, REVIEW 4, NO_ACTION 4, ENGINEERING_AUTHORITY 1, and
@@ -399,8 +406,8 @@ classification scope; it is blocked on B1.
 
 ## 8. On-acceptance mechanism
 
-1. The owner rules the blocking packets at R4 (B1–B6, B8–B10, A6, A8, and
-   the UNASSIGNED item if Agent 0 places it).
+1. The owner rules the blocking packets at R4 (B1–B10, A6, A8 and C3), and
+   H3 item ER-35 is reviewed.
 2. A WORKING_ITEMS scope-change run (SOFTWARE variant) takes the accepted
    items as its checkpoint-1 proposal: new deliverables (groups A, B, possibly
    C), SOW scope extensions (groups D, F, H, I), key issue (group G), the

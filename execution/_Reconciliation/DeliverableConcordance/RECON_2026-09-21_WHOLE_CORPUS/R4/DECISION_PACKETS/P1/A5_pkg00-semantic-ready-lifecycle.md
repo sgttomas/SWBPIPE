@@ -12,8 +12,8 @@ Direction 8 says the PKG-00 "SEMANTIC_READY" status is outdated and "should be a
 
 ## 2. Background
 
-- **Lifecycle history.** DEL-00-01 `_STATUS.md` shows SEMANTIC_READY on 2026-04-30, CHECKING on 2026-06-04, and IN_PROGRESS on 2026-07-11 by the D-40 rebaseline under the TYPES §9 regime model (`F:execution/PKG-00_…/DEL-00-01_…/_STATUS.md:3`, `:11-13`). All eight PKG-00 `_STATUS.md` files read IN_PROGRESS at l.3 (T9-C07). Rulings: D-40 / DEC-072 (register row D-40; `F:execution/_Decomposition/SOFTWARE_DECOMP.md:663`).
-- **The injection statement.** Each downstream `_CONTEXT.md` says PKG-00 "at `SEMANTIC_READY` supplies dispatchable architecture-basis constraints" (for example `F:execution/PKG-04_…/DEL-04-01_…/_CONTEXT.md:51`). It restates SCA-001 (`SOFTWARE_DECOMP.md:432`).
+- **Lifecycle history.** DEL-00-01 `_STATUS.md` shows SEMANTIC_READY on 2026-04-30, CHECKING on 2026-06-04, and IN_PROGRESS on 2026-07-11 by the D-40 rebaseline under the TYPES §9 regime model (`F:execution/PKG-00_…/1_Working/DEL-00-01_…/_STATUS.md:3`, `:11-13`). All eight PKG-00 `_STATUS.md` files read IN_PROGRESS at l.3 (T9-C07). Rulings: D-40 / DEC-072 (register row D-40; `F:execution/_Decomposition/SOFTWARE_DECOMP.md:663`).
+- **The injection statement.** Each downstream `_CONTEXT.md` says PKG-00 "at `SEMANTIC_READY` supplies dispatchable architecture-basis constraints" (for example `F:execution/PKG-04_…/1_Working/DEL-04-01_…/_CONTEXT.md:51`). It restates SCA-001 (`SOFTWARE_DECOMP.md:432`).
 - **Consolidation.** D-43 / SCA-006 consolidated the PKG-00 kits into per-member `ArchitectureBasis.md`, recorded as a "scope-neutral currency amendment" (`SOFTWARE_DECOMP.md:35`). The PKG-00 readiness gate was superseded (D-43, HUMAN-STEER-PKG00-EXCLUSION-001; T4B-C03).
 - **Owner confirmation.** Direction 8 (`…/HELP-HUMAN-PIPING-20260921-RECONCILIATION/OWNER_DIRECTIONS.md:139-157`) confirmed the disposition STALE_REVIEW_OR_EVIDENCE and routed the status advance to R4. CONVENTIONS F3 records the same. This run changes no status (D-73).
 - **DAG.** The 580 architecture-basis edges into PKG-00 are satisfied at RequiredMaturity SEMANTIC_READY on the recorded lifecycle reading (T11 D-07); a state change may bear on that reading.
@@ -63,18 +63,18 @@ T4B-C03: 42 `CONTEXT#architecture-basis-injection.s01` keys (cause RECORD_DRIFT)
 
 **Rows on other routes (both views; not claimed).**
 - T8 SR-1 route disagreement (`RUN/R3/T8_ROUTE_DISAGREEMENTS.csv`): the 81 sub-claims are OWNER_DECISION by class and R5_RECORD_REPAIR by T8 (T8: "R5, after the owner acts on the status advance"). Both views agree the text repair waits on this packet.
-- Two further injection parents T9-C07 counts (cause BASIS_POINTER_STALE): `DEL-02-04:CONTEXT#architecture-basis-injection` and `DEL-02-05:CONTEXT#architecture-basis-injection` (T4A-C01, H4). Their pin repair is mechanical; the SEMANTIC_READY sentence in them follows this packet.
+- Two further injection parents T9-C07 counts (cause BASIS_POINTER_STALE): `DEL-02-04:CONTEXT#architecture-basis-injection` and `DEL-02-05:CONTEXT#architecture-basis-injection` (T4A-C01, H4). Their pin repair is mechanical; the SEMANTIC_READY sentence in them follows this packet. H4 carries both with `BlockedOnPacket = A5;C7`, so a T4A-C01 pin repair does not restate the sentence before the lifecycle choice.
 - T8-K1 adjacent rows (a deliverable's own readiness target): `DEL-06-02:SOW#CLM-024.r06` (T4B-C08), `DEL-09-05:SOW#CLM-003` (T5B-C08), `DEL-10-05:SOW#CLM-002.r05` (T4A-C05), `DEL-10-04:SOW#CLM-003.r08` (T4B-C08) on R5 both ways; `DEL-10-01:SOW#CLM-004`, `DEL-10-03:SOW#CLM-004` (T5A-C08, REVIEW by class, R5 by T8).
 - T9-C08 own-state declarations, 8 rows on R5 (H4): `DEL-06-02:SOW#CLM-024.r05`, `.r06`, `DEL-08-01:SOW#CLM-003`, `DEL-10-04:SOW#CLM-003.r08`, `DEL-12-05:SOW#CLM-003.r11`, `#CLM-020.r09`, `#CLM-028.r06`, `DEL-17-02:SOW#CLM-003.r04`. They are in SRE-5; they restate each deliverable's own state against its `_STATUS.md` and imply no lifecycle change. The ninth, `DEL-01-01:SOW#CLM-002.r11`, is A6's.
 - Unassessed statements: DEL-07-03, 07-04, 07-06 carry the sentence with no sub-claim (T11 S-02). The R5 tranche should include them.
 
 **Rows known only from `OtherCorrections`:** the CONTESTED `DEL-09-05:SOW#CLM-003` verifier split (lifecycle target "SEMANTIC_READY for setup review" as a `.sNN`, not minted) and the OBSERVED `DEL-10-01:SOW#CLM-004`, `DEL-10-03:SOW#CLM-004`, `DEL-10-04:SOW#CLM-003.r08` cluster notes.
 
-**Packages and deliverables.** PKG-00 (8, state only) and 82 downstream deliverables across PKG-01 to PKG-16.
+**Packages and deliverables.** PKG-00 (8, state only) and 81 downstream deliverables across PKG-01 to PKG-16 (82 rows; DEL-11-05 carries two: its injection sub-claim and `DEL-11-05:SOW#CLM-031`). SRE-5's figure of 82 deliverables is a different population (it adds the T9-C08 rows).
 
 ## 6. Risks
 
-- **Undecided.** 82 contexts tell agents a readiness gate exists that was superseded; sealed briefs may treat PKG-00 constraints as more settled than IN_PROGRESS warrants. Dispatch logic that reads the statement may wait on, or assert, a state that does not exist.
+- **Undecided.** 81 `_CONTEXT.md` statements (plus one SOW row) tell agents a readiness gate exists that was superseded; sealed briefs may treat PKG-00 constraints as more settled than IN_PROGRESS warrants. Dispatch logic that reads the statement may wait on, or assert, a state that does not exist.
 - **Option 1.** A state change on eight architecture deliverables that D-40 deliberately reversed; the target and its evidence need the lifecycle workflow's own review.
 - **Option 2.** Leaves Direction 8's "should be advanced" open with no date.
 - **Option 3.** Two acts instead of one; the text must not be restated twice.

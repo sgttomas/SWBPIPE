@@ -83,7 +83,7 @@ The other T4A-C06 rows belong to A7 (5, export plan) and A10 (2, release-label f
 | `DEL-17-01:CONTEXT#architecture-basis-injection` | T4A-C03 (R5_RECORD_REPAIR) | NO_ACTION | Documentation-only; Rust clause does not diverge (RESOLVED_PAIR) |
 | `DEL-17-02:CONTEXT#architecture-basis-injection` | T4A-C03 (R5_RECORD_REPAIR) | NO_ACTION | Contract-only (DEC-076); RESOLVED_PAIR |
 
-Source: `RUN/R3/T8_ROUTE_DISAGREEMENTS.csv` (cluster DEC-009, 6 rows). H2 carries the four T6-C02 rows and H4 the two T4A-C03 rows; both should mark them `BlockedOnPacket = A1`.
+Source: `RUN/R3/T8_ROUTE_DISAGREEMENTS.csv` (cluster DEC-009, 6 rows). H2 carries the four T6-C02 rows and H4 the two T4A-C03 rows; both mark them `BlockedOnPacket = A1`. The two DEL-17-01/02 rows are blocked conservatively: the table above shows no DEC-009 element on them (RESOLVED_PAIR), so the block costs no repair; it only keeps their architecture-basis text from being restated before the DEC-009 answer is recorded.
 
 **Packages and deliverables.** PKG-13 (DEL-13-03, 13-04), PKG-14 (DEL-14-04; DEL-14-01, 14-03 via T8), PKG-15 (DEL-15-02), PKG-17 (DEL-17-03 to 17-09). PKG-16 (DEL-16-02, 16-03, 16-04) and DEL-07-08 are affected by the answer but carry no row.
 
@@ -112,6 +112,6 @@ Nothing executes until the owner acts. R5 needs separate authorisation (D-73).
 
 - **Depends on:** none for the ruling itself.
 - **Interacts with:** B7 (canonical handoff path and prover packet), B9 (PKG-13 status), and T12 product-caller facts, which option 3 needs. A2 (the exporters' hash basis is on the same Python modules).
-- **Blocks:** H2 port briefs for these engines; H4 repair of the 14 portion rows, the two DEL-17-01/02 rows and any DEC-009 text on DEL-13-03/04, 14-03/04, 15-02 and 17-03 to 17-09 CONTEXT rows; the C03-style amendment-list repoint on the seven PKG-17 ABI rows (T4A-C06 mechanism).
+- **Blocks:** H2 port briefs for these engines; H4 repair of the 14 portion rows, the two DEL-17-01/02 rows (conservative block; no DEC-009 element) and any DEC-009 text on DEL-13-03/04, 14-03/04, 15-02 and 17-03 to 17-09 CONTEXT rows; the C03-style amendment-list repoint on the seven PKG-17 ABI rows (T4A-C06 mechanism).
 
 Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). This packet makes no certification, code-compliance, professional-approval or engineering-acceptance claim.
