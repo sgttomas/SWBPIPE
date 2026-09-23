@@ -20,5 +20,7 @@ at that stage. A later source/current-result comparison in
 `DEL0502_DEC092_COMPLETION_BACKCHECK.md` established the separately bounded
 DEL-05-02 item 2 result and the completed DEL-09-04 derivative represented
 by census keys 3–5; two more source bullets were removed under the same
-conditional principle. `APPLIED_ROW_LEDGER.csv` binds the 22 applied keys;
-219 remain held. This is not lifecycle or deliverable completion.
+conditional principle. `APPLIED_ROW_LEDGER.csv` binds those 22 keys. A later
+bounded-result comparison in `BOUNDED_RESULT_BACKCHECK_20260922.md` supports
+nine additional historical/duplicate removals; 31 keys are now applied and
+210 held. This is not lifecycle or deliverable completion.

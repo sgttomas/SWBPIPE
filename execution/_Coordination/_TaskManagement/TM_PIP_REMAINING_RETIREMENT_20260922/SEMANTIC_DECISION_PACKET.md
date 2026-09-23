@@ -5,9 +5,11 @@ historical census keys, their exact recorded text, source path and source hash,
 plus two omitted live bullets as separate keys. At the initial candidate
 commit all 241 rows were pending and unapplied. `OWNER_DIRECTION.md` and
 `APPLIED_ROW_LEDGER.csv` now record the owner's conditional group approval and
-18 verified empty-marker removals and four DEL-05-02 census keys now applied
-through two further source-bullet removals; 219 rows remain held. The
-DEL-05-02 result comparison is in `DEL0502_DEC092_COMPLETION_BACKCHECK.md`.
+18 verified empty-marker removals, four DEL-05-02 census keys and nine
+additional bounded-result/true-duplicate keys now applied; 210 rows remain
+held. The DEL-05-02 comparison is in `DEL0502_DEC092_COMPLETION_BACKCHECK.md`;
+the nine-key source/destination check is in
+`BOUNDED_RESULT_BACKCHECK_20260922.md`.
 This packet groups proposals for
 the owner and gives the exceptions that must be resolved before a source entry
 can be removed. It does not assign a new work graph or promote a register row.

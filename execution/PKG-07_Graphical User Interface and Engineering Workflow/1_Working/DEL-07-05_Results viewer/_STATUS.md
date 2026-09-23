@@ -7,7 +7,6 @@
 - Implement rotational-deformation visualization for emitted `rx`/`ry`/`rz` result rows; the current graphical deformation overlay visualizes translational `ux`/`uy`/`uz` only (source: DEC-074 O1 / PDU-061)
 - Preserve ratio producer/rule-pack sufficiency as upstream responsibilities and never synthesize missing criteria. The current result-semantic contract provides no eligible governing-ratio family, so the viewer reports governing ratio unavailable rather than treating a supplied unrecognized row as an eligible ratio. Evidence: `fixtures/results/semantic_contract_v0_2.json`, `apps/desktop/src/features/results/ResultsPanel.test.tsx` and `apps/desktop/src/App.test.tsx` (PR #787 result-integrity basis). A future eligible producer/semantic basis remains separately governed.
 
-- R5 retained delivery 2026-09-22 — DEL-07-05: implement and witness rotational deformation visualization under DEC-074 O1/PDU-061, preserving emitted rotation semantics and the translational overlay. Claim refs: `DEL-07-05:SOW#CLM-016`, `DEL-07-05:SOW#completion-and-reliance-basis-epistemology/AC-001`, `DEL-07-05:SOW#CLM-024`, `DEL-07-05:SOW#CLM-033.r02`.
 
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.

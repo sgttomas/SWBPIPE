@@ -19,8 +19,10 @@ decision, source bytes, form constraints and each surviving row meaning first.
 After any approved amendment, recheck the destination before removing its
 source bullet. Eighteen independently verified empty `NONE` headings and two
 DEL-05-02 bounded/fulfilled bullets (four census keys) were removed under
-the separate conditional group approval; 219 account rows remain held. The
-earlier proposed DEL-09-04 DEC-092 regeneration hunk was withdrawn after
+the separate conditional group approval. A later nine-key bounded-result
+slice is bound in `BOUNDED_RESULT_BACKCHECK_20260922.md`; 31 keys are applied
+and 210 account rows remain held. The earlier proposed DEL-09-04 DEC-092
+regeneration hunk was withdrawn after
 checking the actual 2026-08-09 completion evidence in
 `DEL0502_DEC092_COMPLETION_BACKCHECK.md`. This patch does not apply or
 justify any additional removal.

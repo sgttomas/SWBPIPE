@@ -3,9 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- No active residual remains for PDU-060 / `DEL-11-01-REM-001`; the bounded user-guide currentness refresh is complete and lifecycle remains `IN_PROGRESS`.
-
 ## History
 - 2026-07-25 - R18 owner-adopted currentness execution refreshed the active user guide with revision-free current-authority wording and evidence-backed repository/TBD statements; required registered, claims, diff, containment, content-boundary, structure, and state checks passed; `DEL-11-01-REM-001` was satisfied without changing `Current State: IN_PROGRESS`.
 - 2026-07-12 - D-41 R5 T7 PDU-005 refreshed current repository surfaces and rule-grammar wording while preserving genuine packaging, integration, and policy TBDs; cited-claim backcheck closed the D-41 bootstrap.
