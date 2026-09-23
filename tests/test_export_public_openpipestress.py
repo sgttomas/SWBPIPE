@@ -17,7 +17,7 @@ import importlib.util
 import json
 import shutil
 import sys
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 import pytest
 
@@ -267,6 +267,35 @@ def test_classify_lint_gate_expected_unexpected_and_warnings(tmp_path):
         len(gate["stale_expectations"])
         == len(PIPE.EXPECTED_BLOCKING_LINT_FINDINGS) - 1
     )
+
+
+def test_classify_lint_gate_matches_only_exact_unc_staging_root():
+    class UncStaging:
+        def resolve(self):
+            return PureWindowsPath(r"\\?\UNC\server\share\export\staging")
+
+    expected_path, expected_code = next(iter(PIPE.EXPECTED_BLOCKING_LINT_FINDINGS))
+
+    def classify(finding_path):
+        finding = {
+            "path": finding_path,
+            "code": expected_code,
+            "severity": "BLOCKING",
+        }
+        return PIPE.classify_lint_gate(stub_lint_result([finding]), UncStaging())
+
+    exact = classify(f"unc://server/share/export/staging/{expected_path}")
+    assert exact["gate_pass"] is True
+    assert [finding["path"] for finding in exact["expected_blocking"]] == [expected_path]
+
+    for path in (
+        f"unc://server/share/export/staging-sibling/{expected_path}",
+        f"unc://server/share/export/staging/../staging/{expected_path}",
+    ):
+        outside = classify(path)
+        assert outside["gate_pass"] is False
+        assert outside["expected_blocking"] == []
+        assert outside["unexpected_blocking"][0]["path"] == path
 
 
 def test_unavailable_engine_fails_the_gate(tmp_path):

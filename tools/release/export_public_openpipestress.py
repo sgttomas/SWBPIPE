@@ -44,7 +44,7 @@ import shutil
 import subprocess
 import sys
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -691,6 +691,23 @@ def run_engine_lint(paths: list[Path], engine_root: Path) -> dict:
 
 
 def relativize_finding_path(finding_path: str, staging: Path) -> str:
+    # The Windows CLI uses a stable logical identity for canonical UNC files.
+    # Compare that identity with the resolved staging root using Windows path
+    # components; treating ``unc://`` as a native Path makes it relative to the
+    # current directory and loses reviewed expected-finding matches.
+    if finding_path.startswith("unc://"):
+        parts = finding_path[len("unc://") :].split("/")
+        if len(parts) < 3 or any(part in {"", ".", ".."} or "\\" in part for part in parts):
+            return finding_path
+        staging_path = str(staging.resolve()).replace("\\", "/")
+        if staging_path.casefold().startswith("//?/unc/"):
+            staging_path = "//" + staging_path[len("//?/UNC/") :]
+        try:
+            return PureWindowsPath("//" + "/".join(parts)).relative_to(
+                PureWindowsPath(staging_path)
+            ).as_posix()
+        except ValueError:
+            return finding_path
     try:
         return Path(finding_path).resolve().relative_to(staging.resolve()).as_posix()
     except ValueError:
