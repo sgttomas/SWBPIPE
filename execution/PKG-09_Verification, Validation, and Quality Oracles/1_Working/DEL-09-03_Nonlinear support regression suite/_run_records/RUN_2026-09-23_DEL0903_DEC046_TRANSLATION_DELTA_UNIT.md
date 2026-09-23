@@ -40,7 +40,22 @@ or below `0.1` mm, so the restated multi-support limit keeps the same envelope.
 | `cargo test --manifest-path validation/benchmarks/nonlinear/Cargo.toml` | `ok. 19 passed` (includes the tests asserting every seed and multi-support observation is within its governed limit) |
 | `python3 -m pytest -q tests/test_nonlinear_support_regression.py` | `8 passed` |
 
-Repository checks and independent review are recorded in the PR.
+Repository checks:
+
+| Check | Result |
+|---|---|
+| `harness-self-check` (incl. GEN-13 claims language) | exit 0 |
+| `harness-pytest` | `379 passed` |
+| `piping-pytest` | `1139 passed` |
+| DEC-025 evidence sweep, candidate `899563944` (clean tree) | overall `pass`: cargo, pytest, desktop Vitest, Playwright dev lane `455 passed` and dist lane `53 passed`, production build. Summary `validation/evidence/sweeps/SWEEP_20260923T172503Z_899563944f1d.json`. An earlier run on `060561832` failed at Playwright with 46 `ERR_CONNECTION_REFUSED` on the dev server from test 300 onward (409 passed); the rerun on the next commit, which changed only documentation, passed. |
+
+Independent review (fresh-context agent, did not implement): PASS WITH
+NON-BLOCKING NOTES on `060561832`. The one medium note (the benchmark README
+still stated `100.0` / `50.0` mm) is fixed in `899563944`. Recorded but not
+changed: dated history in `plans/PLAN_COMPLETION_LOG.md` and older MEMORY
+entries keeps the former figures, and the observation table lists six of the
+nine seed fixtures (pre-existing). Separately observed, out of scope: with
+fixture lengths in mm, moment and work quantities labelled `N-m` are N·mm.
 
 ## Boundary
 
