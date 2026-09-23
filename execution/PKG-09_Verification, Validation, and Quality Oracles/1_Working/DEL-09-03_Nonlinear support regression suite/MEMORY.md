@@ -796,3 +796,9 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-09-13 — Bounded technical acceptance
 
 HELP_HUMAN accepted the bounded implementation after fresh cumulative review, qualified native witnesses, complete clean registered DEC-025 and required local governance gates. Exact tested source and evidence references are in `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/FINAL_TECHNICAL_ACCEPTANCE_V1.json`. Earlier failed attempts and repairs remain preserved. The completed tranche verification item is removed from Remaining; other residuals and `IN_PROGRESS` remain unchanged. PR, actual-head CI and merge are pending; no whole-deliverable or project closure is claimed.
+
+## 2026-09-23 — DEC-046 translation-delta unit correction (D-75)
+
+- Owner ruling `D-75` / `DEC-113`: translation deltas are reported and limited in true millimetres. Removed the ×1000 in the observation code; seed limits `0.1` / `0.05` mm and multi-support `0.1` mm (same envelope); friction-slide ledger row corrected to `0.04` mm / `4.0` N.
+- Evidence: `_run_records/RUN_2026-09-23_DEL0903_DEC046_TRANSLATION_DELTA_UNIT.md`; PR on branch `claude/dec046-translation-delta-unit-20260923`.
+- Boundary preserved: no other limit, release-scope or product-preview record, lifecycle, release, professional or code-compliance change.

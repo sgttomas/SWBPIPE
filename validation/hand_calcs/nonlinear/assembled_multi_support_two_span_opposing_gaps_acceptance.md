@@ -47,7 +47,7 @@ companion within the accepted multi-support validation fixture set.
 | Free-DOF force residual | 0.0 | N | force |
 | Free-DOF moment residual | 0.0 | N-m | moment |
 | Final free-DOF work residual | 0.0 | N-m | moment |
-| Multi-support translation delta threshold | 100.0 | mm | displacement |
+| Multi-support translation delta threshold | 0.1 | mm | displacement |
 | Multi-support rotation delta threshold | 0.005 | rad | rotation |
 | Multi-support force-reaction delta threshold | 10.0 | N | force |
 | Multi-support moment-reaction delta threshold | 3.0 | N-m | moment |

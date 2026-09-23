@@ -51,8 +51,8 @@ inventory in `validation/benchmarks/nonlinear/src/lib.rs`.
 | General energy residual policy reference | DEC-046-CV-B-general-energy-residual-validation-v1 | label | dimensionless |
 | General energy residual basis | general_energy_residual_envelope from max_abs_free_dof_work_residual | label | dimensionless |
 | Displacement/reaction delta policy reference | DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1 | label | dimensionless |
-| Seed translation delta threshold, one_way/lift_off/friction | 100.0 | mm | displacement |
-| Seed translation delta threshold, gap | 50.0 | mm | displacement |
+| Seed translation delta threshold, one_way/lift_off/friction | 0.1 | mm | displacement |
+| Seed translation delta threshold, gap | 0.05 | mm | displacement |
 | Seed rotation delta threshold | 0.0 | rad | rotation |
 | Seed force-reaction delta threshold, one_way/lift_off/friction | 10.0 | N | force |
 | Seed force-reaction delta threshold, gap | 5.0 | N | force |
@@ -78,17 +78,17 @@ record or reliance statement.
 The following values are final-iteration observations from the same invented
 assembled fixtures. `none` means the fixture converged in one iteration and
 there is no previous iteration to compare against. Translational deltas are
-reported in the fixture-local displacement unit (`mm`); reaction deltas are in
+reported in the fixture-local displacement unit (`mm`), unscaled; reaction deltas are in
 `N`; rotational and moment residual observations are zero in the current axial
 fixture set.
 
 | Fixture | Max translation delta from previous | Max force-reaction delta from previous | Free-DOF force residual | Free-DOF moment residual | Free-DOF work residual | Force/work threshold policy | Displacement/reaction threshold policy |
 |---|---:|---:|---:|---:|---:|---|---|
-| `NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL` | 100.0 mm | 10.0 N | 0.0 N | 0.0 N-m | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 | DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1 |
-| `NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL` | 50.0 mm | 5.0 N | 0.0 N | 0.0 N-m | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 | DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1 |
-| `NL-ASSEMBLED-LIFT-OFF-ORIGINAL` | 100.0 mm | 10.0 N | 0.0 N | 0.0 N-m | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 | DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1 |
+| `NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL` | 0.1 mm | 10.0 N | 0.0 N | 0.0 N-m | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 | DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1 |
+| `NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL` | 0.05 mm | 5.0 N | 0.0 N | 0.0 N-m | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 | DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1 |
+| `NL-ASSEMBLED-LIFT-OFF-ORIGINAL` | 0.1 mm | 10.0 N | 0.0 N | 0.0 N-m | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 | DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1 |
 | `NL-ASSEMBLED-FRICTION-STICK-ORIGINAL` | none | none | 0.0 N | 0.0 N-m | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 | DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1 |
-| `NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL` | 100.0 mm | 10.0 N | 0.0 N | 0.0 N-m | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 | DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1 |
+| `NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL` | 0.04 mm | 4.0 N | 0.0 N | 0.0 N-m | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 | DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1 |
 | `NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL` | none | none | 0.0 N | 0.0 N-m | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 | DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1 |
 
 The free-DOF force/moment residual threshold policy applies only to the current
@@ -105,3 +105,10 @@ Free-DOF force/moment residual policy: `DEC-046-CV-B-free-dof-force-moment-resid
 Free-DOF work residual policy: `DEC-046-CV-B-free-dof-work-residual-validation-v1`.
 General energy residual policy: `DEC-046-CV-B-general-energy-residual-validation-v1`.
 Displacement/reaction delta policy: `DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1`.
+
+Unit correction (`D-75`, 2026-09-23): translation deltas were previously
+multiplied by 1000 while still labelled `mm`, and the seed limits were stated
+as `100.0` / `50.0` mm. The fixtures are already in millimetres, so the
+observations and limits above are restated in true millimetres; the enforced
+envelope is unchanged. The friction-slide row now records the measured
+`0.04` mm / `4.0` N (previously a stale `100.0 mm` / `10.0 N`).

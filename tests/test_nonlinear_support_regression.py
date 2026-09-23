@@ -600,7 +600,7 @@ def test_assembled_global_loop_seed_uses_governed_policy():
         for entry in displacement_reaction_delta_policy_record["entries"]
     ] == ["one_way", "gap", "lift_off", "friction"]
     gap_delta_entry = displacement_reaction_delta_policy_record["entries"][1]
-    assert gap_delta_entry["translation_delta_absolute_limit"] == 50.0
+    assert gap_delta_entry["translation_delta_absolute_limit"] == 0.05
     assert gap_delta_entry["force_reaction_delta_absolute_limit"] == 5.0
     for entry in displacement_reaction_delta_policy_record["entries"]:
         assert entry["policy_ref"] == DEC_046_DISPLACEMENT_REACTION_DELTA_POLICY_REF
@@ -715,7 +715,7 @@ def test_assembled_global_loop_seed_uses_governed_policy():
         multisupport_delta_entry["policy_ref"]
         == DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_POLICY_REF
     )
-    assert multisupport_delta_entry["translation_delta_absolute_limit"] == 100.0
+    assert multisupport_delta_entry["translation_delta_absolute_limit"] == 0.1
     assert multisupport_delta_entry["rotation_delta_absolute_limit"] == 0.005
     assert multisupport_delta_entry["force_reaction_delta_absolute_limit"] == 10.0
     assert multisupport_delta_entry["moment_reaction_delta_absolute_limit"] == 3.0

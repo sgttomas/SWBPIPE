@@ -48,11 +48,13 @@ The current assembled validation seed also carries
 fixture-evidence-envelope final-iteration displacement and reaction deltas from
 the previous active-set solve, using
 `DEC-046-CV-B-displacement-reaction-delta-observation-v1` as the source
-observation ledger. The class-tiered accepted limits are `100.0 mm`, `0.0 rad`,
-`10.0 N`, and `0.0 N-m` for one-way/lift-off/friction and `50.0 mm`,
+observation ledger. The class-tiered accepted limits are `0.1 mm`, `0.0 rad`,
+`10.0 N`, and `0.0 N-m` for one-way/lift-off/friction and `0.05 mm`,
 `0.0 rad`, `5.0 N`, and `0.0 N-m` for gap. These records do not define general
 energy, sparse live-path, product-preview, release, external validation, or CI
-thresholds.
+thresholds. Translation deltas are in the fixtures' own millimetres; before the
+`D-75` unit correction (2026-09-23) they were scaled by 1000 and the limits were
+stated as `100.0` / `50.0` mm for the same envelope.
 
 The companion note is
 `validation/hand_calcs/nonlinear/convergence_observations.md`.
@@ -102,7 +104,7 @@ fixture-set final-iteration residual-work energy envelope. It also accepts
 as a fixture-evidence-envelope displacement/reaction delta policy for the same
 set, using
 `DEC-046-CV-B-multisupport-displacement-reaction-delta-observation-v1` as the
-source observation ledger. The accepted multi-support limits are `100.0 mm`,
+source observation ledger. The accepted multi-support limits are `0.1 mm`,
 `0.005 rad`, `10.0 N`, and `3.0 N-m`, with a `0.0 N-m` general-energy residual
 limit. These records do not define sparse-default, product-preview, release,
 external validation, total strain-energy, modal-energy, or CI thresholds.
