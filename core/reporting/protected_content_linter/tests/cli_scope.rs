@@ -34,3 +34,27 @@ fn cli_scans_only_the_explicitly_named_file() {
     assert!(payload.contains("\"excerpt\":\"OPS_SYNTHETIC_PROTECTED_TABLE\""));
     assert!(!payload.contains("selected.txt.neighbor"));
 }
+
+#[cfg(unix)]
+#[test]
+fn cli_refuses_an_explicit_file_it_cannot_scan_without_rewriting_identity() {
+    let directory =
+        std::env::temp_dir().join(format!("ops-lint-cli-backslash-{}", std::process::id()));
+    fs::create_dir_all(&directory).expect("create fixture directory");
+    let selected = directory.join("literal\\backslash.txt");
+    fs::write(&selected, "OPS_SYNTHETIC_PROTECTED_TABLE\n").expect("write selected fixture");
+
+    let output = Command::new(env!(concat!(
+        "CARGO_BIN_EXE_protected_content_lint_",
+        "cli"
+    )))
+    .arg("--provenance-mode")
+    .arg("external")
+    .arg(&selected)
+    .output()
+    .expect("run lint CLI");
+    fs::remove_dir_all(&directory).expect("remove fixture directory");
+    assert!(!output.status.success());
+    assert!(output.stdout.is_empty());
+    assert!(String::from_utf8_lossy(&output.stderr).contains("cannot be represented in lint scope"));
+}

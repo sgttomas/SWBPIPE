@@ -2,6 +2,7 @@
 """Stdlib checks for the report protected-content linter schema and fixtures."""
 
 import json
+from copy import deepcopy
 import sys
 from pathlib import Path
 
@@ -219,6 +220,16 @@ def main():
 
 def test_report_protected_content_linter_main():
     main()
+
+
+def test_existing_desktop_summary_remains_schema_valid_without_new_optional_count():
+    from jsonschema import Draft202012Validator
+
+    schema = load_json(SCHEMA_PATH)
+    fixture = deepcopy(load_json(FIXTURE_PATH))
+    del fixture["lint_run"]["summary"]["skipped_incomplete_target_count"]
+    assert "skipped_incomplete_target_count" not in required_at(schema, "LintSummary")
+    Draft202012Validator(schema).validate(fixture)
 
 
 if __name__ == "__main__":
