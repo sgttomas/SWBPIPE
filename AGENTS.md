@@ -80,12 +80,12 @@ Each substantive PR includes the documentary, reconciliation and conditional
 Task Management consequences needed for that slice. Perform one final bounded
 documentation/governance closeout after the undertaking's
 intended implementation and evidence integration (normally the penultimate
-merge), before the final PR. Record terse MEMORY run rows near final PR
-preparation. Central
-run records and decision/evidence sources remain linked from the PR as needed;
-the local row does not repeat their account. Required execution provenance stays
-recoverable. The loop ends when its completed graph's final PR merges after
-required checks, review and human decisions. In-flight method bases retain their
+merge), before the final PR. Record one central loop receipt and terse MEMORY
+run rows near final PR preparation under LOOP_INIT. The final PR description
+uses the receipt's result/checks/limits account; MEMORY links the receipt.
+Detailed evidence and decisions stay at their sources. Required execution
+provenance stays recoverable. The loop ends when its completed graph's final PR
+merges after required checks, review and human decisions. In-flight method bases retain their
 own authority until explicitly transitioned.
 
 ## Decisions and shared work

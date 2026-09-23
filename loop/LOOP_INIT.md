@@ -53,8 +53,9 @@ sessions. Preserve historical graphs at their existing locations.
 Plan substantive implementation and evidence through PRs, each carrying the
 documentation, reconciliation and conditional Task Management work its slice
 needs. Then plan one final bounded documentation/governance closeout stage:
-reconciliation, conditional Task Management, terse MEMORY entries and the final
-PR. Steps 2–6 supply the mechanics; no formal reconciliation pass is required
+reconciliation, conditional Task Management, one central loop receipt, terse
+MEMORY entries and the final PR. Steps 2–6 supply the mechanics; no formal
+reconciliation pass is required
 after every node.
 
 ## 2. Advance implementation and evidence
@@ -108,28 +109,33 @@ intake in Task Management and link it from the originating PR/graph node and
 final closeout as applicable. Routing does not
 satisfy an unmet requirement or permit graph completion that depends on it.
 
-## 5. Record the run and prepare the final PR
+## 5. Write the central receipt and affected MEMORY entries
 
-Near final PR preparation, add a terse entry to each affected deliverable's
-`MEMORY.md`: run/date, what this run did in that deliverable, and links to the
-central run evidence and PR. Add the relevant central decision, scope-change,
-Task Management transfer or substantive-completion reference when applicable.
-Describe only what occurred; identify proposals and pending decisions accurately.
+Near final PR preparation, write one receipt for the undertaking at
+`execution/_Coordination/AgentRuns/<RunID>/RECEIPT.md`, using the graph's stable
+run identity. It is a concise, derivative account of what landed, affected
+deliverables, actual PRs, checks and evidence, decisions or Task Management
+transfers, and material limits. Use its result/checks/limits account for the
+final PR description, adjusting links for the PR surface. Keep detailed logs at
+their sources and link the graph; the receipt is neither a second execution
+graph, a future-work list nor decision authority. A graph node or Task
+Management invocation does not create another loop receipt.
 
-MEMORY is a local run index. Central decisions keep their authority and detailed
-rationale; evidence/run records remain at their actual sources linked from the
-PR. Do not reproduce them as local decision records or future assignments.
-Preserve existing memory history. Include the memory changes in the final PR;
-use a stable run/branch link while its PR URL is unavailable, then bind that URL
-before the candidate's final checks. Required multi-agent run evidence under
-Root SPEC §9.8 remains applicable. No extra narrative is required when the graph and linked evidence already provide
-the necessary record.
+Then add a terse entry to each affected deliverable's `MEMORY.md`: run/date,
+what this run did there, and a link to the central receipt. Add the relevant PR,
+decision, scope-change or transfer pointer when useful. MEMORY is a local run
+index, not a decision record or future assignment. Preserve existing history.
+Include the receipt and MEMORY changes in the final PR; use a stable run/branch
+link until its PR URL exists, then bind that URL before final checks. Do not
+claim a pending merge as complete. Root SPEC §9.8 still governs required
+multi-agent execution provenance.
 
 ## 6. Complete the graph and merge the final PR
 
-Complete the graph's promised work, bounded closeout and memory entries, and
-prepare the final PR with the integrated result and evidence. Review and required
-checks must cover the actual final candidate; resolve blocking findings and
+Complete the graph's promised work, bounded closeout, central receipt and
+memory entries, and prepare the final PR with the integrated result and
+evidence. Review and required checks must cover the actual final candidate;
+resolve blocking findings and
 obtain the decisions reserved to the human. Record readiness for final merge and
 the PR URL in the candidate graph. Verify the actual merged state afterward
 through Git or the PR service; do not assert a future merge SHA in the candidate or require a later completion-record commit.
