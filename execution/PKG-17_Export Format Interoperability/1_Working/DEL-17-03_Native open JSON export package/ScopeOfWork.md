@@ -261,3 +261,9 @@ This Scope of Work defines `DEL-17-03` in service of project scope [SOW-030, SOW
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-17-03:1** — Obtain the owning human-review disposition for open `RF-002` and refresh its canonical DAG artifact-presence flags only through the governed DAG workflow; local artifacts do not close the finding, and `HumanDisposition` remains `TBD` (PDU-060).

@@ -3,9 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- Keep final stress tolerance, release-threshold, publication and professional-reliance choices open. DEC-018 already rules the canonical conversion basis; it does not establish benchmark binding or acceptance. DEC-025 rules the commit-bound evidence-sweep merge-gate posture, with later surface-specific amendments in the decision register; it does not settle stress release thresholds, release authority or publication. PDU-039's result-envelope witness and `validation/benchmarks/stress/src/lib.rs::STRESS_BENCHMARK_READINESS_BOUNDARY` remain verification evidence only.
-
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-052 reconciled RQ-007 to DEC-026's analytic `1e-9` relative seed and class-tiered relative+absolute policy while retaining unmeasured per-kind values as TBD; cited-claim backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T4 PDU-039 routed one rights-safe complete stress-recovery benchmark output through the governed DEL-08-04 result-envelope validator with diagnostic, trace, deterministic-hash, and human-review boundaries; no validation or release promotion.

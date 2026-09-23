@@ -431,3 +431,11 @@ This Scope of Work defines `DEL-12-04` in service of project scope [SOW-040, SOW
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-040 SOW-029 OBJ-010 | CLM-009 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-12-04:1** — Select the exact protected-content quarantine/readiness taxonomy and destructive-workflow policy before PDU-034 closure; DEC-074 did not invent those values. T3 may add bounded no-bypass evidence at O7-selected seams without claiming this policy is settled.
+- **DEL-12-04:2** — Obtain owning human-review dispositions for open `RF-001` and `RF-002`; both retain `HumanDisposition=TBD`. Corrected wording and bounded security evidence do not close provider/storage/grant/runtime/legal/security deferrals or formal review (PDU-060).
+- **DEL-12-04:3** — R5 retained delivery 2026-09-22 — DEL-12-04: retain cross-deliverable telemetry/privacy enforcement and actual product-route witnesses; the private-reference test inventory does not itself prove telemetry exclusion. Claim refs: `DEL-12-04:SOW#CLM-023.s01`.

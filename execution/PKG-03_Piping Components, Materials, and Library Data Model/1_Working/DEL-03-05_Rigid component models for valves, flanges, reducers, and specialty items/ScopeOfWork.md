@@ -362,3 +362,10 @@ This Scope of Work defines `DEL-03-05` in service of project scope [SOW-009] and
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-009 OBJ-004 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-03-05:1** — Bind public rigid-family fixture provenance and protected-content review to the actual shared fixture and preview values, and evidence component adapter/API no-bypass checks. Keep the separate COG coordinate/reference-frame authority hold. (R5 continuation claim references: DEL-03-05:SOW#CLM-010.r07; CLM-013; CLM-014.)
+- **DEL-03-05:2** — Hold PDU-013 COG mechanics acceptance until an authorized coordinate convention and reference frame are selected; the existing value slot is not mechanics-ready evidence (source: D-41 R5 T2B E2/E4/E8 evidence-only backcheck, 2026-07-12)

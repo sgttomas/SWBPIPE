@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-002]
 
 # Scope of Work — DEL-01-02
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -133,7 +133,7 @@ This Scope of Work defines `DEL-01-02` in service of project scope [SOW-003, SOW
 
 > ##### Standards
 >
-> No protected standards text or clause-level standard requirements are used as source material. Standards-body content is treated as excluded public-repository content unless explicit redistribution rights are documented and human/legal review accepts it. The selected project license is `PolyForm-Noncommercial-1.0.0` (the 2026-06-03 human selection; `LICENSE.md`); DEC-027 governs the separate maintainer and external-intake posture. Default quarantine metadata uses `quarantine/protected-content/` or a maintainer-approved equivalent (`docs/IP_AND_DATA_BOUNDARY.md` §5); specific legal requirements, access arrangements, and legal disposition retain their governed decisions.
+> No protected standards text or clause-level standard requirements are used as source material. Standards-body content is treated as excluded public-repository content unless explicit redistribution rights are documented and human/legal review accepts it. The current repository license is MIT under D-74 (2026-09-22); the 2026-06-03 PolyForm selection is superseded history; DEC-027 governs the separate maintainer and external-intake posture. Default quarantine metadata uses `quarantine/protected-content/` or a maintainer-approved equivalent (`docs/IP_AND_DATA_BOUNDARY.md` §5); specific legal requirements, access arrangements, and legal disposition retain their governed decisions.
 >
 
 ### CLM-012 — Verification

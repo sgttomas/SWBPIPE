@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-008]
 
 # Scope of Work — DEL-09-02
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -75,7 +75,7 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 
 > ##### Construction
 >
-> Current deliverable obligation: Create stress recovery benchmark cases for axial, bending, torsion, pressure, and stress range behavior. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Create stress recovery benchmark cases for axial, bending, torsion, pressure, and stress range behavior. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This setup kit defines the future benchmark-suite boundary only. It does not create benchmark source files, implement tests, add hand-calculation formulas, choose final numerical tolerances, import external examples, or move anything to `ISSUED`.
@@ -120,7 +120,7 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 
 > ##### Scope
 >
-> Current deliverable obligation: Create stress recovery benchmark cases for axial, bending, torsion, pressure, and stress range behavior. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Create stress recovery benchmark cases for axial, bending, torsion, pressure, and stress range behavior. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This deliverable specifies setup evidence for a future stress recovery benchmark suite. It covers benchmark planning for axial, bending, torsion, pressure, and stress range behavior under the public/open-mechanics verification boundary.
@@ -199,7 +199,7 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 
 > ##### Purpose
 >
-> Current deliverable obligation: Create stress recovery benchmark cases for axial, bending, torsion, pressure, and stress range behavior. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Create stress recovery benchmark cases for axial, bending, torsion, pressure, and stress range behavior. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > Define the operating procedure for producing the future stress recovery benchmark suite after implementation work is authorized. This procedure is setup-level only and does not create benchmark files, implement tests, or set final numerical tolerances.
@@ -269,7 +269,7 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 
 > ##### Purpose
 >
-> Current deliverable obligation: Create stress recovery benchmark cases for axial, bending, torsion, pressure, and stress range behavior. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Create stress recovery benchmark cases for axial, bending, torsion, pressure, and stress range behavior. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This setup deliverable prepares a verification surface for stress recovery behavior without creating benchmark source files or deciding engineering acceptance values. Its value is to make the required coverage, data boundary, unit boundary, and future evidence records explicit before implementation work begins.
@@ -316,7 +316,7 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 
 > ##### Examples
 >
-> Current deliverable obligation: Create stress recovery benchmark cases for axial, bending, torsion, pressure, and stress range behavior. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Create stress recovery benchmark cases for axial, bending, torsion, pressure, and stress range behavior. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > Example source patterns for future work are `TBD`. The original setup pass intentionally does not include hand-calculation formulas, protected examples, copied standard examples, final expected values, or public fixture files.
@@ -343,3 +343,9 @@ This Scope of Work defines `DEL-09-02` in service of project scope [SOW-026] and
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-026 OBJ-008 | CLM-009 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-09-02:1** — Keep final stress tolerance, release-threshold, publication and professional-reliance choices open. DEC-018 already rules the canonical conversion basis; it does not establish benchmark binding or acceptance. DEC-025 rules the commit-bound evidence-sweep merge-gate posture, with later surface-specific amendments in the decision register; it does not settle stress release thresholds, release authority or publication. PDU-039's result-envelope witness and `validation/benchmarks/stress/src/lib.rs::STRESS_BENCHMARK_READINESS_BOUNDARY` remain verification evidence only.

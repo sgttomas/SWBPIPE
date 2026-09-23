@@ -3,12 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- R5 continuation delivery task: Demonstrate actual producer diagnostic/settings and unit-aware delta behavior through the runtime comparison path, retaining raw deltas and missing-data diagnostics. Bind reference fixtures and provenance; keep OI-014 default tolerance/workflow decisions separate and unchanged (CLM-006/015/035).
-- SCA-011 interface follow-through: PDU-011 has a named output-schema owner at DEL-14-05, but output-schema acceptance and producer conformance remain outstanding. PDU-047 engineering suitability and governed tolerance values remain held; a schema draft or structural check does not discharge either.
-- Hold PDU-011 comparison-output schema conformance until an authoritative analysis-run comparison-result/export schema is accepted; current mapping and tolerance schemas govern inputs only (source: D-41 R5 T2B bounded schema check, 2026-07-12)
-- Hold PDU-047 engineering-validation/suitability of unit-normalized comparison mechanics; the section-property witness is not an authorized tolerance or comparison-validation basis and section-property results are outside the engine's current supported result families (source: D-41 R5 T2B E2/E4/E8 evidence-only backcheck, 2026-07-12)
-
 ## History
 - 2026-08-19 - R6 engineering node N3 exercised all seven supported result families and added deterministic, independent per-family comparison bindings while preserving aggregate deltas; focused regression passed 29/29 and fresh read-only software review passed with no findings. The exact category-binding residual closed; PDU-011/PDU-047 holds and lifecycle remain unchanged.
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.

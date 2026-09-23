@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-015]
 
 # Scope of Work — DEL-16-02
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -364,3 +364,11 @@ Retain schema/constraint validation and deterministic preview with accepted-stat
 |---|---|---|---|---|---|
 | OUT-001 | SOW-069 OBJ-015 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
 | OUT-002 | OBJ-015 | CLM-027 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-16-02:1** — R5 continuation delivery task: Prove actual runtime validation/diff-preview conformance to DEL-16-01 and SOW-069 through DEL-16-06: schema and semantic constraints, dimensional/target checks, constraint integration, model-basis/hash checks, invalid-operation blocking and unchanged accepted state. Python Draft202012Validator/reference tests do not establish Rust conformance (CLM-005/006/010/012; AC-001).
+- **DEL-16-02:2** — Obtain a design ruling for Component.geometry.center_of_gravity vector-payload application semantics before the path can be supported (gated: new D-XX if sought) (source: Receipt 10 named remainder / TP-APP-R5-FIELDRULES-001 residual)
+- **DEL-16-02:3** — Record a human review entry for contract-corpus cases 66–75, blessed from the Rust contract reference (prior acceptances DEC-030/DEC-032 do not carry) (gated: owner review) (source: Receipt 10 parked gates)

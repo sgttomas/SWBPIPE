@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-009, OBJ-017, OBJ-018]
 
 # Scope of Work — DEL-17-09
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -546,3 +546,12 @@ This Scope of Work defines `DEL-17-09` in service of project scope [SOW-030, SOW
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-030 SOW-074 SOW-075 OBJ-009 OBJ-017 OBJ-018 | CLM-010 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-17-09:1** — R5 continuation delivery task: Demonstrate metadata-contract admission and no-bypass/deny-by-default behavior with actual export consumers. Runtime loader/grants and target activation remain unselected; existing SDK metadata schema/builders do not authorize filesystem/network/process access or vendor support (CLM-005/006/013/015/041).
+- **DEL-17-09:2** — Bind any future SDK admission package to a governed runtime loader with complete provenance-detail grains; the current declaration gate remains deny-only and does not admit a target runtime.
+- **DEL-17-09:3** — Select the exact adapter readiness-category taxonomy before PDU-034 closure; current admission evidence remains the implemented nine-category checklist and does not imply syntactic, redistribution, mechanics, or rule-check readiness.
+- **DEL-17-09:4** — Hold PDU-004's exact checklist-category, reviewer-role, signoff-format, and approval-artifact taxonomy for owner selection. Current evidence-backed checklist fields do not include those unselected grains; `human_review_required=true` and the existing `human_review` category are not a reviewer identity or signoff record.

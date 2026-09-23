@@ -3,9 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- Define application-service transaction boundaries for solve and adapters; reconcile storage/rule-pack/library diagnostic return boundaries, and evidence report/export job cancellation/progress or obtain their scoped disposition. (R5 continuation claim references: DEL-00-03:AB#normative-requirements/REQ-03-02; REQ-03-03; REQ-03-04.)
-
 ## History
 - 2026-09-22 - Added explicit grouped delivery/evidence tasks from the R5 record-continuation screening to Remaining; lifecycle, existing dispositions and acceptance boundaries remain unchanged. Evidence: `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG00_06/`.
 - 2026-04-30 - State set to OPEN (PREPARATION)

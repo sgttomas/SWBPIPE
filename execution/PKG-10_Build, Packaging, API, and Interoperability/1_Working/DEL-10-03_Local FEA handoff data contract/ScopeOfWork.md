@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-009]
 
 # Scope of Work — DEL-10-03
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -89,7 +89,7 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 
 > ##### Construction
 >
-> Current deliverable obligation: Define export package for local shell/solid FEA handoff and criteria labels for when handoff is recommended. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Define export package for local shell/solid FEA handoff and criteria labels for when handoff is recommended. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > The local FEA handoff contract is a conceptual export package. It should be described in schema-ready terms without choosing a final external tool format.
@@ -189,7 +189,7 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 
 > ##### Verification
 >
-> Current deliverable obligation: Define export package for local shell/solid FEA handoff and criteria labels for when handoff is recommended. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Define export package for local shell/solid FEA handoff and criteria labels for when handoff is recommended. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > | Requirement IDs | Verification approach |
@@ -268,7 +268,7 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 
 > ##### Prerequisites
 >
-> Current deliverable obligation: Define export package for local shell/solid FEA handoff and criteria labels for when handoff is recommended. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Define export package for local shell/solid FEA handoff and criteria labels for when handoff is recommended. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > - The sealed DEL-10-03 context is available in `_CONTEXT.md`.
@@ -352,7 +352,7 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 
 > ##### Completion Condition
 >
-> Current deliverable obligation: Define export package for local shell/solid FEA handoff and criteria labels for when handoff is recommended. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Define export package for local shell/solid FEA handoff and criteria labels for when handoff is recommended. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > The setup sequence is complete when the required setup artifacts exist, dependency validation passes, semantic/lensing artifacts are internally consistent, unresolved decisions remain visible as `TBD`, protected-data/professional-boundary checks are clean, and `_STATUS.md` records `SEMANTIC_READY` without any `ISSUED` transition.
@@ -478,3 +478,9 @@ This Scope of Work defines `DEL-10-03` in service of project scope [SOW-031, SOW
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-031 SOW-049 OBJ-009 | CLM-009 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-10-03:1** — Implement the distinct FR-025 local FEA submodel export post-beta in the Phase H (v0.2 R6) lane, as ruled by D-12/DEC-078, with DEL-10-03 as contract authority and implementing scope established by the Phase H lead-up decomposition. FR-025 is distinct from FR-HAND-*; a future re-deferral requires a new owner decision. This ruling settles the disposition, not implementation or external FEA execution.

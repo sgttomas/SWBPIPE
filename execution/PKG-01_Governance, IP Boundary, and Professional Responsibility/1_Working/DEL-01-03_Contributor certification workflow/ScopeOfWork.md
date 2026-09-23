@@ -47,7 +47,7 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 > | Workflow purpose | Define contributor attestations, provenance fields, review routing, and rejection rules for public data contributions. | `_CONTEXT.md` Description |
 > | Anticipated repo artifacts | `CONTRIBUTING.md` and `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md` exist as draft repo-level governance artifacts. | `_CONTEXT.md` Anticipated Artifacts; `CONTRIBUTING.md`; `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md` |
 > | Local artifact boundary | This current-basis refresh updates the DEL-01-03 local kit only; repo-level artifacts are read as evidence and remain draft governance surfaces. | Approved tranche `TP-DEL-01-03-CURRENT-BASIS-REFRESH-001` |
-> | License decision | `PolyForm-Noncommercial-1.0.0`; source-available noncommercial posture, selected by human project authority on 2026-06-03 (SOW-001 and `LICENSE`). | `docs/CONTRACT.md` OPS-K-GOV-1; `docs/DIRECTIVE.md` section 6 |
+> | License decision | `MIT`; selected by the owner in D-74 on 2026-09-22 (SOW-001 and `LICENSE.md`); the 2026-06-03 PolyForm selection is superseded history. | `docs/CONTRACT.md` OPS-K-GOV-1; `docs/DIRECTIVE.md` section 6 |
 > | Maintainer/release authority | DEC-027: sole human project authority is maintainer and release authority; quorum one. DEC-079 preserves closed external intake and sole-maintainer review. | `docs/CONTRACT.md` OPS-K-GOV-2 |
 > | Public contribution review gate | Source, provenance, redistribution rights, protected-content risk, private-data risk, and test evidence must be checked before merge. | `docs/DIRECTIVE.md` section 6; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` section 5 |
 >
@@ -121,7 +121,7 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 
 > ##### D-41 R5 T7 PDU-054 current declaration
 >
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Contributor certification templates and issue-intake surfaces now exist under the repository's PolyForm-Noncommercial-1.0.0 boundary. Current upstream authority is resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md`, its accepted decision register and `execution/_DAG/_LATEST.md`; contributor disposition remains subject to the recorded governance workflow.
+> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Contributor certification templates and issue-intake surfaces now exist under the MIT project license selected in D-74; external intake remains closed under DEC-027/079. Current upstream authority is resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md`, its accepted decision register and `execution/_DAG/_LATEST.md`; contributor disposition remains subject to the recorded governance workflow.
 
 ## Completion and Reliance Basis — Epistemology
 
@@ -136,7 +136,7 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 >
 > This deliverable defines the local requirements and evidence kit for a contributor certification workflow covering attestations, provenance fields, review routing, rejection rules, and quarantine handling for public data contributions.
 >
-> `CONTRIBUTING.md`, `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md`, and `governance/CONTRIBUTION_REVIEW_CHECKLIST.md` exist as draft repo-level governance artifacts. The project license has been selected as `PolyForm-Noncommercial-1.0.0`. This current-basis refresh does not edit those repo-level artifacts, select the final contributor legal mechanism, assign final maintainer or reviewer authority, make legal conclusions, certify rights, or approve engineering reliance.
+> `CONTRIBUTING.md`, `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md`, and `governance/CONTRIBUTION_REVIEW_CHECKLIST.md` exist as draft repo-level governance artifacts. The current project license is MIT under D-74; the 2026-06-03 PolyForm selection is superseded history. This current-basis refresh does not edit those repo-level artifacts, select the final contributor legal mechanism, assign final maintainer or reviewer authority, make legal conclusions, certify rights, or approve engineering reliance.
 >
 
 ### CLM-012 — Requirements
@@ -154,6 +154,8 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 > | DEL-01-03-REQ-07 | The workflow shall keep public/private data boundaries visible for future adapters, imports, rule packs, reports, and release gates. | AB-00-02, AB-00-06, AB-00-08; `docs/SPEC.md` sections 1, 7, 8 |
 > | DEL-01-03-REQ-08 | The workflow shall maintain draft repo-level contributor workflow artifacts while keeping final contributor legal mechanism, legal sufficiency, reviewer authority, and human acceptance as separate governance decisions. | `_CONTEXT.md` Anticipated Artifacts; `CONTRIBUTING.md`; `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md`; `governance/MAINTAINERS.md` |
 >
+
+> Current delivery and verification residual: Before any public release, complete PRD §17.5 owner/counsel legal review of public-facing language, including the E6 issue templates. When the sanitized public export is exercised, verify that its root `.github/ISSUE_TEMPLATE/` receives the project templates. Contributor intake remains closed under DEC-027/079 until a later owner activation and legal-instrument act. DEL-10-04 retains the export machinery owner; MIT selection is not counsel review.
 
 ### CLM-013 — Standards
 
@@ -177,7 +179,7 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 > | DEL-01-03-REQ-01 | Inspect template fields for all provenance and review fields from `docs/IP_AND_DATA_BOUNDARY.md` section 4. |
 > | DEL-01-03-REQ-02 | Inspect rejection/quarantine rules for all public-repository exclusions from `docs/IP_AND_DATA_BOUNDARY.md` section 3. |
 > | DEL-01-03-REQ-03 | Confirm suspected protected content routes to quarantine and human/legal review with no copied or paraphrased protected content. |
-> | DEL-01-03-REQ-04 | Confirm unresolved contributor-governance decisions remain `TBD` while the selected project license remains recorded as `PolyForm-Noncommercial-1.0.0`. |
+> | DEL-01-03-REQ-04 | Confirm unresolved contributor-governance decisions remain `TBD` while the current MIT project license is recorded under D-74; earlier PolyForm selection remains dated history. |
 > | DEL-01-03-REQ-05 | Search the workflow for prohibited reliance claims such as certify, seal, approve, authenticate, legal clearance, or code compliant, except where listed as prohibited terms (PRD §21.2). |
 > | DEL-01-03-REQ-06 | Confirm disposition statuses are present and reviewer authority is framed as governance review only. |
 > | DEL-01-03-REQ-07 | Confirm protected-content/provenance warning paths are visible for downstream software gates. |
@@ -212,7 +214,7 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 
 > ##### D-41 R5 T7 PDU-054 current declaration
 >
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Contributor certification templates and issue-intake surfaces now exist under the repository's PolyForm-Noncommercial-1.0.0 boundary. Current upstream authority is resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md`, its accepted decision register and `execution/_DAG/_LATEST.md`; contributor disposition remains subject to the recorded governance workflow.
+> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Contributor certification templates and issue-intake surfaces now exist under the MIT project license selected in D-74; external intake remains closed under DEC-027/079. Current upstream authority is resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md`, its accepted decision register and `execution/_DAG/_LATEST.md`; contributor disposition remains subject to the recorded governance workflow.
 
 - **AC-001** — The workflow preserves the documented contributor fields, protected-content stop and quarantine rules, repository-governance-only disposition boundary, recorded human-gated decisions, and residual TBDs for SOW-028 and SOW-048 without adding legal or professional approval.
 
@@ -237,7 +239,7 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 > - Assigned deliverable context: DEL-01-03 under PKG-01.
 > - Current governing references: `docs/CONTRACT.md`, `docs/IP_AND_DATA_BOUNDARY.md`, `docs/DIRECTIVE.md`, `docs/SPEC.md`, `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register), and approved graph resolved through `execution/_DAG/_LATEST.md`.
 > - Draft repo-level workflow surfaces exist at `CONTRIBUTING.md`, `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md`, and `governance/CONTRIBUTION_REVIEW_CHECKLIST.md`.
-> - Selected license is `PolyForm-Noncommercial-1.0.0`; maintainer/release authority and quorum follow DEC-027, and review follows DEC-079 §5. Contributor legal-instrument choice and legal sufficiency remain deferred to owner activation on legal advice.
+> - Current selected license is MIT under D-74; maintainer/release authority and quorum follow DEC-027, and review follows DEC-079 §5. Contributor legal-instrument choice and legal sufficiency remain deferred to owner activation on legal advice.
 > - No protected standards, proprietary vendor data, or private project/rule-pack content may be copied into the public workflow records.
 >
 
@@ -286,7 +288,7 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 > 8. Maintain repo-level workflow evidence.
 >    - Treat `CONTRIBUTING.md` and `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md` as draft governance surfaces until human acceptance.
 >    - Edit repo-level contributor artifacts only under an explicitly approved write scope.
->    - Carry the selected project license as `PolyForm-Noncommercial-1.0.0`; apply DEC-027/079 for sole-maintainer review and release authority; keep legal-instrument selection and legal sufficiency deferred to owner activation on legal advice, with external intake closed.
+>    - Carry the current selected project license as MIT under D-74; apply DEC-027/079 for sole-maintainer review and release authority; keep legal-instrument selection and legal sufficiency deferred to owner activation on legal advice, with external intake closed.
 >
 
 ### CLM-022 — Verification
@@ -298,7 +300,7 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 > | Field completeness | All required provenance and certification fields are present or explicitly `TBD`. |
 > | Protected-content stop rule | Suspected protected/private content is not reproduced and is routed to quarantine/human review. |
 > | Authority boundary | Records do not claim certification, sealing, legal clearance, code compliance, or professional approval (PRD §21.2). |
-> | Contributor-governance uncertainty | Contributor legal-instrument selection and legal sufficiency remain deferred to owner activation on legal advice; maintainer/release authority and review follow DEC-027/079; selected project license remains recorded as `PolyForm-Noncommercial-1.0.0`. |
+> | Contributor-governance uncertainty | Contributor legal-instrument selection and legal sufficiency remain deferred to owner activation on legal advice; maintainer/release authority and review follow DEC-027/079; current project license is MIT under D-74; the earlier PolyForm selection is historical. |
 > | Local write scope | This current-basis refresh edits only DEL-01-03 local artifacts; repo-level artifacts are read as evidence unless separately approved for editing. |
 >
 
@@ -319,7 +321,7 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 
 > ##### D-41 R5 T7 PDU-054 current declaration
 >
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Contributor certification templates and issue-intake surfaces now exist under the repository's PolyForm-Noncommercial-1.0.0 boundary. Current upstream authority is resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md`, its accepted decision register and `execution/_DAG/_LATEST.md`; contributor disposition remains subject to the recorded governance workflow.
+> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Contributor certification templates and issue-intake surfaces now exist under the MIT project license selected in D-74; external intake remains closed under DEC-027/079. Current upstream authority is resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md`, its accepted decision register and `execution/_DAG/_LATEST.md`; contributor disposition remains subject to the recorded governance workflow.
 
 - **VER-001** — Compare the converted contract source markers and parity report against all four legacy source documents, then inspect the matrix and derived checklist for complete contributor-workflow coverage and preserved authority boundaries.
 
@@ -344,7 +346,7 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 > 1. Evidence first: accept public data only when source, provenance, license or redistribution status, contributor certification, and review disposition are recorded.
 > 2. Stop on protected-content risk: suspected standards text, tables, figures, examples, code-derived formulas, protected dimensional tables, proprietary catalogs, or private project/rule-pack data are blockers, not cleanup tasks.
 > 3. Human authority remains external: maintainers can review repository governance acceptance, but this workflow does not create legal clearance or professional engineering approval.
-> 4. `TBD` is safer than invention: unresolved contributor legal mechanism, legal sufficiency, maintainer, release, or redistribution questions stay visible until decided by the appropriate human authority. The project license has already been selected as `PolyForm-Noncommercial-1.0.0`.
+> 4. `TBD` is safer than invention: unresolved contributor legal mechanism, legal sufficiency, maintainer, release, or redistribution questions stay visible until decided by the appropriate human authority. The owner selected MIT under D-74; the earlier PolyForm choice is superseded history.
 > 5. Local evidence first: this current-basis refresh reads the existing draft `CONTRIBUTING.md` section and certification template as evidence without editing repo-level policy files.
 >
 
@@ -403,7 +405,7 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 >
 > | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling (TBD) |
 > |---|---|---|---|---|---|---|
-> | C-001 | Project license is selected as `PolyForm-Noncommercial-1.0.0`, but final contributor legal mechanism and legal sufficiency are not selected. | `docs/CONTRACT.md` OPS-K-GOV-1 | `docs/DIRECTIVE.md` section 6; `governance/MAINTAINERS.md` section 6 | Specification Standards; Procedure Records | Carry selected project license as fact; defer contributor legal mechanism and legal sufficiency until human/legal review. | Human ruling 2026-06-04: defer until external contribution intake or public release readiness becomes relevant. |
+> | C-001 | The former PolyForm license selection was superseded by D-74 MIT; final contributor legal mechanism and legal sufficiency remain unselected. | `docs/CONTRACT.md` OPS-K-GOV-1 | `docs/DIRECTIVE.md` section 6; `governance/MAINTAINERS.md` section 6 | Specification Standards; Procedure Records | Carry D-74 MIT as the current project license; defer contributor legal mechanism and legal sufficiency until human/legal review. | Human ruling 2026-06-04: defer until external contribution intake or public release readiness becomes relevant. |
 > | C-002 | Sole-maintainer reviewer role is resolved by DEC-027/079; legal sufficiency and activation remain owner-held. | `governance/MAINTAINERS.md` section 6 | `docs/IP_AND_DATA_BOUNDARY.md` sections 4-5 | Procedure protected-content review and disposition | Treat suspected or uncertain rights as quarantine/reject until human/legal review. | TBD |
 >
 
@@ -421,3 +423,11 @@ This Scope of Work defines `DEL-01-03` in service of project scope [SOW-028, SOW
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-028 SOW-048 OBJ-002 | CLM-010 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-01-03:1** — External contribution intake remains closed under DEC-027 and the ruled D-07b/DEC-079. Opening it requires a future owner act recorded in a new decision-register row, with legal-instrument adoption on legal advice; the D-07b packet §§5–6 supplies the adopted review/screening skeleton. No intake activation or legal-instrument choice is made here.
+- **DEL-01-03:2** — Complete the §17.5 pre-release legal review, explicitly including the E6 public issue templates and all public-facing language (gated: owner/counsel) (see also DEL-01-02) (source: PRD plan §3 E6 row / TP-E6-ISSUETEMPLATES-001 residual)
+- **DEL-01-03:3** — Wire projects/chirality-piping/.github/ISSUE_TEMPLATE/ to the public repository root .github/ISSUE_TEMPLATE/ in the sanitized public export when that machinery is exercised (see also DEL-10-04) (source: TP-E6-ISSUETEMPLATES-001 residuals)

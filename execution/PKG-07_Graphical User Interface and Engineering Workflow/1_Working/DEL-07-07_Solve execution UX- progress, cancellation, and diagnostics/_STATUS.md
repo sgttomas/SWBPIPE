@@ -3,9 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-13
 
-## Remaining
-- Complete producer-side carriage of diagnostic class, remediation, and provenance where upstream producers still emit the reduced desktop shape; the PDU-008 UI preserves and displays those fields when supplied but does not fabricate them.
-
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T5 PDU-008 added optional rich diagnostic field carriage/display/filter evidence while explicitly preserving reduced-producer gaps; no diagnostic authority or lifecycle promotion.

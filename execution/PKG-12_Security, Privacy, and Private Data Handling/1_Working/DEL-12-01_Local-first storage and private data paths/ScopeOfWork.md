@@ -454,3 +454,10 @@ This Scope of Work defines `DEL-12-01` in service of project scope [SOW-029] and
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-029 OBJ-010 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **LIVE:DEL-12-01:1** — Complete LFSP-REQ-011 runtime private-path resolution and obtain a bounded review mapping its required test families to the existing storage round-trip/migration and report/export evidence. Candidate evidence exists at `apps/desktop/src-tauri/src/lib.rs::saved_edited_load_model_round_trips_and_solves_from_restored_payload`, `::store_migration_ledger_reconciles_legacy_store_and_preserves_rows`, and `apps/desktop/src/services/reportPackageSaveService.test.ts` (missing/blocked local-first evidence rejection). This corrects the claim that all storage families are absent; it does not establish that these tests satisfy LFSP-REQ-011. PDU-036's adjacent trace-gap fixture remains no substitute, and RF-001/RF-002 below remain human-held.
+- **LIVE:DEL-12-01:2** — Obtain owner/human-review dispositions for open `RF-001` and `RF-002`; the T3/T4 runtime/storage residual homes do not close either finding, and `HumanDisposition` remains `TBD` (PDU-060).

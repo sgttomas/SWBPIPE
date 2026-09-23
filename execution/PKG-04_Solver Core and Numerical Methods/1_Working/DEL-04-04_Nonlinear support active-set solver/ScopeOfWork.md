@@ -51,6 +51,8 @@ This Scope of Work defines `DEL-04-04` in service of project scope [SOW-012] and
 > | Explicit deferrals | Assembled loop ownership is re-pointed to `core/solver/nonlinear_integration`; sparse live-path/default policy follows DEC-050/053; class-tiered convergence follows DEC-046 and its measured records; unmeasured entries and caller-supplied defaults remain explicit. | _CONTEXT.md Architecture Basis Injection; DEC-044; DEC-046; human brief hard stops |
 >
 
+> Export-contract handoff: DEL-08-04 owns the result-export vocabulary for nonlinear count, flags, state codes and residual observations. DEL-04-04 remains the solver producer; this cross-reference neither selects wire names nor closes export conformance.
+
 ### CLM-004 — Conditions
 
 > ##### Conditions
@@ -324,3 +326,15 @@ Retain per-iteration active-set classification and its state/diagnostic contract
 |---|---|---|---|---|---|
 | OUT-001 | SOW-012 OBJ-003 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
 | OUT-002 | OBJ-003 | CLM-028 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-04-04:1** — Obtain the owning formal REVIEW disposition and accepted dimensional/conversion basis before PDU-035 closure; metadata binding is technically addressed but must not be promoted to engineering validation.
+- **DEL-04-04:2** — Define and validate any path/load-step friction-history model beyond the implemented static, path-independent final Coulomb admissibility check (gated: new D-XX ruling per mechanics plan §4) (source: mechanics plan §4 / Receipt 6 / TP-PMM-P2-FRICTION-001 §Boundaries)
+- **DEL-04-04:3** — Complete remaining contact/model qualification beyond exact-touch, contact-loss, and the bounded current-normal friction fixtures, including retained-spring mixed-friction numerical adequacy.
+- **DEL-04-04:4** — Promote non-seed force/displacement convergence thresholds beyond the accepted thirteen-fixture multi-support set (see also DEL-09-03) (source: PRD plan §3 Phase D D6/D9 rows / DEC-046)
+- **DEL-04-04:5** — Promote broader displacement/reaction-delta and energy thresholds beyond the accepted current-seed/thirteen-fixture/product-preview surfaces (see also DEL-09-03) (source: PRD plan §3 D6/D9 rows)
+- **DEL-04-04:6** — Promote broader multi-DOF/multi-support acceptance thresholds and external validation convergence thresholds (stage-gated: R5 release evidence) (source: PRD plan §3 D9 row / DEC-052/DEC-054 residual list)
+- **DEL-04-04:7** — Close the nonlinear count/flag/state-code and residual-observation export vocabulary boundary in the owning DEL-08-04 contract.

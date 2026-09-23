@@ -382,3 +382,12 @@ This Scope of Work defines `DEL-06-04` in service of project scope [SOW-042] and
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-042 OBJ-002 OBJ-005 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-06-04:1** — Populate and verify validated local rule-pack audit references in product report/export requests; JSON hashing and local storage do not close that producer wiring. (R5 continuation: DEL-06-04:SOW#CLM-003.r07; CLM-010/R-06-04-008; CLM-025.r05.)
+- **DEL-06-04:2** — Bind rule-check-required data-gap findings through their DEL-06-03 owner and a governed result-envelope/runtime path; the T4 reader does not expand this lifecycle crate, and exact non-JSON/binary partitioning remains `TBD`.
+- **DEL-06-04:3** — Route any future rule-pack adapter/plugin execution through a governed runtime dispatch path; the current declaration gate is deny-only. Exact non-JSON/binary manifest-hash partitioning remains `TBD`.
+- **DEL-06-04:4** — Preserve PDU-044's documented schema absence in this lifecycle/checksum slice; numeric rule-pack unit metadata remains owned by DEL-02-02 and DEL-06-02/DEL-06-03 unless scope is separately changed.

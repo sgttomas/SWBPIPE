@@ -306,7 +306,7 @@ This Scope of Work defines `DEL-02-03` in service of project scope [SOW-002] and
 > ##### Prerequisites
 >
 > - Read `_CONTEXT.md` current authority references for deliverable identity, scope, artifacts, and SCA-001 architecture-basis injection.
-> - Confirm `_STATUS.md` allows editing under the active task brief. Reread the current state for each run; do not carry forward stale prior-run state claims.
+> - Confirm the active task brief authorizes editing within this Scope of Work. Read `_STATUS.md` for current lifecycle; do not carry forward stale prior-run state claims.
 > - Read `_REFERENCES.md` and use accessible local sources.
 > - Read `docs/_Registers/Deliverables.csv` row `DEL-02-03`, `docs/_Registers/ScopeLedger.csv` row `SOW-002`, and `docs/_Registers/ContextBudgetQA.csv` row `DEL-02-03`.
 > - Read `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) sections for objectives, `PKG-02`, `DEL-02-03`, SCA-001 basis, and `SOW-002`.
@@ -502,3 +502,9 @@ This Scope of Work defines `DEL-02-03` in service of project scope [SOW-002] and
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-002 OBJ-001 OBJ-011 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-02-03:1** — Resolve diagnostic machine-code and stale human-acceptance-reference representation, and verify every adapter/plugin/API status-write boundary after the status-axis layout receives its owning disposition. (R5 continuation claim references: DEL-02-03:SOW#CLM-003; CLM-010.r10; CLM-026.)

@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-007]
 
 # Scope of Work — DEL-08-01
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -39,7 +39,7 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 > | Scope item | SOW-024 |
 > | Objective | OBJ-007 |
 > | Context envelope | L |
-> | Current setup status | Lifecycle and residual work: see `_STATUS.md`; current implementation evidence is separately bound |
+> | Current setup status | Lifecycle: see `_STATUS.md`; open duties: this Scope of Work and owning decisions; current implementation evidence is separately bound |
 >
 
 ### CLM-004 — Attributes
@@ -51,7 +51,7 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 > | Production family | Calculation reports for SWBPIPE analysis outputs. |
 > | Required report content | Inputs, sources, warnings, assumptions, results, rule-pack checksums, and limitations. |
 > | Anticipated downstream artifacts | Report renderer, report template, tests. |
-> | Setup-session implementation boundary | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle and remaining work are recorded in `_STATUS.md`. Setup-only restrictions describe the originating setup run, not standing product scope. |
+> | Setup-session implementation boundary | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle is recorded in `_STATUS.md`; current work follows this Scope of Work, owning decisions, and the selected graph. Setup-only restrictions describe the originating setup run, not standing product scope. |
 > | Architecture baseline | Rust core/application services, schema-first command/query/job/result envelopes, JSON Schema 2020-12 contracts, canonical JSON/JCS-compatible hash basis where JSON payload hashes are used. |
 > | Report authority boundary | Reports are decision-support artifacts. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
 > | Protected-content boundary | Public templates/examples must not reproduce protected standards text, protected standards tables, protected figures, proprietary formulas, or protected code-derived content. |
@@ -114,7 +114,7 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 
 > ##### Scope
 >
-> Current deliverable obligation: implement report generation with model input summary, load cases, results, warnings, and rule-pack references. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement report generation with model input summary, load cases, results, warnings, and rule-pack references. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This deliverable defines the calculation report generator behavior for SWBPIPE reporting. It covers report assembly requirements for model input summaries, load cases, results, warnings, assumptions, source/provenance notes, rule-pack references, checksums, and limitations.
@@ -177,7 +177,7 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 
 > ##### Acceptance Criteria For This Setup Session
 >
-> Current deliverable obligation: implement report generation with model input summary, load cases, results, warnings, and rule-pack references. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement report generation with model input summary, load cases, results, warnings, and rule-pack references. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > - No file outside `execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/` is edited.
@@ -199,7 +199,7 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 
 > ##### Purpose
 >
-> Current deliverable obligation: implement report generation with model input summary, load cases, results, warnings, and rule-pack references. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement report generation with model input summary, load cases, results, warnings, and rule-pack references. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This procedure records the setup and future implementation workflow for the calculation report generator deliverable. It does not implement renderer code.
@@ -208,7 +208,7 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 
 > ##### Prerequisites
 >
-> Current deliverable obligation: implement report generation with model input summary, load cases, results, warnings, and rule-pack references. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement report generation with model input summary, load cases, results, warnings, and rule-pack references. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > | Prerequisite | Status |
@@ -315,7 +315,7 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 
 > ##### Considerations
 >
-> Current deliverable obligation: implement report generation with model input summary, load cases, results, warnings, and rule-pack references. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement report generation with model input summary, load cases, results, warnings, and rule-pack references. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > The report generator will depend on upstream model/result/rule-pack envelopes that are not implemented in the original setup session. Where the current source set does not provide exact field names, template structure, renderer API, or output format, those details remain `TBD` for future sealed implementation briefs.
@@ -382,3 +382,9 @@ This Scope of Work defines `DEL-08-01` in service of project scope [SOW-024] and
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-024 OBJ-007 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-08-01:1** — Define the .opsproj container compatibility-window/versioning policy beyond schema_version 1.0.0 (DEC-028 bounded-tranche territory) (see also DEL-02-05) (source: TP-E3-CONTAINER-001 residuals)

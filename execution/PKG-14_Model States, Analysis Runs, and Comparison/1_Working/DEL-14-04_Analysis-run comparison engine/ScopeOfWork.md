@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-016]
 
 # Scope of Work — DEL-14-04
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -472,3 +472,12 @@ This Scope of Work defines `DEL-14-04` in service of project scope [SOW-073, SOW
 - **DEL-14-04-SCA011-VER-001** — PDU-011 has a named output-schema owner at DEL-14-05, but output-schema acceptance and producer conformance remain outstanding. PDU-047 engineering suitability and governed tolerance values remain held; a schema draft or structural check does not discharge either.
 
 Named preparation artifact: `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/ComparisonResult.v0.1.draft.schema.json`, with field decisions and semantic checks in `INTERFACE_CONTRACTS.md`. This identifies an accountable contract preparation surface; its wire fields/version are unaccepted design deltas, not deployed schemas. Scope adoption alone neither validates existing preview payloads nor activates a new API, runtime, persistence format, external process or compatibility window. Existing requirements, exclusions and lifecycle remain in force.
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-14-04:1** — R5 continuation delivery task: Demonstrate actual producer diagnostic/settings and unit-aware delta behavior through the runtime comparison path, retaining raw deltas and missing-data diagnostics. Bind reference fixtures and provenance; keep OI-014 default tolerance/workflow decisions separate and unchanged (CLM-006/015/035).
+- **DEL-14-04:2** — SCA-011 interface follow-through: PDU-011 has a named output-schema owner at DEL-14-05, but output-schema acceptance and producer conformance remain outstanding. PDU-047 engineering suitability and governed tolerance values remain held; a schema draft or structural check does not discharge either.
+- **DEL-14-04:3** — Hold PDU-011 comparison-output schema conformance until an authoritative analysis-run comparison-result/export schema is accepted; current mapping and tolerance schemas govern inputs only (source: D-41 R5 T2B bounded schema check, 2026-07-12)
+- **DEL-14-04:4** — Hold PDU-047 engineering-validation/suitability of unit-normalized comparison mechanics; the section-property witness is not an authorized tolerance or comparison-validation basis and section-property results are outside the engine's current supported result families (source: D-41 R5 T2B E2/E4/E8 evidence-only backcheck, 2026-07-12)

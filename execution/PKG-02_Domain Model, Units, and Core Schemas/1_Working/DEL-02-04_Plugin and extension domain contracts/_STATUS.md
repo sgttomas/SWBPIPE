@@ -3,10 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- Conform or retire the public invented plugin fixture and add full canonical-schema and manifest JCS/hash evidence. Runtime no-bypass/security tests require the separately authorized runtime hook; declaration checks do not satisfy those tests. (R5 continuation claim references: DEL-02-04:SOW#CLM-012/DEL-02-04-REQ-11; CLM-014.r04; CLM-015.r03.)
-- None for PDU-037's exact non-schema adapter/plugin verification-layer residual. Separately governed runtime, transport, capability, and permission-persistence choices remain owner-held and runtime dispatch stays blocked.
-
 ## History
 - 2026-09-22 - Added explicit grouped delivery/evidence tasks from the R5 record-continuation screening to Remaining; lifecycle, existing dispositions and acceptance boundaries remain unchanged. Evidence: `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG00_06/`.
 - 2026-08-20 - R6 N1 integrated-review Amendment 7 aligned normalized schema-valid quarantined metadata with fallback boundary derivation: top-level privacy/provenance is protected/quarantine across public, private, and protected companion evidence and is never public-reviewed. 324 tests passed; V34 reviewed all 23 frozen files/8,654 lines and the full original-basis amended diff with zero findings. Exact residual remains closed; lifecycle IN_PROGRESS; runtime blocked.

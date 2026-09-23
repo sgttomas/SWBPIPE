@@ -3,11 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- External contribution intake remains closed under DEC-027 and the ruled D-07b/DEC-079. Opening it requires a future owner act recorded in a new decision-register row, with legal-instrument adoption on legal advice; the D-07b packet §§5–6 supplies the adopted review/screening skeleton. No intake activation or legal-instrument choice is made here.
-- Complete the §17.5 pre-release legal review, explicitly including the E6 public issue templates and all public-facing language (gated: owner/counsel) (see also DEL-01-02) (source: PRD plan §3 E6 row / TP-E6-ISSUETEMPLATES-001 residual)
-- Wire projects/chirality-piping/.github/ISSUE_TEMPLATE/ to the public repository root .github/ISSUE_TEMPLATE/ in the sanitized public export when that machinery is exercised (see also DEL-10-04) (source: TP-E6-ISSUETEMPLATES-001 residuals)
-
 ## History
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - State set to INITIALIZED (TASK+four-documents P1_P2)

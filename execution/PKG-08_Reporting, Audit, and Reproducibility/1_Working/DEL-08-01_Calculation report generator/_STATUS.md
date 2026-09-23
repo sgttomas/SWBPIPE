@@ -3,9 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-08-20
 
-## Remaining
-- Define the .opsproj container compatibility-window/versioning policy beyond schema_version 1.0.0 (DEC-028 bounded-tranche territory) (see also DEL-02-05) (source: TP-E3-CONTAINER-001 residuals)
-
 ## History
 - 2026-08-20 - R6 N2 added an exact shared invented component-provenance projection bound to one current-session model across mechanics, manifest/hash, analysis-run, production TypeScript report-package output, and the Rust wire/package renderer into the canonical HTML member; present and missing provenance, private/pending classification, malformed provenance rejection, fixture root/version drift, and exact manifest-payload parity are covered. The producer now fails closed unless the supplied model and verified manifest model payload have equal canonical, validated hashes, including same-ID changed-payload rejection and insertion-order equivalence. Focused Vitest 8/8, desktop build/typecheck, report-package Cargo 19/19 plus doc tests, formatting, containment, and fresh full-N2 review attempt 4 passed after the integrated review v4 basis-mismatch and v8 production-identity findings were remediated. The exact cross-layer test residual is closed; state remains IN_PROGRESS for the separate `.opsproj` compatibility-policy residual.
 - 2026-07-22 - R16 bound the existing report-package producer to the desktop File menu and added caller-owned native atomic save using OS-random same-parent create-new temporary files, write/flush/temp-sync/rename, cleanup, and bounded parent-directory durability reporting; focused, full, five-surface sweep, and packaged-native cancel/new/replacement evidence passed, followed by fresh N5 COMMIT-SAFE. State remains IN_PROGRESS; no lifecycle, release, runner, or DEL-10 effect.

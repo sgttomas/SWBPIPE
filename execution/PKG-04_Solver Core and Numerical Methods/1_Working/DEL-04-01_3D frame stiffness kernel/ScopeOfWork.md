@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-003]
 
 # Scope of Work — DEL-04-01
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -347,7 +347,7 @@ Retain frame assembly and linear solving, including CAP-PHYS-022. DEL-04-07 comp
 
 - **OUT-002** — This responsibility has an explicit owner and claim-bound verification.
 - **AC-002** — The named boundary is honored, its witness is bound to the tested candidate, and missing or held results remain explicit. Ownership assignment alone is not a pass.
-- **VER-002** — Check primitive assembly/solve contracts separately from product route parity; preserve all existing protected numerical criteria and Remaining items.
+- **VER-002** — Check primitive assembly/solve contracts separately from product route parity; preserve all existing protected numerical criteria and the carried commitments in this Scope of Work.
 
 ## Output and Evaluation Matrix
 
@@ -355,3 +355,10 @@ Retain frame assembly and linear solving, including CAP-PHYS-022. DEL-04-07 comp
 |---|---|---|---|---|---|
 | OUT-001 | SOW-005 SOW-035 OBJ-003 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
 | OUT-002 | OBJ-003 | CLM-030 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-04-01:1** — Bind protected-content review to the frozen frame-kernel source/test bytes and verify the full diagnostic field set at the desktop preview crossing; source repair and existing kernel evidence do not supply these review/boundary witnesses. (R5 continuation claim references: DEL-04-01:SOW#CLM-012/DEL-04-01-REQ-012; CLM-010/DEL-04-01-REQ-011.)
+- **DEL-04-01:2** — Verify mechanics-program §5 completion: assessment gap rows G1/G2/G4 and M2/M3 methods defects closed or explicitly re-dispositioned by owner ruling (see also DEL-04-04, DEL-05-01, DEL-05-02) (gated: owner re-disposition where not closed by evidence) (source: mechanics plan §5 / DEC-066–070)

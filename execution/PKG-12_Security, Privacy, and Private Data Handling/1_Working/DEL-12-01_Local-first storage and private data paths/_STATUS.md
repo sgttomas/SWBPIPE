@@ -14,10 +14,6 @@ PDU-055 cited claim(s): `DEL-12-01-DECL-005`.
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- Complete LFSP-REQ-011 runtime private-path resolution and obtain a bounded review mapping its required test families to the existing storage round-trip/migration and report/export evidence. Candidate evidence exists at `apps/desktop/src-tauri/src/lib.rs::saved_edited_load_model_round_trips_and_solves_from_restored_payload`, `::store_migration_ledger_reconciles_legacy_store_and_preserves_rows`, and `apps/desktop/src/services/reportPackageSaveService.test.ts` (missing/blocked local-first evidence rejection). This corrects the claim that all storage families are absent; it does not establish that these tests satisfy LFSP-REQ-011. PDU-036's adjacent trace-gap fixture remains no substitute, and RF-001/RF-002 below remain human-held.
-- Obtain owner/human-review dispositions for open `RF-001` and `RF-002`; current status wording and T3/T4 runtime/storage residual homes do not close either finding, and `HumanDisposition` remains `TBD` (PDU-060).
-
 ## History
 - 2026-08-21 - Bound the current applicable core and desktop adapter/result/report export routes, desktop report-package service, and native report persistence boundary to governed local-first evidence. Exact-Boolean intent repair, focused checks, pinned full Piping/DEC-025 checks, and a fresh 100%-diff review passed; lifecycle remains IN_PROGRESS for the residuals above.
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 1 cited declaration claim to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.

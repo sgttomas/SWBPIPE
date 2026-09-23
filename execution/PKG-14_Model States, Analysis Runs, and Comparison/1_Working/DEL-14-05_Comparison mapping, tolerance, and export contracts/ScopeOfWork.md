@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-016]
 
 # Scope of Work — DEL-14-05
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -384,3 +384,12 @@ This Scope of Work defines `DEL-14-05` in service of project scope [SOW-073] and
 - **DEL-14-05-SCA011-VER-001** — Review and accept the named ComparisonResult draft or its explicit successor before producer conformance claims; bind mapping, unmatched accounting, tolerance references, units, diagnostics and reporting handoff without selecting numeric tolerances or report layout.
 
 Named preparation artifact: `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/ComparisonResult.v0.1.draft.schema.json`, with field decisions and semantic checks in `INTERFACE_CONTRACTS.md`. This identifies an accountable contract preparation surface; its wire fields/version are unaccepted design deltas, not deployed schemas. Scope adoption alone neither validates existing preview payloads nor activates a new API, runtime, persistence format, external process or compatibility window. Existing requirements, exclusions and lifecycle remain in force.
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-14-05:1** — R5 continuation delivery task: Demonstrate emitted JSON/CSV and runtime mapping/tolerance conformance to `schemas/comparison_mapping.schema.json`, including stable IDs, units, diagnostics, provenance and privacy. Schema/test existence does not close actual export or report coverage; OI-014 defaults remain open (CLM-005/006/013).
+- **DEL-14-05:2** — SCA-011 interface follow-through: Review and accept the named ComparisonResult draft or its explicit successor before producer conformance claims; bind mapping, unmatched accounting, tolerance references, units, diagnostics and reporting handoff without selecting numeric tolerances or report layout.
+- **DEL-14-05:3** — Keep PDU-037 engine determinism owned by DEL-14-04 and tolerance/independent-validation outcomes open; refreshed deterministic backcheck does not move engine logic or validate tolerance suitability.
+- **DEL-14-05:4** — Bind comparison export/report-section references through the reporting owner with explicit analysis-status and limitation preservation; the current T4 evidence covers persisted state/run records only and does not select layout or tolerance policy.

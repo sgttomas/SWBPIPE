@@ -48,9 +48,15 @@ The anticipated `docs/architecture/persistence_versioning.md` was never created.
 
 ## Open holds and routed questions
 
-- Provider expansion and any still-recorded policy choices remain residual work per the PDU-055 declaration; surviving deliverable-local residuals are those recorded in `_STATUS.md ## Remaining` (currently empty) and the D-41 residual records.
+- Provider expansion and still-recorded policy choices remain open per the PDU-055 declaration, the carried commitments in this Architecture Basis, and the D-41 residual records.
 - No former kit TBD (format, schema language, migration framework, hashing, storage backend) remains without a cited ruling.
 
 ## Currency and provenance
 
 Consolidated 2026-07-15 per piping decision D-43 from the four-document kit (`Datasheet.md`, `Specification.md`, `Procedure.md`, `Guidance.md`) as reconciled by D-41 R5 T7 (PDU-054/PDU-055 currentness declarations, 2026-07-12; PDU-055 cited claims `DEL-00-04-DECL-002`, `DEL-00-04-DECL-003`). Prior wording, including superseded setup-era framing and the revision 0.7 authority pins, is preserved in git history. `MEMORY.md` is retained unchanged as the dated deliverable memory. This document is reference context, not a production contract, and carries no lifecycle, review, release, professional-reliance, or code-compliance claim.
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-00-04:1** — Resolve stored rule-pack/library migration-status representation and verify populated references, diagnostics and provenance in product save/open round trips; preserve the separate provider-expansion review question. (R5 continuation claim references: DEL-00-04:AB#normative-requirements/REQ-04-02; REQ-04-04.)

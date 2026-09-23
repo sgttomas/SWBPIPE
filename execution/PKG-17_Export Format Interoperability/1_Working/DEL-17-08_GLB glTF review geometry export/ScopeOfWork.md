@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-009, OBJ-017]
 
 # Scope of Work — DEL-17-08
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -526,3 +526,11 @@ This Scope of Work defines `DEL-17-08` in service of project scope [SOW-030, SOW
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | CLM-009 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-17-08:1** — R5 continuation delivery task: Demonstrate current JSON glTF line-mode profile, stable-ID sidecar correlation, units/coordinates, loss disclosure and cleared fixture provenance through the owned product export path. GLB, expanded entity/geometry coverage and rendered viewer validation remain separate work; correct any unsupported hash labels in bounded code work (CLM-007/014/017/020/041/043).
+- **DEL-17-08:2** — Obtain the owner-selected exact PDU-031 timestamp/generator metadata policy before declaring normative deterministic/normalized/omitted/runtime-dependent behavior; current JSON glTF output has a fixed versioned generator and no timestamp and this observation is test-enforced without inventing policy (source: DEC-074 O11/E7; R5 tranche plan unselected-policy hold)
+- **DEL-17-08:3** — Preserve the PDU-036/REQ-043 impossible-bend diagnostic as outside the selected O11 JSON line/centerline profile. Emitted line-entity mapping completeness is bounded by current focused evidence; do not infer broader bend geometry, GLB, viewer, or validation coverage.

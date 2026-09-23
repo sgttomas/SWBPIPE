@@ -3,12 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- SCA-011 interface follow-through: PDU-023 now has the DEL-13-04 responsibility home through SCA-011; accepted envelope binding and wider scalar/runtime trace evidence remain outstanding. REQ-012 remains unchanged: the internal solver-boundary adapter is not a public API, GUI/runtime path, external prover path or final solver-acceptance claim.
-- Hold PDU-023 continuation from analytical field-scalar trace paths into a runtime result envelope until the SCA-011 DEL-13-04 producer responsibility is realized by an accepted binding of those existing contracts (source: D-41 R5 T2C E6, 2026-07-12)
-- Hold PDU-047 broader 3D centerline/frame mechanics suitability validation; the bounded section-property oracle does not independently validate the transform target boundary (source: D-41 R5 T2B E2/E4/E8 evidence-only backcheck, 2026-07-12)
-- Preserve PDU-036 as verification-only evidence: the invented trace-gap fixture links one omitted unsupported component to its `ASSUMPTION_WARNING` diagnostic and emits no invalid scalar trace, but independent validation and broader field/runtime-result trace coverage remain open.
-
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 2 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-05-03 - State initialized to OPEN as part of PREPARATION control-surface creation; no existing lifecycle state was transitioned.

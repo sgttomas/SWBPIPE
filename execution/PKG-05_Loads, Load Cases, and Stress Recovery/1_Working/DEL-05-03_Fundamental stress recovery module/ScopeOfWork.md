@@ -350,3 +350,11 @@ This Scope of Work defines `DEL-05-03` in service of project scope [SOW-015] and
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-015 OBJ-003 | CLM-009 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-05-03:1** — The private dormant exact-annulus pressure kernel is implemented in accepted source `8ad37207cf088025623aa1e777a97a6fcb802f48` and qualified against the V3 independent refutation. Production pressure activation remains open with Poisson/material authority, closure topology/defaults, typed public force/result compatibility, curved and expansion-joint treatment, thresholds, and verification fixtures. No lifecycle, dependency, or runtime-pressure claim is implied.
+- **DEL-05-03:2** — The 2026-09-09 endpoint section-cut, curved-frame metadata, and genuine-pressure eligibility repair remains accepted. Its preserved 2026-09-09 raw-envelope observation reported 196 unchanged baseline public result-contract errors and zero errors on the repair-affected rows; 196 is historical snapshot evidence, not a new or universal count. Versioned public-result-contract work remains open.
+- **DEL-05-03:3** — Broader pressure behavior, connector treatment, and public result-contract work remain open. No lifecycle or DAG promotion is recorded.

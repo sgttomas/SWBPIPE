@@ -335,3 +335,9 @@ This Scope of Work defines `DEL-04-03` in service of project scope [SOW-011] and
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-011 OBJ-003 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-04-03:1** — Locate or obtain a protected-content/provenance review bound to the linear-support source/test candidate; reconcile the named primitive support API with its product application boundary through the owning contract disposition. (R5 continuation claim references: DEL-04-03:SOW#CLM-012; CLM-010.r12.)

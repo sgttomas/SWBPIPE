@@ -3,9 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-07-12
 
-## Remaining
-- Obtain the owning human-review disposition for open `RF-002` and refresh its canonical DAG artifact-presence flags only through the governed DAG workflow; local artifacts do not close the finding, and `HumanDisposition` remains `TBD` (PDU-060).
-
 ## History
 - 2026-07-12 - D-41 R5 T7 final status-only backcheck found no additional T7 defect; the concordance bootstrap was removed while RF-002, governed DAG handling, and lifecycle remain unchanged.
 - 2026-07-12 - D-41 R5 T6/PDU-060 homed RF-002 without changing DAG/register state, formal review, or lifecycle.

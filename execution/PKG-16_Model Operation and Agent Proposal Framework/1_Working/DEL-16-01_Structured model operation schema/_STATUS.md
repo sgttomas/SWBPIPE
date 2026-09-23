@@ -3,10 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-08-21
 
-## Remaining
-- R5 continuation delivery task: Reconcile the unchanged public operation-schema contract with DEC-094/SCA-009 vocabulary and actual runtime operations under SCA-011 ownership. Prove required unit/model-basis/hash/diagnostic guarantees without treating the schema enum as the complete taxonomy or silently ratifying new interface fields (CLM-003/004/017/026).
-- Obtain owning human dispositions for `PKG16-DEL1601-PKG02-001` and `PKG16-DEL1601-PKG02-002`; both remain `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`, notwithstanding current model-basis/hash and fixture evidence (PDU-060).
-
 ## History
 - 2026-08-21 - Vocabulary round 3 completed structured `insert_component_symbol` resolver coverage for tee, reducer, valve, flange, and expansion joint. The applier enforces deliberate incident-role references, distinct tee header/branch spans, explicit quantity dimensions/units and sources, and blocking/no-applied-model behavior without invented values. Fresh N1/N2 reviews passed after one preserved repair cycle each; commits `8ca1984db45a9a8f6f3111a905b07c7d3da47c33` and `d1a8e20ae413be040b82428cdd0bdbef0809e8de`. Existing PKG-02 human dispositions and IN_PROGRESS lifecycle remain unchanged.
 - 2026-08-21 - Accepted the owner-amended N2 bend-only `create_component` resolver slice: explicit geometry/connectivity inputs, canonical persisted references, claimed-model-hash gating, and structured-operation-only mutation all passed focused native/Wasm/UI/build checks and fresh 100%-diff review. Tee, reducer, valve, flange, and expansion-joint creation remain open; existing PKG-02 human dispositions are unchanged. No lifecycle change.

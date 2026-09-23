@@ -3,9 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- Implement the distinct FR-025 local FEA submodel export post-beta in the Phase H (v0.2 R6) lane, as ruled by D-12/DEC-078, with DEL-10-03 as contract authority and implementing scope established by the Phase H lead-up decomposition. FR-025 is distinct from FR-HAND-*; a future re-deferral requires a new owner decision. This ruling settles the disposition, not implementation or external FEA execution.
-
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-04-30 - State set to OPEN (PREPARATION)

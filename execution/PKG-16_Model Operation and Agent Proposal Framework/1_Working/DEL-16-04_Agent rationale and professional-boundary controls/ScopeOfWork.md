@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-015, OBJ-018]
 
 # Scope of Work — DEL-16-04
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -371,3 +371,12 @@ This Scope of Work defines `DEL-16-04` in service of project scope [SOW-070] and
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-070 OBJ-015 OBJ-018 | CLM-007 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-16-04:1** — R5 continuation delivery task: Demonstrate runtime rationale/audit preservation and actual UI/API/report professional-boundary and private/protected-data guards; compare focused reference tests and claims-registry lint with each emitting surface. Standalone schema/persistence and human disposition limits remain explicit (CLM-009/011/019/023; AC-001).
+- **DEL-16-04:2** — Preserve the v0.2 R7/F3 live-binding gate: the T4 persisted-report workflow does not bind agent rationale into downstream runtime integrations or infer human/professional approval.
+- **DEL-16-04:3** — Phase I program: agent rationale + FR-AGENT-005 professional-boundary hard gate over the existing operation seam, plus route/support candidate generation (generator currently has no owning deliverable — ownership needs a decomposition act) (stage-gated: v0.2 R7; gated: app-dev F3 live-binding remains necessary, and D-58 leaves the automation-condition mechanism unresolved after retiring current reliance on the DEC-063 App-era mechanism) (see also DEL-16-01, DEL-16-02, DEL-16-03) (source: PRD plan §3 Forward Horizon row I / DEC-056/DEC-063/D-58)
+- **DEL-16-04:4** — Obtain the owning human disposition for `PKG16-DEL1604-PKG02-001`; preserve `TECHNICALLY_ADDRESSED_PENDING_HUMAN` and `HumanDisposition=TBD` despite the implemented copied-context scanner coverage (PDU-060).

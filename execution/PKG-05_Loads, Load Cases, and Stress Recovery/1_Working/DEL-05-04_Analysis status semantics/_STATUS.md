@@ -3,9 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- Resolve the held stale human-acceptance reuse negative (FG-DEL-05-04-01; ScopeOfWork.md REQ-05-04-008/014 and CLM-008/023) against an authorized implementation and verification basis, or obtain a scope disposition. The landed operation-applier stale-model-hash check does not establish invalidation of external human-acceptance records; external acceptance ownership/storage/presentation remain held. This record does not declare warranted-empty Remaining.
-
 ## History
 - 2026-08-20 - The authoritative Rust operation-applier runtime now compares supported claimed model hashes against the current RFC8785/JCS backend model hash and fails closed for stale, malformed, or unsupported claims; matching and no-claim behavior remain covered. Native/Wasm corpus cases 79–81 and the registered test surfaces provide implementation evidence. Lifecycle remains IN_PROGRESS; no release or professional-reliance effect occurs.
 - 2026-07-12 - D-41 R5 T6 PDU-037 refreshed bounded fixture/harness evidence and preserved all validation, policy, review, and lifecycle holds.

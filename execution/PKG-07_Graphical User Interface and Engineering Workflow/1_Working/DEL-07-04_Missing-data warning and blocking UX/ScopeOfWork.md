@@ -34,7 +34,7 @@ This Scope of Work defines `DEL-07-04` in service of project scope [SOW-022] and
 > | Scope items | SOW-022 |
 > | Objectives | OBJ-006, OBJ-011 |
 > | Anticipated artifacts | warning system UI; UX tests |
-> | Setup status | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle and remaining work are recorded in `_STATUS.md`. Setup-only restrictions describe the originating setup run, not standing product scope. |
+> | Setup status | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle is recorded in `_STATUS.md`; current work follows this Scope of Work, owning decisions, and the selected graph. Setup-only restrictions describe the originating setup run, not standing product scope. |
 >
 
 ### CLM-003 — Attributes
@@ -73,7 +73,7 @@ This Scope of Work defines `DEL-07-04` in service of project scope [SOW-022] and
 
 > ##### Construction
 >
-> Current deliverable obligation: implement missing-data warning/blocking UX, rule-check run interaction and aggregate status, with unit-aware warning presentation preserving owned rule/status semantics. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement missing-data warning/blocking UX, rule-check run interaction and aggregate status, with unit-aware warning presentation preserving owned rule/status semantics. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > The setup artifact is a document kit and local evidence bundle. It does not create visual components, application state, tests, schemas, or source-code contracts.
@@ -117,7 +117,7 @@ This Scope of Work defines `DEL-07-04` in service of project scope [SOW-022] and
 
 > ##### Scope
 >
-> Current deliverable obligation: implement missing-data warning/blocking UX, rule-check run interaction and aggregate status, with unit-aware warning presentation preserving owned rule/status semantics. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement missing-data warning/blocking UX, rule-check run interaction and aggregate status, with unit-aware warning presentation preserving owned rule/status semantics. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This deliverable specifies the setup boundary for a future GUI warning and blocking workflow. It covers warning classification, blocking and qualifying behavior, result-envelope visibility, and professional/IP boundary wording for missing or weak data. It does not implement GUI components, application state, schemas, tests, package manifests, or product source code.
@@ -388,3 +388,9 @@ Own rule-check run interaction and aggregate status presentation (CAP-FEATB-008/
 |---|---|---|---|---|---|
 | OUT-001 | SOW-022 OBJ-006 OBJ-011 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
 | OUT-002 | OBJ-006 OBJ-011 | CLM-033 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-07-04:1** — Preserve producer-side nonlinear diagnostic completeness as a separate responsibility; the PDU-008 GUI now surfaces supplied `NONLINEAR_*` diagnostics but does not invent convergence outcomes or missing solver evidence.

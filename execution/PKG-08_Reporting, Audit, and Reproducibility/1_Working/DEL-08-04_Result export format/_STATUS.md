@@ -3,10 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- SCA-011 interface follow-through: Bind comparison mapping/export round trips to the accepted version of the DEL-14-05 interface before claiming comparison-envelope conformance. Preserve source identity, diagnostics, units, raw rows, unmatched records, hashes and professional boundaries.
-- Add remaining target-format unit-conversion witnesses outside the already-covered export boundaries (residual hardening) (source: PRD plan §3 Phase B-tail row / FR-002)
-
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 3 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-04-30 - State set to OPEN (PREPARATION)

@@ -3,10 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- Activate public sanitized-export repo CI at the DEC-059 conditions: pipeline landed pending owner review (TP-E5-EXPORTPIPE-001, PR #161); still needed — owner-signed D-20/DEC-058 green scan of the staged export, public-repo creation/naming per DEC-057, making the export self-verifying or trimming its test set, and owner review of the v1 include/exclude allowlist (gated: D-05b; stage-gated: first public publication) (source: PRD plan §3 E5 row / DEC-059 / TP-E5-EXPORTPIPE-001 residuals)
-- Carry the DEC-089 policy-only future Apple Developer ID signing/notarization target through its separately applicable gates. D-06b is already ruled; DEC-057's current unsigned posture continues with checksum, commit-bound sweep, release record and unsigned-install caveat until signing/notarization requirements are satisfied and accepted. The registered App ID (subsequently amended by DEC-106) is not evidence of signing/notarization or a release. Historical v0.1 PRD §22.6 remains an R6-entry release-machinery residual under D-21/DEC-056; no release action is authorized here.
-
 ## History
 - 2026-08-21 - Accepted N3 preventive CI hardening: Playwright GitCommitInfo capture is disabled at the source config because run identity is already commit-bound by the evidence sweep; governance Candidate whitespace now has a three-minute step timeout and a legible failure annotation. G4 validation passed and its public derivative export remains explicitly deferred. Existing publication/signing residuals and lifecycle are unchanged.
 - 2026-08-19 - Implemented the D-65/DEC-093 CI-bound surface-4 path in the

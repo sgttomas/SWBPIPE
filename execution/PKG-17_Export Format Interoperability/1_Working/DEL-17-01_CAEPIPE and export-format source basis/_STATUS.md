@@ -3,9 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-07-12
 
-## Remaining
-- R5 continuation delivery task: Resolve admitted-source questions through the owning source register before target support claims, including review-geometry coverage beyond the bounded line-mode reference foundation. Existing source metadata and example files do not establish rights clearance or solver fidelity (CLM-008 TBD-17-01-006).
-
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 1 cited declaration claim to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-05-18 - State set to OPEN (PREPARATION/SCA-004 ORCHESTRATOR workflow)

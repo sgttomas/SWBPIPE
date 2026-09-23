@@ -592,3 +592,13 @@ This Scope of Work defines `DEL-02-02` in service of project scope [SOW-025] and
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-025 OBJ-001 OBJ-012 | CLM-011 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-02-02:1** — Keep PDU-037's cross-deliverable round-trip, import/export, rule-pack mismatch, and JSON-hash test-matrix strands open; refreshed unit/schema evidence does not independently validate normalization suitability.
+- **DEL-02-02:2** — Complete the remaining B2/B3 unit-authority wiring beyond the schema-derived DEL-16-02 validation-preview consumer and the 2026-09-05 native-preview node-coordinate normalization repair (PDU-011/PDU-014). The repaired coordinate boundary is verified for explicit m/mm/in inputs; this does not close system-wide integration or the PDU-037 matrix.
+- **DEL-02-02:3** — Select the exact unit identifier/alias namespace and ambiguous-parser policy before PDU-015 implementation; no option in the R4 slate selected these values.
+- **DEL-02-02:4** — Select the exact unit diagnostic code/category namespace before PDU-025 implementation; no option in the R4 slate selected these values.
+- **DEL-02-02:5** — Obtain an independent numeric normalization/conversion suitability witness before any PDU-048 validation upgrade; current behavior remains verified, not validated.

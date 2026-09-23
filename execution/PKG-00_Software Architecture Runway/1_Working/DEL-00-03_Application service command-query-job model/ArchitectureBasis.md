@@ -48,8 +48,14 @@ The anticipated `docs/architecture/application_services.md` was never created. T
 ## Open holds and routed questions
 
 - Concrete service interface language details and the cancellation token API shape remain implementation-level detail, delegated per the ScopeLedger SOW-058 note ("concrete interface language details remain implementation-level TBD"); the implemented seams above are the current evidence, with no dedicated architecture ruling on an abstract token API.
-- Broader application integration residuals are those recorded in the deliverable-local `_STATUS.md ## Remaining` (currently empty) and the D-41 residual records.
+- Broader application integration obligations are governed by the requirements and carried commitments in this Architecture Basis and the D-41 residual records.
 
 ## Currency and provenance
 
 Consolidated 2026-07-15 per piping decision D-43 from the four-document kit (`Datasheet.md`, `Specification.md`, `Procedure.md`, `Guidance.md`) as reconciled by D-41 R5 T7 (PDU-054/PDU-055 currentness declarations, 2026-07-12). Prior wording, including superseded setup-era framing and the revision 0.7 authority pins, is preserved in git history. `MEMORY.md` is retained unchanged as the dated deliverable memory. This document is reference context, not a production contract, and carries no lifecycle, review, release, professional-reliance, or code-compliance claim.
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-00-03:1** — Define application-service transaction boundaries for solve and adapters; reconcile storage/rule-pack/library diagnostic return boundaries, and evidence report/export job cancellation/progress or obtain their scoped disposition. (R5 continuation claim references: DEL-00-03:AB#normative-requirements/REQ-03-02; REQ-03-03; REQ-03-04.)

@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-002, OBJ-007]
 
 # Scope of Work — DEL-08-05
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -116,7 +116,7 @@ This Scope of Work defines `DEL-08-05` in service of project scope [SOW-043] and
 
 > ##### Scope
 >
-> Current deliverable obligation: implement checks that prevent public report templates/examples from embedding protected code text/tables/formulas. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement checks that prevent public report templates/examples from embedding protected code text/tables/formulas. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This deliverable specifies setup requirements for a protected-content linter that will guard public report templates and examples against accidental inclusion of protected standards/code text, copied standards tables, proprietary formulas, private rule-pack content, or misleading professional-authority claims.
@@ -207,7 +207,7 @@ This Scope of Work defines `DEL-08-05` in service of project scope [SOW-043] and
 
 > ##### Acceptance Criteria For This Setup Session
 >
-> Current deliverable obligation: implement checks that prevent public report templates/examples from embedding protected code text/tables/formulas. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement checks that prevent public report templates/examples from embedding protected code text/tables/formulas. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > - No file outside `execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-05_Report protected-content linter/` is edited.
@@ -230,7 +230,7 @@ This Scope of Work defines `DEL-08-05` in service of project scope [SOW-043] and
 
 > ##### Purpose
 >
-> Current deliverable obligation: implement checks that prevent public report templates/examples from embedding protected code text/tables/formulas. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement checks that prevent public report templates/examples from embedding protected code text/tables/formulas. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This procedure records how DEL-08-05 setup artifacts are produced and how future implementation work should approach the protected-content linter without exceeding the public IP/data boundary.
@@ -437,3 +437,10 @@ This Scope of Work defines `DEL-08-05` in service of project scope [SOW-043] and
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-043 OBJ-002 OBJ-007 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-08-05:1** — Bind report-linter enforcement to any future adapter/plugin runtime and preserve release-candidate owner sign-off; the current adapter declaration gate supplies no runtime or release assurance.
+- **DEL-08-05:2** — Execute the AC-1–AC-6 release-candidate scan act with owner sign-off — tooling landed (TP-E7-SCANEXT-001, PR #152: unsigned scan-record emitter); the recorded scan of a real candidate, finding dispositions, and sign-off remain owner-only; validation/evidence/releases/ still absent (gated: owner sole signatory per DEC-058; stage-gated: first release candidate) (source: PRD plan §3 E7 row / DEC-058 / TP-E7-SCANEXT-001)
