@@ -6,7 +6,7 @@
   roots and exact caller boundaries, including fail-closed CLI selection and
   reviewed UNC export findings. Evidence: [central loop receipt](../../../_Coordination/AgentRuns/PIPING_LINTER_SCOPE_20260923/RECEIPT.md),
   [substantive PR #867](https://github.com/sgttomas/chirality/pull/867), and
-  final closeout branch `codex/piping-linter-closeout` (PR URL pending).
+  [final closeout PR #876](https://github.com/sgttomas/chirality/pull/876).
 
 ## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVREPORTLINTUNITS-001 supporting report-lint evidence
 

@@ -30,8 +30,8 @@ clean five-surface DEC-025 sweep passed on
 [machine summary](../../../../validation/evidence/sweeps/SWEEP_20260923T170102Z_896abb37cdd4.json)
 and compressed raw log linked from the work graph retain the actual commands,
 results and limitations. Required PR #867 `harness` and source selection passed
-on `b0e9fbe0f024e45429185e55c5e3cc6f8df357c7`. Later hosted results
-remain governed by their actual PR checks. No DEL issuance, product release,
+on `b0e9fbe0f024e45429185e55c5e3cc6f8df357c7`; every hosted check on
+that head later completed SUCCESS. No DEL issuance, product release,
 protected-content legal clearance or professional acceptance is claimed.
 
 ## Cursor and pointers
@@ -45,13 +45,12 @@ protected-content legal clearance or professional acceptance is claimed.
   `"recoverable central run evidence" was, in my mind, the loop receipt (using its current format, more or less)`;
   `Yes, for this linter closeout do that.  This should be how App and Piping handle this.`
 - **Pointers:** [current work graph](../../WorkGraphs/PIPING_LINTER_SCOPE_20260923/WORK_GRAPH.md),
-  PR #867, and final closeout branch `codex/piping-linter-closeout` (PR URL to
-  bind before final checks). The three affected deliverable `MEMORY.md` run
-  entries point here.
+  PR #867, and [final closeout PR #876](https://github.com/sgttomas/chirality/pull/876).
+  The three affected deliverable `MEMORY.md` run entries point here.
 - **Model-Attribution:** Codex parent performed implementation/integration; a
   fresh read-only TASK reviewer (`gpt-6-astra`, high) checked the complete diff
   and evidence tail. No delegated implementation child executed in this continuation.
 - **Gate-Outcome:** substantive slice integrated; the undertaking completes
-  only when its reviewed, CI-passing final records PR actually merges. This
+  only when reviewed, CI-passing final records PR #876 actually merges. This
   receipt records the result and pointers without maintaining another work
   list or duplicating the graph traversal.
