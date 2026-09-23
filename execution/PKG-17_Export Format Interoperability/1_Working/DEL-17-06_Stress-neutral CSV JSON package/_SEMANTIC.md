@@ -1,3 +1,5 @@
+> **Historical record — stop current use (owner direction, 2026-09-22).** The dated 2026-05-18 content below is preserved as generated history. Its unresolved schema/hash-partition assertions predate accepted D-67/CLM-042 and are not current evidence. Use current `ScopeOfWork.md`, accepted D-67/CLM-042 records and candidate-bound export evidence for present decisions. No regeneration or retrospective correction of the dated body is claimed.
+
 # Deliverable: DEL-17-06 Stress-neutral CSV/JSON package
 
 **Generated:** 2026-05-18

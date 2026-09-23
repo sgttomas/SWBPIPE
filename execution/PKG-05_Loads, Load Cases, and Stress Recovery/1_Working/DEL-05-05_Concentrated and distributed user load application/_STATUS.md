@@ -3,8 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-05
 
-## Remaining
-
 ## History
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - State set to INITIALIZED (TASK+four-documents P1_P2)

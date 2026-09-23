@@ -3,8 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-07-12
 
-## Remaining
-
 ## History
 - 2026-07-12 - D-41 R5 T2B defined REQ-07-05's five architecture-grain handoff obligations without implementing target formats or changing lifecycle.
 - 2026-04-30 - State set to OPEN (PREPARATION)

@@ -1,0 +1,292 @@
+--- a/projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-02_Copyright and protected-data boundary policy/ScopeOfWork.md
++++ b/projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-02_Copyright and protected-data boundary policy/ScopeOfWork.md
+@@ -133,7 +133,7 @@
+
+ > ##### Standards
+ >
+-> No protected standards text or clause-level standard requirements are used as source material. Standards-body content is treated as excluded public-repository content unless explicit redistribution rights are documented and human/legal review accepts it. The selected project license is `PolyForm-Noncommercial-1.0.0` (the 2026-06-03 human selection; `LICENSE.md`); DEC-027 governs the separate maintainer and external-intake posture. Default quarantine metadata uses `quarantine/protected-content/` or a maintainer-approved equivalent (`docs/IP_AND_DATA_BOUNDARY.md` §5); specific legal requirements, access arrangements, and legal disposition retain their governed decisions.
++> No protected standards text or clause-level standard requirements are used as source material. Standards-body content is treated as excluded public-repository content unless explicit redistribution rights are documented and human/legal review accepts it. The current repository license is MIT under D-74 (2026-09-22); the 2026-06-03 PolyForm selection is superseded history; DEC-027 governs the separate maintainer and external-intake posture. Default quarantine metadata uses `quarantine/protected-content/` or a maintainer-approved equivalent (`docs/IP_AND_DATA_BOUNDARY.md` §5); specific legal requirements, access arrangements, and legal disposition retain their governed decisions.
+ >
+
+ ### CLM-012 — Verification
+--- a/projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-03_Contributor certification workflow/ScopeOfWork.md
++++ b/projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-03_Contributor certification workflow/ScopeOfWork.md
+@@ -47,7 +47,7 @@
+ > | Workflow purpose | Define contributor attestations, provenance fields, review routing, and rejection rules for public data contributions. | `_CONTEXT.md` Description |
+ > | Anticipated repo artifacts | `CONTRIBUTING.md` and `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md` exist as draft repo-level governance artifacts. | `_CONTEXT.md` Anticipated Artifacts; `CONTRIBUTING.md`; `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md` |
+ > | Local artifact boundary | This current-basis refresh updates the DEL-01-03 local kit only; repo-level artifacts are read as evidence and remain draft governance surfaces. | Approved tranche `TP-DEL-01-03-CURRENT-BASIS-REFRESH-001` |
+-> | License decision | `PolyForm-Noncommercial-1.0.0`; source-available noncommercial posture, selected by human project authority on 2026-06-03 (SOW-001 and `LICENSE`). | `docs/CONTRACT.md` OPS-K-GOV-1; `docs/DIRECTIVE.md` section 6 |
++> | License decision | `MIT`; selected by the owner in D-74 on 2026-09-22 (SOW-001 and `LICENSE.md`); the 2026-06-03 PolyForm selection is superseded history. | `docs/CONTRACT.md` OPS-K-GOV-1; `docs/DIRECTIVE.md` section 6 |
+ > | Maintainer/release authority | DEC-027: sole human project authority is maintainer and release authority; quorum one. DEC-079 preserves closed external intake and sole-maintainer review. | `docs/CONTRACT.md` OPS-K-GOV-2 |
+ > | Public contribution review gate | Source, provenance, redistribution rights, protected-content risk, private-data risk, and test evidence must be checked before merge. | `docs/DIRECTIVE.md` section 6; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` section 5 |
+ >
+@@ -121,7 +121,7 @@
+
+ > ##### D-41 R5 T7 PDU-054 current declaration
+ >
+-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Contributor certification templates and issue-intake surfaces now exist under the repository's PolyForm-Noncommercial-1.0.0 boundary. Current upstream authority is resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md`, its accepted decision register and `execution/_DAG/_LATEST.md`; contributor disposition remains subject to the recorded governance workflow.
++> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Contributor certification templates and issue-intake surfaces now exist under the MIT project license selected in D-74; external intake remains closed under DEC-027/079. Current upstream authority is resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md`, its accepted decision register and `execution/_DAG/_LATEST.md`; contributor disposition remains subject to the recorded governance workflow.
+
+ ## Completion and Reliance Basis — Epistemology
+
+@@ -136,7 +136,7 @@
+ >
+ > This deliverable defines the local requirements and evidence kit for a contributor certification workflow covering attestations, provenance fields, review routing, rejection rules, and quarantine handling for public data contributions.
+ >
+-> `CONTRIBUTING.md`, `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md`, and `governance/CONTRIBUTION_REVIEW_CHECKLIST.md` exist as draft repo-level governance artifacts. The project license has been selected as `PolyForm-Noncommercial-1.0.0`. This current-basis refresh does not edit those repo-level artifacts, select the final contributor legal mechanism, assign final maintainer or reviewer authority, make legal conclusions, certify rights, or approve engineering reliance.
++> `CONTRIBUTING.md`, `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md`, and `governance/CONTRIBUTION_REVIEW_CHECKLIST.md` exist as draft repo-level governance artifacts. The current project license is MIT under D-74; the 2026-06-03 PolyForm selection is superseded history. This current-basis refresh does not edit those repo-level artifacts, select the final contributor legal mechanism, assign final maintainer or reviewer authority, make legal conclusions, certify rights, or approve engineering reliance.
+ >
+
+ ### CLM-012 — Requirements
+@@ -155,6 +155,8 @@
+ > | DEL-01-03-REQ-08 | The workflow shall maintain draft repo-level contributor workflow artifacts while keeping final contributor legal mechanism, legal sufficiency, reviewer authority, and human acceptance as separate governance decisions. | `_CONTEXT.md` Anticipated Artifacts; `CONTRIBUTING.md`; `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md`; `governance/MAINTAINERS.md` |
+ >
+
++> Current delivery and verification residual: Before any public release, complete PRD §17.5 owner/counsel legal review of public-facing language, including the E6 issue templates. When the sanitized public export is exercised, verify that its root `.github/ISSUE_TEMPLATE/` receives the project templates. Contributor intake remains closed under DEC-027/079 until a later owner activation and legal-instrument act. DEL-10-04 retains the export machinery owner; MIT selection is not counsel review.
++
+ ### CLM-013 — Standards
+
+ > ##### Standards
+@@ -177,7 +179,7 @@
+ > | DEL-01-03-REQ-01 | Inspect template fields for all provenance and review fields from `docs/IP_AND_DATA_BOUNDARY.md` section 4. |
+ > | DEL-01-03-REQ-02 | Inspect rejection/quarantine rules for all public-repository exclusions from `docs/IP_AND_DATA_BOUNDARY.md` section 3. |
+ > | DEL-01-03-REQ-03 | Confirm suspected protected content routes to quarantine and human/legal review with no copied or paraphrased protected content. |
+-> | DEL-01-03-REQ-04 | Confirm unresolved contributor-governance decisions remain `TBD` while the selected project license remains recorded as `PolyForm-Noncommercial-1.0.0`. |
++> | DEL-01-03-REQ-04 | Confirm unresolved contributor-governance decisions remain `TBD` while the current MIT project license is recorded under D-74; earlier PolyForm selection remains dated history. |
+ > | DEL-01-03-REQ-05 | Search the workflow for prohibited reliance claims such as certify, seal, approve, authenticate, legal clearance, or code compliant, except where listed as prohibited terms (PRD §21.2). |
+ > | DEL-01-03-REQ-06 | Confirm disposition statuses are present and reviewer authority is framed as governance review only. |
+ > | DEL-01-03-REQ-07 | Confirm protected-content/provenance warning paths are visible for downstream software gates. |
+@@ -212,7 +214,7 @@
+
+ > ##### D-41 R5 T7 PDU-054 current declaration
+ >
+-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Contributor certification templates and issue-intake surfaces now exist under the repository's PolyForm-Noncommercial-1.0.0 boundary. Current upstream authority is resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md`, its accepted decision register and `execution/_DAG/_LATEST.md`; contributor disposition remains subject to the recorded governance workflow.
++> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Contributor certification templates and issue-intake surfaces now exist under the MIT project license selected in D-74; external intake remains closed under DEC-027/079. Current upstream authority is resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md`, its accepted decision register and `execution/_DAG/_LATEST.md`; contributor disposition remains subject to the recorded governance workflow.
+
+ - **AC-001** — The workflow preserves the documented contributor fields, protected-content stop and quarantine rules, repository-governance-only disposition boundary, recorded human-gated decisions, and residual TBDs for SOW-028 and SOW-048 without adding legal or professional approval.
+
+@@ -237,7 +239,7 @@
+ > - Assigned deliverable context: DEL-01-03 under PKG-01.
+ > - Current governing references: `docs/CONTRACT.md`, `docs/IP_AND_DATA_BOUNDARY.md`, `docs/DIRECTIVE.md`, `docs/SPEC.md`, `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register), and approved graph resolved through `execution/_DAG/_LATEST.md`.
+ > - Draft repo-level workflow surfaces exist at `CONTRIBUTING.md`, `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md`, and `governance/CONTRIBUTION_REVIEW_CHECKLIST.md`.
+-> - Selected license is `PolyForm-Noncommercial-1.0.0`; maintainer/release authority and quorum follow DEC-027, and review follows DEC-079 §5. Contributor legal-instrument choice and legal sufficiency remain deferred to owner activation on legal advice.
++> - Current selected license is MIT under D-74; maintainer/release authority and quorum follow DEC-027, and review follows DEC-079 §5. Contributor legal-instrument choice and legal sufficiency remain deferred to owner activation on legal advice.
+ > - No protected standards, proprietary vendor data, or private project/rule-pack content may be copied into the public workflow records.
+ >
+
+@@ -286,7 +288,7 @@
+ > 8. Maintain repo-level workflow evidence.
+ >    - Treat `CONTRIBUTING.md` and `governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md` as draft governance surfaces until human acceptance.
+ >    - Edit repo-level contributor artifacts only under an explicitly approved write scope.
+->    - Carry the selected project license as `PolyForm-Noncommercial-1.0.0`; apply DEC-027/079 for sole-maintainer review and release authority; keep legal-instrument selection and legal sufficiency deferred to owner activation on legal advice, with external intake closed.
++>    - Carry the current selected project license as MIT under D-74; apply DEC-027/079 for sole-maintainer review and release authority; keep legal-instrument selection and legal sufficiency deferred to owner activation on legal advice, with external intake closed.
+ >
+
+ ### CLM-022 — Verification
+@@ -298,7 +300,7 @@
+ > | Field completeness | All required provenance and certification fields are present or explicitly `TBD`. |
+ > | Protected-content stop rule | Suspected protected/private content is not reproduced and is routed to quarantine/human review. |
+ > | Authority boundary | Records do not claim certification, sealing, legal clearance, code compliance, or professional approval (PRD §21.2). |
+-> | Contributor-governance uncertainty | Contributor legal-instrument selection and legal sufficiency remain deferred to owner activation on legal advice; maintainer/release authority and review follow DEC-027/079; selected project license remains recorded as `PolyForm-Noncommercial-1.0.0`. |
++> | Contributor-governance uncertainty | Contributor legal-instrument selection and legal sufficiency remain deferred to owner activation on legal advice; maintainer/release authority and review follow DEC-027/079; current project license is MIT under D-74; the earlier PolyForm selection is historical. |
+ > | Local write scope | This current-basis refresh edits only DEL-01-03 local artifacts; repo-level artifacts are read as evidence unless separately approved for editing. |
+ >
+
+@@ -319,7 +321,7 @@
+
+ > ##### D-41 R5 T7 PDU-054 current declaration
+ >
+-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Contributor certification templates and issue-intake surfaces now exist under the repository's PolyForm-Noncommercial-1.0.0 boundary. Current upstream authority is resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md`, its accepted decision register and `execution/_DAG/_LATEST.md`; contributor disposition remains subject to the recorded governance workflow.
++> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. Contributor certification templates and issue-intake surfaces now exist under the MIT project license selected in D-74; external intake remains closed under DEC-027/079. Current upstream authority is resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md`, its accepted decision register and `execution/_DAG/_LATEST.md`; contributor disposition remains subject to the recorded governance workflow.
+
+ - **VER-001** — Compare the converted contract source markers and parity report against all four legacy source documents, then inspect the matrix and derived checklist for complete contributor-workflow coverage and preserved authority boundaries.
+
+@@ -344,7 +346,7 @@
+ > 1. Evidence first: accept public data only when source, provenance, license or redistribution status, contributor certification, and review disposition are recorded.
+ > 2. Stop on protected-content risk: suspected standards text, tables, figures, examples, code-derived formulas, protected dimensional tables, proprietary catalogs, or private project/rule-pack data are blockers, not cleanup tasks.
+ > 3. Human authority remains external: maintainers can review repository governance acceptance, but this workflow does not create legal clearance or professional engineering approval.
+-> 4. `TBD` is safer than invention: unresolved contributor legal mechanism, legal sufficiency, maintainer, release, or redistribution questions stay visible until decided by the appropriate human authority. The project license has already been selected as `PolyForm-Noncommercial-1.0.0`.
++> 4. `TBD` is safer than invention: unresolved contributor legal mechanism, legal sufficiency, maintainer, release, or redistribution questions stay visible until decided by the appropriate human authority. The owner selected MIT under D-74; the earlier PolyForm choice is superseded history.
+ > 5. Local evidence first: this current-basis refresh reads the existing draft `CONTRIBUTING.md` section and certification template as evidence without editing repo-level policy files.
+ >
+
+@@ -403,7 +405,7 @@
+ >
+ > | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling (TBD) |
+ > |---|---|---|---|---|---|---|
+-> | C-001 | Project license is selected as `PolyForm-Noncommercial-1.0.0`, but final contributor legal mechanism and legal sufficiency are not selected. | `docs/CONTRACT.md` OPS-K-GOV-1 | `docs/DIRECTIVE.md` section 6; `governance/MAINTAINERS.md` section 6 | Specification Standards; Procedure Records | Carry selected project license as fact; defer contributor legal mechanism and legal sufficiency until human/legal review. | Human ruling 2026-06-04: defer until external contribution intake or public release readiness becomes relevant. |
++> | C-001 | The former PolyForm license selection was superseded by D-74 MIT; final contributor legal mechanism and legal sufficiency remain unselected. | `docs/CONTRACT.md` OPS-K-GOV-1 | `docs/DIRECTIVE.md` section 6; `governance/MAINTAINERS.md` section 6 | Specification Standards; Procedure Records | Carry D-74 MIT as the current project license; defer contributor legal mechanism and legal sufficiency until human/legal review. | Human ruling 2026-06-04: defer until external contribution intake or public release readiness becomes relevant. |
+ > | C-002 | Sole-maintainer reviewer role is resolved by DEC-027/079; legal sufficiency and activation remain owner-held. | `governance/MAINTAINERS.md` section 6 | `docs/IP_AND_DATA_BOUNDARY.md` sections 4-5 | Procedure protected-content review and disposition | Treat suspected or uncertain rights as quarantine/reject until human/legal review. | TBD |
+ >
+
+--- a/projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/ScopeOfWork.md
++++ b/projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/ScopeOfWork.md
+@@ -205,6 +205,7 @@
+ > | REQ-02-05-024 | Rule-pack references persisted in projects shall carry enough metadata to identify private/public status, version/checksum, source note, redistribution status, and missing/private-reference diagnostics without exposing protected rule content in public artifacts. | `docs/SPEC.md` section 6; `docs/PRD.md` sections 12.2 and 12.4; `docs/IP_AND_DATA_BOUNDARY.md` sections 3, 6, and 7 |
+ > | REQ-02-05-025 | Create/open/save behavior shall preserve the local-first/private-data boundary by default; exact enforcement split between persistence operations, export/commit safeguards, and PKG-12 controls remains TBD. | `docs/CONTRACT.md` OPS-K-PRIV-1; `docs/PRD.md` sections 18.1-18.3; `docs/IP_AND_DATA_BOUNDARY.md` section 6 |
+ > | REQ-02-05-026 | Optional human-review records, if stored, shall bind to specific model/rule/report hashes and use authority labels that do not survive content changes and do not imply software certification or automatic code compliance. | `docs/CONTRACT.md` OPS-K-AUTH-1 and OPS-K-AUTH-2; `docs/TYPES.md` section 4 |
++> Physical-package/versioning residual: The `.opsproj` package compatibility-window size and versioning policy beyond `schema_version 1.0.0` remain to be selected under DEC-028 and the migration authority. Current document-version classification does not decide the portable-container reader window; this is the receiving contract for the DEL-08-01 source clause.
+ >
+
+ ### CLM-015 — Contract Detail Tables
+@@ -479,6 +480,7 @@
+ > ##### PDU-024 Version Handling Guidance
+ >
+ > Do not compare UI model-document versions against duplicated literals. Use `evaluateModelDocumentLocal` and `modelDocumentVersionCheckStatus`, mirroring the backend DEC-019/DEC-033 evaluator. Treat `0.2.0` as current; treat a migratable `0.1.0` source as stale at version-check grain while retaining `migrated` in migration evidence. Unsupported, newer, and failed versions must remain explicit and must not be coerced.
++> H2/F-5b future hardening remains separate from the interim mirror above: relocate DEC-019 migration evaluation into a WASM-compilable shared crate, replace `projectService.ts::evaluateModelDocumentLocal`, and test cross-engine parity including migrated-byte hash integrity. The retired PRD completion plan H2 row is historical provenance; the current DEL-02-05 status carries this residual. DEC-074/PDU-024 closed the three stale UI version comparisons only. No H2 completion is inferred.
+ >
+
+ ### CLM-035 — Purpose
+--- a/projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/ScopeOfWork.md
++++ b/projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/ScopeOfWork.md
+@@ -50,6 +50,8 @@
+ > | Anticipated artifacts | Active-set classifier/state oracle; report-facing active-set records; classifier and integration-facing convergence tests. | _CONTEXT.md Anticipated Artifacts; DEC-044 |
+ > | Explicit deferrals | Assembled loop ownership is re-pointed to `core/solver/nonlinear_integration`; sparse live-path/default policy follows DEC-050/053; class-tiered convergence follows DEC-046 and its measured records; unmeasured entries and caller-supplied defaults remain explicit. | _CONTEXT.md Architecture Basis Injection; DEC-044; DEC-046; human brief hard stops |
+ >
++
++> Export-contract handoff: DEL-08-04 owns the result-export vocabulary for nonlinear count, flags, state codes and residual observations. DEL-04-04 remains the solver producer; this cross-reference neither selects wire names nor closes export conformance.
+
+ ### CLM-004 — Conditions
+
+--- a/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/ScopeOfWork.md
++++ b/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/ScopeOfWork.md
+@@ -10,6 +10,10 @@
+ # Scope of Work — DEL-07-01
+
+ Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
++
++## Current performance acceptance boundary — D-72
++
++Redesigned-product performance acceptance, settled-frame behavior and owned-resource obligations remain open under D-72 and its final addendum. Apply the five inherited D-68 numeric limits, the accepted reference profile, geometry, workload and observation rules, and the S-1/S-2 run/pass rule; S-3 was not accepted. The decision records govern exact criteria. No present implementation or historical demonstration qualifies a later candidate. Select and run a successor demonstration before asserting acceptance. Sources: `execution/_Coordination/_DECISIONS/D-72_RULING_2026-09-18.md` and `D-72_RULING_ADDENDUM_2026-09-18.md`.
+
+ ## Purpose and Objective Traceability
+
+--- a/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/ScopeOfWork.md
++++ b/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/ScopeOfWork.md
+@@ -10,6 +10,10 @@
+ # Scope of Work — DEL-07-02
+
+ Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
++
++## Current performance acceptance boundary — D-72
++
++Redesigned-product performance acceptance, settled-frame behavior and owned-resource obligations remain open under D-72 and its final addendum. Apply the five inherited D-68 numeric limits, the accepted reference profile, geometry, workload and observation rules, and the S-1/S-2 run/pass rule; S-3 was not accepted. The decision records govern exact criteria. No present implementation or historical demonstration qualifies a later candidate. Select and run a successor demonstration before asserting acceptance. Sources: `execution/_Coordination/_DECISIONS/D-72_RULING_2026-09-18.md` and `D-72_RULING_ADDENDUM_2026-09-18.md`.
+
+ ## Purpose and Objective Traceability
+
+--- a/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/ScopeOfWork.md
++++ b/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/ScopeOfWork.md
+@@ -22,6 +22,10 @@
+ The owner-approved professional modelling workspace foundation plan and `execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md` select WCAG 2.2 AA criteria for controls touched by that tranche. The selected checks include visible focus, keyboard alternatives, 4.5:1 ordinary-text contrast, 3:1 required graphical contrast and applicable minimum target sizes. Their applicability covers the changed interactive desktop workspace, including its changed review/results controls; it does not select a target for untouched report/export surfaces or generated report files.
+
+ For this bounded scope, target-selection wording below that remains `TBD_by_human_project_authority` records the earlier setup and PDU history and is superseded by D-68. It remains applicable outside the selected scope. Target selection supplies an acceptance criterion, not runtime evidence or a conformance verdict. Tranche verification must cite the actual tested candidate and retain failures. PDU-045 and PDU-046 remain `VERIFIED_NOT_VALIDATED`; the separately held independent-usability work is not closed by project-owned testing. The original packets and their recorded target-unavailable findings remain unchanged.
++
++Current D-72 performance boundary: Redesigned-product performance acceptance, settled-frame behavior and owned-resource obligations remain open under D-72 and its final addendum. Apply the five inherited D-68 numeric limits, the accepted reference profile, geometry, workload and observation rules, and the S-1/S-2 run/pass rule; S-3 was not accepted. The decision records govern exact criteria. No present implementation or historical demonstration qualifies a later candidate. Select and run a successor demonstration before asserting acceptance. Sources: `execution/_Coordination/_DECISIONS/D-72_RULING_2026-09-18.md` and `D-72_RULING_ADDENDUM_2026-09-18.md`.
++
++Current observed usability limit: The accepted bounded UI foundation observed that short panels may require scrolling between a label and its fully visible control. Its transient inspector accessibility-tree omission remains unexplained even though fresh processes expose the controls. Preserve that observation for candidate-bound repair/review and independent practitioner usability; it is not a whole-product WCAG or security finding and creates no extra publication gate. Source: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_ACCEPTANCE.json`. DEL-07-01, DEL-07-02 and DEL-07-09 source clauses point to this shared carrier while retaining their own functional contracts.
+
+ ## Deliverable Definition — Ontology
+
+--- a/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Palette_Operation_Routing.md
++++ b/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Palette_Operation_Routing.md
+@@ -7,6 +7,10 @@
+ Accepted implementation inputs under `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/`: `snapshots/PHASE_A_ACCEPTED_001/MANIFEST.json`, `snapshots/M_EXISTING_ACCEPTED_001/MANIFEST.json`, `B2_ACCEPTED_MODULE_SNAPSHOT.json`, `T1_ACCEPTED_SNAPSHOT.json`, `T2_ACCEPTED_SNAPSHOT_V2.json`, `T3_ACCEPTED_SNAPSHOT_V2.json`, `T4_ACCEPTED_SNAPSHOT_V2.json`, and `T4_RENDERER_ACCEPTED_SNAPSHOT_V3.json`. Backend/native input: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/PACKAGE_HANDOFF_V2.md` and its B1/B2/B3/C/native accepted chain. Imported-library input: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N4_WI_PKG03/PKG03_ACCEPTED_SNAPSHOT_C2.json`. Self-weight input: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N5_WI_PKG05/SELF_WEIGHT_ACCEPTED_SNAPSHOT_V1.json`.
+
+ These are derivative implementation and check evidence, not decomposition truth. The historical App integration snapshot is recorded at `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/UI_FREEZE_V9.json` (source hashes in sibling `SOURCE_HASHES_V9.json`) and was inspected for this reconciliation; the source-bound N7 V2 review and bounded parent fan-in are recorded below. The accepted module snapshots alone do not assert that later App integration or subsequent module amendments passed N7; the later N7 V2 record supports only its exact frozen source. No lifecycle, release, professional-reliance, D58 or roadmap promotion occurs here. Source/interface changes require a fresh accepted snapshot and affected coverage recheck.
++
++## Current performance acceptance boundary — D-72
++
++Redesigned-product performance acceptance, settled-frame behavior and owned-resource obligations remain open under D-72 and its final addendum. Apply the five inherited D-68 numeric limits, the accepted reference profile, geometry, workload and observation rules, and the S-1/S-2 run/pass rule; S-3 was not accepted. The decision records govern exact criteria. No present implementation or historical demonstration qualifies a later candidate. Select and run a successor demonstration before asserting acceptance. Sources: `execution/_Coordination/_DECISIONS/D-72_RULING_2026-09-18.md` and `D-72_RULING_ADDENDUM_2026-09-18.md`.
+
+ ## Common executable route
+
+@@ -77,3 +81,5 @@
+ Bounded UI source review: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/N7_UI_REPAIR_SOURCE_ACCEPTED_V1.json`. F2 records 52 focused checks (51 display + one App inspector); F3 `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B2_RICH_FORMS/F3_ACTUAL_ENGINE_GATE.json` records 14 non-mocked operation-Wasm tests passing. Separate owning physics evidence `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N6_WI_PKG04/F3_ACCEPTED_SNAPSHOT_V1.json` reports 124 native physics tests; the GUI operation tests do not execute physics and do not establish a new payload-compatibility matrix.
+
+ Historical reviewed source freeze: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/UI_FREEZE_V9.json` with `SOURCE_HASHES_V9.json` SHA256 `bbe4540585ed5e1b5bbad0732b7ce35d8b9afd440e0e31e34f905e02aa61baf7`. `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/CHECKS_V9_TERMINAL.json` records postrepair desktop build PASS, 43 test files / 732 tests PASS, and actual host built-dist Chromium regression 1 PASS (5.7 s). `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/V9_VERIFICATION_AFTER.json` records unchanged 66 source and 16 generated-artifact hashes. The docs child verified references/hashes; it did not rerun these product checks. N7 V2 PASS and bounded parent fan-in are recorded in `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N7_FINAL_REVIEW/V2_BACKCHECK/REVIEW_RETURN_V2.md` and `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/PRECOMMIT_PARENT_FAN_IN_V1.md` for their exact frozen source. This is historical bounded review evidence; later source changes require affected review, and lifecycle, release, professional-reliance and existing residual gates remain unchanged. D58, SOW-070, R1–R3 and bounded toolkit residuals remain unchanged.
++
++Missing historical intake limitation: The formerly cited `HISTORICAL_N7_ACCEPTANCE_INTAKE_V1.json` was not available in the inspected project tree. Its asserted v11 revalidation remains unverified. Locate and bind that intake to the candidate it actually checked, or perform bounded replacement verification before relying on the assertion. N7 V2 PASS and parent fan-in apply only to their frozen source; they do not accept a later UI candidate.
+--- a/projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/ScopeOfWork.md
++++ b/projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/ScopeOfWork.md
+@@ -137,6 +137,7 @@
+ > | DEL-08-04-R10 | Export ordering and identifiers should be deterministic enough for regression comparison of equivalent result sets. | `docs/SPEC.md` sections 4.5 and 9; `docs/_Registers/ScopeLedger.csv` row SOW-046 |
+ > | DEL-08-04-R11 | Missing solve-required, rule-check-required, provenance, or unit metadata shall be represented as diagnostics/findings, not silently filled with defaults. | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/SPEC.md` section 7 |
+ > | DEL-08-04-R12 | The contract shall support downstream consumption by report generation, GUI results review, headless automation, and import/export adapters without creating a bypass around governed result envelopes. | `docs/_Registers/Deliverables.csv` rows DEL-07-05, DEL-08-01, DEL-10-02, DEL-10-05; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-03 and AB-00-07 |
++> | DEL-08-04-R13 | Define and accept the result-export vocabulary for nonlinear active-set count, flags, state codes and residual observations supplied by DEL-04-04. Preserve producer meaning, unit/status context and omission diagnostics at the export boundary; do not infer unpublished naming or acceptance thresholds. | DEL-04-04 current residual; governed result-export boundary |
+ >
+
+ ### CLM-012 — Standards
+--- a/projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/ScopeOfWork.md
++++ b/projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/ScopeOfWork.md
+@@ -10,6 +10,8 @@
+ # Scope of Work — DEL-09-04
+
+ Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
++
++Current validation-manual derivative: Regenerate or explicitly disposition the validation-manual derivative affected by accepted DEC-092 temperature-G implementation at DEL-09-04's owning cadence. The DEL-05-02 implementation and Receipt 87 remain closed; this derivative is a documentation/evidence duty, not a rerun of that product result.
+
+ ## Purpose and Objective Traceability
+
+--- a/projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-04_Build, packaging, and CI-CD pipeline/ScopeOfWork.md
++++ b/projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-04_Build, packaging, and CI-CD pipeline/ScopeOfWork.md
+@@ -210,6 +210,8 @@
+ >
+ > The term "Tauri-supported targets" is used only as an architecture-baseline label from the sealed context. Exact Tauri target details, operating-system versions, signing requirements, installer formats, and publishing rules remain `TBD`.
+ >
++> Release-horizon residual: DEC-089 selects only a future Apple Developer ID signing/notarization target. The historical PRD §22.6 R6-entry release-machinery residual under D-21/DEC-056 remains a separate future gate. DEC-057's current unsigned package posture, checksums, commit-bound sweep, release record and unsigned-install caveat continue until applicable requirements are met and accepted. A registered App ID and this note establish no signing, notarization, issuance or release.
++
+ ### CLM-015 — Verification
+
+ > ##### Verification
+--- a/projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-02_Developer guide for solver and rule packs/ScopeOfWork.md
++++ b/projects/chirality-piping/execution/PKG-11_Documentation, Examples, and Education/1_Working/DEL-11-02_Developer guide for solver and rule packs/ScopeOfWork.md
+@@ -444,7 +444,7 @@
+ > | Exact dependency versions | `TBD` |
+ > | CI provider, coverage thresholds, and performance thresholds | DEC-025 governs the local evidence sweep; DEC-059 conditionally governs public sanitized-export CI, and DEC-093 permits the exact-head-bound surface-4 CI alternative. DEC-060 selects coverage telemetry tooling, not numeric floors. Implementation and release evidence remain separately bound. Performance and coverage pass/fail thresholds are not invented by this record. |
+ > | Physical project package/container | DEC-017 retains canonical JSON domain truth and a rebuildable SQLite projection; DEC-028 selects a multi-member zip/directory package with member inventory and per-member JCS hashes. DEC-057 names the `.opsproj` package. Storage roots, integration and unmet controls remain separately governed. |
+-> | License and contributor certification mechanism | The selected project license is `PolyForm-Noncommercial-1.0.0` (2026-06-03 human selection; `LICENSE.md`). DEC-027 governs maintainer/release authority. DEC-079 keeps external contribution intake closed and defers CLA/DCO/equivalent instrument adoption to the owner activation/legal-advice path; do not erase the deliberate instrument TBD. |
++> | License and contributor certification mechanism | The current repository license is MIT under D-74 (2026-09-22); the 2026-06-03 PolyForm selection is superseded history. The contributor legal instrument remains a separate owner/counsel decision. DEC-027 governs maintainer/release authority. DEC-079 keeps external contribution intake closed and defers CLA/DCO/equivalent instrument adoption to the owner activation/legal-advice path; do not erase the deliberate instrument TBD. |
+ >
+
+ ### CLM-034 — Conflict Table (for human ruling)
+--- a/projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/ScopeOfWork.md
++++ b/projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/ScopeOfWork.md
+@@ -10,6 +10,10 @@
+ # Scope of Work — DEL-17-06
+
+ Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
++
++## Current semantic-evidence status (owner direction)
++
++The 2026-05-18 `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` are historical records, not current evidence under accepted D-67/CLM-042. Their dated text remains intact; current selected-version schema/hash meaning follows this Scope of Work, the accepted D-67/CLM-042 records and candidate-bound export evidence. Do not rely on their superseded unresolved-partition assertions as a current blocker.
+
+ ## Purpose and Objective Traceability
+
+@@ -204,6 +208,7 @@
+ > | DEL-17-06-VER-010 | Confirm CSV/JSON examples or fixtures are invented or rights-cleared and demonstrate only shape, identity, units, diagnostics, loss reporting, and boundary notices. | Future contribution/provenance review evidence; examples without redistribution evidence remain absent or `TBD`. |
+ > | DEL-17-06-VER-011 | Confirm any target-specific or version-sensitive support flag is backed by cited source evidence, or is marked `TBD` and blocked from support claims. | Future source-evidence review against DEL-17-01/DEL-17-02 and the applicable source-basis register. |
+ > | DEL-17-06-VER-012 | Confirm comparison tolerance profiles, pass/fail language, and export comparison semantics are consumed from DEL-14-02/DEL-14-05 before comparison claims are made. | Future upstream dependency review; comparison semantics remain diagnostic/audit-only until sourced. |
++> Fixture-specific hold: For the accepted 830-row sparse fixture only, resolve or formally disposition unit preservation for `result:nonlinear-support:free-dof-work-residual` and `result:loadcase:load-L-200:nonlinear-support:free-dof-work-residual`. Retain every raw 0.2 row. No conclusion about other producers, schema conformance or universal row counts follows.
+ >
+ >
+ > Version boundary: these sorted-compact/no-JCS checks apply to retained 0.1 evidence. D-67 0.2 uses checked `openpipestress_jcs_ijson_v1` for JSON member/package projections, preserves received-checksum metadata separately, and retains separately labeled normalized CSV bytes. Check the selected version against its own schema and vectors; never relabel 0.1 bytes.
+--- a/projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/_DEPENDENCIES.md
++++ b/projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/_DEPENDENCIES.md
+@@ -2,7 +2,7 @@
+
+ ## Coordination Mode
+ - **Mode:** FULL_GRAPH
+-- **Graph Authority:** `execution/_DAG/DAG-007/` is the current approved canonical graph authority.
++- **Graph Authority:** `execution/_DAG/DAG-011/` is the current approved canonical graph authority (`execution/_DAG/_LATEST.md`). The local row counts below are the dated 2026-06-16 extraction snapshot, not a new DAG-011 re-extraction.
+ - **Authority Boundary:** Candidate/non-gating edges are not represented through `Status=CANDIDATE` in current canonical registers.
+
+ ## Declared Upstream Dependencies
+@@ -12,7 +12,7 @@
+ - `DEL-14-05`
+
+ ## Declared Downstream Dependencies
+-- No active downstream dependency is declared in this local register unless listed in `Dependencies.csv`; historical DAG-005 extraction wording is superseded by DAG-006 active graph authority.
++- No active downstream dependency is declared in this local register unless listed in `Dependencies.csv`; historical DAG-005/006 extraction wording is superseded for current navigation by approved DAG-011. Exact current dependency meaning still requires the owning dependency-workflow backcheck.
+
+ ## Extracted Dependency Register
+ - **Local Register:** `Dependencies.csv`

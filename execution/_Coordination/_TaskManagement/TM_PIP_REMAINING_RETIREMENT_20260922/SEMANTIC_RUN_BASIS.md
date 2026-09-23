@@ -80,8 +80,11 @@ Only relevant local rows were checked for duplication: `TM-PIP-001` already
 carries the unresolved D-58 successor-mechanism concern, and `TM-PIP-002`–`022`
 carry named PKG-17 source questions. This TASK performed no broad harvest.
 
-The row account is a **proposal**. `HumanDecision=PENDING`, `AppliedResult=NONE`,
-and `RemovalReadiness=HOLD` are intentional for every row. A named Scope of Work,
+At the initial decision-support commit, the row account was a **proposal** with
+`HumanDecision=PENDING`, `AppliedResult=NONE`, and held removal for every row.
+Later owner direction and the 18 verified empty-marker applications are recorded
+in `OWNER_DIRECTION.md` and `APPLIED_ROW_LEDGER.csv`; 223 rows still remain held.
+A named Scope of Work,
 decision route, or accepted SCA ownership home is not a selected execution
 graph. Before any approved deletion, the manager must compare each compound
 meaning to its exact destination and review the actual patch independently.

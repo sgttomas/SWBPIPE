@@ -3,8 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-07-12
 
-## Remaining
-
 ## History
 - 2026-07-12 - D-41 R5 T7 final status-only backcheck found no T7 defect outside the completed T1-T6 records; the concordance bootstrap was removed while lifecycle and recorded evidence boundaries remain unchanged.
 - 2026-05-18 - State set to OPEN (PREPARATION/SCA-004 ORCHESTRATOR workflow)

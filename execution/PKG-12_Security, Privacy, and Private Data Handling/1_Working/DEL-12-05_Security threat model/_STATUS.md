@@ -3,8 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-
 ## History
 - 2026-07-12 - D-41 R5 T3/PDU-027 added bounded threat-packet evidence for the DEL-12-03 guard seam and warning-class references while explicitly recording absent plugin/adapter/report/export interception; lifecycle remains IN_PROGRESS and no security-review closure is claimed.
 - 2026-04-30 - State set to OPEN (PREPARATION)

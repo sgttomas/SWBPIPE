@@ -1,9 +1,11 @@
 # Piping Remaining — candidate semantic disposition
 
-**No disposition has been made.** `CANDIDATE_ROW_ACCOUNT.csv` keeps all 239
+**Original decision-support proposal, now partially applied.** `CANDIDATE_ROW_ACCOUNT.csv` keeps all 239
 historical census keys, their exact recorded text, source path and source hash,
-plus two omitted live bullets as separate keys. Every row says `PENDING` and
-`NONE` for human decision and application. This packet groups proposals for
+plus two omitted live bullets as separate keys. At the initial candidate
+commit all 241 rows were pending and unapplied. `OWNER_DIRECTION.md` and
+`APPLIED_ROW_LEDGER.csv` now record the owner's conditional group approval and
+18 verified empty-marker removals; 223 rows remain held. This packet groups proposals for
 the owner and gives the exceptions that must be resolved before a source entry
 can be removed. It does not assign a new work graph or promote a register row.
 
@@ -212,6 +214,11 @@ The candidate CSV intentionally marks every destination as requiring that
 backcheck; it does not claim file existence is adequate preservation.
 
 ## Grouped questions for the owner
+
+The later human replies and their limits are in `OWNER_DIRECTION.md`; these
+original candidate questions must not be read as still unanswered where that
+record supplies an actual decision. The listed non-issued receiving-document
+amendment authorization remains pending.
 
 1. Approve the finite semantic disposition principle for the 20 markers,
    evidenced bounded-result clauses and true duplicates, subject to the

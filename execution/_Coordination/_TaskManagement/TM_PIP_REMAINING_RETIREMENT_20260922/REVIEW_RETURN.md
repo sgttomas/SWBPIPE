@@ -31,8 +31,11 @@ were checked unchanged. Its final hash is shown above.
 The review verified the pinned census identity and all 239 historical row
 tuples, two same-source DEL-12-01 extraction omissions, 241 unique account keys,
 all 106 matching current source hashes, and the invocation-local federation
-projection. Every row still records `HumanDecision=PENDING`,
-`AppliedResult=NONE`, and held removal. The semantic spot checks establish
+projection. At that reviewed candidate revision every row recorded
+`HumanDecision=PENDING`, `AppliedResult=NONE`, and held removal. Later owner
+direction and 18 verified empty-marker applications are recorded separately in
+`OWNER_DIRECTION.md` and `APPLIED_ROW_LEDGER.csv`; this review does not cover
+that later actual diff. The semantic spot checks establish
 proposed homes for sampled rows; they do not certify every other proposed
 destination or authorize source removal. Before any entry is removed, verify
 every surviving meaning at an actually approved and applied destination.

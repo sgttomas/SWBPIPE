@@ -3,8 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-08-12
 
-## Remaining
-
 ## History
 - 2026-08-12 - Under owner-adopted `CB-2026-08-11-DEL1005-MECHANICS-RUNNER-BINDING-001`, the mechanics fallback now consumes the accepted suite-owned observation and comparison accessors while preserving every original explicit 11-case path. Fresh independent verification passed 25/25 mechanics cases, 206/206 values, the new 14/115 slice, exact original 11/91 case objects, all six fail-closed behaviors, unchanged stress, nonlinear 5/5, and byte-identical nonlinear-only DEC-046 C-B. Lifecycle remains `IN_PROGRESS`; no schema, public comparison-number, release, publication, promotion, or reliance gate changed.
 - 2026-07-23 - Implemented the bounded `export-results` report-package binding on the adopted v2 basis, then applied the owner-authorized v3 malformed-present-payload diagnostic correction. The shared report-package wire adapter and thin desktop compatibility wrapper, runner cross-binding and package projection, aggregate local-private exposure control, controlled structured-JSON persistence, deterministic witnesses, and focused/full/native evidence are recorded in run `HELP-HUMAN-PIPING-20260723-DEL1005-EXPORT-RESULTS-R17`. The initial N5 verifier returned `BLOCK` on malformed-present DTO routing; sealed v3 remediation passed its replacement gates and sweep, and fresh N5-V3 returned `COMMIT-SAFE` with zero tranche-local findings. Removed only the completed `export-results`/report-package Remaining bullet. Lifecycle remains `IN_PROGRESS`; this record has no merge, stage, release, issuance, publication, or professional-acceptance effect.
