@@ -49,6 +49,11 @@ Repository checks:
 | `piping-pytest` | `1139 passed` |
 | DEC-025 evidence sweep, candidate `899563944` (clean tree) | overall `pass`: cargo, pytest, desktop Vitest, Playwright dev lane `455 passed` and dist lane `53 passed`, production build. Summary `validation/evidence/sweeps/SWEEP_20260923T172503Z_899563944f1d.json`. An earlier run on `060561832` failed at Playwright with 46 `ERR_CONNECTION_REFUSED` on the dev server from test 300 onward (409 passed); the rerun on the next commit, which changed only documentation, passed. |
 
+After `main` advanced, it was merged into the branch (`d572dad0e`, no
+conflicts); the nonlinear suite (`19 passed`), the regression test (`8 passed`)
+and the self-check were rerun, and the DEC-025 sweep passed again on that clean
+merged candidate: `validation/evidence/sweeps/SWEEP_20260923T175638Z_d572dad0ef00.json`.
+
 Independent review (fresh-context agent, did not implement): PASS WITH
 NON-BLOCKING NOTES on `060561832`. The one medium note (the benchmark README
 still stated `100.0` / `50.0` mm) is fixed in `899563944`. Recorded but not
