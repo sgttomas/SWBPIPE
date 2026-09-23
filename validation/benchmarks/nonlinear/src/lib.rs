@@ -119,8 +119,8 @@ const DEC_046_FORCE_REACTION_DELTA_DIMENSION: &str = "force";
 const DEC_046_MOMENT_REACTION_DELTA_BASIS: &str = "max_abs_moment_reaction_delta_from_previous";
 const DEC_046_MOMENT_REACTION_DELTA_UNIT: &str = "N-m";
 const DEC_046_MOMENT_REACTION_DELTA_DIMENSION: &str = "moment";
-const DEC_046_SEED_TRANSLATION_DELTA_ABSOLUTE_LIMIT: f64 = 100.0;
-const DEC_046_SEED_GAP_TRANSLATION_DELTA_ABSOLUTE_LIMIT: f64 = 50.0;
+const DEC_046_SEED_TRANSLATION_DELTA_ABSOLUTE_LIMIT: f64 = 0.1;
+const DEC_046_SEED_GAP_TRANSLATION_DELTA_ABSOLUTE_LIMIT: f64 = 0.05;
 const DEC_046_SEED_ROTATION_DELTA_ABSOLUTE_LIMIT: f64 = 0.0;
 const DEC_046_SEED_FORCE_REACTION_DELTA_ABSOLUTE_LIMIT: f64 = 10.0;
 const DEC_046_SEED_GAP_FORCE_REACTION_DELTA_ABSOLUTE_LIMIT: f64 = 5.0;
@@ -169,7 +169,7 @@ const DEC_046_MULTISUPPORT_DISPLACEMENT_REACTION_DELTA_LIMITATIONS: &[&str] = &[
     "The observed deltas are transition magnitudes between consecutive linearized active-set solves; nonzero final values can coexist with active-set convergence.",
     "Does not define displacement-delta, reaction-delta, general energy, sparse live-path, product-preview, release, or external validation thresholds.",
 ];
-const DEC_046_MULTISUPPORT_TRANSLATION_DELTA_ABSOLUTE_LIMIT: f64 = 100.0;
+const DEC_046_MULTISUPPORT_TRANSLATION_DELTA_ABSOLUTE_LIMIT: f64 = 0.1;
 const DEC_046_MULTISUPPORT_ROTATION_DELTA_ABSOLUTE_LIMIT: f64 = 0.005;
 const DEC_046_MULTISUPPORT_FORCE_REACTION_DELTA_ABSOLUTE_LIMIT: f64 = 10.0;
 const DEC_046_MULTISUPPORT_MOMENT_REACTION_DELTA_ABSOLUTE_LIMIT: f64 = 3.0;
@@ -1087,9 +1087,9 @@ impl AssembledNonlinearRegressionCase {
             nonlinear_class: convergence_class_label(self.fixture_id, self.family),
             policy_ref: solve.policy_ref,
             observed_iteration_count: solve.iterations.len(),
+            // Fixture displacements are already in fixture-local mm (D-75).
             max_abs_translation_delta_from_previous: final_residuals
-                .max_abs_translation_delta_from_previous
-                .map(|value| value * 1000.0),
+                .max_abs_translation_delta_from_previous,
             translation_delta_unit: "mm",
             max_abs_rotation_delta_from_previous: final_residuals
                 .max_abs_rotation_delta_from_previous,

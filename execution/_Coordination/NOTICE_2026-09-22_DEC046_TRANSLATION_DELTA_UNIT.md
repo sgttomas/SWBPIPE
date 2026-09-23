@@ -1,6 +1,6 @@
 # NOTICE 2026-09-22 — DEC-046 translation-delta unit is off by 1000
 
-Status: raised for the owner. No code, record or threshold was changed.
+Status: ruled 2026-09-23, option 1 (`D-75`, `DEC-113`). This notice is kept as raised; the correction is in the D-75 ruling.
 
 ## Finding
 

@@ -34,7 +34,7 @@
   "entries": [
     {
       "nonlinear_class": "one_way",
-      "translation_delta_absolute_limit": 100.0,
+      "translation_delta_absolute_limit": 0.1,
       "rotation_delta_absolute_limit": 0.0,
       "force_reaction_delta_absolute_limit": 10.0,
       "moment_reaction_delta_absolute_limit": 0.0,
@@ -46,7 +46,7 @@
     },
     {
       "nonlinear_class": "gap",
-      "translation_delta_absolute_limit": 50.0,
+      "translation_delta_absolute_limit": 0.05,
       "rotation_delta_absolute_limit": 0.0,
       "force_reaction_delta_absolute_limit": 5.0,
       "moment_reaction_delta_absolute_limit": 0.0,
@@ -58,7 +58,7 @@
     },
     {
       "nonlinear_class": "lift_off",
-      "translation_delta_absolute_limit": 100.0,
+      "translation_delta_absolute_limit": 0.1,
       "rotation_delta_absolute_limit": 0.0,
       "force_reaction_delta_absolute_limit": 10.0,
       "moment_reaction_delta_absolute_limit": 0.0,
@@ -70,7 +70,7 @@
     },
     {
       "nonlinear_class": "friction",
-      "translation_delta_absolute_limit": 100.0,
+      "translation_delta_absolute_limit": 0.1,
       "rotation_delta_absolute_limit": 0.0,
       "force_reaction_delta_absolute_limit": 10.0,
       "moment_reaction_delta_absolute_limit": 0.0,

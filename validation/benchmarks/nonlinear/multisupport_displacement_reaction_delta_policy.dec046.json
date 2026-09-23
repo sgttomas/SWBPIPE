@@ -34,7 +34,7 @@
   "entries": [
     {
       "nonlinear_class": "multi_support_multi_dof",
-      "translation_delta_absolute_limit": 100.0,
+      "translation_delta_absolute_limit": 0.1,
       "rotation_delta_absolute_limit": 0.005,
       "force_reaction_delta_absolute_limit": 10.0,
       "moment_reaction_delta_absolute_limit": 3.0,
