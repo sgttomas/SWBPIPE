@@ -6,7 +6,7 @@ Enter through `init/dev-loop-init-prompt.md` with the selected role and the
 human's steering. This file owns the recurring development-loop procedure;
 project `AGENTS.md` supplies standing responsibilities, boundaries and checks.
 
-**Current work graph:** none selected for a successor undertaking.
+**Current work graph:** `execution/_Coordination/WorkGraphs/dec025-clean-base-repair-2026-09-23/WORK_GRAPH.md`.
 
 ## Project pointers
 

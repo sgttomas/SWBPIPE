@@ -24,12 +24,10 @@ FORMER_PRODUCTION_FILES = (
     "ScopeOfWork.md",
 )
 CONTEXT_NOTICE = "Preserved setup context — superseded for current consumption."
-# Conscious pin update (2026-08-21): SOFTWARE_DECOMP.md advanced 0.11 -> 0.12
-# through accepted SCA-009. The owner accepted Gate 5 and advanced the live
-# decomposition pointer to revision 0.12; see SCA-009 ACCEPTANCE_RECORD.md and
-# Handoff_State.md. The D-43 reading contract itself is unchanged; only the
-# accepted-revision pin moves.
-EXPECTED_DECOMP_REVISION = "0.12"
+# The accepted SCA-011 poststate advanced SOFTWARE_DECOMP.md to 0.13.
+EXPECTED_DECOMP_REVISION = "0.13"
+HISTORICAL_HASH_HEADING = "## Consolidated successors (SHA-256 as committed)"
+CURRENT_HASH_HEADING = "## Current checked successors (SHA-256)"
 
 
 def _read(path: Path, errors: list[str]) -> str:
@@ -52,12 +50,15 @@ def _member_dirs(working_root: Path) -> dict[str, Path]:
     return members
 
 
-def _manifest_hashes(text: str) -> dict[str, str]:
+def _manifest_hashes(text: str, heading: str) -> dict[str, str]:
+    if heading not in text:
+        return {}
+    section = text.split(heading, maxsplit=1)[1].split("\n## ", maxsplit=1)[0]
     pattern = re.compile(
         r"^\| (DEL-00-\d{2}) \| ArchitectureBasis\.md \| `([0-9a-f]{64})` \|$",
         re.MULTILINE,
     )
-    return dict(pattern.findall(text))
+    return dict(pattern.findall(section))
 
 
 def validate(project_root: Path) -> list[str]:
@@ -77,7 +78,8 @@ def validate(project_root: Path) -> list[str]:
     manifest = _read(manifest_path, errors)
     decomp = _read(decomp_path, errors)
     _read(decision_path, errors)
-    expected_hashes = _manifest_hashes(manifest)
+    historical_hashes = _manifest_hashes(manifest, HISTORICAL_HASH_HEADING)
+    expected_hashes = _manifest_hashes(manifest, CURRENT_HASH_HEADING)
     members = _member_dirs(working_root)
 
     if set(members) != set(EXPECTED_IDS):
@@ -136,7 +138,7 @@ def validate(project_root: Path) -> list[str]:
 
         if CONTEXT_NOTICE not in context:
             errors.append(f"{member / '_CONTEXT.md'}: missing supersession notice")
-        if "**Accepted Revision:** 0.7" not in context:
+        if "revision-0.7 setup basis" not in context:
             errors.append(f"{member / '_CONTEXT.md'}: setup revision 0.7 not preserved")
 
         required_dependency_fragments = (
@@ -173,8 +175,13 @@ def validate(project_root: Path) -> list[str]:
 
     if set(expected_hashes) != set(EXPECTED_IDS):
         errors.append(
-            "manifest successor census mismatch: "
+            "current successor census mismatch: "
             f"expected {list(EXPECTED_IDS)}, found {sorted(expected_hashes)}"
+        )
+    if set(historical_hashes) != set(EXPECTED_IDS):
+        errors.append(
+            "D-43 historical successor census mismatch: "
+            f"expected {list(EXPECTED_IDS)}, found {sorted(historical_hashes)}"
         )
     return errors
 
