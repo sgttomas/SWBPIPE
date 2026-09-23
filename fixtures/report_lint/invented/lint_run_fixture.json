@@ -134,6 +134,7 @@
       "target_count": 2,
       "scanned_target_count": 2,
       "skipped_private_target_count": 0,
+      "skipped_incomplete_target_count": 0,
       "finding_count": 2,
       "blocking_finding_count": 2,
       "clean_scan_is_clearance": false

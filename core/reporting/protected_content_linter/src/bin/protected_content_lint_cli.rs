@@ -17,11 +17,12 @@ use std::process::ExitCode;
 
 use open_pipe_stress_protected_content_linter::{
     lint_targets, FindingClass, FindingCode, FindingSeverity, LintConfiguration, LintTarget,
-    Provenance, PrivacyClassification, RedistributionStatus, ReviewRoute, ReviewStatus,
+    PrivacyClassification, Provenance, RedistributionStatus, ReviewRoute, ReviewStatus,
     SurfaceKind,
 };
 
-const USAGE: &str = "usage: protected_content_lint_cli [--provenance-mode engine|external] <file> [<file> ...]\n\
+const USAGE: &str =
+    "usage: protected_content_lint_cli [--provenance-mode engine|external] <file> [<file> ...]\n\
 Runs the DEL-08-05 protected-content lint engine over the named files and\n\
 prints findings as JSON. --provenance-mode external disables the engine's\n\
 own per-target provenance heuristic for callers that verify provenance\n\
@@ -142,6 +143,7 @@ fn main() -> ExitCode {
     }
 
     let mut targets = Vec::with_capacity(paths.len());
+    let mut exact_public_targets = Vec::with_capacity(paths.len());
     for path in &paths {
         let text = match fs::read_to_string(path) {
             Ok(text) => text,
@@ -155,20 +157,28 @@ fn main() -> ExitCode {
         } else {
             engine_mode_provenance()
         };
+        let exact_path = match fs::canonicalize(path) {
+            Ok(path) => path.to_string_lossy().replace('\\', "/"),
+            Err(error) => {
+                eprintln!("error: cannot resolve '{path}': {error}");
+                return ExitCode::from(2);
+            }
+        };
+        exact_public_targets.push(exact_path.clone());
         targets.push(LintTarget {
-            target_id: path.clone(),
-            path: path.clone(),
+            target_id: exact_path.clone(),
+            path: exact_path,
             surface: SurfaceKind::PublicFixture,
             text,
             provenance,
         });
     }
 
-    let run = lint_targets(
-        "release-scan-lint-cli",
-        LintConfiguration::public_surfaces_only("release-scan-cli-cfg"),
-        targets,
-    );
+    let mut configuration = LintConfiguration::public_surfaces_only("release-scan-cli-cfg");
+    // Positional arguments select exact files for this invocation. They do not
+    // authorize neighboring paths or certify the files for publication.
+    configuration.public_surface_roots = exact_public_targets;
+    let run = lint_targets("release-scan-lint-cli", configuration, targets);
 
     let mut findings_json = Vec::with_capacity(run.findings.len());
     for finding in &run.findings {
@@ -197,12 +207,15 @@ fn main() -> ExitCode {
          \"deliverable_id\":\"DEL-08-05\",\"decision_basis\":\"DEC-058\",\
          \"provenance_mode\":\"{}\",\
          \"summary\":{{\"target_count\":{},\"scanned_target_count\":{},\
+         \"skipped_private_target_count\":{},\"skipped_incomplete_target_count\":{},\
          \"finding_count\":{},\"blocking_finding_count\":{},\
          \"clean_scan_is_clearance\":false}},\
          \"findings\":[{}]}}",
         json_escape(&provenance_mode),
         run.summary.target_count,
         run.summary.scanned_target_count,
+        run.summary.skipped_private_target_count,
+        run.summary.skipped_incomplete_target_count,
         run.summary.finding_count,
         run.summary.blocking_finding_count,
         findings_json.join(",")

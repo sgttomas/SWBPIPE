@@ -864,9 +864,12 @@ pub fn render_calculation_report(input: &RenderableReportInput) -> RenderOutcome
             provenance: provenance.clone(),
         })
         .collect();
+    let mut pre_render_config =
+        linter::LintConfiguration::public_surfaces_only("report-renderer-pre-render");
+    pre_render_config.public_surface_roots = vec!["report_renderer://section/".to_string()];
     let pre_render_run = linter::lint_targets(
         "report-renderer-pre-render",
-        linter::LintConfiguration::public_surfaces_only("report-renderer-pre-render"),
+        pre_render_config,
         pre_render_targets,
     );
 
@@ -918,9 +921,12 @@ evidence; only the exact bytes of this HTML file are bound by the recorded SHA-2
     let html = document_frame(&escape_html(&input.report_title), &body);
 
     // Lint gate (iii): final rendered document text, post-render.
+    let mut post_render_config =
+        linter::LintConfiguration::public_surfaces_only("report-renderer-post-render");
+    post_render_config.public_surface_roots = vec!["report_renderer://document".to_string()];
     let post_render_run = linter::lint_targets(
         "report-renderer-post-render",
-        linter::LintConfiguration::public_surfaces_only("report-renderer-post-render"),
+        post_render_config,
         vec![linter::LintTarget {
             target_id: "rendered-report-document".to_string(),
             path: "report_renderer://document".to_string(),

@@ -171,9 +171,11 @@ fn fixture_report_is_not_export_blocked() {
 #[test]
 fn template_surface_passes_protected_content_lint() {
     // Lint gate (i): the bundled public template surface.
+    let mut config = linter::LintConfiguration::public_surfaces_only("template-gate-test");
+    config.public_surface_roots = vec!["core/reporting/report_renderer/template".to_string()];
     let run = linter::lint_targets(
         "template-gate-test",
-        linter::LintConfiguration::public_surfaces_only("template-gate-test"),
+        config,
         vec![linter::LintTarget {
             target_id: "public-report-template".to_string(),
             path: "core/reporting/report_renderer/template".to_string(),
@@ -182,6 +184,7 @@ fn template_surface_passes_protected_content_lint() {
             provenance: linter::invented_provenance(),
         }],
     );
+    assert_eq!(run.summary.scanned_target_count, 1);
     assert_eq!(
         run.summary.blocking_finding_count, 0,
         "template surface must carry no blocking lint findings: {:?}",
