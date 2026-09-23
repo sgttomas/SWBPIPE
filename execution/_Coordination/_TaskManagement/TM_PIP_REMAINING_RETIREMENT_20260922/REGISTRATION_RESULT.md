@@ -38,8 +38,10 @@ the resulting 44-row canonical register. `DEFERRED_TM_TRIAGE_MATRIX.md` shows
 the five excluded preliminary ideas and existing-row dedup; only the ten
 selected rows were appended.
 
-The finite Remaining account links final IDs to 52 affected source keys as
-**decision attention only**. At the register-write boundary it had 18 verified
+At the register-write boundary, the finite Remaining account linked final
+IDs to 52 source keys as **decision attention only**. Three DEL-05-02 census
+fragments later ceased pointing to `TM-PIP-043` when the exact derivative was
+verified complete; the current account links 49 keys. At registration it had 18 verified
 empty-marker removals and 223 held rows. The later DEL-05-02 comparison and
 two bullet removals are recorded separately in
 `DEL0502_DEC092_COMPLETION_BACKCHECK.md` and the row ledger (22 applied,
