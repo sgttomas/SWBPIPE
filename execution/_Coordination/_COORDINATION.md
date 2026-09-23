@@ -1,11 +1,10 @@
 # Coordination Record
 
-> **Current procedure after local-work-graph adoption:** enter through
-> `loop/LOOP_INIT.md` and its selected graph. The graph supplies executable work
-> and recovery state; it does not replace project requirements, deliverable
-> authority or owner decisions. Bounded reconciliation updates affected records
-> within its assignment. Historical workplan, run and receipt procedures below
-> remain readable at their original authority and are not alternate selectors.
+> **Current procedure:** `loop/LOOP_INIT.md` is the sole recurring development
+> procedure. Read the historical rules and phase decisions below for their
+> actual subject and revision; their workplan/Remaining/receipt mechanics do
+> not supply an alternative entry or work-selection procedure. Task Management
+> is selected as a workflow for a bounded intake or explicitly requested review.
 
 **Epistemic status (rewritten 2026-07-10 at owner adoption, K-AUTH-1).** This
 file is now a ruled-record surface and pointer, not the operative protocol.

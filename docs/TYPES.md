@@ -256,19 +256,22 @@ lawful to a deliverable and under what control.
 
 Entry to `CHECKING` is layered, not a single trigger:
 
-1. Universal minimums. The deliverable's `_STATUS.md` `## Remaining` is
-   warranted-empty — empty, with a current evidence basis bound to the
-   candidate source state certifying that the emptiness is warranted.
+1. Universal minimums. Current candidate-bound evidence accounts for the
+   applicable production obligations and supports that none remains unfulfilled
+   in the proposed checking scope. Read the Scope of Work, actual outputs,
+   dependencies and required production examination; neither graph closure nor
+   an empty list establishes completeness by itself.
 2. A candidate-specific declared checking basis appropriate to the
    deliverable's claims and risk — for this project including its engineering
    validation and provenance disciplines. These criteria are emergent and
    harden into ruled profiles.
 3. Human declaration of the checking basis and freeze of the candidate.
 
-There are no disclosed-deferral carve-outs: any warranted `## Remaining` item
-keeps the deliverable `IN_PROGRESS`; boundary adjustments are rescoped through
-the decision register before freeze, never carved out during review. A failed
-check exits by reversal, and its findings become `## Remaining` items.
+An unfulfilled production obligation keeps the deliverable IN_PROGRESS; scope
+adjustments precede freeze through the owning decision. A failed formal check
+returns through the prescribed reversal and its correction enters authorized
+graph work. The local-graph arrangement requires no separate Remaining list.
+Frozen earlier program inputs and criteria retain their pins until migrated.
 
 Rebaseline asymmetry: demotion to `IN_PROGRESS` requires no criteria beyond
 the absence of a current accepted basis for the asserted state; promotion

@@ -1,10 +1,15 @@
 # Piping development — standing procedure pointer
 
-Owner-adopted successor, 2026-09-19.
+Original successor adopted by the owner, 2026-09-19. Current navigation below
+follows the subsequently adopted shared loop instructions.
 
-The reusable development procedure now has one home:
-`projects/chirality-piping/AGENTS.md`. `loop/LOOP_INIT.md` is its session entry.
-Run-specific work lives in the owning AgentRuns work graph, plan and handoff.
+The current reusable development procedure is `loop/LOOP_INIT.md`;
+`projects/chirality-piping/AGENTS.md` supplies standing responsibilities and
+constraints. Current local development graphs are Git-tracked at
+`execution/_Coordination/WorkGraphs/<undertaking>/WORK_GRAPH.md`, relative to the
+project, with LOOP_INIT pointing to the selected graph. AgentRuns holds linked
+run evidence rather than a second current graph. Earlier graph files, plans and
+handoffs remain historical at their original locations.
 
 This owner-adopted successor retires the six-step procedure in
 `WORKPLAN_2026-07-18b_piping_loop.md`: mandatory deliverable/DAG selection,

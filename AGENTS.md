@@ -55,36 +55,39 @@ scripts and attribution conventions only when they work in the current host.
 Preserve their evidence purpose using available tools; attribute commits
 truthfully. Do not copy another harness's model or co-author identity.
 
-## Work graph continuity and bounded reconciliation
+## Deliverable records and loop ownership
 
-`loop/LOOP_INIT.md` names the current local work graph. This pointer is
-navigation state; scope, node state and recovery facts belong in the graph.
-Use the graph across sessions, including its pauses and owner decisions.
-Changing the pointer does not authorize a new undertaking or lift a hold.
+`loop/LOOP_INIT.md` owns the recurring development procedure. Its named
+workflows provide bounded methods; other historical plans and coordination
+records do not supply alternate loop mechanics. The development init prompt
+supplies the current human steering, including phase changes.
 
-Plan bounded reconciliation within authorized development work: compare a
-stable code result and its evidence with the affected deliverable contents,
-including ScopeOfWork.md, Remaining items and dependency records. Apply warranted
-document updates within the assignment and preserve unresolved differences.
-Do not infer that implemented behavior replaces intended requirements. Lifecycle,
-accepted scope and formal dependency-basis changes retain their owning decision paths.
-Reconciliation completion is distinct from implementation completion.
+`ScopeOfWork.md` carries the deliverable's production commitments. `MEMORY.md`
+indexes what each run did in this deliverable, with pointers to its PR, evidence
+and central decisions or transfers. Decision authority stays at its owning
+source; memory carries no future assignments. The local graph
+carries execution at `execution/_Coordination/WorkGraphs/<undertaking>/WORK_GRAPH.md`.
+Keep it Git-tracked in the undertaking's PR sequence and set LOOP_INIT's current
+pointer to its actual path. Preserve historical graph files. `_STATUS.md` retains
+lifecycle and history. `Remaining`
+sections are retired as a required work-selection or execution-list surface for
+newly adopted development; their absence neither proves completion nor prevents
+work within the human's authorized undertaking. Existing entries remain
+accessible legacy inputs until an explicitly authorized retirement accounts for
+each one, applies the human's disposition and verifies every surviving obligation
+at its destination before source removal. No new Remaining entry is required.
 
-Keep concise results and recoverable evidence with the undertaking or their
-owning deliverables. A graph or linked result can supply the work record;
-separate per-session narratives, handoffs and loop receipts are not required
-for this development loop. This supersedes its routine receipt-append rule;
-other explicitly selected workflows retain their own output contracts.
-Existing receipt bytes remain frozen and their validators retain the historical
-integrity check; no ledger rewrite or validator change is part of this adoption.
-Existing records remain historical evidence. Operational attribution required
-by Root remains truthful and available without being repeated in work tables.
-
-Retain bounded launch instructions and returns with their actual context and
-source identity as required by Root. A small read-only launch message can be
-the brief; no elaborate duplicate brief is required. Preserve the actual role,
-model/effort, substitutions, enforcement limits, return and its disposition in
-the linked execution evidence. Work tables focus on the resulting work.
+Each substantive PR includes the documentary, reconciliation and conditional
+Task Management consequences needed for that slice. Perform one final bounded
+documentation/governance closeout after the undertaking's
+intended implementation and evidence integration (normally the penultimate
+merge), before the final PR. Record terse MEMORY run rows near final PR
+preparation. Central
+run records and decision/evidence sources remain linked from the PR as needed;
+the local row does not repeat their account. Required execution provenance stays
+recoverable. The loop ends when its completed graph's final PR merges after
+required checks, review and human decisions. In-flight method bases retain their
+own authority until explicitly transitioned.
 
 ## Decisions and shared work
 

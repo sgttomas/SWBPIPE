@@ -8,7 +8,7 @@
 > maturity feedback hardened out of real concordance checks. It is not a work
 > queue, not a status surface, and never selects work (F-PIP-5). Lifecycle
 > semantics govern per `docs/TYPES.md` §9 (D-39/`DEC-071`): `CHECKING` entry
-> layers the universal minimums (warranted-empty `_STATUS.md` `## Remaining`
+> layers the universal minimums (candidate-bound evidence of fulfilled production obligations
 > with a current, source-state-bound evidence basis) + a candidate-specific
 > declared checking basis + human declaration and freeze.
 

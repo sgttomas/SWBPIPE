@@ -15,6 +15,12 @@ refs:
     to: OPS-COORDINATION
 ---
 
+> **Loop procedure reference:** `loop/LOOP_INIT.md` owns the recurring development
+> procedure. Older agent names, workplan selectors and development step tables
+> below do not supply alternate loop mechanics. Current domain constraints and
+> accepted product/checking rules retain their owning authority. Current roles
+> come from AGENTS.md; Task Management is selected as a workflow.
+
 # Agentic Development Workflow
 
 This document is a contributor workflow map for OpenPipeStress. It explains
