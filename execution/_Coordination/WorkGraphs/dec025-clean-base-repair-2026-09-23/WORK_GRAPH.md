@@ -28,13 +28,13 @@
 | P1 Substantive PR | W1/W2 implementation, current-hash attestation, graph and sweep evidence | V1 PASS and independent review | Merge repair PR after required CI on its actual head | COMPLETE — [PR #872](https://github.com/sgttomas/chirality/pull/872) merged as `db5bb38730f4f59e6c3f3152bea38af2f0c4bb1d` |
 | C1 Bounded closeout | DEL-12-01, DEL-10-04, PKG-00/DEL-00-08, DEL-17-06 and manifest/currentness records | P1 merged | Compare delivered result with owned SOW and governing records; make warranted edits, route any exceptional concern, preserve D-43 history | COMPLETE — source-faithful no-change outcome for SOW, dependencies, status, scope, decisions and Task Management; central comparison in `execution/_Coordination/AgentRuns/PIP-DEC025-BASELINE-2026-09-23/EVIDENCE.md` |
 | M1 Run index | MEMORY rows only for deliverables with actual work | C1 result and P1 URL | Terse local work entries linked to graph and PR | COMPLETE in this final-records candidate — DEL-00-08, DEL-10-04, DEL-12-01 and DEL-17-06 |
-| F1 Final records PR | Graph, closeout consequences and run index | P1/C1/M1 complete | Independent review and required CI cover final records head; merge verified | ACTIVE — branch `codex/piping-dec025-records-closeout`; PR/checks/merge pending |
+| F1 Final records PR | Graph, closeout consequences and run index | P1/C1/M1 complete | Independent review and required CI cover final records head; merge verified | ACTIVE — [PR #873](https://github.com/sgttomas/chirality/pull/873) is the final records candidate. F1 completes only when this reviewed PR passes required CI on its actual head and actually merges; Git/PR evidence establishes the merge afterward. |
 
 ## Current state and recovery
 
 - Checked basis: substantive [PR #872](https://github.com/sgttomas/chirality/pull/872) merged at `db5bb38730f4f59e6c3f3152bea38af2f0c4bb1d`; exact source sweep and earlier failed attempts are linked from `execution/_Coordination/AgentRuns/PIP-DEC025-BASELINE-2026-09-23/EVIDENCE.md`. Accepted DAG-011 and SCA-011 remain current. Four affected deliverable records were compared against the merged source using `chirality-root:bundled:workflow:bounded-reconciliation`; no substantive SOW/dependency/status amendment or Task Management intake was warranted.
-- Next work: review this final records candidate, bind its PR URL, pass required CI on the actual head and merge; verify merged state and optional late CI outcome from PR #872.
-- Local/unmerged work: final records branch `codex/piping-dec025-records-closeout` in an isolated worktree; draft PR #867 belongs to another Piping undertaking and can resume its own gates after this baseline repair.
+- Next work: independently backcheck the PR #873 URL/closure tail, pass required CI on its final head and merge; verify actual merged state and optional late CI outcome from PR #872.
+- Local/unmerged work: [PR #873](https://github.com/sgttomas/chirality/pull/873) on branch `codex/piping-dec025-records-closeout` in an isolated worktree; draft PR #867 belongs to another Piping undertaking and can resume its own gates after this baseline repair.
 - Active operations and ownership: WORKING_ITEMS owns all writes in this graph. HELP_HUMAN coordinates independent reviewer capacity.
 - Graph maintainer: WORKING_ITEMS for this repair.
 
