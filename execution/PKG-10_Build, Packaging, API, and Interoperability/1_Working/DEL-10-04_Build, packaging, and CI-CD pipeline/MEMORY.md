@@ -11,6 +11,15 @@ revision: 0.5
 
 # MEMORY - DEL-10-04 Build, Packaging, And CI/CD Pipeline
 
+## Runs
+
+- 2026-09-23 — `PIPING_LINTER_SCOPE_20260923`: public-export lint-gate
+  classification now maps the CLI's UNC finding identity only inside its
+  reviewed staging root; this was a caller repair, not an export or release
+  act. Evidence: [central loop receipt](../../../_Coordination/AgentRuns/PIPING_LINTER_SCOPE_20260923/RECEIPT.md),
+  [substantive PR #867](https://github.com/sgttomas/chirality/pull/867), and
+  final closeout branch `codex/piping-linter-closeout` (PR URL pending).
+
 ## 2026-08-19 - DEC-093 CI-bound surface-4 tooling
 
 - `tools/release/run_evidence_sweep.py` now accepts an explicit

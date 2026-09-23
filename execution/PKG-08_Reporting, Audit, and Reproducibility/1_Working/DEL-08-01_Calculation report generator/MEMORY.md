@@ -1,5 +1,13 @@
 # MEMORY - DEL-08-01 Calculation Report Generator
 
+## Runs
+
+- 2026-09-23 — `PIPING_LINTER_SCOPE_20260923`: renderer and PDF emitter bound
+  their in-memory public lint targets to exact virtual roots, with focused
+  caller checks. Evidence: [central loop receipt](../../../_Coordination/AgentRuns/PIPING_LINTER_SCOPE_20260923/RECEIPT.md),
+  [substantive PR #867](https://github.com/sgttomas/chirality/pull/867), and
+  final closeout branch `codex/piping-linter-closeout` (PR URL pending).
+
 ## 2026-08-20 - R6 N2 TypeScript-to-Rust component-provenance proof
 
 The report-package seam now has one exact shared invented projection proving

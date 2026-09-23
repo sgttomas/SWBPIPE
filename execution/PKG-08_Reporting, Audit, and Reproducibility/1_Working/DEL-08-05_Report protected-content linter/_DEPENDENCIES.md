@@ -2,7 +2,7 @@
 
 ## Coordination Mode
 - **Mode:** FULL_GRAPH
-- **Graph Authority:** `execution/_DAG/DAG-007/` is the current approved canonical graph authority.
+- **Graph Authority:** `execution/_DAG/_LATEST.md` selects `execution/_DAG/DAG-011/` as the approved active graph. The local rows below retain their recorded status and satisfaction.
 - **Authority Boundary:** Candidate/non-gating edges are not represented through `Status=CANDIDATE` in current canonical registers.
 
 ## Declared Upstream Dependencies
