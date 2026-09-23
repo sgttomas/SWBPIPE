@@ -27,8 +27,8 @@ Invented stress benchmark for the per-load-case modulus basis (rulings
 `DEC-068` item 1 and `DEC-077`). The reference below covers the three
 behaviours listed. The stress benchmark itself checks the stress recovery and
 the basis recording of item 2, from item 1's force entered as a fixed input;
-items 1 and 3 are checked by the product-physics tests named under "What The
-Stress Benchmark Asserts". The behaviours are:
+items 1 and 3 are checked by the product-physics tests named in this reference
+note's "What The Stress Benchmark Asserts" section. The behaviours are:
 
 1. A hot mechanics state solved with a user-entered temperature-point
    elastic modulus and thermal expansion coefficient (`E_hot`,

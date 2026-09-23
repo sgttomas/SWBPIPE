@@ -61,8 +61,18 @@ From `projects/chirality-piping`:
 | Mutation check: hand `u_y` denominator 194.0, reaction sign flipped, `A = 3.1` in the thermal helper | the three strengthened tests failed (`38 passed; 3 failed`); restored source passes 41 |
 | `python3 docs/validation_manual/cases/generate_validation_case_pages.py --check` | `checked 64 case page(s)`; no mismatch |
 
-Repository checks for the candidate (piping-pytest, evidence sweep,
-harness checks) and independent review are recorded in the PR.
+Repository checks on candidate `9b2f6fdfa` (clean tree):
+
+| Check | Result |
+|---|---|
+| `harness-self-check` (incl. GEN-13 claims language) | exit 0 |
+| `harness-pytest` | `379 passed` |
+| `piping-pytest` | `6 failed, 1132 passed`. The same six tests fail identically at base `b3e2ce4ec` (`test_local_first_user_control_default_is_explicit`, `test_live_architecture_basis_contract_passes`, four in `test_release_readiness_script.py`); none touches this change. |
+| DEC-025 evidence sweep | cargo crate surface passed; stopped at `python_pytest` on the same six pre-existing failures; desktop surfaces `not_run`. Summary `validation/evidence/sweeps/SWEEP_20260923T034641Z_9b2f6fdfa103.json`. |
+
+Independent review (fresh-context agent, did not implement): PASS WITH
+NON-BLOCKING NOTES on `0f857e9cd`; all six notes addressed in `9b2f6fdfa`;
+backcheck PASS with one pointer-wording note, addressed in the final commit.
 
 ## Boundary
 
