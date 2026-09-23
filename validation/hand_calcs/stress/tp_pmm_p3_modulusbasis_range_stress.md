@@ -3,7 +3,11 @@
 ## Purpose
 
 Invented stress benchmark for the per-load-case modulus basis (rulings
-`DEC-068` item 1 and `DEC-077`). It verifies that:
+`DEC-068` item 1 and `DEC-077`). The reference below covers the three
+behaviours listed. The stress benchmark itself checks the stress recovery and
+the basis recording of item 2, from item 1's force entered as a fixed input;
+items 1 and 3 are checked by the product-physics tests named under "What The
+Stress Benchmark Asserts". The behaviours are:
 
 1. A hot mechanics state solved with a user-entered temperature-point
    elastic modulus and thermal expansion coefficient (`E_hot`,
@@ -110,7 +114,8 @@ interpolation provenance is not asserted here.
 
 The product-side behaviour described in the purpose is exercised by the
 product-physics unit tests in `core/product_physics/src/lib.rs`, which use the
-same invented points:
+same invented `E` and `alpha` values (the exact-hot-point test places its hot
+point at a different temperature and derives its own area):
 `load_case_modulus_basis_selects_exact_user_entered_hot_point` (solved hot
 axial force with `E_hot` and `alpha_hot`),
 `declared_solve_temperature_interpolates_e_and_alpha_with_provenance` (400 K

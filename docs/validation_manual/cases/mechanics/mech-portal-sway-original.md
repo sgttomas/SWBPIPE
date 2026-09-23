@@ -31,7 +31,7 @@ protected standards, commercial software examples, or proprietary data.
 
 ## Input Model
 
-The machine-readable input model is the fixture constructor `portal_frame_sway_fixture()` (fixture id `MECH-PORTAL-SWAY-ORIGINAL`) in `validation/benchmarks/mechanics/src/lib.rs`, carrying explicit fixture-local units and public-original provenance metadata. The reference note records the same invented inputs with the longhand derivation.
+The machine-readable input model is the fixture constructor `portal_frame_sway_fixture()` (fixture id `MECH-PORTAL-SWAY-ORIGINAL`) in `validation/benchmarks/mechanics/src/lib.rs`. The reference note records the same invented inputs; it gives no longhand derivation.
 
 ## Expected Result And Independent Reference
 
@@ -42,7 +42,7 @@ the reference note states.
 
 ## Software Result And Reproduction
 
-The measured-vs-reference comparison executes inside the named suite
+The repeatability check executes inside the named suite
 test(s) `portal_frame_fixture_solves_repeatably`, which assemble and solve the frame through the in-repo solver path and
 assert that the solved sway repeats the fixture's expected value. Because
 that value comes from the same solve, the case checks deterministic

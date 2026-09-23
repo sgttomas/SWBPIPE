@@ -35,6 +35,10 @@ Measured at base `b3e2ce4ec` (`assembled_force_displacement_residual_observation
 | `NL-ASSEMBLED-GAP-LIFT-OFF-ORIGINAL` | 30.0 "mm" | 3.0 N | 0.03 mm |
 | `NL-ASSEMBLED-FRICTION-BOUNDED-SLIDE-ORIGINAL` | 30.0 "mm" | 3.0 N | 0.03 mm |
 
+`NL-ASSEMBLED-FRICTION-STICK-ORIGINAL` and
+`NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL` converge in one iteration and
+report no delta.
+
 Separately, `convergence_observations.md` records `100.0 mm` / `10.0 N` for
 `NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL`; the current measurement is `40.0` /
 `4.0 N` (inside the limits). That ledger row appears stale.
@@ -50,6 +54,13 @@ Separately, `convergence_observations.md` records `100.0 mm` / `10.0 N` for
   (`100.0`, unit `mm`) and its observation record.
 - The release-scope record `release_convergence_policy.dec046.c-b.json` covers
   the active-set count only and does not contain these delta limits.
+
+The product preview has its own DEC-046 records
+(`DEC-046-CV-B-product-preview-displacement-reaction-delta-*`, limit `50.0` mm
+in `core/product_physics/src/lib.rs`) and also multiplies the translation delta
+by 1000 before labelling it `mm`. There the solve is in SI metres, so that
+conversion appears correct. It was not assessed further and is not part of
+this finding.
 
 ## Why it is held
 

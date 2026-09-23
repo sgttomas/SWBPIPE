@@ -27,10 +27,14 @@ the straight-pipe recovery path before recovering stresses:
 | Input (from the mechanics note) | Value | Unit | Canonical dimension |
 |---|---:|---|---|
 | Member length | 4.0 | m | length |
+| `E` / `G` | 1000.0 / 400.0 | Pa | stress |
+| `A` | 3.0 | m^2 | area |
+| `I_y` / `I_z` / `J` | 1.5 / 2.0 / 1.0 | m^4 | second_moment_area |
 | Free-end `u_y` | -0.04533333333333334 | m | length |
 | Free-end `theta_z` | -0.014666666666666668 | rad | rotation |
 | Uniform local `Y` load, `q` | -2.0 | N/m | force_per_length |
 | Midspan point local `Y` force, `P` | -4.0 | N | force |
+| Point station, `a/L` | 0.5 | ratio | dimensionless |
 
 ## Station Resultants
 

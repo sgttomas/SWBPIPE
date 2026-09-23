@@ -1722,14 +1722,14 @@ pub fn solve_fixed_fixed_thermal_restraint_force() -> Result<f64, String> {
         PrimitiveLoadCategory::Thermal,
         0,
         LoadDirection::GlobalX,
-        LoadQuantity::new(75.0, LoadDimension::TemperatureChange)
+        LoadQuantity::new(FIXED_FIXED_DELTA_TEMPERATURE, LoadDimension::TemperatureChange)
             .expect("fixture temperature change is finite"),
     )];
     let properties = [ElementAxialEffectProperties::new(
         0,
-        Some(2000.0),
-        Some(3.0),
-        Some(1.2e-5),
+        Some(FIXED_FIXED_ELASTIC_MODULUS),
+        Some(FIXED_FIXED_AREA),
+        Some(FIXED_FIXED_ALPHA),
         None,
     )];
     let prepared = prepare_straight_pipe_axial_effects(1, &loads, &properties);
@@ -1842,11 +1842,16 @@ pub fn branch_assembly_fixture() -> MechanicsBenchmark {
     }
 }
 
+const FIXED_FIXED_ELASTIC_MODULUS: f64 = 2000.0;
+const FIXED_FIXED_AREA: f64 = 3.0;
+const FIXED_FIXED_ALPHA: f64 = 1.2e-5;
+const FIXED_FIXED_DELTA_TEMPERATURE: f64 = 75.0;
+
 pub fn fixed_fixed_thermal_fixture() -> MechanicsBenchmark {
-    let elastic_modulus = 2000.0;
-    let area = 3.0;
-    let alpha = 1.2e-5;
-    let delta_temperature = 75.0;
+    let elastic_modulus = FIXED_FIXED_ELASTIC_MODULUS;
+    let area = FIXED_FIXED_AREA;
+    let alpha = FIXED_FIXED_ALPHA;
+    let delta_temperature = FIXED_FIXED_DELTA_TEMPERATURE;
     let restrained_force = elastic_modulus * area * alpha * delta_temperature;
 
     MechanicsBenchmark {

@@ -227,6 +227,8 @@ class Case:
     solver_version_detail: str | None = None
     reference_detail: str | None = None
     software_path_detail: str | None = None
+    input_model_detail: str | None = None
+    comparison_lead: str = "The measured-vs-reference comparison executes"
 
 
 MECHANICS_CASES = [
@@ -253,6 +255,13 @@ MECHANICS_CASES = [
             "`validation/hand_calcs/mechanics/portal_frame_sway.md` records the "
             "inputs, not an independent value"
         ),
+        input_model_detail=(
+            "The machine-readable input model is the fixture constructor "
+            "`portal_frame_sway_fixture()` (fixture id `MECH-PORTAL-SWAY-ORIGINAL`) "
+            "in `validation/benchmarks/mechanics/src/lib.rs`. The reference note "
+            "records the same invented inputs; it gives no longhand derivation."
+        ),
+        comparison_lead="The repeatability check executes",
         expected_result_detail=(
             "No independent expected value exists for this case. The fixture's\n"
             "expected sway is computed by calling the same solver function\n"
@@ -1012,6 +1021,9 @@ def render_case(case: Case, constructor: str | None) -> str:
             f"derivation."
         )
 
+    if case.input_model_detail:
+        input_model = case.input_model_detail
+
     reproduction_commands = case.reproduction_commands or [
         f"cargo test --manifest-path {suite.crate}/Cargo.toml {name}"
         for name in case.tests
@@ -1107,7 +1119,7 @@ protected standards, commercial software examples, or proprietary data.
 
 ## Software Result And Reproduction
 
-The measured-vs-reference comparison executes inside the named suite
+{case.comparison_lead} inside the named suite
 test(s) {test_list}, {software_path}{software_result_detail}
 
 Reproduction (from `projects/chirality-piping`):
