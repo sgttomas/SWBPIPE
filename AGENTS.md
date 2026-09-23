@@ -61,14 +61,17 @@ truthfully. Do not copy another harness's model or co-author identity.
 workflows provide bounded methods; other historical plans and coordination
 records do not supply alternate loop mechanics. The development init prompt
 supplies the current human steering, including phase changes.
+Keep LOOP_INIT evergreen, with no undertaking-specific graph pointer or execution
+state. Recover the selected undertaking's graph from the steering and relevant
+project records.
 
 `ScopeOfWork.md` carries the deliverable's production commitments. `MEMORY.md`
 indexes what each run did in this deliverable, with pointers to its PR, evidence
 and central decisions or transfers. Decision authority stays at its owning
 source; memory carries no future assignments. The local graph
 carries execution at `execution/_Coordination/WorkGraphs/<undertaking>/WORK_GRAPH.md`.
-Keep it Git-tracked in the undertaking's PR sequence and set LOOP_INIT's current
-pointer to its actual path. Preserve historical graph files. `_STATUS.md` retains
+Keep it Git-tracked in the undertaking's PR sequence and return its path for
+continuation. Preserve historical graph files. `_STATUS.md` retains
 lifecycle and history. The retired `Remaining` sections are historical inputs,
 not a work-selection or execution-list surface. Their absence neither proves
 completion nor prevents work within the human's authorized undertaking. Use

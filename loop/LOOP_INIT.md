@@ -5,11 +5,9 @@ Resolve `REPO_ROOT` from the active checkout and set `WORKING_ROOT` to
 Enter through `init/dev-loop-init-prompt.md` with the selected role and the
 human's steering. This file owns the recurring development-loop procedure;
 project `AGENTS.md` supplies standing responsibilities, boundaries and checks.
-The dated `WORKPLAN_2026-07-*` files are historical evidence at their original
-paths, not instructions for current work selection. The 2026-09-19 standing
-procedure pointer records their supersession; preserve those historical bytes.
-
-**Current work graph:** `execution/_Coordination/WorkGraphs/PIPING_LINTER_SCOPE_20260923/WORK_GRAPH.md`.
+Keep this file evergreen: undertaking selection and graph references come from
+the init steering and subsequent human directions; execution state lives in the
+selected work graph.
 
 ## Project pointers
 
@@ -27,7 +25,8 @@ procedure pointer records their supersession; preserve those historical bytes.
 ## 0. Read the steering and recover the situation
 
 The init steering and subsequent human directions establish the purpose, phase,
-priorities and limits. Read the selected graph, relevant deliverable contracts,
+priorities and limits. Recover the graph for that undertaking from the supplied
+references and relevant project records. Read it, relevant deliverable contracts,
 MEMORY run pointers, dependencies, implementation and evidence. Give a concise
 reading of the intended outcome and proceed where the direction is clear.
 
@@ -45,10 +44,10 @@ the project DAG, deliverables and present work. Before the first DAG exists,
 follow the phase steering and applicable dependency/cycle-resolution method.
 
 Create the Git-tracked graph at
-`execution/_Coordination/WorkGraphs/<undertaking>/WORK_GRAPH.md` and set this
-file's current-work-graph pointer to that actual path. Commit it in the
-undertaking's PR sequence early enough for handoff and keep it current across
-sessions. Preserve historical graphs at their existing locations.
+`execution/_Coordination/WorkGraphs/<undertaking>/WORK_GRAPH.md`. Return its
+path for continuation and commit it in the undertaking's PR sequence early
+enough for handoff. Keep the graph current across sessions and preserve
+historical graphs at their existing locations.
 
 Plan substantive implementation and evidence through PRs, each carrying the
 documentation, reconciliation and conditional Task Management work its slice
