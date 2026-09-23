@@ -41,8 +41,14 @@ slots. The reference derivation uses elementary open mechanics only.
 ## Software Result And Reproduction
 
 The measured-vs-reference comparison executes inside the named suite
-test(s) `thermal_growth_fixture_records_open_axial_restraint_formula`, which run the current in-repo solver path on the fixture
-and assert agreement with the reference expectations.
+test(s) `thermal_growth_fixture_records_open_axial_restraint_formula`, which compute the restrained axial force through the product's
+straight-pipe axial-effect preparation path
+(`prepare_straight_pipe_axial_effects`, the path
+`MECH-TP-PHYS-008-THERMAL-PRESSURE-AXIAL-EFFECTS` uses) from the
+fixture's invented inputs and assert it equals the reference value.
+The free thermal strain is asserted as reference arithmetic only. With
+both ends fully restrained no free degree of freedom remains, so no
+global stiffness solve is involved.
 
 Reproduction (from `projects/chirality-piping`):
 
@@ -54,6 +60,8 @@ Recorded run: 2026-07-10, toolchain rustc 1.92.0 / cargo 1.92.0; suite
 result `ok. 30 passed; 0 failed; 0 ignored` with the named test(s) passing. The full
 suite output and the exact commit are recorded in the run record
 `execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_run_records/WORKING_ITEMS_RUN_2026-07-10_TP-E2-VALMANUAL-001.md`.
+
+Evidence basis: On 2026-09-22 the named test was strengthened to assert the restrained axial force through the product's axial-effect preparation path; before, the test compared the fixture's own recorded values with the formula and ran no product code. The recorded run above predates that assertion; the run that exercises it is recorded in `execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_run_records/RUN_2026-09-22_DEL0904_RECORD_TEST_RECONCILIATION.md`.
 
 Headless-runner status: PR #287 bound `run-benchmark` and `run-regression`
 for the committed `DEL-10-05` benchmark/regression payload families. That

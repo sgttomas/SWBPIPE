@@ -92,8 +92,31 @@ alpha(400 K) = 1.2e-5 + 0.5 * (1.4e-5 - 1.2e-5) = 1.3e-5 1/K
 
 The source ids `temperature-point:cold` and `temperature-point:hot` apply
 to both derived values. The method string is
-`linear_temperature_interpolation`. The software blocks requests at or
-beyond 300 K and 500 K; this witness does not authorize extrapolation.
+`linear_temperature_interpolation`. The interpolation path accepts only a
+solve temperature strictly between the two stored points: a request at or
+below 300 K, or at or above 500 K, blocks with `MODULUS_BASIS_UNRESOLVED`
+("never extrapolates"). This witness does not authorize extrapolation.
+
+## What The Stress Benchmark Asserts
+
+The stress benchmark runs the stress-recovery path only. It enters `F_hot` as a
+fixed input computed from the closed form above, recovers the hot-state axial
+stress and the hot/cold stress range through
+`recover_stress_range_with_modulus_basis`, and asserts the two recorded basis
+labels. The interpolated `E(400 K)` and `alpha(400 K)` are the reference
+arithmetic above, checked against the same closed form in the benchmark; no
+solver thermal or interpolation routine runs in this benchmark, and the
+interpolation provenance is not asserted here.
+
+The product-side behaviour described in the purpose is exercised by the
+product-physics unit tests in `core/product_physics/src/lib.rs`, which use the
+same invented points:
+`load_case_modulus_basis_selects_exact_user_entered_hot_point` (solved hot
+axial force with `E_hot` and `alpha_hot`),
+`declared_solve_temperature_interpolates_e_and_alpha_with_provenance` (400 K
+interpolation with source ids and method recorded),
+`interpolation_blocks_at_and_beyond_stored_range_edges` (250, 300, 500 and
+550 K block), and `range_combination_records_each_operand_modulus_basis`.
 
 Cross-checks: the arithmetic above was recomputed independently in decimal
 arithmetic from the closed forms; the benchmark fixture recomputes the same

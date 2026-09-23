@@ -43,6 +43,19 @@ RUN_RECORD = (
 
 RECORDED_RUN_DATE = "2026-07-10"
 RECORDED_TOOLCHAIN = "rustc 1.92.0 / cargo 1.92.0"
+RECONCILE_RUN_RECORD = (
+    "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/"
+    "DEL-09-04_Validation manual skeleton/_run_records/"
+    "RUN_2026-09-22_DEL0904_RECORD_TEST_RECONCILIATION.md"
+)
+
+
+def strengthened(what: str) -> str:
+    return (
+        f"On 2026-09-22 the named test was strengthened to assert {what}. The "
+        "recorded run above predates that assertion; the run that exercises it "
+        f"is recorded in `{RECONCILE_RUN_RECORD}`."
+    )
 
 
 @dataclass
@@ -212,6 +225,8 @@ class Case:
     runner_reproduction_detail: str | None = None
     pass_fail_detail: str | None = None
     solver_version_detail: str | None = None
+    reference_detail: str | None = None
+    software_path_detail: str | None = None
 
 
 MECHANICS_CASES = [
@@ -221,6 +236,11 @@ MECHANICS_CASES = [
         "cantilever_tip_force.md",
         ["cantilever_tip_force_matches_open_mechanics_formula"],
         "mech_numeric",
+        evidence_detail=strengthened(
+            "the fixed-end moment as well: the node 0 `RZ` restraint reaction "
+            "recovered from the solved displacements equals `-60.0` N-m "
+            "(magnitude `60.0`, the reference value)"
+        ),
     ),
     Case(
         "MECH-PORTAL-SWAY-ORIGINAL",
@@ -228,6 +248,30 @@ MECHANICS_CASES = [
         "portal_frame_sway.md",
         ["portal_frame_fixture_solves_repeatably"],
         "mech_numeric",
+        reference_detail=(
+            "None. Repeatability check only; the note "
+            "`validation/hand_calcs/mechanics/portal_frame_sway.md` records the "
+            "inputs, not an independent value"
+        ),
+        expected_result_detail=(
+            "No independent expected value exists for this case. The fixture's\n"
+            "expected sway is computed by calling the same solver function\n"
+            "(`solve_portal_frame_sway()`) when the fixture is constructed, as\n"
+            "the reference note states."
+        ),
+        software_path_detail=(
+            "which assemble and solve the frame through the in-repo solver path and\n"
+            "assert that the solved sway repeats the fixture's expected value. Because\n"
+            "that value comes from the same solve, the case checks deterministic\n"
+            "assembly and solution only; it is not a comparison with an independent\n"
+            "reference."
+        ),
+        pass_fail_detail=(
+            "`PASS` at the recorded run above: the solved sway repeated the stored "
+            "value and was finite. This is repeatability evidence only, not "
+            "agreement with an independent reference, and it is software-quality "
+            "evidence only."
+        ),
     ),
     Case(
         "MECH-BRANCH-ASSEMBLY-THREE-MEMBER",
@@ -270,6 +314,12 @@ MECHANICS_CASES = [
         "tp_phys_002_linear_static_integration.md",
         ["tp_phys_002_integrated_fixture_solves_recovers_and_maps_diagnostics"],
         "mech_numeric",
+        evidence_detail=strengthened(
+            "the node `1` global `Y` displacement and the local `Y` shear at node "
+            "`j` against the hand values now derived in the reference note "
+            "(`-0.020545746388443017` m and `-3.178170144462279` N); before, the "
+            "shear was only checked to be non-zero"
+        ),
     ),
     Case(
         "MECH-TP-PHYS-004-LOAD-TO-RESULTANT",
@@ -305,6 +355,21 @@ MECHANICS_CASES = [
         "fixed_fixed_thermal_axial.md",
         ["thermal_growth_fixture_records_open_axial_restraint_formula"],
         "mech_numeric",
+        software_path_detail=(
+            "which compute the restrained axial force through the product's\n"
+            "straight-pipe axial-effect preparation path\n"
+            "(`prepare_straight_pipe_axial_effects`, the path\n"
+            "`MECH-TP-PHYS-008-THERMAL-PRESSURE-AXIAL-EFFECTS` uses) from the\n"
+            "fixture's invented inputs and assert it equals the reference value.\n"
+            "The free thermal strain is asserted as reference arithmetic only. With\n"
+            "both ends fully restrained no free degree of freedom remains, so no\n"
+            "global stiffness solve is involved."
+        ),
+        evidence_detail=strengthened(
+            "the restrained axial force through the product's axial-effect "
+            "preparation path; before, the test compared the fixture's own "
+            "recorded values with the formula and ran no product code"
+        ),
     ),
     Case(
         "MECH-TP-PHYS-008-THERMAL-PRESSURE-AXIAL-EFFECTS",
@@ -560,6 +625,18 @@ STRESS_CASES = [
         "tp_phys_004_load_to_resultant_stress.md",
         ["load_to_resultant_station_stress_fixture_recovers_bending_component"],
         "stress_numeric",
+        reference_detail=(
+            "`validation/hand_calcs/stress/tp_phys_004_load_to_resultant_stress.md` "
+            "with `validation/hand_calcs/mechanics/tp_phys_004_load_to_resultant.md`"
+        ),
+        software_path_detail=(
+            "which enter the solved free-end displacements and member loads from the\n"
+            "mechanics reference as fixed inputs, recover the midspan station\n"
+            "resultants through the in-repo straight-pipe recovery path, recover\n"
+            "stresses from them, and assert agreement with the reference\n"
+            "expectations. The frame itself is solved in\n"
+            "`MECH-TP-PHYS-004-LOAD-TO-RESULTANT`, not here."
+        ),
     ),
     Case(
         "STRESS-TP-PHYS-005-ORIENTED-LOAD-TO-STRESS",
@@ -613,6 +690,14 @@ STRESS_CASES = [
             "`validation/witness/generated/"
             "tp_phys_015_section_property_stress_witness.mathml`."
         ],
+        software_path_detail=(
+            "which recover station stresses through the in-repo stress-recovery path\n"
+            "from midspan resultants entered in the benchmark as fixed inputs\n"
+            "(`V_y = 4.0` N, `M_z = 4.0` N-m) and assert agreement with the reference\n"
+            "expectations. The canonical payload is not solved in this test; the\n"
+            "mechanics case `MECH-TP-PHYS-014-CANONICAL-ANALYTICAL-PAYLOAD` solves it\n"
+            "and asserts those midspan values."
+        ),
     ),
     Case(
         "STRESS-TP-PMM-P3-MILLTOL-EFFECTIVE-WALL-STRESS",
@@ -623,6 +708,14 @@ STRESS_CASES = [
             "milltol_reduction_strictly_reduces_section_modulus",
         ],
         "stress_numeric",
+        software_path_detail=(
+            "which recover stresses through the in-repo stress-recovery path from an\n"
+            "effective-wall section whose properties the benchmark computes from the\n"
+            "invented dimensions, and assert agreement with the reference\n"
+            "expectations. The section-modulus comparison is benchmark arithmetic.\n"
+            "The product's own effective-wall derivation is exercised by the\n"
+            "product-physics unit tests named in the reference note."
+        ),
     ),
     Case(
         "STRESS-TP-PMM-P3-MODULUSBASIS-RANGE-STRESS",
@@ -630,6 +723,18 @@ STRESS_CASES = [
         "tp_pmm_p3_modulusbasis_range_stress.md",
         ["recovers_modulusbasis_range_fixture_with_recorded_bases"],
         "stress_numeric",
+        software_path_detail=(
+            "which recover the hot-state axial stress and the hot/cold stress range\n"
+            "through the in-repo stress-recovery path\n"
+            "(`recover_stress_range_with_modulus_basis`) and assert the stresses and\n"
+            "both recorded basis labels. The hot axial force input and the 400 K\n"
+            "interpolated `E` and `alpha` are reference arithmetic in the benchmark;\n"
+            "no solver thermal or interpolation routine runs in this test, and the\n"
+            "interpolation provenance is not asserted here. The product-physics unit\n"
+            "tests named in the reference note exercise the hot-point selection, the\n"
+            "400 K interpolation with its provenance, and blocking at or outside the\n"
+            "stored points."
+        ),
     ),
 ]
 
@@ -939,6 +1044,11 @@ def render_case(case: Case, constructor: str | None) -> str:
     software_result_detail = (
         f"\n\n{case.software_result_detail}" if case.software_result_detail else ""
     )
+    software_path = case.software_path_detail or (
+        "which run the current in-repo solver path on the fixture\n"
+        "and assert agreement with the reference expectations."
+    )
+    reference = case.reference_detail or f"`{note_rel}`"
     recorded_result = case.recorded_result or suite.recorded_result
     evidence_detail = f"\n\nEvidence basis: {case.evidence_detail}" if case.evidence_detail else ""
     runner_reproduction = case.runner_reproduction_detail or (
@@ -977,7 +1087,7 @@ refs:
 | Suite | {suite.title} (`{suite.deliverable}`), crate `{suite.crate}/` |
 | Evidence class | {suite.evidence_class} |
 | Evidence state | `DRAFT_EVIDENCE` |
-| Independent reference | `{note_rel}` |
+| Independent reference | {reference} |
 | Provenance | Invented public-original fixture data only (recorded in the reference note and fixture metadata) |
 
 ## Test Purpose And Problem Statement
@@ -998,8 +1108,7 @@ protected standards, commercial software examples, or proprietary data.
 ## Software Result And Reproduction
 
 The measured-vs-reference comparison executes inside the named suite
-test(s) {test_list}, which run the current in-repo solver path on the fixture
-and assert agreement with the reference expectations.{software_result_detail}
+test(s) {test_list}, {software_path}{software_result_detail}
 
 Reproduction (from `projects/chirality-piping`):
 

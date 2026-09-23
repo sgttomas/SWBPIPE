@@ -539,3 +539,16 @@ code compliance, or project-specific professional reliance.
   release thresholds, validation-evidence storage decision, lifecycle
   transition, release-readiness claim, professional approval, certification,
   sealing, authentication, or code-compliance claim changed.
+
+## 2026-09-22 - Case record / test reconciliation
+
+- Reconciled nine case records with what their tests assert: strengthened the
+  fixed-fixed thermal, cantilever fixed-end moment and TP-PHYS-002 `u_y`/shear
+  tests; corrected portal-sway (repeatability only), TP-PHYS-004/015 stress,
+  mill-tolerance and modulus-basis wording. DEC-046 translation-delta unit
+  defect held for the owner.
+- Evidence: `_run_records/RUN_2026-09-22_DEL0904_RECORD_TEST_RECONCILIATION.md`;
+  `execution/_Coordination/NOTICE_2026-09-22_DEC046_TRANSLATION_DELTA_UNIT.md`;
+  PR on branch `claude/valmanual-record-reconcile-20260922`.
+- Boundary preserved: no threshold, tolerance, governed record, lifecycle,
+  release, professional, certification or code-compliance change.

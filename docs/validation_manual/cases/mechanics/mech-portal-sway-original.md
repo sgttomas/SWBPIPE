@@ -18,7 +18,7 @@ refs:
 | Suite | Mechanics benchmark suite (`DEL-09-01`), crate `validation/benchmarks/mechanics/` |
 | Evidence class | Mechanics verification |
 | Evidence state | `DRAFT_EVIDENCE` |
-| Independent reference | `validation/hand_calcs/mechanics/portal_frame_sway.md` |
+| Independent reference | None. Repeatability check only; the note `validation/hand_calcs/mechanics/portal_frame_sway.md` records the inputs, not an independent value |
 | Provenance | Invented public-original fixture data only (recorded in the reference note and fixture metadata) |
 
 ## Test Purpose And Problem Statement
@@ -35,15 +35,19 @@ The machine-readable input model is the fixture constructor `portal_frame_sway_f
 
 ## Expected Result And Independent Reference
 
-The expected values and their derivation are recorded in the independent
-reference note `validation/hand_calcs/mechanics/portal_frame_sway.md` and mirrored in the fixture's expected-value
-slots. The reference derivation uses elementary open mechanics only.
+No independent expected value exists for this case. The fixture's
+expected sway is computed by calling the same solver function
+(`solve_portal_frame_sway()`) when the fixture is constructed, as
+the reference note states.
 
 ## Software Result And Reproduction
 
 The measured-vs-reference comparison executes inside the named suite
-test(s) `portal_frame_fixture_solves_repeatably`, which run the current in-repo solver path on the fixture
-and assert agreement with the reference expectations.
+test(s) `portal_frame_fixture_solves_repeatably`, which assemble and solve the frame through the in-repo solver path and
+assert that the solved sway repeats the fixture's expected value. Because
+that value comes from the same solve, the case checks deterministic
+assembly and solution only; it is not a comparison with an independent
+reference.
 
 Reproduction (from `projects/chirality-piping`):
 
@@ -71,7 +75,7 @@ Numeric agreement assertions in this suite use the fixture-local absolute assert
 
 ## Pass/Fail
 
-`PASS` at the recorded run above: every named test asserted the measured-vs-reference expectations and completed with `ok`. This is software-quality evidence only.
+`PASS` at the recorded run above: the solved sway repeated the stored value and was finite. This is repeatability evidence only, not agreement with an independent reference, and it is software-quality evidence only.
 
 ## Solver Version
 

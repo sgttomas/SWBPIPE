@@ -15,6 +15,23 @@ components.
   copied from protected standards, commercial software examples, proprietary
   data, allowables, SIF/flexibility factors, or fatigue criteria.
 
+## Mechanics Inputs Used
+
+This note depends on the mechanics hand calculation
+`validation/hand_calcs/mechanics/tp_phys_004_load_to_resultant.md`, which is
+part of this case's independent reference. The stress benchmark does not solve
+the frame. It enters the solved free-end displacements and the member loads from
+that note as fixed inputs and recovers the midspan station resultants through
+the straight-pipe recovery path before recovering stresses:
+
+| Input (from the mechanics note) | Value | Unit | Canonical dimension |
+|---|---:|---|---|
+| Member length | 4.0 | m | length |
+| Free-end `u_y` | -0.04533333333333334 | m | length |
+| Free-end `theta_z` | -0.014666666666666668 | rad | rotation |
+| Uniform local `Y` load, `q` | -2.0 | N/m | force_per_length |
+| Midspan point local `Y` force, `P` | -4.0 | N | force |
+
 ## Station Resultants
 
 The mechanics hand calculation in

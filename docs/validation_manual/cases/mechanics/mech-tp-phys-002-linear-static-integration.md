@@ -58,6 +58,8 @@ result `ok. 30 passed; 0 failed; 0 ignored` with the named test(s) passing. The 
 suite output and the exact commit are recorded in the run record
 `execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_run_records/WORKING_ITEMS_RUN_2026-07-10_TP-E2-VALMANUAL-001.md`.
 
+Evidence basis: On 2026-09-22 the named test was strengthened to assert the node `1` global `Y` displacement and the local `Y` shear at node `j` against the hand values now derived in the reference note (`-0.020545746388443017` m and `-3.178170144462279` N); before, the shear was only checked to be non-zero. The recorded run above predates that assertion; the run that exercises it is recorded in `execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_run_records/RUN_2026-09-22_DEL0904_RECORD_TEST_RECONCILIATION.md`.
+
 Headless-runner status: PR #287 bound `run-benchmark` and `run-regression`
 for the committed `DEL-10-05` benchmark/regression payload families. That
 bounded evidence does not establish a runner payload or per-case runner

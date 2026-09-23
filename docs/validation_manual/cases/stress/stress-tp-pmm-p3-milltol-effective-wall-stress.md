@@ -54,8 +54,12 @@ slots. The reference derivation uses elementary open mechanics only.
 ## Software Result And Reproduction
 
 The measured-vs-reference comparison executes inside the named suite
-test(s) `recovers_milltol_effective_wall_fixture`, `milltol_reduction_strictly_reduces_section_modulus`, which run the current in-repo solver path on the fixture
-and assert agreement with the reference expectations.
+test(s) `recovers_milltol_effective_wall_fixture`, `milltol_reduction_strictly_reduces_section_modulus`, which recover stresses through the in-repo stress-recovery path from an
+effective-wall section whose properties the benchmark computes from the
+invented dimensions, and assert agreement with the reference
+expectations. The section-modulus comparison is benchmark arithmetic.
+The product's own effective-wall derivation is exercised by the
+product-physics unit tests named in the reference note.
 
 Reproduction (from `projects/chirality-piping`):
 

@@ -39,4 +39,11 @@ F = E A alpha DeltaT
   = 5.4
 ```
 
+The benchmark computes the restrained force through the product's
+straight-pipe axial-effect preparation path (the path used by
+`MECH-TP-PHYS-008-THERMAL-PRESSURE-AXIAL-EFFECTS`) from the same invented
+inputs and compares it with this value. The free thermal strain is checked as
+reference arithmetic only. With both ends fully restrained no free degree of
+freedom remains, so no global stiffness solve is involved.
+
 Tolerance policy: `TBD`.

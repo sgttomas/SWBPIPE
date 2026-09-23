@@ -1711,6 +1711,34 @@ pub fn solve_constant_effort_support_applied_load(
     })
 }
 
+/// Restrained axial force for the fixed-fixed thermal fixture, computed by
+/// the product's straight-pipe axial-effect preparation (the path
+/// MECH-TP-PHYS-008 uses) from the fixture's invented `E`, `A`, `alpha` and
+/// `DeltaT`. Both ends are fully restrained, so no free degree of freedom
+/// remains to solve.
+pub fn solve_fixed_fixed_thermal_restraint_force() -> Result<f64, String> {
+    let loads = [PrimitiveLoad::uniform_element_load(
+        "fixed-fixed-thermal-restraint",
+        PrimitiveLoadCategory::Thermal,
+        0,
+        LoadDirection::GlobalX,
+        LoadQuantity::new(75.0, LoadDimension::TemperatureChange)
+            .expect("fixture temperature change is finite"),
+    )];
+    let properties = [ElementAxialEffectProperties::new(
+        0,
+        Some(2000.0),
+        Some(3.0),
+        Some(1.2e-5),
+        None,
+    )];
+    let prepared = prepare_straight_pipe_axial_effects(1, &loads, &properties);
+    if prepared.is_blocked() {
+        return Err("fixed-fixed thermal axial-effect preparation produced findings".to_string());
+    }
+    axial_force_by_load_id(&prepared.axial_effects, "fixed-fixed-thermal-restraint")
+}
+
 pub fn portal_frame_sway_fixture() -> MechanicsBenchmark {
     MechanicsBenchmark {
         fixture_id: "MECH-PORTAL-SWAY-ORIGINAL",
@@ -2940,6 +2968,36 @@ pub fn solve_cantilever_tip_force() -> Result<f64, FrameKernelError> {
         .position(|&dof| dof == DOF_PER_NODE + UY)
         .expect("tip UY is free in this fixture");
     Ok(displacement[reduced_index])
+}
+
+/// Fixed-end reaction moment about `Z` for the cantilever tip-force fixture,
+/// recovered from the solved displacements as the restraint reaction
+/// `K u - F` at node 0 `RZ` (the same recovery used by the constant-effort
+/// fixture). Equilibrium makes it `-P_y L`.
+pub fn solve_cantilever_tip_force_fixed_end_moment() -> Result<f64, FrameKernelError> {
+    let section = benchmark_section()?;
+    let element = FrameElement::new(
+        FrameNode::new(0, [0.0, 0.0, 0.0])?,
+        FrameNode::new(1, [10.0, 0.0, 0.0])?,
+        section,
+        [0.0, 1.0, 0.0],
+    )?;
+    let stiffness = assemble_global_stiffness(2, &[element])?;
+    let mut force = vec![0.0; 2 * DOF_PER_NODE];
+    force[DOF_PER_NODE + UY] = 6.0;
+    let reduced = reduce_system(&stiffness, &force, &[UX, UY, UZ, RX, RY, RZ])?;
+    let displacement = solve_dense(&reduced.stiffness, &reduced.force)?;
+    let mut full = vec![0.0; 2 * DOF_PER_NODE];
+    for (index, dof) in reduced.free_dofs.iter().enumerate() {
+        full[*dof] = displacement[index];
+    }
+    let reaction_rz = stiffness[RZ]
+        .iter()
+        .zip(full.iter())
+        .map(|(k, d)| k * d)
+        .sum::<f64>()
+        - force[RZ];
+    Ok(reaction_rz)
 }
 
 /// Solve the independent DEC-092 straight-pipe fixture with an explicitly
@@ -4474,8 +4532,17 @@ pub fn validate_tp_phys_002_linear_static_integration() -> bool {
         && (result.node_1_ux_displacement - 0.016).abs() <= INTERNAL_ASSERTION_EPSILON
         && (result.node_1_uz_displacement + 0.01).abs() <= INTERNAL_ASSERTION_EPSILON
         && (result.recovered_local_axial_force_j - 12.0).abs() <= INTERNAL_ASSERTION_EPSILON
-        && result.recovered_local_shear_y_j.abs() > INTERNAL_ASSERTION_EPSILON
+        && (result.node_1_uy_displacement - TP_PHYS_002_NODE_1_UY_HAND).abs()
+            <= INTERNAL_ASSERTION_EPSILON
+        && (result.recovered_local_shear_y_j - TP_PHYS_002_LOCAL_SHEAR_Y_J_HAND).abs()
+            <= INTERNAL_ASSERTION_EPSILON
 }
+
+// Hand values from validation/hand_calcs/mechanics/tp_phys_002_linear_static_integration.md:
+// with node 0 anchored and node 1 free in RZ, the tip bending stiffness is
+// 3 E I_z / L^3 = 154.6875 N/m in parallel with the 40.0 N/m spring.
+const TP_PHYS_002_NODE_1_UY_HAND: f64 = -4.0 / 194.6875;
+const TP_PHYS_002_LOCAL_SHEAR_Y_J_HAND: f64 = 154.6875 * TP_PHYS_002_NODE_1_UY_HAND;
 
 pub fn validate_tp_phys_002_diagnostic_mapping() -> bool {
     let Ok((_pipe, stiffness, force, _lumped_force)) = tp_phys_002_model() else {
@@ -7479,6 +7546,13 @@ mod tests {
         let fixture = cantilever_tip_force_fixture();
         let expected = fixture.expected_values[0].value;
         assert!((solved_tip_displacement - expected).abs() <= INTERNAL_ASSERTION_EPSILON);
+
+        // The note records the fixed-end moment magnitude P_y L; the recovered
+        // restraint reaction carries the opposite sign of the applied moment.
+        assert_eq!(fixture.expected_values[1].name, "fixed_end_moment_z");
+        let fixed_end_moment_magnitude = fixture.expected_values[1].value;
+        let reaction_rz = solve_cantilever_tip_force_fixed_end_moment().unwrap();
+        assert!((reaction_rz + fixed_end_moment_magnitude).abs() <= INTERNAL_ASSERTION_EPSILON);
     }
 
     #[test]
@@ -7610,6 +7684,11 @@ mod tests {
         let force = fixture.expected_values[1].value;
         assert!((strain - 0.0009).abs() <= INTERNAL_ASSERTION_EPSILON);
         assert!((force - 5.4).abs() <= INTERNAL_ASSERTION_EPSILON);
+
+        // The restrained axial force through the product's straight-pipe
+        // axial-effect preparation path, from the same invented inputs.
+        let prepared_force = solve_fixed_fixed_thermal_restraint_force().unwrap();
+        assert!((prepared_force - force).abs() <= INTERNAL_ASSERTION_EPSILON);
     }
 
     #[test]

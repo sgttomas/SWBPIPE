@@ -38,4 +38,8 @@ M_z = P_y L
     = 60.0
 ```
 
+The benchmark recovers the fixed-end moment from the solved displacements as
+the node `0` `RZ` restraint reaction `K u - F`. Equilibrium with the applied
+tip moment `P_y L` about the root gives a reaction of `-60.0`, magnitude `60.0`.
+
 Tolerance policy: `TBD`.

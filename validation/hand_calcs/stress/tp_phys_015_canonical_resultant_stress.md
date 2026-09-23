@@ -27,6 +27,12 @@ resultant source.
 | Resultant evidence | `solve_tp_phys_014_canonical_analytical_payload()` returns midspan resultants. |
 | Stress recovery | `StationStressRecoveryInput::from_station_resultants` feeds mechanics-only recovery. |
 
+The two halves of this chain are checked by two cases. The mechanics case
+`MECH-TP-PHYS-014-CANONICAL-ANALYTICAL-PAYLOAD` solves the canonical payload and
+asserts the midspan `V_y = 4.0` N and `M_z = 4.0` N-m below. This stress
+benchmark does not solve the payload: it enters those midspan resultants as
+fixed inputs and checks the stress recovery from them.
+
 ## Canonical Midspan Resultants
 
 The upstream TP-PHYS-014 mechanics fixture gives the midspan station resultants:

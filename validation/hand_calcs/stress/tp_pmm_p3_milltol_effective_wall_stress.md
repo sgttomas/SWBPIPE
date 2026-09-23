@@ -87,6 +87,19 @@ arithmetic from the closed forms; the benchmark fixture recomputes the same
 closed forms in code so agreement is at floating-point identity
 (internal assertion epsilon 1.0e-9).
 
+## What The Stress Benchmark Asserts
+
+The effective-wall section properties above, and the comparison with the
+corrosion-only section, are computed in the benchmark from the closed forms.
+Only the stress recovery from those section properties runs through the
+stress-recovery path. The product's own effective-wall derivation from a
+user-entered mill-tolerance slot is exercised by the product-physics unit tests
+in `core/product_physics/src/lib.rs`:
+`mill_tolerance_reduces_derived_effective_wall_and_section_modulus`,
+`absent_mill_tolerance_slot_means_no_reduction`,
+`present_but_invalid_mill_tolerance_is_blocking` and
+`mill_tolerance_units_are_normalized_at_preview_boundary`.
+
 ## Tolerance Policy
 
 Per `DEC-024`/`DEC-026`, governed tolerance values remain `TBD` and the

@@ -18,7 +18,7 @@ refs:
 | Suite | Stress recovery benchmark suite (`DEL-09-02`), crate `validation/benchmarks/stress/` |
 | Evidence class | Mechanics verification (stress recovery) |
 | Evidence state | `DRAFT_EVIDENCE` |
-| Independent reference | `validation/hand_calcs/stress/tp_phys_004_load_to_resultant_stress.md` |
+| Independent reference | `validation/hand_calcs/stress/tp_phys_004_load_to_resultant_stress.md` with `validation/hand_calcs/mechanics/tp_phys_004_load_to_resultant.md` |
 | Provenance | Invented public-original fixture data only (recorded in the reference note and fixture metadata) |
 
 ## Test Purpose And Problem Statement
@@ -44,8 +44,12 @@ slots. The reference derivation uses elementary open mechanics only.
 ## Software Result And Reproduction
 
 The measured-vs-reference comparison executes inside the named suite
-test(s) `load_to_resultant_station_stress_fixture_recovers_bending_component`, which run the current in-repo solver path on the fixture
-and assert agreement with the reference expectations.
+test(s) `load_to_resultant_station_stress_fixture_recovers_bending_component`, which enter the solved free-end displacements and member loads from the
+mechanics reference as fixed inputs, recover the midspan station
+resultants through the in-repo straight-pipe recovery path, recover
+stresses from them, and assert agreement with the reference
+expectations. The frame itself is solved in
+`MECH-TP-PHYS-004-LOAD-TO-RESULTANT`, not here.
 
 Reproduction (from `projects/chirality-piping`):
 

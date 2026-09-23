@@ -55,6 +55,8 @@ result `ok. 30 passed; 0 failed; 0 ignored` with the named test(s) passing. The 
 suite output and the exact commit are recorded in the run record
 `execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_run_records/WORKING_ITEMS_RUN_2026-07-10_TP-E2-VALMANUAL-001.md`.
 
+Evidence basis: On 2026-09-22 the named test was strengthened to assert the fixed-end moment as well: the node 0 `RZ` restraint reaction recovered from the solved displacements equals `-60.0` N-m (magnitude `60.0`, the reference value). The recorded run above predates that assertion; the run that exercises it is recorded in `execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_run_records/RUN_2026-09-22_DEL0904_RECORD_TEST_RECONCILIATION.md`.
+
 Headless-runner status: PR #287 bound `run-benchmark` and `run-regression`
 for the committed `DEL-10-05` benchmark/regression payload families. That
 bounded evidence does not establish a runner payload or per-case runner
