@@ -9,7 +9,7 @@ The dated `WORKPLAN_2026-07-*` files are historical evidence at their original
 paths, not instructions for current work selection. The 2026-09-19 standing
 procedure pointer records their supersession; preserve those historical bytes.
 
-**Current work graph:** `execution/_Coordination/WorkGraphs/dec025-clean-base-repair-2026-09-23/WORK_GRAPH.md`.
+**Current work graph:** `execution/_Coordination/WorkGraphs/PIPING_LINTER_SCOPE_20260923/WORK_GRAPH.md`.
 
 ## Project pointers
 

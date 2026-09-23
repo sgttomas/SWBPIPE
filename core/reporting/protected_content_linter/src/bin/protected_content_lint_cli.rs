@@ -13,15 +13,17 @@
 
 use std::env;
 use std::fs;
+use std::path::Path;
 use std::process::ExitCode;
 
 use open_pipe_stress_protected_content_linter::{
     lint_targets, FindingClass, FindingCode, FindingSeverity, LintConfiguration, LintTarget,
-    Provenance, PrivacyClassification, RedistributionStatus, ReviewRoute, ReviewStatus,
+    PrivacyClassification, Provenance, RedistributionStatus, ReviewRoute, ReviewStatus,
     SurfaceKind,
 };
 
-const USAGE: &str = "usage: protected_content_lint_cli [--provenance-mode engine|external] <file> [<file> ...]\n\
+const USAGE: &str =
+    "usage: protected_content_lint_cli [--provenance-mode engine|external] <file> [<file> ...]\n\
 Runs the DEL-08-05 protected-content lint engine over the named files and\n\
 prints findings as JSON. --provenance-mode external disables the engine's\n\
 own per-target provenance heuristic for callers that verify provenance\n\
@@ -110,6 +112,35 @@ fn engine_mode_provenance() -> Provenance {
     }
 }
 
+/// Windows canonical paths often carry the extended `\\?\` prefix. Convert
+/// them to stable logical identities before exact authorization. This does
+/// not confer public-surface authority by itself.
+fn normalize_windows_file_path(raw: &str) -> String {
+    let slash_path = raw.replace('\\', "/");
+    if let Some(unc) = slash_path.strip_prefix("//?/UNC/") {
+        format!("unc://{unc}")
+    } else if let Some(extended) = slash_path.strip_prefix("//?/") {
+        extended.to_string()
+    } else if let Some(unc) = slash_path.strip_prefix("//") {
+        format!("unc://{unc}")
+    } else {
+        slash_path
+    }
+}
+
+fn exact_file_target_path(path: &Path) -> Result<String, &'static str> {
+    let raw = path.to_string_lossy();
+    if cfg!(windows) {
+        Ok(normalize_windows_file_path(&raw))
+    } else if raw.contains('\\') {
+        // Backslash is a literal Unix filename character. Rewriting it as a
+        // separator could authorize another file; reject this CLI selection.
+        Err("literal backslash in file path cannot be represented in lint scope")
+    } else {
+        Ok(raw.into_owned())
+    }
+}
+
 fn main() -> ExitCode {
     let mut args = env::args().skip(1).peekable();
     let mut provenance_mode = "engine".to_string();
@@ -142,6 +173,7 @@ fn main() -> ExitCode {
     }
 
     let mut targets = Vec::with_capacity(paths.len());
+    let mut exact_public_targets = Vec::with_capacity(paths.len());
     for path in &paths {
         let text = match fs::read_to_string(path) {
             Ok(text) => text,
@@ -155,20 +187,41 @@ fn main() -> ExitCode {
         } else {
             engine_mode_provenance()
         };
+        let exact_path = match fs::canonicalize(path) {
+            Ok(path) => match exact_file_target_path(&path) {
+                Ok(path) => path,
+                Err(reason) => {
+                    eprintln!("error: cannot scan '{}': {reason}", path.display());
+                    return ExitCode::from(2);
+                }
+            },
+            Err(error) => {
+                eprintln!("error: cannot resolve '{path}': {error}");
+                return ExitCode::from(2);
+            }
+        };
+        exact_public_targets.push(exact_path.clone());
         targets.push(LintTarget {
-            target_id: path.clone(),
-            path: path.clone(),
+            target_id: exact_path.clone(),
+            path: exact_path,
             surface: SurfaceKind::PublicFixture,
             text,
             provenance,
         });
     }
 
-    let run = lint_targets(
-        "release-scan-lint-cli",
-        LintConfiguration::public_surfaces_only("release-scan-cli-cfg"),
-        targets,
-    );
+    let mut configuration = LintConfiguration::public_surfaces_only("release-scan-cli-cfg");
+    // Positional arguments select exact files for this invocation. They do not
+    // authorize neighboring paths or certify the files for publication.
+    configuration.public_surface_roots = exact_public_targets;
+    let run = lint_targets("release-scan-lint-cli", configuration, targets);
+    if run.summary.scanned_target_count != paths.len() {
+        eprintln!(
+            "error: {} explicitly selected file(s) were outside the authorized scan scope",
+            paths.len() - run.summary.scanned_target_count
+        );
+        return ExitCode::from(2);
+    }
 
     let mut findings_json = Vec::with_capacity(run.findings.len());
     for finding in &run.findings {
@@ -197,16 +250,68 @@ fn main() -> ExitCode {
          \"deliverable_id\":\"DEL-08-05\",\"decision_basis\":\"DEC-058\",\
          \"provenance_mode\":\"{}\",\
          \"summary\":{{\"target_count\":{},\"scanned_target_count\":{},\
+         \"skipped_private_target_count\":{},\"skipped_incomplete_target_count\":{},\
          \"finding_count\":{},\"blocking_finding_count\":{},\
          \"clean_scan_is_clearance\":false}},\
          \"findings\":[{}]}}",
         json_escape(&provenance_mode),
         run.summary.target_count,
         run.summary.scanned_target_count,
+        run.summary.skipped_private_target_count,
+        run.summary.skipped_incomplete_target_count,
         run.summary.finding_count,
         run.summary.blocking_finding_count,
         findings_json.join(",")
     );
 
     ExitCode::SUCCESS
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn windows_extended_drive_and_unc_paths_keep_exact_logical_identity() {
+        let drive = normalize_windows_file_path(r"\\?\C:\public\selected.txt");
+        let unc = normalize_windows_file_path(r"\\?\UNC\server\share\selected.txt");
+        assert_eq!(drive, "C:/public/selected.txt");
+        assert_eq!(unc, "unc://server/share/selected.txt");
+        assert_eq!(
+            normalize_windows_file_path(r"\\server\share\selected.txt"),
+            "unc://server/share/selected.txt"
+        );
+
+        let mut config = LintConfiguration::public_surfaces_only("windows-exact");
+        config.public_surface_roots = vec![drive.clone(), unc.clone()];
+        let target = |path: String| LintTarget {
+            target_id: path.clone(),
+            path,
+            surface: SurfaceKind::PublicFixture,
+            text: String::new(),
+            provenance: open_pipe_stress_protected_content_linter::invented_provenance(),
+        };
+        assert!(
+            open_pipe_stress_protected_content_linter::should_scan_target(&target(drive), &config)
+        );
+        assert!(
+            open_pipe_stress_protected_content_linter::should_scan_target(&target(unc), &config)
+        );
+        assert!(
+            !open_pipe_stress_protected_content_linter::should_scan_target(
+                &target(normalize_windows_file_path(
+                    r"\\?\C:\public\selected.txt.neighbor"
+                )),
+                &config
+            )
+        );
+        assert!(
+            !open_pipe_stress_protected_content_linter::should_scan_target(
+                &target(normalize_windows_file_path(
+                    r"\\?\UNC\server\share-evil\selected.txt"
+                )),
+                &config
+            )
+        );
+    }
 }

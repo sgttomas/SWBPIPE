@@ -216,7 +216,10 @@ impl LintConfiguration {
 pub struct LintSummary {
     pub target_count: usize,
     pub scanned_target_count: usize,
+    /// Public targets outside configured roots and private targets without opt-in.
     pub skipped_private_target_count: usize,
+    /// Targets lacking the identity or provenance required for scanning.
+    pub skipped_incomplete_target_count: usize,
     pub finding_count: usize,
     pub blocking_finding_count: usize,
     pub clean_scan_is_clearance: bool,
@@ -239,9 +242,12 @@ pub fn lint_targets(
     let mut findings = Vec::new();
     let mut scanned_target_count = 0;
     let mut skipped_private_target_count = 0;
+    let mut skipped_incomplete_target_count = 0;
 
     for target in &targets {
-        if should_scan_target(target, &configuration) {
+        if !target.is_complete() {
+            skipped_incomplete_target_count += 1;
+        } else if should_scan_target(target, &configuration) {
             scanned_target_count += 1;
             findings.extend(lint_target(target));
         } else {
@@ -266,6 +272,7 @@ pub fn lint_targets(
             target_count: targets.len(),
             scanned_target_count,
             skipped_private_target_count,
+            skipped_incomplete_target_count,
             finding_count: findings.len(),
             blocking_finding_count,
             clean_scan_is_clearance: false,
@@ -281,7 +288,57 @@ pub fn should_scan_target(target: &LintTarget, configuration: &LintConfiguration
         return false;
     }
 
-    target.surface.is_public_by_default() || configuration.scan_private_surfaces
+    if !target.surface.is_public_by_default() {
+        return configuration.scan_private_surfaces;
+    }
+
+    valid_scoped_path(&target.path, false)
+        && configuration.public_surface_roots.iter().any(|root| {
+            let subtree = root.ends_with('/') && !root.ends_with("://");
+            let root_path = if subtree {
+                &root[..root.len() - 1]
+            } else {
+                root.as_str()
+            };
+            valid_scoped_path(root_path, true)
+                && if subtree {
+                    target.path.starts_with(root)
+                } else {
+                    target.path == root_path
+                }
+        })
+}
+
+/// Paths are logical scan identities, not filesystem permissions. Reject
+/// traversal and ambiguous separators before matching a caller-owned root.
+/// A trailing slash on a configured root denotes a component subtree; all
+/// other entries authorize only the exact target path.
+fn valid_scoped_path(path: &str, root: bool) -> bool {
+    if path.is_empty() || path.contains('\\') {
+        return false;
+    }
+    let rest = if let Some((scheme, remainder)) = path.split_once("://") {
+        if scheme.is_empty()
+            || !scheme
+                .chars()
+                .all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-')
+            || remainder.contains("://")
+        {
+            return false;
+        }
+        remainder
+    } else {
+        path.strip_prefix('/').unwrap_or(path)
+    };
+    let rest = if root {
+        rest.strip_suffix('/').unwrap_or(rest)
+    } else {
+        rest
+    };
+    !rest.is_empty()
+        && rest
+            .split('/')
+            .all(|component| !component.is_empty() && component != "." && component != "..")
 }
 
 pub fn lint_target(target: &LintTarget) -> Vec<LintFinding> {
@@ -587,10 +644,7 @@ fn numeric_grids(lines: &[&str]) -> Vec<NumericGrid> {
 /// finding.
 fn standards_table_signature_findings(target: &LintTarget) -> Vec<LintFinding> {
     let lines: Vec<&str> = target.text.lines().collect();
-    let lower_lines: Vec<String> = lines
-        .iter()
-        .map(|line| line.to_ascii_lowercase())
-        .collect();
+    let lower_lines: Vec<String> = lines.iter().map(|line| line.to_ascii_lowercase()).collect();
     let mut findings = Vec::new();
 
     for grid in numeric_grids(&lines) {
@@ -750,6 +804,147 @@ mod tests {
         assert_eq!(run.summary.skipped_private_target_count, 1);
         assert!(run.findings.is_empty());
         assert!(!run.summary.clean_scan_is_clearance);
+    }
+
+    #[test]
+    fn private_surface_requires_explicit_scan_opt_in_even_when_path_is_named() {
+        let private = target(
+            "private",
+            "/tmp/explicit-report.txt",
+            SurfaceKind::PrivateUserTemplate,
+            "OPS_SYNTHETIC_PROTECTED_TABLE",
+        );
+        let mut config = LintConfiguration::public_surfaces_only("exact-target");
+        config.public_surface_roots = vec!["/tmp/explicit-report.txt".to_string()];
+        assert!(!should_scan_target(&private, &config));
+        config.scan_private_surfaces = true;
+        let run = lint_targets("private-opt-in", config, vec![private]);
+        assert_eq!(run.summary.scanned_target_count, 1);
+        assert_eq!(run.summary.blocking_finding_count, 1);
+    }
+
+    #[test]
+    fn public_tag_outside_configured_roots_does_not_authorize_scan() {
+        let run = lint_targets(
+            "out-of-root",
+            LintConfiguration::public_surfaces_only("default-roots"),
+            vec![target(
+                "caller-tagged-public",
+                "/private/customer/report.txt",
+                SurfaceKind::PublicReportExample,
+                "OPS_SYNTHETIC_PROTECTED_TABLE",
+            )],
+        );
+        assert_eq!(run.summary.scanned_target_count, 0);
+        assert_eq!(run.summary.skipped_private_target_count, 1);
+        assert_eq!(run.summary.skipped_incomplete_target_count, 0);
+        assert!(run.findings.is_empty());
+    }
+
+    #[test]
+    fn public_roots_require_component_boundaries_and_no_traversal() {
+        let mut config = LintConfiguration::public_surfaces_only("configured");
+        config.public_surface_roots = vec!["fixtures/report_lint/".to_string()];
+        let run = lint_targets(
+            "path-boundaries",
+            config,
+            vec![
+                target(
+                    "inside",
+                    "fixtures/report_lint/invented.txt",
+                    SurfaceKind::PublicFixture,
+                    "safe",
+                ),
+                target(
+                    "alias",
+                    "fixtures/report_lint_private/data.txt",
+                    SurfaceKind::PublicFixture,
+                    "safe",
+                ),
+                target(
+                    "traversal",
+                    "fixtures/report_lint/../private/data.txt",
+                    SurfaceKind::PublicFixture,
+                    "safe",
+                ),
+            ],
+        );
+        assert_eq!(run.summary.scanned_target_count, 1);
+        assert_eq!(run.summary.skipped_private_target_count, 2);
+    }
+
+    #[test]
+    fn virtual_and_exact_targets_are_limited_to_their_configured_identity() {
+        let mut config = LintConfiguration::public_surfaces_only("rendered");
+        config.public_surface_roots = vec![
+            "report_renderer://section/".to_string(),
+            "report_renderer://document".to_string(),
+            "/tmp/explicit-report.txt".to_string(),
+        ];
+        let run = lint_targets(
+            "virtual-and-exact",
+            config,
+            vec![
+                target(
+                    "section",
+                    "report_renderer://section/introduction",
+                    SurfaceKind::PublicReportExample,
+                    "safe",
+                ),
+                target(
+                    "document",
+                    "report_renderer://document",
+                    SurfaceKind::PublicReportExample,
+                    "safe",
+                ),
+                target(
+                    "virtual-alias",
+                    "report_renderer://section-private/secret",
+                    SurfaceKind::PublicReportExample,
+                    "safe",
+                ),
+                target(
+                    "file",
+                    "/tmp/explicit-report.txt",
+                    SurfaceKind::PublicFixture,
+                    "safe",
+                ),
+                target(
+                    "file-alias",
+                    "/tmp/explicit-report.txt.neighbor",
+                    SurfaceKind::PublicFixture,
+                    "safe",
+                ),
+                target(
+                    "private-explicit",
+                    "/tmp/explicit-report.txt",
+                    SurfaceKind::PrivateUserTemplate,
+                    "safe",
+                ),
+            ],
+        );
+        assert_eq!(run.summary.scanned_target_count, 3);
+        assert_eq!(run.summary.skipped_private_target_count, 3);
+        assert_eq!(run.summary.skipped_incomplete_target_count, 0);
+    }
+
+    #[test]
+    fn incomplete_target_has_its_own_skip_count() {
+        let mut incomplete = target(
+            "",
+            "fixtures/report_lint/invented.txt",
+            SurfaceKind::PublicFixture,
+            "safe",
+        );
+        incomplete.provenance.source_name.clear();
+        let run = lint_targets(
+            "incomplete",
+            LintConfiguration::public_surfaces_only("default"),
+            vec![incomplete],
+        );
+        assert_eq!(run.summary.scanned_target_count, 0);
+        assert_eq!(run.summary.skipped_private_target_count, 0);
+        assert_eq!(run.summary.skipped_incomplete_target_count, 1);
     }
 
     #[test]
@@ -981,9 +1176,7 @@ Invented allowable stress table (synthetic demonstration values only)\n\
         assert_eq!(run.summary.finding_count, 2);
         assert_eq!(run.findings[0].finding_id, "RPLC-F0001");
         assert_eq!(run.findings[1].finding_id, "RPLC-F0002");
-        assert!(
-            run.findings[0].source_location.line < run.findings[1].source_location.line
-        );
+        assert!(run.findings[0].source_location.line < run.findings[1].source_location.line);
         assert!(run
             .findings
             .iter()
@@ -1003,8 +1196,7 @@ Invented allowable stress table (synthetic demonstration values only)\n\
             INVENTED_DESIGNATOR_GRID,
         );
         lint_target_value.provenance.review_status = ReviewStatus::Accepted;
-        lint_target_value.provenance.redistribution_status =
-            RedistributionStatus::PublicPermissive;
+        lint_target_value.provenance.redistribution_status = RedistributionStatus::PublicPermissive;
 
         let run = lint_targets(
             "run-sig-010",

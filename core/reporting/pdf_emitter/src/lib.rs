@@ -140,9 +140,11 @@ pub fn pdf_from_render(
 ) -> PdfEmissionOutcome {
     let (pdf_bytes, page_count, text_model) = emit_pdf_document(input, &render.blocking_reasons);
 
+    let mut lint_config = linter::LintConfiguration::public_surfaces_only("pdf-emitter-text-model");
+    lint_config.public_surface_roots = vec!["pdf_emitter://document".to_string()];
     let lint_run = linter::lint_targets(
         "pdf-emitter-text-model",
-        linter::LintConfiguration::public_surfaces_only("pdf-emitter-text-model"),
+        lint_config,
         vec![linter::LintTarget {
             target_id: "pdf-report-text-model".to_string(),
             path: "pdf_emitter://document".to_string(),

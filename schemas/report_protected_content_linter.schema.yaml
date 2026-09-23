@@ -223,6 +223,7 @@
         },
         "public_surface_roots": {
           "type": "array",
+          "description": "A trailing slash authorizes a component subtree; entries without it authorize one exact logical target path.",
           "minItems": 1,
           "items": {
             "type": "string",
@@ -386,6 +387,12 @@
         },
         "skipped_private_target_count": {
           "type": "integer",
+          "description": "Complete targets excluded as private without opt-in or outside configured public roots.",
+          "minimum": 0
+        },
+        "skipped_incomplete_target_count": {
+          "type": "integer",
+          "description": "Targets excluded because identity or provenance fields are incomplete.",
           "minimum": 0
         },
         "finding_count": {
