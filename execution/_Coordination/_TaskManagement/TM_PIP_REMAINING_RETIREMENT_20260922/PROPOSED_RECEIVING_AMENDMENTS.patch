@@ -216,17 +216,6 @@
  >
 
  ### CLM-012 — Standards
---- a/projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/ScopeOfWork.md
-+++ b/projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/ScopeOfWork.md
-@@ -10,6 +10,8 @@
- # Scope of Work — DEL-09-04
-
- Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
-+
-+Current validation-manual derivative: Regenerate or explicitly disposition the validation-manual derivative affected by accepted DEC-092 temperature-G implementation at DEL-09-04's owning cadence. The DEL-05-02 implementation and Receipt 87 remain closed; this derivative is a documentation/evidence duty, not a rerun of that product result.
-
- ## Purpose and Objective Traceability
-
 --- a/projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-04_Build, packaging, and CI-CD pipeline/ScopeOfWork.md
 +++ b/projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-04_Build, packaging, and CI-CD pipeline/ScopeOfWork.md
 @@ -210,6 +210,8 @@

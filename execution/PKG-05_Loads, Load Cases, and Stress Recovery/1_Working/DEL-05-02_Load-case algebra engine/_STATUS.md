@@ -5,10 +5,6 @@
 
 ## Remaining
 - Define and evidence the rule-pack combination supply interface, or obtain the owning interpretation of user-authored combinations, and carry/verify the AB-00-06 diagnostic fields through the algebra/product mapping. (R5 continuation claim references: DEL-05-02:SOW#CLM-010/REQ-05-02-004; REQ-05-02-008; CLM-012/REQ-05-02-008.)
-- No DEC-092 product-implementation or Receipt-87 closeout action is identified by this item. The bounded implementation evidence is `_run_records/WORKING_ITEMS_RUN_2026-08-02_DEC092_TEMPERATURE_G_IMPLEMENTATION.md`; `loop/LOOP_RECEIPTS.md` Receipt 87 records the closeout and commit-bound `validation/evidence/sweeps/SWEEP_20260803T194132Z_c394365ca72b.json`. The separate DEL-09-04 derivative regeneration below remains deferred. No suite was rerun for this record repair.
-- DEL-09-04 validation-manual derivative regeneration remains deferred to that
-  deliverable's owning cadence. It does not change this deliverable's validated
-  DEC-092 implementation result.
 
 ## History
 - 2026-09-22 - Added explicit grouped delivery/evidence tasks from the R5 record-continuation screening to Remaining; lifecycle, existing dispositions and acceptance boundaries remain unchanged. Evidence: `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG00_06/`.

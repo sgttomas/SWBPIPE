@@ -31,7 +31,8 @@ the closed TM-PIP-034 routing precedent and current receiving `_STATUS.md`
 breadcrumb, so no duplicate Task Management row is warranted for that work.
 
 The unanswered non-issued receiving-amendment decision is deferred under the
-later owner default, not approved. Keep the 14-target patch unapplied and the
+later owner default, not approved. Keep the current 13-target patch (originally
+14 before the DEL-09-04 derivative completion backcheck) unapplied and the
 affected source bullets held. Before any register mutation, re-run the
 invocation-local federation check, compare existing open and closed rows,
 prepare schema-valid decision-only candidates, and preserve these reliance

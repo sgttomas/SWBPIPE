@@ -2,10 +2,12 @@
 
 `PROPOSED_RECEIVING_AMENDMENTS.patch` is an **unapplied** unified diff for the
 non-issued receiving documents named in `SEMANTIC_DECISION_PACKET.md`. Its
-14 preimage files and SHA-256 values are in `PATCH_TARGETS.csv`. It was built
-against the isolated Piping branch at `10e9a0d21507484636392c14f07a1602414458ab`,
-with the separately directed DEL-17-06 historical banners already in the
-working tree. `git apply --check` passes on that basis. The patch does not
+13 preimage files and SHA-256 values are in `PATCH_TARGETS.csv`. The first
+draft was built at `10e9a0d21507484636392c14f07a1602414458ab`; this
+version was regenerated after rebasing over PRs #859/#860 and after the
+DEL-05-02 completion backcheck, with the separately directed DEL-17-06
+historical banners already present. `git apply --check` passes on the current
+target preimages. The patch does not
 touch any `_STATUS.md`, register, issued deliverable or product code.
 
 The human has approved conditional group treatment and selected historical
@@ -15,9 +17,13 @@ amendments is deferred at `TM-PIP-043`. Do not apply this patch merely because i
 or because a source row has a proposed destination. Verify the exact owner
 decision, source bytes, form constraints and each surviving row meaning first.
 After any approved amendment, recheck the destination before removing its
-source bullet. Eighteen independently verified empty `NONE` headings were
-removed under the separate conditional group approval; 223 account rows
-remain held. This patch does not apply or justify any additional removal.
+source bullet. Eighteen independently verified empty `NONE` headings and two
+DEL-05-02 bounded/fulfilled bullets (four census keys) were removed under
+the separate conditional group approval; 219 account rows remain held. The
+earlier proposed DEL-09-04 DEC-092 regeneration hunk was withdrawn after
+checking the actual 2026-08-09 completion evidence in
+`DEL0502_DEC092_COMPLETION_BACKCHECK.md`. This patch does not apply or
+justify any additional removal.
 
 The separate `DEL1706_HISTORICAL_MARKING.patch` records the applied minimal
 two-file historical marking chosen by the owner. It prepends a banner to

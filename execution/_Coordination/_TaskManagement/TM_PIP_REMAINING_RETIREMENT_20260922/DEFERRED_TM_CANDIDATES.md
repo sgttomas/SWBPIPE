@@ -8,13 +8,13 @@ The five excluded preliminary ideas are recorded only in `DEFERRED_TM_TRIAGE_MAT
 
 Registered ActionItemID: `TM-PIP-043`. Status: `DEFERRED`; priority: `TBD`.
 
-**Decision concern:** The owner has not approved the exact non-issued receiving-document amendments in the 14-target retirement patch. Current-source defects and surviving duties remain held until an owning amendment decision and verified application.
+**Decision concern:** The owner has not approved the exact non-issued receiving-document amendments in the current 13-target retirement patch. The earlier DEL-09-04 DEC-092 regeneration proposal was withdrawn after verified 2026-08-09 completion. Current-source defects and surviving duties remain held until an owning amendment decision and verified application.
 
 **Trigger:** Owner explicitly approves, revises, or declines the reviewed non-issued amendment package; any approved destination is then applied and checked before its source entry is removed.
 
-**Hold / limit:** DEFER_WITH_HOLD: patch unapplied; D-74 stale-license and all specific source duties remain live. Source obligations remain at their owning records; no execution or acceptance assigned by this row. Human basis: owner default-deferral direction recorded in OWNER_DIRECTION.md; manager triage/review is not promotion authority.
+**Hold / limit:** DEFER_WITH_HOLD: patch unapplied; D-74 stale-license and all specific source duties remain live. Source obligations remain at their owning records; no execution or acceptance assigned by this row. Human basis: owner default-deferral direction recorded in OWNER_DIRECTION.md; manager triage/review is not promotion authority. Current patch has 13 non-issued targets; fulfilled DEL-09-04 derivative is excluded.
 
-**Source:** `projects/chirality-piping/execution/_Coordination/_TaskManagement/TM_PIP_REMAINING_RETIREMENT_20260922/OWNER_DIRECTION.md; projects/chirality-piping/execution/_Coordination/_TaskManagement/TM_PIP_REMAINING_RETIREMENT_20260922/SEMANTIC_DECISION_PACKET.md`.
+**Source:** `projects/chirality-piping/execution/_Coordination/_TaskManagement/TM_PIP_REMAINING_RETIREMENT_20260922/OWNER_DIRECTION.md; projects/chirality-piping/execution/_Coordination/_TaskManagement/TM_PIP_REMAINING_RETIREMENT_20260922/SEMANTIC_DECISION_PACKET.md; projects/chirality-piping/execution/_Coordination/_TaskManagement/TM_PIP_REMAINING_RETIREMENT_20260922/DEL0502_DEC092_COMPLETION_BACKCHECK.md`.
 
 ## CAND-PIP-RET-02
 

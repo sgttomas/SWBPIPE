@@ -14,8 +14,11 @@ Question 2, authorizing the listed non-issued receiving-document amendments,
 has no specific approval and is deferred under the later default direction.
 No substantive SOW amendment,
 issued-baseline change, register write, or `Remaining` removal follows from
-these replies **alone**. After separate source/destination verification, 18
-empty `NONE` headings outside the named exceptions were removed under the
-conditional approval; `APPLIED_ROW_LEDGER.csv` binds each actual edit and the
-row account records those 18 applied dispositions. The other 223 rows remain
-held. This is not lifecycle or deliverable completion.
+these replies **alone**. The first verified application stage removed 18
+empty `NONE` headings outside the named exceptions, leaving 223 rows held
+at that stage. A later source/current-result comparison in
+`DEL0502_DEC092_COMPLETION_BACKCHECK.md` established the separately bounded
+DEL-05-02 item 2 result and the completed DEL-09-04 derivative represented
+by census keys 3–5; two more source bullets were removed under the same
+conditional principle. `APPLIED_ROW_LEDGER.csv` binds the 22 applied keys;
+219 remain held. This is not lifecycle or deliverable completion.

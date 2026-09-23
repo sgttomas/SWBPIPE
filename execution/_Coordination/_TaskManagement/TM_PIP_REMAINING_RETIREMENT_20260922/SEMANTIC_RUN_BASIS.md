@@ -82,8 +82,10 @@ carry named PKG-17 source questions. This TASK performed no broad harvest.
 
 At the initial decision-support commit, the row account was a **proposal** with
 `HumanDecision=PENDING`, `AppliedResult=NONE`, and held removal for every row.
-Later owner direction and the 18 verified empty-marker applications are recorded
-in `OWNER_DIRECTION.md` and `APPLIED_ROW_LEDGER.csv`; 223 rows still remain held.
+Later owner direction, 18 verified empty-marker applications and the separately
+verified DEL-05-02 bounded/fulfilled source removals are recorded in
+`OWNER_DIRECTION.md`, `APPLIED_ROW_LEDGER.csv` and
+`DEL0502_DEC092_COMPLETION_BACKCHECK.md`; 219 rows still remain held.
 A named Scope of Work,
 decision route, or accepted SCA ownership home is not a selected execution
 graph. Before any approved deletion, the manager must compare each compound
