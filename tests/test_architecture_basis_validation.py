@@ -44,17 +44,17 @@ def test_missing_project_fails_closed(tmp_path):
     assert any("member census mismatch" in error for error in errors)
 
 
-def test_live_basis_hash_mismatch_fails(monkeypatch):
+def test_live_basis_crlf_mutation_fails_hash_check(monkeypatch):
     validator = load_module()
-    original_read = validator._read
+    original_read_bytes = Path.read_bytes
 
-    def changed_basis(path, errors):
-        text = original_read(path, errors)
+    def changed_basis_bytes(path):
+        content = original_read_bytes(path)
         if path.name == "ArchitectureBasis.md" and "DEL-00-01_" in str(path):
-            return text.replace("## Purpose", "## Purpose\n", 1)
-        return text
+            return content.replace(b"\n", b"\r\n")
+        return content
 
-    monkeypatch.setattr(validator, "_read", changed_basis)
+    monkeypatch.setattr(Path, "read_bytes", changed_basis_bytes)
 
     errors = validator.validate(ROOT)
 

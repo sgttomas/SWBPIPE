@@ -130,7 +130,7 @@ def validate(project_root: Path) -> list[str]:
         if expected_hash is None:
             errors.append(f"{manifest_path}: missing successor hash for {deliverable_id}")
         elif basis:
-            actual_hash = hashlib.sha256(basis.encode("utf-8")).hexdigest()
+            actual_hash = hashlib.sha256(basis_path.read_bytes()).hexdigest()
             if actual_hash != expected_hash:
                 errors.append(
                     f"{basis_path}: hash {actual_hash} != manifest {expected_hash}"
