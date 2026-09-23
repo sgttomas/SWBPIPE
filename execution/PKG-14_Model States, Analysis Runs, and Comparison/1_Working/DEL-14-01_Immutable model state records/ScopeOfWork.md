@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-016]
 
 # Scope of Work — DEL-14-01
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -332,3 +332,11 @@ This Scope of Work defines `DEL-14-01` in service of project scope [SOW-071] and
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-071 OBJ-016 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-14-01:1** — R5 continuation delivery task: Demonstrate immutable model-state persistence/round trips and hash-scope enforcement against `schemas/model_state.schema.json` in the product store. Schema fixtures do not establish durable storage; preserve DEC-017/028 strategy and unresolved partitioning (CLM-006).
+- **DEL-14-01:2** — Bind external-reference ingestion/consumption for model-state records to governed privacy and protected-content runtime screening; the adapter declaration gate is not that consumer binding.
+- **DEL-14-01:3** — Phase G program: build immutable model-state records, analysis-run records, state/run comparison engines, mapping/tolerance/export contracts, the comparison workspace GUI, and state/comparison report sections (stage-gated: v0.2 R3) (see also DEL-14-02, DEL-14-03, DEL-14-04, DEL-14-05, DEL-07-08, DEL-08-06) (source: PRD plan §3 Forward Horizon row G / DEC-056/SCA-005)

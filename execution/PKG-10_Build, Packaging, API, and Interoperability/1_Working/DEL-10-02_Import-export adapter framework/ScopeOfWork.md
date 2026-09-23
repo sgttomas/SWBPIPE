@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-009]
 
 # Scope of Work — DEL-10-02
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -183,7 +183,7 @@ This Scope of Work defines `DEL-10-02` in service of project scope [SOW-030] and
 
 > ##### Documentation
 >
-> Current deliverable obligation: implement adapter shell with provenance capture and validation hooks for external formats. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement adapter shell with provenance capture and validation hooks for external formats. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > Required future artifacts remain:
@@ -347,3 +347,11 @@ This Scope of Work defines `DEL-10-02` in service of project scope [SOW-030] and
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-030 OBJ-009 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-10-02:1** — Concrete rule/report adapter runtime hooks remain unselected; the T4 persisted-record reader is not adapter dispatch and does not close runtime or end-to-end interop.
+- **DEL-10-02:2** — Select and govern the adapter execution model, plugin runtime, and bounded capability grants before any runtime dispatch; the current DEC-074 O7/E5 seam is deny-only and proves no-bypass behavior only at declaration admission.
+- **DEL-10-02:3** — Close the FR-023 GUI import/export round-trip residual through the v0.2 R6 handoff work and its owning deliverables (including DEL-17-03..08). D-12/DEC-078 dispositioned FR-024 and FR-025 only; it neither closes FR-023 nor remains an outstanding ruling gate for it. Scope and acceptance stay with the authorized handoff work graph.

@@ -9,7 +9,11 @@ package_objective_refs: [OBJ-006]
 
 # Scope of Work — DEL-07-01
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+## Current performance acceptance boundary — D-72
+
+Redesigned-product performance acceptance, settled-frame behavior and owned-resource obligations remain open under D-72 and its final addendum. Apply the five inherited D-68 numeric limits, the accepted reference profile, geometry, workload and observation rules, and the S-1/S-2 run/pass rule; S-3 was not accepted. The decision records govern exact criteria. No present implementation or historical demonstration qualifies a later candidate. Select and run a successor demonstration before asserting acceptance. Sources: `execution/_Coordination/_DECISIONS/D-72_RULING_2026-09-18.md` and `D-72_RULING_ADDENDUM_2026-09-18.md`.
 
 ## Purpose and Objective Traceability
 
@@ -37,8 +41,8 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 > | Package name | Graphical User Interface and Engineering Workflow |
 > | Deliverable type | UX_UI_SLICE |
 > | Context envelope | L |
-> | Current execution mode | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle and remaining work are recorded in `_STATUS.md`. Setup-only restrictions describe the originating setup run, not standing product scope. |
-> | Write boundary | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle and remaining work are recorded in `_STATUS.md`. Setup-only restrictions describe the originating setup run, not standing product scope. |
+> | Current execution mode | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle is recorded in `_STATUS.md`; current work follows this Scope of Work, owning decisions, and the selected graph. Setup-only restrictions describe the originating setup run, not standing product scope. |
+> | Write boundary | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle is recorded in `_STATUS.md`; current work follows this Scope of Work, owning decisions, and the selected graph. Setup-only restrictions describe the originating setup run, not standing product scope. |
 >
 
 ### CLM-004 — Attributes
@@ -75,7 +79,7 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 
 > ##### Construction
 >
-> Current deliverable obligation: implement viewport and centerline editing plus palette rendering and operation routing under the DEL-07-09 organization contract. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement viewport and centerline editing plus palette rendering and operation routing under the DEL-07-09 organization contract. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This setup artifact frames a future GUI slice for a 3D centerline viewport and editor. A conforming future implementation should keep these surfaces distinct:
@@ -124,7 +128,7 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 
 > ##### Scope
 >
-> Current deliverable obligation: implement viewport and centerline editing plus palette rendering and operation routing under the DEL-07-09 organization contract. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement viewport and centerline editing plus palette rendering and operation routing under the DEL-07-09 organization contract. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This deliverable defines setup documentation for the future 3D viewport and centerline editor slice. It is limited to the local `DEL-07-01` working folder and does not create or modify GUI source files, interaction tests, package manifests, dependency manifests, or repo-level documentation.
@@ -228,7 +232,7 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 
 > ##### Purpose
 >
-> Current deliverable obligation: implement viewport and centerline editing plus palette rendering and operation routing under the DEL-07-09 organization contract. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement viewport and centerline editing plus palette rendering and operation routing under the DEL-07-09 organization contract. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This procedure records how to produce and verify the setup artifacts for `DEL-07-01`, and it gives future implementation work a bounded execution path for the 3D viewport and centerline editor.
@@ -240,7 +244,7 @@ This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and
 > | Prerequisite | Status |
 > |---|---|
 > | Sealed deliverable context for `DEL-07-01` | Present in `_CONTEXT.md` and the user brief |
-> | Write scope limited to this deliverable folder | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle and remaining work are recorded in `_STATUS.md`. Setup-only restrictions describe the originating setup run, not standing product scope. |
+> | Write scope limited to this deliverable folder | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle is recorded in `_STATUS.md`; current work follows this Scope of Work, owning decisions, and the selected graph. Setup-only restrictions describe the originating setup run, not standing product scope. |
 > | Governing references available locally | Present through `_REFERENCES.md` and repo docs |
 > | SCA-001 architecture basis injected | Present in `_CONTEXT.md` |
 > | Protected standards or proprietary data needed | Not needed for setup; must be excluded |
@@ -424,3 +428,12 @@ Own palette rendering and routing under DEL-07-09 vocabulary coverage and single
 |---|---|---|---|---|---|
 | OUT-001 | SOW-020 OBJ-006 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
 | OUT-002 | OBJ-006 | CLM-033 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-07-01:3** — Performance acceptance, settled-frame and owned-resource obligations remain open on the redesigned product under [D-72](../../../_Coordination/_DECISIONS/D-72_RULING_2026-09-18.md) and its [final addendum](../../../_Coordination/_DECISIONS/D-72_RULING_ADDENDUM_2026-09-18.md). All six criteria are ruled and frozen: item 5 uses S-1/S-2, with S-3 not accepted. The addendum removes the fresh former-interface baseline cohort; the original D-70 failures and successor demonstration retain their distinct attribution. Independent-usability holds remain. Qualification requires the ruled candidate evidence; no performance acceptance or lifecycle promotion follows from the criteria ruling.
+- **DEL-07-01:5** — Short panels can require scrolling between a label and its fully visible control. The original transient inspector AX omission remains unexplained although fresh processes expose controls; no independent macOS audit or whole-product WCAG conformance is claimed. Independent practitioner usability/security remain separate held work, not extra publication gates.
+- **DEL-07-01:6** — Complete broader viewport/editor UX beyond the landed component creation, persistent workspace, bounded route capture, D-68 selection/visibility/measurement foundation and SWBPIPE canvas slices. Evidence references: `apps/desktop/e2e/ui-foundation.spec.ts`, `apps/desktop/e2e/c3-viewport-visibility.spec.ts` and the [bounded ROOT acceptance record](../../../_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_ACCEPTANCE.json). Vocabulary row 15 component-symbol authoring is complete; the specific richer-routing, transform and finite-component residuals below remain open. Work selection follows the owner-steered work graph (CONVENTIONS C9); no lifecycle promotion is inferred.
+- **DEL-07-01:7** — Richer routing gestures, attached engineering transforms, finite component insert-in-run, and other still-listed tool-palette and 3D authoring work remain open. DAG-002-E0482 through E0485 remain unconsumed here; all formal dependency-row dispositions remain owner-gated and retain their recorded statuses. Historical row 15 closure and accepted N7 review history are preserved. See DEL-07-09 current `Capability_Comparison.csv` and `Palette_Operation_Routing.md`.

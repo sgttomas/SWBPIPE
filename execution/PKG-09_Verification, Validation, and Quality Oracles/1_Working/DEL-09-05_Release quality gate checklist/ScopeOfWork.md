@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-008]
 
 # Scope of Work — DEL-09-05
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -29,7 +29,7 @@ This Scope of Work defines `DEL-09-05` in service of project scope [SOW-026, SOW
 
 > ##### Identification
 >
-> Current deliverable obligation: Define release gates for solver changes, rule-engine changes, GUI releases, and report-template releases. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Define release gates for solver changes, rule-engine changes, GUI releases, and report-template releases. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 > | Field | Value |
 > |---|---|
@@ -58,7 +58,7 @@ This Scope of Work defines `DEL-09-05` in service of project scope [SOW-026, SOW
 
 > ##### Conditions
 >
-> Current deliverable obligation: Define release gates for solver changes, rule-engine changes, GUI releases, and report-template releases. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Define release gates for solver changes, rule-engine changes, GUI releases, and report-template releases. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 > - Scope is process and CI gate definition only. This setup does not modify CI workflows, tests, release files outside this deliverable, or repo-level artifacts.
 > - Final numerical tolerances, coverage percentages, performance thresholds, CI provider details, signing process, release matrix, and maintainer quorum remain `TBD` unless later approved by the human project authority.
@@ -113,7 +113,7 @@ This Scope of Work defines `DEL-09-05` in service of project scope [SOW-026, SOW
 
 > ##### Scope
 >
-> Current deliverable obligation: Define release gates for solver changes, rule-engine changes, GUI releases, and report-template releases. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Define release gates for solver changes, rule-engine changes, GUI releases, and report-template releases. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 > This specification defines the deliverable-local release quality gate checklist for solver changes, rule-engine changes, GUI releases, and report-template releases. It converts PKG-09 verification and validation obligations into process and CI gate criteria without editing CI workflows or setting final thresholds.
 >
@@ -269,7 +269,7 @@ This Scope of Work defines `DEL-09-05` in service of project scope [SOW-026, SOW
 
 > ##### Verification
 >
-> Current deliverable obligation: Define release gates for solver changes, rule-engine changes, GUI releases, and report-template releases. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Define release gates for solver changes, rule-engine changes, GUI releases, and report-template releases. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 > - Confirm the final checklist covers solver, rule-engine, GUI, and report-template gate families.
 > - Confirm the procedure does not modify CI workflows, tests, release files outside this deliverable, or repo-level artifacts.
@@ -387,3 +387,11 @@ This Scope of Work defines `DEL-09-05` in service of project scope [SOW-026, SOW
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-026 SOW-027 OBJ-008 | CLM-009 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-09-05:1** — Restrict release labels to maturity/evidence vocabulary with no reliance/compliance language (gated: PB-TBD-003, human) (see also DEL-01-04) (source: PRD plan §3 E8 row / RGAP-007)
+- **DEL-09-05:2** — Propose coverage-floor promotion once ≥5 clean-head telemetry artifacts span ≥2 commits per lane (gated: new D-XX row per DEC-060) (source: DEC-060 / Receipt 7)
+- **DEL-09-05:3** — No issuance-wave packet preparation is presently actionable under this item: D-40/DEC-072 returned the only CHECKING deliverables to IN_PROGRESS, and the reconciliation census has no CHECKING candidate. Any future candidate requires its own declared checking basis, evidence and owner lifecycle act; DEC-062's issuance evidence bar remains applicable. DEL-01-01 remains the untouched ISSUED baseline.

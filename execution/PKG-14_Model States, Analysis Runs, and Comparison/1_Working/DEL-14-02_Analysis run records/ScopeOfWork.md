@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-016]
 
 # Scope of Work — DEL-14-02
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -353,3 +353,11 @@ This Scope of Work defines `DEL-14-02` in service of project scope [SOW-072] and
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-072 OBJ-016 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-14-02:1** — R5 continuation delivery task: Complete analysis-run producer/persistence conformance to the version dispatcher: preserve diagnostics, units, record-revision identity and exact source/run basis; verify retained 0.1 versus D-67 0.2 projections without relabeling historical bytes (CLM-006/011/018; AC-001).
+- **DEL-14-02:2** — Complete explicit solve-required and rule-check-required diagnostic breadth at the producer; the persisted-run report handoff preserves existing records only, and PDU-033's unit/dimension hold remains.
+- **DEL-14-02:3** — Preserve PDU-033 for producer-supplied physical dimensions and other governed result metadata absent from received rows. The accepted foundation implements exact-version analysis record 0.2 under checked profile `openpipestress_jcs_ijson_v1`, retains both historical 0.1 profiles, records immutable rule-check revisions, and scopes legacy interpretation. Raw source rows remain unchanged; semantic interpretation beside them does not create missing producer evidence, and explicit `unverifiable` states do not close PDU-033.

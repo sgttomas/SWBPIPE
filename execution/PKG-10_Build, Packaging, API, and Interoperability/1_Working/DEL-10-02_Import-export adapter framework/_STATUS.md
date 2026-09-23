@@ -3,11 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- Concrete rule/report adapter runtime hooks remain unselected; the T4 persisted-record reader is not adapter dispatch and does not close runtime or end-to-end interop.
-- Select and govern the adapter execution model, plugin runtime, and bounded capability grants before any runtime dispatch; the current DEC-074 O7/E5 seam is deny-only and proves no-bypass behavior only at declaration admission.
-- Close the FR-023 GUI import/export round-trip residual through the v0.2 R6 handoff work and its owning deliverables (including DEL-17-03..08). D-12/DEC-078 dispositioned FR-024 and FR-025 only; it neither closes FR-023 nor remains an outstanding ruling gate for it. Scope and acceptance stay with the authorized handoff work graph.
-
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T4 PDU-012/PDU-022 recorded the bounded canonical persisted-run-to-report workflow evidence and retained this deliverable's producer/runtime/policy residuals; lifecycle remains IN_PROGRESS.

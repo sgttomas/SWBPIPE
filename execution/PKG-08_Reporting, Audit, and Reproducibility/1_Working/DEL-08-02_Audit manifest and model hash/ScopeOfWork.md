@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-007, OBJ-012]
 
 # Scope of Work — DEL-08-02
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -38,7 +38,7 @@ This Scope of Work defines `DEL-08-02` in service of project scope [SOW-039] and
 > | Deliverable type | BACKEND_FEATURE_SLICE |
 > | Scope item | SOW-039 |
 > | Supported objectives | OBJ-007; OBJ-012 |
-> | Setup status | Current contract and bounded implementation evidence; lifecycle and residual work: see `_STATUS.md` |
+> | Setup status | Current contract and bounded implementation evidence; lifecycle: see `_STATUS.md`; open duties: this Scope of Work and owning decisions. |
 >
 
 ### CLM-004 — Attributes
@@ -60,7 +60,7 @@ This Scope of Work defines `DEL-08-02` in service of project scope [SOW-039] and
 
 > ##### Conditions
 >
-> Current deliverable obligation: implement canonical input manifest, model hash, solver version stamp, and rule-pack checksum capture. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement canonical input manifest, model hash, solver version stamp, and rule-pack checksum capture. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > - The setup artifact is constrained to document production only; no hashing code, schemas, or test files are implemented here.
@@ -106,7 +106,7 @@ This Scope of Work defines `DEL-08-02` in service of project scope [SOW-039] and
 
 > ##### Scope
 >
-> Current deliverable obligation: implement canonical input manifest, model hash, solver version stamp, and rule-pack checksum capture. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement canonical input manifest, model hash, solver version stamp, and rule-pack checksum capture. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This deliverable defines the setup specification for the audit manifest and model-hash feature slice. The future implementation shall capture reproducibility metadata needed to replay or professionally review an SWBPIPE calculation package: model hash, input manifest, solver version stamp, rule-pack checksum, and referenced asset hashes.
@@ -135,7 +135,7 @@ This Scope of Work defines `DEL-08-02` in service of project scope [SOW-039] and
 
 > ##### Standards
 >
-> Current deliverable obligation: implement canonical input manifest, model hash, solver version stamp, and rule-pack checksum capture. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement canonical input manifest, model hash, solver version stamp, and rule-pack checksum capture. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > | Standard or basis | Applicability | Status |
@@ -192,7 +192,7 @@ This Scope of Work defines `DEL-08-02` in service of project scope [SOW-039] and
 
 > ##### Purpose
 >
-> Current deliverable obligation: implement canonical input manifest, model hash, solver version stamp, and rule-pack checksum capture. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement canonical input manifest, model hash, solver version stamp, and rule-pack checksum capture. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This procedure defines how the future audit-manifest feature should be produced and verified. In the original setup session it is documentation only; no hashing code, schemas, source implementation, or tests are created.

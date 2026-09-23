@@ -3,9 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- Locate or obtain a protected-content/provenance review bound to the linear-support source/test candidate; reconcile the named primitive support API with its product application boundary through the owning contract disposition. (R5 continuation claim references: DEL-04-03:SOW#CLM-012; CLM-010.r12.)
-
 ## History
 - 2026-09-22 - Added explicit grouped delivery/evidence tasks from the R5 record-continuation screening to Remaining; lifecycle, existing dispositions and acceptance boundaries remain unchanged. Evidence: `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG00_06/`.
 - 2026-08-21 - Accepted N4 V2 support-family emission evidence: canonical `line_stop` and `vertical_support` preview inputs now reach matching solver families while explicit DOFs and existing Anchor/Guide fallbacks remain intact. Focused and complete crate tests, the registered Piping profile, architecture-basis validation, diff check, and fresh 100%-diff review passed. Vocabulary row 16 is landed and closed; state remains IN_PROGRESS.

@@ -3,9 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- Preserve the three human-deferred source-selection scopes—detailed public history, formula-level open-frame references, and practice-specific local-FEA references—until owner/review authority selects or discharges them; current bounded prose is not formal source-scope closure (PDU-060 / `RF-11-03-C-003`).
-
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 3 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T6/PDU-060 homed all three deferred theory-note source scopes without selecting sources or changing their human-gated state.

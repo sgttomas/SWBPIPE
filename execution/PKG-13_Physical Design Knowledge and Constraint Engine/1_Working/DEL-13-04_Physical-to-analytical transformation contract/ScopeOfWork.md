@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-014]
 
 # Scope of Work — DEL-13-04
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -653,3 +653,12 @@ This candidate defines `DEL-13-04` in service of project scope [SOW-066] and pac
 - **DEL-13-04-SCA011-VER-001** — PDU-023 now has the DEL-13-04 responsibility home through SCA-011; accepted envelope binding and wider scalar/runtime trace evidence remain outstanding. DEL-13-04-REQ-012 remains unchanged: the internal solver-boundary adapter is not a public API, GUI/runtime path, external prover path or final solver-acceptance claim.
 
 Named preparation artifact: `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/TransformResult.v0.1.draft.schema.json`, with field decisions and semantic checks in `INTERFACE_CONTRACTS.md`. This identifies an accountable contract preparation surface; its wire fields/version are unaccepted design deltas, not deployed schemas. Scope adoption alone neither validates existing preview payloads nor activates a new API, runtime, persistence format, external process or compatibility window. Existing requirements, exclusions and lifecycle remain in force.
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-13-04:1** — SCA-011 interface follow-through: PDU-023 now has the DEL-13-04 responsibility home through SCA-011; accepted envelope binding and wider scalar/runtime trace evidence remain outstanding. DEL-13-04-REQ-012 remains unchanged: the internal solver-boundary adapter is not a public API, GUI/runtime path, external prover path or final solver-acceptance claim.
+- **DEL-13-04:2** — Hold PDU-023 continuation from analytical field-scalar trace paths into a runtime result envelope until the SCA-011 DEL-13-04 producer responsibility is realized by an accepted binding of those existing contracts (source: D-41 R5 T2C E6, 2026-07-12)
+- **DEL-13-04:3** — Hold PDU-047 broader 3D centerline/frame mechanics suitability validation; the bounded section-property oracle does not independently validate the transform target boundary (source: D-41 R5 T2B E2/E4/E8 evidence-only backcheck, 2026-07-12)
+- **DEL-13-04:4** — Preserve PDU-036 as verification-only evidence: the invented trace-gap fixture links one omitted unsupported component to its `ASSUMPTION_WARNING` diagnostic and emits no invalid scalar trace, but independent validation and broader field/runtime-result trace coverage remain open.

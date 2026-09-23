@@ -106,7 +106,7 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 
 > ##### Construction
 >
-> Current deliverable obligation: Draft and maintain threat model for private data, report sharing, plugins, imports, and supply chain. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Draft and maintain threat model for private data, report sharing, plugins, imports, and supply chain. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This setup document represents the planned content for `docs/security/threat_model.md` without writing that repo-level product artifact. It is organized as a maintainable threat-model basis for later architecture and implementation work.
@@ -197,7 +197,7 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 
 > ##### Scope
 >
-> Current deliverable obligation: Draft and maintain threat model for private data, report sharing, plugins, imports, and supply chain. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Draft and maintain threat model for private data, report sharing, plugins, imports, and supply chain. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This specification defines the deliverable-local setup content for the planned SWBPIPE security threat model. It covers private data handling threats for local-first workflows, report sharing, shared model/export paths, plugins, imports, rule packs, private libraries, and supply chain exposure.
@@ -281,7 +281,7 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 
 > ##### Documentation
 >
-> Current deliverable obligation: Draft and maintain threat model for private data, report sharing, plugins, imports, and supply chain. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Draft and maintain threat model for private data, report sharing, plugins, imports, and supply chain. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > The eventual product artifact should be `docs/security/threat_model.md`; this run intentionally writes only deliverable-local setup content. A later implementation or documentation task may promote accepted content into product documentation after human review.
@@ -322,7 +322,7 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 
 > ##### Purpose
 >
-> Current deliverable obligation: Draft and maintain threat model for private data, report sharing, plugins, imports, and supply chain. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Draft and maintain threat model for private data, report sharing, plugins, imports, and supply chain. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This procedure defines how a bounded TASK worker drafts, refreshes, and checks the DEL-12-05 security threat model setup content. It is intended for deliverable-local setup work only and does not publish `docs/security/threat_model.md`.
@@ -336,7 +336,7 @@ This Scope of Work defines `DEL-12-05` in service of project scope [SOW-040] and
 > | Sealed deliverable context | Confirm `DEL-12-05`, `PKG-12`, `SOW-040`, `OBJ-010`, and the allowed write scope before editing. |
 > | Governance sources | Read `AGENTS.md`, `AGENTS.md`, `docs/CONTRACT.md`, relevant `SOFTWARE_DECOMP.md` accepted current basis rows, register rows, and deliverable-local metadata. |
 > | Source boundary | Use only accessible source material; mark missing implementation details `TBD`. |
-> | Write boundary | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle and remaining work are recorded in `_STATUS.md`. Setup-only restrictions describe the originating setup run, not standing product scope. |
+> | Write boundary | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle is recorded in `_STATUS.md`; current work follows this Scope of Work, owning decisions, and the selected graph. Setup-only restrictions describe the originating setup run, not standing product scope. |
 > | Protected/private data boundary | Do not include protected standards text/tables/data, real private project data, real secrets, legal sufficiency claims, certification claims, or professional approval claims (PRD §21.2). |
 > | Status boundary | Use the current lifecycle recorded in `_STATUS.md`; preserve its state and history. Contract/evidence checks do not authorize a lifecycle transition or issuance. |
 >

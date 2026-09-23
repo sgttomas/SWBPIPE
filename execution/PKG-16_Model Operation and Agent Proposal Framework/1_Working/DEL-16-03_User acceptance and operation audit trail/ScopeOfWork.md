@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-015]
 
 # Scope of Work — DEL-16-03
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -374,3 +374,10 @@ Retain acceptance and audit record policy without applying operations or mutatin
 |---|---|---|---|---|---|
 | OUT-001 | SOW-069 SOW-070 OBJ-015 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
 | OUT-002 | OBJ-015 | CLM-029 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-16-03:1** — R5 continuation delivery task: Complete durable audit/history and actual-outcome integration with DEL-16-06 under DEC-017/020 and SCA-011, preserving accepted/rejected records, rationale and hash-bound decision evidence. Resolve separately governed retention, identity/clock policy and human dispositions without treating reference in-memory output as durable completion (CLM-005/006/013/028).
+- **DEL-16-03:2** — Durable accepted/rejected operation history remains incomplete under SOW-070. Preserving original proposed member intents, author/source metadata and rationale through the existing `editor_intents` storage is bounded provenance retention; it does not persist acceptance decisions, batch grouping, application receipts or acceptance timestamps. Reopened records must remain review context with acceptance unknown, requiring explicit requeue and fresh validation. No full SOW-070 closure is claimed. Basis: [accepted batch implementation](../../../_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/C_ACCEPTED_SNAPSHOT_V1.json), [accepted native integration](../../../_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/NATIVE_ACCEPTED_SNAPSHOT_V1.json), and [owning persistence disposition V2](../../../_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/BATCH_PERSISTENCE_DISPOSITION_V2.md). A durable, hash-bound decision/history contract and its save/load checks remain required; this residual does not release D58 or change lifecycle state.

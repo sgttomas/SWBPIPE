@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-014, OBJ-018]
 
 # Scope of Work — DEL-13-02
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -336,3 +336,10 @@ This candidate defines `DEL-13-02` in service of project scope [SOW-068, SOW-067
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-068 SOW-067 OBJ-014 OBJ-018 | CLM-007 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-13-02:1** — R5 continuation delivery task: Demonstrate constraint-schema consumers against actual runtime data: downstream DEL-13-03 validation and DEL-13-04 transform conformance, plus owned PKG-07 presentation/blocking paths. Existing reference implementations do not establish product wiring or public-example provenance (CLM-004/013/027).
+- **DEL-13-02:2** — Obtain the owning human disposition for `PKG13-DEL-13-02-PKG02-001`; the review record remains `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`. Reassess its technical premise: `schemas/units.schema.yaml` includes `force_per_length`, while the constraint dimension enum in `schemas/constraint.schema.json` does not. Current vocabulary evidence therefore does not establish enum parity. No reviewer finding or human gate is closed by this factual correction (PDU-060).

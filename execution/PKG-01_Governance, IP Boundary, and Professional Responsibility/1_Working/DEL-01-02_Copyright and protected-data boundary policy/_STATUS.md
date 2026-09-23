@@ -3,8 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 1 cited declaration claim to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-04-30 - State set to OPEN (PREPARATION)

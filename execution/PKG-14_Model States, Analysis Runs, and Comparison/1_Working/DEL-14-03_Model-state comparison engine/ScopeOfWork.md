@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-016]
 
 # Scope of Work — DEL-14-03
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -380,3 +380,11 @@ This Scope of Work defines `DEL-14-03` in service of project scope [SOW-073, SOW
 - **DEL-14-03-SCA011-VER-001** — Demonstrate valid/invalid schema witnesses, deterministic source-preserving mapping and export round trips after the DEL-14-05 output schema is accepted. Existing human-review dispositions remain open.
 
 Named preparation artifact: `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/ComparisonResult.v0.1.draft.schema.json`, with field decisions and semantic checks in `INTERFACE_CONTRACTS.md`. This identifies an accountable contract preparation surface; its wire fields/version are unaccepted design deltas, not deployed schemas. Scope adoption alone neither validates existing preview payloads nor activates a new API, runtime, persistence format, external process or compatibility window. Existing requirements, exclusions and lifecycle remain in force.
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-14-03:1** — R5 continuation delivery task: Demonstrate the state comparison contract in product integration, including mapping, units/missing-data diagnostics and preservation of source metadata. Reference engine fixtures are bounded evidence; unresolved normalization and fixture provenance remain explicit (CLM-015/022/023/031).
+- **DEL-14-03:2** — SCA-011 interface follow-through: Demonstrate valid/invalid schema witnesses, deterministic source-preserving mapping and export round trips after the DEL-14-05 output schema is accepted. Existing human-review dispositions remain open.
+- **DEL-14-03:3** — Obtain owning human-review dispositions for open `RF-001` (dependency-closure visibility) and `RF-002` (documentation currentness). Preserve prerequisite authority and defer any document refresh to its authorized tranche; do not infer closure from current defensive consumers or fixtures (PDU-060).

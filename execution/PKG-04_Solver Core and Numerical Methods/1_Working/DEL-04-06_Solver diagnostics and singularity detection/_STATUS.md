@@ -3,9 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- Obtain the outstanding formal review disposition and current scope parity/claim-map review; current sparse diagnostic and numerical-failure implementation evidence does not itself supply that disposition. (R5 continuation claim references: DEL-04-06:SOW#production-and-verification-method-praxeology/VER-001; output-and-evaluation-matrix/OUT-001.)
-
 ## History
 - 2026-09-22 - Added explicit grouped delivery/evidence tasks from the R5 record-continuation screening to Remaining; lifecycle, existing dispositions and acceptance boundaries remain unchanged. Evidence: `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG00_06/`.
 - 2026-04-30 - State set to OPEN (PREPARATION)

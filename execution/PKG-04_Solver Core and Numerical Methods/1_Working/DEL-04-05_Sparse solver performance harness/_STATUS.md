@@ -3,12 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- Complete or locate the module-boundary and fixture provenance/IP review, accepted dimensional-check evidence, and report-facing result-schema binding for the performance harness; retain PDU-035 formal disposition. (R5 continuation claim references: DEL-04-05:SOW#CLM-012/DEL-04-05-RQ-001; RQ-004; RQ-005; RQ-006; CLM-022.)
-- Obtain the owning formal REVIEW disposition and accepted dimensional-check basis before PDU-035 closure; fixture unit metadata is reproducibility evidence, not conversion or engineering validation.
-- Promote release/external sparse thresholds: timing, allocator/RSS memory, conditioning beyond the pivot-ratio proxy, and cross-machine hardware-normalized pass/fail gates (stage-gated: R5 release) (source: PRD plan §3 D7 row + Phase D sparse update / DEC-050/DEC-053)
-- Provide hosted-CI sparse evidence once public-export CI activates (gated: D-05b conditions per DEC-059) (source: PRD plan §3 D7 row)
-
 ## History
 - 2026-09-22 - Added explicit grouped delivery/evidence tasks from the R5 record-continuation screening to Remaining; lifecycle, existing dispositions and acceptance boundaries remain unchanged. Evidence: `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG00_06/`.
 - 2026-07-12 - D-41 R5 T2 recorded the PDU-035 formal-review and dimensional-validation hold; no review disposition or release threshold changed.

@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-003]
 
 # Scope of Work — DEL-05-01
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -416,3 +416,9 @@ Retain primitive load and self-weight generation mathematics. DEL-07-03 owns sel
 |---|---|---|---|---|---|
 | OUT-001 | SOW-013 OBJ-003 | CLM-011 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
 | OUT-002 | OBJ-003 | CLM-035 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-05-01:1** — Bind a fresh protected-content and boundary review to the static generator source candidate including DEC-068 additions. (R5 continuation claim references: DEL-05-01:SOW#CLM-016/REQ-05-01-003.)

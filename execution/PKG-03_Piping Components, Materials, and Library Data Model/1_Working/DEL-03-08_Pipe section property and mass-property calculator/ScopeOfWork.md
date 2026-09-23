@@ -388,3 +388,9 @@ Retain section/mass mathematics and reference-contract verification. DEL-04-07 o
 |---|---|---|---|---|---|
 | OUT-001 | SOW-051 SOW-018 OBJ-004 OBJ-012 | CLM-009 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
 | OUT-002 | OBJ-004 OBJ-012 | CLM-033 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-03-08:1** — Integrate accepted unit/dimension validation at calculator inputs and carry required redistribution status and input provenance through derived outputs; string equality and output-only provenance do not satisfy those requirements. (R5 continuation claim references: DEL-03-08:SOW#CLM-011/DEL-03-08-RQ-003; DEL-03-08-RQ-004; CLM-026.)

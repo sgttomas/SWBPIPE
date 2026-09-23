@@ -3,9 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-13
 
-## Remaining
-- Obtain owning human dispositions for `PKG09-0903-PKG02-001` and `PKG09-0903-PKG02-002`; both remain `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`, and provenance/unit evidence does not formally close them (PDU-060).
-
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T6/PDU-060 homed both nonlinear-suite pending human dispositions without changing their technically-addressed/TBD state or lifecycle.

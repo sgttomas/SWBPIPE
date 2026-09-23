@@ -397,3 +397,9 @@ This Scope of Work defines `DEL-05-04` in service of project scope [SOW-047] and
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-047 OBJ-005 OBJ-011 | CLM-009 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-05-04:1** — Resolve the held stale human-acceptance reuse negative (FG-DEL-05-04-01; ScopeOfWork.md REQ-05-04-008/014 and CLM-008/023) against an authorized implementation and verification basis, or obtain a scope disposition. The landed operation-applier stale-model-hash check does not establish invalidation of external human-acceptance records; external acceptance ownership/storage/presentation remain held. This record does not close the underlying acceptance concern.

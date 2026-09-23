@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-006]
 
 # Scope of Work — DEL-07-06
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -22,6 +22,10 @@ This Scope of Work defines `DEL-07-06` in service of project scope [SOW-036] and
 The owner-approved professional modelling workspace foundation plan and `execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md` select WCAG 2.2 AA criteria for controls touched by that tranche. The selected checks include visible focus, keyboard alternatives, 4.5:1 ordinary-text contrast, 3:1 required graphical contrast and applicable minimum target sizes. Their applicability covers the changed interactive desktop workspace, including its changed review/results controls; it does not select a target for untouched report/export surfaces or generated report files.
 
 For this bounded scope, target-selection wording below that remains `TBD_by_human_project_authority` records the earlier setup and PDU history and is superseded by D-68. It remains applicable outside the selected scope. Target selection supplies an acceptance criterion, not runtime evidence or a conformance verdict. Tranche verification must cite the actual tested candidate and retain failures. PDU-045 and PDU-046 remain `VERIFIED_NOT_VALIDATED`; the separately held independent-usability work is not closed by project-owned testing. The original packets and their recorded target-unavailable findings remain unchanged.
+
+Current D-72 performance boundary: Redesigned-product performance acceptance, settled-frame behavior and owned-resource obligations remain open under D-72 and its final addendum. Apply the five inherited D-68 numeric limits, the accepted reference profile, geometry, workload and observation rules, and the S-1/S-2 run/pass rule; S-3 was not accepted. The decision records govern exact criteria. No present implementation or historical demonstration qualifies a later candidate. Select and run a successor demonstration before asserting acceptance. Sources: `execution/_Coordination/_DECISIONS/D-72_RULING_2026-09-18.md` and `D-72_RULING_ADDENDUM_2026-09-18.md`.
+
+Current observed usability limit: The accepted bounded UI foundation observed that short panels may require scrolling between a label and its fully visible control. Its transient inspector accessibility-tree omission remains unexplained even though fresh processes expose the controls. Preserve that observation for candidate-bound repair/review and independent practitioner usability; it is not a whole-product WCAG or security finding and creates no extra publication gate. Source: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_ACCEPTANCE.json`. DEL-07-01, DEL-07-02 and DEL-07-09 source clauses point to this shared carrier while retaining their own functional contracts.
 
 ## Deliverable Definition — Ontology
 
@@ -45,7 +49,7 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 > | Scope coverage | SOW-036 |
 > | Objective support | OBJ-006 |
 > | Context envelope | M |
-> | Setup state | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle and remaining work are recorded in `_STATUS.md`. Setup-only restrictions describe the originating setup run, not standing product scope. |
+> | Setup state | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle is recorded in `_STATUS.md`; current work follows this Scope of Work, owning decisions, and the selected graph. Setup-only restrictions describe the originating setup run, not standing product scope. |
 >
 
 ### CLM-004 — Attributes
@@ -60,7 +64,7 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 > | Architecture basis | Tauri 2 desktop shell, TypeScript/React/Vite GUI, Three.js where viewport-facing, schema-first command/query/job/result envelopes |
 > | Accessibility conformance target | D-68 (`execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md`) adopts WCAG 2.2 AA criteria for touched desktop controls. Independent usability remains held; this is neither a conformance result nor a target selection for generated report/export files. |
 > | Report-facing accessibility target | TBD separately for report preview/export and generated report artifacts |
-> | Implementation status | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle and remaining work are recorded in `_STATUS.md`. Setup-only restrictions describe the originating setup run, not standing product scope. |
+> | Implementation status | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle is recorded in `_STATUS.md`; current work follows this Scope of Work, owning decisions, and the selected graph. Setup-only restrictions describe the originating setup run, not standing product scope. |
 >
 
 ### CLM-005 — Conditions
@@ -82,7 +86,7 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 
 > ##### Construction
 >
-> Current deliverable obligation: Define and implement baseline keyboard, contrast, readability, and review-workflow usability requirements. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Define and implement baseline keyboard, contrast, readability, and review-workflow usability requirements. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This setup deliverable defines the future baseline checklist and verification hooks for accessibility and engineering-review usability. It does not select component libraries, implement UI behavior, create automated tests, choose final WCAG conformance, or change report templates.
@@ -132,7 +136,7 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 
 > ##### Scope
 >
-> Current deliverable obligation: Define and implement baseline keyboard, contrast, readability, and review-workflow usability requirements. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Define and implement baseline keyboard, contrast, readability, and review-workflow usability requirements. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This deliverable specifies setup evidence for a future accessibility and engineering-review usability baseline for the SWBPIPE GUI and report-facing review surfaces. It covers baseline keyboard access, labels/tooltips, contrast/readability, large-model navigation, result table copy/export, undo/redo discoverability, inline validation messages, warning separation, and visibility of assumptions needed by engineering reviewers.
@@ -236,7 +240,7 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 
 > ##### Purpose
 >
-> Current deliverable obligation: Define and implement baseline keyboard, contrast, readability, and review-workflow usability requirements. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Define and implement baseline keyboard, contrast, readability, and review-workflow usability requirements. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > Define the setup procedure for producing and later using the accessibility and usability baseline for engineering-review GUI and report-facing workflows.
@@ -245,7 +249,7 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 
 > ##### Prerequisites
 >
-> Current deliverable obligation: Define and implement baseline keyboard, contrast, readability, and review-workflow usability requirements. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Define and implement baseline keyboard, contrast, readability, and review-workflow usability requirements. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > - Sealed DEL-07-06 context with write scope limited to this deliverable folder.
@@ -413,3 +417,14 @@ For this bounded scope, target-selection wording below that remains `TBD_by_huma
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-036 OBJ-006 | CLM-009 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-07-06:1** — Bounded UI foundation: the implemented slice comprises themes and density, keyboard/focus routes and the D-68 criteria for touched workspace controls, including contrast and applicable target sizes. The [final ROOT acceptance record](../../../_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_ACCEPTANCE.json) accepts this bounded functional technical slice; only its expressly accepted scope narrows the functional obligation, while broader duties below stay open. PDU-045/PDU-046 remain VERIFIED_NOT_VALIDATED pending separately authorized independent usability. Independent security and untouched report/export/generated-file target limitations survive; this does not claim whole-product WCAG conformance.
+- **DEL-07-06:2** — Performance acceptance, settled-frame and owned-resource obligations remain open on the redesigned product under [D-72](../../../_Coordination/_DECISIONS/D-72_RULING_2026-09-18.md) and its [final addendum](../../../_Coordination/_DECISIONS/D-72_RULING_ADDENDUM_2026-09-18.md). All six criteria are ruled and frozen: item 5 uses S-1/S-2, with S-3 not accepted. The addendum removes the fresh former-interface baseline cohort; the original D-70 failures and successor demonstration retain their distinct attribution. Independent-usability holds remain. Qualification requires the ruled candidate evidence; no performance acceptance or lifecycle promotion follows from the criteria ruling.
+- **DEL-07-06:3** — No open pre-merge action remains for PR #789: it merged on 2026-09-17 at `8468a33c`. The [final ROOT acceptance record](../../../_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_ACCEPTANCE.json) records bounded functional technical acceptance and its source/verification bindings. Its resource evidence retains the recorded applicability limits; no final-binary resource cohort is claimed. Performance qualification, independent usability/security validation and broader functional residuals remain with their owning records.
+- **DEL-07-06:4** — Short panels can require scrolling between a label and its fully visible control. The original transient inspector AX omission remains unexplained although fresh processes expose controls; no independent macOS audit or whole-product WCAG conformance is claimed. Independent practitioner usability/security remain separate held work, not extra publication gates.
+- **DEL-07-06:5** — Preserve PDU-046 / `DEL-07-06-RQ-004` as `VERIFIED_NOT_VALIDATED` pending a separately authorized independent usability basis. D-68 selects WCAG 2.2 AA criteria for controls touched by the professional modelling workspace foundation tranche, including measurable contrast and applicable target sizes. Verification of the actual candidate remains required; target selection does not supply conformance evidence. The historical packet and its target-unavailable findings remain unchanged.
+- **DEL-07-06:6** — Obtain a separately authorized independent usability basis before upgrading PDU-045 beyond `VERIFIED_NOT_VALIDATED`. The selected D-68 target is bounded to touched interactive workspace controls; untouched report/export surfaces and generated report files retain their unresolved target. See `ScopeOfWork.md` current bounded target declaration.

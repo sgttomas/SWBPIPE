@@ -3,9 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- Supply or locate the material serialization round-trip evidence required by REQ-03-01-007, or obtain an explicit scoped deferral. Accepted Gate C disposition and current material schemas do not substitute for that persistence witness. (R5 continuation claim references: DEL-03-01:SOW#CLM-011/REQ-03-01-007; production-and-verification-method-praxeology/VER-001.)
-
 ## History
 - 2026-09-22 - Added explicit grouped delivery/evidence tasks from the R5 record-continuation screening to Remaining; lifecycle, existing dispositions and acceptance boundaries remain unchanged. Evidence: `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG00_06/`.
 - 2026-07-12 - D-41 R5 T7 final status-only backcheck found no T7 defect outside the completed T1-T6 records; the concordance bootstrap was removed while lifecycle and recorded evidence boundaries remain unchanged.

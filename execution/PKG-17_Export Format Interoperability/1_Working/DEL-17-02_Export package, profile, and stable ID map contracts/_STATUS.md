@@ -3,9 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- R5 continuation delivery task: Demonstrate consumer conformity to export profile, sidecar-ID, manifest and loss contracts, including the existing glTF line-mode reference profile. Preserve unresolved target-specific support and admission questions; schema/reference construction is not qualification (CLM-013/044).
-
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-059 rechecked all five repository-local Procedure validator paths successfully; RF-001 remains preserved as historical formal review with HumanDisposition TBD, and the current-evidence backcheck closed the D-41 bootstrap.
 - 2026-05-18 - State set to OPEN (PREPARATION/SCA-004 ORCHESTRATOR workflow)

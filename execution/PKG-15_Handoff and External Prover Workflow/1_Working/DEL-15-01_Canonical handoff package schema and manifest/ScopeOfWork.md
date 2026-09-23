@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-017]
 
 # Scope of Work — DEL-15-01
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -377,3 +377,11 @@ This Scope of Work defines `DEL-15-01` in service of project scope [SOW-074] and
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-074 OBJ-017 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-15-01:1** — R5 continuation delivery task: Reconcile and verify the handoff public contract against its schema without deleting required semantics: Checksum provenance placement, UnitsManifestRef entries/diagnostics coverage, and EntityIdManifest identity/traceability representation remain concrete conformance tasks (CLM-006 rows 2/4/5; CLM-011 R03/R04).
+- **DEL-15-01:2** — Phase H program: design-knowledge schema/entry and constraint engine, physical-to-analytical transform contract, canonical handoff package + manifest, target-mapping/unsupported-behavior contract, downstream export workflow, external-prover boundary metadata, and remaining PKG-17 wire-format completion (stage-gated: v0.2 R6; DEL-17-01 vendor questions gate CAEPIPE MBF-specific claims) (see also DEL-13-01..04, DEL-15-02, DEL-15-03, DEL-15-04, DEL-17-01..09) (source: PRD plan §3 Forward Horizon row H / DEC-056)
+- **DEL-15-01:3** — Obtain owning human-review dispositions for open `RF-001` and `RF-002`; both retain `HumanDisposition=TBD`, and technically corrected schema/currentness/target wording does not formally close either finding (PDU-060).

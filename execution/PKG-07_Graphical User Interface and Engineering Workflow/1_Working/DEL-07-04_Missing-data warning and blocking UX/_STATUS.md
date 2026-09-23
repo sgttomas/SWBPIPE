@@ -3,9 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- Preserve producer-side nonlinear diagnostic completeness as a separate responsibility; the PDU-008 GUI now surfaces supplied `NONLINEAR_*` diagnostics but does not invent convergence outcomes or missing solver evidence.
-
 ## History
 - 2026-07-12 - D-41 R5 T5 PDU-008 activated visible NONLINEAR_WARNING records from supplied nonlinear solver diagnostics with focused interaction evidence; no validation or convergence claim.
 - 2026-04-30 - State set to OPEN (PREPARATION)

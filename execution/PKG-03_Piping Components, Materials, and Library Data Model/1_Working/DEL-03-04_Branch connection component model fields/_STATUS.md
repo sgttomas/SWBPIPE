@@ -3,10 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- Evidence branch product-path accepted/rejected/absent unit handling for sizes, angle and reinforcement area, and bind protected-content/provenance review to the public branch fixture and preview values; retain the separate PDU-019 formal review hold. (R5 continuation claim references: DEL-03-04:SOW#CLM-011/DEL-03-04-RQ-005; DEL-03-04-RQ-002; DEL-03-04-RQ-006.)
-- Hold PDU-019 formal review sufficiency/disposition; bounded negative schema evidence does not authorize an owning REVIEW outcome (source: D-41 R5 T3 O7/E5, 2026-07-12)
-
 ## History
 - 2026-09-22 - Added explicit grouped delivery/evidence tasks from the R5 record-continuation screening to Remaining; lifecycle, existing dispositions and acceptance boundaries remain unchanged. Evidence: `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG00_06/`.
 - 2026-07-12 - D-41 R5 T7 PDU-056 refreshed three cited review-disposition declarations to the recorded Gate C `ACCEPT_AS_IS`/`RESOLVED` state; formal review records were preserved, and the cited-claim backcheck closed the D-41 bootstrap.

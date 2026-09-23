@@ -3,9 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- Resolve diagnostic machine-code and stale human-acceptance-reference representation, and verify every adapter/plugin/API status-write boundary after the status-axis layout receives its owning disposition. (R5 continuation claim references: DEL-02-03:SOW#CLM-003; CLM-010.r10; CLM-026.)
-
 ## History
 - 2026-09-22 - Added explicit grouped delivery/evidence tasks from the R5 record-continuation screening to Remaining; lifecycle, existing dispositions and acceptance boundaries remain unchanged. Evidence: `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG00_06/`.
 - 2026-04-30 - State set to OPEN (PREPARATION)

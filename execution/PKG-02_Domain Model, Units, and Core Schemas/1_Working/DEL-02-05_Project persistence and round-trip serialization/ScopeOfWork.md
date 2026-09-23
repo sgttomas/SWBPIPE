@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-001, OBJ-012]
 
 # Scope of Work — DEL-02-05
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -205,6 +205,7 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 > | REQ-02-05-024 | Rule-pack references persisted in projects shall carry enough metadata to identify private/public status, version/checksum, source note, redistribution status, and missing/private-reference diagnostics without exposing protected rule content in public artifacts. | `docs/SPEC.md` section 6; `docs/PRD.md` sections 12.2 and 12.4; `docs/IP_AND_DATA_BOUNDARY.md` sections 3, 6, and 7 |
 > | REQ-02-05-025 | Create/open/save behavior shall preserve the local-first/private-data boundary by default; exact enforcement split between persistence operations, export/commit safeguards, and PKG-12 controls remains TBD. | `docs/CONTRACT.md` OPS-K-PRIV-1; `docs/PRD.md` sections 18.1-18.3; `docs/IP_AND_DATA_BOUNDARY.md` section 6 |
 > | REQ-02-05-026 | Optional human-review records, if stored, shall bind to specific model/rule/report hashes and use authority labels that do not survive content changes and do not imply software certification or automatic code compliance. | `docs/CONTRACT.md` OPS-K-AUTH-1 and OPS-K-AUTH-2; `docs/TYPES.md` section 4 |
+> Physical-package/versioning residual: The `.opsproj` package compatibility-window size and versioning policy beyond `schema_version 1.0.0` remain to be selected under DEC-028 and the migration authority. Current document-version classification does not decide the portable-container reader window; this is the receiving contract for the DEL-08-01 source clause.
 >
 
 ### CLM-015 — Contract Detail Tables
@@ -479,6 +480,7 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 > ##### PDU-024 Version Handling Guidance
 >
 > Do not compare UI model-document versions against duplicated literals. Use `evaluateModelDocumentLocal` and `modelDocumentVersionCheckStatus`, mirroring the backend DEC-019/DEC-033 evaluator. Treat `0.2.0` as current; treat a migratable `0.1.0` source as stale at version-check grain while retaining `migrated` in migration evidence. Unsupported, newer, and failed versions must remain explicit and must not be coerced.
+> H2/F-5b future hardening remains separate from the interim mirror above: relocate DEC-019 migration evaluation into a WASM-compilable shared crate, replace `projectService.ts::evaluateModelDocumentLocal`, and test cross-engine parity including migrated-byte hash integrity. The retired PRD completion plan H2 row is historical provenance; this Scope of Work carries the residual, including the keyed DEL-02-05:3 clause below. DEC-074/PDU-024 closed the three stale UI version comparisons only. No H2 completion is inferred.
 >
 
 ### CLM-035 — Purpose
@@ -568,3 +570,11 @@ This Scope of Work defines `DEL-02-05` in service of project scope [SOW-050, SOW
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-050 SOW-041 OBJ-001 OBJ-012 | CLM-010 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-02-05:1** — The canonical `project.run_history` read path now reaches backend report sections, but explicit project-document migrate, the `.opsproj` multi-member container, compatibility-window semantics, and exact external/non-JSON payload partitioning remain open.
+- **DEL-02-05:2** — Close FR-001 residuals: explicit migrate operation, compatibility-window semantics, and `.opsproj` multi-member container implementation per DEC-028 + DEC-057 naming rider (source: PRD plan §4 FR-001 row / DEC-028/DEC-057)
+- **DEL-02-05:3** — H2 / F-5b: relocate DEC-019 migration evaluation into a wasm-compilable crate, replace `projectService.ts` `evaluateModelDocumentLocal`, and cover the migrated-bytes hash-integrity edge with cross-engine parity tests (source: PRD plan §3 hardening row H2). The three stale UI current-version comparisons were closed by DEC-074 R5 T2B/PDU-024 on 2026-07-12.

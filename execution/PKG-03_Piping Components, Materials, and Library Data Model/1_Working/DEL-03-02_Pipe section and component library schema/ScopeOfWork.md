@@ -402,3 +402,9 @@ Retain the user-imported hanger schema contract under DEL-03-02. DEL-03-07 owns 
 |---|---|---|---|---|---|
 | OUT-001 | SOW-018 OBJ-004 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
 | OUT-002 | OBJ-004 | CLM-030 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-03-02:1** — Bind deterministic library-document persistence compatibility evidence to the implemented library import/serialization boundary or record its owning disposition. (R5 continuation claim references: DEL-03-02:SOW#production-and-verification-method-praxeology/VER-001.)

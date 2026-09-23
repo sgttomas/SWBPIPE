@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-010]
 
 # Scope of Work — DEL-12-03
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -387,3 +387,11 @@ This Scope of Work defines `DEL-12-03` in service of project scope [SOW-037] and
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-037 OBJ-010 | CLM-009 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-12-03:1** — Preserve PDU-043 as documented absence until separately authorized: plugin, adapter, import/export, report, and private-library runtime paths do not yet route telemetry attempts through the selected DEL-12-03 guard seam; adapter approval/allowlist remains unselected, and the DEL-10-02 deny-only declaration-admission gate does not close this runtime binding; do not infer whole-runtime no-bypass or security closure (source: DEC-074 O7-before-E5; PDU-043, 2026-07-12)
+- **DEL-12-03:2** — Preserve PDU-042's boundary after the distinct panel request: actual opt-in/consent UI or CLI, approved allowlist, product config schema/storage, and runtime enablement remain unimplemented and separately gated. The ephemeral review request must remain fail-closed and must not be treated as consent or telemetry activation.
+- **DEL-12-03:3** — Obtain owning human-review dispositions for open `RF-001` and `RF-002`; both retain `HumanDisposition=TBD`. The O7/T3/T5 technical evidence and existing runtime/config/consent/allowlist residual homes do not close the formal findings (PDU-060).

@@ -3,9 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- Locate or obtain a protected-content review bound to the straight-pipe source/test candidate and retain fresh scope parity as an evidence task. (R5 continuation claim references: DEL-04-02:SOW#CLM-021; production-and-verification-method-praxeology/VER-001.)
-
 ## History
 - 2026-09-22 - Added explicit grouped delivery/evidence tasks from the R5 record-continuation screening to Remaining; lifecycle, existing dispositions and acceptance boundaries remain unchanged. Evidence: `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG00_06/`.
 - 2026-07-19 - R14-W1-T1 (CB-2026-07-19-T1-PKG04-PRODUCER-BINDING-001 v3) bound straight-pipe element results/diagnostics into the governed analysis-run producer: `run_preview_in_memory*` now attaches a validated DEL-08-04 result-export envelope document on completed solves (library surface only; runner CLI stdout byte-stable against the pre-tranche build). Bounded-coverage export: rows inside the enumerated (kind, unit) mapping table export as QuantityResult values; out-of-vocabulary rows are disclosed per-row in non-blocking vocabulary-boundary diagnostics, and the DEL-08-04 vocabulary-extension follow-on (stiffness/energy/count-state dimensions) is reported to HELP_HUMAN, not resolved here. Lifecycle remains IN_PROGRESS.

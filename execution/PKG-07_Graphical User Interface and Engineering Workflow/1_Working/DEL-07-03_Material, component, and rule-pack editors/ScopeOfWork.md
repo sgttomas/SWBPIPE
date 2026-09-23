@@ -32,7 +32,7 @@ This Scope of Work defines `DEL-07-03` in service of project scope [SOW-021] and
 > | Package ID | PKG-07 |
 > | Package | Graphical User Interface and Engineering Workflow |
 > | Type | UX_UI_SLICE |
-> | Current setup scope | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle and remaining work are recorded in `_STATUS.md`. Setup-only restrictions describe the originating setup run, not standing product scope. |
+> | Current setup scope | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle is recorded in `_STATUS.md`; current work follows this Scope of Work, owning decisions, and the selected graph. Setup-only restrictions describe the originating setup run, not standing product scope. |
 > | Register scope item | SOW-021 |
 > | Supported objective | OBJ-006 |
 > | Context envelope | L |
@@ -80,7 +80,7 @@ This Scope of Work defines `DEL-07-03` in service of project scope [SOW-021] and
 
 > ##### Construction
 >
-> Current deliverable obligation: implement material, section, component, private-library and rule-pack-reference editors plus load-case/combination and self-weight-plan interaction through the PKG-16 operation seam. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement material, section, component, private-library and rule-pack-reference editors plus load-case/combination and self-weight-plan interaction through the PKG-16 operation seam. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > The editor workflow is a future GUI slice, but this setup pass records the intended construction boundaries:
@@ -151,7 +151,7 @@ This Scope of Work defines `DEL-07-03` in service of project scope [SOW-021] and
 
 > ##### Scope
 >
-> Current deliverable obligation: implement material, section, component, private-library and rule-pack-reference editors plus load-case/combination and self-weight-plan interaction through the PKG-16 operation seam. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement material, section, component, private-library and rule-pack-reference editors plus load-case/combination and self-weight-plan interaction through the PKG-16 operation seam. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This deliverable specifies the setup documentation for future GUI editor panels and validation UI tests covering material, section, component, load-case, support/restraint, rule-pack reference, and private-library editing within `PKG-07`.
@@ -281,7 +281,7 @@ This Scope of Work defines `DEL-07-03` in service of project scope [SOW-021] and
 
 > ##### Purpose
 >
-> Current deliverable obligation: implement material, section, component, private-library and rule-pack-reference editors plus load-case/combination and self-weight-plan interaction through the PKG-16 operation seam. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement material, section, component, private-library and rule-pack-reference editors plus load-case/combination and self-weight-plan interaction through the PKG-16 operation seam. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > Define how the `DEL-07-03` setup artifacts are produced and checked, and record the operational boundaries that future implementation work must preserve for material, component, rule-pack, load/support, and private-library editors.
@@ -395,7 +395,7 @@ This Scope of Work defines `DEL-07-03` in service of project scope [SOW-021] and
 > 1. Confirm the cited private-by-default evidence remains project-owned verification.
 > 2. Confirm no independent usability/security validation basis has been authorized or recorded.
 > 3. Preserve PDU-049 and `DEL-07-03-R-011` as `VERIFIED_NOT_VALIDATED`.
-> 4. Record the residual requirement in `_STATUS.md ## Remaining`; do not perform a lifecycle transition or infer security-review closure.
+> 4. Record any surviving requirement in this Scope of Work or its owning decision; do not perform a lifecycle transition or infer security-review closure.
 >
 
 ### CLM-027 — D-41 R5 T5 PDU-041 absence check
@@ -565,3 +565,12 @@ Own load-case/combination editing, self-weight-plan interaction and material/sec
 |---|---|---|---|---|---|
 | OUT-001 | SOW-021 OBJ-006 | CLM-010 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
 | OUT-002 | OBJ-006 | CLM-042 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-07-03:1** — `DEL-07-03-R-005` and `R-006` (load-case, support/restraint editors) are re-pointed by SCA-009 (decomposition revision 0.12, DEC-094): their accepted ownership landing is the `DEL-07-09` interactive operation vocabulary and tool palette contract. Their earlier GUI-absence record is historical evidence; current bounded implementations and remaining gaps are recorded in DEL-07-09 coverage under the accepted owning implementation deliverables. Adjacent authoring does not independently establish closure. PDU-041 evidence is preserved unchanged.
+- **DEL-07-03:2** — Obtain a separately authorized independent usability/security validation basis before upgrading PDU-049 / `DEL-07-03-R-011` beyond `VERIFIED_NOT_VALIDATED`; project-owned verification does not supply that basis (source: DEC-074 O7-before-E5; PDU-049, 2026-07-12)
+- **DEL-07-03:3** — No N7 rereview action remains for the reviewed SCA-009 material/section/load-case/hanger/self-weight slice: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N7_FINAL_REVIEW/V2_BACKCHECK/REVIEW_RETURN_V2.md` records PASS and `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/PRECOMMIT_PARENT_FAN_IN_V1.md` records bounded parent fan-in. R-005/R-006 and historical PDU-041 attribution remain with those records. Browser library import remains unavailable; hanger selection remains native-only/manual without sizing. Independent usability/security validation and broader scope remain open; no lifecycle closure is inferred.
+- **DEL-07-03:4** — No final N7 rereview remains pending for the shared-support repairs: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N7_FINAL_REVIEW/V2_BACKCHECK/REVIEW_RETURN_V2.md` records PASS on its exact V2 source. The accepted family-token, duplicate-stiffness and provenance requirements retain that evidence binding. Broader mixed-payload compatibility remains unresolved; native-only manual hanger selection and no-sizing limits remain. Historical test counts stay in the review evidence; no suite was rerun here and no lifecycle closure follows.

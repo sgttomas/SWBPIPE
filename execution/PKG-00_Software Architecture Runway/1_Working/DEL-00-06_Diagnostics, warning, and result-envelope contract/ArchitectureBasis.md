@@ -52,7 +52,7 @@ Register: `execution/_Coordination/_DECISIONS/_REGISTER.md`; codification in `ex
 - OPEN: diagnostic code namespace and severity-taxonomy details (kit TBDs never ruled; remain routed to human architecture ruling).
 - OPEN: localization policy (kit TBD never ruled).
 - OPEN: shared diagnostic enum, release/acceptance/professional-reliance diagnostic policy — classified `KEEP_AS_TBD` by TP-VERIFY-013E; audit checksum diagnostic policy held at `READY_FOR_AUDIT_CANONICALIZATION_RULING`.
-- Deliverable-local residuals and gates are those recorded in `_STATUS.md ## Remaining` (currently empty). Nothing in this document implies lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+- Deliverable-local duties and gates remain in this Architecture Basis and its cited decisions. Nothing in this document implies lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Currency and provenance
 

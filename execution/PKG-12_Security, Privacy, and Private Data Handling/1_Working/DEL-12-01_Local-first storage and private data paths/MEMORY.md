@@ -207,3 +207,7 @@ Durable context preserved after reconciliation review:
 - A first independent review found that Python truthiness could authorize malformed intent values. The repair normalizes once with `is True`; route and writer regressions prove `"false"`, `1`, `None`, and mapping values remain blocked without creating an output directory.
 - Focused suites, pinned full Piping (`913 passed`), the registered host DEC-025 evidence sweep, and a fresh 13-path 100%-diff review passed. Evidence is rooted at `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260821-LOCAL-FIRST-RUNTIME/instances/WI-PKG12-001/`.
 - This tranche did not inspect payloads or add network, cloud, telemetry, storage-root, physical-container, or plugin-runtime selection behavior. LFSP-REQ-011 implementation-dependent families and owner dispositions RF-001/RF-002 remain open; lifecycle stays `IN_PROGRESS`.
+
+## 2026-09-23 — PIP-DEC025-BASELINE-2026-09-23
+
+The local-first policy test now asserts the policy’s current SWBPIPE name; private-data, symbolic-path, no-cloud and metadata-only guard checks remain. No storage behavior or lifecycle changed. Substantive [PR #872](https://github.com/sgttomas/chirality/pull/872); central evidence: `execution/_Coordination/AgentRuns/PIP-DEC025-BASELINE-2026-09-23/EVIDENCE.md`.

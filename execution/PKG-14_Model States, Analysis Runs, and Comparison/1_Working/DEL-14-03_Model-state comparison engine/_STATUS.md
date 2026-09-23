@@ -3,11 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- R5 continuation delivery task: Demonstrate the state comparison contract in product integration, including mapping, units/missing-data diagnostics and preservation of source metadata. Reference engine fixtures are bounded evidence; unresolved normalization and fixture provenance remain explicit (CLM-015/022/023/031).
-- SCA-011 interface follow-through: Demonstrate valid/invalid schema witnesses, deterministic source-preserving mapping and export round trips after the DEL-14-05 output schema is accepted. Existing human-review dispositions remain open.
-- Obtain owning human-review dispositions for open `RF-001` (dependency-closure visibility) and `RF-002` (documentation currentness). Preserve prerequisite authority and defer any document refresh to its authorized tranche; do not infer closure from current defensive consumers or fixtures (PDU-060).
-
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T6/PDU-060 homed RF-001/RF-002 without editing dependency authority, documentation, formal findings, or lifecycle.

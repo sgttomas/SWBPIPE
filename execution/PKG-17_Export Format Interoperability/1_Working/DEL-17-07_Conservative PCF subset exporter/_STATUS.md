@@ -3,10 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- R5 continuation delivery task (CLM-011; CF-001): reconcile the existing PCF reference builder/schema with admitted target-version/profile sources, the unavailable historical PLAN-EXPORT-INTEROP source binding, translator-default warnings, support/restraint preservation and direct-versus-sidecar identity. Demonstrate actual exporter/consumer conformance and fixture rights/provenance before target support claims. Preserve RF-001 and all existing review, engineering and release holds.
-- Obtain the owning human-review disposition for open `RF-001`; preserve `HumanDisposition=TBD` and home any later active-content refresh without rewriting historical evidence or inferring publication readiness (PDU-060).
-
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 3 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T6/PDU-060 homed RF-001 for human disposition/later currentness refresh without changing formal review, publication, or lifecycle state.

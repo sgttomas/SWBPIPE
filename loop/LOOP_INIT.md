@@ -5,6 +5,9 @@ Resolve `REPO_ROOT` from the active checkout and set `WORKING_ROOT` to
 Enter through `init/dev-loop-init-prompt.md` with the selected role and the
 human's steering. This file owns the recurring development-loop procedure;
 project `AGENTS.md` supplies standing responsibilities, boundaries and checks.
+The dated `WORKPLAN_2026-07-*` files are historical evidence at their original
+paths, not instructions for current work selection. The 2026-09-19 standing
+procedure pointer records their supersession; preserve those historical bytes.
 
 **Current work graph:** `execution/_Coordination/WorkGraphs/PIPING_LINTER_SCOPE_20260923/WORK_GRAPH.md`.
 

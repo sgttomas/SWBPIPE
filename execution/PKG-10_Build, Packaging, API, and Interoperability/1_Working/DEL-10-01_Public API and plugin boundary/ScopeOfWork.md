@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-009]
 
 # Scope of Work — DEL-10-01
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -86,7 +86,7 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 
 > ##### Construction
 >
-> Current deliverable obligation: Define public API/plugin boundaries for model import/export, solver invocation, results, and rule-pack hooks. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Define public API/plugin boundaries for model import/export, solver invocation, results, and rule-pack hooks. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This deliverable records a contract boundary, not an implementation. The boundary is organized around these contract surfaces:
@@ -262,7 +262,7 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 
 > ##### Prerequisites
 >
-> Current deliverable obligation: Define public API/plugin boundaries for model import/export, solver invocation, results, and rule-pack hooks. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Define public API/plugin boundaries for model import/export, solver invocation, results, and rule-pack hooks. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > - The sealed DEL-10-01 context is available in `_CONTEXT.md`.
@@ -356,7 +356,7 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 
 > ##### Completion Condition
 >
-> Current deliverable obligation: Define public API/plugin boundaries for model import/export, solver invocation, results, and rule-pack hooks. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Define public API/plugin boundaries for model import/export, solver invocation, results, and rule-pack hooks. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > The setup sequence is complete when the required setup artifacts exist, dependency validation passes, semantic/lensing artifacts are internally consistent, unresolved decisions remain visible as `TBD`, protected-data/professional-boundary checks are clean, and `_STATUS.md` records `SEMANTIC_READY` without any `ISSUED` transition.
@@ -420,7 +420,7 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 
 > ##### Trade-offs
 >
-> Current deliverable obligation: Define public API/plugin boundaries for model import/export, solver invocation, results, and rule-pack hooks. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Define public API/plugin boundaries for model import/export, solver invocation, results, and rule-pack hooks. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > | Trade-off | Guidance |
@@ -484,3 +484,10 @@ This Scope of Work defines `DEL-10-01` in service of project scope [SOW-030] and
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-030 OBJ-009 | CLM-009 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-10-01:1** — Register any selected model-creation/load-case or persisted-report public API families and explicit invalid-input encoding separately; the T4 backend workflow grain is not a new public API family.
+- **DEL-10-01:2** — Obtain the owning human disposition for `PKG10-DEL1001-PKG02-W001`; preserve `TECHNICALLY_ADDRESSED_PENDING_HUMAN` and `HumanDisposition=TBD` despite the implemented dependency-traceability evidence (PDU-060).

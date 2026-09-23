@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-007, OBJ-016, OBJ-017, OBJ-018]
 
 # Scope of Work — DEL-08-06
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -389,3 +389,10 @@ This Scope of Work defines `DEL-08-06` in service of project scope [SOW-024] and
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-024 OBJ-007 OBJ-016 OBJ-017 OBJ-018 | CLM-009 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-08-06:1** — Complete remaining producer bindings outside the landed desktop state/run and comparison report-package seam, including solver/rule-check, handoff/adapter, rendered-report/export and external or non-JSON payload partitioning work. The bounded state/run and comparison binding has implementation evidence in `apps/desktop/src/features/report/reportPackageRequest.ts`, `stateComparisonHandoffSections.ts` beside it, and `core/reporting/report_package/src/lib.rs`. It does not close the other producer or partitioning residuals.
+- **DEL-08-06:2** — R5 retained delivery 2026-09-22 — DEL-08-06: retain claim-specific candidate-bound assembly checks and scoped protected/private-content review; source/test existence is not a result or whole-report acceptance. Claim refs: `DEL-08-06:SOW#CLM-014`, `DEL-08-06:SOW#CLM-022.r01`, `DEL-08-06:SOW#CLM-022.r02`, `DEL-08-06:SOW#CLM-022.r03`, `DEL-08-06:SOW#CLM-022.r04`, `DEL-08-06:SOW#CLM-022.r05`, `DEL-08-06:SOW#CLM-022.r06`, `DEL-08-06:SOW#CLM-022.r07`.

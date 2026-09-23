@@ -3,11 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- R5 continuation delivery task: Demonstrate current JSON glTF line-mode profile, stable-ID sidecar correlation, units/coordinates, loss disclosure and cleared fixture provenance through the owned product export path. GLB, expanded entity/geometry coverage and rendered viewer validation remain separate work; correct any unsupported hash labels in bounded code work (CLM-007/014/017/020/041/043).
-- Obtain the owner-selected exact PDU-031 timestamp/generator metadata policy before declaring normative deterministic/normalized/omitted/runtime-dependent behavior; current JSON glTF output has a fixed versioned generator and no timestamp and this observation is test-enforced without inventing policy (source: DEC-074 O11/E7; R5 tranche plan unselected-policy hold)
-- Preserve the PDU-036/REQ-043 impossible-bend diagnostic as outside the selected O11 JSON line/centerline profile. Emitted line-entity mapping completeness is bounded by current focused evidence; do not infer broader bend geometry, GLB, viewer, or validation coverage.
-
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 7 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T4 PDU-036 bounded REQ-043 to current JSON line-profile mapping evidence and preserved impossible-bend diagnostics as unimplemented outside O11 scope; no GLB, broader geometry, or validation promotion.

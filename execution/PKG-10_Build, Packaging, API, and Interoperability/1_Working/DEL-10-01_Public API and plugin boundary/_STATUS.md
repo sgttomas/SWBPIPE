@@ -3,10 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- Register any selected model-creation/load-case or persisted-report public API families and explicit invalid-input encoding separately; the T4 backend workflow grain is not a new public API family.
-- Obtain the owning human disposition for `PKG10-DEL1001-PKG02-W001`; preserve `TECHNICALLY_ADDRESSED_PENDING_HUMAN` and `HumanDisposition=TBD` despite the implemented dependency-traceability evidence (PDU-060).
-
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 3 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T6/PDU-060 homed `PKG10-DEL1001-PKG02-W001` for human disposition without editing dependency authority or formal finding state.

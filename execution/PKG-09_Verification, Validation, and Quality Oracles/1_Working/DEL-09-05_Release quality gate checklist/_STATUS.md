@@ -3,11 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- Restrict release labels to maturity/evidence vocabulary with no reliance/compliance language (gated: PB-TBD-003, human) (see also DEL-01-04) (source: PRD plan §3 E8 row / RGAP-007)
-- Propose coverage-floor promotion once ≥5 clean-head telemetry artifacts span ≥2 commits per lane (gated: new D-XX row per DEC-060) (source: DEC-060 / Receipt 7)
-- No issuance-wave packet preparation is presently actionable under this item: D-40/DEC-072 returned the only CHECKING deliverables to IN_PROGRESS, and the reconciliation census has no CHECKING candidate. Any future candidate requires its own declared checking basis, evidence and owner lifecycle act; DEC-062's issuance evidence bar remains applicable. DEL-01-01 remains the untouched ISSUED baseline.
-
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 5 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-04-30 - State set to OPEN (PREPARATION)

@@ -3,10 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- R5 continuation delivery task: Demonstrate target-mapping output conformance and loss/diagnostic preservation with actual exporter binding (model hash and units reference), including target-specific mappings and taxonomy; metadata-only schema/reference evidence is insufficient for target support (CLM-006/019/020).
-- Obtain owning human dispositions for `DEL-15-02-PKG02-001`, `RF-001`, and `RF-002`; all remain technically addressed/open with `HumanDisposition=TBD`, and current mapping/privacy/currentness evidence does not create approval or formal closure (PDU-060).
-
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 3 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T6/PDU-060 homed all three target-mapping finding dispositions without changing tests, review rows, or lifecycle.

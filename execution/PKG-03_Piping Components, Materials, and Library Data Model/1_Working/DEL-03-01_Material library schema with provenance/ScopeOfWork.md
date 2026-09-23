@@ -341,3 +341,9 @@ This Scope of Work defines `DEL-03-01` in service of project scope [SOW-017] and
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-017 OBJ-004 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-03-01:1** — Supply or locate the material serialization round-trip evidence required by REQ-03-01-007, or obtain an explicit scoped deferral. Accepted Gate C disposition and current material schemas do not substitute for that persistence witness. (R5 continuation claim references: DEL-03-01:SOW#CLM-011/REQ-03-01-007; production-and-verification-method-praxeology/VER-001.)

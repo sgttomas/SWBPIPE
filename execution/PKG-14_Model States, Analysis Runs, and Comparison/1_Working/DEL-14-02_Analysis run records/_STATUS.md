@@ -3,11 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-15
 
-## Remaining
-- R5 continuation delivery task: Complete analysis-run producer/persistence conformance to the version dispatcher: preserve diagnostics, units, record-revision identity and exact source/run basis; verify retained 0.1 versus D-67 0.2 projections without relabeling historical bytes (CLM-006/011/018; AC-001).
-- Complete explicit solve-required and rule-check-required diagnostic breadth at the producer; the persisted-run report handoff preserves existing records only, and PDU-033's unit/dimension hold remains.
-- Preserve PDU-033 for producer-supplied physical dimensions and other governed result metadata absent from received rows. The accepted foundation implements exact-version analysis record 0.2 under checked profile `openpipestress_jcs_ijson_v1`, retains both historical 0.1 profiles, records immutable rule-check revisions, and scopes legacy interpretation. Raw source rows remain unchanged; semantic interpretation beside them does not create missing producer evidence, and explicit `unverifiable` states do not close PDU-033.
-
 ## History
 - 2026-09-15 - Result compatibility foundation accepted at source `8ad37207cf088025623aa1e777a97a6fcb802f48`; PDU-033 remains. Lifecycle and formal dependency dispositions are unchanged. Acceptance: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/FINAL_ACCEPTANCE_V1.md` (SHA-256 `e894ddf341a99bfea72270deb89a31d2d321068209b7399db3217bc5b08b851d`).
 - 2026-09-14 - Bounded result-integrity closeout clarifies the surviving compatibility residual only; lifecycle and all formal dispositions remain unchanged. Actual acceptance: execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/FINAL_ACCEPTANCE_V1.md.

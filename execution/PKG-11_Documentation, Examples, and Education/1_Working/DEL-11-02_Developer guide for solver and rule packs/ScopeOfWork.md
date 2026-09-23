@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-001, OBJ-002]
 
 # Scope of Work — DEL-11-02
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -40,7 +40,7 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 > | Scope item | SOW-033 |
 > | Objectives | OBJ-001, OBJ-002 |
 > | Context envelope | M |
-> | Current setup status | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle and remaining work are recorded in `_STATUS.md`. Setup-only restrictions describe the originating setup run, not standing product scope. |
+> | Current setup status | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle is recorded in `_STATUS.md`; current work follows this Scope of Work, owning decisions, and the selected graph. Setup-only restrictions describe the originating setup run, not standing product scope. |
 >
 
 ### CLM-004 — Attributes
@@ -119,7 +119,7 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 
 > ##### Scope
 >
-> Current deliverable obligation: Create developer guide for solver architecture, rule-pack schema, test discipline, and contribution boundaries. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Create developer guide for solver architecture, rule-pack schema, test discipline, and contribution boundaries. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This deliverable defines setup evidence for a future developer guide covering solver architecture, rule-pack schema expectations, test discipline, and contribution boundaries for OpenPipeStress.
@@ -444,7 +444,7 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 > | Exact dependency versions | `TBD` |
 > | CI provider, coverage thresholds, and performance thresholds | DEC-025 governs the local evidence sweep; DEC-059 conditionally governs public sanitized-export CI, and DEC-093 permits the exact-head-bound surface-4 CI alternative. DEC-060 selects coverage telemetry tooling, not numeric floors. Implementation and release evidence remain separately bound. Performance and coverage pass/fail thresholds are not invented by this record. |
 > | Physical project package/container | DEC-017 retains canonical JSON domain truth and a rebuildable SQLite projection; DEC-028 selects a multi-member zip/directory package with member inventory and per-member JCS hashes. DEC-057 names the `.opsproj` package. Storage roots, integration and unmet controls remain separately governed. |
-> | License and contributor certification mechanism | The selected project license is `PolyForm-Noncommercial-1.0.0` (2026-06-03 human selection; `LICENSE.md`). DEC-027 governs maintainer/release authority. DEC-079 keeps external contribution intake closed and defers CLA/DCO/equivalent instrument adoption to the owner activation/legal-advice path; do not erase the deliberate instrument TBD. |
+> | License and contributor certification mechanism | The current repository license is MIT under D-74 (2026-09-22); the 2026-06-03 PolyForm selection is superseded history. The contributor legal instrument remains a separate owner/counsel decision. DEC-027 governs maintainer/release authority. DEC-079 keeps external contribution intake closed and defers CLA/DCO/equivalent instrument adoption to the owner activation/legal-advice path; do not erase the deliberate instrument TBD. |
 >
 
 ### CLM-034 — Conflict Table (for human ruling)
@@ -462,3 +462,9 @@ This Scope of Work defines `DEL-11-02` in service of project scope [SOW-033] and
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-033 OBJ-001 OBJ-002 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-11-02:1** — Defer contributor legal-instrument adoption to a future owner intake-activation decision taken on legal advice, as ruled by DEC-079. Intake remains closed under DEC-027; the adopted D-07b review/screening skeleton defines the process without selecting CLA/DCO/equivalent. The project-license selection does not settle contributor attestations or agreement workflow; no current intake activation is authorized.

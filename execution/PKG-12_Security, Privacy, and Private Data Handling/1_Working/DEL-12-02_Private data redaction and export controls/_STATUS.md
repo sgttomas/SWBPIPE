@@ -3,10 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-07-22
 
-## Remaining
-
-- R5 retained delivery 2026-09-22 — DEL-12-02: retain native save/print witness limitations identified by R15 and separately governed profile, public/plugin transport, quarantine, cloud and legal/security gates. Claim refs: `DEL-12-02:SOW#CLM-011`.
-
 ## History
 - 2026-07-22 - R15 closed the current REXC-REQ-012 breadth remainder across the adopted 31-route inventory after N5H COMMIT-SAFE verification; nonexistent bug-report functionality remains future-route enforcement, lifecycle stays IN_PROGRESS, and merge/release remain owner gates.
 - 2026-07-12 - D-41 R5 T7 PDU-053 aligned the cited Datasheet action/context vocabulary to the accepted lowercase schema/core/app enums; cited-claim backcheck closed the D-41 bootstrap.

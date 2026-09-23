@@ -2,7 +2,7 @@
 
 ## Coordination Mode
 - **Mode:** FULL_GRAPH
-- **Graph Authority:** `execution/_DAG/DAG-007/` is the current approved canonical graph authority.
+- **Graph Authority:** `execution/_DAG/DAG-011/` is the current approved canonical graph authority (`execution/_DAG/_LATEST.md`). The local row counts below are the dated 2026-06-16 extraction snapshot, not a new DAG-011 re-extraction.
 - **Authority Boundary:** Candidate/non-gating edges are not represented through `Status=CANDIDATE` in current canonical registers.
 
 ## Declared Upstream Dependencies
@@ -12,7 +12,7 @@
 - `DEL-14-05`
 
 ## Declared Downstream Dependencies
-- No active downstream dependency is declared in this local register unless listed in `Dependencies.csv`; historical DAG-005 extraction wording is superseded by DAG-006 active graph authority.
+- No active downstream dependency is declared in this local register unless listed in `Dependencies.csv`; historical DAG-005/006 extraction wording is superseded for current navigation by approved DAG-011. Exact current dependency meaning still requires the owning dependency-workflow backcheck.
 
 ## Extracted Dependency Register
 - **Local Register:** `Dependencies.csv`

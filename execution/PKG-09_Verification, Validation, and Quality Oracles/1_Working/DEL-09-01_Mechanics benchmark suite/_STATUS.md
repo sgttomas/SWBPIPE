@@ -3,14 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- Keep PDU-037's dedicated provenance/redistribution index, release integration, and acceptance thresholds open. The suite-to-headless observation binding is now bounded implementation evidence only; it does not select the still-open public result-comparison number or close validation/release gates.
-- Complete RQ-004 project-grain unit-system binding and rerun the mechanics benchmarks against that basis. DEC-018 accepted the canonical unit catalog and conversion constants on 2026-06-10; the current fixture-local evidence alone does not establish project-grain acceptance. Preserve upstream DEL-02-02 binding holds and existing tolerance/validation authority. Evidence: `core/units/README.md`, `validation/benchmarks/mechanics/src/lib.rs::FIXTURE_UNIT_BASIS` and `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T2B-PDU013.md`.
-- Complete the PRD §16.2 benchmark evidence system named residual by the conditional R4 gate (see also DEL-09-04 for §16.5) (source: PRD plan §3 D9 exit-refresh row / DEC-054)
-- Obtain the owning human disposition for `PKG09-0901-PKG02-001`; preserve `TECHNICALLY_ADDRESSED_PENDING_HUMAN` and `HumanDisposition=TBD` until that act occurs, and do not infer formal closure from the implemented fixture-local unit evidence (PDU-060).
-
-- R5 retained delivery 2026-09-22 — DEL-09-01: complete the dedicated provenance index and unit-catalog/conversion binding witness; retain unmeasured per-kind tolerance and external-validation acceptance gates. Claim refs: `DEL-09-01:SOW#CLM-016`.
-
 ## History
 - 2026-08-12 - Under owner-adopted `CB-2026-08-11-DEL1005-MECHANICS-RUNNER-BINDING-001`, DEL-09-01 added a suite-owned observation and recorded-comparison accessor seam for the complete current 25-case mechanics inventory. Fresh independent verification passed 25/25 cases, 206/206 values, the new 14/115 slice, and exact original 11/91 non-regression; stress was unchanged, nonlinear remained 5/5, and DEC-046 C-B remained byte-identical and nonlinear-only. This is bounded implementation evidence; lifecycle remains `IN_PROGRESS`, and the public comparison-number, release, promotion, and reliance gates remain open.
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.

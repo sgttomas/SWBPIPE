@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-009]
 
 # Scope of Work — DEL-02-04
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -287,7 +287,7 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 > ##### Prerequisites
 >
 > - Sealed deliverable context for DEL-02-04 with explicit write scope. SourcePath: `_CONTEXT.md`; SectionRef: Context: DEL-02-04.
-> - The current authorized brief and `_STATUS.md` govern work and lifecycle; prior Pass 3 drafting readiness is historical. This repair makes no lifecycle transition.
+> - The current authorized brief and this Scope of Work govern the work; `_STATUS.md` records lifecycle, and prior Pass 3 drafting readiness is historical. This repair makes no lifecycle transition.
 > - Scope, deliverable, and context-budget register rows for DEL-02-04 and SOW-038. SourcePath: `docs/_Registers/Deliverables.csv`; SectionRef: row DEL-02-04. SourcePath: `docs/_Registers/ScopeLedger.csv`; SectionRef: row SOW-038. SourcePath: `docs/_Registers/ContextBudgetQA.csv`; SectionRef: row DEL-02-04.
 > - Applicable contract invariants from `docs/CONTRACT.md`, especially IP/data boundary, unit safety, rule sandboxing, report controls, privacy, and agent epistemic constraints.
 > - SCA-001 architecture basis IDs AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, and AB-00-08. SourcePath: `_CONTEXT.md`; SectionRef: Architecture Basis Injection.
@@ -480,3 +480,10 @@ This Scope of Work defines `DEL-02-04` in service of project scope [SOW-038] and
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-038 OBJ-009 | CLM-009 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-02-04:1** — Conform or retire the public invented plugin fixture and add full canonical-schema and manifest JCS/hash evidence. Runtime no-bypass/security tests require the separately authorized runtime hook; declaration checks do not satisfy those tests. (R5 continuation claim references: DEL-02-04:SOW#CLM-012/DEL-02-04-REQ-11; CLM-014.r04; CLM-015.r03.)
+- **DEL-02-04:2** — None for PDU-037's exact non-schema adapter/plugin verification-layer residual. Separately governed runtime, transport, capability, and permission-persistence choices remain owner-held and runtime dispatch stays blocked.

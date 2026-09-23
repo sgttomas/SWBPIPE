@@ -3,9 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- Obtain owning human dispositions for `PKG11-DEL-11-04-PKG02-001` and `PKG11-DEL-11-04-PKG02-002`; both remain technically addressed with `HumanDisposition=TBD`, and current compatibility evidence does not create approval (PDU-060).
-
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 5 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T6/PDU-060 homed the two pending example-model compatibility dispositions without changing formal review or lifecycle state.

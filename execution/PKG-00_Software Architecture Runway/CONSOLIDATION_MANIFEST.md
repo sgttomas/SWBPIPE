@@ -20,7 +20,7 @@ For current use of a PKG-00 member, read these surfaces in order:
 1. `ArchitectureBasis.md` — current member reference and applicable
    architecture requirements, decisions, artifacts, and open questions.
 2. `_STATUS.md` — sole deliverable-local lifecycle authority.
-3. `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.9 — current
+3. `execution/_Decomposition/SOFTWARE_DECOMP.md` revision 0.13 — current
    decomposition and AB-00-01..08 authority.
 4. `_DEPENDENCIES.md` and `_REFERENCES.md` — current relationship and source
    navigation.
@@ -93,3 +93,25 @@ Preserved-source citations to the removed kit paths inside converted
 references bound by the Stage-2 preservation gates; they resolve via the
 basis commit above. The live successor for every cited kit surface is the
 member's `ArchitectureBasis.md`.
+
+## Current checked successors (SHA-256)
+
+The D-43 table above records the consolidation bytes at the cited merge.
+The initial table basis was `10b672cae`, after R5/R6 reconciliation
+(`0407cb978`, `a89b5ddec`) and the SCA-011 revision-0.13 adoption. PR #871
+updates DEL-00-02 through DEL-00-06 to their current post-retirement bytes;
+DEL-00-01, DEL-00-07, and DEL-00-08 retain the initial table basis. The
+validator checks live bytes against this current table. Any accepted
+change to an `ArchitectureBasis.md` requires recomputing its current SHA-256
+entry and rerunning the validator; the historical D-43 table remains intact.
+
+| Member | File | SHA-256 |
+|---|---|---|
+| DEL-00-01 | ArchitectureBasis.md | `6f25339d4fab35006a0f5f6788930b3d76781fda5e5f7dfbc6e58a59413fc3bb` |
+| DEL-00-02 | ArchitectureBasis.md | `3152e8f4a4b058bbc36c9d28f08b99c67bc8afbd8588d3eca4ff60e24dd115f6` |
+| DEL-00-03 | ArchitectureBasis.md | `a53230465b11cf40ebb15d7b5f74aa1320f47c065dc7a5eecf562c9d036cfa16` |
+| DEL-00-04 | ArchitectureBasis.md | `116491cb9d3091d8d614e6aac555e1d3c03b1e87ae132e22508d7ce82397c7d0` |
+| DEL-00-05 | ArchitectureBasis.md | `abef4abce2f57da7e96c2e09df29fab7999a2ec8ed189e60f9215cb4ee0f90cf` |
+| DEL-00-06 | ArchitectureBasis.md | `3cb17e6f03844420c813eb53c0863c1de956282242348b90f7d28a6efde31feb` |
+| DEL-00-07 | ArchitectureBasis.md | `30a4221dc30e8fc4c9fa12426b6b252853387692ef9b2ede6eaaf42d97a5c83c` |
+| DEL-00-08 | ArchitectureBasis.md | `b67f59877c43b92878528f09aa9881e3b38fb4e053cf52a6ecf81672e36ee1ca` |

@@ -424,7 +424,7 @@ def test_policy_is_traceable_to_deliverable_scope():
 
 def test_local_first_user_control_default_is_explicit():
     text = policy_text()
-    assert "OpenPipeStress is local-first by default." in text
+    assert "SWBPIPE is local-first by default." in text
     for required in LOCAL_FIRST_PRIVATE_CLASSES:
         assert required in text
 

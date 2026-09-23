@@ -3,11 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- Keep PDU-037 downstream plugin/adapter bypass-attempt and public-example protected-content test families open; the refreshed 31-test plus 69-case evaluator corpus is verification only.
-- Bind evaluator findings and final diagnostic taxonomy into a governed result envelope before report consumption; the T4 persisted-record reader does not execute or integrate the evaluator.
-- Bind any future adapter/plugin invocation to a governed runtime dispatch path; the DEC-074 O7/E5 declaration gate is deny-only and does not load or execute evaluator inputs.
-
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T6 PDU-037 refreshed bounded fixture/harness evidence and preserved all validation, policy, review, and lifecycle holds.

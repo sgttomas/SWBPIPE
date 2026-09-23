@@ -69,13 +69,12 @@ source; memory carries no future assignments. The local graph
 carries execution at `execution/_Coordination/WorkGraphs/<undertaking>/WORK_GRAPH.md`.
 Keep it Git-tracked in the undertaking's PR sequence and set LOOP_INIT's current
 pointer to its actual path. Preserve historical graph files. `_STATUS.md` retains
-lifecycle and history. `Remaining`
-sections are retired as a required work-selection or execution-list surface for
-newly adopted development; their absence neither proves completion nor prevents
-work within the human's authorized undertaking. Existing entries remain
-accessible legacy inputs until an explicitly authorized retirement accounts for
-each one, applies the human's disposition and verifies every surviving obligation
-at its destination before source removal. No new Remaining entry is required.
+lifecycle and history. The retired `Remaining` sections are historical inputs,
+not a work-selection or execution-list surface. Their absence neither proves
+completion nor prevents work within the human's authorized undertaking. Use
+governing Scope of Work, Architecture Basis, accepted decisions, the selected
+work graph, and Task Management dispositions for current obligations and
+unresolved allocation or decision concerns. Do not add a new `Remaining` entry.
 
 Each substantive PR includes the documentary, reconciliation and conditional
 Task Management consequences needed for that slice. Perform one final bounded

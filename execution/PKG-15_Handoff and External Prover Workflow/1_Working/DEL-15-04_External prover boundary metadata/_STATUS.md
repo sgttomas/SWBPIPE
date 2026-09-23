@@ -3,9 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- Obtain the owning human-review disposition for open `RF-001`; `HumanDisposition` remains `TBD`, and corrected Guidance/schema evidence does not formally close the finding (PDU-060).
-
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 1 cited declaration claim to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T6/PDU-060 homed RF-001 for human disposition without duplicating resolved PKG-02 work or changing lifecycle.

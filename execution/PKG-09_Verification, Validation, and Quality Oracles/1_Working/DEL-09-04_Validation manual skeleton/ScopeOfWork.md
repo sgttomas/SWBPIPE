@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-008, OBJ-011]
 
 # Scope of Work — DEL-09-04
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -120,7 +120,7 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 
 > ##### Scope
 >
-> Current deliverable obligation: Draft validation manual structure distinguishing verification, validation, user rule checks, and professional reliance. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Draft validation manual structure distinguishing verification, validation, user rule checks, and professional reliance. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This deliverable defines the local skeleton for a validation manual. It covers the manual structure, required boundaries, evidence categories, and acceptance checks needed to distinguish:
@@ -207,7 +207,7 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 
 > ##### Prerequisites
 >
-> Current deliverable obligation: Draft validation manual structure distinguishing verification, validation, user rule checks, and professional reliance. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Draft validation manual structure distinguishing verification, validation, user rule checks, and professional reliance. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > | Prerequisite | Requirement |
@@ -348,3 +348,10 @@ This Scope of Work defines `DEL-09-04` in service of project scope [SOW-027] and
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-027 OBJ-008 OBJ-011 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-09-04:1** — Complete owner/maintainer review and MAINTAINER_REVIEWED promotion of the validation-manual case pages. Runner benchmark/regression and export-results report-package payload bindings are landed evidence; export-results is not a remaining runner stub (see `core/runner/headless/src/bin/openpipestress-runner.rs` and `validation/witness/generated/del1005_export_results_*.json`). DEC-080 establishes the evidence-bundle home `validation/evidence/reproduction/<run-id>/`; binding witnesses do not promote case-page review or engineering validation.
+- **DEL-09-04:2** — Select final public-benchmark result-comparison values after the ruled V-D measurement/design derivative; DEC-046 C-B nonlinear convergence values are recorded at release scope as policy only (`0 count` relative field, `0 count` absolute floor, cap `4` for all five classes, inclusive final changed-support count zero), not as a release act (source: owner rulings 2026-08-11 / `HELP-HUMAN-PIPING-20260810-DEL0904-OWNER-GATES`)

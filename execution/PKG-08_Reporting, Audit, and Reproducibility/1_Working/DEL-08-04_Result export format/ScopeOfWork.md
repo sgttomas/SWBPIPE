@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-007, OBJ-009]
 
 # Scope of Work — DEL-08-04
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -38,7 +38,7 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 > | Deliverable type | API_CONTRACT |
 > | Scope item | SOW-046 |
 > | Supported objectives | OBJ-007; OBJ-009 |
-> | Setup status | Current contract with bounded implementation evidence; consult `_STATUS.md` for lifecycle and remaining work. |
+> | Setup status | Current contract with bounded implementation evidence; consult `_STATUS.md` for lifecycle and this Scope of Work and the selected graph for current work. |
 >
 
 ### CLM-004 — Attributes
@@ -61,7 +61,7 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 
 > ##### Conditions
 >
-> Current deliverable obligation: Define and implement machine-readable result export for tests, review, and downstream tooling. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Define and implement machine-readable result export for tests, review, and downstream tooling. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > - This session is setup/document production only; no schema file, exporter source, tests, docs outside this folder, or repository-level artifacts are modified.
@@ -112,7 +112,7 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 
 > ##### Scope
 >
-> Current deliverable obligation: Define and implement machine-readable result export for tests, review, and downstream tooling. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Define and implement machine-readable result export for tests, review, and downstream tooling. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This deliverable defines the setup specification for a machine-readable result export contract. The baseline is a schema-first JSON result envelope suitable for review, regression comparison, and downstream tooling.
@@ -137,6 +137,7 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 > | DEL-08-04-R10 | Export ordering and identifiers should be deterministic enough for regression comparison of equivalent result sets. | `docs/SPEC.md` sections 4.5 and 9; `docs/_Registers/ScopeLedger.csv` row SOW-046 |
 > | DEL-08-04-R11 | Missing solve-required, rule-check-required, provenance, or unit metadata shall be represented as diagnostics/findings, not silently filled with defaults. | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/SPEC.md` section 7 |
 > | DEL-08-04-R12 | The contract shall support downstream consumption by report generation, GUI results review, headless automation, and import/export adapters without creating a bypass around governed result envelopes. | `docs/_Registers/Deliverables.csv` rows DEL-07-05, DEL-08-01, DEL-10-02, DEL-10-05; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-03 and AB-00-07 |
+> | DEL-08-04-R13 | Define and accept the result-export vocabulary for nonlinear active-set count, flags, state codes and residual observations supplied by DEL-04-04. Preserve producer meaning, unit/status context and omission diagnostics at the export boundary; do not infer unpublished naming or acceptance thresholds. | DEL-04-04 current residual; governed result-export boundary |
 >
 
 ### CLM-012 — Standards
@@ -200,7 +201,7 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 
 > ##### Purpose
 >
-> Current deliverable obligation: Define and implement machine-readable result export for tests, review, and downstream tooling. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Define and implement machine-readable result export for tests, review, and downstream tooling. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This procedure describes how to maintain the setup artifact for the result export format and how a later implementation brief should convert the setup specification into a governed result export contract.
@@ -225,7 +226,7 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 
 > ##### Steps
 >
-> Current deliverable obligation: Define and implement machine-readable result export for tests, review, and downstream tooling. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: Define and implement machine-readable result export for tests, review, and downstream tooling. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > 1. Confirm the current brief is limited to DEL-08-04 and does not authorize edits to `schemas/results.schema.yaml`, exporter source, tests, or documentation outside this deliverable folder.
@@ -352,3 +353,10 @@ This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and
 - **DEL-08-04-SCA011-VER-001** — Bind comparison mapping/export round trips to the accepted version of the DEL-14-05 interface before claiming comparison-envelope conformance. Preserve source identity, diagnostics, units, raw rows, unmatched records, hashes and professional boundaries.
 
 Named preparation artifact: `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/ComparisonResult.v0.1.draft.schema.json`, with field decisions and semantic checks in `INTERFACE_CONTRACTS.md`. This identifies an accountable contract preparation surface; its wire fields/version are unaccepted design deltas, not deployed schemas. Scope adoption alone neither validates existing preview payloads nor activates a new API, runtime, persistence format, external process or compatibility window. Existing requirements, exclusions and lifecycle remain in force.
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-08-04:1** — SCA-011 interface follow-through: Bind comparison mapping/export round trips to the accepted version of the DEL-14-05 interface before claiming comparison-envelope conformance. Preserve source identity, diagnostics, units, raw rows, unmatched records, hashes and professional boundaries.
+- **DEL-08-04:2** — Add remaining target-format unit-conversion witnesses outside the already-covered export boundaries (residual hardening) (source: PRD plan §3 Phase B-tail row / FR-002)

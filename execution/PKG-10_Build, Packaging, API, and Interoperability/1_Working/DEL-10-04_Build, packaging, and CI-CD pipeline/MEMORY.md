@@ -418,3 +418,7 @@ decisions, or code-compliance decisions.
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-09-23 — PIP-DEC025-BASELINE-2026-09-23
+
+Four release-readiness assertions now name approved DAG-011; the script already followed the `_LATEST.md` authority pointer. The five-surface DEC-025 gate passed on the repaired candidate without a release claim. Substantive [PR #872](https://github.com/sgttomas/chirality/pull/872); central evidence: `execution/_Coordination/AgentRuns/PIP-DEC025-BASELINE-2026-09-23/EVIDENCE.md`.

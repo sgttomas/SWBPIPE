@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-008, OBJ-009, OBJ-012]
 
 # Scope of Work — DEL-10-05
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -99,7 +99,7 @@ This Scope of Work defines `DEL-10-05` in service of project scope [SOW-054, SOW
 
 > ##### Scope
 >
-> Current deliverable obligation: implement a CLI or equivalent headless interface for schema-driven solve execution, benchmark automation, and report/result export before full GUI maturity. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement a CLI or equivalent headless interface for schema-driven solve execution, benchmark automation, and report/result export before full GUI maturity. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This deliverable defines setup-stage requirements and evidence for a future headless CLI or equivalent structured I/O analysis runner. The future runner exists to support early solver verification, regression automation, and non-GUI execution paths while the full GUI matures.
@@ -184,7 +184,7 @@ This Scope of Work defines `DEL-10-05` in service of project scope [SOW-054, SOW
 
 > ##### Purpose
 >
-> Current deliverable obligation: implement a CLI or equivalent headless interface for schema-driven solve execution, benchmark automation, and report/result export before full GUI maturity. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement a CLI or equivalent headless interface for schema-driven solve execution, benchmark automation, and report/result export before full GUI maturity. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > Define the setup and future execution procedure for a governed headless runner deliverable without implementing the runner in this session.
@@ -193,7 +193,7 @@ This Scope of Work defines `DEL-10-05` in service of project scope [SOW-054, SOW
 
 > ##### Prerequisites
 >
-> Current deliverable obligation: implement a CLI or equivalent headless interface for schema-driven solve execution, benchmark automation, and report/result export before full GUI maturity. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement a CLI or equivalent headless interface for schema-driven solve execution, benchmark automation, and report/result export before full GUI maturity. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > - Sealed context for DEL-10-05 with write scope limited to this deliverable folder.
@@ -301,7 +301,7 @@ This Scope of Work defines `DEL-10-05` in service of project scope [SOW-054, SOW
 
 > ##### Examples
 >
-> Current deliverable obligation: implement a CLI or equivalent headless interface for schema-driven solve execution, benchmark automation, and report/result export before full GUI maturity. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement a CLI or equivalent headless interface for schema-driven solve execution, benchmark automation, and report/result export before full GUI maturity. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > No executable CLI examples are provided in this setup run. Future examples must use invented/public-permissive data only and include visible diagnostics for missing data, provenance warnings, and professional-boundary notices where applicable.

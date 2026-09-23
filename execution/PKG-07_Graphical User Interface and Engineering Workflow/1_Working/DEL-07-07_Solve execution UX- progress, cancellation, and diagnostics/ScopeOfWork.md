@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-006, OBJ-007]
 
 # Scope of Work — DEL-07-07
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -54,7 +54,7 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 > | Cancellation basis | User cancellation is routed through the application-service job cancellation contract; direct GUI bypass of solver state is out of scope |
 > | Diagnostics basis | Diagnostic/result-envelope contract from PKG-00, including code, class, severity, source, affected object, message, remediation, and provenance where available |
 > | Result review basis | Mechanics solve status, missing data, assumptions, diagnostics, and reproducibility signals remain visible for professional review |
-> | Implementation status | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle and remaining work are recorded in `_STATUS.md`. Setup-only restrictions describe the originating setup run, not standing product scope. |
+> | Implementation status | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle is recorded in `_STATUS.md`; current work follows this Scope of Work, owning decisions, and the selected graph. Setup-only restrictions describe the originating setup run, not standing product scope. |
 >
 
 ### CLM-005 — Conditions
@@ -118,7 +118,7 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 
 > ##### Scope
 >
-> Current deliverable obligation: implement GUI handling for background solve execution, progress display, cancellation, diagnostic logs, and solver warning presentation. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement GUI handling for background solve execution, progress display, cancellation, diagnostic logs, and solver warning presentation. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This deliverable specifies the setup basis for a GUI solve-execution workflow that keeps background solve execution, progress display, cancellation, diagnostic logs, solver warnings, and result-envelope status reviewable.
@@ -397,3 +397,9 @@ This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-055 OBJ-006 OBJ-007 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-07-07:1** — Complete producer-side carriage of diagnostic class, remediation, and provenance where upstream producers still emit the reduced desktop shape; the PDU-008 UI preserves and displays those fields when supplied but does not fabricate them.

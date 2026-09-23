@@ -3,9 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- Define and evidence the rule-pack combination supply interface, or obtain the owning interpretation of user-authored combinations, and carry/verify the AB-00-06 diagnostic fields through the algebra/product mapping. (R5 continuation claim references: DEL-05-02:SOW#CLM-010/REQ-05-02-004; REQ-05-02-008; CLM-012/REQ-05-02-008.)
-
 ## History
 - 2026-09-22 - Added explicit grouped delivery/evidence tasks from the R5 record-continuation screening to Remaining; lifecycle, existing dispositions and acceptance boundaries remain unchanged. Evidence: `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/R5_RECORD_CONTINUATION_2026-09-22/PKG00_06/`.
 - 2026-08-03 - Implemented and validated D-45 Option O-B / `DEC-092`: explicit user-entered temperature-point G, exact-point consumption, strictly adjacent linear interpolation with two-source provenance, blocking without extrapolation or base-G fallback, private authoring and structured operation support, and independent torsion evidence. Gate 2 O-B corrected only four stale DAG-008 release-readiness test expectations to accepted/live DAG-009; corrected Python 3.13 full Piping pytest passes 557/557. State remains IN_PROGRESS; DEL-09-04 derivative regeneration and parent-validated Git/receipt closeout remain later acts, with no lifecycle, release, or professional-reliance transition.

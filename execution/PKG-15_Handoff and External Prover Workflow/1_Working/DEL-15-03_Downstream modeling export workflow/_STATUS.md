@@ -3,9 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- Obtain owning human dispositions for `DEL-15-03-PKG02-001`, `RF-001`, and `RF-002`; all retain `HumanDisposition=TBD`, and implemented authority screening/currentness/target-boundary remediation does not formally close them (PDU-060).
-
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 1 cited declaration claim to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T6/PDU-060 homed all three downstream-export finding dispositions without changing formal review or lifecycle.

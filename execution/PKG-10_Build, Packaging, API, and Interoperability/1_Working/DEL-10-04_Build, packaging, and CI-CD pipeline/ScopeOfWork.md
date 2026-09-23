@@ -9,7 +9,7 @@ package_objective_refs: [OBJ-008, OBJ-009]
 
 # Scope of Work — DEL-10-04
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
 
 ## Purpose and Objective Traceability
 
@@ -75,7 +75,7 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 
 > ##### Construction
 >
-> Current deliverable obligation: implement reproducible builds, tests, packaging skeleton, and release artifacts for supported platforms. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement reproducible builds, tests, packaging skeleton, and release artifacts for supported platforms. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This setup artifact constrains later implementation work without creating implementation files. A future authorized DEL-10-04 implementation pass may draft CI workflows, packaging scripts, and release-note templates only after human authority confirms the CI provider, release matrix, thresholds, and write scope.
@@ -130,7 +130,7 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 
 > ##### Scope
 >
-> Current deliverable obligation: implement reproducible builds, tests, packaging skeleton, and release artifacts for supported platforms. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement reproducible builds, tests, packaging skeleton, and release artifacts for supported platforms. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This specification governs the setup basis for `DEL-10-04` only. It describes requirements and verification expectations for a future build, packaging, and CI/CD implementation pass, but the original setup session does not modify CI workflows, packaging scripts, manifests, release files, source code, or repository-level artifacts.
@@ -210,6 +210,8 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 >
 > The term "Tauri-supported targets" is used only as an architecture-baseline label from the sealed context. Exact Tauri target details, operating-system versions, signing requirements, installer formats, and publishing rules remain `TBD`.
 >
+> Release-horizon residual: DEC-089 selects only a future Apple Developer ID signing/notarization target. The historical PRD §22.6 R6-entry release-machinery residual under D-21/DEC-056 remains a separate future gate. DEC-057's current unsigned package posture, checksums, commit-bound sweep, release record and unsigned-install caveat continue until applicable requirements are met and accepted. A registered App ID and this note establish no signing, notarization, issuance or release.
+
 ### CLM-015 — Verification
 
 > ##### Verification
@@ -256,7 +258,7 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 
 > ##### Purpose
 >
-> Current deliverable obligation: implement reproducible builds, tests, packaging skeleton, and release artifacts for supported platforms. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement reproducible builds, tests, packaging skeleton, and release artifacts for supported platforms. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > Run and verify the deliverable-local setup workflow for DEL-10-04 without creating product CI, packaging, release, manifest, or source-code artifacts.
@@ -265,7 +267,7 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 
 > ##### Prerequisites
 >
-> Current deliverable obligation: implement reproducible builds, tests, packaging skeleton, and release artifacts for supported platforms. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement reproducible builds, tests, packaging skeleton, and release artifacts for supported platforms. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > - Root bootstrap, agent index, contract, decomposition, registers, and project-local skill instructions have been read.
@@ -336,7 +338,7 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 
 > ##### Purpose
 >
-> Current deliverable obligation: implement reproducible builds, tests, packaging skeleton, and release artifacts for supported platforms. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement reproducible builds, tests, packaging skeleton, and release artifacts for supported platforms. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > This guidance explains how to interpret the DEL-10-04 setup artifacts. The deliverable exists to prepare a bounded future implementation path for reproducible builds, packaging, and CI/CD while keeping release engineering, interoperability, data-boundary, and professional-responsibility constraints visible.
@@ -389,7 +391,7 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 
 > ##### Examples
 >
-> Current deliverable obligation: implement reproducible builds, tests, packaging skeleton, and release artifacts for supported platforms. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle and remaining work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
+> Current deliverable obligation: implement reproducible builds, tests, packaging skeleton, and release artifacts for supported platforms. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
 >
 >
 > TBD. The original setup run does not create example workflow files, packaging scripts, release templates, or implementation snippets because the write scope is limited to deliverable-local setup documentation and registers.
@@ -419,3 +421,10 @@ This Scope of Work defines `DEL-10-04` in service of project scope [SOW-032] and
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-032 OBJ-008 OBJ-009 | CLM-009 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-10-04:1** — Activate public sanitized-export repo CI at the DEC-059 conditions: pipeline landed pending owner review (TP-E5-EXPORTPIPE-001, PR #161); still needed — owner-signed D-20/DEC-058 green scan of the staged export, public-repo creation/naming per DEC-057, making the export self-verifying or trimming its test set, and owner review of the v1 include/exclude allowlist (gated: D-05b; stage-gated: first public publication) (source: PRD plan §3 E5 row / DEC-059 / TP-E5-EXPORTPIPE-001 residuals)
+- **DEL-10-04:2** — Carry the DEC-089 policy-only future Apple Developer ID signing/notarization target through its separately applicable gates. D-06b is already ruled; DEC-057's current unsigned posture continues with checksum, commit-bound sweep, release record and unsigned-install caveat until signing/notarization requirements are satisfied and accepted. The registered App ID (subsequently amended by DEC-106) is not evidence of signing/notarization or a release. Historical v0.1 PRD §22.6 remains an R6-entry release-machinery residual under D-21/DEC-056; no release action is authorized here.

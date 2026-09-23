@@ -3,10 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- SCA-011 interface follow-through: PDU-023 now has the DEL-13-03 responsibility home through SCA-011; schema acceptance, application-service binding and per-value/runtime trace production remain outstanding. No GUI/runtime activation or geometric solving is inferred.
-- Hold PDU-023 runtime result-envelope production: the DEL-13-03 home is allocated by SCA-011 but no accepted application-service/result-envelope binding is implemented; paired per-value field paths are schema-valid but are not emitted by this diagnostic validator (source: D-41 R5 T2C E6, 2026-07-12)
-
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 3 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-05-03 - State initialized to OPEN as part of PREPARATION control-surface creation; no existing lifecycle state was transitioned.

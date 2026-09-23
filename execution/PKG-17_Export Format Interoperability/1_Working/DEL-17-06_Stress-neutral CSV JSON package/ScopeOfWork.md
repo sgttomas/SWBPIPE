@@ -9,7 +9,11 @@ package_objective_refs: [OBJ-007, OBJ-017, OBJ-018]
 
 # Scope of Work — DEL-17-06
 
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open work and lifecycle remain governed by `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+
+## Current semantic-evidence status (owner direction)
+
+The 2026-05-18 `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` are historical records, not current evidence under accepted D-67/CLM-042. Their dated text remains intact; current selected-version schema/hash meaning follows this Scope of Work, the accepted D-67/CLM-042 records and candidate-bound export evidence. Do not rely on their superseded unresolved-partition assertions as a current blocker.
 
 ## Purpose and Objective Traceability
 
@@ -204,6 +208,7 @@ This Scope of Work defines `DEL-17-06` in service of project scope [SOW-046, SOW
 > | DEL-17-06-VER-010 | Confirm CSV/JSON examples or fixtures are invented or rights-cleared and demonstrate only shape, identity, units, diagnostics, loss reporting, and boundary notices. | Future contribution/provenance review evidence; examples without redistribution evidence remain absent or `TBD`. |
 > | DEL-17-06-VER-011 | Confirm any target-specific or version-sensitive support flag is backed by cited source evidence, or is marked `TBD` and blocked from support claims. | Future source-evidence review against DEL-17-01/DEL-17-02 and the applicable source-basis register. |
 > | DEL-17-06-VER-012 | Confirm comparison tolerance profiles, pass/fail language, and export comparison semantics are consumed from DEL-14-02/DEL-14-05 before comparison claims are made. | Future upstream dependency review; comparison semantics remain diagnostic/audit-only until sourced. |
+> Fixture-specific hold: For the accepted 830-row sparse fixture only, resolve or formally disposition unit preservation for `result:nonlinear-support:free-dof-work-residual` and `result:loadcase:load-L-200:nonlinear-support:free-dof-work-residual`. Retain every raw 0.2 row. No conclusion about other producers, schema conformance or universal row counts follows.
 >
 >
 > Version boundary: these sorted-compact/no-JCS checks apply to retained 0.1 evidence. D-67 0.2 uses checked `openpipestress_jcs_ijson_v1` for JSON member/package projections, preserves received-checksum metadata separately, and retains separately labeled normalized CSV bytes. Check the selected version against its own schema and vectors; never relabel 0.1 bytes.
@@ -505,3 +510,11 @@ Authority: `execution/_Coordination/_DECISIONS/D-67_RULING_2026-09-14.md`. Stand
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
 | OUT-001 | SOW-046 SOW-074 OBJ-007 OBJ-017 OBJ-018 | CLM-010, CLM-042 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-17-06:1** — R5 continuation delivery task: Demonstrate actual stress-neutral producers and emitted member bytes against the selected 0.1 or D-67 0.2 schema, preserving identity, dimensions/units, diagnostics, losses, received checksum evidence and member/package projections. Keep comparison/default-tolerance and fixture-provenance residuals explicit (CLM-005/007/013/015/037; AC-001).
+- **DEL-17-06:2** — For the accepted 830-row sparse fixture only, resolve or formally disposition the two explicitly withheld unit-preservation witnesses for diagnostic-work rows `result:nonlinear-support:free-dof-work-residual` and `result:loadcase:load-L-200:nonlinear-support:free-dof-work-residual`. The strict 0.2 package retains every raw row; this fixture-scoped hold is not a dropped-row, schema-failure, universal-row-count, or other-producer claim.
+- **DEL-17-06:3** — `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` were marked historical under the owner's selected disposition; their 2026-05-18 statements that exact schema/hash partitioning is unresolved must not be used as current evidence. `_DEPENDENCIES.md` now points to the approved DAG-011 for current navigation, while its older row counts remain dated extraction evidence. A source-faithful dependency-workflow backcheck against `Dependencies.csv` and DAG-011 is still open; neither the local register nor graph authority changed in this retirement.

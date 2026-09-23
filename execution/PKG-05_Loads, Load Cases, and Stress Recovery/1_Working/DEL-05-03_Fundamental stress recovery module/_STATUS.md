@@ -3,12 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-15
 
-## Remaining
-
-- The private dormant exact-annulus pressure kernel is implemented in accepted source `8ad37207cf088025623aa1e777a97a6fcb802f48` and qualified against the V3 independent refutation. Production pressure activation remains open with Poisson/material authority, closure topology/defaults, typed public force/result compatibility, curved and expansion-joint treatment, thresholds, and verification fixtures. No lifecycle, dependency, or runtime-pressure claim is implied.
-- The 2026-09-09 endpoint section-cut, curved-frame metadata, and genuine-pressure eligibility repair remains accepted. Its preserved 2026-09-09 raw-envelope observation reported 196 unchanged baseline public result-contract errors and zero errors on the repair-affected rows; 196 is historical snapshot evidence, not a new or universal count. Versioned public-result-contract work remains open.
-- Broader pressure behavior, connector treatment, and public result-contract work remain open. No lifecycle or DAG promotion is recorded.
-
 ## History
 - 2026-09-15 - Private dormant exact-annulus pressure-kernel foundation accepted at source `8ad37207cf088025623aa1e777a97a6fcb802f48`; production pressure, connector and public-result-contract work remain open. Lifecycle and formal dependency dispositions are unchanged. Acceptance: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/FINAL_ACCEPTANCE_V1.md` (SHA-256 `e894ddf341a99bfea72270deb89a31d2d321068209b7399db3217bc5b08b851d`).
 - 2026-04-30 - State set to OPEN (PREPARATION)

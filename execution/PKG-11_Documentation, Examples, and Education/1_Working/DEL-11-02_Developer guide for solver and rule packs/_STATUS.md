@@ -3,9 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-22
 
-## Remaining
-- Defer contributor legal-instrument adoption to a future owner intake-activation decision taken on legal advice, as ruled by DEC-079. Intake remains closed under DEC-027; the adopted D-07b review/screening skeleton defines the process without selecting CLA/DCO/equivalent. The project-license selection does not settle contributor attestations or agreement workflow; no current intake activation is authorized.
-
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-006 refreshed the guide to DEC-022's canonical typed-AST grammar and DEC-037's deferred writable syntax while preserving genuine integration/legal-mechanism TBDs; cited-claim backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T6/PDU-060 homed the developer-guide authority/grammar/license currentness work without selecting the contributor mechanism or editing guide content.

@@ -3,11 +3,6 @@
 **Current State:** IN_PROGRESS
 **Last Updated:** 2026-09-15
 
-## Remaining
-- R5 continuation delivery task: Demonstrate actual stress-neutral producers and emitted member bytes against the selected 0.1 or D-67 0.2 schema, preserving identity, dimensions/units, diagnostics, losses, received checksum evidence and member/package projections. Keep comparison/default-tolerance and fixture-provenance residuals explicit (CLM-005/007/013/015/037; AC-001).
-- For the accepted 830-row sparse fixture only, resolve or formally disposition the two explicitly withheld unit-preservation witnesses for diagnostic-work rows `result:nonlinear-support:free-dof-work-residual` and `result:loadcase:load-L-200:nonlinear-support:free-dof-work-residual`. The strict 0.2 package retains every raw row; this fixture-scoped hold is not a dropped-row, schema-failure, universal-row-count, or other-producer claim.
-- Regenerate `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` against the accepted post-D-67/CLM-042 state, or formally retire them from current use; their 2026-05-18 statements that exact schema/hash partitioning is unresolved are superseded and must not be used as current evidence. Refresh `_DEPENDENCIES.md` against DAG-010 through the owning dependency workflow; `Dependencies.csv` and DAG authority remain unchanged until then.
-
 ## History
 - 2026-09-15 - Bounded versioned 0.2 stress-neutral export foundation accepted at source `8ad37207cf088025623aa1e777a97a6fcb802f48`; the accepted 830-row sparse fixture retains two named diagnostic-work witness holds. Deferred semantic/lensing and DAG-010 dependency-summary work remains with its owning workflows. Lifecycle and dependency satisfaction are unchanged. Acceptance: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/FINAL_ACCEPTANCE_V1.md` (SHA-256 `e894ddf341a99bfea72270deb89a31d2d321068209b7399db3217bc5b08b851d`).
 - 2026-09-14 - Bounded result-integrity closeout clarifies the surviving compatibility residual only; lifecycle and all formal dispositions remain unchanged. Actual acceptance: execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/FINAL_ACCEPTANCE_V1.md.

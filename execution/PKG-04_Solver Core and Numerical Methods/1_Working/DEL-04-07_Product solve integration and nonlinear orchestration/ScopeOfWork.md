@@ -68,3 +68,11 @@ Apply existing schema, units, provenance, protected-content and professional-bou
 | OUT-002 | OBJ-003 OBJ-012 | CLM-002 | AC-002 | VER-002 | Named claim-bound contract witness with valid/invalid cases and candidate identity |
 | OUT-003 | OBJ-003 OBJ-012 | CLM-003 | AC-003 | VER-003 | Named claim-bound contract witness with valid/invalid cases and candidate identity |
 | OUT-004 | OBJ-003 OBJ-012 | CLM-004 | AC-004 | VER-004 | Named claim-bound contract witness with valid/invalid cases and candidate identity |
+
+## Delivery commitments and evidence limits
+
+These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
+
+- **DEL-04-07:1** — Follow the SCA-011 accepted closure handoff for any explicitly retained derivative obligations; existing product/lifecycle holds remain.
+- **DEL-04-07:2** — Inventory current implementation evidence against the four claim hooks in ScopeOfWork.md; retain missing, partial and unobserved behavior explicitly. No product or native verification was performed by candidate drafting.
+- **DEL-04-07:3** — Preserve all engineering, privacy, professional, lifecycle and release holds named by the accepted instruments.
