@@ -153,3 +153,7 @@
 - Honest residual gap: the tauri:// asset protocol itself cannot be exercised
   by a browser harness; the packaged `.app` pass remains the human TP-MAC-141
   manual verification (dispatcher rebuilds the bundle at fan-in).
+
+## 2026-09-23 — PIP-DEC025-BASELINE-2026-09-23
+
+The PKG-00 architecture-basis validator now checks the accepted 0.13 decomposition and exact current member hashes in a separate table; the D-43 consolidation hashes remain historical. The eight ArchitectureBasis documents and lifecycle did not change. Substantive [PR #872](https://github.com/sgttomas/chirality/pull/872); central evidence: `execution/_Coordination/AgentRuns/PIP-DEC025-BASELINE-2026-09-23/EVIDENCE.md`.
