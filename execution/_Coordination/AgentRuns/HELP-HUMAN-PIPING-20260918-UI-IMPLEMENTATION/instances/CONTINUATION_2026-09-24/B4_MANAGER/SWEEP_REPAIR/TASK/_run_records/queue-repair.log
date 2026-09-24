@@ -1,0 +1,303 @@
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop
+
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at getContext (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15443:18)
+    at new WebGLRenderer (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15472:11)
+    at new ViewportResource (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts:509:21)
+    at /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx:909:18
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29) undefined
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at getContext (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15443:18)
+    at new WebGLRenderer (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15476:11)
+    at new ViewportResource (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts:509:21)
+    at /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx:909:18
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29) undefined
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > suppresses solve proof unless the completed job, result, and exact model version remain bound
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > rejects overlap and invalidates an active generation before model commit
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > makes delayed rule-revision success and failure inert after a newer revision
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > suppresses a real delayed backend completion when native open commits a new model
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > suppresses a real delayed backend failed terminal after native open
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > suppresses a real delayed backend cancelled terminal after native open
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > persists native immediate-cancel intent until the backend start receipt exists
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > dispatches detached pre-start cancellation once after native open invalidates the run
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > surfaces bounded PDU-008 nonlinear, ratio, and rich-diagnostic GUI states
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > records comparison workspace unit policy evidence without conversion
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > presents the CAD-shell menu workspace with the dock summoned from the View menu
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > renders the engineering workspace from invented local fixtures
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > dispatches packaged native-menu DOM events through the shared command sink
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > routes both File-menu report-package attempts through App-owned intent and the honest browser no-effect result
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > records viewport editor intents without direct persisted-project mutation
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > selects rendered viewport entities into the shared model inspector
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > exposes materials, components, load cases, and combinations in the model workspace
+stderr | src/App.test.tsx > SWBPIPE desktop preview > queues layout-grid cell edits as structured review intents
+An update to EngineeringTable inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/App.test.tsx > SWBPIPE desktop preview > queues layout-grid cell edits as structured review intents
+An update to LibraryTable inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to LibraryTable inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to LibraryTable inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to LibraryTable inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ src/App.test.tsx > SWBPIPE desktop preview > queues layout-grid cell edits as structured review intents 1362ms
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues and applies a load-case primitive magnitude through the manager panel
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues and applies an empty load case through the manager panel
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues and applies an explicit load-case deletion through the manager panel
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > blocks load-case deletion while a combination term still references it
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues and applies a concentrated-force primitive load through the manager panel
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues and applies a distributed-force primitive load through the manager panel
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues and applies a concentrated-moment primitive load through the manager panel
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues and applies a pressure primitive load through the manager panel
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues and applies a thermal primitive load through the manager panel
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues and applies an imposed-displacement primitive load through the manager panel
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues and applies an explicit primitive load deletion through the manager panel
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues and applies load-case status metadata through the manager panel
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues and applies an existing combination term factor through the manager panel
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues a closed-set combination basis edit and surfaces the honest engine block for cross-shape changes
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues and applies an explicit combination term through the manager panel
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues and applies explicit mechanics combination creation through the manager panel
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues and applies an explicit subtraction combination creation through the manager panel
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > blocks the subtraction combination draft until the operands are distinct existing load cases
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues and applies an explicit range envelope combination creation through the manager panel
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues and applies an explicit combination term deletion through the manager panel
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues and applies an explicit combination deletion through the manager panel
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > renders an empty editor-intent queue when no app queue has been materialized
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues node coordinate edits with an explicit unit payload
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues load-case primitive magnitude inspector edits with an explicit unit payload
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > applies the solved global displacement direction to the deformation overlay
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > falls back to the vertical display axis when displacement component rows are absent
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > requires direction components from the same result basis as the governing magnitude row
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > discloses the deformation overlay fallback in the viewport status line
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > renders no maturity sentence, acceptance sentence or shell footer (DEC-100, DEC-105)
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > carries queued editor intents into the report packet as review-only operation context
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > round trips local create, save, and open project controls without external file copies
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > creates a blank local model document as the active authoring target
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > round trips review-only proposal operations through local save and open
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > shows computed mechanics diagnostics in results, knowledge, and review-only proposal context
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > links selected diagnostics to affected result and model context
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > applies a queued inspector edit through the structured operation seam, clears stale results, and re-solves and saves the edited model
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues and applies explicit material creation through the structured operation seam
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues and applies explicit section creation through the structured operation seam
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues and applies explicit support creation through the structured operation seam
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues and applies explicit support deletion through the structured operation seam
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues and applies explicit node deletion through the structured operation seam
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > blocks node deletion while model entities still reference it
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues and applies explicit pipe deletion through the structured operation seam
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > blocks pipe deletion while primitive loads still reference it
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > blocks support deletion while an imposed-displacement load still references it
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues and applies explicit viewport node geometry through the structured operation seam
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > fails closed for no-WebGL pointer placement while keeping typed node coordinates usable
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues and applies explicit straight pipe connectivity through the structured operation seam
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > picks straight pipe endpoints from viewport node targets before apply
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > blocks underspecified viewport node gestures at apply instead of inventing values
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > restores Inspector bend common defaults after expansion-joint mode without inferring non-bend roles
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > restores Inspector valve common defaults after expansion-joint mode without inferring non-bend roles
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > restores viewport bend common defaults after expansion-joint mode without inferring non-bend roles
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > restores viewport valve common defaults after expansion-joint mode without inferring non-bend roles
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > keeps Inspector tee pipe roles empty after kind and node changes until deliberate selection
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > keeps Inspector reducer pipe roles empty after kind and node changes until deliberate selection
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > keeps Inspector valve pipe roles empty after kind and node changes until deliberate selection
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > keeps Inspector flange pipe roles empty after kind and node changes until deliberate selection
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > keeps Inspector expansion_joint pipe roles empty after kind and node changes until deliberate selection
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > keeps viewport tee pipe roles empty after kind and node changes until deliberate selection
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > keeps viewport reducer pipe roles empty after kind and node changes until deliberate selection
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > keeps viewport valve pipe roles empty after kind and node changes until deliberate selection
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > keeps viewport flange pipe roles empty after kind and node changes until deliberate selection
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > keeps viewport expansion_joint pipe roles empty after kind and node changes until deliberate selection
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > clears Inspector tee pipe roles after queue until a fresh deliberate selection
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > clears Inspector valve pipe roles after queue until a fresh deliberate selection
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > clears Inspector expansion_joint pipe roles after queue until a fresh deliberate selection
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > clears viewport tee pipe roles after queue until a fresh deliberate selection
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > clears viewport valve pipe roles after queue until a fresh deliberate selection
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > clears viewport expansion_joint pipe roles after queue until a fresh deliberate selection
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues explicit tee geometry and connectivity from the Inspector creation form
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues explicit reducer geometry and connectivity from the Inspector creation form
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues explicit valve geometry and connectivity from the Inspector creation form
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues explicit flange geometry and connectivity from the Inspector creation form
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues explicit expansion_joint geometry and connectivity from the Inspector creation form
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > queues explicit bend geometry and connectivity from the Inspector creation form
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > creates a tee end-to-end from the explicit viewport component tool
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > creates a reducer end-to-end from the explicit viewport component tool
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > creates a valve end-to-end from the explicit viewport component tool
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > creates a flange end-to-end from the explicit viewport component tool
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > creates a expansion_joint end-to-end from the explicit viewport component tool
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > creates a bend end-to-end from the explicit viewport component tool
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > creates an expansion joint on the exact selected pipe at a three-incident node and preserves every entered value
+ ↓ src/App.test.tsx > SWBPIPE desktop preview > clears a queued tee at a three-incident node then applies the next exact user-selected roles
+ ↓ src/App.test.tsx > toolkit navigation integration > opens and focuses existing forms without queueing or changing selection
+ ↓ src/App.test.tsx > existing toolkit v2 > discards a delayed apply after opening a replacement model without creating a checkpoint
+ ↓ src/App.test.tsx > existing toolkit v2 > limits section type choices to pipe
+ ↓ src/App.test.tsx > existing toolkit v2 > continues from the accepted end in new mode and can explicitly switch to another existing endpoint
+ ↓ src/App.test.tsx > existing toolkit v2 bound section > shows the shared section and prevents independent diameter or wall edits
+ ↓ src/App.test.tsx > existing toolkit v3 integration > opens reviewed rich forms in matching context and enables exposure after a wind field is applied
+ ↓ src/App.test.tsx > existing toolkit v4 review repairs > withdraws an in-flight apply without resurrecting state or clearing newer busy ownership
+ ↓ src/App.test.tsx > existing toolkit v4 review repairs > withdraws an in-flight validate without resurrecting state or clearing newer busy ownership
+ ↓ src/App.test.tsx > existing toolkit v4 review repairs > explains why pristine pipe cancellation is disabled
+ ↓ src/App.test.tsx > native straight-route Add and Apply > keeps an accepted App route armed from its committed end with exact entered geometry and provenance
+ ↓ src/App.test.tsx > native straight-route Add and Apply > retains a non-global plane, applicable axis, units, and pipe fields only after its own accepted new-end commit
+ ↓ src/App.test.tsx > native straight-route Add and Apply > disables the route for delayed Apply and rejects its valid response after permitted selection invalidation
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any single-route publication for incomplete acceptance
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any single-route publication for model-basis mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any single-route publication for operation identity mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any single-route publication for diff mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any single-route publication for validation-state mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any single-route publication for warning diagnostic
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any single-route publication for malformed info diagnostic
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any single-route publication for applied hash mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any single-route publication for missing applied hash
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any single-route publication for missing applied model
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for incomplete acceptance
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for initial hash mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for engine initial payload ref mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for echoed submitted payload ref mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for batch identity mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for batch hash mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for submitted operation mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for step identity mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for step diff mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for step warning
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for top warning
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for malformed info diagnostic
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for validation-state mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for applied hash mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for missing applied hash
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for missing applied model
+ ↓ src/App.test.tsx > native straight-route Add and Apply > does not continue a delayed route from a coincident pipe in an externally opened project
+ ↓ src/App.test.tsx > native straight-route Add and Apply > starts node and route provenance blank and keeps Add disabled until explicit entry
+ ↓ src/App.test.tsx > native straight-route Add and Apply > validates and applies a new endpoint as one ordered batch with one checkpoint
+ ↓ src/App.test.tsx > native straight-route Add and Apply > disables every route control during delayed Add and discards the result after permitted selection invalidation
+ ↓ src/App.test.tsx > native straight-route Add and Apply > publishes neither batch member and creates no checkpoint when Apply is blocked
+ ↓ src/App.test.tsx > native straight-route Add and Apply > invalidates a frozen hash-bound route review after another model revision
+ ↓ src/App.test.tsx > native straight-route Add and Apply > applies the exact inline load magnitude intent and supports undo and redo
+ ↓ src/App.test.tsx > native straight-route Add and Apply > saves and reopens an incomplete node-only model without inventing prerequisites
+ ↓ src/App.test.tsx > Tier3 shared batch and proposed context > restores unknown context, validates without acceptance, applies once and saves exact original metadata coherently
+ ↓ src/App.test.tsx > Tier3 shared batch and proposed context > withdraws delayed batch validate and protects newer single-request ownership
+ ↓ src/App.test.tsx > Tier3 shared batch and proposed context > withdraws delayed batch apply and protects newer single-request ownership
+ ↓ src/App.test.tsx > Tier3 shared batch and proposed context > retains a malformed restored member as untrusted data and rejects it without crashing or accepting
+ ↓ src/App.test.tsx > Tier3 adversarial batch publication > rolls back a later failed step, then previews and commits two exact mixed-author members with one undo
+ ↓ src/App.test.tsx > Tier3 adversarial batch publication > handles offline null through queue, validation, apply, save, reopen and explicit requeue as untrusted context
+ ↓ src/App.test.tsx > Tier3 adversarial batch publication > blocks replacement during Save, then discards a pending batch when another model opens
+ ↓ src/App.test.tsx > Tier3 display in the actual application > passes the current result to comparison readouts and preserves the source result rows
+ ↓ src/App.test.tsx > persistent modeling workspace > empty ordered selection retains project inspector fallback
+ ↓ src/App.test.tsx > persistent modeling workspace > retains one frozen property task across selection changes and resets it on same-ID session replacement
+ ↓ src/App.test.tsx > persistent modeling workspace > opens catalogue property routes in their declared view and freezes task routes to the invoked target
+ ↓ src/App.test.tsx > persistent modeling workspace > keeps a frozen Task A node deletion bound to A after selecting B
+ ↓ src/App.test.tsx > persistent modeling workspace > keeps a frozen Task A pipe deletion bound to A after selecting B
+ ↓ src/App.test.tsx > persistent modeling workspace > keeps a frozen Task A support deletion bound to A after selecting B
+ ↓ src/App.test.tsx > persistent modeling workspace > preserves an ordered multi-selection across an ordinary accepted edit
+ ↓ src/App.test.tsx > persistent modeling workspace > uses narrow drawer disclosure, Escape focus restoration, and keyboard rail splitters
+ ↓ src/App.test.tsx > persistent modeling workspace > exposes keyboard splitter values and the current touched-control accessibility target
+ ↓ src/App.test.tsx > persistent modeling workspace > opens Support creation from toolbar with project selected and active Task false
+ ↓ src/App.test.tsx > persistent modeling workspace > opens Support creation from toolbar with node:N-140 selected and active Task false
+ ↓ src/App.test.tsx > persistent modeling workspace > opens Support creation from toolbar with pipe:P-120 selected and active Task false
+ ↓ src/App.test.tsx > persistent modeling workspace > opens Support creation from Insert menu with project selected and active Task false
+ ↓ src/App.test.tsx > persistent modeling workspace > opens Support creation from Insert menu with node:N-140 selected and active Task false
+ ↓ src/App.test.tsx > persistent modeling workspace > opens Support creation from Insert menu with pipe:P-120 selected and active Task false
+ ↓ src/App.test.tsx > persistent modeling workspace > opens Support creation from toolbar with pipe:P-120 selected and active Task true
+ ↓ src/App.test.tsx > persistent modeling workspace > opens Support creation from Insert menu with node:N-140 selected and active Task true
+ ↓ src/App.test.tsx > persistent modeling workspace > reveals the destination of each contextual creation and review route
+ ↓ src/App.test.tsx > persistent modeling workspace > routes task navigation and searchable geometry tools while preserving the viewport
+ ↓ src/App.test.tsx > workflow current and historical result boundaries > discloses MODEL_INCOMPLETE as blocked after a real browser model edit
+ ↓ src/App.test.tsx > workflow current and historical result boundaries > opens saved results as readable history and preserves their exact fields on unchanged save
+ ↓ src/App.test.tsx > workflow current and historical result boundaries > opens and unchanged-saves a malformed false received result as Historical raw evidence
+ ↓ src/App.test.tsx > workflow current and historical result boundaries > opens and unchanged-saves a malformed zero received result as Historical raw evidence
+ ↓ src/App.test.tsx > workflow current and historical result boundaries > opens and unchanged-saves a malformed empty string received result as Historical raw evidence
+ ↓ src/App.test.tsx > workflow current and historical result boundaries > opens and unchanged-saves a malformed array received result as Historical raw evidence
+ ↓ src/App.test.tsx > workflow current and historical result boundaries > opens and unchanged-saves a malformed incomplete object received result as Historical raw evidence
+ ↓ src/App.test.tsx > workflow current and historical result boundaries > opens and unchanged-saves a malformed invalid row received result as Historical raw evidence
+ ↓ src/App.test.tsx > workflow current and historical result boundaries > rejects a delayed rule-check aggregate from a replaced same-ID session basis
+ ↓ src/App.test.tsx > workflow current and historical result boundaries > does not start an obsolete report-package save or publish stale build state
+ ↓ src/App.test.tsx > workflow current and historical result boundaries > keeps a newer report-package save busy and rejects stale success completion state
+ ↓ src/App.test.tsx > workflow current and historical result boundaries > keeps a newer report-package save busy and rejects stale error completion state
+ ↓ src/App.test.tsx > workflow current and historical result boundaries > keeps MECHANICS_BLOCKED diagnostics while barring solved-only consumers
+ ↓ src/App.test.tsx > workflow current and historical result boundaries > keeps MECHANICS_NONCONVERGED diagnostics while barring solved-only consumers
+ ↓ src/App.test.tsx > synchronous busy history boundary > blocks undo through native menu and rendered controls while operation ownership is pending
+ ↓ src/App.test.tsx > synchronous busy history boundary > blocks redo through native menu and rendered controls while operation ownership is pending
+ ↓ src/App.test.tsx > primitive case selection display > keeps an empty draft visibly unselected until a real sole-case transition queues the exact case
+ ↓ src/App.test.tsx > primitive case selection display > keeps an empty node target honest until its sole available entity is explicitly selected
+ ↓ src/App.test.tsx > primitive case selection display > keeps an empty pipe target honest until its sole available entity is explicitly selected
+ ↓ src/App.test.tsx > primitive case selection display > keeps an empty support target honest until its sole available entity is explicitly selected
+ ↓ src/App.test.tsx > historical lifecycle history transitions > cannot publish delayed inactive export or report completions after a project reopen
+ ↓ src/App.test.tsx > historical lifecycle history transitions > clears reopened computed evidence on model edit and exact undo/redo transitions
+ ↓ src/App.test.tsx > historical lifecycle history transitions > refreshes only the still-owned same-model Historical context after a normalization save
+ ↓ src/App.test.tsx > historical lifecycle history transitions > lets a fresh same-model solve win against a delayed Historical refresh
+ ↓ src/App.test.tsx > historical lifecycle history transitions > adopts a changed native persistence model and retains returned results as Historical
+ ↓ src/App.test.tsx > historical lifecycle history transitions > rejects an unrelated differing persistence response without accepting its metadata
+ ↓ src/App.test.tsx > historical lifecycle history transitions > keeps a same-model Current solve Current after native save
+ ↓ src/App.test.tsx > Box gesture cancellation routes > Escape disarms Box without changing App selection
+ ↓ src/App.test.tsx > Box gesture cancellation routes > Select disarms Box without changing App selection
+ ↓ src/App.test.tsx > Box gesture cancellation routes > command retires a captured Box without invoking selection/preparation callbacks
+ ↓ src/App.test.tsx > Box gesture cancellation routes > mode-off retires a captured Box without invoking selection/preparation callbacks
+ ↓ src/App.test.tsx > Box gesture cancellation routes > pointercancel retires a captured Box without invoking selection/preparation callbacks
+ ↓ src/App.test.tsx > Box gesture cancellation routes > lostcapture retires a captured Box without invoking selection/preparation callbacks
+ ↓ src/App.test.tsx > Box gesture cancellation routes > model retires a captured Box without invoking selection/preparation callbacks
+ ↓ src/App.test.tsx > Box gesture cancellation routes > authoring retires a captured Box without invoking selection/preparation callbacks
+ ↓ src/App.test.tsx > Box gesture cancellation routes > measurement-aba retires a captured Box without invoking selection/preparation callbacks
+ ↓ src/App.test.tsx > Box gesture cancellation routes > authoring-aba retires a captured Box without invoking selection/preparation callbacks
+ ↓ src/App.test.tsx > Box gesture cancellation routes > unmount retires a captured Box without invoking selection/preparation callbacks
+ ↓ src/App.test.tsx > workspace Escape event ownership > body idle Escape cancels Box and restores Select without selection changes
+ ↓ src/App.test.tsx > workspace Escape event ownership > body captured Escape retires pending input before delayed up
+ ↓ src/App.test.tsx > workspace Escape event ownership > palette consumed Escape retains Box until an unconsumed Escape
+ ↓ src/App.test.tsx > workspace Escape event ownership > drawer consumed Escape retains Box and restores its opener
+ ↓ src/App.test.tsx > workspace Escape event ownership > owns one workspace handler through rerenders and removes it on unmount
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 217 skipped (218)
+   Start at  22:53:11
+   Duration  5.41s (transform 2.57s, setup 197ms, import 3.04s, tests 1.36s, environment 653ms)
+

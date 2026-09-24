@@ -1,0 +1,409 @@
+{
+  "document_kind": "bounded_read_only_technical_assessment_manifest",
+  "date": "2026-09-24",
+  "assignment": "APP-1 through APP-15; all assigned APP source findings",
+  "master_ids": [
+    "M-02",
+    "M-04",
+    "M-05",
+    "M-13",
+    "M-16",
+    "M-22",
+    "M-23",
+    "M-24",
+    "M-25",
+    "M-26",
+    "M-36",
+    "M-38"
+  ],
+  "role": "TASK / Type 2",
+  "mechanism": "delegated-harness-native",
+  "parent": "/root",
+  "instance": "/root/solver_app",
+  "child_delegation": false,
+  "model_allocation": "Brief records Astra/xhigh; no independent harness-model identity introspection performed.",
+  "source_candidate": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+  "observed_head": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+  "reported_review_basis": "bc6d3459b",
+  "product_source_reference": "1c1b8b072a25a5014f41dcc0e0fd8fd9d1ab0a9a",
+  "source_equality_check": "git diff --name-only 1c1b8b072 0be12dc -- projects/chirality-piping/apps projects/chirality-piping/core projects/chirality-piping/schemas returned no paths.",
+  "enforcement": {
+    "source_scope": "read-only repository source and Git",
+    "write_scope": [
+      "/private/tmp/piping-solver-findings-assessment-20260924/app/RETURN.md",
+      "/private/tmp/piping-solver-findings-assessment-20260924/app/MANIFEST.json"
+    ],
+    "host": "shared workspace; no separate OS isolation guarantee",
+    "unrelated_state": "ROOT_NATIVE_1C untracked evidence preserved, not inspected as validation"
+  },
+  "method": [
+    "read supplied master list and APP excerpt as claims",
+    "read role/project/loop/review instructions",
+    "trace native solve and relevant authoring, operations, persistence, results and export consumers",
+    "inspect candidate history against claimed report revision",
+    "hash inputs and output; no executable product validation"
+  ],
+  "not_performed": [
+    "tests",
+    "builds",
+    "servers",
+    "native UI",
+    "browser UI",
+    "solver calls",
+    "numerical probe reproduction",
+    "real external-solver import/round trip",
+    "vendor-format verification",
+    "practitioner usability timing",
+    "web search",
+    "governance or product mutation"
+  ],
+  "probe_status": "External app_probe packet not found in bounded checkout filename search; different retained thermal_C.json header inspected without establishing report-probe identity. All supplied APP numerical outputs remain reported-only.",
+  "inputs": [
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/AGENTS.md",
+      "repository_relative_path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "bytes": 14200,
+      "use": "instruction"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/agents/AGENT_TASK.md",
+      "repository_relative_path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499,
+      "use": "instruction"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/.agents/skills/software-code-review/SKILL.md",
+      "repository_relative_path": ".agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
+      "bytes": 1303,
+      "use": "instruction"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/AGENTS.md",
+      "repository_relative_path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "bytes": 9016,
+      "use": "instruction"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/loop/LOOP_INIT.md",
+      "repository_relative_path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "bytes": 8475,
+      "use": "instruction"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "6ea1c8f46a32edc2c5d69cb6f9a94ea64d53e18e3ede324ef5d4e8e9fd56c880",
+      "bytes": 312544,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/App.tsx",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "sha256": "5f900ec96cc7e1d58f13f53a653bf845b448594c0a3d9bcb7b20e10df387e86e",
+      "bytes": 70325,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/product_physics/src/lib.rs",
+      "repository_relative_path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "aa91613c48346654dc7e8b110f22fc74cf9578fb16f21ae9c40cec863b910f15",
+      "bytes": 710426,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/product_physics/src/validation.rs",
+      "repository_relative_path": "projects/chirality-piping/core/product_physics/src/validation.rs",
+      "sha256": "cc98b205467c9a965adc03179e91c43f174ba4b9bafb0f7aff47ed5ad6e936a7",
+      "bytes": 75863,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/units/src/lib.rs",
+      "repository_relative_path": "projects/chirality-piping/core/units/src/lib.rs",
+      "sha256": "4bd102e98cc6be95562002637b48af4517dc88c9d82c23f8d1aede7c5fcf8592",
+      "bytes": 57390,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "repository_relative_path": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "sha256": "22062ea42fd135a9dbefa0f7e09cf3a2feccc5193ff6028818fd1c6221a3f355",
+      "bytes": 531519,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/component-creation/componentIntent.ts",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/component-creation/componentIntent.ts",
+      "sha256": "9fe80410d9694f843cd7276029f98ec094302b3bddc3fd2131935a16a046e3b7",
+      "bytes": 16245,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      "sha256": "3120f29cb431fe649189a41048b95923487ff6140878dcb22bbad6b23a2d3f89",
+      "bytes": 127884,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+      "sha256": "e3c0e0363dfe81892de475e3b056c02018f1b7d20bbc4e3c203f68d50633b522",
+      "bytes": 83382,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "sha256": "69565ede18bb93d0eb18fcff126a2c7543a2c4f17e31571a37e8d98e94be3ef8",
+      "bytes": 196441,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/viewport/routeDraft.ts",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/viewport/routeDraft.ts",
+      "sha256": "cb258db1ab0750b891a023c0723cfbfdb55a898bb4930d4aaf4137cc6992c7a4",
+      "bytes": 23073,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx",
+      "sha256": "4a40efc8f28eb16ac71d4dc77d2639db31add3dbc0bab179e967278aeb3a7149",
+      "bytes": 30469,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/caepipe-external/CaepipeExternalHarnessPanel.tsx",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/caepipe-external/CaepipeExternalHarnessPanel.tsx",
+      "sha256": "0dc6d8d5ae6410f23739ce9e8f25e480909378008f5d27e6a81b923be867c9c1",
+      "bytes": 22028,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/pcf-export/PcfExportPanel.tsx",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/pcf-export/PcfExportPanel.tsx",
+      "sha256": "e2e1e326fc5dfdc40d8a6e33d3b3d97be62d400a0d42d7546bb03905d577c34c",
+      "bytes": 31303,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/native-package/NativePackagePanel.tsx",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/native-package/NativePackagePanel.tsx",
+      "sha256": "9e4461e96fec2383f873746c1797bd27306e7ddbe7362ae34e39266d4d3f4872",
+      "bytes": 35988,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "sha256": "db1882e56dda3be622c696ac358bcc4e4d071f0baef2e461fb9e1361d1b16f74",
+      "bytes": 48088,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx",
+      "sha256": "12409babaca0868ad26addbf32cf4db7a48d6a8468d2594a7a9091d4f766ca08",
+      "bytes": 14102,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "sha256": "9047e26a578d92f5dc986e1018b7945649b1d9cda662b131e53c4ca633ae10d7",
+      "bytes": 24546,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/services/projectService.ts",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/services/projectService.ts",
+      "sha256": "da38305ab02c69be95cdae4e79c9546568038716d597cc72385883938cc1363d",
+      "bytes": 23589,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/services/libraryImportService.ts",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/services/libraryImportService.ts",
+      "sha256": "ce9f8724ae34cd524f32b9750ac02e0c58c38a0d6114de94cfdc1ebebb9b8897",
+      "bytes": 14560,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
+      "sha256": "88b47451ee30712c9d8e9e7ab56940520f2dfd90bd9daea620e1d0e441e3d88c",
+      "bytes": 106737,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/material-temperature/MaterialTemperatureForm.tsx",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/material-temperature/MaterialTemperatureForm.tsx",
+      "sha256": "6df8ac1a23c60febf39e72aa1ecb218b0f1d4e6231ae258054c2dd955c39a24e",
+      "bytes": 4154,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/hanger-selection/hangerSelection.ts",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/hanger-selection/hangerSelection.ts",
+      "sha256": "c08ab28b37af12365fb05d0581bad6585c4f552752b0330bd9f50475e4d673b9",
+      "bytes": 4805,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/library/LibraryManagerPanel.tsx",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/library/LibraryManagerPanel.tsx",
+      "sha256": "779fc6656563bca1326f1ab752093bc2ce2f041729a46d2a3f770e24aea30905",
+      "bytes": 53548,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/toolkit/SectionAssignment.tsx",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/toolkit/SectionAssignment.tsx",
+      "sha256": "26e27ecdb47a5c3eac396fc71113c27ff083d3f50f6d1d7a8ebce63e5a7bac0a",
+      "bytes": 4189,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/geometry-tools/GeometryToolsPanel.tsx",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/geometry-tools/GeometryToolsPanel.tsx",
+      "sha256": "3970d1fe2ad86a05bddc1f4e3cb80545e4742e6e58eb7ff1d9e6eea4b33dda87",
+      "bytes": 8856,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+      "sha256": "fe0f9eea5a991d965dc097553e73e8c4c23c7968ed1743a8709af94f02dab20d",
+      "bytes": 118723,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.ts",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.ts",
+      "sha256": "cc6e1ce35ff4b5deeb415c0735fec148c06b1d60ae46edbf91d5374b047bcb41",
+      "bytes": 5949,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx",
+      "sha256": "341af9d2b27480acf276a5d2eb139e0484a54924ab68a585db5712ae5923b6f8",
+      "bytes": 39562,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/report/renderableReportInput.ts",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/report/renderableReportInput.ts",
+      "sha256": "95fb228e3954bf4d0a1448048d782f12272bcf26e7b98d1bef66593be2a8ae9e",
+      "bytes": 17752,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+      "sha256": "f4ebca0acb87a635b1927b768e40e82081110172db691ce766d5e5e0f9f97176",
+      "bytes": 21419,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/reporting/report_generator/src/lib.rs",
+      "repository_relative_path": "projects/chirality-piping/core/reporting/report_generator/src/lib.rs",
+      "sha256": "82b2a055cc1fc88eb15c4237cdc4feafc38e23e84fe117b980f60b64e12cc864",
+      "bytes": 41024,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/reporting/report_renderer/src/lib.rs",
+      "repository_relative_path": "projects/chirality-piping/core/reporting/report_renderer/src/lib.rs",
+      "sha256": "a47600a25b09a8dd4ecd930b4e518ff46355fe2e82ec46081fbea1ce4d310bbc",
+      "bytes": 39065,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/reporting/protected_content_linter/src/lib.rs",
+      "repository_relative_path": "projects/chirality-piping/core/reporting/protected_content_linter/src/lib.rs",
+      "sha256": "f4f7444bcf3e8bbdaa55799f8f3a8a1eb1a6742f9b8d2faf5e86ecfc927daa48",
+      "bytes": 42264,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/handoff/caepipe_mbf/package.py",
+      "repository_relative_path": "projects/chirality-piping/core/handoff/caepipe_mbf/package.py",
+      "sha256": "e639b11429aa305c51df9bb1c04ea9a881f4a3e62c2562bb5a530f381c93cb67",
+      "bytes": 36328,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/handoff/caepipe_external/run.py",
+      "repository_relative_path": "projects/chirality-piping/core/handoff/caepipe_external/run.py",
+      "sha256": "ee008ef08480e1d95fd3e8e353da85a3e6ce6a6efa71766d8c1f9cb2f004e13a",
+      "bytes": 29266,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/handoff/pcf_export/package.py",
+      "repository_relative_path": "projects/chirality-piping/core/handoff/pcf_export/package.py",
+      "sha256": "6a042e707f865f72244e5640c595f38dd0b4ff7d84d501d137b741f9e0deee73",
+      "bytes": 31522,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/comparison/analysis_run/engine.py",
+      "repository_relative_path": "projects/chirality-piping/core/comparison/analysis_run/engine.py",
+      "sha256": "14aada4049fde08c6f68a99a844f84e73b16fd8b6e4bb2a91cb7e4c8f63b7f2c",
+      "bytes": 26869,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/fixtures/thermal_C.json",
+      "repository_relative_path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/fixtures/thermal_C.json",
+      "sha256": "5b6c0fcfd198f38ae6e68e6b4142bc384eef6479c84d0d2a3d1d131a87e6fc6e",
+      "bytes": 3692,
+      "use": "source_inspected_in_full_or_in_relevant_excerpts_or_search"
+    },
+    {
+      "origin": "/private/tmp/piping-solver-findings-assessment-20260924/app/BRIEF.md",
+      "repository_relative_path": null,
+      "sha256": "8fa11b8a9a336cc3e861015f0fd4e040c29121477adcbaa21ba2966b223c7cbe",
+      "bytes": 3338,
+      "use": "assignment_instruction"
+    },
+    {
+      "origin": "/private/tmp/piping-solver-findings-assessment-20260924/app/EXCERPT.md",
+      "repository_relative_path": null,
+      "sha256": "9c319248ce380525661152ea10ee6d45f4fbce0b023ae8271544c377e75740bd",
+      "bytes": 34746,
+      "use": "supplied_claims_not_instructions"
+    },
+    {
+      "origin": "/private/tmp/piping-solver-findings-assessment-20260924/SUPPLIED_FINDINGS.md",
+      "repository_relative_path": null,
+      "sha256": "c9029a07473dcf58c3ba57f4d4c4880fc7dbea03d001d2014b0907183a846dd2",
+      "bytes": 215769,
+      "use": "supplied_claims_not_instructions"
+    },
+    {
+      "origin": "/Users/ryan/Downloads/SWBPIPE_SOLVER_FINDINGS.md",
+      "repository_relative_path": null,
+      "sha256": "c9029a07473dcf58c3ba57f4d4c4880fc7dbea03d001d2014b0907183a846dd2",
+      "bytes": 215769,
+      "use": "supplied_claims_original_hash_verification"
+    }
+  ],
+  "outputs": [
+    {
+      "origin": "/private/tmp/piping-solver-findings-assessment-20260924/app/RETURN.md",
+      "repository_relative_path": null,
+      "sha256": "061aa7acc2aca25f600022b9283e69959bcfb7f24aeb1663e4df0cd959ab63be",
+      "bytes": 24097,
+      "use": "assessment_return"
+    }
+  ],
+  "scope_conclusion": "Suitable for ROOT triage; not engineering validation, lifecycle acceptance, merge review or authority to implement recommended changes."
+}

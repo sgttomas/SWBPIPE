@@ -1,0 +1,39 @@
+
+Running 1 test using 1 worker
+
+(node:15632) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15632) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium-desktop] › e2e/b4-table-editing.spec.ts:783:3 › classic scrollbar allocation › B4 classic scrollbar compact comfortable 5 preserves tracks and nonmutating pans @explicit-viewport (3.7s)
+
+
+  1) [chromium-desktop] › e2e/b4-table-editing.spec.ts:783:3 › classic scrollbar allocation › B4 classic scrollbar compact comfortable 5 preserves tracks and nonmutating pans @explicit-viewport 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m32[39m
+    Received: [31m0[39m
+
+      808 |           rails: [...root.closest(".model-tree")!.querySelectorAll<HTMLElement>(".table-overflow-rail.enabled > .table-overflow-viewport")].filter((e) => e.getBoundingClientRect().height > 0).map((e) => ({ client: e.clientHeight, height: e.offsetHeight, scrollWidth: e.scrollWidth, width: e.clientWidth })) };
+      809 |       }); observations.push(value);
+    > 810 |       expect(value.host.height).toBe(127); expect(value.toolbar.height).toBe(30); expect(value.footer.height).toBe(32);
+          |                                                                                                               ^
+      811 |       expect(value.clientHeight).toBeGreaterThanOrEqual(density === "comfortable" ? 36 : 30); expect(value.horizontal).toBe(0);
+      812 |       expect(value.body.right).toBeCloseTo(value.host.right, 0);
+      813 |       value.columns.forEach((column, i) => { expect(value.cells[i].x).toBeCloseTo(column.x, 0); expect(value.cells[i].right).toBeCloseTo(column.right, 0); });
+        at measure (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts:810:111)
+        at /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts:835:201
+
+    Error Context: ../../../../../../../../../../tmp/piping-native-fit-scrollbar-r3/b4-table-editing-classic-s-646b0-ting-pans-explicit-viewport-chromium-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../../../../../tmp/piping-native-fit-scrollbar-r3/b4-table-editing-classic-s-646b0-ting-pans-explicit-viewport-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../../../../../../../tmp/piping-native-fit-scrollbar-r3/b4-table-editing-classic-s-646b0-ting-pans-explicit-viewport-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium-desktop] › e2e/b4-table-editing.spec.ts:783:3 › classic scrollbar allocation › B4 classic scrollbar compact comfortable 5 preserves tracks and nonmutating pans @explicit-viewport 

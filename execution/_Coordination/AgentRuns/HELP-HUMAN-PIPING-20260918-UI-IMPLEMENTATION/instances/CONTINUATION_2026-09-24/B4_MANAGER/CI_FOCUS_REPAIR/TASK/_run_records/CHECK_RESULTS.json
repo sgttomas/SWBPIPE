@@ -1,0 +1,33 @@
+{
+  "digest": "712c9871f020f7eea67e5ea88bf23b130dcd83419a9898d8f5fc51d653cd4f37",
+  "unit_r1": "6 failed, 52 passed: synthetic blur fixture did not move focus in jsdom",
+  "unit_r2": "58 passed, no errors",
+  "unit_r2_exit": 0,
+  "typescript_exit": 0,
+  "browser_reports": {
+    "bundled148": {
+      "startTime": "2026-09-24T05:47:01.466Z",
+      "duration": 26819.861,
+      "expected": 6,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "installed153": {
+      "startTime": "2026-09-24T05:48:41.227Z",
+      "duration": 51983.873,
+      "expected": 6,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    }
+  },
+  "browser_exits": {
+    "bundled148": 0,
+    "installed153": 0
+  },
+  "whitespace_exit": 0,
+  "vite_stop_exit": 130,
+  "ports_5174_5175_listeners_after_cleanup": false,
+  "native_actions": false
+}

@@ -1,0 +1,123 @@
+{
+  "artifact": "/private/tmp/piping-native-fit-1c-20260924/debug/bundle/macos/SWBPIPE.app",
+  "executable_sha256": "daaac8f9839acce0e873bbb52a6e0079c88e537a236459f68c7a8a1cfd14fea6",
+  "new_bundle": [
+    {
+      "path": "Contents/Info.plist",
+      "matches": true
+    },
+    {
+      "path": "Contents/MacOS/openpipestress-desktop",
+      "matches": true
+    },
+    {
+      "path": "Contents/Resources/icon.icns",
+      "matches": true
+    }
+  ],
+  "old_bundle": [
+    {
+      "path": "Contents/Info.plist",
+      "matches": true
+    },
+    {
+      "path": "Contents/MacOS/openpipestress-desktop",
+      "matches": true
+    },
+    {
+      "path": "Contents/Resources/icon.icns",
+      "matches": true
+    }
+  ],
+  "dist": [
+    {
+      "path": "assets/index-CJvcKHNU.css",
+      "matches": true
+    },
+    {
+      "path": "assets/index-MLkNAz7V.js",
+      "matches": true
+    },
+    {
+      "path": "assets/invented_agent_proposal-Bm57LVt-.js",
+      "matches": true
+    },
+    {
+      "path": "assets/invented_demo_rule_pack-dhX9tvT1.js",
+      "matches": true
+    },
+    {
+      "path": "assets/invented_design_knowledge-H12r-oKQ.js",
+      "matches": true
+    },
+    {
+      "path": "assets/invented_mechanics_result-CleTy2JL.js",
+      "matches": true
+    },
+    {
+      "path": "assets/invented_preview_model-pJA3_nB8.js",
+      "matches": true
+    },
+    {
+      "path": "assets/vendor-7OC5HNn7.js",
+      "matches": true
+    },
+    {
+      "path": "assets/vendor-icons-BjC2kMFO.js",
+      "matches": true
+    },
+    {
+      "path": "assets/vendor-react-u0ysdD_x.js",
+      "matches": true
+    },
+    {
+      "path": "assets/vendor-tauri-DlQNAQKj.js",
+      "matches": true
+    },
+    {
+      "path": "assets/vendor-three-CMXgOz27.js",
+      "matches": true
+    },
+    {
+      "path": "index.html",
+      "matches": true
+    },
+    {
+      "path": "self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts",
+      "matches": true
+    },
+    {
+      "path": "self-weight-engine/open_pipe_stress_self_weight_wasm.js",
+      "matches": true
+    },
+    {
+      "path": "self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm",
+      "matches": true
+    },
+    {
+      "path": "self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts",
+      "matches": true
+    },
+    {
+      "path": "wasm-engine/open_pipe_stress_operation_applier.d.ts",
+      "matches": true
+    },
+    {
+      "path": "wasm-engine/open_pipe_stress_operation_applier.js",
+      "matches": true
+    },
+    {
+      "path": "wasm-engine/open_pipe_stress_operation_applier_bg.wasm",
+      "matches": true
+    },
+    {
+      "path": "wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts",
+      "matches": true
+    }
+  ],
+  "all_hashes_match": true,
+  "target_distinct": true,
+  "product_diff_exit": 0,
+  "product_changed_paths": [],
+  "no_app_process_or_ui_action": true
+}

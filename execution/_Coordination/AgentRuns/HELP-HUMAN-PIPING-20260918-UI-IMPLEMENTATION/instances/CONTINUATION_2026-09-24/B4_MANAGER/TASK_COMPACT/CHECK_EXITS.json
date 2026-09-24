@@ -1,0 +1,15 @@
+{
+  "candidate_digest": "5b83325516e87361da145a0d27807f8cd9a24b0d27b20e8c7e525ec7689836f1",
+  "unit_final": 0,
+  "typecheck_final": 0,
+  "browser_r2": 0,
+  "browser_r3": 0,
+  "browser_r4": 0,
+  "browser_initial_interrupted": 130,
+  "unit_before_wasm": 1,
+  "wasm_build": 0,
+  "vite_cleanup": 130,
+  "port_5174_listeners_after_cleanup": [],
+  "git_diff_check": 0,
+  "final_head": "419b34c3b81b001fa35158fdb4e97562bcd0a35c"
+}

@@ -1,0 +1,123 @@
+{
+  "candidate": "1c1b8b072a25a5014f41dcc0e0fd8fd9d1ab0a9a",
+  "command": "python3 tools/release/run_evidence_sweep.py --execute --require-capability host --surface4-ci-binding <ci-record-directory>/binding.json",
+  "cwd": "WORKING_ROOT",
+  "environment": {
+    "CARGO_BUILD_JOBS": "2",
+    "PATH": "/Users/ryan/.local/share/mise/installs/python/3.13/bin:/Users/ryan/.local/share/mise/installs/node/24/bin:/Users/ryan/.cargo/bin:/Users/ryan/.local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+  },
+  "result": "pass",
+  "canonical_summary": "validation/evidence/sweeps/SWEEP_20260924T064908Z_1c1b8b072a25.json",
+  "desktop": {
+    "files": 102,
+    "tests": 1633
+  },
+  "python": {
+    "tests": 1143,
+    "subtests": 7,
+    "warnings": 304
+  },
+  "source_ci": {
+    "run_id": 35964070784,
+    "attempt": 1,
+    "selected_identities": 495,
+    "registered_specs": 16,
+    "projects": [
+      "chromium-desktop",
+      "chromium-compact"
+    ],
+    "full_disjoint_partition_union": true,
+    "actual_execution_steps_success": true
+  },
+  "dist": {
+    "result": "53 passed in4.7m",
+    "command": "npm run test:e2e:dist:desktop",
+    "cwd": "WORKING_ROOT",
+    "environment": {
+      "CI": "1",
+      "PLAYWRIGHT_WORKERS": "1",
+      "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH": "/Users/ryan/Library/Caches/ms-playwright/chromium_headless_shell-1223/chrome-headless-shell-mac-arm64/chrome-headless-shell",
+      "CARGO_BUILD_JOBS": "2"
+    },
+    "source": "unchanged1c1b8b072 product inputs; owned evidence-only working changes",
+    "port": 5175,
+    "process_completed": true,
+    "native_substitute": false
+  },
+  "native": "pending manual Mac unlock and fresh candidate build; no substitution",
+  "concurrency": "Isolated C4 functional browser work overlapped local non-browser surfaces; separate files/build outputs/ports and no calibrated timing claim.",
+  "files": [
+    {
+      "path": "ci/BINDING_CHECK.json",
+      "sha256": "42751573398d3cd9578f33565e622fdd634510d96b19eeb3e1eec97cdd078b28"
+    },
+    {
+      "path": "ci/REPLAY.md",
+      "sha256": "afbc3af8296253492c55f65c089244600971edd3ec343e3226bf2bb52679ffa6"
+    },
+    {
+      "path": "ci/artifacts.json",
+      "sha256": "050bc0927f9a77aed73702749b27daedfdc655398c97622d30679adcc5dcf8c6"
+    },
+    {
+      "path": "ci/binding.json",
+      "sha256": "53134152fc517ccce462f7e933dee90df804e8742b994c37799af1528c510734"
+    },
+    {
+      "path": "ci/collections/piping-e2e-collection-barrier-35964070784-1/collection.json",
+      "sha256": "c792cff07ff493e9b3f6af4b04003233594c886fd344fd480095c8d9bd395f48"
+    },
+    {
+      "path": "ci/collections/piping-e2e-collection-shard-1-35964070784-1/collection.json",
+      "sha256": "8981887ba1c59240ed5ad6aaf8f9d9dee2c9cdabd9d6bdc55de90ced96265ef8"
+    },
+    {
+      "path": "ci/collections/piping-e2e-collection-shard-2-35964070784-1/collection.json",
+      "sha256": "3997234e976e19d63f0308990732c93a95e57ef7578abfbe39d5c12c2cd5810c"
+    },
+    {
+      "path": "ci/collections/piping-e2e-collection-shard-3-35964070784-1/collection.json",
+      "sha256": "d5052448c063d620272a5b2277536ae98462c66012419e9e8e7ab0c31615cb8b"
+    },
+    {
+      "path": "ci/collections/piping-e2e-collection-shard-4-35964070784-1/collection.json",
+      "sha256": "554d1b6bd25f0183f9852dd9d00017470a79fef9fda45817675744ee204ae41c"
+    },
+    {
+      "path": "ci/jobs.json",
+      "sha256": "fb2f9cedf8174c02f9db48f6d4590d3ddee064e2b4ef845efb406b99602ab4f3"
+    },
+    {
+      "path": "ci/run.json",
+      "sha256": "13ea737e63499644e12d30a4c6e0acd696913d77204a9614df652cd1f2631767"
+    },
+    {
+      "path": "ci/selection/piping-e2e-plan.json",
+      "sha256": "bf630475596c80628092c996bec3a314d2960ee0b3bb182533cb08779e9ac54f"
+    },
+    {
+      "path": "ci/verify-binding.log",
+      "sha256": "46fcc66a32f2efd16b949b359b59c70ddf8840507c6db5dc8f7408848d7ba8fa"
+    },
+    {
+      "path": "ci/verify_binding.py",
+      "sha256": "bf8eb097acd5fd6739106afbe46f8bb0a5ccefd9c738a887879f3d901fae355a"
+    },
+    {
+      "path": "dist-exit.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "dist.log",
+      "sha256": "f911feee2192cf8a5bdc8e287c575fd75005240df5666167e9b477b37675c72d"
+    },
+    {
+      "path": "exit.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "sweep.log",
+      "sha256": "795fa4efa7b16d892699fb2fd5f983ffe09cbdea56b95f190657e9c417596847"
+    }
+  ]
+}

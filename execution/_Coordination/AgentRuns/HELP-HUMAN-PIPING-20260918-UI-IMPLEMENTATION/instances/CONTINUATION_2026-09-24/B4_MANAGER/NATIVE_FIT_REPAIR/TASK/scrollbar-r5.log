@@ -1,0 +1,10 @@
+
+Running 1 test using 1 worker
+
+(node:16275) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16275) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium-desktop] › e2e/b4-table-editing.spec.ts:783:3 › classic scrollbar allocation › B4 classic scrollbar compact comfortable 5 preserves tracks and nonmutating pans @explicit-viewport (4.7s)
+
+  1 passed (12.5s)

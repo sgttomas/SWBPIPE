@@ -1,0 +1,65 @@
+{
+  "mechanism": "delegated-harness-native",
+  "parent": "/root/b4_manager",
+  "child": "/root/b4_manager/compact_impl",
+  "role": "TASK Type 2",
+  "basis": "42bd234f671508ba9ab157e1981334ba8610279f",
+  "instructions": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/IMPLEMENTATION_MANAGER_BRIEF.md",
+      "sha256": "190383d57b9788904ba6c9dbb066daa8abe7b114852c398302949c254091e5e3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_NEXT_PREPARATION_BRIEF.md",
+      "sha256": "0bce9d60a09fb54ba2cac4e80a64b71ee4bcabd9ed458097be2d9c7626c04699"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_NEXT_PREPARATION_RETURN.md",
+      "sha256": "c6d8ece0b35b36db2d9fd71a7e35a084bef15df0e3663544883d926f401e26f8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260916-UI-DESIGN-PROGRAM/instances/ROOT/IMPLEMENTATION_HANDOFF_2026-09-18.md",
+      "sha256": "0711b0e35f8d02f404dcae9a2b440bcf4506d5f0f9b76dc748195952bf7ab9a7",
+      "section": "3"
+    }
+  ],
+  "limits": "No delegation; source and focused evidence only; no Git index/branch/commit changes; no native before independent review",
+  "consulted_scope": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/ScopeOfWork.md",
+      "sha256": "88d542aed787a0126dd6ba9427a9fe8fa35f0ea38d0496f219b39f5a3a8403e9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/Dependencies.csv",
+      "sha256": "0a86bb4f7f447ab84d496b7c4390e1c54744764a7a558aa38615504b3a6ff1b6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/ScopeOfWork.md",
+      "sha256": "2de8f38a0312fba29a50dc8b5a6e7ee58bb12c6b743e4f51bc9e9afda405946b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/Dependencies.csv",
+      "sha256": "41d0a23373f70fdc4ebe2e66e4230e077bb1172a3be40451518946cca9376bf7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+      "sha256": "ba2c60ffde8af56a1dc9b64f7e7170780fa9888407c241ffc49966a25190eb27"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/Dependencies.csv",
+      "sha256": "d2bd542d9900446af4bf94b0596931aa9650a290fcd173d572537294d24712d5"
+    }
+  ]
+}

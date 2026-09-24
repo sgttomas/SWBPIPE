@@ -1,0 +1,181 @@
+{
+  "role": "HELPS_HUMANS",
+  "agent": "/root/correctness_design",
+  "parent": "/root",
+  "mechanism": "delegated-harness-native",
+  "source_head": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+  "date": "2026-09-24",
+  "scope": "design records only; no product writes, tests, builds, browser/native/endpoint or Git mutation",
+  "context_limits": "Full doctrine/role/activation/pressure contracts and key independent oracle basis read. Code and long prior returns/maps selectively inspected for bounded findings; hashes identify full underlying files, not a claim every byte was supplied. FROZEN_EXPECTATIONS/independent_oracle/ADJUDICATED_SUMMARY hashed for reference identity without executing. Historical source freeze retains its own evidence. TASK role deliberately consulted before child delegation. No reusable workflow selected/authored. No additional skill activated.",
+  "children": [
+    {
+      "agent": "/root/correctness_design/numerical_reference",
+      "role": "TASK",
+      "model": "gpt-6-astra",
+      "effort": "xhigh",
+      "history": "none; explicit bounded brief",
+      "writes": [
+        "CORRECTNESS_DESIGN/NUMERICAL_REFERENCE.md"
+      ],
+      "mechanism": "delegated-harness-native",
+      "limits": "no production/tests/build/native/browser/Git mutation/delegation; actual filesystem same sandbox, logical write fence only",
+      "status": "returned; analytical/current-primary-source qualification recorded in owned artifact"
+    },
+    {
+      "agent": "/root/correctness_design/stress_reference",
+      "role": "TASK",
+      "model": "gpt-6-astra",
+      "effort": "xhigh",
+      "history": "none; explicit bounded brief plus pressure analytical check follow-up",
+      "writes": [
+        "CORRECTNESS_DESIGN/STRESS_REFERENCE.md"
+      ],
+      "mechanism": "delegated-harness-native",
+      "limits": "no production/tests/build/native/browser/Git mutation/delegation; actual filesystem same sandbox, logical write fence only",
+      "status": "returned; analytical/current-primary-source qualification recorded in owned artifact"
+    },
+    {
+      "agent": "/root/correctness_design/pressure_currency",
+      "role": "TASK",
+      "model": "gpt-6-astra",
+      "effort": "xhigh",
+      "history": "none; explicit bounded brief after owner reference-quality direction",
+      "writes": [
+        "CORRECTNESS_DESIGN/PRESSURE_REFERENCE_QUALIFICATION.md"
+      ],
+      "mechanism": "delegated-harness-native",
+      "limits": "web primary-source research allowed; no production/tests/build/native/browser UI/Git mutation/delegation; same sandbox, logical write fence only",
+      "status": "returned; analytical/current-primary-source qualification recorded in owned artifact"
+    }
+  ],
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_HELPS_HUMANS.md",
+      "sha256": "a0c9fb9443d8671d694c1f7b24ff3c402ffd626c781a2739342c938f2f3c3d1e"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-66_RULING_2026-09-08.md",
+      "sha256": "578087fbad9ed71e61ea7a22acb3b42ede46684669d16cd2b5d480e0ffae904f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-67_RULING_2026-09-14.md",
+      "sha256": "0c605e5548acf6c9b36b4dbe4de82674960d5b2fc3f9f5bc2f968dc9d53be19a"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "aa91613c48346654dc7e8b110f22fc74cf9578fb16f21ae9c40cec863b910f15"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+      "sha256": "baa83a5a62ea34d0677a5c5c5d6cd2fd2f977b6b62a5e2d4ddd06fa18951abc0"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/model_document_migration.rs",
+      "sha256": "d57887b73c465f000010faca99882772401e7e1fe7d02fd5a1e0f0d8581d9134"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_ACTIVATION.md",
+      "sha256": "a3a22c0af6250fafb611c776e605d2f36989c919948904047f373ce5c139c170"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/ASSESSMENT.md",
+      "sha256": "c948cb13ac5d825b0d201074cad50e9b8f4d9de916bc246f574e8304121b72e6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/PRESSURE_THRUST_CLARIFICATION.md",
+      "sha256": "362e1d539898c2ae40949a5115a0f5e78975b69fe602be0677cf1d4b9e75945d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/elements/RETURN.md",
+      "sha256": "0ceda9205238f58d8435effba5f1d39979b1d7d6058962dfbc0582e864f85921"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/stress/RETURN.md",
+      "sha256": "3d6f40f5b9e2d0f5addc522922a3a59f53ff8862117e7c300c201231ada9c9fe"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/verification/RETURN.md",
+      "sha256": "e52dd616ca361d1c6c1aca65b7a23f6aab18f09c6091a4fb6121144518b17c8c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/supports/RETURN.md",
+      "sha256": "563bc348d7b56dca4b8e14e4eb42d2c0bb0d3f666afb4907cd76cc7a846824d3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/loads/RETURN.md",
+      "sha256": "187c67f1267d036bf1f19bab60c271f2ba78234fa1b14c76875b0fb514afc07b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/contracts/PRESSURE_CONTRACT_V1.md",
+      "sha256": "044232ff9c0ba8d86591611050f1d0f04a10b46c40f6831ef4013cc9e79d2710"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/briefs/PRESSURE_RUNTIME_V2.md",
+      "sha256": "962fe3690a71fbf7eddcf26e156991dad9db72729481a0ebaf8e835d667b4817"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/briefs/PRIVATE_PRESSURE_KERNEL_V1.md",
+      "sha256": "26e0001669ca4e05e88cec3fe1ea21071f60c68284e854df7f4ccfd321735d34"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/verification/ANALYTICAL_ORACLES_V1.json",
+      "sha256": "6549d544accae7131127e8a87c748ea514c21b4f4c0381b5cec7c135d9c0d76c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/CONSUMER_MAP_V1.json",
+      "sha256": "b0fe3ea58f2a847309f88940289bb4b8f0d0d82ab6eb91bbfb0b57fbfdb570c6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/UI_BACKFILL_V1.md",
+      "sha256": "0be6de5972d913f3bb362b731e5adb893bbe6207331eded5dc8748076692c9ae"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/ORACLE_BASIS.md",
+      "sha256": "99397bacc85ea36b4bd3deb94c9e403b9bda69ad4f9f3b685ce46eab24c9b205"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/FREEZE_MANIFEST.json",
+      "sha256": "e99fe63c540f189d0f10154e32896571a126ad19e5463b4abbf18715fddc474e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/RETURN.md",
+      "sha256": "e05910a72f80e4936ce138ddad1a8548c6a7d234e078e4d2dae1c8a5179da120"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/FROZEN_EXPECTATIONS.json",
+      "sha256": "b1277ee86ced3dc28ca14d9e79e2187d98e6dd2c55fa5c8b238a475c41804a72"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/independent_oracle.py",
+      "sha256": "48f04f9b02cc6a3d94509e4acb300cd56770f601f307662b9ae8cfc3ee16c24b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/ADJUDICATED_SUMMARY.json",
+      "sha256": "80b513905c0dc737f16ec91d7a01afda1fc61d263b6898774291c6ee0617c75a"
+    }
+  ],
+  "owner_followup": "analytical references should be confirmed for accuracy and relevance (is newer theory available? You're the expert)",
+  "owner_followup_origin": "Root direct message in this live session; parent preserves authoritative owner record; this is derivative transcription, not transport-byte proof",
+  "followup_read": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_ACTIVATION.md",
+    "sha256": "dd98701526a31248f36a5e6e03490975af682f748dd349aa52faa1bfafc912a0",
+    "portion": "Subsequent reference-quality steering, read after ROOT message; original full read identity preserved in sources"
+  },
+  "analytical_backcheck": "Design manager independently checked returned annular integrals/S1/I1, reaction balance/C3/X1, N01-N09 null/inertia/exact expressions, R01-R04 substitution and SPD perturbation proof by algebra; no numerical execution. Factor64 policy reserve and implemented error bounds require independent refutation before operational activation."
+}

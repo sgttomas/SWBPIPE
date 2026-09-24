@@ -1,0 +1,182 @@
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop
+
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at getContext (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15443:18)
+    at new WebGLRenderer (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15472:11)
+    at new ViewportResource (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts:509:21)
+    at /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx:909:18
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29) undefined
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at getContext (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15443:18)
+    at new WebGLRenderer (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/three/build/three.module.js:15476:11)
+    at new ViewportResource (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/viewport/viewportResource.ts:509:21)
+    at /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx:909:18
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29) undefined
+ ↓ src/App.projectHandlers.test.tsx > project handlers: open clears the previous project's operation diagnostics (B2F item 1) > drops the earlier project's operation diagnostics from the issue count and the drawer when a project is opened
+ ↓ src/App.projectHandlers.test.tsx > project handlers: listing does not release a busy state it does not own (B2F item 2) > keeps the project controls disabled through a native list command while a save is pending, then lands the save
+ ↓ src/App.projectHandlers.test.tsx > project handlers: listing does not release a busy state it does not own (B2F item 2) > blocks Save during List, then gives Save its own busy lifetime
+ ↓ src/App.projectHandlers.test.tsx > project handlers: a failed or empty open leaves the open project as it was (B2F item 3) > keeps a recorded model-hash mismatch when a later open finds nothing
+ ↓ src/App.projectHandlers.test.tsx > project handlers: a failed or empty open leaves the open project as it was (B2F item 3) > keeps a recorded model-hash mismatch when a later open fails
+ ↓ src/App.projectHandlers.test.tsx > project handlers: a failed or empty open leaves the open project as it was (B2F item 3) > keeps a recorded model-hash mismatch when a blank create fails
+ ↓ src/App.projectHandlers.test.tsx > project handlers: a failed or empty open leaves the open project as it was (B2F item 3) > lets an in-flight rule-check revision land when an open finds nothing
+ ↓ src/App.projectHandlers.test.tsx > project handlers: a failed save or create leaves the open project's integrity record (B2G) > keeps both recorded mismatches when a save fails
+ ↓ src/App.projectHandlers.test.tsx > project handlers: a failed save or create leaves the open project's integrity record (B2G) > keeps both recorded mismatches when a create fails
+ ↓ src/App.projectHandlers.test.tsx > project handlers: a failed save or create leaves the open project's integrity record (B2G) > blocks a later Open while pending Save fails and preserves both mismatches
+ ↓ src/App.projectHandlers.test.tsx > project handlers: a failed save or create leaves the open project's integrity record (B2G) > re-derives verified-at-save observations when a save lands
+stderr | src/App.projectHandlers.test.tsx > project handlers: a landed write records snapshot verification even when an edit drops model adoption (B3B) > records both snapshot observations while retaining the newer edit after Save
+Native shell state sync failed Error: Unexpected command sync_native_shell_state
+    at /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/App.projectHandlers.test.tsx:483:83
+    at Mock (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@vitest/spy/dist/index.js:332:34)
+    at syncNativeShellState (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/services/nativeMenu.ts:56:9)
+    at /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts:2277:10
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+    at commitHookPassiveMountEffects (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+    at commitPassiveMountOnFiber (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+    at recursivelyTraversePassiveMountEffects (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+
+stderr | src/App.projectHandlers.test.tsx > project handlers: a landed write records snapshot verification even when an edit drops model adoption (B3B) > records both snapshot observations while retaining the newer edit after Save
+Native shell state sync failed Error: Unexpected command sync_native_shell_state
+    at /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/App.projectHandlers.test.tsx:483:83
+    at Mock (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@vitest/spy/dist/index.js:332:34)
+    at syncNativeShellState (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/services/nativeMenu.ts:56:9)
+    at /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts:2277:10
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+    at commitHookPassiveMountEffects (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+    at commitPassiveMountOnFiber (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+    at recursivelyTraversePassiveMountEffects (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+
+stderr | src/App.projectHandlers.test.tsx > project handlers: a landed write records snapshot verification even when an edit drops model adoption (B3B) > records both snapshot observations while retaining the newer edit after Save
+Native shell state sync failed Error: Unexpected command sync_native_shell_state
+    at /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/App.projectHandlers.test.tsx:619:29
+    at Mock (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@vitest/spy/dist/index.js:332:34)
+    at syncNativeShellState (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/services/nativeMenu.ts:56:9)
+    at /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts:2277:10
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+    at commitHookPassiveMountEffects (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+    at commitPassiveMountOnFiber (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+    at recursivelyTraversePassiveMountEffects (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+
+stderr | src/App.projectHandlers.test.tsx > project handlers: a landed write records snapshot verification even when an edit drops model adoption (B3B) > records both snapshot observations while retaining the newer edit after Save
+Native shell state sync failed Error: Unexpected command sync_native_shell_state
+    at /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/App.projectHandlers.test.tsx:619:29
+    at Mock (file:///Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/@vitest/spy/dist/index.js:332:34)
+    at syncNativeShellState (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/services/nativeMenu.ts:56:9)
+    at /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts:2277:10
+    at Object.react_stack_bottom_frame (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+    at runWithFiberInDEV (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+    at commitHookEffectListMount (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+    at commitHookPassiveMountEffects (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+    at commitPassiveMountOnFiber (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+    at recursivelyTraversePassiveMountEffects (/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+
+ ✓ src/App.projectHandlers.test.tsx > project handlers: a landed write records snapshot verification even when an edit drops model adoption (B3B) > records both snapshot observations while retaining the newer edit after Save 947ms
+ ↓ src/App.projectHandlers.test.tsx > project handlers: a landed write records snapshot verification even when an edit drops model adoption (B3B) > records both snapshot observations while retaining the newer edit after Create
+ ↓ src/App.projectHandlers.test.tsx > project handlers: a landed write records snapshot verification even when an edit drops model adoption (B3B) > keeps both recorded mismatches when a model edit drops a pending blank create's response
+ ↓ src/App.projectHandlers.test.tsx > B3A saved-model marker > marks an edit, save clears it, Undo differs from the saved snapshot and Redo returns clean
+ ↓ src/App.projectHandlers.test.tsx > B3A saved-model marker > keeps newer edits after a landed save and makes Undo to that persisted snapshot clean
+ ↓ src/App.projectHandlers.test.tsx > B3A asynchronous canonical comparison > ignores out-of-order hash completion and stays Edited while Undo hash is pending
+ ↓ src/App.projectHandlers.test.tsx > B3A asynchronous canonical comparison > retains the opened baseline through a pending hash, blocked later Open and an edit
+ ↓ src/App.projectHandlers.test.tsx > B3A asynchronous canonical comparison > does not clear edits after write failure
+ ↓ src/App.projectHandlers.test.tsx > B3A asynchronous canonical comparison > does not clear edits after wrong model hash
+ ↓ src/App.projectHandlers.test.tsx > B3A asynchronous canonical comparison > does not clear edits after wrong envelope hash
+ ↓ src/App.projectHandlers.test.tsx > B3A asynchronous canonical comparison > does not clear edits after wrong project identity
+ ↓ src/App.projectHandlers.test.tsx > B3A baseline ownership after asynchronous persistence > blocks Save through delayed Open verification then saves the edited model
+ ↓ src/App.projectHandlers.test.tsx > B3A baseline ownership after asynchronous persistence > blocks same-ID replacement until Save releases, then preserves the reopened baseline
+ ↓ src/App.projectHandlers.test.tsx > B3A persisted normalization comparison > clears only a verified supported normalization (ledger=true)
+ ↓ src/App.projectHandlers.test.tsx > B3A persisted normalization comparison > clears only a verified supported normalization (ledger=false)
+ ↓ src/App.projectHandlers.test.tsx > B3A initial source ownership > keeps untouched loading source unmarked and does not overwrite a newer save when its hash resolves
+ ↓ src/App.projectHandlers.test.tsx > B3A keeps the model available when the initial canonical hash fails, without a clean saved claim
+ ↓ src/App.projectHandlers.test.tsx > B3A verifies unchanged Historical save against its exact retained hash carrier, preserving Historical standing
+ ↓ src/App.projectHandlers.test.tsx > B3A P2 landed-write observation > blocks later missing Open until landed B, then retains snapshot integrity and Undo/Redo
+ ↓ src/App.projectHandlers.test.tsx > B3A P2 landed-write observation > blocks later failed Open until landed B, then retains snapshot integrity and Undo/Redo
+ ↓ src/App.projectHandlers.test.tsx > B3A P2 landed-write observation > serializes Saves through verification and preserves canonical Undo/Redo (later response valid=true)
+ ↓ src/App.projectHandlers.test.tsx > B3A P2 landed-write observation > serializes Saves through verification and preserves canonical Undo/Redo (later response valid=false)
+ ↓ src/App.projectHandlers.test.tsx > B3B synchronous project ownership > rejects all five native project commands in the same turn and while List owns busy
+ ↓ src/App.projectHandlers.test.tsx > B3B observes landed Save only when delayed verification completes
+ ↓ src/App.projectHandlers.test.tsx > B3B projects native busy state before a model has loaded
+ ↓ src/App.projectHandlers.test.tsx > B3B handles malformed fulfilled Save response without a second catch error (file.save-local, save_local_project, null)
+ ↓ src/App.projectHandlers.test.tsx > B3B handles malformed fulfilled Save response without a second catch error (file.save-local, save_local_project, undefined)
+ ↓ src/App.projectHandlers.test.tsx > B3B handles malformed fulfilled Create response without a second catch error (file.new-local, create_local_project, null)
+ ↓ src/App.projectHandlers.test.tsx > B3B handles malformed fulfilled Create response without a second catch error (file.new-local, create_local_project, undefined)
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 2 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+SyntaxError: unknown pseudo-class selector ':popover-open'
+ ❯ emit ../../node_modules/nwsapi/src/nwsapi.js:670:17
+ ❯ compileSelector ../../node_modules/nwsapi/src/nwsapi.js:1487:17
+ ❯ compile ../../node_modules/nwsapi/src/nwsapi.js:880:16
+ ❯ match_collect ../../node_modules/nwsapi/src/nwsapi.js:1563:16
+ ❯ Object._matches [as match] ../../node_modules/nwsapi/src/nwsapi.js:1629:35
+ ❯ HTMLDivElementImpl.ElementImpl.matches ../../node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js:592:18
+ ❯ HTMLDivElement.matches ../../node_modules/jsdom/lib/jsdom/living/generated/Element.js:655:34
+ ❯ closeInfo src/features/workspace/table/EngineeringTable.tsx:148:16
+    146|   function closeInfo(restore = false) {
+    147|     const info = root.current?.querySelector<HTMLElement>(".engineerin…
+    148|     if (!info?.matches(":popover-open")) return false;
+       |                ^
+    149|     info.hidePopover(); if (restore) infoButton.current?.focus(); retu…
+    150|   }
+ ❯ onBlur src/features/workspace/table/EngineeringTable.tsx:346:91
+ ❯ executeDispatch ../../node_modules/react-dom/cjs/react-dom-client.development.js:19116:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 12, INDEX_SIZE_ERR: 1, DOMSTRING_SIZE_ERR: 2, HIERARCHY_REQUEST_ERR: 3, WRONG_DOCUMENT_ERR: 4, INVALID_CHARACTER_ERR: 5, NO_DATA_ALLOWED_ERR: 6, NO_MODIFICATION_ALLOWED_ERR: 7, NOT_FOUND_ERR: 8, NOT_SUPPORTED_ERR: 9, INUSE_ATTRIBUTE_ERR: 10, INVALID_STATE_ERR: 11, SYNTAX_ERR: 12, INVALID_MODIFICATION_ERR: 13, NAMESPACE_ERR: 14, INVALID_ACCESS_ERR: 15, VALIDATION_ERR: 16, TYPE_MISMATCH_ERR: 17, SECURITY_ERR: 18, NETWORK_ERR: 19, ABORT_ERR: 20, URL_MISMATCH_ERR: 21, QUOTA_EXCEEDED_ERR: 22, TIMEOUT_ERR: 23, INVALID_NODE_TYPE_ERR: 24, DATA_CLONE_ERR: 25 }
+This error originated in "src/App.projectHandlers.test.tsx" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "records both snapshot observations while retaining the newer edit after Save". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+SyntaxError: unknown pseudo-class selector ':popover-open'
+ ❯ emit ../../node_modules/nwsapi/src/nwsapi.js:670:17
+ ❯ compileSelector ../../node_modules/nwsapi/src/nwsapi.js:1487:17
+ ❯ compile ../../node_modules/nwsapi/src/nwsapi.js:880:16
+ ❯ match_collect ../../node_modules/nwsapi/src/nwsapi.js:1563:16
+ ❯ Object._matches [as match] ../../node_modules/nwsapi/src/nwsapi.js:1629:35
+ ❯ HTMLDivElementImpl.ElementImpl.matches ../../node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js:592:18
+ ❯ HTMLDivElement.matches ../../node_modules/jsdom/lib/jsdom/living/generated/Element.js:655:34
+ ❯ closeCompactDetails src/features/model-tree/ModelTree.tsx:138:19
+    136|     if (!compactGrid || layoutMode !== "grid") return false;
+    137|     const details = toolbarTarget?.querySelector<HTMLElement>(".compac…
+    138|     if (!details?.matches(":popover-open")) return false;
+       |                   ^
+    139|     details.hidePopover();
+    140|     if (restoreFocus) toolbarTarget?.querySelector<HTMLButtonElement>(…
+ ❯ onBlur src/features/model-tree/ModelTree.tsx:150:126
+ ❯ executeDispatch ../../node_modules/react-dom/cjs/react-dom-client.development.js:19116:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 12, INDEX_SIZE_ERR: 1, DOMSTRING_SIZE_ERR: 2, HIERARCHY_REQUEST_ERR: 3, WRONG_DOCUMENT_ERR: 4, INVALID_CHARACTER_ERR: 5, NO_DATA_ALLOWED_ERR: 6, NO_MODIFICATION_ALLOWED_ERR: 7, NOT_FOUND_ERR: 8, NOT_SUPPORTED_ERR: 9, INUSE_ATTRIBUTE_ERR: 10, INVALID_STATE_ERR: 11, SYNTAX_ERR: 12, INVALID_MODIFICATION_ERR: 13, NAMESPACE_ERR: 14, INVALID_ACCESS_ERR: 15, VALIDATION_ERR: 16, TYPE_MISMATCH_ERR: 17, SECURITY_ERR: 18, NETWORK_ERR: 19, ABORT_ERR: 20, URL_MISMATCH_ERR: 21, QUOTA_EXCEEDED_ERR: 22, TIMEOUT_ERR: 23, INVALID_NODE_TYPE_ERR: 24, DATA_CLONE_ERR: 25 }
+This error originated in "src/App.projectHandlers.test.tsx" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "records both snapshot observations while retaining the newer edit after Save". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 39 skipped (40)
+     Errors  2 errors
+   Start at  22:46:58
+   Duration  3.03s (transform 1.21s, setup 109ms, import 1.47s, tests 949ms, environment 401ms)
+

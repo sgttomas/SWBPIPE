@@ -1,0 +1,202 @@
+{
+  "config": {
+    "configFile": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/playwright.config.ts",
+    "rootDir": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 1,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/tmp/piping-compact-repair-r1",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/tmp/piping-compact-repair-r1",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-compact",
+        "name": "chromium-compact",
+        "testDir": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev -- --port 5174",
+      "reuseExistingServer": true,
+      "timeout": 30000,
+      "url": "http://127.0.0.1:5174"
+    }
+  },
+  "suites": [
+    {
+      "title": "b4-table-editing.spec.ts",
+      "file": "b4-table-editing.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "B4 Details owns traversed Escape and preserves editor ownership in model @explicit-viewport",
+          "ok": false,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 12578,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('combobox', { name: 'Grid family' })\nExpected: \u001b[32m\"\u001b[7mpip\u001b[27mes\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7mnod\u001b[27mes\"\u001b[39m\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveValue\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('combobox', { name: 'Grid family' })\u001b[22m\n\u001b[2m    24 × locator resolved to <select aria-label=\"Grid family\" data-testid=\"entity-grid-family\">…</select>\u001b[22m\n\u001b[2m       - unexpected value \"nodes\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('combobox', { name: 'Grid family' })\nExpected: \u001b[32m\"\u001b[7mpip\u001b[27mes\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7mnod\u001b[27mes\"\u001b[39m\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveValue\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('combobox', { name: 'Grid family' })\u001b[22m\n\u001b[2m    24 × locator resolved to <select aria-label=\"Grid family\" data-testid=\"entity-grid-family\">…</select>\u001b[22m\n\u001b[2m       - unexpected value \"nodes\"\u001b[22m\n\n    at /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts:738:123",
+                    "location": {
+                      "file": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+                      "column": 123,
+                      "line": 738
+                    },
+                    "snippet": "  736 |     await trigger.click(); await expect(details).toBeFocused(); await page.keyboard.press(\"Escape\"); await expect(details).toBeHidden(); await expect(trigger).toBeFocused();\n  737 |     // The labelled native select retains ordinary keyboard operation.\n> 738 |     await family.focus(); await page.keyboard.press(\"Home\"); await page.keyboard.press(\"ArrowDown\"); await expect(family).toHaveValue(\"pipes\");\n      |                                                                                                                           ^\n  739 |     await page.keyboard.press(\"Home\"); await expect(family).toHaveValue(\"nodes\");\n  740 |     const node = model.nodes[0], cell = page.getByTestId(`table-cell-${node.id}-x`);\n  741 |     await cell.dblclick(); const input = table.getByRole(\"textbox\"); await input.fill(\"invalid retained\"); await input.press(\"Enter\");"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+                        "column": 123,
+                        "line": 738
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('combobox', { name: 'Grid family' })\nExpected: \u001b[32m\"\u001b[7mpip\u001b[27mes\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7mnod\u001b[27mes\"\u001b[39m\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveValue\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('combobox', { name: 'Grid family' })\u001b[22m\n\u001b[2m    24 × locator resolved to <select aria-label=\"Grid family\" data-testid=\"entity-grid-family\">…</select>\u001b[22m\n\u001b[2m       - unexpected value \"nodes\"\u001b[22m\n\n\n  736 |     await trigger.click(); await expect(details).toBeFocused(); await page.keyboard.press(\"Escape\"); await expect(details).toBeHidden(); await expect(trigger).toBeFocused();\n  737 |     // The labelled native select retains ordinary keyboard operation.\n> 738 |     await family.focus(); await page.keyboard.press(\"Home\"); await page.keyboard.press(\"ArrowDown\"); await expect(family).toHaveValue(\"pipes\");\n      |                                                                                                                           ^\n  739 |     await page.keyboard.press(\"Home\"); await expect(family).toHaveValue(\"nodes\");\n  740 |     const node = model.nodes[0], cell = page.getByTestId(`table-cell-${node.id}-x`);\n  741 |     await cell.dblclick(); const input = table.getByRole(\"textbox\"); await input.fill(\"invalid retained\"); await input.press(\"Enter\");\n    at /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts:738:123"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-24T02:00:08.396Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser-identity",
+                      "contentType": "application/json",
+                      "body": "ewogICJjZHBWZXJzaW9uIjogewogICAgInByb3RvY29sVmVyc2lvbiI6ICIxLjMiLAogICAgInByb2R1Y3QiOiAiQ2hyb21lLzE1My4wLjgwMTAuNTQiLAogICAgInJldmlzaW9uIjogIkBhYjNlY2JhODYzZmQ3ODUyY2M5YjBmZTU3MzYxODdlMTllZDUyYTFjIiwKICAgICJ1c2VyQWdlbnQiOiAiTW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTVfNykgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgSGVhZGxlc3NDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzYiLAogICAgImpzVmVyc2lvbiI6ICIxNS4zLjc2LjEzIgogIH0sCiAgInBsYXl3cmlnaHRCcm93c2VyVmVyc2lvbiI6ICIxNTMuMC44MDEwLjU0IiwKICAiZXhlY3V0YWJsZVBhdGgiOiAiL0FwcGxpY2F0aW9ucy9Hb29nbGUgQ2hyb21lLmFwcC9Db250ZW50cy9NYWNPUy9Hb29nbGUgQ2hyb21lIiwKICAiZXhlY3V0YWJsZVNoYTI1NiI6ICJmYjJiZjFjMzAwN2YyMjNlZGNiNGQ5NzBmMzNiMGM4MjhmNzE4M2IzZWU4MzJkNmE3MzdmZTY5NDVkYTgwNDYyIgp9"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/piping-compact-repair-r1/b4-table-editing-B4-Detail-d404b--in-model-explicit-viewport-chromium-desktop/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/tmp/piping-compact-repair-r1/b4-table-editing-B4-Detail-d404b--in-model-explicit-viewport-chromium-desktop/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+                    "column": 123,
+                    "line": 738
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "6f49393ff246acadcad3-59ec4c2ea37e6799eeee",
+          "file": "b4-table-editing.spec.ts",
+          "line": 716,
+          "column": 3
+        },
+        {
+          "title": "B4 Details owns traversed Escape and preserves editor ownership in both @explicit-viewport",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [],
+              "status": "skipped"
+            }
+          ],
+          "id": "6f49393ff246acadcad3-85dc5dd14b2e7556b380",
+          "file": "b4-table-editing.spec.ts",
+          "line": 716,
+          "column": 3
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "message": "\u001b[31mTesting stopped early after 1 maximum allowed failures.\u001b[39m"
+    }
+  ],
+  "stats": {
+    "startTime": "2026-09-24T02:00:07.845Z",
+    "duration": 13763.733999999999,
+    "expected": 0,
+    "skipped": 1,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

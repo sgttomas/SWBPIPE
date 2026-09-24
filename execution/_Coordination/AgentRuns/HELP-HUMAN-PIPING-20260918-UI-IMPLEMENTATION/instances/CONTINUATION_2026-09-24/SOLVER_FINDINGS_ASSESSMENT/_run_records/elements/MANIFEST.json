@@ -1,0 +1,340 @@
+{
+  "schema": "bounded-assessment-manifest-v1",
+  "date": "2026-09-24",
+  "assessor": "/root/solver_elements",
+  "parent": "/root",
+  "role": "TASK Type 2",
+  "delegation": {
+    "mechanism": "delegated-harness-native",
+    "scope": "all ELEM-1 through ELEM-16; no further delegation",
+    "isolation": "shared filesystem; bounded write instructions, not an independent OS sandbox guarantee",
+    "model_allocation_from_brief": "Astra/xhigh; allocation statement, not independent runtime attestation"
+  },
+  "source": {
+    "repository": "/Users/ryan/.codex/worktrees/6614/chirality",
+    "candidate": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+    "reported_review_revision": "bc6d3459be778c7b2b4f8770cb830eb96b18a751",
+    "current_head_observed": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+    "checked_implementation_files_changed_since_reported_revision": [],
+    "unrelated_initial_state": "untracked ROOT_NATIVE_1C evidence; preserved"
+  },
+  "instructions": [
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/AGENTS.md",
+      "repository_relative_path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "read_extent": "full"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/agents/AGENT_TASK.md",
+      "repository_relative_path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "read_extent": "full"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/AGENTS.md",
+      "repository_relative_path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "read_extent": "full"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/loop/LOOP_INIT.md",
+      "repository_relative_path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "read_extent": "full"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/.agents/skills/software-code-review/SKILL.md",
+      "repository_relative_path": ".agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
+      "read_extent": "full"
+    },
+    {
+      "origin": "/private/tmp/piping-solver-findings-assessment-20260924/elements/BRIEF.md",
+      "sha256": "28065813944b38d847ee75edb62a72264859fb7a85c3a3d5980158bb13be959e",
+      "read_extent": "full"
+    }
+  ],
+  "claim_inputs": [
+    {
+      "origin": "/Users/ryan/Downloads/SWBPIPE_SOLVER_FINDINGS.md",
+      "sha256": "c9029a07473dcf58c3ba57f4d4c4880fc7dbea03d001d2014b0907183a846dd2",
+      "expected_sha256": "c9029a07473dcf58c3ba57f4d4c4880fc7dbea03d001d2014b0907183a846dd2",
+      "read_extent": "master list lines 1-151 plus full ELEM appendix via excerpt",
+      "authority": "evidence/claims, not instructions"
+    },
+    {
+      "origin": "/private/tmp/piping-solver-findings-assessment-20260924/elements/EXCERPT.md",
+      "sha256": "5cfec6dee6bfb3ac9e86188ce3044e53fc2442bbd7c0d0fd48e28ac13ad46d32",
+      "read_extent": "full"
+    }
+  ],
+  "consulted_repository_sources": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "6ea1c8f46a32edc2c5d69cb6f9a94ea64d53e18e3ede324ef5d4e8e9fd56c880",
+      "candidate_git_blob": "e94941ca3015169b3f3db2a9704c2ec244e3cdcd",
+      "working_bytes_match_candidate": true,
+      "read_extent": "relevant excerpts/searches; full where short"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "sha256": "9047e26a578d92f5dc986e1018b7945649b1d9cda662b131e53c4ca633ae10d7",
+      "candidate_git_blob": "4ffc375385b883a8e44bd4a7434d6793d28bc975",
+      "working_bytes_match_candidate": true,
+      "read_extent": "relevant excerpts/searches; full where short"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/component-creation/componentIntent.ts",
+      "sha256": "9fe80410d9694f843cd7276029f98ec094302b3bddc3fd2131935a16a046e3b7",
+      "candidate_git_blob": "eea700b4d6687666febaf7c65abc5a0544cd0fe3",
+      "working_bytes_match_candidate": true,
+      "read_extent": "relevant excerpts/searches; full where short"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "sha256": "69565ede18bb93d0eb18fcff126a2c7543a2c4f17e31571a37e8d98e94be3ef8",
+      "candidate_git_blob": "c8d31283a40e5713a7fecd2bf34adba66e0fa6e9",
+      "working_bytes_match_candidate": true,
+      "read_extent": "relevant excerpts/searches; full where short"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "aa91613c48346654dc7e8b110f22fc74cf9578fb16f21ae9c40cec863b910f15",
+      "candidate_git_blob": "8e8cbf83819b64a2687e968a90336f57dd4c2dda",
+      "working_bytes_match_candidate": true,
+      "read_extent": "relevant excerpts/searches; full where short"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/validation.rs",
+      "sha256": "cc98b205467c9a965adc03179e91c43f174ba4b9bafb0f7aff47ed5ad6e936a7",
+      "candidate_git_blob": "a83207b4288968fe49063205b1c10358e8afa2b5",
+      "working_bytes_match_candidate": true,
+      "read_extent": "relevant excerpts/searches; full where short"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "sha256": "d657e6507aa5d4ef80124e3f6d10bd5a8af8eae54fe21af787c92814c8b73fde",
+      "candidate_git_blob": "f984bf808c7560957fce51032d80f3d682580519",
+      "working_bytes_match_candidate": true,
+      "read_extent": "relevant excerpts/searches; full where short"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs",
+      "sha256": "b480d2978c42517b156ec013a7c637b31db80a99953947e6788616d9cc8b5b71",
+      "candidate_git_blob": "9a1b8abab33820a1eb5b7a5ed5a9e59893942b5f",
+      "working_bytes_match_candidate": true,
+      "read_extent": "relevant excerpts/searches; full where short"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/curved_bend/README.md",
+      "sha256": "218e86796bcc649b7ca2e454963df9dabc9588ff1fa2896d06a804bd984061e5",
+      "candidate_git_blob": "aa0f64bb4115c0b9c3396cd7039c7e1dcc2959f6",
+      "working_bytes_match_candidate": true,
+      "read_extent": "relevant excerpts/searches; full where short"
+    },
+    {
+      "path": "projects/chirality-piping/docs/PRD.md",
+      "sha256": "cd6297af2ed9588f6da24c0665d32c74ee33d3e7f9115e733b47244fd75b4611",
+      "candidate_git_blob": "f399024936690ea52db8fd181290897d1a2c260b",
+      "working_bytes_match_candidate": true,
+      "read_extent": "relevant excerpts/searches; full where short"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/_REGISTER.md",
+      "sha256": "b4db2b062183f917f2e3dc26796249d41cc99403d291432acfca6a1c98496697",
+      "candidate_git_blob": "bbe57d0dea6d40f21ab2ba981d95ae54aa37edbc",
+      "working_bytes_match_candidate": true,
+      "read_extent": "relevant excerpts/searches; full where short"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-66_RULING_2026-09-08.md",
+      "sha256": "578087fbad9ed71e61ea7a22acb3b42ede46684669d16cd2b5d480e0ffae904f",
+      "candidate_git_blob": "60d88fb9b851d384789e41852d6d1109145e00bc",
+      "working_bytes_match_candidate": true,
+      "read_extent": "relevant excerpts/searches; full where short"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-66_RULING_ADDENDUM_2026-09-08.md",
+      "sha256": "c9fdfda7822c6dd3c30563a0be56107b9236b30e55f64d82f871557a3198e32b",
+      "candidate_git_blob": "fa6b71a20c6f9669567380188c86f8d633e37ba1",
+      "working_bytes_match_candidate": true,
+      "read_extent": "relevant excerpts/searches; full where short"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-67_RULING_2026-09-14.md",
+      "sha256": "0c605e5548acf6c9b36b4dbe4de82674960d5b2fc3f9f5bc2f968dc9d53be19a",
+      "candidate_git_blob": "e41e313ffbfc4869c3135c394ef769ee3629fe67",
+      "working_bytes_match_candidate": true,
+      "read_extent": "relevant excerpts/searches; full where short"
+    },
+    {
+      "path": "projects/chirality-piping/validation/hand_calcs/mechanics/tp_phys_008_thermal_pressure_axial_effects.md",
+      "sha256": "7e262f37a6fc7987696771b9984dbbd2f578775f0d37f4dfa60a6ea2d1a2241b",
+      "candidate_git_blob": "07f3f46bce7582c5ece3553552542f1357be3ecd",
+      "working_bytes_match_candidate": true,
+      "read_extent": "relevant excerpts/searches; full where short"
+    }
+  ],
+  "supplied_probe_artifacts": {
+    "origin_discovery": "specific reviewer scratchpad root supplied by /root/solver_verification; inspected exact report-named elem_probe sibling only",
+    "files": [
+      {
+        "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/elem_probe/Cargo.toml",
+        "sha256": "b350f02ef624c3fee3156ff0fb80b1970977c41780d62dfa018b0791f29dc2dd",
+        "read_extent": "full"
+      },
+      {
+        "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/elem_probe/src/main.rs",
+        "sha256": "1e2da9755bf30ea5eb1772c0d4ef8c6a473a14adbfe49b39bd30c2c5674a4a20",
+        "read_extent": "full"
+      },
+      {
+        "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/elem_probe/src/bin/ejrigid.rs",
+        "sha256": "e3cd3c150db4292375a95039cbd2caec60c1a56486f6855fe5f473a261c61e37",
+        "read_extent": "full"
+      },
+      {
+        "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/elem_probe/src/bin/singular.rs",
+        "sha256": "ba035c7ac826e960a719da3f92cfc7a1732b7b043c66f5a7174c02b75dc49548",
+        "read_extent": "full"
+      },
+      {
+        "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/elem_probe/probe_output.txt",
+        "sha256": "74128593a297674bcbd7cb8678b1c47032420710a2832964ce471e9bdc00e31d",
+        "read_extent": "full"
+      },
+      {
+        "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/elem_probe/py/arcdisc.py",
+        "sha256": "5c7afa600b79106450de8cedeeaeb0931c8dba73c20937bfb786339fef4cf4e1",
+        "read_extent": "full"
+      },
+      {
+        "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/elem_probe/py/big.py",
+        "sha256": "800e3e2952ba8dcf79de2e88b91b72f767aeea3224f34257ce6898dd7da41513",
+        "read_extent": "full"
+      },
+      {
+        "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/elem_probe/py/ej.py",
+        "sha256": "8106bc45c174e6a77f5f423606739ab86d93b55b9933edd3688e2138c9492d47",
+        "read_extent": "full"
+      },
+      {
+        "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/elem_probe/py/flip.py",
+        "sha256": "23277ef5521361e85088378dd3d49396ed999bbd9e085bea85ba3e5c3f9327db",
+        "read_extent": "full"
+      },
+      {
+        "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/elem_probe/py/lbend.py",
+        "sha256": "e5d7947f6154cfa97274dff265a653fdf1b3ea945e174399461d275556c657b2",
+        "read_extent": "full"
+      },
+      {
+        "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/elem_probe/py/lib.py",
+        "sha256": "90f34263fcdcf2a00fe6a142319705d51388c8b6b91cf6c16a1c2a595768e088",
+        "read_extent": "full"
+      },
+      {
+        "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/elem_probe/py/mech.py",
+        "sha256": "bf720567f70ced1686fa02f1eb670adefd3877352bbf1ec114bc9b16fcb322a7",
+        "read_extent": "full"
+      },
+      {
+        "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/elem_probe/py/p0.py",
+        "sha256": "e10ffb75878578b6bf6bd659241278573323ec538ab1f205ea3007b619ec8b0b",
+        "read_extent": "full"
+      },
+      {
+        "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/elem_probe/py/press.py",
+        "sha256": "07c0254be3173a8ef1f0d9c3373ad12e82c7de4542baae8ba6e491468c8fb392",
+        "read_extent": "full"
+      },
+      {
+        "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/elem_probe/py/sif.py",
+        "sha256": "a0d2dbdca03192ea9827074276cdabde006b51b018b02501ad8662817bf1ddde",
+        "read_extent": "full"
+      },
+      {
+        "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/elem_probe/py/skew.py",
+        "sha256": "35558faa939f1c4ba60fb6a002eb3ceed467ce9e8ebb11381f5338b300397626",
+        "read_extent": "full"
+      },
+      {
+        "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/elem_probe/py/valve.py",
+        "sha256": "382b50a76dfb7aad1e1f9e4b6afc1c154e1c35e259cafdb5749e256a1eb574be",
+        "read_extent": "full"
+      }
+    ],
+    "execution": "none",
+    "qualification": "historic supplied printed output corroborates claims; Cargo dependencies point /Users/ryan/dev/chirality-review; external binary is not candidate/hash sealed; not independently reproduced",
+    "unavailable_or_unverified": [
+      "candidate-bound command/environment/raw-result seal",
+      "RSS observations absent from located probe_output.txt",
+      "sparse-reject/dense-accept reproduction",
+      "report code-factor and code-edition equations"
+    ]
+  },
+  "primary_web_sources": [
+    {
+      "url": "https://bentleysystems.service-now.com/community?id=kb_article&sysparm_article=KB0025414",
+      "accessed": "2026-09-24",
+      "retention": "tool response; no local snapshot or byte hash"
+    },
+    {
+      "url": "https://bentleysystems.service-now.com/community?id=kb_article&sysparm_article=KB0117425",
+      "accessed": "2026-09-24",
+      "retention": "tool response; no local snapshot or byte hash"
+    },
+    {
+      "url": "https://docs.software.vt.edu/abaqusv2023/English/SIMACAEELMRefMap/simaelm-r-beamlibrary.htm",
+      "accessed": "2026-09-24",
+      "retention": "tool response; no local snapshot or byte hash"
+    },
+    {
+      "url": "https://docs.software.vt.edu/abaqusv2025/English/SIMACAEELMRefMap/simaelm-c-frame.htm",
+      "accessed": "2026-09-24",
+      "retention": "tool response; no local snapshot or byte hash"
+    },
+    {
+      "url": "https://docs.hexagonppm.com/r/en-US/CAESAR-II-Users-Guide/Version-14/1473848",
+      "accessed": "2026-09-24",
+      "retention": "tool response; no local snapshot or byte hash"
+    }
+  ],
+  "method": "read-only source/Git tracing, inspected supplied probe text, bounded primary technical source cross-check; no test/build/solver/UI execution",
+  "prohibitions_observed": [
+    "no product/governance edits",
+    "no tests/builds/servers/solver execution",
+    "no Git mutations",
+    "no further delegation",
+    "no OCR equation artifacts"
+  ],
+  "coverage": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16
+  ],
+  "outputs": [
+    {
+      "path": "/private/tmp/piping-solver-findings-assessment-20260924/elements/RETURN.md",
+      "sha256": "0ceda9205238f58d8435effba5f1d39979b1d7d6058962dfbc0582e864f85921"
+    },
+    {
+      "path": "/private/tmp/piping-solver-findings-assessment-20260924/elements/MANIFEST.json",
+      "sha256": "not self-hashed"
+    }
+  ]
+}

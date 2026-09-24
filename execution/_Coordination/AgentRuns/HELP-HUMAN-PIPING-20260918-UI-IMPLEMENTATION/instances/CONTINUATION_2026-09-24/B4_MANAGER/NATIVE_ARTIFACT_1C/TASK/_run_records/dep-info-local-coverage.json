@@ -1,0 +1,443 @@
+{
+  "interpretation": "Existing local project paths named by compiler dep-info; generated files may be present. Not runtime file-access evidence.",
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/assets/index-CJvcKHNU.css",
+      "sha256": "3bf4400110d589178c9785d9edf3eb92b625d7314d40dee78120704d60448191",
+      "in_candidate_input_manifest": false,
+      "matches_candidate": null
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/assets/index-MLkNAz7V.js",
+      "sha256": "6a223599bd80773621322379977b33d95de7435623f8e3859847d46059f7e8f5",
+      "in_candidate_input_manifest": false,
+      "matches_candidate": null
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/assets/invented_agent_proposal-Bm57LVt-.js",
+      "sha256": "181148caaab83efcd8c916cfd819b2bde82a0e0581ec096b5119ef37164c542c",
+      "in_candidate_input_manifest": false,
+      "matches_candidate": null
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/assets/invented_demo_rule_pack-dhX9tvT1.js",
+      "sha256": "2171fad960204d286467275400ac5d710059b09936dbebde262fe03dc4047a0a",
+      "in_candidate_input_manifest": false,
+      "matches_candidate": null
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/assets/invented_design_knowledge-H12r-oKQ.js",
+      "sha256": "ddb6693d09d218a01bc3f31f80680e4bb11e988a851c6e9fe55ba1b10be16040",
+      "in_candidate_input_manifest": false,
+      "matches_candidate": null
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/assets/invented_mechanics_result-CleTy2JL.js",
+      "sha256": "493050a50b346dd1c53de6481da58d3c33d3302c0308f17b49e60584a233be4d",
+      "in_candidate_input_manifest": false,
+      "matches_candidate": null
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/assets/invented_preview_model-pJA3_nB8.js",
+      "sha256": "f21511f5742daf6276173a5b9bcd440d6c3283cacfe83f50a2f857b1a882605a",
+      "in_candidate_input_manifest": false,
+      "matches_candidate": null
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/assets/vendor-7OC5HNn7.js",
+      "sha256": "3d45cc5c629e739f535e3d840a5a5a8302cdde5c8b93ad5aa5a6f28cb16fda76",
+      "in_candidate_input_manifest": false,
+      "matches_candidate": null
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/assets/vendor-icons-BjC2kMFO.js",
+      "sha256": "c16587f1d30af87974f04473da4620f1eb7bfc4f592da3d8a78c8320b0c50733",
+      "in_candidate_input_manifest": false,
+      "matches_candidate": null
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/assets/vendor-react-u0ysdD_x.js",
+      "sha256": "63fc4459119f62f88e22f9114753605a94dc4fb8a870ffca75648df4c68f8901",
+      "in_candidate_input_manifest": false,
+      "matches_candidate": null
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/assets/vendor-tauri-DlQNAQKj.js",
+      "sha256": "ce6c2d2158f4a2b727d1886ef0b5f05bcb63e4d86bde10e05598707dde9b6e73",
+      "in_candidate_input_manifest": false,
+      "matches_candidate": null
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/assets/vendor-three-CMXgOz27.js",
+      "sha256": "3651933b5f5f1b74297d524f1203d2929fe274b906df73faeefaa1fb4332a187",
+      "in_candidate_input_manifest": false,
+      "matches_candidate": null
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/index.html",
+      "sha256": "8237c57755381a380551dc4cb2e89c596ebb4f3087bca16090d302bfe1398128",
+      "in_candidate_input_manifest": false,
+      "matches_candidate": null
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts",
+      "sha256": "634546fac35bc42da31bf903e52a5799429422f44291d901495675bb4da4cc01",
+      "in_candidate_input_manifest": false,
+      "matches_candidate": null
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm.js",
+      "sha256": "ea2b3fd611a6478222e552b1230ceb717abd60cdd6df5ba30b4827511543f8f3",
+      "in_candidate_input_manifest": false,
+      "matches_candidate": null
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm",
+      "sha256": "3bf873e10ce628719aa3181d7085e88c1078912d3eca6641ceafdaa1e150b61b",
+      "in_candidate_input_manifest": false,
+      "matches_candidate": null
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts",
+      "sha256": "dd78c7c8fa07894717b89a9bcda4d781200ca7a4d02a8dc153b7763290085c7b",
+      "in_candidate_input_manifest": false,
+      "matches_candidate": null
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier.d.ts",
+      "sha256": "af2b07abf12dac915fb0e90124135d578eb7c2b473ec402dbe285900608cb8a8",
+      "in_candidate_input_manifest": false,
+      "matches_candidate": null
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier.js",
+      "sha256": "5682432840e2199512059d7956dfdb51521179b797145a05835a5bfa0be71595",
+      "in_candidate_input_manifest": false,
+      "matches_candidate": null
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier_bg.wasm",
+      "sha256": "f2e21a9d3d75df948ede76d790429999a1c12a9d85857f38b06574cf98e6e2c6",
+      "in_candidate_input_manifest": false,
+      "matches_candidate": null
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts",
+      "sha256": "37a68fc929d21e62fad7683b94f26b7233691df567956908f345c257c8a3ae16",
+      "in_candidate_input_manifest": false,
+      "matches_candidate": null
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/build.rs",
+      "sha256": "487059eaf8a947b80f20a9aacac038a5047b2ad69d2401b827376c67d6fe847f",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/atomic_report_package_save.rs",
+      "sha256": "9130f8bc06ea1437127de2e4ef59b6265ecd250f83f580f5d1c27500f7a46b0b",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "6ea1c8f46a32edc2c5d69cb6f9a94ea64d53e18e3ede324ef5d4e8e9fd56c880",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/main.rs",
+      "sha256": "03c5b9f8fc8812114d1a7db1b1e2c5c9f2ce6c7bbf0f000565fbb872e7a1d5ca",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/model_document_migration.rs",
+      "sha256": "d57887b73c465f000010faca99882772401e7e1fe7d02fd5a1e0f0d8581d9134",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/native_result_download.rs",
+      "sha256": "e885f42b01509ea13fbab3dfa89d83ecf8a6446891ef27035729a7f6cf29a43c",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/report_package_bridge.rs",
+      "sha256": "6aa1ef67d53470586f7a219165b2ce250ffab392a3d56bf13980ee7f554e7bab",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/tauri.conf.json",
+      "sha256": "b3de0965f205e1ed34f07744939314c9ac40dd00af2ee8c0de336c6e2bfba5d0",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/schemas/hanger.schema.yaml",
+      "sha256": "f7ada4cab2536cb0a8f952cbcc6de0e13f99a58ca4601c22441542b09c33c2f9",
+      "in_candidate_input_manifest": false,
+      "matches_candidate": null
+    },
+    {
+      "path": "projects/chirality-piping/core/library_import/library_import_document/src/lib.rs",
+      "sha256": "127d0fee760ea63d59eee1cc9cb73c121e671ccbfd0297d4218f1e3bfc41d979",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/load_case_algebra/src/lib.rs",
+      "sha256": "fd70056f81320e33fad4f7e05152a4c83f2a97fd20aaaad384f25eff0b66a050",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/primitive_loads/src/lib.rs",
+      "sha256": "fea5e1839ba663b2df47c1b4b98c0cb98482e1d00806c7ac670af63b918a4252",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/src/lib.rs",
+      "sha256": "61512d3c9d6a0343977a81fd3d8f93118d135ae1a25d204683a4fe9d4b93f8c8",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/stress_recovery/src/lib.rs",
+      "sha256": "0c3a0b6278a1cce4a802fc6c2e4c81af1b6f393c5cde4bb28ff55b99d5d956f2",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/atomic_batch.rs",
+      "sha256": "dae2f22f1a24e04bd5fae2ea95b7d67f8640eaef085e91f51c07c0b859ce85d5",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/boundary_association.rs",
+      "sha256": "3c31de07d6933f3200e4a95dc356a4bf7572412e642d7f88b66481657b927d8d",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/display_units.rs",
+      "sha256": "0c9a8902174b115da5a375f46debd84ee79b740816410096d9eb5a28e0e8d5c1",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/geometry_operations.rs",
+      "sha256": "cf787c0ae6d00c4179018f6ae47379ac34352c9de632a32e41543921b8da2bdf",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "sha256": "22062ea42fd135a9dbefa0f7e09cf3a2feccc5193ff6028818fd1c6221a3f355",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/rich_authoring.rs",
+      "sha256": "4b86c259924ee4b8d083c371154a91b3649fc0a1765f2f113e31e2756224c282",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/section_bindings.rs",
+      "sha256": "424cba3f1e6292d75233bd403b60c922e2e56365c7c7b15b463c6efe58d9fd72",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "aa91613c48346654dc7e8b110f22fc74cf9578fb16f21ae9c40cec863b910f15",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+      "sha256": "baa83a5a62ea34d0677a5c5c5d6cd2fd2f977b6b62a5e2d4ddd06fa18951abc0",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/self_weight.rs",
+      "sha256": "23429a54f0f611b0a920364bb7734bf9c44a6e675b985fb43426c2b33fe00144",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/validation.rs",
+      "sha256": "cc98b205467c9a965adc03179e91c43f174ba4b9bafb0f7aff47ed5ad6e936a7",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/audit_manifest/src/lib.rs",
+      "sha256": "d89cdd50888de53a9106e3ae3f4c21ec928ba38939604a5ffbf567fe97142606",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/pdf_emitter/src/lib.rs",
+      "sha256": "35138b57784499de1d7ba0bcfbed4a85ebdf9e5e065efa7b4cc59b09eb090f4c",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/protected_content_linter/src/lib.rs",
+      "sha256": "f4f7444bcf3e8bbdaa55799f8f3a8a1eb1a6742f9b8d2faf5e86ecfc927daa48",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/report_generator/src/lib.rs",
+      "sha256": "82b2a055cc1fc88eb15c4237cdc4feafc38e23e84fe117b980f60b64e12cc864",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/report_package/src/lib.rs",
+      "sha256": "55e3bd49d8969fad05e756cdf0b9117c5401be2908256404d6d453699b04956c",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/report_package/src/wire.rs",
+      "sha256": "4a04fbde7b50515b00d55dde7438497fa7c5fe1d433bb7fc7d9ff5ee771489e1",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/report_renderer/src/lib.rs",
+      "sha256": "a47600a25b09a8dd4ecd930b4e518ff46355fe2e82ec46081fbea1ce4d310bbc",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/report_sections/src/lib.rs",
+      "sha256": "967e50a40bdc2e57a5e89383d49cf2bbeb083c23706e01af8c43069bbc5de8e4",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_2.json",
+      "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/derivative.rs",
+      "sha256": "b261a0e68bf0a938287dad029b9daf2c63fd2e8d69276b0b52aef0e9c290ff57",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+      "sha256": "853b7daf1af0c23c893ffe30a44e799344c2e1a71d9f04bc9b91fcc2c00664b2",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs",
+      "sha256": "865b82d0d465b3e33965d371e4fd0a8904fca01f10bc3953c3504dd4f8d901e7",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/rules/completeness_checker/src/lib.rs",
+      "sha256": "5c7a37bdc17121367d50a0a45711662473e5a0cf1e84087bf7cb41184cf595c7",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/rules/expression_evaluator/src/lib.rs",
+      "sha256": "461eb4f47d5137e1fa542ae85a2468eab584e853f929bbabc9d39a09c3a981eb",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/rules/rule_check_runner/src/lib.rs",
+      "sha256": "0ad66d0ea8b5718e75111417c242a7c9ae57622cc21591c49b1e2927f7d6bb7d",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/rules/rule_pack_document/src/lib.rs",
+      "sha256": "b51ccf5979eadf067392245795f36dbf13fd5107c6f700256416e1081be310bf",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/rules/rule_pack_lifecycle/src/lib.rs",
+      "sha256": "99027cb8c53557d3c4a08319f9a4fb7149e5fdfb0823dc56e109198296b480f5",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/lib.rs",
+      "sha256": "0236e76eeed2949d95d2826c0c20f68232e6bb4a5ceb983744e8db78628a3573",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/curved_bend/src/lib.rs",
+      "sha256": "6bfead4091998117612e0a4cebc9807280e2eef60f970acbd6e366e3f0c8dd4b",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/diagnostics/src/lib.rs",
+      "sha256": "b9092ce5a8b3f38b9124c14f8dbd5853ca250b41c1b7571cc02b913bb74fdfa1",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "sha256": "d657e6507aa5d4ef80124e3f6d10bd5a8af8eae54fe21af787c92814c8b73fde",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/linear_supports/src/lib.rs",
+      "sha256": "01ac02c48411813d57adf39b4dd97659f19941628002379890e792b2600e5934",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "sha256": "dcb9f8b9b1c09ba9b35627acce8af42383319ef95242088de45eb74a584e371c",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs",
+      "sha256": "3839f407d70d7e85c017bc65ddccbcc5312f3f479eb62587df8ce6e527129a3e",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs",
+      "sha256": "b480d2978c42517b156ec013a7c637b31db80a99953947e6788616d9cc8b5b71",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/straight_pipe/src/lib.rs",
+      "sha256": "22c7231bf3c53c67bfcb8de702dda318f8731d784d37b8373362089bbcc57c09",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    },
+    {
+      "path": "projects/chirality-piping/core/units/src/lib.rs",
+      "sha256": "4bd102e98cc6be95562002637b48af4517dc88c9d82c23f8d1aede7c5fcf8592",
+      "in_candidate_input_manifest": true,
+      "matches_candidate": true
+    }
+  ]
+}

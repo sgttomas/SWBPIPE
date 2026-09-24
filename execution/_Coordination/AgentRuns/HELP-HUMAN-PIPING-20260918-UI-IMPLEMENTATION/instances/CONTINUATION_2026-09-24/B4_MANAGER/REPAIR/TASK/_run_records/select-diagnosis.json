@@ -1,0 +1,57 @@
+[
+  {
+    "key": "ArrowDown",
+    "value": "nodes",
+    "focus": "<select aria-label=\"Grid family\" data-testid=\"entity-grid-family\"><option value=\"nodes\">Nodes (5)</option><option value=\"pipes\">Pipes</option><option value=\"supports\">Supports</option><option value=\"materials\">Materials</option><option value=\"sections\">Sections</option><option value=\"components\">Components</option><option value=\"load_cases\">Load Cases</option><option value=\"combinations\">Combinations</option></select>"
+  },
+  {
+    "key": "Enter",
+    "value": "nodes",
+    "focus": "<select aria-label=\"Grid family\" data-testid=\"entity-grid-family\"><option value=\"nodes\">Nodes (5)</option><option value=\"pipes\">Pipes</option><option value=\"supports\">Supports</option><option value=\"materials\">Materials</option><option value=\"sections\">Sections</option><option value=\"components\">Components</option><option value=\"load_cases\">Load Cases</option><option value=\"combinations\">Combinations</option></select>"
+  },
+  {
+    "key": "Space",
+    "value": "nodes",
+    "focus": "<select aria-label=\"Grid family\" data-testid=\"entity-grid-family\"><option value=\"nodes\">Nodes (5)</option><option value=\"pipes\">Pipes</option><option value=\"supports\">Supports</option><option value=\"materials\">Materials</option><option value=\"sections\">Sections</option><option value=\"components\">Components</option><option value=\"load_cases\">Load Cases</option><option value=\"combinations\">Combinations</option></select>"
+  },
+  {
+    "key": "Home",
+    "value": "nodes",
+    "focus": "<select aria-label=\"Grid family\" data-testid=\"entity-grid-family\"><option value=\"nodes\">Nodes (5)</option><option value=\"pipes\">Pipes</option><option value=\"supports\">Supports</option><option value=\"materials\">Materials</option><option value=\"sections\">Sections</option><option value=\"components\">Components</option><option value=\"load_cases\">Load Cases</option><option value=\"combinations\">Combinations</option></select>"
+  },
+  {
+    "key": "ArrowDown",
+    "value": "nodes",
+    "focus": "<select aria-label=\"Grid family\" data-testid=\"entity-grid-family\"><option value=\"nodes\">Nodes (5)</option><option value=\"pipes\">Pipes</option><option value=\"supports\">Supports</option><option value=\"materials\">Materials</option><option value=\"sections\">Sections</option><option value=\"components\">Components</option><option value=\"load_cases\">Load Cases</option><option value=\"combinations\">Combinations</option></select>"
+  },
+  {
+    "key": "Enter",
+    "value": "nodes",
+    "focus": "<select aria-label=\"Grid family\" data-testid=\"entity-grid-family\"><option value=\"nodes\">Nodes (5)</option><option value=\"pipes\">Pipes</option><option value=\"supports\">Supports</option><option value=\"materials\">Materials</option><option value=\"sections\">Sections</option><option value=\"components\">Components</option><option value=\"load_cases\">Load Cases</option><option value=\"combinations\">Combinations</option></select>"
+  },
+  {
+    "key": "Escape",
+    "value": "nodes",
+    "focus": "<button type=\"button\" class=\"shell-icon-button shell-select-tool\" data-testid=\"workspace-select\" aria-pressed=\"true\" title=\"Select (⎋)\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-mouse-pointer2\" aria-hidden=\"true\"><path d=\"M4.037 4.688a.495.495 0 0 1 .651-.651l16 6.5a.5.5 0 0 1-.063.947l-6.124 1.58a2 2 0 0 0-1.438 1.435l-1.579 6.126a.5.5 0 0 1-.947.063z\"></path></svg><span class=\"shell-toolbar-label\">Select</span></button>"
+  },
+  {
+    "key": "p",
+    "value": "nodes",
+    "focus": "<button type=\"button\" class=\"shell-icon-button shell-select-tool\" data-testid=\"workspace-select\" aria-pressed=\"true\" title=\"Select (⎋)\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-mouse-pointer2\" aria-hidden=\"true\"><path d=\"M4.037 4.688a.495.495 0 0 1 .651-.651l16 6.5a.5.5 0 0 1-.063.947l-6.124 1.58a2 2 0 0 0-1.438 1.435l-1.579 6.126a.5.5 0 0 1-.947.063z\"></path></svg><span class=\"shell-toolbar-label\">Select</span></button>"
+  },
+  {
+    "key": "Enter",
+    "value": "nodes",
+    "focus": "<button type=\"button\" class=\"shell-icon-button shell-select-tool\" data-testid=\"workspace-select\" aria-pressed=\"true\" title=\"Select (⎋)\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-mouse-pointer2\" aria-hidden=\"true\"><path d=\"M4.037 4.688a.495.495 0 0 1 .651-.651l16 6.5a.5.5 0 0 1-.063.947l-6.124 1.58a2 2 0 0 0-1.438 1.435l-1.579 6.126a.5.5 0 0 1-.947.063z\"></path></svg><span class=\"shell-toolbar-label\">Select</span></button>"
+  },
+  {
+    "key": "n",
+    "value": "nodes",
+    "focus": "<button type=\"button\" class=\"shell-icon-button shell-select-tool\" data-testid=\"workspace-select\" aria-pressed=\"true\" title=\"Select (⎋)\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-mouse-pointer2\" aria-hidden=\"true\"><path d=\"M4.037 4.688a.495.495 0 0 1 .651-.651l16 6.5a.5.5 0 0 1-.063.947l-6.124 1.58a2 2 0 0 0-1.438 1.435l-1.579 6.126a.5.5 0 0 1-.947.063z\"></path></svg><span class=\"shell-toolbar-label\">Select</span></button>"
+  },
+  {
+    "key": "Enter",
+    "value": "nodes",
+    "focus": "<button type=\"button\" class=\"shell-icon-button shell-select-tool\" data-testid=\"workspace-select\" aria-pressed=\"true\" title=\"Select (⎋)\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-mouse-pointer2\" aria-hidden=\"true\"><path d=\"M4.037 4.688a.495.495 0 0 1 .651-.651l16 6.5a.5.5 0 0 1-.063.947l-6.124 1.58a2 2 0 0 0-1.438 1.435l-1.579 6.126a.5.5 0 0 1-.947.063z\"></path></svg><span class=\"shell-toolbar-label\">Select</span></button>"
+  }
+]

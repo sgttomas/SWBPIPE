@@ -1,0 +1,1 @@
+Initial sandboxed ps raised PermissionError Errno 1; no build or launch occurred. Repeated read-only process/version collection using supported require_escalated succeeded. Discovered active peer Piping browser/sweep processes and notified manager before build/native/CUA. npm run tauri -- --version from apps/desktop exited 0: tauri-cli 2.11.1.

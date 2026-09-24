@@ -1,0 +1,28 @@
+{
+  "source_digest": "712c9871f020f7eea67e5ea88bf23b130dcd83419a9898d8f5fc51d653cd4f37",
+  "all_hashes_match": true,
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/OverflowRail.tsx",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/OverflowRail.test.tsx",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+      "matches": true
+    }
+  ],
+  "diff_check": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "assessment": "manager integration verification, not independent review"
+}

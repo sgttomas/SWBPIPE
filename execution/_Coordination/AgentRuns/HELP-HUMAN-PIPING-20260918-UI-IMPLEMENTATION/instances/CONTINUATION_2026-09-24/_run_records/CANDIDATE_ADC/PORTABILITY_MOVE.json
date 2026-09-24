@@ -1,0 +1,11 @@
+{
+  "candidate": "adc346bcc4a5685a5dd3adcec0589742ffe9a21d",
+  "failed_workflow_run": 35957986111,
+  "finding": "ABS_PATH_IN_UNCLASSIFIED_SURFACE, NATIVE_FIT_REVIEW/INTEGRATION_BACKCHECK.md:13",
+  "original_sha256": "0ba515f5d7c84b642d8380bd912d92624a1d6cf70a2ce6ed0812eac6eb47ebea",
+  "canonical_original": "NATIVE_FIT_REVIEW/_run_records/INTEGRATION_BACKCHECK.md",
+  "old_location": "NATIVE_FIT_REVIEW/INTEGRATION_BACKCHECK.md",
+  "old_location_now": "portable result pointer",
+  "raw_bytes_unchanged": true,
+  "policy_or_test_changes": false
+}

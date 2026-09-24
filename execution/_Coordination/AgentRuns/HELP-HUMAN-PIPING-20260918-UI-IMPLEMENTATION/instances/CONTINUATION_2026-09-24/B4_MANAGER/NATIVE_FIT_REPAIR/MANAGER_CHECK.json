@@ -1,0 +1,44 @@
+{
+  "digest": "470dac01e39c7cc5351adcdc5d13e343f3652b9abe405abf14445285147aef95",
+  "all_8_hashes_match": true,
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/styles.css",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/OverflowRail.tsx",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/tableGeometry.ts",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/tableGeometry.test.ts",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.test.tsx",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+      "matches": true
+    }
+  ],
+  "diff_check": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "role": "integration validation, not independent review"
+}

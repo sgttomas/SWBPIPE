@@ -1,0 +1,38 @@
+[
+  {
+    "path": "/Users/ryan/.cargo/config",
+    "exists": false
+  },
+  {
+    "path": "/Users/ryan/.cargo/config.toml",
+    "exists": false
+  },
+  {
+    "path": "/Users/ryan/.codex/worktrees/6614/chirality/.cargo/config",
+    "exists": false
+  },
+  {
+    "path": "/Users/ryan/.codex/worktrees/6614/chirality/.cargo/config.toml",
+    "exists": false
+  },
+  {
+    "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/.cargo/config.toml",
+    "exists": false
+  },
+  {
+    "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/.cargo/config.toml",
+    "exists": false
+  },
+  {
+    "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/.cargo/config.toml",
+    "exists": false
+  },
+  {
+    "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/.cargo/config.toml",
+    "exists": false
+  },
+  {
+    "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src-tauri/.cargo/config.toml",
+    "exists": false
+  }
+]

@@ -1,0 +1,45 @@
+{
+  "parent": "/root",
+  "manager": "/root/b4_manager",
+  "child": "/root/b4_manager/compact_impl",
+  "mechanism": "delegated-harness-native collaboration.followup_task; retained TASK Type2; no descendants",
+  "manager_model": "gpt-6-astra/high",
+  "child_model": "gpt-6-astra/low",
+  "basis": "1c8f04039b5f41812ebd879fc80d810392123072",
+  "allowed_source": [
+    "apps/desktop/src/features/model-tree/ModelTree.tsx",
+    "apps/desktop/e2e/b4-table-editing.spec.ts",
+    "apps/desktop/e2e/ui-foundation-dist.spec.ts"
+  ],
+  "restrictions": "No commit/stage/branch, native/CUA, broad suite, protected criteria, engine/controller/other product writes. Focused tests/browser owned pending explicit release. Write boundaries instruction-enforced under shared workspace sandbox.",
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/COMPACT_REPAIR_DISPOSITION.md",
+      "sha256": "370933aace924c6863ff754e4ae93951e9e7549bf5bc82f7b2ab347a9bcba2fe"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOURCE_REVIEW/RETURN.md",
+      "sha256": "81691c3d4ab39afee8839f812829fcf8c8219a1391d8de8155536fe6d3d39d9d"
+    }
+  ]
+}

@@ -1,0 +1,185 @@
+{
+  "config": {
+    "configFile": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/playwright.config.ts",
+    "rootDir": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/tmp/piping-native-fit-scrollbar-r4",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 45000
+      },
+      {
+        "outputDir": "/tmp/piping-native-fit-scrollbar-r4",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-compact",
+        "name": "chromium-compact",
+        "testDir": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 45000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev -- --port 5174",
+      "reuseExistingServer": true,
+      "timeout": 30000,
+      "url": "http://127.0.0.1:5174"
+    }
+  },
+  "suites": [
+    {
+      "title": "b4-table-editing.spec.ts",
+      "file": "b4-table-editing.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "classic scrollbar allocation",
+          "file": "b4-table-editing.spec.ts",
+          "line": 781,
+          "column": 13,
+          "specs": [
+            {
+              "title": "B4 classic scrollbar compact comfortable 5 preserves tracks and nonmutating pans @explicit-viewport",
+              "ok": false,
+              "tags": [
+                "explicit-viewport"
+              ],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 12585,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByTestId('material-engineering-table').getByRole('button', { name: 'Material fields Info', exact: true })\nExpected: focused\nReceived: inactive\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('material-engineering-table').getByRole('button', { name: 'Material fields Info', exact: true })\u001b[22m\n\u001b[2m    24 × locator resolved to <button type=\"button\" popovertarget=\"_r_1g_\" data-table-chrome-owner=\"_r_1f_\" aria-label=\"Material fields Info\">Info</button>\u001b[22m\n\u001b[2m       - unexpected value \"inactive\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByTestId('material-engineering-table').getByRole('button', { name: 'Material fields Info', exact: true })\nExpected: focused\nReceived: inactive\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('material-engineering-table').getByRole('button', { name: 'Material fields Info', exact: true })\u001b[22m\n\u001b[2m    24 × locator resolved to <button type=\"button\" popovertarget=\"_r_1g_\" data-table-chrome-owner=\"_r_1f_\" aria-label=\"Material fields Info\">Info</button>\u001b[22m\n\u001b[2m       - unexpected value \"inactive\"\u001b[22m\n\n    at /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts:834:93",
+                        "location": {
+                          "file": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+                          "column": 93,
+                          "line": 834
+                        },
+                        "snippet": "  832 |     await page.keyboard.press(\"Tab\"); await expect(dialog.getByRole(\"button\", { name: \"Close Info\", exact: true })).toBeFocused();\n  833 |     await page.keyboard.press(\"Tab\"); await expect(dialog).toBeHidden(); await expect(infoButton).not.toBeFocused();\n> 834 |     await infoButton.click(); await page.keyboard.press(\"Escape\"); await expect(infoButton).toBeFocused();\n      |                                                                                             ^\n  835 |     const toolsLater = page.getByRole(\"button\", { name: \"Later table controls\", exact: true }); if (await toolsLater.count()) { await toolsLater.click(); await expect(editor).toHaveValue(\"Retained valid draft while navigating chrome\"); }\n  836 |     await page.getByRole(\"button\", { name: \"Table details\", exact: true }).focus(); await page.keyboard.press(\"Enter\"); await expect(page.getByRole(\"dialog\", { name: \"Table details\", exact: true })).toBeVisible(); await expect(page.getByTestId(\"workspace-undo\")).toBeDisabled(); await page.keyboard.press(\"Escape\");\n  837 |     await table.getByRole(\"button\", { name: \"Cancel\", exact: true }).focus(); await page.keyboard.press(\"Enter\"); expect(await retained!.evaluate((e) => e.isConnected)).toBe(false); await expect(page.getByTestId(\"workspace-undo\")).toBeDisabled();"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+                            "column": 93,
+                            "line": 834
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeFocused\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByTestId('material-engineering-table').getByRole('button', { name: 'Material fields Info', exact: true })\nExpected: focused\nReceived: inactive\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeFocused\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('material-engineering-table').getByRole('button', { name: 'Material fields Info', exact: true })\u001b[22m\n\u001b[2m    24 × locator resolved to <button type=\"button\" popovertarget=\"_r_1g_\" data-table-chrome-owner=\"_r_1f_\" aria-label=\"Material fields Info\">Info</button>\u001b[22m\n\u001b[2m       - unexpected value \"inactive\"\u001b[22m\n\n\n  832 |     await page.keyboard.press(\"Tab\"); await expect(dialog.getByRole(\"button\", { name: \"Close Info\", exact: true })).toBeFocused();\n  833 |     await page.keyboard.press(\"Tab\"); await expect(dialog).toBeHidden(); await expect(infoButton).not.toBeFocused();\n> 834 |     await infoButton.click(); await page.keyboard.press(\"Escape\"); await expect(infoButton).toBeFocused();\n      |                                                                                             ^\n  835 |     const toolsLater = page.getByRole(\"button\", { name: \"Later table controls\", exact: true }); if (await toolsLater.count()) { await toolsLater.click(); await expect(editor).toHaveValue(\"Retained valid draft while navigating chrome\"); }\n  836 |     await page.getByRole(\"button\", { name: \"Table details\", exact: true }).focus(); await page.keyboard.press(\"Enter\"); await expect(page.getByRole(\"dialog\", { name: \"Table details\", exact: true })).toBeVisible(); await expect(page.getByTestId(\"workspace-undo\")).toBeDisabled(); await page.keyboard.press(\"Escape\");\n  837 |     await table.getByRole(\"button\", { name: \"Cancel\", exact: true }).focus(); await page.keyboard.press(\"Enter\"); expect(await retained!.evaluate((e) => e.isConnected)).toBe(false); await expect(page.getByTestId(\"workspace-undo\")).toBeDisabled();\n    at /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts:834:93"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-24T03:49:06.845Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "browser-identity",
+                          "contentType": "application/json",
+                          "body": "ewogICJjZHBWZXJzaW9uIjogewogICAgInByb3RvY29sVmVyc2lvbiI6ICIxLjMiLAogICAgInByb2R1Y3QiOiAiQ2hyb21lLzE1My4wLjgwMTAuNTQiLAogICAgInJldmlzaW9uIjogIkBhYjNlY2JhODYzZmQ3ODUyY2M5YjBmZTU3MzYxODdlMTllZDUyYTFjIiwKICAgICJ1c2VyQWdlbnQiOiAiTW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTVfNykgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgSGVhZGxlc3NDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzYiLAogICAgImpzVmVyc2lvbiI6ICIxNS4zLjc2LjEzIgogIH0sCiAgInBsYXl3cmlnaHRCcm93c2VyVmVyc2lvbiI6ICIxNTMuMC44MDEwLjU0IiwKICAiZXhlY3V0YWJsZVBhdGgiOiAiL0FwcGxpY2F0aW9ucy9Hb29nbGUgQ2hyb21lLmFwcC9Db250ZW50cy9NYWNPUy9Hb29nbGUgQ2hyb21lIiwKICAiZXhlY3V0YWJsZVNoYTI1NiI6ICJmYjJiZjFjMzAwN2YyMjNlZGNiNGQ5NzBmMzNiMGM4MjhmNzE4M2IzZWU4MzJkNmE3MzdmZTY5NDVkYTgwNDYyIgp9"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/tmp/piping-native-fit-scrollbar-r4/b4-table-editing-classic-s-646b0-ting-pans-explicit-viewport-chromium-desktop/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/tmp/piping-native-fit-scrollbar-r4/b4-table-editing-classic-s-646b0-ting-pans-explicit-viewport-chromium-desktop/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+                        "column": 93,
+                        "line": 834
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "6f49393ff246acadcad3-f977442a8fa00e5fab40",
+              "file": "b4-table-editing.spec.ts",
+              "line": 783,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-24T03:49:06.252Z",
+    "duration": 13955.184,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

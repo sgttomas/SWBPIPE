@@ -1,0 +1,406 @@
+{
+  "schema": "bounded-read-only-assessment-v1",
+  "date": "2026-09-24",
+  "parent": "/root",
+  "agent": "/root/solver_verification",
+  "role": "TASK",
+  "role_type": 2,
+  "mechanism": "delegated-harness-native",
+  "delegated_children": [],
+  "model_allocation": "Astra/xhigh per supplied brief; no separate runtime attestation",
+  "candidate": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+  "observed_head": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+  "report_claimed_revision": "bc6d3459b",
+  "source_comparison": "No changes in core or benchmark source from report revision to candidate; validation difference consists of 3 sweep records. Cited native/browser bridge and hosted-CI files unchanged.",
+  "source_read_scope": "Targeted line reads and rg searches, not a full read of every listed source file. Directory inventories and search-only matches are locators, not independent assertions of file contents.",
+  "write_scope": [
+    "/private/tmp/piping-solver-findings-assessment-20260924/verification/RETURN.md",
+    "/private/tmp/piping-solver-findings-assessment-20260924/verification/MANIFEST.json"
+  ],
+  "actual_operations": [
+    "Read supplied instructions in full",
+    "Read supplied report master list and VER excerpt",
+    "Targeted source, manifest, historical evidence and Git reads",
+    "Read report-specified probe inputs; hash provenance",
+    "Write two bounded return files"
+  ],
+  "enforcement_limits": "Shared filesystem and stock tool permissions, no process or OS isolation guarantee. No child delegation.",
+  "excluded_operations": [
+    "tests",
+    "builds",
+    "solvers",
+    "servers",
+    "native UI",
+    "browser UI",
+    "endpoints",
+    "web research",
+    "product or governance edits",
+    "Git mutations"
+  ],
+  "instruction_origins": [
+    {
+      "origin": "AGENTS.md",
+      "kind": "instruction",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "bytes": 14200
+    },
+    {
+      "origin": "agents/AGENT_TASK.md",
+      "kind": "instruction",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499
+    },
+    {
+      "origin": "projects/chirality-piping/AGENTS.md",
+      "kind": "instruction",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "bytes": 9016
+    },
+    {
+      "origin": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "kind": "instruction",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "bytes": 8475
+    },
+    {
+      "origin": ".agents/skills/software-code-review/SKILL.md",
+      "kind": "instruction",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
+      "bytes": 1303
+    },
+    {
+      "origin": "/private/tmp/piping-solver-findings-assessment-20260924/verification/BRIEF.md",
+      "kind": "instruction",
+      "sha256": "6c43213e9c0541a99b0f1c57a78f9242ddae3958ff76cb879a722dce3e42a9a8",
+      "bytes": 3326
+    }
+  ],
+  "evidence_origins": [
+    {
+      "origin": "/Users/ryan/Downloads/SWBPIPE_SOLVER_FINDINGS.md",
+      "kind": "untrusted_supplied_report",
+      "sha256": "c9029a07473dcf58c3ba57f4d4c4880fc7dbea03d001d2014b0907183a846dd2",
+      "bytes": 215769
+    },
+    {
+      "origin": "/private/tmp/piping-solver-findings-assessment-20260924/verification/EXCERPT.md",
+      "kind": "untrusted_report_excerpt",
+      "sha256": "b6de54cad502a3718716eb0c21b25e1a5c2583796746e9686a092500fef9325c",
+      "bytes": 35005
+    },
+    {
+      "origin": ".github/workflows/piping-desktop-e2e.yml",
+      "kind": "source_or_retained_evidence",
+      "sha256": "dee6e956e0fc0b42a0bb243dab8629954960695017bf983acfca3439fd31f40d",
+      "bytes": 6371
+    },
+    {
+      "origin": ".github/workflows/governance-harness.yml",
+      "kind": "source_or_retained_evidence",
+      "sha256": "90f1c5db902cc080a42df401439247cf9f9aa5ededeb5868ba83e7b4021911cf",
+      "bytes": 6835
+    },
+    {
+      "origin": ".github/actions/setup-piping-e2e/action.yml",
+      "kind": "source_or_retained_evidence",
+      "sha256": "6fc0a7db9ab474fffbbd6ea8198c5662866c6e1dd593fca4e2a6bdf26caf4dd3",
+      "bytes": 4041
+    },
+    {
+      "origin": "projects/chirality-piping/software-workflow.json",
+      "kind": "source_or_retained_evidence",
+      "sha256": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7",
+      "bytes": 1101
+    },
+    {
+      "origin": "projects/chirality-piping/tools/ci/e2e_plan.py",
+      "kind": "source_or_retained_evidence",
+      "sha256": "23ffd49f1f8f845c9b0e716143fe6a91d8064c00f46c7060eae1af6e316167a8",
+      "bytes": 27684
+    },
+    {
+      "origin": "projects/chirality-piping/tools/release/run_evidence_sweep.py",
+      "kind": "source_or_retained_evidence",
+      "sha256": "cdb7bd4914652e6e5497f09f084d755107977dbbf58968dadfebda9f44ddcd3c",
+      "bytes": 50340
+    },
+    {
+      "origin": "projects/chirality-piping/tools/release/check_release_readiness.py",
+      "kind": "source_or_retained_evidence",
+      "sha256": "c386cdef9fe16ae0239dc509cb29dbadf0f6ce138cf7c0b7ab40867cb34e930f",
+      "bytes": 8456
+    },
+    {
+      "origin": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "kind": "source_or_retained_evidence",
+      "sha256": "aa91613c48346654dc7e8b110f22fc74cf9578fb16f21ae9c40cec863b910f15",
+      "bytes": 710426
+    },
+    {
+      "origin": "projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+      "kind": "source_or_retained_evidence",
+      "sha256": "baa83a5a62ea34d0677a5c5c5d6cd2fd2f977b6b62a5e2d4ddd06fa18951abc0",
+      "bytes": 40991
+    },
+    {
+      "origin": "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "kind": "source_or_retained_evidence",
+      "sha256": "d657e6507aa5d4ef80124e3f6d10bd5a8af8eae54fe21af787c92814c8b73fde",
+      "bytes": 63643
+    },
+    {
+      "origin": "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs",
+      "kind": "source_or_retained_evidence",
+      "sha256": "b480d2978c42517b156ec013a7c637b31db80a99953947e6788616d9cc8b5b71",
+      "bytes": 45583
+    },
+    {
+      "origin": "projects/chirality-piping/core/handoff/caepipe_mbf/package.py",
+      "kind": "source_or_retained_evidence",
+      "sha256": "e639b11429aa305c51df9bb1c04ea9a881f4a3e62c2562bb5a530f381c93cb67",
+      "bytes": 36328
+    },
+    {
+      "origin": "projects/chirality-piping/core/handoff/caepipe_external/run.py",
+      "kind": "source_or_retained_evidence",
+      "sha256": "ee008ef08480e1d95fd3e8e353da85a3e6ce6a6efa71766d8c1f9cb2f004e13a",
+      "bytes": 29266
+    },
+    {
+      "origin": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "kind": "source_or_retained_evidence",
+      "sha256": "22062ea42fd135a9dbefa0f7e09cf3a2feccc5193ff6028818fd1c6221a3f355",
+      "bytes": 531519
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "kind": "source_or_retained_evidence",
+      "sha256": "6ea1c8f46a32edc2c5d69cb6f9a94ea64d53e18e3ede324ef5d4e8e9fd56c880",
+      "bytes": 312544
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "kind": "source_or_retained_evidence",
+      "sha256": "9047e26a578d92f5dc986e1018b7945649b1d9cda662b131e53c4ca633ae10d7",
+      "bytes": 24546
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/package.json",
+      "kind": "source_or_retained_evidence",
+      "sha256": "c0e3ddd045e0ea7576a4cd01af86c4921bab7314e7b3d927b5eab11822e959fa",
+      "bytes": 1196
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/e2e/wasm-engine-dist.spec.ts",
+      "kind": "source_or_retained_evidence",
+      "sha256": "ed29de65b7121e1ef6a78348b10144473163d33a0a4010978a986a1fcc5a01aa",
+      "bytes": 1599
+    },
+    {
+      "origin": "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+      "kind": "source_or_retained_evidence",
+      "sha256": "c996c234c07c40555576fa439725a4c52dab16e317a6e59ca11f3add19a01010",
+      "bytes": 18420
+    },
+    {
+      "origin": "projects/chirality-piping/validation/benchmarks/mechanics/Cargo.toml",
+      "kind": "source_or_retained_evidence",
+      "sha256": "42bca1c1366a1d46fad28d9882ec1568e3e3a8f76d6f8d82717c9d2761fd05d8",
+      "bytes": 908
+    },
+    {
+      "origin": "projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs",
+      "kind": "source_or_retained_evidence",
+      "sha256": "095b6991199a845741b422eb1df35350936bb4601c08285be4a2a96f5351fa58",
+      "bytes": 331308
+    },
+    {
+      "origin": "projects/chirality-piping/validation/benchmarks/stress/Cargo.toml",
+      "kind": "source_or_retained_evidence",
+      "sha256": "c3a4d80356c1796a2d4b01404893125ff6919fa680c6a5c62fcb64b1e416fa8b",
+      "bytes": 574
+    },
+    {
+      "origin": "projects/chirality-piping/validation/benchmarks/stress/src/lib.rs",
+      "kind": "source_or_retained_evidence",
+      "sha256": "ad7239a073f5ca6c161ee3f63642d487414efed6e3176ae86a2af7979b73210c",
+      "bytes": 101073
+    },
+    {
+      "origin": "projects/chirality-piping/validation/benchmarks/nonlinear/Cargo.toml",
+      "kind": "source_or_retained_evidence",
+      "sha256": "bccff437b53bd719dc254885e9d03e183aee713357a88dc391c8e024aa3eed26",
+      "bytes": 586
+    },
+    {
+      "origin": "projects/chirality-piping/validation/benchmarks/nonlinear/src/lib.rs",
+      "kind": "source_or_retained_evidence",
+      "sha256": "6ba0b6e278650afbde02a01a94d4423dca0170c824d14066b4f802064e616e69",
+      "bytes": 227317
+    },
+    {
+      "origin": "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.toml",
+      "kind": "source_or_retained_evidence",
+      "sha256": "55f28a0a7980548c816c6f67be46d8279af8ec067b147bb5eb132c3f19793dec",
+      "bytes": 223
+    },
+    {
+      "origin": "projects/chirality-piping/validation/benchmarks/physics_audit_regression/src/lib.rs",
+      "kind": "source_or_retained_evidence",
+      "sha256": "572fc020de423ba64afd2ef300b6ab76c26a274c7596c41c3b340628a83c4534",
+      "bytes": 20382
+    },
+    {
+      "origin": "projects/chirality-piping/validation/hand_calcs/mechanics/tp_phys_008_thermal_pressure_axial_effects.md",
+      "kind": "source_or_retained_evidence",
+      "sha256": "7e262f37a6fc7987696771b9984dbbd2f578775f0d37f4dfa60a6ea2d1a2241b",
+      "bytes": 2994
+    },
+    {
+      "origin": "projects/chirality-piping/validation/evidence/comparison_measurement/DEL0904_VD_20260811/OWNER_VALUE_PACKET.md",
+      "kind": "source_or_retained_evidence",
+      "sha256": "4002d68a9a5582956fd969e59f93c60be2af7b9388bd735eefb56ceca6a06ac5",
+      "bytes": 7285
+    },
+    {
+      "origin": "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260924T064908Z_1c1b8b072a25.json",
+      "kind": "source_or_retained_evidence",
+      "sha256": "b95169ed0a3ccfc87829283b52d8fa4d3b0c7a8d48c3fd698ccb3c761a990913",
+      "bytes": 3819
+    },
+    {
+      "origin": "projects/chirality-piping/docs/validation_manual/index.md",
+      "kind": "source_or_retained_evidence",
+      "sha256": "f6d611059545505bd8ec94595406411487db4db2d23db9983a4162e93e691ee6",
+      "bytes": 25779
+    },
+    {
+      "origin": "projects/chirality-piping/docs/validation_manual/cases/mechanics/mech-portal-sway-original.md",
+      "kind": "source_or_retained_evidence",
+      "sha256": "421bdbd30d9e1253a865014f48e1a7980baa68a726e1c1f0c369e76f442845c9",
+      "bytes": 4707
+    },
+    {
+      "origin": "projects/chirality-piping/docs/validation_manual/cases/mechanics/mech-tp-phys-008-thermal-pressure-axial-effects.md",
+      "kind": "source_or_retained_evidence",
+      "sha256": "2b4e867a68c17a75512791bd2ecada47e62a73277e709ac1f769a3287d84e0a0",
+      "bytes": 4867
+    },
+    {
+      "origin": "projects/chirality-piping/tests/test_nonlinear_support_regression.py",
+      "kind": "source_or_retained_evidence",
+      "sha256": "2546dfecec1a23c65e6761c740f7dbd390e2b9c9292f9957aa976fd811edb5eb",
+      "bytes": 34286
+    },
+    {
+      "origin": "projects/chirality-piping/tests/test_headless_runner_contract.py",
+      "kind": "source_or_retained_evidence",
+      "sha256": "e81952a191f7a3ce7e80adceb7d7e45c952d82f32c406136f79e58fe99c82706",
+      "bytes": 26036
+    },
+    {
+      "origin": "projects/chirality-piping/tests/test_analytical_solver_boundary_adapter.py",
+      "kind": "source_or_retained_evidence",
+      "sha256": "08b53482e9bc3acfb1dee53ce9c7f92d3e699086842def49754a5b06abfc612d",
+      "bytes": 12821
+    },
+    {
+      "origin": "projects/chirality-piping/tests/test_stress_neutral_export_package.py",
+      "kind": "source_or_retained_evidence",
+      "sha256": "1679b078dd286e49057affa33b4a7f8c7e60e43d7212a1ba39f5db952ad7bc36",
+      "bytes": 39165
+    },
+    {
+      "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/ver_probe/Cargo.toml",
+      "kind": "supplied_external_probe_input",
+      "sha256": "3c81fa480fd4a372406e5b4573d0d45f8f1498aca07091a80cd53ce35f2682ff",
+      "bytes": 381
+    },
+    {
+      "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/ver_probe/src/main.rs",
+      "kind": "supplied_external_probe_input",
+      "sha256": "636a1c2e26a4afca24e977ff492eef9306e553a4debc29aa91b23d87c517b1c1",
+      "bytes": 9493
+    },
+    {
+      "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/ver_probe/lbend.py",
+      "kind": "supplied_external_probe_input",
+      "sha256": "bba6a2a18ccf0b21d5874ef7fa03b7bfabdfab32bd0e3c8ca8a9a45093161d66",
+      "bytes": 1449
+    },
+    {
+      "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/ver_probe/oop.py",
+      "kind": "supplied_external_probe_input",
+      "sha256": "4302f5bc9e0e0dae723f63e196adc2e115572a0169463a6d389aa2d756f7038f",
+      "bytes": 1014
+    },
+    {
+      "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/ver_probe/Cargo.lock",
+      "kind": "probe_lock_hashed_not_semantically_reviewed",
+      "sha256": "c8bb1df6ec5daf0d2d1c6a04fedcc55b54bd0048f91dbdd86f72ce0f70081e91",
+      "bytes": 5005
+    }
+  ],
+  "probe_limitations": [
+    "No raw numerical outputs in exact listed probe directory",
+    "Cargo source dependencies point external chirality-review tree with no sealed revision",
+    "Current Rust main does not invoke defined thermal L-bend sweep",
+    "No execution or independent numerical reproduction"
+  ],
+  "scope_state": "Unrelated untracked ROOT_NATIVE_1C observed and not read or modified.",
+  "coverage": [
+    "VER-01",
+    "VER-02",
+    "VER-03",
+    "VER-04",
+    "VER-05",
+    "VER-06",
+    "VER-07",
+    "VER-08",
+    "VER-09",
+    "VER-10",
+    "VER-11"
+  ],
+  "master_mapping": {
+    "VER-01": [
+      "M-03"
+    ],
+    "VER-02": [
+      "M-01"
+    ],
+    "VER-03": [
+      "M-27"
+    ],
+    "VER-04": [
+      "M-27"
+    ],
+    "VER-05": [
+      "M-05"
+    ],
+    "VER-06": [
+      "M-22"
+    ],
+    "VER-07": [
+      "M-34"
+    ],
+    "VER-08": [
+      "M-27"
+    ],
+    "VER-09": [
+      "M-27"
+    ],
+    "VER-10": [
+      "M-27"
+    ],
+    "VER-11": [
+      "M-27"
+    ]
+  },
+  "output": {
+    "origin": "/private/tmp/piping-solver-findings-assessment-20260924/verification/RETURN.md",
+    "kind": "assessment_return",
+    "sha256": "e52dd616ca361d1c6c1aca65b7a23f6aab18f09c6091a4fb6121144518b17c8c",
+    "bytes": 18924
+  },
+  "limits": "Source-based assessment only; no engineering acceptance, numeric criterion adoption or source change authorization."
+}

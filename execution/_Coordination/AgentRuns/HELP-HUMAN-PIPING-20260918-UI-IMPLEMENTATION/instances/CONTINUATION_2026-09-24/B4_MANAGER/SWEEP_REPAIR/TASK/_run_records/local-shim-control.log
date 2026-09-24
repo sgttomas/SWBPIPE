@@ -1,0 +1,58 @@
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop
+
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > focuses on first click, edits on second, applies one captured cell and cancels without an operation
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > keeps invalid text but reverts actual engine rejection with its diagnostic
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > uses file order for Enter under view sort, view order for Tab/arrows, and leaves caret/text undo keys alone
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > applies a valid edit on blur without stealing external focus
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > pins invalid drafts through virtual scrolling and filtering across the threshold
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > ignores an old completion after a same-ID project replacement and a newer edit
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > deduplicates blur and Apply while preserving the original target on a next-cell click
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > refuses a before-value change without silently rebasing a draft
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > lets Tab leave either table boundary and keeps pending edits read-only
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > marks a removed target as a retained draft and Cancel focuses a live row
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > publishes keyboard focus entry without turning the first pointer click into editing
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > keeps invalid A when B receives a click then Enter or a printable character
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > does not publish deferred navigation selection after external focus and selection win
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > clears completed-operation feedback when a new project generation replaces the model
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > exits the editing forward boundary after no-op Apply to a persistent visible footer
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > exits the editing forward boundary after accepted Apply to a persistent visible footer
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > exits a no-op backward editing boundary to the row header
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > retains invalid and engine-rejected boundary edits instead of exiting
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > does not steal external focus when a pending boundary Apply completes
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > preserves newer selection without DOM focus movement, including ABA=false
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > preserves newer selection without DOM focus movement, including ABA=true
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > restores a live roving entry after filter without stealing external focus
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > restores a live roving entry after deletion without stealing external focus
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > owns valid pointer Cancel before a browser default blur with null relatedTarget
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > does not activate Apply on pointer-down and applies exactly once on the eventual click
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > abandons 'Apply' via 'drag-away' without leaving a guard against ordinary blur Apply
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > abandons 'Apply' via 'pointercancel' without leaving a guard against ordinary blur Apply
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > abandons 'Cancel' via 'drag-away' without leaving a guard against ordinary blur Apply
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > abandons 'Cancel' via 'pointercancel' without leaving a guard against ordinary blur Apply
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > preserves keyboard footer Apply activation
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > preserves keyboard footer Cancel activation
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > measures only a finite visible body slot and retains its last positive height while hidden
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > rebinds allocation observation when a retained review swaps small and virtual body elements
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > records positive size changes under an inert page and reveals with the current height
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > reports a visible zero-height allocation instead of hiding a stale viewport behind overflow
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > recovers focus after a later canonical label publication filters the owned row out without selecting a fallback
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > keeps text rejection local and ignores a late text completion after same-ID generation replacement
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > initializes direct numeric/text selection once per edit without resetting later caret placement
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > initializes review numeric/text selection once per edit without resetting later caret placement
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > does not advertise cached projected sort keys from a removed pinned editor row
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > opt-in typed enum on the common input > completes a nonempty prefix on Enter exactly once
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > opt-in typed enum on the common input > completes a nonempty prefix on Tab exactly once
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > opt-in typed enum on the common input > preserves unsupported source through navigation and first Escape, then cancels on second Escape
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > opt-in typed enum on the common input > does not silently complete a prefix-shaped unsupported source on Enter
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > opt-in typed enum on the common input > pointer choice only changes buffer; pointer cancellation/drag-away never chooses
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > opt-in typed enum on the common input > does not complete empty input or a prefix on blur; direct invalid text stays while raw review text is kept
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > opt-in typed enum on the common input > closes the body popup on hidden/inert/detached ancestry and external focus without stealing focus
+ ↓ src/features/workspace/table/EngineeringTable.test.tsx > opt-in typed enum on the common input > closes options on source/catalog/active change without replacing input or changing draft
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > keeps complete compact feedback in Info and exempts only this table's chrome from blur Apply 127ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 48 skipped (49)
+   Start at  22:49:07
+   Duration  905ms (transform 179ms, setup 100ms, import 247ms, tests 130ms, environment 334ms)
+

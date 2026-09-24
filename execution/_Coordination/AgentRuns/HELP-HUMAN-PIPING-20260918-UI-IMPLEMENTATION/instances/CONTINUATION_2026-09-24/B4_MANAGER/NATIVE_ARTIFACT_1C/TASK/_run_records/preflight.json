@@ -1,0 +1,151 @@
+{
+  "time": "2026-09-24T07:37:05.476038+00:00",
+  "candidate": "1c1b8b072a25a5014f41dcc0e0fd8fd9d1ab0a9a",
+  "head": "1c1b8b072a25a5014f41dcc0e0fd8fd9d1ab0a9a",
+  "executor": "/root/b4_manager/native_compact",
+  "parent": "/root/b4_manager",
+  "mechanism": "collaboration.followup_task; retained TASK Type2; no descendants",
+  "allocation": "Astra/low supplied, no backend attestation",
+  "instructions": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    }
+  ],
+  "product_files": 857,
+  "all_product_matches": true,
+  "target": "/private/tmp/piping-native-fit-1c-20260924",
+  "target_absent_after_metadata": true,
+  "build_held": true,
+  "environment": {
+    "CARGO_TARGET_DIR": "/private/tmp/piping-native-fit-1c-20260924",
+    "CARGO_BUILD_JOBS": "2",
+    "SWBPIPE_LIVE_CONTROL": "absent"
+  },
+  "commands": [
+    {
+      "command": [
+        "cargo",
+        "metadata",
+        "--offline",
+        "--format-version",
+        "1",
+        "--no-deps"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src-tauri",
+      "exit": 0
+    },
+    {
+      "command": [
+        "cargo",
+        "metadata",
+        "--offline",
+        "--format-version",
+        "1",
+        "--no-deps"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/model_operations/operation_applier",
+      "exit": 0
+    },
+    {
+      "command": [
+        "cargo",
+        "metadata",
+        "--offline",
+        "--format-version",
+        "1",
+        "--no-deps"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/loads/self_weight_wasm",
+      "exit": 0
+    },
+    {
+      "command": [
+        "node",
+        "--version"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "exit": 0
+    },
+    {
+      "command": [
+        "npm",
+        "--version"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "exit": 0
+    },
+    {
+      "command": [
+        "rustc",
+        "--version"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "exit": 0
+    },
+    {
+      "command": [
+        "cargo",
+        "--version"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "exit": 0
+    },
+    {
+      "command": [
+        "rustup",
+        "target",
+        "list",
+        "--installed"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "exit": 0
+    },
+    {
+      "command": [
+        "/Users/ryan/.cargo/bin/wasm-bindgen",
+        "--version"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "exit": 0
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "tauri",
+        "--",
+        "--version"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop",
+      "exit": 0
+    },
+    {
+      "command": [
+        "sw_vers"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "exit": 0
+    },
+    {
+      "command": [
+        "uname",
+        "-m"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "exit": 0
+    }
+  ]
+}

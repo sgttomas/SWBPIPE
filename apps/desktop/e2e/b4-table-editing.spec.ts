@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import { attachBrowserIdentity, currentModelHashThroughVisibleExport, gotoModel, readFixture, gotoRoutedFixture } from "./ui-foundation-workflows";
 import { ensureTreeExpanded, openWorkspaceSection, showModelTree } from "./workspace-driver";
@@ -644,4 +645,220 @@ test("B4 Node review retained editor stays contained through hidden families and
   await filter.fill(""); await page.getByTestId("clear-entity-grid-drafts").click(); await expect(table.getByRole("textbox")).toHaveCount(0); await expect(page.getByTestId("entity-grid-change-count")).toHaveText("0 changed cells");
   await expect(page.getByTestId(`table-cell-${first.id}-x`)).toHaveText(String(first.position.x)); await expect(page.getByTestId("workspace-undo")).toBeDisabled(); await page.setViewportSize(viewport);
   await info.attach("node-review-retained-host", { body: JSON.stringify({ headerFooterHits: hits, pageReturnAlignment: alignment }), contentType: "application/json" });
+});
+
+for (const density of ["comfortable", "compact"] as const) for (const view of ["model", "both"] as const) for (const drawer of [180, 280, 500]) {
+  test(`B4 compact drawer ${view} ${density} ${drawer} @explicit-viewport`, async ({ page, browser }, info) => {
+    await attachBrowserIdentity(browser, info);
+    // Model uses the native window minimum; stacked Both is browser evidence.
+    await page.setViewportSize(view === "model" ? { width: 1280, height: 800 } : { width: 1024, height: 768 });
+    await page.addInitScript(({ density, drawer }) => localStorage.setItem("chirality.desktop.ui-preferences.v1", JSON.stringify({ version: 1, density, tableDrawerPx: drawer })), { density, drawer });
+    await page.goto("/"); await expect(page.getByTestId("workspace-toolbar")).toBeVisible();
+    await page.getByTestId(`view-switch-${view}`).click(); await ensureTreeExpanded(page); await page.getByTestId("layout-mode-grid").click();
+    const host = page.getByTestId("shell-tree-host"), table = page.getByTestId("engineering-table"), family = page.getByRole("combobox", { name: "Grid family" });
+    const observations: unknown[] = [];
+    async function measure(surface = table) {
+      const measured = await surface.evaluate((root) => {
+        const host = root.closest(".shell-tree-host")!, body = root.querySelector<HTMLElement>('[role="rowgroup"]')!, header = root.querySelector<HTMLElement>(".engineering-table-header")!, footer = root.querySelector<HTMLElement>(".engineering-table-footer")!;
+        const rect = (e: Element) => { const r = e.getBoundingClientRect(); return { x: r.x, y: r.y, height: r.height, width: r.width, bottom: r.bottom }; };
+        return { host: rect(host), hostScroll: host.scrollHeight, hostClient: host.clientHeight, body: rect(body), header: rect(header), footer: rect(footer), headerColumns: [...header.children].map(rect), rowColumns: [...body.querySelector('[role="row"]')!.children].map(rect) };
+      });
+      observations.push(measured);
+      if (drawer < 500) expect(measured.host.height).toBeCloseTo(drawer - 53, 0);
+      else { expect(measured.host.height).toBeGreaterThan(227); expect(measured.host.height).toBeLessThanOrEqual(drawer - 53); }
+      expect(measured.hostScroll).toBe(measured.hostClient);
+      expect(measured.body.height).toBeGreaterThanOrEqual(36); expect(measured.body.y).toBeGreaterThanOrEqual(measured.header.bottom - 1);
+      expect(measured.body.bottom).toBeLessThanOrEqual(measured.footer.y + 1); expect(measured.footer.bottom).toBeLessThanOrEqual(measured.host.bottom + 1);
+      measured.headerColumns.forEach((column, i) => { expect(measured.rowColumns[i].x).toBeCloseTo(column.x, 0); expect(measured.rowColumns[i].width).toBeCloseTo(column.width, 0); });
+    }
+    async function hit(locator: ReturnType<typeof page.locator>) {
+      const scrolls = () => page.locator(".model-grid-toolbar, .engineering-table-footer:visible").evaluateAll((es) => es.map((e) => ({ className: e.className, scrollLeft: e.scrollLeft, clientWidth: e.clientWidth, scrollWidth: e.scrollWidth })));
+      const before = await scrolls(); await locator.scrollIntoViewIfNeeded(); observations.push({ pointerTarget: await locator.getAttribute("aria-label") ?? await locator.textContent(), before, after: await scrolls() });
+      expect(await locator.evaluate((element) => { const r = element.getBoundingClientRect(), top = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2); return top === element || element.contains(top); })).toBe(true);
+    }
+    await measure(); await expect(family).toHaveAccessibleName("Grid family"); await hit(family); await hit(page.getByTestId("model-tree-filter-input"));
+    const cell = page.getByTestId("table-cell-node:N-100-y"); await cell.dblclick(); const editor = table.getByRole("textbox");
+    await editor.fill("invalid"); await editor.press("Enter"); await expect(editor).toHaveAttribute("aria-invalid", "true"); await measure(); await hit(editor);
+    await hit(table.getByRole("button", { name: "Apply", exact: true })); await hit(table.getByRole("button", { name: "Cancel", exact: true }));
+    await expect(table.getByRole("alert")).toContainText("finite");
+    const er = await editor.boundingBox(), br = await table.getByRole("rowgroup").boundingBox();
+    expect(er!.height).toBeGreaterThanOrEqual(28); expect(er!.y).toBeGreaterThanOrEqual(br!.y); expect(er!.y + er!.height).toBeLessThanOrEqual(br!.y + br!.height);
+    await family.selectOption("materials"); await family.selectOption("sections"); await family.selectOption("pipes");
+    await expect(page.getByTestId("entity-grid-table-pipes")).toBeVisible(); await hit(page.getByTestId("clear-entity-grid-drafts")); expect(await host.evaluate((e) => e.scrollHeight === e.clientHeight)).toBe(true);
+    await family.selectOption("nodes"); await expect(editor).toHaveValue("invalid");
+    await table.getByRole("button", { name: "Cancel", exact: true }).click(); await expect(cell).toHaveText("0"); await expect(page.getByTestId("workspace-undo")).toBeDisabled();
+    await cell.dblclick(); await table.getByRole("textbox").fill("0.25"); await table.getByRole("button", { name: "Apply", exact: true }).click();
+    await expect(cell).toHaveText("0.25"); await page.getByTestId("workspace-undo").click(); await expect(cell).toHaveText("0");
+    await page.getByTestId("workspace-redo").click(); await expect(cell).toHaveText("0.25"); await page.getByTestId("workspace-undo").click(); await expect(cell).toHaveText("0");
+    await page.getByTestId("node-grid-review-disclosure").click(); const review = page.getByTestId("engineering-table-review"); await measure(review);
+    const reviewCell = review.getByTestId("review-cell-node:N-100-y"); await reviewCell.dblclick(); await review.getByRole("textbox").fill("0.5");
+    await review.getByRole("button", { name: "Keep draft", exact: true }).click(); await measure(review);
+    await hit(page.getByTestId("queue-entity-grid-intents")); await hit(page.getByTestId("clear-entity-grid-drafts"));
+    await page.getByRole("button", { name: "Table details", exact: true }).click(); const details = page.locator(".compact-table-details:popover-open");
+    await expect(details).toBeFocused(); await expect(details).toContainText("1 changed cells"); await expect(details).toContainText("keeping a draft does not change the model"); await page.keyboard.press("Escape"); await expect(details).toBeHidden(); await expect(review).toBeVisible();
+    await page.getByTestId("clear-entity-grid-drafts").click(); await expect(reviewCell).toHaveText("0");
+    await reviewCell.dblclick(); await review.getByRole("textbox").fill("0.75"); await review.getByRole("button", { name: "Keep draft", exact: true }).click();
+    await page.getByTestId("queue-entity-grid-intents").click(); await showModelTree(page); await expect(page.locator(".compact-queued-message")).toContainText("Queued 1 review intent"); await measure(review);
+    await expect(page.getByTestId("workspace-undo")).toBeDisabled(); await page.getByTestId("node-grid-review-disclosure").click(); await expect(cell).toHaveText("0");
+    const body = table.getByRole("rowgroup"), b = await body.boundingBox(); await page.mouse.move(b!.x + 80, b!.y + 15); await page.mouse.wheel(0, 500);
+    if (drawer === 180) await expect.poll(() => body.evaluate((e) => e.scrollTop)).toBeGreaterThan(0);
+    expect(await host.evaluate((e) => e.scrollTop)).toBe(0);
+    await page.getByTestId("model-tree-filter-input").fill("N-100"); await expect(cell).toHaveText("0");
+    await page.getByTestId("toggle-tree").click(); await expect(table).toBeHidden(); await page.getByTestId("toggle-tree").click(); await expect(table).toBeVisible();
+    await expect(page.getByTestId("model-tree-filter-input")).toHaveValue("N-100");
+    await page.getByRole("button", { name: "Table details", exact: true }).click(); await expect(page.locator(".compact-table-details:popover-open")).toBeVisible();
+    await page.getByTestId("layout-mode-tree").click(); await expect(page.locator(".compact-table-details:popover-open")).toHaveCount(0); await expect(family).toHaveCount(0);
+    await page.getByTestId("layout-mode-grid").click(); await expect(family).toHaveValue("nodes");
+    await info.attach("compact-drawer-geometry", { body: JSON.stringify({ density, view, drawer, observations }, null, 2), contentType: "application/json" }); await page.screenshot({ path: info.outputPath("compact-drawer.png") });
+  });
+}
+
+for (const view of ["model", "both"] as const) {
+  test(`B4 Details owns traversed Escape and preserves editor ownership in ${view} @explicit-viewport`, async ({ page, browser }, info) => {
+    await attachBrowserIdentity(browser, info);
+    await page.setViewportSize(view === "model" ? { width: 1280, height: 800 } : { width: 1024, height: 768 });
+    const { model } = await readFixture("precision-origin-base.model.json");
+    model.sections = [{ id: "section:repair", name: "Invented repair", section_type: "pipe", properties: {
+      outside_diameter: { value: 100, unit: "mm" }, wall_thickness: { value: 10, unit: "mm" }
+    }, provenance: "invented keyboard regression" }];
+    await gotoModel(page, model); await page.getByTestId(`view-switch-${view}`).click(); await ensureTreeExpanded(page); await page.getByTestId("layout-mode-grid").click();
+    const family = page.getByRole("combobox", { name: "Grid family" });
+    await expect(page.locator(".compact-family-label")).toContainText("Family"); await expect(family).toHaveAccessibleName("Grid family");
+    const trigger = page.getByRole("button", { name: "Table details", exact: true });
+    const details = page.getByRole("dialog", { name: "Table details", exact: true });
+    const drawer = page.getByTestId("toggle-tree"), table = page.getByTestId("engineering-table");
+    const observations: unknown[] = [];
+    for (const traversal of ["Tab", "Shift+Tab"]) {
+      await trigger.click(); await expect(details).toBeFocused(); await page.keyboard.press(traversal);
+      await expect(details).toBeVisible(); await expect(details).not.toBeFocused();
+      observations.push({ traversal, focusBeforeEscape: await page.evaluate(() => document.activeElement?.outerHTML) });
+      await page.keyboard.press("Escape"); await expect(details).toBeHidden(); await expect(trigger).toBeFocused(); await expect(drawer).toHaveAttribute("aria-expanded", "true");
+    }
+    await trigger.click(); await expect(details).toBeFocused(); await page.keyboard.press("Escape"); await expect(details).toBeHidden(); await expect(trigger).toBeFocused();
+    // Native typeahead changes the family through an actual key, while the
+    // platform popup itself is outside headless Chromium keyboard control.
+    await family.focus(); await page.keyboard.press("p"); await expect(family).toHaveValue("pipes");
+    await family.selectOption("nodes"); await expect(family).toHaveValue("nodes");
+    const node = model.nodes[0], cell = page.getByTestId(`table-cell-${node.id}-x`);
+    await cell.dblclick(); const input = table.getByRole("textbox"); await input.fill("invalid retained"); await input.press("Enter");
+    await trigger.click(); await expect(details).toBeVisible(); await input.focus();
+    // Descendant editor Escape runs first; it must not be stolen by Details.
+    await page.keyboard.press("Escape"); await expect(input).toHaveCount(0); await expect(details).toBeVisible(); await expect(cell).toHaveText(String(node.position.x));
+    await page.keyboard.press("Escape"); await expect(details).toBeHidden(); await expect(trigger).toBeFocused(); await expect(drawer).toHaveAttribute("aria-expanded", "true");
+    await family.selectOption("sections"); const section = page.getByTestId("section-engineering-table"), type = page.getByTestId("table-cell-section:repair-type");
+    await type.dblclick(); const enumeration = section.getByRole("combobox"); await enumeration.fill("p"); await trigger.click(); await expect(details).toBeVisible();
+    await enumeration.focus(); const popup = page.getByRole("listbox", { name: "Supported values" }); await expect(popup).toBeVisible();
+    await page.keyboard.press("Escape"); await expect(popup).toHaveCount(0); await expect(enumeration).toHaveValue("p"); await expect(details).toBeVisible();
+    await page.keyboard.press("Escape"); await expect(enumeration).toHaveCount(0); await expect(type).toHaveText("pipe"); await expect(details).toBeVisible();
+    await page.keyboard.press("Escape"); await expect(details).toBeHidden(); await expect(trigger).toBeFocused(); await expect(drawer).toHaveAttribute("aria-expanded", "true");
+    await family.selectOption("nodes"); await cell.dblclick(); await input.fill("retained transition"); await input.press("Enter"); const originalInput = await input.elementHandle();
+    await trigger.click(); await expect(details).toBeFocused();
+    // True focus exit closes Details without stealing focus from the destination.
+    const outside = page.getByTestId("workspace-undo"); const destination = page.getByTestId("view-switch-table");
+    await destination.focus(); await expect(details).toBeHidden(); await expect(destination).toBeFocused();
+    await destination.click(); await expect(family).toHaveCount(0); await expect(page.locator(".compact-table-details")).toHaveCount(0); await expect(input).toHaveValue("retained transition"); expect(await originalInput!.evaluate((element) => element.isConnected)).toBe(true);
+    await input.focus(); await page.keyboard.press("Escape"); await expect(input).toHaveCount(0); await expect(cell).toBeFocused(); await expect(outside).toBeDisabled();
+    await page.getByTestId(`view-switch-${view}`).click(); await expect(family).toBeVisible();
+    await cell.dblclick(); await input.fill("retained tree"); await input.press("Enter"); const treeInput = await input.elementHandle();
+    await trigger.click(); await page.getByTestId("layout-mode-tree").click(); await expect(page.locator(".compact-table-details")).toHaveCount(0); await expect(family).toHaveCount(0);
+    await page.getByTestId("layout-mode-grid").click(); await expect(input).toHaveValue("retained tree"); expect(await treeInput!.evaluate((element) => element.isConnected)).toBe(true);
+    // The previous editor was deliberately cancelled, not unmounted by view change.
+    expect(await originalInput!.evaluate((element) => element.isConnected)).toBe(false);
+    await table.getByRole("button", { name: "Cancel", exact: true }).click(); await expect(outside).toBeDisabled();
+    if (view === "both") {
+      await family.focus(); await page.keyboard.press("Escape"); await expect(drawer).toHaveAttribute("aria-expanded", "false");
+      await drawer.click(); await expect(family).toBeVisible(); await expect(page.locator(".compact-table-details:popover-open")).toHaveCount(0);
+    }
+    await info.attach("details-escape-regression", { body: JSON.stringify({ view, observations }, null, 2), contentType: "application/json" });
+  });
+}
+
+const classicTest = test.extend({ browser: [async ({ playwright }, use) => {
+  const chrome = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+  const browser = await playwright.chromium.launch({ ignoreDefaultArgs: ["--hide-scrollbars"], executablePath: existsSync(chrome) ? chrome : undefined });
+  try { await use(browser); } finally { await browser.close(); }
+}, { scope: "worker" }] });
+classicTest.describe("classic scrollbar allocation", () => {
+for (const density of ["comfortable", "compact"] as const) for (const count of [1, 5, 160]) {
+  classicTest(`B4 classic scrollbar compact ${density} ${count} preserves tracks and nonmutating pans @explicit-viewport`, async ({ page, browser }, info) => {
+    await attachBrowserIdentity(browser, info); await page.setViewportSize({ width: 1280, height: 800 });
+    await page.addInitScript((density) => localStorage.setItem("chirality.desktop.ui-preferences.v1", JSON.stringify({ version: 1, density, tableDrawerPx: 180 })), density);
+    const { model } = await readFixture("precision-origin-base.model.json"), material = model.materials[0];
+    model.materials = Array.from({ length: count }, (_, i) => ({ ...material, id: `material:scroll-${i}${i === 0 ? "-retained-identity".repeat(8) : ""}`, label: `Invented scroll material ${i}` }));
+    const firstId = model.materials[0].id;
+    model.pipe_segments = model.pipe_segments.map((pipe: any) => ({ ...pipe, material: pipe.material === material.id ? firstId : pipe.material }));
+    model.sections = Array.from({ length: count }, (_, i) => ({ id: `section:scroll-${i}`, name: `Invented scroll section ${i}`, section_type: "pipe", properties: { outside_diameter: { value: 100, unit: "mm" }, wall_thickness: { value: 10, unit: "mm" } }, provenance: "invented scrollbar fixture" }));
+    await gotoModel(page, model);
+    // Force an actual Chromium classic allocation, then measure it. This is
+    // browser evidence with nonzero gutters, never a native WebKit witness.
+    await page.addStyleTag({ content: "*::-webkit-scrollbar { width: 18px; height: 18px; } *::-webkit-scrollbar-thumb { background: #777; } *::-webkit-scrollbar-track { background: #eee; }" });
+    const probe = await page.evaluate(() => { const e = document.createElement("div"); e.style.cssText = "position:fixed;width:100px;height:100px;overflow:scroll"; e.innerHTML = '<div style="width:200px;height:200px"></div>'; document.body.append(e); const result = { vertical: e.offsetWidth - e.clientWidth, horizontal: e.offsetHeight - e.clientHeight }; e.remove(); return result; });
+    expect(probe.vertical).toBeGreaterThan(0); expect(probe.horizontal).toBeGreaterThan(0);
+    await page.getByTestId("view-switch-model").click(); await ensureTreeExpanded(page); await page.getByTestId("layout-mode-grid").click();
+    const family = page.getByRole("combobox", { name: "Grid family" }); await family.selectOption("materials");
+    const table = page.getByTestId("material-engineering-table"), rows = table.getByRole("rowgroup"), later = page.getByRole("button", { name: "Later columns", exact: true }), earlier = page.getByRole("button", { name: "Earlier columns", exact: true });
+    const observations: unknown[] = [];
+    let expectedHost: number | null = 127;
+    async function measure(surface = table) {
+      const value = await surface.evaluate((root) => {
+        const rows = root.querySelector<HTMLElement>('[role="rowgroup"]')!, header = root.querySelector<HTMLElement>(".engineering-table-header")!, row = rows.querySelector<HTMLElement>('[role="row"]')!;
+        const bounds = (e: Element) => { const r = e.getBoundingClientRect(); return { x: r.x, right: r.right, y: r.y, bottom: r.bottom, width: r.width, height: r.height }; };
+        const toolbar = root.closest(".model-tree")!.querySelector<HTMLElement>(".model-grid-toolbar")!, footer = root.querySelector<HTMLElement>(".engineering-table-footer")!;
+        return { body: bounds(rows), clientWidth: rows.clientWidth, clientHeight: rows.clientHeight, gutter: rows.offsetWidth - rows.clientWidth,
+          horizontal: rows.offsetHeight - rows.clientHeight, toolbar: bounds(toolbar), footer: bounds(footer), host: bounds(root.closest(".shell-tree-host")!),
+          columns: [...header.children].map(bounds), cells: [...row.children].map(bounds),
+          headingHeights: [...header.querySelectorAll("button")].map((button) => { const range = document.createRange(); range.selectNodeContents(button); return range.getBoundingClientRect().height; }),
+          rails: [...root.closest(".model-tree")!.querySelectorAll<HTMLElement>(".table-overflow-rail.enabled > .table-overflow-viewport")].filter((e) => e.getBoundingClientRect().height > 0).map((e) => ({ client: e.clientHeight, height: e.offsetHeight, scrollWidth: e.scrollWidth, width: e.clientWidth })) };
+      }); observations.push(value);
+      if (expectedHost === null) expect(value.host.height).toBeGreaterThan(227); else expect(value.host.height).toBe(expectedHost); expect(value.toolbar.height).toBe(30); expect(value.footer.height).toBe(32);
+      expect(value.clientHeight).toBeGreaterThanOrEqual(density === "comfortable" ? 36 : 30); expect(value.horizontal).toBe(0);
+      expect(value.body.right).toBeCloseTo(value.host.right, 0);
+      value.columns.forEach((column, i) => { expect(value.cells[i].x).toBeCloseTo(column.x, 0); expect(value.cells[i].right).toBeCloseTo(column.right, 0); });
+      value.headingHeights.forEach((height) => expect(height).toBeLessThanOrEqual(28)); value.rails.forEach((rail) => { expect(rail.client).toBe(28); expect(rail.height).toBe(28); });
+      return value;
+    }
+    let geometry = await measure(); expect(geometry.gutter).toBe(count > 1 ? probe.vertical : 0);
+    await expect(table.getByRole("button", { name: "Sort Elastic [row unit]", exact: true })).toHaveAccessibleName("Sort Elastic [row unit]");
+    while (await later.isEnabled()) await later.click(); geometry = await measure();
+    expect(geometry.cells.at(-1)!.right).toBeLessThanOrEqual(geometry.body.x + geometry.clientWidth + 1);
+    const last = table.getByTestId(`table-cell-${firstId}-provenance`); await last.click(); await last.press("Enter"); const editor = table.getByRole("textbox");
+    await editor.fill("Retained valid draft while navigating chrome"); const retained = await editor.elementHandle();
+    const statusLater = table.getByRole("button", { name: "Later table status", exact: true }); await expect(statusLater).toBeVisible(); await statusLater.click();
+    expect(await page.evaluate(() => document.activeElement?.getAttribute("aria-label"))).toMatch(/^(Earlier|Later) table status$/);
+    await expect(page.getByTestId("workspace-undo")).toBeDisabled();
+    await earlier.click(); expect(await page.evaluate(() => document.activeElement?.getAttribute("aria-label"))).toMatch(/^(Earlier|Later) columns$/); await expect(editor).toHaveValue("Retained valid draft while navigating chrome"); await expect(page.getByTestId("workspace-undo")).toBeDisabled();
+    await later.press("Enter"); await expect(earlier).toBeFocused(); await earlier.press("Space"); await expect(later).toBeFocused();
+    while (await later.isEnabled()) await later.click(); await measure(); await expect(editor).toHaveValue("Retained valid draft while navigating chrome");
+    const editorBounds = await editor.boundingBox(), rowBounds = await rows.boundingBox(); expect(editorBounds!.x).toBeGreaterThanOrEqual(rowBounds!.x - 1); expect(editorBounds!.x + editorBounds!.width).toBeLessThanOrEqual(rowBounds!.x + geometry.clientWidth + 1);
+    const infoButton = table.getByRole("button", { name: "Material fields Info", exact: true }); await infoButton.click(); const dialog = table.getByRole("dialog", { name: "Material fields Info", exact: true }); await expect(dialog).toBeVisible();
+    await expect(dialog).toContainText("unit as entered in each row"); await expect(dialog).toContainText(firstId); await expect(editor).toHaveValue("Retained valid draft while navigating chrome"); await expect(page.getByTestId("workspace-undo")).toBeDisabled();
+    await page.keyboard.press("Tab"); await expect(dialog.getByRole("button", { name: "Close Info", exact: true })).toBeFocused();
+    await page.keyboard.press("Tab"); await expect(dialog).toBeHidden(); await expect(infoButton).not.toBeFocused();
+    await infoButton.click(); await expect(dialog).toBeFocused(); await page.keyboard.press("Escape"); await expect(infoButton).toBeFocused();
+    const toolsLater = page.getByRole("button", { name: "Later table controls", exact: true }); if (await toolsLater.count()) { await toolsLater.click(); await expect(editor).toHaveValue("Retained valid draft while navigating chrome"); }
+    await page.getByRole("button", { name: "Table details", exact: true }).focus(); await page.keyboard.press("Enter"); await expect(page.getByRole("dialog", { name: "Table details", exact: true })).toBeVisible(); await expect(page.getByTestId("workspace-undo")).toBeDisabled(); await page.keyboard.press("Escape");
+    await table.getByRole("button", { name: "Cancel", exact: true }).focus(); await page.keyboard.press("Enter"); expect(await retained!.evaluate((e) => e.isConnected)).toBe(false); await expect(page.getByTestId("workspace-undo")).toBeDisabled();
+    const firstCell = table.getByTestId(`table-cell-${firstId}-label`); await firstCell.focus(); geometry = await measure(); expect(geometry.cells[1].x).toBeGreaterThanOrEqual(geometry.body.x - 1);
+    await last.focus(); geometry = await measure(); expect(geometry.cells.at(-1)!.right).toBeLessThanOrEqual(geometry.body.x + geometry.clientWidth + 1);
+    if (count > 1) { const r = await rows.boundingBox(); await page.mouse.move(r!.x + 40, r!.y + 12); await page.mouse.wheel(0, 100000); await expect.poll(() => rows.evaluate((e) => e.scrollTop)).toBeGreaterThan(0); await expect(table.getByRole("rowheader").getByRole("button", { name: `material:scroll-${count - 1}`, exact: true })).toBeVisible(); }
+    await page.getByTestId("model-tree-filter-input").fill("scroll-0"); geometry = await measure(); expect(geometry.gutter).toBe(0);
+    await page.getByTestId("model-tree-filter-input").fill("no matching invented entity"); await expect(rows.locator('[role="row"]')).toHaveCount(0); await expect(page.getByRole("group", { name: "Pan columns", exact: true })).toHaveCount(1);
+    await page.getByTestId("model-tree-filter-input").fill(""); await family.selectOption("sections"); const section = page.getByTestId("section-engineering-table"); await measure(section); await expect(page.getByRole("group", { name: "Pan columns", exact: true })).toHaveCount(1);
+    await page.getByTestId("layout-mode-tree").click(); await expect(page.getByRole("group", { name: "Pan columns", exact: true })).toHaveCount(0); await page.getByTestId("layout-mode-grid").click(); await family.selectOption("sections"); await measure(section);
+    const resize = page.getByRole("separator", { name: "Resize table drawer" }); const resizeBox = await resize.boundingBox();
+    await page.mouse.move(resizeBox!.x + resizeBox!.width / 2, resizeBox!.y + resizeBox!.height / 2); await page.mouse.down();
+    await page.mouse.move(resizeBox!.x + resizeBox!.width / 2, resizeBox!.y + resizeBox!.height / 2 - 100); await page.mouse.up();
+    await expect(resize).toHaveAttribute("aria-valuenow", "280"); expectedHost = 227; await measure(section);
+    await resize.focus(); for (let i = 0; i < 10; i++) await page.keyboard.press("ArrowUp"); expectedHost = null; await measure(section);
+    await page.setViewportSize({ width: 1024, height: 768 }); await measure(section);
+    await page.getByTestId("view-switch-table").click();
+    const full = await section.evaluate((root) => {
+      const body = root.querySelector<HTMLElement>('[role="rowgroup"]')!, header = root.querySelector('.engineering-table-header')!, row = body.querySelector('[role="row"]')!;
+      return { gutter: body.offsetWidth - body.clientWidth, header: [...header.children].map((e) => e.getBoundingClientRect().right), row: [...row.children].map((e) => e.getBoundingClientRect().right) };
+    }); observations.push({ noncompact: full }); full.header.forEach((right, index) => expect(full.row[index]).toBeCloseTo(right, 0));
+    if (count === 160) expect(full.gutter).toBe(probe.vertical);
+    await info.attach("classic-scrollbar-observations", { body: JSON.stringify({ density, count, probe, observations }, null, 2), contentType: "application/json" });
+  });
+}
+
 });

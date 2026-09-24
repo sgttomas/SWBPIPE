@@ -1,0 +1,9 @@
+{
+  "archive": "focus-probe-r3.json.gz",
+  "archive_sha256": "e4485c2768624245c931c4d48866cdd75ba8f55128feb8ed2d275e3333410a51",
+  "original_name": "focus-probe-r3.json",
+  "original_sha256": "c6a8b576107e425b1702747a7f60f39be2d2b23c0dfcd4c87f322c796471e16e",
+  "original_bytes": 4740479,
+  "compressed_bytes": 344190,
+  "note": "Lossless canonical raw event/outerHTML record; uncompressed local duplicate need not be tracked."
+}

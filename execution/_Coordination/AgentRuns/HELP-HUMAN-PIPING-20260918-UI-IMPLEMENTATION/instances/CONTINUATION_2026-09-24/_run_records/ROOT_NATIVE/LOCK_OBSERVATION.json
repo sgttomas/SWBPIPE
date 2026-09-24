@@ -1,0 +1,8 @@
+{
+  "tool": "mcp__cua_repl.js",
+  "command": "await recordRootAX('material-current-full',true)",
+  "reported_text": "The Mac is locked and automatic unlock could not unlock it. Ask the user to unlock the Mac manually before continuing.",
+  "sequence": "after13-material-minimum-native.jpg",
+  "owner_request": "Manual unlock requested through current task; pending.",
+  "action": "No further CUA actions pending manual unlock; independent source work continues."
+}

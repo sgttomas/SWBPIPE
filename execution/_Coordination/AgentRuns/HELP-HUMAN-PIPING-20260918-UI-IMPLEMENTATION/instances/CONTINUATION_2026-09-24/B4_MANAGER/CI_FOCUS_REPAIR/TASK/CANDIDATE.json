@@ -1,0 +1,23 @@
+{
+  "product_basis": "01063c7f1cfb7a651261401f62a5a72a5daa94dc",
+  "head": "01063c7f1cfb7a651261401f62a5a72a5daa94dc",
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx",
+      "sha256": "341af9d2b27480acf276a5d2eb139e0484a54924ab68a585db5712ae5923b6f8"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/OverflowRail.tsx",
+      "sha256": "c80efb42ecea6dd7ef47fc7187c98c209dc87d478a599dd97146bc110a34f3d3"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/OverflowRail.test.tsx",
+      "sha256": "07dc4b3b57ad2ac8e6c811778cce1d48941765a577de360678eaeab91fe51e45"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+      "sha256": "14aec754b7c41a68075d7e2be02ee08d3c59ef7da58d78e2aec438667c977e45"
+    }
+  ],
+  "digest": "712c9871f020f7eea67e5ea88bf23b130dcd83419a9898d8f5fc51d653cd4f37"
+}

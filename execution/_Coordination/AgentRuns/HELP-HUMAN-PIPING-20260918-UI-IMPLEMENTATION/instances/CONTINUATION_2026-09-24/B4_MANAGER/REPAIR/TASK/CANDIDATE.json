@@ -1,0 +1,19 @@
+{
+  "base": "1c8f04039b5f41812ebd879fc80d810392123072",
+  "head_at_freeze": "1c8f04039b5f41812ebd879fc80d810392123072",
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+      "sha256": "a677e236a7c9e4396b24ebed807b22567147d69fe89c9d8daf220311b1636a8d"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+      "sha256": "8de05763e20070457c4a388213abaca7313419fb9b6508219fcef953bf93e35f"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts",
+      "sha256": "23877e2fcccfce84c03f731afddebac0c703fd3f3188ebccbeb087ef6811f3ff"
+    }
+  ],
+  "digest": "e31a1920e479bd8c386025a4c189b81980d34349d61c7eb69eb2ae383eec686d"
+}

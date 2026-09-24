@@ -1,0 +1,15 @@
+{
+  "source_digest": "e31a1920e479bd8c386025a4c189b81980d34349d61c7eb69eb2ae383eec686d",
+  "reproduction": 0,
+  "browser_r1": 1,
+  "browser_r2": 1,
+  "select_diagnosis": 0,
+  "select_diagnosis_r2": 0,
+  "browser_r3": 0,
+  "geometry_backcheck": 0,
+  "unit": 0,
+  "typecheck_final": 0,
+  "diff_check": 0,
+  "vite_cleanup": 130,
+  "port_5174_listener_after_cleanup": false
+}

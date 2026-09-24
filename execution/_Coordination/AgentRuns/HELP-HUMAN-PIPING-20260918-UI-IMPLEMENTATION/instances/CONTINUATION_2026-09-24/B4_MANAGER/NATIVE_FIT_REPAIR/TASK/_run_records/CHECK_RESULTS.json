@@ -1,0 +1,26 @@
+{
+  "digest": "470dac01e39c7cc5351adcdc5d13e343f3652b9abe405abf14445285147aef95",
+  "unit_final": {
+    "tests": 68,
+    "files": 3,
+    "result": "passed"
+  },
+  "typescript_final_exit": 0,
+  "final_selected_browser": {
+    "tests": 12,
+    "exit": 0
+  },
+  "affected_compatibility": {
+    "startTime": "2026-09-24T03:58:56.931Z",
+    "duration": 165783.76,
+    "expected": 40,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "affected_compatibility_exit": 0,
+  "diff_check_exit": 0,
+  "vite_cleanup_exit": 130,
+  "port_5174_listener_after_cleanup": false,
+  "native_executed": false
+}

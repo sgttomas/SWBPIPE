@@ -1,0 +1,50 @@
+
+Running 2 tests using 1 worker
+
+(node:90533) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90533) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium-desktop] › e2e/b4-table-editing.spec.ts:716:3 › B4 Details owns traversed Escape and preserves editor ownership in model @explicit-viewport (12.6s)
+[31mTesting stopped early after 1 maximum allowed failures.[39m
+
+
+  1) [chromium-desktop] › e2e/b4-table-editing.spec.ts:716:3 › B4 Details owns traversed Escape and preserves editor ownership in model @explicit-viewport 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveValue[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  getByRole('combobox', { name: 'Grid family' })
+    Expected: [32m"[7mpip[27mes"[39m
+    Received: [31m"[7mnod[27mes"[39m
+    Timeout:  10000ms
+
+    Call log:
+    [2m  - Expect "toHaveValue" with timeout 10000ms[22m
+    [2m  - waiting for getByRole('combobox', { name: 'Grid family' })[22m
+    [2m    24 × locator resolved to <select aria-label="Grid family" data-testid="entity-grid-family">…</select>[22m
+    [2m       - unexpected value "nodes"[22m
+
+
+      736 |     await trigger.click(); await expect(details).toBeFocused(); await page.keyboard.press("Escape"); await expect(details).toBeHidden(); await expect(trigger).toBeFocused();
+      737 |     // The labelled native select retains ordinary keyboard operation.
+    > 738 |     await family.focus(); await page.keyboard.press("Home"); await page.keyboard.press("ArrowDown"); await expect(family).toHaveValue("pipes");
+          |                                                                                                                           ^
+      739 |     await page.keyboard.press("Home"); await expect(family).toHaveValue("nodes");
+      740 |     const node = model.nodes[0], cell = page.getByTestId(`table-cell-${node.id}-x`);
+      741 |     await cell.dblclick(); const input = table.getByRole("textbox"); await input.fill("invalid retained"); await input.press("Enter");
+        at /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts:738:123
+
+    Error Context: ../../../../../../../../../../tmp/piping-compact-repair-r1/b4-table-editing-B4-Detail-d404b--in-model-explicit-viewport-chromium-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../../../../../tmp/piping-compact-repair-r1/b4-table-editing-B4-Detail-d404b--in-model-explicit-viewport-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../../../../../../../tmp/piping-compact-repair-r1/b4-table-editing-B4-Detail-d404b--in-model-explicit-viewport-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium-desktop] › e2e/b4-table-editing.spec.ts:716:3 › B4 Details owns traversed Escape and preserves editor ownership in model @explicit-viewport 
+  1 did not run
+  1 error was not a part of any test, see above for details

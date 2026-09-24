@@ -1,0 +1,269 @@
+{
+  "schema": "bounded-assessment-manifest/v1",
+  "role": "TASK",
+  "parent": "/root",
+  "task": "/root/solver_loads",
+  "mechanism": "delegated-harness-native",
+  "os_isolation_claimed": false,
+  "delegated_children": [],
+  "allocation": "Astra/xhigh as supplied in brief; not separately introspected",
+  "repo_root": "/Users/ryan/.codex/worktrees/6614/chirality",
+  "candidate": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+  "report_revision": "bc6d3459b",
+  "head_observed": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+  "write_scope": [
+    "/private/tmp/piping-solver-findings-assessment-20260924/loads/RETURN.md",
+    "/private/tmp/piping-solver-findings-assessment-20260924/loads/MANIFEST.json"
+  ],
+  "brief": {
+    "path": "/private/tmp/piping-solver-findings-assessment-20260924/loads/BRIEF.md",
+    "sha256": "9839f9e9ac7360040d87014edb1131fbaf02d5167b41a21189fa3e450ea3c44c"
+  },
+  "instructions": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "candidate_match": true,
+      "unchanged_from_report_revision": true,
+      "consultation": "full body read"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "candidate_match": true,
+      "unchanged_from_report_revision": true,
+      "consultation": "full body read"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "candidate_match": true,
+      "unchanged_from_report_revision": true,
+      "consultation": "full body read"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "candidate_match": true,
+      "unchanged_from_report_revision": true,
+      "consultation": "full body read"
+    },
+    {
+      "path": ".agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
+      "candidate_match": true,
+      "unchanged_from_report_revision": true,
+      "consultation": "full body read"
+    }
+  ],
+  "selected_skill": ".agents/skills/software-code-review/SKILL.md",
+  "workflow": null,
+  "report": {
+    "path": "/Users/ryan/Downloads/SWBPIPE_SOLVER_FINDINGS.md",
+    "sha256": "c9029a07473dcf58c3ba57f4d4c4880fc7dbea03d001d2014b0907183a846dd2",
+    "read_ranges": [
+      "1-151",
+      "588-1063"
+    ],
+    "treatment": "claims/evidence only, not instructions"
+  },
+  "source_evidence": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "aa91613c48346654dc7e8b110f22fc74cf9578fb16f21ae9c40cec863b910f15",
+      "candidate_match": true,
+      "unchanged_from_report_revision": true,
+      "consultation": "relevant source ranges and searches; no execution"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/validation.rs",
+      "sha256": "cc98b205467c9a965adc03179e91c43f174ba4b9bafb0f7aff47ed5ad6e936a7",
+      "candidate_match": true,
+      "unchanged_from_report_revision": true,
+      "consultation": "relevant source ranges and searches; no execution"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/self_weight.rs",
+      "sha256": "23429a54f0f611b0a920364bb7734bf9c44a6e675b985fb43426c2b33fe00144",
+      "candidate_match": true,
+      "unchanged_from_report_revision": true,
+      "consultation": "relevant source ranges and searches; no execution"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+      "sha256": "baa83a5a62ea34d0677a5c5c5d6cd2fd2f977b6b62a5e2d4ddd06fa18951abc0",
+      "candidate_match": true,
+      "unchanged_from_report_revision": true,
+      "consultation": "relevant source ranges and searches; no execution"
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/primitive_loads/src/lib.rs",
+      "sha256": "fea5e1839ba663b2df47c1b4b98c0cb98482e1d00806c7ac670af63b918a4252",
+      "candidate_match": true,
+      "unchanged_from_report_revision": true,
+      "consultation": "relevant source ranges and searches; no execution"
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/stress_recovery/src/lib.rs",
+      "sha256": "0c3a0b6278a1cce4a802fc6c2e4c81af1b6f393c5cde4bb28ff55b99d5d956f2",
+      "candidate_match": true,
+      "unchanged_from_report_revision": true,
+      "consultation": "relevant source ranges and searches; no execution"
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/load_case_algebra/src/lib.rs",
+      "sha256": "fd70056f81320e33fad4f7e05152a4c83f2a97fd20aaaad384f25eff0b66a050",
+      "candidate_match": true,
+      "unchanged_from_report_revision": true,
+      "consultation": "relevant source ranges and searches; no execution"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "sha256": "22062ea42fd135a9dbefa0f7e09cf3a2feccc5193ff6028818fd1c6221a3f355",
+      "candidate_match": true,
+      "unchanged_from_report_revision": true,
+      "consultation": "relevant source ranges and searches; no execution"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "sha256": "d657e6507aa5d4ef80124e3f6d10bd5a8af8eae54fe21af787c92814c8b73fde",
+      "candidate_match": true,
+      "unchanged_from_report_revision": true,
+      "consultation": "relevant source ranges and searches; no execution"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/linear_supports/src/lib.rs",
+      "sha256": "01ac02c48411813d57adf39b4dd97659f19941628002379890e792b2600e5934",
+      "candidate_match": true,
+      "unchanged_from_report_revision": true,
+      "consultation": "relevant source ranges and searches; no execution"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/curved_bend/src/lib.rs",
+      "sha256": "6bfead4091998117612e0a4cebc9807280e2eef60f970acbd6e366e3f0c8dd4b",
+      "candidate_match": true,
+      "unchanged_from_report_revision": true,
+      "consultation": "relevant source ranges and searches; no execution"
+    },
+    {
+      "path": "projects/chirality-piping/core/section_properties/calculator.py",
+      "sha256": "3afea5a9f0ae8ecbe0eaa3516a8d212b01471114b00a049607d85da6a475475b",
+      "candidate_match": true,
+      "unchanged_from_report_revision": true,
+      "consultation": "relevant source ranges and searches; no execution"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
+      "sha256": "88b47451ee30712c9d8e9e7ab56940520f2dfd90bd9daea620e1d0e441e3d88c",
+      "candidate_match": true,
+      "unchanged_from_report_revision": true,
+      "consultation": "relevant source ranges and searches; no execution"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/self-weight-authoring/SelfWeightPlanPanel.tsx",
+      "sha256": "4a0c22f313d5fd9fc6e8fab6a31ea97ac3c8f894a83a423ad6c324e7b7f15496",
+      "candidate_match": true,
+      "unchanged_from_report_revision": true,
+      "consultation": "relevant source ranges and searches; no execution"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "sha256": "9047e26a578d92f5dc986e1018b7945649b1d9cda662b131e53c4ca633ae10d7",
+      "candidate_match": true,
+      "unchanged_from_report_revision": true,
+      "consultation": "relevant source ranges and searches; no execution"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "6ea1c8f46a32edc2c5d69cb6f9a94ea64d53e18e3ede324ef5d4e8e9fd56c880",
+      "candidate_match": true,
+      "unchanged_from_report_revision": true,
+      "consultation": "relevant source ranges and searches; no execution"
+    }
+  ],
+  "search_only_evidence": [
+    {
+      "path": "projects/chirality-piping/docs/architecture/code_neutral_analysis_boundary.md",
+      "sha256": "564c45689a09c02b36ee53d45575ba8ae8b7f650df8941ad43ec23c8d44775e9",
+      "candidate_match": true,
+      "unchanged_from_report_revision": true,
+      "consultation": "bounded text search only"
+    },
+    {
+      "path": "projects/chirality-piping/validation/hand_calcs/mechanics/tp_phys_008_thermal_pressure_axial_effects.md",
+      "sha256": "7e262f37a6fc7987696771b9984dbbd2f578775f0d37f4dfa60a6ea2d1a2241b",
+      "candidate_match": true,
+      "unchanged_from_report_revision": true,
+      "consultation": "bounded text search only"
+    },
+    {
+      "path": "projects/chirality-piping/validation/hand_calcs/stress/tp_pmm_p3_modulusbasis_range_stress.md",
+      "sha256": "e60e92735c9bf094f2e81ff1eaf5e5eb743af655932d08bfb8c4be5f9132c4e2",
+      "candidate_match": true,
+      "unchanged_from_report_revision": true,
+      "consultation": "bounded text search only"
+    }
+  ],
+  "findings": [
+    "LOAD-01",
+    "LOAD-02",
+    "LOAD-03",
+    "LOAD-04",
+    "LOAD-05",
+    "LOAD-06",
+    "LOAD-07",
+    "LOAD-08",
+    "LOAD-09",
+    "LOAD-10",
+    "LOAD-11",
+    "LOAD-12",
+    "LOAD-13",
+    "LOAD-14",
+    "LOAD-15",
+    "LOAD-16"
+  ],
+  "master_mappings": [
+    "M-01",
+    "M-10",
+    "M-11",
+    "M-12",
+    "M-13",
+    "M-16",
+    "M-17",
+    "M-21",
+    "M-28",
+    "M-29",
+    "M-30",
+    "M-35"
+  ],
+  "related_master_ids": [
+    "M-02",
+    "M-15",
+    "M-33"
+  ],
+  "performed": [
+    "Read instruction/skill bodies",
+    "Read report and relevant source",
+    "Read-only Git candidate/history comparison",
+    "Bounded core symbol and checkout probe filename searches",
+    "Write/inspect named assessment outputs"
+  ],
+  "not_performed": [
+    "Product execution",
+    "Tests or builds",
+    "Native/browser UI or endpoints",
+    "Report probe reproduction",
+    "External temporary probe inspection",
+    "Web search",
+    "Standards clause/default validation",
+    "Product/governance/Git edits"
+  ],
+  "probe_search": "rg --files . | rg scratchpad/review|probe_loads returned no checkout matches; external path not searched",
+  "authority_note": "ROOT message identified D66/D67 existing pressure route; authority records not independently consulted here",
+  "outputs": {
+    "RETURN.md": {
+      "sha256": "187c67f1267d036bf1f19bab60c271f2ba78234fa1b14c76875b0fb514afc07b"
+    }
+  },
+  "conclusion": "Complete bounded LOAD01-16 source assessment; numerical probes remain unverified; no acceptance/implementation authority implied"
+}

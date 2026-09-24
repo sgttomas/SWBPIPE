@@ -1,0 +1,10 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+cdpSession.send: Protocol error (Browser.getBrowserCommandLine): Command line not returned because --enable-automation not set.
+    at /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/CI_FOCUS_REPAIR/TASK/focus-probe-r2.mjs:25:78 {
+  name: 'Error'
+}
+
+Node.js v24.18.0

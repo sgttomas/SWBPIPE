@@ -1,0 +1,31 @@
+# Live-controller implementation preparation return
+
+Returned by /root/live_manager, WORKING_ITEMS Type 1, to /root. Bounded preparation is complete. Owner live activation is already granted; no owner permission gate is reopened. No product source, build/test resource, native/browser/CUA, network, Git/index/branch or other project state was changed. Only this LIVE_MANAGER subtree was written. No children executed; the TASK briefs below are prepared assignments, not delegation evidence.
+
+## Concrete return
+
+- [WIRE_PROPOSAL.md](WIRE_PROPOSAL.md): exact v1 public envelope/domain DTOs, native/frontend events and commands, admission limits, cancellation, trusted local origin, same-controller recovery, and concrete committed-render observer. SHA-256 `91f4910026bcceffc98c669a4d2487539ad63cc878822061e6cc1b40c98c40ce`. Ready for independent preparation review and then acknowledgement by both writers; it is NOT falsely marked as acknowledged/frozen.
+- [IMPLEMENTATION_BRIEFS.md](IMPLEMENTATION_BRIEFS.md): one manager undertaking and disjoint native/CLI and frontend TASK scopes, explicit Cargo layout and B4 handback. No product ownership activated here.
+- [TEST_PLAN.md](TEST_PLAN.md): component, real native connection and actual human single/batch evidence, including publication → immediate project switch → delayed hash completion.
+- [SOURCES.json](SOURCES.json): actual instruction/source origins and current whole-file hashes, scope/method and reading limits. Product seams were clean when source-checked; ROOT's concurrent records/Runtime-document commits are not treated as Piping product changes.
+
+## Source findings that determine implementation
+
+1. `workspaceSession.ts` lines 972–1067 retains queue-at-arrival hashing and Promise<void> callbacks. Queue and Apply success currently schedule React setters, with no external committed-render acknowledgement. Existing B4 `ownedOutcome` explicitly disclaims publication proof. The new observer must inspect committed queue or the complete model/history/result transition. `modelAssignment.status="committed"` is assigned inside commitModel before React render, so that label is insufficient too.
+2. Current source already separates projectSessionGeneration, published uiModelRevision and internal modelRevision. Basis must bind the first two plus random app/controller/workspace identity and coherent canonical model hash; do not mix counter meanings. HashService uses the maintained Rust/Wasm canonicalizer. Selection snapshots must be copied; controller does not expose model/history setters.
+3. `handleRunOperationBatch` already routes through native/wasm atomic_batch, creates one Undo checkpoint and applied receipt, clears queue entry and invalidates computed model state. Integrate this route, including a one-member batch, rather than invent application semantics. `handleClearReviewQueue`, commitModel, advanceProjectSession, Undo/Redo and Save/Open/Create are the meaningful cancellation/freshness handbacks.
+4. Controller recovery registry must survive project replacement. Observe and retain an immutable transition snapshot BEFORE asynchronous receipt hashing; later project/hash effects cannot erase that actual historical commit. New work checks live freshness after historical-key lookup. Cancellation after observed queue publication never withdraws it. Reset/unmount cannot fabricate either success or cancellation.
+5. Existing Cargo package has one implicit desktop binary, no default-run and existing serde/serde_json/getrandom. Explicit desktop+feature-gated CLI targets with autobins=false preserve normal desktop selection. CLI never calls desktop run. Main's saved/edited-load self-test stays reachable. Actual package behavior still needs later native evidence; no build was run in preparation.
+6. Current raw atomic_batch evidence contains `agent_runtime_binding:"held_D58"`, `source_identity_verification:"not_performed_asserted_metadata_only"` and engine-local `user_initiated_apply_in_local_session`. Preserve those bytes and explain their boundary. Local registered transport origin and observed review Apply are new controller evidence; neither proves a verified Codex session or human identity. Automated tests are labelled test-driver in actual witness records. Core wording is not expanded writer scope.
+
+## Scope and accepted ownership
+
+SCA-011 assigns common shell/session/native hosting to DEL-07-11, operation review and ledger interaction to DEL-07-08, structured schema to DEL-16-01, validation/preview to DEL-16-02, acceptance/audit policy to DEL-16-03, professional boundary to DEL-16-04 and the sole controlled application route to DEL-16-06. DEL-02-05 retains persistence; DEL-14-02 run records are not re-owned. No future ValidationResult/TransformResult/ComparisonResult draft wrapper is needed. Session receipts and original proposed member persistence do not close durable acceptance/rejection history, final actor policy, rationale guard coverage, engineering acceptance or release.
+
+Current OWNER_DECISIONS overrides historical pending-activation wording in COORDINATION and the original proposal headers. ROOT also reports Runtime consumer-guide PR880 merged; no guide adoption or Runtime configuration/source change is necessary for this CLI tranche. No fetch or branch operation occurred here.
+
+## Remaining execution gates and handback
+
+There is no missing owner decision or substantive approved-contract conflict blocking this preparation. ROOT must now independently review this wire proposal, resolve findings, obtain both writer byte acknowledgements and release exact source/test resources after B4 compact fit. This is coordination within granted activation. Native/CLI ownership is disjoint from frontend source; shared desktop caches/processes remain serialized or isolated by ROOT. App.tsx/table/styles are not default live writer scope.
+
+Implementation completion, native integration and actual human witness remain distinct unfinished statuses. Required H1/H2 human prompt/review/Apply cannot be performed by a test-driver click. No actual wire listener, CLI, domain registry, publication observer or native witness is claimed by this return. ROOT owns master graph, merge/review/CI and central loop receipt.

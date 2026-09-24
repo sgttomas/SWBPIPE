@@ -1,0 +1,42 @@
+[
+  {
+    "original": "cargo-dependency-bytes.json",
+    "original_bytes": 1867640,
+    "original_sha256": "2a63494f6024947e31f514b144427cc6c9c75590fab03b195dd76473120cebe5",
+    "gzip": "cargo-dependency-bytes.json.gz",
+    "gzip_bytes": 497666,
+    "gzip_sha256": "02f65c59368de79f4f83bb19655579f881df20d54673a866a6b3f24fe4002bf0"
+  },
+  {
+    "original": "npm-installed-bytes.json",
+    "original_bytes": 1765060,
+    "original_sha256": "a8f75d2d7500802b756f35ac0e2a22f3704c8925fbcc8583259aaf56bcab6fe1",
+    "gzip": "npm-installed-bytes.json.gz",
+    "gzip_bytes": 523419,
+    "gzip_sha256": "97bd75fc69ad661f97d59c5a814c20d393db8d4adee10d7499d7e250ca437401"
+  },
+  {
+    "original": "native-dependencies.json",
+    "original_bytes": 1428988,
+    "original_sha256": "f9bf45970f4e158e51456066964e69976b41229a9626790167767f5871364050",
+    "gzip": "native-dependencies.json.gz",
+    "gzip_bytes": 118255,
+    "gzip_sha256": "1a2c5ddd98ab016fea20cf845e589cd7baa741362431c8cd82da4d5c947833dc"
+  },
+  {
+    "original": "operation-dependencies.json",
+    "original_bytes": 109279,
+    "original_sha256": "143d47cbb0ae5256f07c26ec9bfda7e78b12be24fc8c0b088099afe85a758d1c",
+    "gzip": "operation-dependencies.json.gz",
+    "gzip_bytes": 9616,
+    "gzip_sha256": "fcf488ca9affdc8ed6ea4c5888dec031f13d225da2e375c27796cf8642d8846a"
+  },
+  {
+    "original": "selfweight-dependencies.json",
+    "original_bytes": 157064,
+    "original_sha256": "3864402793e402f8f498cf04809a4ff297b4cbefbd94d073faec0128bd76731d",
+    "gzip": "selfweight-dependencies.json.gz",
+    "gzip_bytes": 11585,
+    "gzip_sha256": "1f7a50f7b296fe9bf88f87c4fe9bb53fe4e77f1f799f069cb6d62cc61cb9afb0"
+  }
+]

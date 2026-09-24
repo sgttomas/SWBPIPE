@@ -1,0 +1,41 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run --run src/features/model-tree/ModelTree.test.tsx src/features/workspace/table/EngineeringTable.test.tsx
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/model-tree/ModelTree.test.tsx (0 test)
+ ❯ src/features/workspace/table/EngineeringTable.test.tsx (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/model-tree/ModelTree.test.tsx [ src/features/model-tree/ModelTree.test.tsx ]
+ FAIL  src/features/workspace/table/EngineeringTable.test.tsx [ src/features/workspace/table/EngineeringTable.test.tsx ]
+Error: WASM-ENGINE-ASSET-ABSENT: wasm artifact not found on disk: probed: /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/public/wasm-engine, /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/public/wasm-engine, /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/apps/desktop/public/wasm-engine — the wasm operation engine is required in browser mode (DEC-020 / ADR-0001) and no fallback engine exists. Build it with `npm run build:wasm --workspace apps/desktop`.
+ ❯ absenceError src/services/wasmEngine/loadWasmEngine.ts:66:10
+     64|
+     65| function absenceError(stage: string, detail: string): Error {
+     66|   return new Error(
+       |          ^
+     67|     `${WASM_ENGINE_ABSENT_DIAGNOSTIC}: ${stage}: ${detail} — the wasm …
+     68|       `browser mode (DEC-020 / ADR-0001) and no fallback engine exists…
+ ❯ locateAssetsUnderNode src/services/wasmEngine/loadWasmEngine.ts:109:9
+ ❯ instantiate src/services/wasmEngine/loadWasmEngine.ts:117:36
+ ❯ src/test/setup.ts:10:1
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  no tests
+   Start at  19:27:51
+   Duration  597ms (transform 128ms, setup 0ms, import 0ms, tests 0ms, environment 687ms)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run --run src/features/model-tree/ModelTree.test.tsx src/features/workspace/table/EngineeringTable.test.tsx

@@ -1,0 +1,184 @@
+{
+  "basis": "42bd234f671508ba9ab157e1981334ba8610279f",
+  "mechanism": "delegated-harness-native via collaboration.spawn_agent",
+  "parent": "/root HELP_HUMAN",
+  "basis_note": "Only actual consulted instructions and selected method included; current role wider consultation is for child assignment preparation. Model allocation follows preserved owner direction, not old harness labels.",
+  "inputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_HELP_HUMAN.md",
+      "sha256": "0c2fe7a3097ad26c93c0267e4da6aaf90c9264489df8dc368fad657bcac69183"
+    },
+    {
+      "path": "agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "agents/AGENT_HELPS_HUMANS.md",
+      "sha256": "a0c9fb9443d8671d694c1f7b24ff3c402ffd626c781a2739342c938f2f3c3d1e"
+    },
+    {
+      "path": ".agents/skills/chirality-change/SKILL.md",
+      "sha256": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba"
+    },
+    {
+      "path": "workflows/construct-local-work-graph/WORKFLOW.md",
+      "sha256": "24268f3545eae68ac86bbfcb830314f5c8539f6da9de08bf4365b14d6f544525"
+    },
+    {
+      "path": "workflows/construct-local-work-graph/resources/work-graph-template.md",
+      "sha256": "4411d0c25b1dc88da182e05660cb061d8e885ab97f4de8f27b05f7d3b0f12261"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": "projects/chirality-piping/software-workflow.json",
+      "sha256": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/_LATEST.md",
+      "sha256": "6335bc5cb1b0d1c13c41181b0fbd3e3ab4547fa355b6c9ddc49513307b721422"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-65_RULING_2026-08-19.md",
+      "sha256": "811159ceebd87b540b2d64864b7c6fec5b2ab047bd581cc94782cb1174e9ef0d"
+    },
+    {
+      "path": "projects/chirality-piping/docs/BUILD_AND_RELEASE.md",
+      "sha256": "e42625160832436dcf61c2ff994d2020a724031aeb972270367d2fcfedb7bcc3"
+    },
+    {
+      "path": ".agents/skills/software-defect-diagnosis/SKILL.md",
+      "sha256": "f281558734732ab0a97cf1407ba80a53c25e8c2b9dd96069bec589fd521a7a23"
+    },
+    {
+      "path": ".agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+    }
+  ],
+  "children": [
+    {
+      "id": "/root/b4_manager",
+      "role": "WORKING_ITEMS",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "brief": "IMPLEMENTATION_MANAGER_BRIEF.md",
+      "fork_turns": "none",
+      "writes": "apps/desktop and additive tools/ci under project; B4_MANAGER evidence; ROOT owns Git/graph",
+      "state": "Source focus repair, independent review, exact-head CI, CI-bound DEC-025 and separate 53-case dist pass at 1c1b8b072. Build-only native artifact completed with 857 candidate-equal maintained inputs; GUI witness and integration remain open; resources released.",
+      "brief_sha256": "190383d57b9788904ba6c9dbb066daa8abe7b114852c398302949c254091e5e3"
+    },
+    {
+      "id": "/root/design_manager",
+      "role": "HELPS_HUMANS",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "brief": "DESIGN_MANAGER_BRIEF.md",
+      "fork_turns": "none",
+      "writes": "DESIGN_MANAGER evidence only; product read-only",
+      "state": "Packaging design adopted and checked; later read-only C4 connected-overflow guidance returned. No product writes or execution.",
+      "brief_sha256": "4882d53f41ad2b2d2251f1ea891dbef19f2bc0e2b8aa74cc8005e396f34ae024"
+    },
+    {
+      "id": "/root/graph_review",
+      "role": "TASK independent structure reviewer",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "brief": "GRAPH_REVIEW_BRIEF.md",
+      "brief_sha256": "730699e0a03942b5ec2e2afe381be94644a261ba136440d7cea95c7de0720159",
+      "fork_turns": "none",
+      "candidate": "31f1600b5",
+      "writes": "GRAPH_REVIEW/RETURN.md only",
+      "state": "returned GR-1 P2; corrected at3ba429874 and independent backcheck passed; later graph covered in subsequent candidate reviews"
+    },
+    {
+      "id": "/root/live_manager",
+      "role": "WORKING_ITEMS live implementation",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "brief": "LIVE_MANAGER_BRIEF.md",
+      "brief_sha256": "fd3a24e13e6be0839907719d537aa4590cad5d1296ddeca51e0d34b1d39a0d3b",
+      "fork_turns": "none",
+      "writes": "named native/frontend scopes and own evidence only in isolated branch codex/piping-live-control-20260924; primary remains ROOT-owned",
+      "state": "Primary 1c integrated at b0cb8bce; clean evidence b92f2506. Controller/transport repairs, CLI relocation, affected frontend, normal bundle, isolated packaged self-test and independent backchecks pass. Actual GUI/controller and human witnesses remain open; resources released.",
+      "activation": "LIVE_IMPLEMENTATION_ACTIVATION.md",
+      "activation_sha256": "9fda39962acb516469ddcfa7898119e16a9104316b57ebb0d2a5e6b9356c6628"
+    },
+    {
+      "id": "/root/wire_review",
+      "role": "TASK independent wire/source-fit reviewer",
+      "model": "gpt-6-astra",
+      "reasoning": "xhigh",
+      "brief": "WIRE_REVIEW_BRIEF.md",
+      "brief_sha256": "3ff8a1e7243c8903340df92162245ab6c0749b513e077680e4098925804990d5",
+      "fork_turns": "none",
+      "writes": "WIRE_REVIEW/RETURN.md only",
+      "state": "returned no blocking findings at1c8f04039; wire91f491 source fit; implementation/native/human unqualified"
+    },
+    {
+      "id": "/root/source_review",
+      "role": "TASK independent software reviewer",
+      "model": "gpt-6-astra",
+      "reasoning": "xhigh",
+      "brief": "SOURCE_REVIEW_BRIEF.md",
+      "brief_sha256": "4dba69cd6c340cb30af7da890767022a040b5de45fc37e0c8171383b55575084",
+      "fork_turns": "none",
+      "candidate": "1c8f04039b5f41812ebd879fc80d810392123072",
+      "writes": "SOURCE_REVIEW/RETURN.md only",
+      "state": "SR-1/SR-2 CLOSED on5cfd2257c; independent source backcheckPASS; later native-fit source will need fresh delta review",
+      "clarification": "Read-only Git permitted; no Git mutation. Parent clarified ambiguous launch shorthand before review."
+    },
+    {
+      "id": "/root/c4_manager",
+      "role": "WORKING_ITEMS isolated pure-policy manager",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "brief": "C4_MANAGER_BRIEF.md",
+      "brief_sha256": "fd8a7b6ea94221e0741baa33eeac146fd34c803aff48433d4f9cfc4d239ff531",
+      "fork_turns": "none",
+      "branch": "codex/piping-c4-policy-20260924",
+      "basis": "5cfd2257cafca0fb141fc7dd5085c627d8caae9e",
+      "state": "Latest B4 focus integrated at 6bbaa0bc and reviewed. Connected browser modes/current-row/context-loss and C3 pass. Compact foundation startup diagnosis and lazy omission-list repair at 8589065f6 under current review/sequence run. Actual context-above-cap witness, remaining browser/dist/native/full gates open; manager owns sequential 5174/5175.",
+      "writes": "six new viewport policy/index/placement source/tests plus C4_MANAGER evidence, isolated checkout only",
+      "activation": "C4_CANVAS_ACTIVATION.md",
+      "activation_sha256": "cf47440ab4f198f7160e05576112b6a597f00c2efb65b57d69f93b2f6ca767ba"
+    },
+    {
+      "id": "/root/c4_review",
+      "role": "TASK independent C4 source/evidence reviewer",
+      "model": "gpt-6-astra",
+      "reasoning": "xhigh",
+      "brief": "C4_REVIEW_BRIEF.md",
+      "brief_sha256": "98b5b3a7a3dd53d4d551922d2f438d52b2b96341e48da6739efaf05bef51615e",
+      "fork_turns": "none",
+      "state": "PASS21files through9dff,58hashbindings; no UI/renderer/native/performance claim",
+      "writes": "isolated C4_MANAGER/INDEPENDENT_REVIEW/RETURN.md only"
+    },
+    {
+      "id": "/root/native_fit_review",
+      "role": "TASK independent software reviewer",
+      "model": "gpt-6-astra",
+      "reasoning": "xhigh",
+      "brief": "NATIVE_FIT_REVIEW_BRIEF.md",
+      "brief_sha256": "5a32cabf7d4c2155c24f791b9388aafb8be77555104d36c22ff54e8365421685",
+      "fork_turns": "none",
+      "writes": "NATIVE_FIT_REVIEW/RETURN.md only",
+      "state": "PASS complete e1 source, c57 integration and adc3file sweep repair; original detailed records byte-preserved under raw records, native/newbroadgates open",
+      "return_sha256": "471f7e83586231cfd0ad4f5a0d461ae878cc41374f9e44a9d3cee45d05e8831d"
+    }
+  ],
+  "enforcement": "Logical role and write scopes; actual host workspace-write permissions apply. Children share checkout; no independent OS sandbox guarantee claimed. No historical worker was resumed."
+}

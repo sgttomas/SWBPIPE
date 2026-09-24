@@ -1,0 +1,15 @@
+{
+  "record_kind": "independent_numerical_policy_refutation_delivery",
+  "executor": "/root/numerical_policy_review",
+  "parent": "/root",
+  "date": "2026-09-24",
+  "status": "analytical_review_complete_implementation_and_candidate_validation_outstanding",
+  "hash_algorithm": "sha256",
+  "path_basis": "CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW",
+  "artifacts": [
+    {"path": "RETURN.md", "sha256": "c83877d55ddb23c634112551fb3319f3f39080b2839c285a81f32296177a9216"},
+    {"path": "_run_records/DERIVATIONS_AND_REFERENCES.md", "sha256": "59b341232b5051b00b39f5a39442476a0c5764ac855a56994c7f89cd5cbf5d11"},
+    {"path": "_run_records/BASIS.md", "sha256": "f4ec8846c251fe942252a6c2899e9787c9b396f1ce2bf618251bea0f47793d7c"}
+  ],
+  "limits": "Hashes establish artifact identity, not mathematical acceptance, executable validation or complete-candidate review."
+}

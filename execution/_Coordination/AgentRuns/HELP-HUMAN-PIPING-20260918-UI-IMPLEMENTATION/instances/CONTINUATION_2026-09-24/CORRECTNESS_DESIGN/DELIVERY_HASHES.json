@@ -1,0 +1,34 @@
+{
+  "kind": "design delivery artifact identity, not correctness proof",
+  "source_head": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+  "artifacts": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_REFERENCE.md",
+      "sha256": "67c8aac5798e9663528bea94b58d6d8f2eb8308f94b7ebb78aa22dca4b8f94ca"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/PRESSURE_INTEGRATION.md",
+      "sha256": "b0ff7db5b24d146389a8c2a01ddee3160b3a3359b82f83be7eb3c78b6e112981"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/PRESSURE_REFERENCE_QUALIFICATION.md",
+      "sha256": "b20188c364e1d625ec7077a902c2e4297a55aa7445a8f53a881fadb684399911"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/RESULTS_AND_COMBINATIONS.md",
+      "sha256": "de2feae4829c9da9bca2d84442d740d1413e0bdde23538f8e26ec97ff49e3dd6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/RETURN.md",
+      "sha256": "df14c7604268e873f1be5c7e07ea83db62766f8e52b048aca7faa6b855aad498"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/STRESS_REFERENCE.md",
+      "sha256": "07700e0b8e383c62cc378b9bd30365d0d5ba2cd9071a450985214111903d3a1c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/BASIS.json",
+      "sha256": "d6933831ca6e0fb47adeb90be35e6cf95138e0e631b5c822ffd6bbe36e045bdb"
+    }
+  ]
+}

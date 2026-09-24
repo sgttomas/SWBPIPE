@@ -1,0 +1,38 @@
+
+Running 1 test using 1 worker
+
+(node:15163) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15163) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium-desktop] › e2e/b4-table-editing.spec.ts:776:3 › B4 classic scrollbar compact comfortable 5 preserves tracks and nonmutating pans @explicit-viewport (1.7s)
+
+
+  1) [chromium-desktop] › e2e/b4-table-editing.spec.ts:776:3 › B4 classic scrollbar compact comfortable 5 preserves tracks and nonmutating pans @explicit-viewport 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThan[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: > [32m0[39m
+    Received:   [31m0[39m
+
+      785 |     await page.addStyleTag({ content: "*::-webkit-scrollbar { width: 18px; height: 18px; } *::-webkit-scrollbar-thumb { background: #777; } *::-webkit-scrollbar-track { background: #eee; }" });
+      786 |     const probe = await page.evaluate(() => { const e = document.createElement("div"); e.style.cssText = "position:fixed;width:100px;height:100px;overflow:scroll"; e.innerHTML = '<div style="width:200px;height:200px"></div>'; document.body.append(e); const result = { vertical: e.offsetWidth - e.clientWidth, horizontal: e.offsetHeight - e.clientHeight }; e.remove(); return result; });
+    > 787 |     expect(probe.vertical).toBeGreaterThan(0); expect(probe.horizontal).toBeGreaterThan(0);
+          |                            ^
+      788 |     await page.getByTestId("view-switch-model").click(); await ensureTreeExpanded(page); await page.getByTestId("layout-mode-grid").click();
+      789 |     const family = page.getByRole("combobox", { name: "Grid family" }); await family.selectOption("materials");
+      790 |     const table = page.getByTestId("material-engineering-table"), rows = table.getByRole("rowgroup"), later = page.getByRole("button", { name: "Later columns", exact: true }), earlier = page.getByRole("button", { name: "Earlier columns", exact: true });
+        at /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts:787:28
+
+    Error Context: ../../../../../../../../../../tmp/piping-native-fit-scrollbar-r1/b4-table-editing-B4-classi-76244-ting-pans-explicit-viewport-chromium-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../../../../../tmp/piping-native-fit-scrollbar-r1/b4-table-editing-B4-classi-76244-ting-pans-explicit-viewport-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../../../../../../../tmp/piping-native-fit-scrollbar-r1/b4-table-editing-B4-classi-76244-ting-pans-explicit-viewport-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium-desktop] › e2e/b4-table-editing.spec.ts:776:3 › B4 classic scrollbar compact comfortable 5 preserves tracks and nonmutating pans @explicit-viewport 

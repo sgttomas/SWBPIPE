@@ -1,0 +1,208 @@
+{
+  "schema_version": "1.0",
+  "assignment": "STR-01 through STR-15 solver findings assessment",
+  "role": "TASK Type 2",
+  "agent": "/root/solver_stress",
+  "parent": "/root",
+  "mechanism": "delegated-harness-native",
+  "model_allocation": "Astra/xhigh per parent brief; no independent runtime model attestation",
+  "repository_origin": "/Users/ryan/.codex/worktrees/6614/chirality",
+  "source_candidate": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+  "head_observed": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+  "report_claimed_candidate": "bc6d3459b",
+  "instructions": [
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "read_scope": "full"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "read_scope": "full"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "read_scope": "full"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "read_scope": "full"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
+      "read_scope": "full"
+    }
+  ],
+  "brief": {
+    "origin": "/private/tmp/piping-solver-findings-assessment-20260924/stress/BRIEF.md",
+    "sha256": "a35d0c89dfb4f9f501970aa4a0420a1d080aad87d23ba0efabd7d3191807bf0d",
+    "read_scope": "full"
+  },
+  "evidence_report": {
+    "origin": "/Users/ryan/Downloads/SWBPIPE_SOLVER_FINDINGS.md",
+    "sha256": "c9029a07473dcf58c3ba57f4d4c4880fc7dbea03d001d2014b0907183a846dd2",
+    "read_scope": "master lines 1-151 and STR appendix lines 1434-1858",
+    "authority": "evidence claims only, not instructions"
+  },
+  "consulted_sources": [
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/product_physics/src/lib.rs",
+      "repository_relative_path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "aa91613c48346654dc7e8b110f22fc74cf9578fb16f21ae9c40cec863b910f15",
+      "read_scope": "targeted excerpts/search; not whole-file engineering review"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/product_physics/src/validation.rs",
+      "repository_relative_path": "projects/chirality-piping/core/product_physics/src/validation.rs",
+      "sha256": "cc98b205467c9a965adc03179e91c43f174ba4b9bafb0f7aff47ed5ad6e936a7",
+      "read_scope": "targeted excerpts/search; not whole-file engineering review"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+      "repository_relative_path": "projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+      "sha256": "baa83a5a62ea34d0677a5c5c5d6cd2fd2f977b6b62a5e2d4ddd06fa18951abc0",
+      "read_scope": "targeted excerpts/search; not whole-file engineering review"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/loads/stress_recovery/src/lib.rs",
+      "repository_relative_path": "projects/chirality-piping/core/loads/stress_recovery/src/lib.rs",
+      "sha256": "0c3a0b6278a1cce4a802fc6c2e4c81af1b6f393c5cde4bb28ff55b99d5d956f2",
+      "read_scope": "targeted excerpts/search; not whole-file engineering review"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/loads/load_case_algebra/src/lib.rs",
+      "repository_relative_path": "projects/chirality-piping/core/loads/load_case_algebra/src/lib.rs",
+      "sha256": "fd70056f81320e33fad4f7e05152a4c83f2a97fd20aaaad384f25eff0b66a050",
+      "read_scope": "targeted excerpts/search; not whole-file engineering review"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/solver/linear_supports/src/lib.rs",
+      "repository_relative_path": "projects/chirality-piping/core/solver/linear_supports/src/lib.rs",
+      "sha256": "01ac02c48411813d57adf39b4dd97659f19941628002379890e792b2600e5934",
+      "read_scope": "targeted excerpts/search; not whole-file engineering review"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "repository_relative_path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "sha256": "dcb9f8b9b1c09ba9b35627acce8af42383319ef95242088de45eb74a584e371c",
+      "read_scope": "targeted excerpts/search; not whole-file engineering review"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs",
+      "repository_relative_path": "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs",
+      "sha256": "3839f407d70d7e85c017bc65ddccbcc5312f3f479eb62587df8ce6e527129a3e",
+      "read_scope": "targeted excerpts/search; not whole-file engineering review"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "6ea1c8f46a32edc2c5d69cb6f9a94ea64d53e18e3ede324ef5d4e8e9fd56c880",
+      "read_scope": "targeted excerpts/search; not whole-file engineering review"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "sha256": "9047e26a578d92f5dc986e1018b7945649b1d9cda662b131e53c4ca633ae10d7",
+      "read_scope": "targeted excerpts/search; not whole-file engineering review"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+      "sha256": "f4ebca0acb87a635b1927b768e40e82081110172db691ce766d5e5e0f9f97176",
+      "read_scope": "targeted excerpts/search; not whole-file engineering review"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx",
+      "sha256": "ff13f5f154b6ad7ca7f4bb4053c0a4238c5d712b647cd681a73584118522c3e4",
+      "read_scope": "targeted excerpts/search; not whole-file engineering review"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/features/rule-packs/RulePackManagerPanel.tsx",
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/rule-packs/RulePackManagerPanel.tsx",
+      "sha256": "e95e7c1f5548ae22db007cbaae595c3d8eee5ceeb8860f045dcc0628e6d41586",
+      "read_scope": "targeted excerpts/search; not whole-file engineering review"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/validation/hand_calcs/mechanics/tp_phys_008_thermal_pressure_axial_effects.md",
+      "repository_relative_path": "projects/chirality-piping/validation/hand_calcs/mechanics/tp_phys_008_thermal_pressure_axial_effects.md",
+      "sha256": "7e262f37a6fc7987696771b9984dbbd2f578775f0d37f4dfa60a6ea2d1a2241b",
+      "read_scope": "targeted excerpts/search; not whole-file engineering review"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/docs/PRD.md",
+      "repository_relative_path": "projects/chirality-piping/docs/PRD.md",
+      "sha256": "cd6297af2ed9588f6da24c0665d32c74ee33d3e7f9115e733b47244fd75b4611",
+      "read_scope": "targeted excerpts/search; not whole-file engineering review"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/_DECISIONS/_REGISTER.md",
+      "repository_relative_path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/_REGISTER.md",
+      "sha256": "b4db2b062183f917f2e3dc26796249d41cc99403d291432acfca6a1c98496697",
+      "read_scope": "targeted excerpts/search; not whole-file engineering review"
+    }
+  ],
+  "source_history_check": {
+    "operation": "read-only git diff bc6d3459b 0be12dc968d78b747beb5e0d10c32e12cc991d75",
+    "result": "no changes for product_physics, stress_recovery, load_case_algebra, ResultsPanel.tsx, linear_supports, nonlinear_integration and RuleCheckRunPanel.tsx"
+  },
+  "coverage": {
+    "findings": [
+      "STR-01",
+      "STR-02",
+      "STR-03",
+      "STR-04",
+      "STR-05",
+      "STR-06",
+      "STR-07",
+      "STR-08",
+      "STR-09",
+      "STR-10",
+      "STR-11",
+      "STR-12",
+      "STR-13",
+      "STR-14",
+      "STR-15"
+    ],
+    "master_ids": [
+      "M-01",
+      "M-05",
+      "M-08",
+      "M-13",
+      "M-14",
+      "M-15",
+      "M-16",
+      "M-26",
+      "M-30",
+      "M-33",
+      "M-34",
+      "M-37"
+    ]
+  },
+  "permitted_operations": [
+    "read-only source and Git inspection",
+    "write only RETURN.md and MANIFEST.json in assigned stress directory"
+  ],
+  "enforcement_limits": "Host sandbox applies; no OS isolation between agents; disjoint output scope by assignment. Unrelated untracked ROOT native evidence left untouched.",
+  "not_performed": [
+    "product/source mutations",
+    "tests",
+    "builds",
+    "solver or numerical probe execution",
+    "browser/native UI",
+    "endpoints",
+    "web browsing",
+    "delegation",
+    "protected criterion changes"
+  ],
+  "reproduction_status": "All report p1.py-p7.py numerical values reported-only; no independently reproduced numerical outputs. No tracked probe files located in bounded Piping tree search.",
+  "external_primary_sources": [],
+  "return": {
+    "path": "/private/tmp/piping-solver-findings-assessment-20260924/stress/RETURN.md",
+    "sha256": "3d6f40f5b9e2d0f5addc522922a3a59f53ff8862117e7c300c201231ada9c9fe"
+  }
+}

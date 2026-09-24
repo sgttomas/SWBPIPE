@@ -1,0 +1,9 @@
+{
+  "command": "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3 -m pytest -q tools/practitioner_harness/test_live_baseline.py::test_live_gen8_semantic_portability_invariants",
+  "cwd": "/Users/ryan/.codex/worktrees/6614/chirality",
+  "exit": 0,
+  "observed": "1 passed in 34.55s",
+  "raw": "gen8.log",
+  "sha256": "ca8d001e978dc742da579e3af019c8aa64e3412d4ece9d25cf6700a3e1849f5e",
+  "limits": "Evidence-path portability only; no solver/numerical test or engineering validation."
+}

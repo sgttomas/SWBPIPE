@@ -1,0 +1,194 @@
+{
+  "config": {
+    "configFile": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/playwright.config.ts",
+    "rootDir": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 1,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/tmp/piping-compact-repair-r3",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/tmp/piping-compact-repair-r3",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-compact",
+        "name": "chromium-compact",
+        "testDir": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e",
+        "testIgnore": [
+          "**/*-dist.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev -- --port 5174",
+      "reuseExistingServer": true,
+      "timeout": 30000,
+      "url": "http://127.0.0.1:5174"
+    }
+  },
+  "suites": [
+    {
+      "title": "b4-table-editing.spec.ts",
+      "file": "b4-table-editing.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "B4 Details owns traversed Escape and preserves editor ownership in model @explicit-viewport",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3586,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-24T02:03:15.825Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser-identity",
+                      "contentType": "application/json",
+                      "body": "ewogICJjZHBWZXJzaW9uIjogewogICAgInByb3RvY29sVmVyc2lvbiI6ICIxLjMiLAogICAgInByb2R1Y3QiOiAiQ2hyb21lLzE1My4wLjgwMTAuNTQiLAogICAgInJldmlzaW9uIjogIkBhYjNlY2JhODYzZmQ3ODUyY2M5YjBmZTU3MzYxODdlMTllZDUyYTFjIiwKICAgICJ1c2VyQWdlbnQiOiAiTW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTVfNykgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgSGVhZGxlc3NDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzYiLAogICAgImpzVmVyc2lvbiI6ICIxNS4zLjc2LjEzIgogIH0sCiAgInBsYXl3cmlnaHRCcm93c2VyVmVyc2lvbiI6ICIxNTMuMC44MDEwLjU0IiwKICAiZXhlY3V0YWJsZVBhdGgiOiAiL0FwcGxpY2F0aW9ucy9Hb29nbGUgQ2hyb21lLmFwcC9Db250ZW50cy9NYWNPUy9Hb29nbGUgQ2hyb21lIiwKICAiZXhlY3V0YWJsZVNoYTI1NiI6ICJmYjJiZjFjMzAwN2YyMjNlZGNiNGQ5NzBmMzNiMGM4MjhmNzE4M2IzZWU4MzJkNmE3MzdmZTY5NDVkYTgwNDYyIgp9"
+                    },
+                    {
+                      "name": "details-escape-regression",
+                      "contentType": "application/json",
+                      "body": "ewogICJ2aWV3IjogIm1vZGVsIiwKICAib2JzZXJ2YXRpb25zIjogWwogICAgewogICAgICAidHJhdmVyc2FsIjogIlRhYiIsCiAgICAgICJmb2N1c0JlZm9yZUVzY2FwZSI6ICI8YnV0dG9uIHR5cGU9XCJidXR0b25cIiBhcmlhLWxhYmVsPVwiU29ydCBMYWJlbFwiPkxhYmVsIDxzcGFuIGFyaWEtaGlkZGVuPVwidHJ1ZVwiPuKGlTwvc3Bhbj48L2J1dHRvbj4iCiAgICB9LAogICAgewogICAgICAidHJhdmVyc2FsIjogIlNoaWZ0K1RhYiIsCiAgICAgICJmb2N1c0JlZm9yZUVzY2FwZSI6ICI8YnV0dG9uIHR5cGU9XCJidXR0b25cIiBwb3BvdmVydGFyZ2V0PVwiX3JfMTdfXCIgYXJpYS1sYWJlbD1cIlRhYmxlIGRldGFpbHNcIiBjbGFzcz1cImNvbXBhY3QtdGFibGUtaW5mb1wiPkRldGFpbHM8L2J1dHRvbj4iCiAgICB9CiAgXQp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6f49393ff246acadcad3-59ec4c2ea37e6799eeee",
+          "file": "b4-table-editing.spec.ts",
+          "line": 716,
+          "column": 3
+        },
+        {
+          "title": "B4 Details owns traversed Escape and preserves editor ownership in both @explicit-viewport",
+          "ok": true,
+          "tags": [
+            "explicit-viewport"
+          ],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3558,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-24T02:03:19.809Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser-identity",
+                      "contentType": "application/json",
+                      "body": "ewogICJjZHBWZXJzaW9uIjogewogICAgInByb3RvY29sVmVyc2lvbiI6ICIxLjMiLAogICAgInByb2R1Y3QiOiAiQ2hyb21lLzE1My4wLjgwMTAuNTQiLAogICAgInJldmlzaW9uIjogIkBhYjNlY2JhODYzZmQ3ODUyY2M5YjBmZTU3MzYxODdlMTllZDUyYTFjIiwKICAgICJ1c2VyQWdlbnQiOiAiTW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTVfNykgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgSGVhZGxlc3NDaHJvbWUvMTUzLjAuMC4wIFNhZmFyaS81MzcuMzYiLAogICAgImpzVmVyc2lvbiI6ICIxNS4zLjc2LjEzIgogIH0sCiAgInBsYXl3cmlnaHRCcm93c2VyVmVyc2lvbiI6ICIxNTMuMC44MDEwLjU0IiwKICAiZXhlY3V0YWJsZVBhdGgiOiAiL0FwcGxpY2F0aW9ucy9Hb29nbGUgQ2hyb21lLmFwcC9Db250ZW50cy9NYWNPUy9Hb29nbGUgQ2hyb21lIiwKICAiZXhlY3V0YWJsZVNoYTI1NiI6ICJmYjJiZjFjMzAwN2YyMjNlZGNiNGQ5NzBmMzNiMGM4MjhmNzE4M2IzZWU4MzJkNmE3MzdmZTY5NDVkYTgwNDYyIgp9"
+                    },
+                    {
+                      "name": "details-escape-regression",
+                      "contentType": "application/json",
+                      "body": "ewogICJ2aWV3IjogImJvdGgiLAogICJvYnNlcnZhdGlvbnMiOiBbCiAgICB7CiAgICAgICJ0cmF2ZXJzYWwiOiAiVGFiIiwKICAgICAgImZvY3VzQmVmb3JlRXNjYXBlIjogIjxidXR0b24gdHlwZT1cImJ1dHRvblwiIGFyaWEtbGFiZWw9XCJTb3J0IExhYmVsXCI+TGFiZWwgPHNwYW4gYXJpYS1oaWRkZW49XCJ0cnVlXCI+4oaVPC9zcGFuPjwvYnV0dG9uPiIKICAgIH0sCiAgICB7CiAgICAgICJ0cmF2ZXJzYWwiOiAiU2hpZnQrVGFiIiwKICAgICAgImZvY3VzQmVmb3JlRXNjYXBlIjogIjxidXR0b24gdHlwZT1cImJ1dHRvblwiIHBvcG92ZXJ0YXJnZXQ9XCJfcl8xN19cIiBhcmlhLWxhYmVsPVwiVGFibGUgZGV0YWlsc1wiIGNsYXNzPVwiY29tcGFjdC10YWJsZS1pbmZvXCI+RGV0YWlsczwvYnV0dG9uPiIKICAgIH0KICBdCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6f49393ff246acadcad3-85dc5dd14b2e7556b380",
+          "file": "b4-table-editing.spec.ts",
+          "line": 716,
+          "column": 3
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-24T02:03:15.302Z",
+    "duration": 8296.948,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

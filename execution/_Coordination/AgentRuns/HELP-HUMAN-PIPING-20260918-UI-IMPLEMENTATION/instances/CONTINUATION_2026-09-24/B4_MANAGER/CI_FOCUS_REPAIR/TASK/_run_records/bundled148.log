@@ -1,0 +1,15 @@
+
+Running 6 tests using 1 worker
+
+(node:67604) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:67604) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium-desktop] › e2e/b4-table-editing.spec.ts:783:3 › classic scrollbar allocation › B4 classic scrollbar compact comfortable 1 preserves tracks and nonmutating pans @explicit-viewport (4.1s)
+  ✓  2 [chromium-desktop] › e2e/b4-table-editing.spec.ts:783:3 › classic scrollbar allocation › B4 classic scrollbar compact comfortable 5 preserves tracks and nonmutating pans @explicit-viewport (4.1s)
+  ✓  3 [chromium-desktop] › e2e/b4-table-editing.spec.ts:783:3 › classic scrollbar allocation › B4 classic scrollbar compact comfortable 160 preserves tracks and nonmutating pans @explicit-viewport (4.9s)
+  ✓  4 [chromium-desktop] › e2e/b4-table-editing.spec.ts:783:3 › classic scrollbar allocation › B4 classic scrollbar compact compact 1 preserves tracks and nonmutating pans @explicit-viewport (3.8s)
+  ✓  5 [chromium-desktop] › e2e/b4-table-editing.spec.ts:783:3 › classic scrollbar allocation › B4 classic scrollbar compact compact 5 preserves tracks and nonmutating pans @explicit-viewport (4.1s)
+  ✓  6 [chromium-desktop] › e2e/b4-table-editing.spec.ts:783:3 › classic scrollbar allocation › B4 classic scrollbar compact compact 160 preserves tracks and nonmutating pans @explicit-viewport (4.9s)
+
+  6 passed (26.8s)

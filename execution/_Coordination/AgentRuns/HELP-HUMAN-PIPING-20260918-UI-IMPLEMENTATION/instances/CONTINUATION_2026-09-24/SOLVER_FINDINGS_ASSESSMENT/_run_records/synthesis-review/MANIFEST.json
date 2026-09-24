@@ -1,0 +1,213 @@
+{
+  "schema": "bounded-synthesis-review-v1",
+  "date": "2026-09-24",
+  "reviewer": "/root/solver_synthesis_review",
+  "parent": "/root",
+  "role": "TASK Type 2",
+  "mechanism": "delegated-harness-native",
+  "model_allocation_from_parent": "Astra/xhigh; not independently attested",
+  "source_candidate": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+  "result": "PASS; no actionable findings",
+  "authority_limit": "Assessment fan-in only; not engineering acceptance, product verification, execution authorization or whole-diff merge review",
+  "instructions_read_full": [
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/AGENTS.md",
+      "repository_relative_path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/agents/AGENT_TASK.md",
+      "repository_relative_path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/AGENTS.md",
+      "repository_relative_path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/loop/LOOP_INIT.md",
+      "repository_relative_path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/.agents/skills/software-code-review/SKILL.md",
+      "repository_relative_path": ".agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+    }
+  ],
+  "review_inputs": [
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/ASSESSMENT.md",
+      "repository_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/ASSESSMENT.md",
+      "sha256": "c948cb13ac5d825b0d201074cad50e9b8f4d9de916bc246f574e8304121b72e6",
+      "extent": "full assessment/authority text; manifest JSON parsed and path/hash pairs checked; report master list plus excerpt reconstruction"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/ASSESSMENT_PROVENANCE.json",
+      "repository_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/ASSESSMENT_PROVENANCE.json",
+      "sha256": "45b502d5491e2c7a0dee837f9d00b1b3c78152431ece6444b0f348f73af88afd",
+      "extent": "full assessment/authority text; manifest JSON parsed and path/hash pairs checked; report master list plus excerpt reconstruction"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/SUPPLIED_FINDINGS.md",
+      "repository_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/SUPPLIED_FINDINGS.md",
+      "sha256": "c9029a07473dcf58c3ba57f4d4c4880fc7dbea03d001d2014b0907183a846dd2",
+      "extent": "full assessment/authority text; manifest JSON parsed and path/hash pairs checked; report master list plus excerpt reconstruction"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/elements/RETURN.md",
+      "repository_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/elements/RETURN.md",
+      "sha256": "0ceda9205238f58d8435effba5f1d39979b1d7d6058962dfbc0582e864f85921",
+      "extent": "full assessment/authority text; manifest JSON parsed and path/hash pairs checked; report master list plus excerpt reconstruction"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/elements/MANIFEST.json",
+      "repository_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/elements/MANIFEST.json",
+      "sha256": "76aa293b13ec1ae997f20a6effdbfa1c17033b6773a95bc912542f0e041116ca",
+      "extent": "full assessment/authority text; manifest JSON parsed and path/hash pairs checked; report master list plus excerpt reconstruction"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/elements/record.md",
+      "repository_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/elements/record.md",
+      "sha256": "28065813944b38d847ee75edb62a72264859fb7a85c3a3d5980158bb13be959e",
+      "extent": "full assessment/authority text; manifest JSON parsed and path/hash pairs checked; report master list plus excerpt reconstruction"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/loads/RETURN.md",
+      "repository_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/loads/RETURN.md",
+      "sha256": "187c67f1267d036bf1f19bab60c271f2ba78234fa1b14c76875b0fb514afc07b",
+      "extent": "full assessment/authority text; manifest JSON parsed and path/hash pairs checked; report master list plus excerpt reconstruction"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/loads/MANIFEST.json",
+      "repository_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/loads/MANIFEST.json",
+      "sha256": "734dba01c95e98db5e69c97f2fa558c9fa417eee0bf8f5346ee699cc9e594a5f",
+      "extent": "full assessment/authority text; manifest JSON parsed and path/hash pairs checked; report master list plus excerpt reconstruction"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/loads/record.md",
+      "repository_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/loads/record.md",
+      "sha256": "9839f9e9ac7360040d87014edb1131fbaf02d5167b41a21189fa3e450ea3c44c",
+      "extent": "full assessment/authority text; manifest JSON parsed and path/hash pairs checked; report master list plus excerpt reconstruction"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/supports/RETURN.md",
+      "repository_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/supports/RETURN.md",
+      "sha256": "563bc348d7b56dca4b8e14e4eb42d2c0bb0d3f666afb4907cd76cc7a846824d3",
+      "extent": "full assessment/authority text; manifest JSON parsed and path/hash pairs checked; report master list plus excerpt reconstruction"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/supports/MANIFEST.json",
+      "repository_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/supports/MANIFEST.json",
+      "sha256": "72d07d64b7d57c7f074ada5321c00d95aa6116dc0f77e89f1b5ef595b9eb3eb9",
+      "extent": "full assessment/authority text; manifest JSON parsed and path/hash pairs checked; report master list plus excerpt reconstruction"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/supports/record.md",
+      "repository_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/supports/record.md",
+      "sha256": "bc2bccba85df96fd8e9f3dbf521c8f6dd300b050b4932fc4ca0348756f8fa8db",
+      "extent": "full assessment/authority text; manifest JSON parsed and path/hash pairs checked; report master list plus excerpt reconstruction"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/stress/RETURN.md",
+      "repository_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/stress/RETURN.md",
+      "sha256": "3d6f40f5b9e2d0f5addc522922a3a59f53ff8862117e7c300c201231ada9c9fe",
+      "extent": "full assessment/authority text; manifest JSON parsed and path/hash pairs checked; report master list plus excerpt reconstruction"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/stress/MANIFEST.json",
+      "repository_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/stress/MANIFEST.json",
+      "sha256": "5bd2c1175e1e55ed8cf020926494490b66a30f198976e710425fe67a74569c31",
+      "extent": "full assessment/authority text; manifest JSON parsed and path/hash pairs checked; report master list plus excerpt reconstruction"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/stress/record.md",
+      "repository_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/stress/record.md",
+      "sha256": "a35d0c89dfb4f9f501970aa4a0420a1d080aad87d23ba0efabd7d3191807bf0d",
+      "extent": "full assessment/authority text; manifest JSON parsed and path/hash pairs checked; report master list plus excerpt reconstruction"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/verification/RETURN.md",
+      "repository_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/verification/RETURN.md",
+      "sha256": "e52dd616ca361d1c6c1aca65b7a23f6aab18f09c6091a4fb6121144518b17c8c",
+      "extent": "full assessment/authority text; manifest JSON parsed and path/hash pairs checked; report master list plus excerpt reconstruction"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/verification/MANIFEST.json",
+      "repository_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/verification/MANIFEST.json",
+      "sha256": "eeb7728b001f0748cbe8f2539b29df7d6d6ca82d517af2352826778e3ed90a35",
+      "extent": "full assessment/authority text; manifest JSON parsed and path/hash pairs checked; report master list plus excerpt reconstruction"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/verification/record.md",
+      "repository_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/verification/record.md",
+      "sha256": "6c43213e9c0541a99b0f1c57a78f9242ddae3958ff76cb879a722dce3e42a9a8",
+      "extent": "full assessment/authority text; manifest JSON parsed and path/hash pairs checked; report master list plus excerpt reconstruction"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/app/RETURN.md",
+      "repository_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/app/RETURN.md",
+      "sha256": "061aa7acc2aca25f600022b9283e69959bcfb7f24aeb1663e4df0cd959ab63be",
+      "extent": "full assessment/authority text; manifest JSON parsed and path/hash pairs checked; report master list plus excerpt reconstruction"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/app/MANIFEST.json",
+      "repository_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/app/MANIFEST.json",
+      "sha256": "0ab084e793a30329862a1c55b491f9e0534e2915b8a75efa8b33450cbf06daad",
+      "extent": "full assessment/authority text; manifest JSON parsed and path/hash pairs checked; report master list plus excerpt reconstruction"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/app/record.md",
+      "repository_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/app/record.md",
+      "sha256": "8fa11b8a9a336cc3e861015f0fd4e040c29121477adcbaa21ba2966b223c7cbe",
+      "extent": "full assessment/authority text; manifest JSON parsed and path/hash pairs checked; report master list plus excerpt reconstruction"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/_DECISIONS/D-66_RULING_2026-09-08.md",
+      "repository_relative_path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-66_RULING_2026-09-08.md",
+      "sha256": "578087fbad9ed71e61ea7a22acb3b42ede46684669d16cd2b5d480e0ffae904f",
+      "extent": "full assessment/authority text; manifest JSON parsed and path/hash pairs checked; report master list plus excerpt reconstruction"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/_DECISIONS/D-67_RULING_2026-09-14.md",
+      "repository_relative_path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-67_RULING_2026-09-14.md",
+      "sha256": "0c605e5548acf6c9b36b4dbe4de82674960d5b2fc3f9f5bc2f968dc9d53be19a",
+      "extent": "full assessment/authority text; manifest JSON parsed and path/hash pairs checked; report master list plus excerpt reconstruction"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_DAG/_LATEST.md",
+      "repository_relative_path": "projects/chirality-piping/execution/_DAG/_LATEST.md",
+      "sha256": "6335bc5cb1b0d1c13c41181b0fbd3e3ab4547fa355b6c9ddc49513307b721422",
+      "extent": "full assessment/authority text; manifest JSON parsed and path/hash pairs checked; report master list plus excerpt reconstruction"
+    }
+  ],
+  "checks": {
+    "master_rows": 38,
+    "appendix_items": 92,
+    "local_markdown_links": 9,
+    "child_records_equal_to_temporary_originals": 18,
+    "reconstructed_excerpts": 6,
+    "child_manifest_valid_path_sha256_pairs_checked": 222,
+    "parent_supplied_basis_hashes_checked": 8,
+    "renamed_assignment_records_rechecked": true
+  },
+  "not_performed": [
+    "numerical probes",
+    "tests",
+    "builds",
+    "solver execution",
+    "browser/native/endpoint activity",
+    "Git mutations",
+    "product/source edits",
+    "delegation",
+    "other concurrent work review"
+  ],
+  "outputs": [
+    {
+      "origin": "/private/tmp/piping-solver-synthesis-review-20260924/RETURN.md",
+      "sha256": "737d07f9595cfb6e679f7121a01e5fd78e103750eea9e2b01b521c8d095ef7d8"
+    }
+  ],
+  "write_scope": "/private/tmp/piping-solver-synthesis-review-20260924"
+}

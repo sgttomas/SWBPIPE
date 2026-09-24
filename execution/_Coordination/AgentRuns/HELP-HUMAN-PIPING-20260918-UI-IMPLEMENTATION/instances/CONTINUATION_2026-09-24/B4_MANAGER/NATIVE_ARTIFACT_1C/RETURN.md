@@ -1,0 +1,13 @@
+# Repaired compact native artifact — manager return
+
+BUILD PASS. WORKING_ITEMS /root/b4_manager integrated retained TASK /root/b4_manager/native_compact's build-only return. Exact product revision1c1b8b072a25a5014f41dcc0e0fd8fd9d1ab0a9a was preserved; all857 captured maintained input files matched before/after. Dirty ROOT coordination/evidence metadata is explicitly recorded rather than treated as a clean checkout. No parent-reported review/CI/sweep/dist gate was rerun or independently reasserted by this build assignment.
+
+The normal debug-app build completed exit0 with two Cargo jobs and SWBPIPE_LIVE_CONTROL absent, using the new separate target supplied by ROOT. Exact artifact path, command/timing and all bundle/dist/WASM identities are in TASK/_run_records/artifact-identity.json and build-command.json. Executable SHA256 is `daaac8f9839acce0e873bbb52a6e0079c88e537a236459f68c7a8a1cfd14fea6`. Build interval was2026-09-24T07:38:09.724422Z–07:40:11.257319Z.
+
+Manager independently rehashed all3 new bundle files, all21 dist assets and all3 old bundle files against their recorded manifests; every hash matches. Old executable remains `9dd718236fb8d9eb94dba221d0ee2dab0d5cd58ca37a0fc1430ef1b89088d07d`. The new artifact and primary old bundle resolve to distinct paths. Independent maintained-product diff check against1c is empty. Raw manager verification is _run_records/MANAGER_CHECK.json. This is artifact/input verification, not native behavior evidence.
+
+The worker captured compiler-emitted dependency records and distinguished actual dep-info local paths from conservative tracked/installed/resolved dependency snapshots. Large raw manifests are losslessly compressed with original/compressed identities. TASK/RETURN.md and EVIDENCE_INDEX.json provide the bounded canonical payload, exact tool/environment/command evidence and limitations.
+
+No ordinary app/self-test launch, native/CUA/browser/PID9925 action, code/config/test edit, old-target cleaning/copying/mutation, Git operation, user preference/store/private-data operation or signing-account/host-policy change occurred. The existing app remains ROOT's responsibility. Generated-output/build ownership is returned to ROOT; no further build or resource reservation remains active under this manager.
+
+The separate artifact is ready for ROOT's eventual GUI witness. Manual Mac unlock, restoration/termination of the old app, actual native interactions and ROOT's light/dark own-look remain pending. This debug artifact does not establish native fit, engineering/usability/performance qualification, B4-FIT completion, lifecycle or release acceptance.

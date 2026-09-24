@@ -1,0 +1,65 @@
+2026-09-24T05:42:14.201Z pw:browser <launching> /Applications/Google Chrome.app/Contents/MacOS/Google Chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/playwright_chromiumdev_profile-1ARrTh --remote-debugging-pipe --no-startup-window
+2026-09-24T05:42:14.219Z pw:browser <launched> pid=66651
+2026-09-24T05:42:19.859Z pw:browser [pid=66651][err] Trying to load the allocator multiple times. This is *not* supported.
+2026-09-24T05:42:19.870Z pw:browser [pid=66651][err] [66801:77580923:0923/234219.869588:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+2026-09-24T05:42:19.870Z pw:browser [pid=66651][err] [66801:77581002:0923/234219.869949:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+2026-09-24T05:42:19.871Z pw:browser [pid=66651][err] [66801:77580923:0923/234219.871214:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+2026-09-24T05:42:19.871Z pw:browser [pid=66651][err] [66801:77581002:0923/234219.871270:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+2026-09-24T05:42:19.871Z pw:browser [pid=66651][err] [66801:77580923:0923/234219.871827:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+2026-09-24T05:42:19.871Z pw:browser [pid=66651][err] [66801:77581002:0923/234219.871872:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+2026-09-24T05:42:19.872Z pw:browser [pid=66651][err] [66801:77580923:0923/234219.872156:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+2026-09-24T05:42:19.872Z pw:browser [pid=66651][err] [66801:77581002:0923/234219.872195:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+2026-09-24T05:42:19.872Z pw:browser [pid=66651][err] [66801:77580923:0923/234219.872317:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+2026-09-24T05:42:19.872Z pw:browser [pid=66651][err] [66801:77581002:0923/234219.872363:ERROR:ui/display/mac/cv_display_link_mac.mm:195] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+2026-09-24T05:42:21.004Z pw:browser [pid=66651] <gracefully close start>
+2026-09-24T05:42:21.012Z pw:browser [pid=66651][err] [66651:77580921:0923/234221.012866:ERROR:base/process/process_mac.cc:53] task_policy_set TASK_CATEGORY_POLICY: (os/kern) invalid argument (4)
+2026-09-24T05:42:21.013Z pw:browser [pid=66651][err] [66651:77580921:0923/234221.012883:ERROR:base/process/process_mac.cc:98] task_policy_set TASK_SUPPRESSION_POLICY: (os/kern) invalid argument (4)
+2026-09-24T05:42:21.206Z pw:browser [pid=66651] <process did exit: exitCode=0, signal=null>
+2026-09-24T05:42:21.206Z pw:browser [pid=66651] starting temporary directories cleanup
+2026-09-24T05:42:21.215Z pw:browser [pid=66651] finished temporary directories cleanup
+2026-09-24T05:42:21.215Z pw:browser [pid=66651] <gracefully close end>
+2026-09-24T05:42:21.216Z pw:browser <launching> /Users/ryan/Library/Caches/ms-playwright/chromium_headless_shell-1223/chrome-headless-shell-mac-arm64/chrome-headless-shell --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/playwright_chromiumdev_profile-Qtnx9M --remote-debugging-pipe --no-startup-window
+2026-09-24T05:42:21.218Z pw:browser <launched> pid=66812
+2026-09-24T05:42:21.606Z pw:browser [pid=66812][err] [0923/234221.606683:INFO:CONSOLE:733] "[vite] connecting...", source: http://127.0.0.1:5174/@vite/client (733)
+2026-09-24T05:42:21.617Z pw:browser [pid=66812][err] [0923/234221.617560:INFO:CONSOLE:827] "[vite] connected.", source: http://127.0.0.1:5174/@vite/client (827)
+2026-09-24T05:42:21.735Z pw:browser [pid=66812][err] [0923/234221.734926:INFO:CONSOLE:20103] "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold", source: http://127.0.0.1:5174/node_modules/.vite/deps/react-dom_client.js?v=aeca2032 (20103)
+2026-09-24T05:42:21.931Z pw:browser [pid=66812][err] [0923/234221.931285:ERROR:gpu/command_buffer/service/gl_utils.cc:430] [.WebGL-0x134004c3000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+2026-09-24T05:42:21.940Z pw:browser [pid=66812][err] [0923/234221.940826:ERROR:gpu/command_buffer/service/gl_utils.cc:430] [.WebGL-0x134004c3000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+2026-09-24T05:42:21.941Z pw:browser [pid=66812][err] [0923/234221.941288:ERROR:gpu/command_buffer/service/gl_utils.cc:430] [.WebGL-0x134004c3000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+2026-09-24T05:42:21.942Z pw:browser [pid=66812][err] [0923/234221.942013:ERROR:gpu/command_buffer/service/gl_utils.cc:430] [.WebGL-0x134004c3000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)
+2026-09-24T05:42:23.135Z pw:browser [pid=66812][err] [0923/234223.135330:INFO:CONSOLE:3] "--playwright--set--content--A96E7A4B414C30CF3982E5E95266479A--1--", source:  (3)
+2026-09-24T05:42:23.164Z pw:browser [pid=66812] <gracefully close start>
+2026-09-24T05:42:23.179Z pw:browser [pid=66812] <process did exit: exitCode=0, signal=null>
+2026-09-24T05:42:23.179Z pw:browser [pid=66812] starting temporary directories cleanup
+2026-09-24T05:42:23.182Z pw:browser [pid=66812] finished temporary directories cleanup
+2026-09-24T05:42:23.182Z pw:browser [pid=66812] <gracefully close end>
+[
+  {
+    engine: 'installed-chrome',
+    version: '153.0.8010.54',
+    events: [
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object]
+    ],
+    offset: 'translateX(0px)'
+  },
+  {
+    engine: 'bundled-chromium',
+    version: '148.0.7778.96',
+    events: [
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object]
+    ],
+    offset: 'translateX(0px)'
+  }
+]

@@ -1,0 +1,6 @@
+{
+  "path": "projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop",
+  "sha256": "9dd718236fb8d9eb94dba221d0ee2dab0d5cd58ca37a0fc1430ef1b89088d07d",
+  "matches_child_return": true,
+  "native_ui_observed_by_manager": false
+}

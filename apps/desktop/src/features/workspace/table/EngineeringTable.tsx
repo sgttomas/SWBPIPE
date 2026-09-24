@@ -1,4 +1,7 @@
-import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { createPortal } from "react-dom";
+import { OverflowRail, TableChromeContext } from "./OverflowRail";
+import { useTableGeometry } from "./tableGeometry";
 import { useEnumEditor } from "./useEnumEditor";
 import { VirtualList } from "../VirtualList";
 import type { EntityKey } from "../selectionState";
@@ -15,6 +18,7 @@ type Props = Readonly<{
   testIdPrefix?: string;
   persistentEditor?: boolean;
   bounded?: boolean;
+  compact?: boolean;
   active?: boolean;
   onDraftStateChange?: (retained: boolean) => void;
   rows: readonly TableRow[];
@@ -46,6 +50,14 @@ export function EngineeringTable(props: Props) {
   const [reveal, setReveal] = useState(0);
   const errorId = useId();
   const editorId = useId();
+  const ownerId = useId();
+  const infoId = useId();
+  const infoButton = useRef<HTMLButtonElement>(null);
+  const columnPans = useRef<HTMLDivElement>(null);
+  const pendingPanFocus = useRef<{ button: HTMLButtonElement; pair: HTMLDivElement; owner: string | undefined } | null>(null);
+  const [infoOpen, setInfoOpen] = useState(false);
+  const chrome = useContext(TableChromeContext);
+  const [columnOffset, setColumnOffset] = useState(0);
   const root = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLInputElement>(null);
   const footer = useRef<HTMLDivElement>(null);
@@ -105,6 +117,53 @@ export function EngineeringTable(props: Props) {
     : !edit && viewRows[0] && columns[0] ? { rowKey: viewRows[0].key, columnKey: columns[0].key } : null;
   const active = edit?.captured ?? rovingFocus;
   const activeIndex = active ? viewRows.findIndex((row) => row.key === active.rowKey) : null;
+  const minimums = [130, ...columns.map((column) => column.minWidth ?? (column.kind === "text" ? 150 : review ? 160 : 90))];
+  const weights = [1.4, ...columns.map((column) => column.minWidth ? 1 : column.kind === "text" ? 1.5 : 1)];
+  const geometry = useTableGeometry(root, minimums, weights, Boolean(props.compact), surfaceActive, `${viewRows.length}:${body.height}:${density}:${JSON.stringify(columns.map(({ label, unit }) => [label, unit]))}`);
+  const tableWidth = geometry.tracks.reduce((sum, value) => sum + value, 0);
+  const maximumOffset = Math.max(0, tableWidth - geometry.clientWidth);
+  const offset = props.compact ? Math.min(columnOffset, maximumOffset) : 0;
+  const template = geometry.tracks.map((width) => `${width}px`).join(" ");
+  const rowStyle = { gridTemplateColumns: template, width: tableWidth, transform: props.compact ? `translateX(${-offset}px)` : undefined };
+  function revealColumn(index: number) {
+    if (!props.compact || index < 0 || !geometry.visible) return;
+    const left = geometry.tracks.slice(0, index).reduce((sum, value) => sum + value, 0), right = left + geometry.tracks[index];
+    setColumnOffset((previous) => Math.max(0, Math.min(maximumOffset, left < previous ? left : right > previous + geometry.clientWidth ? right - geometry.clientWidth : previous)));
+  }
+  useLayoutEffect(() => { setColumnOffset((value) => Math.min(value, maximumOffset)); }, [maximumOffset]);
+  useLayoutEffect(() => {
+    if (props.compact && active) revealColumn(columns.findIndex((column) => column.key === active.columnKey) + 1);
+  }, [props.compact, active?.columnKey, edit?.captured.token, reveal, geometry.clientWidth]);
+  useLayoutEffect(() => {
+    if (!props.compact || !surfaceActive || !geometry.visible || !chrome.target) return;
+    chrome.setOwner(ownerId);
+    return () => chrome.setOwner((current) => current === ownerId ? null : current);
+  }, [props.compact, surfaceActive, geometry.visible, chrome.target, chrome.setOwner, ownerId]);
+  useLayoutEffect(() => {
+    const request = pendingPanFocus.current; pendingPanFocus.current = null;
+    const pair = columnPans.current, active = document.activeElement;
+    if (!props.compact || !surfaceActive || !geometry.visible || !pair?.isConnected || !pair.getClientRects().length || pair.closest("[hidden], [inert]")) return;
+    const current = pair.contains(active) && (active as HTMLButtonElement).disabled ? active as HTMLButtonElement : null;
+    const captured = request?.pair === pair && request.button.isConnected && pair.contains(request.button) && request.button.dataset.tableChromeOwner === request.owner && request.button.disabled && (active === document.body || active === request.button) ? request.button : null;
+    if (current || captured) pair.querySelector<HTMLButtonElement>("button:not(:disabled)")?.focus();
+  }, [offset, maximumOffset, props.compact, surfaceActive, geometry.visible]);
+  function panColumns(direction: number, button: HTMLButtonElement) {
+    pendingPanFocus.current = null;
+    const pair = columnPans.current;
+    const next = Math.max(0, Math.min(maximumOffset, offset + direction * Math.max(28, geometry.clientWidth * .75)));
+    if (!pair || next === offset) return;
+    // Capture before the disabled attribute can synchronously release focus.
+    if (document.activeElement === button) pendingPanFocus.current = { button, pair, owner: button.dataset.tableChromeOwner };
+    setColumnOffset(next);
+  }
+  useLayoutEffect(() => { if (infoOpen && (!props.compact || !surfaceActive || !geometry.visible)) closeInfo(); }, [infoOpen, props.compact, surfaceActive, geometry.visible]);
+  function ownedChrome(destination: HTMLElement | null) { return destination?.closest<HTMLElement>("[data-table-chrome-owner]")?.dataset.tableChromeOwner === ownerId; }
+  function closeInfo(restore = false) {
+    const info = root.current?.querySelector<HTMLElement>(".engineering-table-info");
+    if (!info || typeof info.hidePopover !== "function" || !info.matches(":popover-open")) return false;
+    info.hidePopover(); if (restore) infoButton.current?.focus(); return true;
+  }
+
 
   useLayoutEffect(() => {
     if (previousGeneration.current === generation) return;
@@ -271,10 +330,10 @@ export function EngineeringTable(props: Props) {
               enumeration.close();
               const destination = event.relatedTarget as HTMLElement | null;
               // Footer controls explicitly own Apply/Cancel. Cell clicks own their next target.
-              if (destination && root.current?.contains(destination) && destination.closest("[data-table-action], [data-table-cell]")) return;
+              if (ownedChrome(destination) || (destination && root.current?.contains(destination) && destination.closest("[data-table-action], [data-table-cell]"))) return;
               void apply();
             }} /> : null;
-  const editorPosition = usePersistentEditorPosition(root, Boolean(props.persistentEditor && edit), edit?.captured.token, viewRows, surfaceActive);
+  const editorPosition = usePersistentEditorPosition(root, Boolean(props.persistentEditor && edit), edit?.captured.token, viewRows, surfaceActive, offset);
   useLayoutEffect(() => {
     const request = editorFocusRequest.current;
     if (!request) return;
@@ -287,22 +346,43 @@ export function EngineeringTable(props: Props) {
     if (owner === request.owner || (owner === document.body && !request.owner?.isConnected)) input.current?.focus();
     editorFocusRequest.current = null;
   }, [editorPosition, edit, generation, surfaceActive]);
-  const template = `minmax(130px, 1.4fr) ${columns.map((column) => column.minWidth ? `minmax(${column.minWidth}px, 1fr)` : column.kind === "text" ? "minmax(150px, 1.5fr)" : review ? "minmax(160px, 1fr)" : "minmax(90px, 1fr)").join(" ")}`;
-  const tableWidth = 130 + columns.reduce((sum, column) => sum + (column.minWidth ?? (column.kind === "text" ? 150 : review ? 160 : 90)), 0);
-  return <div className={`engineering-table${bounded ? " bounded" : ""}`} ref={root} style={{ "--table-min-width": `${tableWidth}px` } as React.CSSProperties} tabIndex={-1} data-testid={`${props.testIdPrefix ?? ""}${review ? "engineering-table-review" : "engineering-table"}`}>
+  const messages = <>
+    {body.allocationConflict ? <p role="alert" className="engineering-table-message">No space is available for table rows. Expand the table view to continue.</p> : null}
+    {edit?.error ? <p id={errorId} role="alert" className="engineering-table-message">{edit.error}</p> : null}
+    {feedback ? <p role="status" className="engineering-table-message">{feedback}</p> : null}
+  </>;
+  return <div className={`engineering-table${bounded ? " bounded" : ""}${props.compact ? " compact-table" : ""}`} ref={root} data-table-owner={ownerId}
+    onFocusCapture={(event) => {
+      const cell = (event.target as HTMLElement).closest<HTMLElement>("[data-column-index]");
+      if (cell) revealColumn(Number(cell.dataset.columnIndex));
+      else if (event.target === input.current && edit) revealColumn(columns.findIndex((column) => column.key === edit.captured.columnKey) + 1);
+    }}
+    onKeyDown={(event) => { if (event.key === "Escape" && !event.defaultPrevented && closeInfo(true)) { event.preventDefault(); event.stopPropagation(); } }}
+    onBlur={(event) => { if (!root.current?.contains(event.relatedTarget as Node | null)) closeInfo(); }}
+    style={{ "--table-min-width": `${geometry.minimums.reduce((sum, value) => sum + value, 0) + geometry.gutter}px`, "--table-gutter": `${geometry.gutter}px` } as React.CSSProperties} tabIndex={-1} data-testid={`${props.testIdPrefix ?? ""}${review ? "engineering-table-review" : "engineering-table"}`}>
+    {props.compact && surfaceActive && geometry.visible && chrome.target && maximumOffset > .5 ? createPortal(<div ref={columnPans} className="table-pan-pair" role="group" aria-label="Pan columns">
+      <button type="button" aria-label="Earlier columns" data-table-chrome-owner={ownerId} disabled={offset <= 0}
+        onClick={(event) => panColumns(-1, event.currentTarget)}>‹</button>
+      <button type="button" aria-label="Later columns" data-table-chrome-owner={ownerId} disabled={offset >= maximumOffset - .5}
+        onClick={(event) => panColumns(1, event.currentTarget)}>›</button>
+    </div>, chrome.target) : null}
     <div role="grid" aria-label={label} aria-rowcount={viewRows.length + 1} aria-colcount={columns.length + 1}>
-      <div role="row" className="engineering-table-row engineering-table-header" style={{ gridTemplateColumns: template }}>
+      <div className="engineering-table-header-clip">
+      <div className="engineering-table-header-window">
+      <div role="row" className="engineering-table-row engineering-table-header" style={rowStyle}>
         <div role="columnheader">{props.rowHeader ?? "Node"}</div>
-        {columns.map((column) => <div key={column.key} role="columnheader" aria-sort={sort?.columnKey === column.key && !sortUnavailable ? sort.direction : "none"}>
-          <button type="button" aria-label={`Sort ${column.label}`} onClick={() => setSort((current) => current?.columnKey !== column.key ? { columnKey: column.key, direction: "ascending" } : current.direction === "ascending" ? { ...current, direction: "descending" } : null)}>{column.label}{column.kind === "text" ? "" : ` [${column.unit}]`} <span aria-hidden="true">{sort?.columnKey === column.key ? sort.direction === "ascending" ? "↑" : "↓" : "↕"}</span></button>
+        {columns.map((column, index) => <div key={column.key} role="columnheader" data-column-index={index + 1} aria-sort={sort?.columnKey === column.key && !sortUnavailable ? sort.direction : "none"}>
+          <button type="button" aria-label={`Sort ${column.label}${props.compact && column.kind !== "text" ? ` [${column.unit === "per-row entered unit" ? "row unit" : column.unit}]` : ""}`} aria-describedby={props.compact ? `${infoId}-header-${column.key}` : undefined} onClick={() => setSort((current) => current?.columnKey !== column.key ? { columnKey: column.key, direction: "ascending" } : current.direction === "ascending" ? { ...current, direction: "descending" } : null)}>{column.label}{column.kind === "text" ? "" : ` [${props.compact && column.unit === "per-row entered unit" ? "row unit" : column.unit}]`} <span aria-hidden="true">{sort?.columnKey === column.key ? sort.direction === "ascending" ? "↑" : "↓" : "↕"}</span></button>
         </div>)}
       </div>
+      </div>
+      </div>
       <div className="engineering-table-body-slot" ref={body.ref}>
-      <VirtualList items={viewRows} itemKey={(row) => row.key} activeIndex={activeIndex} pinIndex={activeIndex} revealActiveRequest={reveal} height={bounded ? Math.min(body.height, viewRows.length * (density === "compact" ? 30 : 36)) : 360} rowHeight={density === "compact" ? 30 : 36} role="rowgroup" testId={`${props.testIdPrefix ?? ""}${review ? "engineering-table-review-rows" : "engineering-table-rows"}`} renderItem={(row, index) => <div role="row" aria-rowindex={index + 2} aria-selected={selectedKey === row.key} className={`engineering-table-row${index % 2 ? " stripe" : ""}${selectedKey === row.key ? " selected" : ""}`} style={{ gridTemplateColumns: template }}>
-        <div role="rowheader"><button type="button" disabled={!rows.some((canonical) => canonical.key === row.key)} onClick={() => onSelect(row.key)} title={row.label}>{row.label}{!rows.some((canonical) => canonical.key === row.key) ? " (removed edit)" : ""}</button></div>
-        {columns.map((column) => {
+      <VirtualList items={viewRows} itemKey={(row) => row.key} activeIndex={activeIndex} pinIndex={activeIndex} revealActiveRequest={reveal} height={bounded ? Math.min(body.height, viewRows.length * (density === "compact" ? 30 : 36)) : 360} rowHeight={density === "compact" ? 30 : 36} role="rowgroup" testId={`${props.testIdPrefix ?? ""}${review ? "engineering-table-review-rows" : "engineering-table-rows"}`} renderItem={(row, index) => <div role="row" aria-rowindex={index + 2} aria-selected={selectedKey === row.key} className={`engineering-table-row${index % 2 ? " stripe" : ""}${selectedKey === row.key ? " selected" : ""}`} style={rowStyle}>
+        <div role="rowheader" data-column-index={0}><button type="button" disabled={!rows.some((canonical) => canonical.key === row.key)} onClick={() => onSelect(row.key)} title={row.label}>{row.label}{!rows.some((canonical) => canonical.key === row.key) ? " (removed edit)" : ""}</button></div>
+        {columns.map((column, index) => {
           const address = { rowKey: row.key, columnKey: column.key }; const editing = sameCell(edit?.captured ?? null, address);
-          return <div key={column.key} role="gridcell" aria-owns={editing && props.persistentEditor ? editorId : undefined} aria-selected={sameCell(focused, address)} title={row.cells[column.key].unavailable} aria-readonly={Boolean(row.cells[column.key].readonly)} data-kind={column.kind} className={`engineering-table-cell${row.cells[column.key].readout ? " has-readout" : ""}${editing ? " editing" : ""}${editing && edit?.error ? " invalid" : ""}`}>
+          return <div key={column.key} role="gridcell" data-column-index={index + 1} aria-owns={editing && props.persistentEditor ? editorId : undefined} aria-selected={sameCell(focused, address)} title={row.cells[column.key].unavailable} aria-readonly={Boolean(row.cells[column.key].readonly)} data-kind={column.kind} className={`engineering-table-cell${row.cells[column.key].readout ? " has-readout" : ""}${editing ? " editing" : ""}${editing && edit?.error ? " invalid" : ""}`}>
             {editing && edit ? props.persistentEditor ? <span className="engineering-table-editor-anchor" data-editor-anchor={edit.captured.token} /> : editor : <button type="button" disabled={!rows.some((canonical) => canonical.key === row.key)} data-table-cell="true" data-row-key={row.key} data-column-key={column.key} data-testid={`${review ? "review" : "table"}-cell-${row.label}-${column.key}`} aria-label={`${row.label} ${column.label}: ${row.cells[column.key].value}${column.kind === "text" ? "" : ` ${row.cells[column.key].unit}`}`} tabIndex={sameCell(rovingFocus, address) ? 0 : -1} onPointerDown={() => { pointerFocus.current = address; }} onFocus={() => {
               if (!sameCell(pointerFocus.current, address) && !editRef.current && !sameCell(focused, address)) focusCell(address, false);
             }} onBlur={() => { if (sameCell(pointerFocus.current, address)) pointerFocus.current = null; }} onClick={() => {
@@ -323,15 +403,32 @@ export function EngineeringTable(props: Props) {
     {enumeration.popup}
     {/* Keep the editor focused until a footer click; no action occurs on pointer-down. */}
     <div className="engineering-table-footer" ref={footer} role="group" aria-label={`${label} footer`} tabIndex={-1}>
+      <OverflowRail enabled={Boolean(props.compact)} name="table status" owner={ownerId}>
       {edit ? <><span>Editing {columns.find((column) => column.key === edit.captured.columnKey)?.label} · {edit.captured.row.label}</span><button type="button" data-table-action="apply" onPointerDown={(event) => event.preventDefault()} disabled={edit.pending || busy} onClick={() => void apply(undefined, true)} title={review ? "Keep draft (Enter)" : "Apply (Enter)"}>{review ? "Keep draft" : "Apply"}</button><button type="button" data-table-action="cancel" onPointerDown={(event) => event.preventDefault()} disabled={edit.pending} onClick={cancel} title="Cancel (Escape)">Cancel</button></> : <span>{matchingRows.length} of {rows.length} rows</span>}
       {sortUnavailable ? <span role="status">Quantity sort unavailable; showing input order while values or units cannot be converted.</span> : null}
       {sort ? <button type="button" onClick={() => setSort(null)}>{sortUnavailable ? "Requested sort" : "Sorted"} by {columns.find((column) => column.key === sort.columnKey)?.label} · Clear</button> : null}
       {edit && !rows.some((row) => row.key === edit.captured.rowKey) ? <span role="alert">The edited row was removed. This retained draft cannot be applied; Cancel to return to the current model.</span>
         : edit && !matchingRows.some((row) => row.key === edit.captured.rowKey) ? <span>Editing row retained outside the filter.</span> : null}
+      {props.compact ? messages : null}
+      </OverflowRail>
+      {props.compact ? <button ref={infoButton} type="button" aria-label={`${label} Info`} data-table-chrome-owner={ownerId} popoverTarget={infoId} onPointerDown={(event) => event.preventDefault()}>Info</button> : null}
     </div>
-    {body.allocationConflict ? <p role="alert" className="engineering-table-message">No space is available for table rows. Expand the table view to continue.</p> : null}
-    {edit?.error ? <p id={errorId} role="alert" className="engineering-table-message">{edit.error}</p> : null}
-    {feedback ? <p role="status" className="engineering-table-message">{feedback}</p> : null}
+    {props.compact ? <div id={infoId} className="engineering-table-info" popover="auto" role="dialog" aria-label={`${label} Info`} data-table-chrome-owner={ownerId} tabIndex={-1}
+      onToggle={(event) => { const open = event.currentTarget.matches(":popover-open"); setInfoOpen(open); if (open) event.currentTarget.focus(); }}>
+      <button type="button" data-table-chrome-owner={ownerId} onClick={() => closeInfo(true)}>Close Info</button>
+      <p>{matchingRows.length} of {rows.length} rows.</p>
+      {edit ? <p>Editing {column?.label} · {edit.captured.row.label}</p> : null}
+      {sortUnavailable ? <p>Quantity sort unavailable; showing input order while values or units cannot be converted.</p> : null}
+      {sort ? <p>{sortUnavailable ? "Requested sort" : "Sorted"} by {columns.find((column) => column.key === sort.columnKey)?.label}.</p> : null}
+      {edit && !rows.some((row) => row.key === edit.captured.rowKey) ? <p>The edited row was removed. This retained draft cannot be applied; Cancel to return to the current model.</p>
+        : edit && !matchingRows.some((row) => row.key === edit.captured.rowKey) ? <p>Editing row retained outside the filter.</p> : null}
+      {body.allocationConflict ? <p>No space is available for table rows. Expand the table view to continue.</p> : null}
+      {edit?.error ? <p>{edit.error}</p> : null}
+      {feedback ? <p>{feedback}</p> : null}
+      <h3>Columns</h3>
+      {columns.map((item) => <p id={`${infoId}-header-${item.key}`} key={item.key}>{item.unit === "per-row entered unit" ? ({ elastic: "Elastic modulus", shear: "Shear modulus", thermal: "Thermal expansion coefficient", outside: "Outside diameter", wall: "Wall thickness" } as Record<string, string>)[item.key] ?? item.label : item.label}{item.kind === "text" ? "" : item.unit === "per-row entered unit" ? " — unit as entered in each row." : ` [${item.unit}]`}</p>)}
+    </div> : null}
+    {!props.compact ? messages : null}
   </div>;
 }
 
@@ -361,7 +458,7 @@ export function useTableBodyHeight(bounded: boolean, active: boolean) {
 /** Chromium drops native text-Undo when an input's ancestor is moved, even if
  * React restores focus to the same node. Projected families keep the editor in
  * one DOM position and only move its visual box as the keyed rows reorder. */
-function usePersistentEditorPosition(root: React.RefObject<HTMLDivElement | null>, enabled: boolean, token: number | undefined, rows: readonly TableRow[], active: boolean) {
+function usePersistentEditorPosition(root: React.RefObject<HTMLDivElement | null>, enabled: boolean, token: number | undefined, rows: readonly TableRow[], active: boolean, columnOffset: number) {
   const [position, setPosition] = useState<{ clip: React.CSSProperties; box: React.CSSProperties }>({ clip: { visibility: "hidden" }, box: {} });
   useLayoutEffect(() => {
     if (!enabled) return;
@@ -380,8 +477,9 @@ function usePersistentEditorPosition(root: React.RefObject<HTMLDivElement | null
       const a = anchor.getBoundingClientRect(), h = host.getBoundingClientRect(), g = grid.getBoundingClientRect();
       if (a.width <= 0 || a.height <= 0 || h.width <= 0 || h.height <= 0) return;
       const b = host.querySelector<HTMLElement>(".engineering-table-body-slot")!.getBoundingClientRect();
-      const top = Math.max(a.top, b.top, g.top), right = Math.min(a.right, b.right, g.left + grid.clientWidth);
-      const bottom = Math.min(a.bottom, b.bottom, g.top + grid.clientHeight), left = Math.max(a.left, b.left, g.left);
+      const viewport = host.querySelector<HTMLElement>('[role="rowgroup"]')!, v = viewport.getBoundingClientRect();
+      const top = Math.max(a.top, b.top, g.top, v.top), right = Math.min(a.right, b.right, g.left + grid.clientWidth, v.left + viewport.clientWidth);
+      const bottom = Math.min(a.bottom, b.bottom, g.top + grid.clientHeight, v.top + viewport.clientHeight), left = Math.max(a.left, b.left, g.left, v.left);
       const next = { clip: { clipPath: `inset(${Math.max(0, top - h.top)}px ${Math.max(0, h.right - right)}px ${Math.max(0, h.bottom - bottom)}px ${Math.max(0, left - h.left)}px)` },
         box: { left: a.left - h.left, top: a.top - h.top, width: a.width, height: a.height } };
       setPosition((previous) => JSON.stringify(previous) === JSON.stringify(next) ? previous : next);
@@ -392,6 +490,6 @@ function usePersistentEditorPosition(root: React.RefObject<HTMLDivElement | null
     observer?.observe(host);
     const anchor = host.querySelector<HTMLElement>(`[data-editor-anchor="${token}"]`); if (anchor) observer?.observe(anchor);
     return () => { host.removeEventListener("scroll", measure, true); observer?.disconnect(); };
-  }, [root, enabled, token, rows, active]);
+  }, [root, enabled, token, rows, active, columnOffset]);
   return position;
 }

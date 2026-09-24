@@ -1,0 +1,5 @@
+# CI binding replay
+
+Check out frozen candidate `1c1b8b072a25a5014f41dcc0e0fd8fd9d1ab0a9a`. Resolve REPO_ROOT using Git. From that checkout, run `python3 <this-record-directory>/verify_binding.py <REPO_ROOT> <this-record-directory>`. The verifier checks the preserved run/job conclusions, actual execution-step success, exact five-partition union, both viewport projects, all sixteen registered source specs and source/config hashes. It regenerates the same binding and derivative check summary. The original CI artifacts are identified in artifacts.json; collection-only records establish coverage identity, not test success by themselves. Run/job execution records supply the separate successful execution evidence.
+
+The maintained sweep uses `python3 tools/release/run_evidence_sweep.py --execute --require-capability host --surface4-ci-binding <this-record-directory>/binding.json` from WORKING_ROOT with the recorded toolchain environment. D-65/DEC-093 permits this exact-head source surface. A production-dist check and all required GUI-native evidence remain separate. No timed D-72 or release qualification is inferred.

@@ -1,0 +1,177 @@
+{
+  "timestamp": "2026-09-24T07:41:10.331951+00:00",
+  "app": "/private/tmp/piping-native-fit-1c-20260924/debug/bundle/macos/SWBPIPE.app",
+  "executable": "/private/tmp/piping-native-fit-1c-20260924/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop",
+  "executable_sha256": "daaac8f9839acce0e873bbb52a6e0079c88e537a236459f68c7a8a1cfd14fea6",
+  "bundle_files": [
+    {
+      "path": "Contents/Info.plist",
+      "bytes": 979,
+      "sha256": "573a9848c4b521dc352ba10ef10298c645702b53f0557e62bade6a1855261fd8"
+    },
+    {
+      "path": "Contents/MacOS/openpipestress-desktop",
+      "bytes": 56418744,
+      "sha256": "daaac8f9839acce0e873bbb52a6e0079c88e537a236459f68c7a8a1cfd14fea6"
+    },
+    {
+      "path": "Contents/Resources/icon.icns",
+      "bytes": 77148,
+      "sha256": "2ddf5cdbfe7c2023349d49fd45efee4debad28e72a4cf8401834aa402f3d238e"
+    }
+  ],
+  "dist_root": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/dist",
+  "dist_files": [
+    {
+      "path": "assets/index-CJvcKHNU.css",
+      "bytes": 114093,
+      "sha256": "3bf4400110d589178c9785d9edf3eb92b625d7314d40dee78120704d60448191"
+    },
+    {
+      "path": "assets/index-MLkNAz7V.js",
+      "bytes": 1478120,
+      "sha256": "6a223599bd80773621322379977b33d95de7435623f8e3859847d46059f7e8f5"
+    },
+    {
+      "path": "assets/invented_agent_proposal-Bm57LVt-.js",
+      "bytes": 1820,
+      "sha256": "181148caaab83efcd8c916cfd819b2bde82a0e0581ec096b5119ef37164c542c"
+    },
+    {
+      "path": "assets/invented_demo_rule_pack-dhX9tvT1.js",
+      "bytes": 10858,
+      "sha256": "2171fad960204d286467275400ac5d710059b09936dbebde262fe03dc4047a0a"
+    },
+    {
+      "path": "assets/invented_design_knowledge-H12r-oKQ.js",
+      "bytes": 1660,
+      "sha256": "ddb6693d09d218a01bc3f31f80680e4bb11e988a851c6e9fe55ba1b10be16040"
+    },
+    {
+      "path": "assets/invented_mechanics_result-CleTy2JL.js",
+      "bytes": 502608,
+      "sha256": "493050a50b346dd1c53de6481da58d3c33d3302c0308f17b49e60584a233be4d"
+    },
+    {
+      "path": "assets/invented_preview_model-pJA3_nB8.js",
+      "bytes": 12670,
+      "sha256": "f21511f5742daf6276173a5b9bcd440d6c3283cacfe83f50a2f857b1a882605a"
+    },
+    {
+      "path": "assets/vendor-7OC5HNn7.js",
+      "bytes": 3613,
+      "sha256": "3d45cc5c629e739f535e3d840a5a5a8302cdde5c8b93ad5aa5a6f28cb16fda76"
+    },
+    {
+      "path": "assets/vendor-icons-BjC2kMFO.js",
+      "bytes": 18994,
+      "sha256": "c16587f1d30af87974f04473da4620f1eb7bfc4f592da3d8a78c8320b0c50733"
+    },
+    {
+      "path": "assets/vendor-react-u0ysdD_x.js",
+      "bytes": 188764,
+      "sha256": "63fc4459119f62f88e22f9114753605a94dc4fb8a870ffca75648df4c68f8901"
+    },
+    {
+      "path": "assets/vendor-tauri-DlQNAQKj.js",
+      "bytes": 91,
+      "sha256": "ce6c2d2158f4a2b727d1886ef0b5f05bcb63e4d86bde10e05598707dde9b6e73"
+    },
+    {
+      "path": "assets/vendor-three-CMXgOz27.js",
+      "bytes": 528582,
+      "sha256": "3651933b5f5f1b74297d524f1203d2929fe274b906df73faeefaa1fb4332a187"
+    },
+    {
+      "path": "index.html",
+      "bytes": 1133,
+      "sha256": "8237c57755381a380551dc4cb2e89c596ebb4f3087bca16090d302bfe1398128"
+    },
+    {
+      "path": "self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts",
+      "bytes": 1688,
+      "sha256": "634546fac35bc42da31bf903e52a5799429422f44291d901495675bb4da4cc01"
+    },
+    {
+      "path": "self-weight-engine/open_pipe_stress_self_weight_wasm.js",
+      "bytes": 6961,
+      "sha256": "ea2b3fd611a6478222e552b1230ceb717abd60cdd6df5ba30b4827511543f8f3"
+    },
+    {
+      "path": "self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm",
+      "bytes": 683592,
+      "sha256": "3bf873e10ce628719aa3181d7085e88c1078912d3eca6641ceafdaa1e150b61b"
+    },
+    {
+      "path": "self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts",
+      "bytes": 520,
+      "sha256": "dd78c7c8fa07894717b89a9bcda4d781200ca7a4d02a8dc153b7763290085c7b"
+    },
+    {
+      "path": "wasm-engine/open_pipe_stress_operation_applier.d.ts",
+      "bytes": 4253,
+      "sha256": "af2b07abf12dac915fb0e90124135d578eb7c2b473ec402dbe285900608cb8a8"
+    },
+    {
+      "path": "wasm-engine/open_pipe_stress_operation_applier.js",
+      "bytes": 14773,
+      "sha256": "5682432840e2199512059d7956dfdb51521179b797145a05835a5bfa0be71595"
+    },
+    {
+      "path": "wasm-engine/open_pipe_stress_operation_applier_bg.wasm",
+      "bytes": 1000441,
+      "sha256": "f2e21a9d3d75df948ede76d790429999a1c12a9d85857f38b06574cf98e6e2c6"
+    },
+    {
+      "path": "wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts",
+      "bytes": 1467,
+      "sha256": "37a68fc929d21e62fad7683b94f26b7233691df567956908f345c257c8a3ae16"
+    }
+  ],
+  "generated_public": {
+    "wasm-engine": [
+      {
+        "path": "open_pipe_stress_operation_applier.d.ts",
+        "bytes": 4253,
+        "sha256": "af2b07abf12dac915fb0e90124135d578eb7c2b473ec402dbe285900608cb8a8"
+      },
+      {
+        "path": "open_pipe_stress_operation_applier.js",
+        "bytes": 14773,
+        "sha256": "5682432840e2199512059d7956dfdb51521179b797145a05835a5bfa0be71595"
+      },
+      {
+        "path": "open_pipe_stress_operation_applier_bg.wasm",
+        "bytes": 1000441,
+        "sha256": "f2e21a9d3d75df948ede76d790429999a1c12a9d85857f38b06574cf98e6e2c6"
+      },
+      {
+        "path": "open_pipe_stress_operation_applier_bg.wasm.d.ts",
+        "bytes": 1467,
+        "sha256": "37a68fc929d21e62fad7683b94f26b7233691df567956908f345c257c8a3ae16"
+      }
+    ],
+    "self-weight-engine": [
+      {
+        "path": "open_pipe_stress_self_weight_wasm.d.ts",
+        "bytes": 1688,
+        "sha256": "634546fac35bc42da31bf903e52a5799429422f44291d901495675bb4da4cc01"
+      },
+      {
+        "path": "open_pipe_stress_self_weight_wasm.js",
+        "bytes": 6961,
+        "sha256": "ea2b3fd611a6478222e552b1230ceb717abd60cdd6df5ba30b4827511543f8f3"
+      },
+      {
+        "path": "open_pipe_stress_self_weight_wasm_bg.wasm",
+        "bytes": 683592,
+        "sha256": "3bf873e10ce628719aa3181d7085e88c1078912d3eca6641ceafdaa1e150b61b"
+      },
+      {
+        "path": "open_pipe_stress_self_weight_wasm_bg.wasm.d.ts",
+        "bytes": 520,
+        "sha256": "dd78c7c8fa07894717b89a9bcda4d781200ca7a4d02a8dc153b7763290085c7b"
+      }
+    ]
+  }
+}

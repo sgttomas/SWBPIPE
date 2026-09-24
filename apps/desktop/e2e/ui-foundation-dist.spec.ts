@@ -726,11 +726,18 @@ for (const theme of APPEARANCE_THEMES) {
         const nodeGridTab = page.getByTestId("entity-grid-type-nodes");
         const queueGridEdits = page.getByTestId("queue-entity-grid-intents");
         const clearGridEdits = page.getByTestId("clear-entity-grid-drafts");
-        await expect(pipeGridTab).toHaveAttribute("aria-pressed", "true");
-        for (const control of [pipeGridTab, nodeGridTab, queueGridEdits, clearGridEdits]) {
-          await expect(control).toBeVisible();
+        const compactFamily = page.getByRole("combobox", { name: "Grid family" });
+        if (await compactFamily.isVisible()) {
+          await expect(compactFamily).toHaveAccessibleName("Grid family");
+          await expect(compactFamily).toHaveValue("pipes");
+          await expect(compactFamily.locator('option[value="nodes"]')).toHaveCount(1);
+          for (const control of [compactFamily, queueGridEdits, clearGridEdits]) await expect(control).toBeVisible();
+          await expectFlatTokenBorders(page, [compactFamily, queueGridEdits, clearGridEdits]);
+        } else {
+          await expect(pipeGridTab).toHaveAttribute("aria-pressed", "true");
+          for (const control of [pipeGridTab, nodeGridTab, queueGridEdits, clearGridEdits]) await expect(control).toBeVisible();
+          await expectFlatTokenBorders(page, [pipeGridTab, nodeGridTab, queueGridEdits, clearGridEdits]);
         }
-        await expectFlatTokenBorders(page, [pipeGridTab, nodeGridTab, queueGridEdits, clearGridEdits]);
         await activateWithKeyboard(page, treeMode);
         await expect(treeMode).toHaveAttribute("aria-pressed", "true");
 

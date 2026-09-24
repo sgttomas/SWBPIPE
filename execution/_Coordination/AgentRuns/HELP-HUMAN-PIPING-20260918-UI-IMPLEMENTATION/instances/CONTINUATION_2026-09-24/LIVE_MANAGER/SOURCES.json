@@ -1,0 +1,224 @@
+{
+  "recorded_at": "2026-09-24T01:38:04.019526+00:00",
+  "head_at_final_preparation": "419b34c3b81b001fa35158fdb4e97562bcd0a35c",
+  "role": "WORKING_ITEMS Type1",
+  "agent": "/root/live_manager",
+  "parent": "/root",
+  "mechanism": "delegated-harness-native child; no descendants launched",
+  "model_allocation": "Astra/high per parent assignment; no independent model attestation",
+  "write_boundary": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LIVE_MANAGER/**",
+  "resource_use": "read-only source/scope inspection and own preparation file writes; no tests/build/network/Git mutation/native/browser/CUA",
+  "reading_note": "Canonical WORKING_ITEMS and TASK read fully; source files inspected at relevant seams/excerpts, not a whole-source independent audit. Root AGENTS supplied in inherited user context. Large legacy deliverable scopes were inspected for relevant ownership, acceptance and delivery clauses; truncated broad retrieval was followed by bounded clauses. SOURCE hashes identify whole current files, not a claim all bytes were read.",
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "bytes": 14200
+    },
+    {
+      "path": "agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665",
+      "bytes": 1804
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "bytes": 9016
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "bytes": 8475
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LIVE_MANAGER_BRIEF.md",
+      "sha256": "fd3a24e13e6be0839907719d537aa4590cad5d1296ddeca51e0d34b1d39a0d3b",
+      "bytes": 3189
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/OWNER_DECISIONS.md",
+      "sha256": "7f244d1cbdfc6060d77de371e141b082adc936bccbfd4eb36e2a3b4308434b2e",
+      "bytes": 4224
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/COORDINATION.md",
+      "sha256": "7ce763b1c631d1fe02e5f447ae8f37734d07a91d010d50028226041a31ba9321",
+      "bytes": 5271
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/DESIGN_MANAGER/RETURN.md",
+      "sha256": "74be013b6405f8987155453a8e70829d59d463678c57dffdd271679551ba965a",
+      "bytes": 23622
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/DESIGN_MANAGER/SOURCE_DELTA.txt",
+      "sha256": "c2968e9e7e001f87e43634e221510cf8fd191ee01faaa8849bd206d6544e7015",
+      "bytes": 2133
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/LIVE_CONTROL_ACTIVATION_PROPOSAL.md",
+      "sha256": "cb79b7e31d03718adda3107d19c6600f02043410cb28611caaf00d9845ef782e",
+      "bytes": 9186
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/PIPING_LIVE_CONTROL_CONTRACT_DRAFT.md",
+      "sha256": "b1de9c7518cf99f3e99cd83c6b940c977d18bc5eeeac1a824739413cdc92942b",
+      "bytes": 13898
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/LIVE_CONTROL_WIRE_V1_DRAFT.md",
+      "sha256": "1b213df9055811140f3f5e0cff22d67116fa3615f67f2e15fcdbb75852bfe2f3",
+      "bytes": 9636
+    },
+    {
+      "path": "projects/chirality-piping/software-workflow.json",
+      "sha256": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7",
+      "bytes": 1101
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/package.json",
+      "sha256": "c0e3ddd045e0ea7576a4cd01af86c4921bab7314e7b3d927b5eab11822e959fa",
+      "bytes": 1196
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml",
+      "sha256": "390a7a611509fce1c723d1fa198654df14f0a7651d5b18c53d0d7b04dd1ae246",
+      "bytes": 1495
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+      "sha256": "8b68e437515761bf5877a485cc99c52947bac386595f0182f5dcbc17732c71af",
+      "bytes": 122843
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/tauri.conf.json",
+      "sha256": "b3de0965f205e1ed34f07744939314c9ac40dd00af2ee8c0de336c6e2bfba5d0",
+      "bytes": 671
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "6ea1c8f46a32edc2c5d69cb6f9a94ea64d53e18e3ede324ef5d4e8e9fd56c880",
+      "bytes": 312544
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/main.rs",
+      "sha256": "03c5b9f8fc8812114d1a7db1b1e2c5c9f2ce6c7bbf0f000565fbb872e7a1d5ca",
+      "bytes": 687
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+      "sha256": "fe0f9eea5a991d965dc097553e73e8c4c23c7968ed1743a8709af94f02dab20d",
+      "bytes": 118723
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/operationsSessionState.ts",
+      "sha256": "8a27435e58fb5a5c24e3c78a2ec846fa000745a70ae36babdab9082c24e4a292",
+      "bytes": 3841
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/modelSessionState.ts",
+      "sha256": "b689520597c9064a22881e8e6f4af52c6c999cb88908313b7183956ab2e40e76",
+      "bytes": 2228
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.shell.test.tsx",
+      "sha256": "4b546c8e5dd6bd056a13f1ac3afb4c271851dac1e19e1b9d0dc3cd1e439e40dd",
+      "bytes": 21093
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/BatchReviewPanel.tsx",
+      "sha256": "66a4f562d1354ea86041858b678c7c92e477d071aedb1a5a9ad4cdc59b976ba5",
+      "bytes": 4328
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/operationBatchService.ts",
+      "sha256": "0cf84f7b8ced2786fa03729087fd1197bf8773afb6d15a9653cb86e8a0ecc52f",
+      "bytes": 3436
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/nativeMenu.ts",
+      "sha256": "d3b960c14a648c20091e22828b34b483982b0a451c3521f0410c2096030b7e56",
+      "bytes": 1884
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/hashService.ts",
+      "sha256": "0f1d342d60501b212c3a307b96ba1dfa625fcc1845cc33b47e54dd58341cf7e1",
+      "bytes": 7029
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/types.ts",
+      "sha256": "a2ccaf863646c48c3f1c3303ad31ae87132311c28f72b343824f47ac58a83314",
+      "bytes": 28462
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/rich-authoring/formSupport.tsx",
+      "sha256": "e7b07287b09af29a4214e1ca27d1e40e57ef8ce258522266bdbd168cc87bd973",
+      "bytes": 9666
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/modelTableAdapter.ts",
+      "sha256": "663f0edf7945edb39e9d2c9cc60c85a75b30f05266c8a8d875135c162394622b",
+      "bytes": 6735
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      "sha256": "3120f29cb431fe649189a41048b95923487ff6140878dcb22bbad6b23a2d3f89",
+      "bytes": 127884
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/toolkit-batch-dist.spec.ts",
+      "sha256": "e50b80718de815554d85783e63963be71881b73b3f7bd6408e74cb0a5ab86545",
+      "bytes": 4595
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "sha256": "22062ea42fd135a9dbefa0f7e09cf3a2feccc5193ff6028818fd1c6221a3f355",
+      "bytes": 531519
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/atomic_batch.rs",
+      "sha256": "dae2f22f1a24e04bd5fae2ea95b7d67f8640eaef085e91f51c07c0b859ce85d5",
+      "bytes": 34814
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+      "sha256": "ba2c60ffde8af56a1dc9b64f7e7170780fa9888407c241ffc49966a25190eb27",
+      "bytes": 5738
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/ScopeOfWork.md",
+      "sha256": "2de8f38a0312fba29a50dc8b5a6e7ee58bb12c6b743e4f51bc9e9afda405946b",
+      "bytes": 29299
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema/ScopeOfWork.md",
+      "sha256": "b343d06d5994693b0fc280d38972dd051088157be77bd11c6c8ef4f957aa909f",
+      "bytes": 36597
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/ScopeOfWork.md",
+      "sha256": "3ec4ae82899797dffd25c06fe64879ed46dbd0b20332b68858347048bf75633e",
+      "bytes": 37927
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/ScopeOfWork.md",
+      "sha256": "1b2267745cfddcc712e1ca703a34b59b774de8af14d9340789f35d6239e4ff14",
+      "bytes": 36950
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-04_Agent rationale and professional-boundary controls/ScopeOfWork.md",
+      "sha256": "d6e2b69b1a59d718e5b4c38cc7c83784910ad5230f5029613c5be691270e2935",
+      "bytes": 36864
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+      "sha256": "7d6be7565a042d3cede8bc06095218d1f0eafecdeba4b265f3b3ed9e41bc95ad",
+      "bytes": 5747
+    }
+  ]
+}

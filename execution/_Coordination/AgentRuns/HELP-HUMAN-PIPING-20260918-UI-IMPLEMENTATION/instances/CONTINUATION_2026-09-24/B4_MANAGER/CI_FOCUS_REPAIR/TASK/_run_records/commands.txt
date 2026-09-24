@@ -1,0 +1,13 @@
+Package cwd: /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop
+EVIDENCE=../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/CI_FOCUS_REPAIR/TASK
+npm run dev -- --port 5174
+node <repository-relative TASK>/focus-probe.mjs
+node <repository-relative TASK>/focus-probe-r2.mjs
+DEBUG=pw:browser node <repository-relative TASK>/focus-probe-r3.mjs
+npx vitest run src/features/workspace/table/OverflowRail.test.tsx src/features/workspace/table/EngineeringTable.test.tsx --reporter=verbose
+npx tsc -b
+PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/Users/ryan/Library/Caches/ms-playwright/chromium_headless_shell-1223/chrome-headless-shell-mac-arm64/chrome-headless-shell PLAYWRIGHT_JSON_OUTPUT_FILE=<EVIDENCE>/_run_records/bundled148-report.json npx playwright test e2e/b4-table-editing.spec.ts --grep 'classic scrollbar compact' --project chromium-desktop --workers 1 --max-failures 1 --reporter=list,json --output /tmp/piping-ci-focus-148
+PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' PLAYWRIGHT_JSON_OUTPUT_FILE=<EVIDENCE>/_run_records/installed153-report.json npx playwright test e2e/b4-table-editing.spec.ts --grep 'classic scrollbar compact' --project chromium-desktop --workers 1 --max-failures 1 --reporter=list,json --output /tmp/piping-ci-focus-153
+lsof -nP -iTCP:5174 -sTCP:LISTEN
+lsof -nP -iTCP:5175 -sTCP:LISTEN
+git diff --check

@@ -1,0 +1,184 @@
+{
+  "executor": "/root/design_manager",
+  "role": "HELPS_HUMANS Type 1",
+  "mechanism": "delegated-harness-native collaboration.spawn_agent child of /root",
+  "basis": "42bd234f671508ba9ab157e1981334ba8610279f",
+  "scope": "read-only programme recovery; writes only this DESIGN_MANAGER subtree",
+  "children": [],
+  "note": "Hashes bind consulted artifacts, not a claim of complete line-by-line inspection of every long carrier. No product execution or qualification. Parent supplied current peer reply: no Runtime/App configuration change for first development Codex CLI route; activation held.",
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_HELPS_HUMANS.md",
+      "sha256": "a0c9fb9443d8671d694c1f7b24ff3c402ffd626c781a2739342c938f2f3c3d1e"
+    },
+    {
+      "path": ".agents/skills/proposal-format/SKILL.md",
+      "sha256": "63e6d2545c31df939511a5a137c214d5444ca562f6abf9b048de3aa2f8dac59d"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/DESIGN_MANAGER_BRIEF.md",
+      "sha256": "4882d53f41ad2b2d2251f1ea891dbef19f2bc0e2b8aa74cc8005e396f34ae024"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/ORCHESTRATION_PLAN.md",
+      "sha256": "4d93e0b5da354030061415bf1b96fba5819d09a059e79d4cb657d0aa289a5c9f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/OWNER_DIRECTION_2026-09-19_SECTION7_DECISIONS.md",
+      "sha256": "c9049e543dd1a46b1fdcf3d7f23cd5551c89b24185c66c70d2d03eb77c2fee2e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/OWNER_DIRECTION_2026-09-19_EIGHT_UX_ITEMS.md",
+      "sha256": "5b86c2783c5d460adf63b69dc3a49db7df672795f0feeb59079a2f93a82c0f4e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+      "sha256": "a5f7c0d9238a97e53e364a84fcf82941a875b2cda1735571d0e6a4af8857e025"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/_LATEST.md",
+      "sha256": "6335bc5cb1b0d1c13c41181b0fbd3e3ab4547fa355b6c9ddc49513307b721422"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/DECISION.md",
+      "sha256": "6c3698eb97ea48ecef058e012d785341992467cbbb9e56bc990838592d03d0cf"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/_PostAcceptanceValidation/SCA-011_20260922T173404Z/OWNER_DECISION.md",
+      "sha256": "6797151ce24132d0c6cf4fa4d1976bc4a3b73557e6cc7d52e268140fc346c9d3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/C4_LABEL_DECISION_PACKAGE.md",
+      "sha256": "a59c4225d2961b96e1a8dd1d507f98e21a440c17c336b2bd14a802325cac74eb"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/LIVE_CONTROL_ACTIVATION_PROPOSAL.md",
+      "sha256": "cb79b7e31d03718adda3107d19c6600f02043410cb28611caaf00d9845ef782e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/PIPING_LIVE_CONTROL_CONTRACT_DRAFT.md",
+      "sha256": "b1de9c7518cf99f3e99cd83c6b940c977d18bc5eeeac1a824739413cdc92942b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/MVP_PUBLISHING_DISCUSSION.md",
+      "sha256": "2f4115a5f84026440b91a4f2653c469f1dbd752e225202429de4a6932a5b737f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_MVP_AGENT_CORRECTION_2026-09-20.md",
+      "sha256": "2c3d94b971acc3f0453eb6616abe0432b77bbb403bd7f88d979671b192280251"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/OWNER_CODEX_VALIDATION_CONTROLLER_2026-09-20.md",
+      "sha256": "b63894ad36cfb79812ab259dbba396fdae280c8a05707a0a0e5221ae25eef5b6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B5_INSPECTOR_PREPARATION_RETURN.md",
+      "sha256": "5d0ea8d573960f408a87b86e3a20504eaa6d6f2146b30038b6706d4e6fc453ae"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_REMAINDER_PREPARATION_BRIEF.md",
+      "sha256": "cf1ea19b9ef79493cb3399785745789d035f8bdc05dd9dd604ffdeae432d235c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/INTERFACE_CONTRACTS.md",
+      "sha256": "0a5c0651ab9a9b44ec5d913881536123fccb0af9b98123110002dcb5863b9a3d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/SOURCE_OWNER_ASSESSMENT.md",
+      "sha256": "9b0d7bb48afe051301a79ffdd28065053f69138b8b641d1068217b5322b68ad3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/GUI_CONTRACT_BINDINGS.csv",
+      "sha256": "660e853749168925364e722498b948a603265f28e30e73ac9d53e21d00277423"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+      "sha256": "fe0f9eea5a991d965dc097553e73e8c4c23c7968ed1743a8709af94f02dab20d"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/operationsSessionState.ts",
+      "sha256": "8a27435e58fb5a5c24e3c78a2ec846fa000745a70ae36babdab9082c24e4a292"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "sha256": "05ab59648af6d3c94a2001cd25c893d275a35aa4f463525c9b60345967109c2f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/ScopeOfWork.md",
+      "sha256": "88d542aed787a0126dd6ba9427a9fe8fa35f0ea38d0496f219b39f5a3a8403e9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/ScopeOfWork.md",
+      "sha256": "d46cb51e59d53758f373ba910c3615de106264b586375763ae936aa8c7094525"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/ScopeOfWork.md",
+      "sha256": "2de8f38a0312fba29a50dc8b5a6e7ee58bb12c6b743e4f51bc9e9afda405946b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-11_Desktop workspace shell and host integration/ScopeOfWork.md",
+      "sha256": "ba2c60ffde8af56a1dc9b64f7e7170780fa9888407c241ffc49966a25190eb27"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-06_Controlled model operation application/ScopeOfWork.md",
+      "sha256": "7d6be7565a042d3cede8bc06095218d1f0eafecdeba4b265f3b3ed9e41bc95ad"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.json",
+      "git_revision": "44a30112a2d4af21768a9eef822ad1974a3869ec",
+      "sha256": "dd04c85f7f9c6c664eaa8a8684ad0bfd43f6e0b99175c1f1994f31e4fad26f12"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/COORDINATION.md",
+      "sha256": "fbf431cf29331b9c2646ce199b69efe92665cd5f38711633906aba01e442e329",
+      "note": "Read during ROOT graph check; graph is concurrently ROOT-owned and this hash binds this inspection only."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md",
+      "sha256": "ec19120a298c07bef5aaf0c3e000f77b8d2aa0544b9a7f65d3ee59a5663176e2",
+      "note": "Read during ROOT graph check; graph is concurrently ROOT-owned and this hash binds this inspection only."
+    }
+  ],
+  "merged_ancestry": [
+    {
+      "commit": "7e6a7f2578e5df12ea891c2d604d0cd48e869934",
+      "ancestor_of_basis": true
+    },
+    {
+      "commit": "88c6c7463199d1d69caebde04678fa74facca78f",
+      "ancestor_of_basis": true
+    },
+    {
+      "commit": "fd195cf4287e84572a12183169478a6f7ddf6a92",
+      "ancestor_of_basis": true
+    },
+    {
+      "commit": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
+      "ancestor_of_basis": true
+    },
+    {
+      "commit": "c9f19195214b2e097980dde5e0d5fccbfba8e34c",
+      "ancestor_of_basis": true
+    },
+    {
+      "commit": "fd002217f067020d44deaee22866e14eed81173f",
+      "ancestor_of_basis": true
+    },
+    {
+      "commit": "620ff6387b211c774c0de7dabec0a170acdf6017",
+      "ancestor_of_basis": true
+    }
+  ]
+}

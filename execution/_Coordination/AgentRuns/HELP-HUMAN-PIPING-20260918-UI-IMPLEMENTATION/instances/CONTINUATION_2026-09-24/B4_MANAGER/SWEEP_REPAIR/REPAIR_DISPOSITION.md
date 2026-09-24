@@ -1,0 +1,9 @@
+# Sweep failure minimal repair disposition
+
+ROOT authorizes bounded diagnosis and warranted repair in the named files. Manager accepts the TASK independently reproduced causal separation: the compact role=status text exists but omits the established queued-message marker; unrelated closed-popover cleanup on ordinary App handler blur queries an unsupported jsdom selector. Queue-only test fails without popover errors; isolated handler assertion passes while two unhandled selector errors fail the run.
+
+Activate source marker restoration on the existing compact status and per-target native cleanup capability guards in ModelTree/EngineeringTable. If hidePopover is not callable, no native popover cleanup can be performed and the helper returns false before querying :popover-open. API-present selector/hide/focus/event ordering remains unchanged. No catch, global matches patch, broad fallback, fixture preference workaround or test assertion weakening is allowed.
+
+Remove the previous closed-popover-only spy; test absent capability and supported closed/open paths with narrowly scoped per-element doubles and meaningful calls/state assertions. Keep real native behavior supported by existing browser Details/Info journeys. Rerun unchanged queue text/payload assertions, affected App project-handler cases, focused components and TypeScript; retain every failed/successful attempt. No source extension currently needed beyond ModelTree.tsx, EngineeringTable.tsx and EngineeringTable.test.tsx. Return any additional concrete dependency before editing.
+
+Upstream-only PEC documents integrated by ROOT at c564f9a615970a623ab2a18b63736b7e831cdbb9 do not change the product basis or justify CI helper edits. Native bundle/PID and broader product source remain frozen; ROOT owns primary Git, evidence-copy, independent review and subsequent clean sweep.

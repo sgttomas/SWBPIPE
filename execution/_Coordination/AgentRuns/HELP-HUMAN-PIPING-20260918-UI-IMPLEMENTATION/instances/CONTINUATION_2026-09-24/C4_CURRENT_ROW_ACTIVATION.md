@@ -1,0 +1,23 @@
+# C4 current-row integration activation
+
+ROOT HELP_HUMAN continues retained WORKING_ITEMS `/root/c4_manager` in its isolated checkout only, under canonical `agents/AGENT_WORKING_ITEMS.md`, current Root/project AGENTS and LOOP_INIT. Parent has read the manager and TASK role instructions; manager reads and supplies full `agents/AGENT_TASK.md` before bounded implementation or review delegation. Preserve the recorded Astra/high manager, Astra/low implementation and Astra/xhigh independent-review allocation and actual delegation evidence.
+
+ROOT integrated primary `01063c7f1cfb7a651261401f62a5a72a5daa94dc` into the isolated C4 branch at `fb29a8420f1692c779c87993c95ab5925a68da9f`, without changing the primary checkout. This preserves the reviewed C4 canvas source and the latest compact guards/status marker. Read actual current bytes and the reviewed CANVAS/CURRENT_ROW_HANDOFF.md before writing. The compact source has independent review and a running clean sweep, while its native gate remains pending; it is not declared integrated or complete. Pipes remains unactivated. This is independent C4 work in an isolated branch, with ROOT as the eventual shared integration owner.
+
+Implement the already prepared true current-row interface through EngineeringTable → EntityGrid/ModelTree → App → PipeViewport. Additive scope: App.tsx, ModelTree.tsx, EngineeringTable.tsx, a narrowly named new presentation-state helper/hook if useful, and focused maintained tests (including a new App current-row test file). Existing relevant table/model-tree tests may be extended without weakening their assertions. The canvas optional currentRowNodeKey is already present; only a strictly necessary prop-contract adjustment is permitted there, preserving reviewed policy/projection/placement behavior. No styles, VirtualList internals, workspaceSession.ts, operationsSessionState.ts, model/controller/history/results/persistence or native/Cargo changes. LIVE_MANAGER remains the sole controller writer. Return any actual additional need to ROOT before widening writes.
+
+Apply the concrete handoff: actual user row/cell activation and valid edit ownership publish typed identity; dormant automatic roving fallback never publishes. Node fields/review are distinct owners; a stale source clear must not erase a newer owner's publication. Use current project/session generation and live index validation. Derive null immediately for mismatched generation or deleted/non-node/invalid identities; no arbitrary pipe endpoint or primary-selection substitute. Keep direct/review selection semantics, draft/filter retention and compact fit intact. Ordinary view state must not create model, queue, history, result or save changes. If adopted scope reveals a different current-row promise, return the source-backed discrepancy rather than silently narrowing it.
+
+Focused checks must distinguish primary A from review current-row B, exercise keyboard/pointer activation, retained filtered edit, source switching/late clear, deletion and same-ID project replacement, and show dormant rows do not invent context. Component/prop evidence is not proof that renderer plates are visibly correct. Connecting browser, native and full-candidate checks remain required before C4 closure, and the second-profile owner freeze remains separate.
+
+Initial execution boundary: source/test authoring only while ROOT owns the primary browser/dist sweep. No installs, builds, tests, browser servers, native/CUA or ports 5174/5175 until ROOT releases an appropriate lane. The isolated worktree's existing generated assets may be read. ROOT owns primary source/Git/index/graph and old native PID9925. Manager owns isolated child integration and may commit only named files, own records, and this exact supplied activation unchanged; no push/PR/merge. Return the frozen source, actual checks/limits and complete fresh independent review/backcheck, with all remaining C4 gates explicit. No new loop receipt.
+
+## Current shared-source identities
+
+| Project-relative source | SHA-256 |
+|---|---|
+| `apps/desktop/src/App.tsx` | `5f900ec96cc7e1d58f13f53a653bf845b448594c0a3d9bcb7b20e10df387e86e` |
+| `apps/desktop/src/features/model-tree/ModelTree.tsx` | `e3c0e0363dfe81892de475e3b056c02018f1b7d20bbc4e3c203f68d50633b522` |
+| `apps/desktop/src/features/workspace/table/EngineeringTable.tsx` | `aadd9d2e086c09e1d38a0f7192b5d69ee044e2f0b78bde6f2399f7e4622c41f7` |
+| `apps/desktop/src/features/workspace/workspaceSession.ts` | `fe0f9eea5a991d965dc097553e73e8c4c23c7968ed1743a8709af94f02dab20d` |
+| `apps/desktop/src/features/workspace/operationsSessionState.ts` | `8a27435e58fb5a5c24e3c78a2ec846fa000745a70ae36babdab9082c24e4a292` |
