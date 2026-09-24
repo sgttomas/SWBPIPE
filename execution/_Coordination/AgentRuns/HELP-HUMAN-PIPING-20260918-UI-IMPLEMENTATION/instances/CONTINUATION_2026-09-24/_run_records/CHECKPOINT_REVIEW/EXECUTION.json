@@ -1,0 +1,20 @@
+{
+  "mechanism": "delegated-harness-native via collaboration.spawn_agent",
+  "parent": "/root HELP_HUMAN",
+  "child": "/root/checkpoint_review TASK",
+  "model": "gpt-6-astra",
+  "reasoning": "xhigh",
+  "fork_turns": "none",
+  "brief": "../../EVIDENCE_CHECKPOINT_REVIEW_BRIEF.md",
+  "brief_sha256": "7d1f59be13c7b2eddeb69ba8bbca7d192e07618c360b98769f076add329f7343",
+  "frozen_manifest_sha256": "416e7c40cd474acfc62efaa2fe0a2d6bce4065b7b2b1cce75ef184ae0b8d2810",
+  "result": "PASS, no actionable findings",
+  "return_sha256": "b0f072e4fae9f86b13a822013e9f5df71d4d07fb74cd5f2b32ae9252be75e672",
+  "check": {
+    "command": "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3 -m pytest -q tools/practitioner_harness/test_live_baseline.py::test_live_gen8_semantic_portability_invariants",
+    "cwd": "/Users/ryan/.codex/worktrees/6614/chirality",
+    "exit": 0,
+    "log_sha256": "18321eabf50c5c8e602afb0fa624b2694f5eb4908edc2b8f2f467da18a2dabd2"
+  },
+  "limits": "Read-only reviewer; no independent OS isolation assertion. Required native GUI, live human witnesses and undertaking closure remain open."
+}

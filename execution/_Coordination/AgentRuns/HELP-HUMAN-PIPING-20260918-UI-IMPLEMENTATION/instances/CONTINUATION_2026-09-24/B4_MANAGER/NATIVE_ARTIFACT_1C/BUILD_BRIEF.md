@@ -1,0 +1,13 @@
+# Repaired compact native artifact — build only
+
+ROOT authorizes an artifact from exact maintained product revision1c1b8b072a25a5014f41dcc0e0fd8fd9d1ab0a9a after reviewed/hosted/clean-sweep/dist gates. Dirty ROOT evidence/graph records are metadata, not product input changes; verify and report that distinction rather than claiming clean HEAD. Read current Root/project/TASK instructions and record hashes. Actual worker is retained /root/b4_manager/native_compact, TASK Type2 Astra/low, no descendants.
+
+Prepare normal desktop `npm run tauri -- build --debug --bundles app` with CARGO_BUILD_JOBS=2 and ROOT-supplied new absolute CARGO_TARGET_DIR recorded in raw command evidence. The target must be distinct from primary apps/desktop/src-tauri/target; confirm cargo metadata resolves there and final bundle output actually lands there. If it already exists with unrelated state, a prerequisite is missing, or output could overwrite the running old bundle, stop and return before scope expansion. Never clean/copy/mutate primary target. Explicitly unset SWBPIPE_LIVE_CONTROL for build; no live or ordinary app/self-test launch.
+
+Read-only input/target preflight may proceed immediately. Actual build and its normal primary generated WASM/dist writes await confirmed completion of C4's browser run and manager handoff. Preserve metadata dirty state, exact committed product equality, maintained source/core/fixture/dependency inputs actually consumed, non-secret toolchain/env/command/output and full bundle/dist/executable identities. Record actual dependency resolution and generated artifact inputs with enough provenance to reproduce; do not dump unrelated environment or user data.
+
+Allowed writes: this evidence subtree plus normal ignored generated frontend/WASM outputs and the new target after resource clear. Raw absolute paths/commands/logs/manifests belong TASK/_run_records, portable prose elsewhere. No code/config/test/instruction edits, Git, app/CUA/browser/process action, PID9925 action, user settings/store/private-data operation, signing-account or host-policy change. No repeated verification gates or invented UI pass. Return the exact new artifact ready for ROOT's eventual GUI witness. Manual Mac unlock/old app restoration and actual native behavior remain outstanding, owned by ROOT.
+
+## ROOT resource clarification
+
+Primary53-case dist execution completed and primary generated-output ownership is released. C4's current browser stage uses only its separately isolated source/dist/WASM outputs and does not consume primary generated assets. No wait for that stage is required; the worker may proceed after exact product-input and distinct-target checks. Old primary native target remains strictly untouched.

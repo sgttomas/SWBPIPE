@@ -1,0 +1,11 @@
+{
+  "candidate": "1c1b8b072a25a5014f41dcc0e0fd8fd9d1ab0a9a",
+  "head": "1c1b8b072a25a5014f41dcc0e0fd8fd9d1ab0a9a",
+  "product_files": 857,
+  "all_match_candidate": true,
+  "old_bundle_file_count": 3,
+  "old_bundle_hash_manifest_equal": true,
+  "old_bundle_manifest_sha256": "84c482a3d4b6f273136543456a3bf0f53e27e3ea54cbf8844c2f637871ac06e0",
+  "new_bundle_files": 3,
+  "dist_files": 21
+}

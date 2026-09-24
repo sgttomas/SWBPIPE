@@ -1,0 +1,38 @@
+[
+  {
+    "tool": "node",
+    "path": "/Users/ryan/.local/share/mise/installs/node/24/bin/node",
+    "resolved": "/Users/ryan/.local/share/mise/installs/node/24.18.0/bin/node",
+    "sha256": "ee6fb0e015284d83a91e8ec5213f43a157f8a392b58555301682892ba928c04a"
+  },
+  {
+    "tool": "npm",
+    "path": "/Users/ryan/.local/share/mise/installs/node/24/bin/npm",
+    "resolved": "/Users/ryan/.local/share/mise/installs/node/24.18.0/bin/npm",
+    "sha256": "a74679065974f6fd0a02f7ea8d4690d7bccd6437981924201ed37fc010112e22"
+  },
+  {
+    "tool": "cargo",
+    "path": "/Users/ryan/.cargo/bin/cargo",
+    "resolved": "/Users/ryan/.cargo/bin/rustup",
+    "sha256": "ec1b9233e7f72990ecd8e62063fa7f6c3dfc2bec8e97f88bff165f9100ac696a"
+  },
+  {
+    "tool": "rustc",
+    "path": "/Users/ryan/.cargo/bin/rustc",
+    "resolved": "/Users/ryan/.cargo/bin/rustup",
+    "sha256": "ec1b9233e7f72990ecd8e62063fa7f6c3dfc2bec8e97f88bff165f9100ac696a"
+  },
+  {
+    "tool": "rustup",
+    "path": "/Users/ryan/.cargo/bin/rustup",
+    "resolved": "/Users/ryan/.cargo/bin/rustup",
+    "sha256": "ec1b9233e7f72990ecd8e62063fa7f6c3dfc2bec8e97f88bff165f9100ac696a"
+  },
+  {
+    "tool": "wasm-bindgen",
+    "path": "/Users/ryan/.cargo/bin/wasm-bindgen",
+    "resolved": "/Users/ryan/.cargo/bin/wasm-bindgen",
+    "sha256": "2bc5b9a57924dee4f1d0cf4139fa82bf29bee13f63cbc98468e38138a3b074f1"
+  }
+]

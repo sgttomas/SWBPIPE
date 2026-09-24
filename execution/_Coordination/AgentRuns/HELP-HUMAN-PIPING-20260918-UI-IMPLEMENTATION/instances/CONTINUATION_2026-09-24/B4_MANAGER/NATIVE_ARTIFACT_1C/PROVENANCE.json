@@ -1,0 +1,48 @@
+{
+  "manager": "/root/b4_manager",
+  "actual_child": "/root/b4_manager/native_compact",
+  "mechanism": "collaboration.followup_task retained TASK Type2, build-only scope supersedes earlier UI brief",
+  "model": "gpt-6-astra/low",
+  "requested_product_revision": "1c1b8b072a25a5014f41dcc0e0fd8fd9d1ab0a9a",
+  "head_at_start": "1c1b8b072a25a5014f41dcc0e0fd8fd9d1ab0a9a",
+  "status": "build artifact returned; manager verified newbundle/dist/oldbundle hashes and released generated-output ownership",
+  "new_target": "provided separate temp target; exact absolute path in TASK raw records",
+  "old_primary_target": "untouched, no cleaning/copying/mutation allowed",
+  "authority": "build/inspection only; no app/self-test/CUA/browser/PID action, code edit, Git mutation, signing-account/host-policy change",
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/scripts/build-wasm-engine.mjs",
+      "sha256": "331a792124925e9dc436e3c4dd563bdd22cc4d370cc87a53afe0a33f82a04ee5"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/build.rs",
+      "sha256": "487059eaf8a947b80f20a9aacac038a5047b2ad69d2401b827376c67d6fe847f"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/tauri.conf.json",
+      "sha256": "b3de0965f205e1ed34f07744939314c9ac40dd00af2ee8c0de336c6e2bfba5d0"
+    }
+  ],
+  "resource_clarification": "ROOT primary53-case dist run complete; primary generated outputs released. C4 uses isolated source/dist/WASM/ports and does not consume primary assets; no wait for isolated browser stage.",
+  "task_return_sha256": "c925efa64e458dd116c0f8f0c0f442706586a871e71dfcf580a89d9ae60f7e16"
+}

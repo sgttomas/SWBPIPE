@@ -63,6 +63,10 @@
     {
       "path": ".agents/skills/software-defect-diagnosis/SKILL.md",
       "sha256": "f281558734732ab0a97cf1407ba80a53c25e8c2b9dd96069bec589fd521a7a23"
+    },
+    {
+      "path": ".agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
     }
   ],
   "children": [
@@ -74,7 +78,7 @@
       "brief": "IMPLEMENTATION_MANAGER_BRIEF.md",
       "fork_turns": "none",
       "writes": "apps/desktop and additive tools/ci under project; B4_MANAGER evidence; ROOT owns Git/graph",
-      "state": "CI_FOCUS_REPAIR digest712c9871 returned; causal Chromium148/Chrome153 difference proved, 58units/TS and sixcases eachbrowser pass; source/ports released; fresh independentreview/CI/sweep/native pending",
+      "state": "Source focus repair, independent review, exact-head CI, CI-bound DEC-025 and separate 53-case dist pass at 1c1b8b072. Build-only native artifact completed with 857 candidate-equal maintained inputs; GUI witness and integration remain open; resources released.",
       "brief_sha256": "190383d57b9788904ba6c9dbb066daa8abe7b114852c398302949c254091e5e3"
     },
     {
@@ -85,7 +89,7 @@
       "brief": "DESIGN_MANAGER_BRIEF.md",
       "fork_turns": "none",
       "writes": "DESIGN_MANAGER evidence only; product read-only",
-      "state": "Packaging design returned: exact Tauri2.11.1 src/bin auto-enumeration re-admits gated target; same-package source relocation adopted by ROOT; no source edits or execution.",
+      "state": "Packaging design adopted and checked; later read-only C4 connected-overflow guidance returned. No product writes or execution.",
       "brief_sha256": "4882d53f41ad2b2d2251f1ea891dbef19f2bc0e2b8aa74cc8005e396f34ae024"
     },
     {
@@ -109,7 +113,7 @@
       "brief_sha256": "fd3a24e13e6be0839907719d537aa4590cad5d1296ddeca51e0d34b1d39a0d3b",
       "fork_turns": "none",
       "writes": "named native/frontend scopes and own evidence only in isolated branch codex/piping-live-control-20260924; primary remains ROOT-owned",
-      "state": "Controller source de52a7cf and evidence c6837e02 independently backchecked. Failed package inclusion is preserved; path-only CLI source relocation/Cargo path/guide repair and same-target bundle proof authorized. No actual app/endpoint/H1H2.",
+      "state": "Primary 1c integrated at b0cb8bce; clean evidence b92f2506. Controller/transport repairs, CLI relocation, affected frontend, normal bundle, isolated packaged self-test and independent backchecks pass. Actual GUI/controller and human witnesses remain open; resources released.",
       "activation": "LIVE_IMPLEMENTATION_ACTIVATION.md",
       "activation_sha256": "9fda39962acb516469ddcfa7898119e16a9104316b57ebb0d2a5e6b9356c6628"
     },
@@ -147,7 +151,7 @@
       "fork_turns": "none",
       "branch": "codex/piping-c4-policy-20260924",
       "basis": "5cfd2257cafca0fb141fc7dd5085c627d8caae9e",
-      "state": "canvas and current-row repairs independently backchecked; reviewed current-row source dbdbf566, clean evidence c6a2178e; latestB4focus integration/browser/native/full/profile gates open; all resources released",
+      "state": "Latest B4 focus integrated at 6bbaa0bc and reviewed. Connected browser modes/current-row/context-loss and C3 pass. Compact foundation startup diagnosis and lazy omission-list repair at 8589065f6 under current review/sequence run. Actual context-above-cap witness, remaining browser/dist/native/full gates open; manager owns sequential 5174/5175.",
       "writes": "six new viewport policy/index/placement source/tests plus C4_MANAGER evidence, isolated checkout only",
       "activation": "C4_CANVAS_ACTIVATION.md",
       "activation_sha256": "cf47440ab4f198f7160e05576112b6a597f00c2efb65b57d69f93b2f6ca767ba"

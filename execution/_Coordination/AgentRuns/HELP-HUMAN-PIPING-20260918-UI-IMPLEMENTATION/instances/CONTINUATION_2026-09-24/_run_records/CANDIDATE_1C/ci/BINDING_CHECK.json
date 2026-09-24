@@ -1,0 +1,66 @@
+{
+  "head": "1c1b8b072a25a5014f41dcc0e0fd8fd9d1ab0a9a",
+  "run_id": 35964070784,
+  "run_attempt": 1,
+  "mode": "full",
+  "selected_identities": 495,
+  "registered_specs": 16,
+  "projects": [
+    "chromium-compact",
+    "chromium-desktop"
+  ],
+  "partitions": [
+    {
+      "stage": "barrier",
+      "shard": null,
+      "count": 30
+    },
+    {
+      "stage": "remainder",
+      "shard": 1,
+      "count": 35
+    },
+    {
+      "stage": "remainder",
+      "shard": 2,
+      "count": 99
+    },
+    {
+      "stage": "remainder",
+      "shard": 3,
+      "count": 118
+    },
+    {
+      "stage": "remainder",
+      "shard": 4,
+      "count": 213
+    }
+  ],
+  "partition_union_exact": true,
+  "omitted": 0,
+  "execution_proof": "All seven workflow jobs and each named actual run/aggregate step concluded success. Collection-only artifacts establish identity/partition coverage and are not themselves represented as test passes.",
+  "source_identity_hashes_match": true,
+  "collection_records": [
+    {
+      "file": "collections/piping-e2e-collection-barrier-35964070784-1/collection.json",
+      "sha256": "c792cff07ff493e9b3f6af4b04003233594c886fd344fd480095c8d9bd395f48"
+    },
+    {
+      "file": "collections/piping-e2e-collection-shard-1-35964070784-1/collection.json",
+      "sha256": "8981887ba1c59240ed5ad6aaf8f9d9dee2c9cdabd9d6bdc55de90ced96265ef8"
+    },
+    {
+      "file": "collections/piping-e2e-collection-shard-2-35964070784-1/collection.json",
+      "sha256": "3997234e976e19d63f0308990732c93a95e57ef7578abfbe39d5c12c2cd5810c"
+    },
+    {
+      "file": "collections/piping-e2e-collection-shard-3-35964070784-1/collection.json",
+      "sha256": "d5052448c063d620272a5b2277536ae98462c66012419e9e8e7ab0c31615cb8b"
+    },
+    {
+      "file": "collections/piping-e2e-collection-shard-4-35964070784-1/collection.json",
+      "sha256": "554d1b6bd25f0183f9852dd9d00017470a79fef9fda45817675744ee204ae41c"
+    }
+  ],
+  "limits": "Declared test skips retain their original meaning; no D72 performance, native WebKit, engineering or release qualification."
+}
