@@ -1,0 +1,25 @@
+# Owner activation — application correctness programme
+
+The owner’s live direction after the reviewed 38-item assessment and pressure clarification is:
+
+> Continue fixing all the findings and any other errors you encounter. Use your own expert knowledge to decide correctness for the application.
+
+This is the actual new implementation authorization, superseding the earlier assessment-only posture for the findings. HELP_HUMAN’s application: repair substantiated defects, complete the identified application capability gaps, and fix consequential errors uncovered in the same work. Use engineering judgment to select technically justified formulations, interfaces and expected behavior, rather than treating the supplied report’s recommendations as orders. Ordinary technical decisions no longer wait for another owner prompt merely because an older preparation record reserved their selection. Preserve the exact authority history and record each material choice and its consequences.
+
+This direction does not make contradicted claims true, establish the report’s unsealed numerical results as verified, or authorize weakening a test merely to obtain a pass. Incorrect references may be replaced prospectively using independent derivation and review, with the old evidence preserved and affected production/contract tests updated together. Existing method-specific numeric limits and unrelated UI/profile criteria are not silently loosened. Engineering correctness must be shown with dimensionally consistent references, realistic live-path cases, equilibrium/compatibility and targeted negative controls. Software verification, independent review and actual-candidate merge checks remain required.
+
+The source-reviewed ASSESSMENT.md and six returns in SOLVER_FINDINGS_ASSESSMENT supply the issue inventory and qualifications. PRESSURE_THRUST_CLARIFICATION.md rejects a blanket external bend-thrust load: pressure/wall/closure/effective-force treatment must remain consistent. Reuse prior pressure references and the private exact-annulus kernel; its former dormant-only limit is historical input to the newly authorized integration design, not proof that it is already a live repair.
+
+The existing undertaking graph retains its stable identity and completed predecessor work through PR834. Add an application-correctness milestone and explicit M01–M38 dispositions alongside the unfinished UI and activated live-control milestones. Every item needs implemented-and-verified behavior, a supported contradicted/no-change finding, or a concrete external prerequisite/owner choice; documentation alone cannot close missing required implementation. Include newly discovered connected defects. First priority is silently wrong/incomplete accepted mechanics: numerical integrity, pressure/stress recovery, discarded or ignored restraints/loads, combination semantics and reaction publication. Authoring/units fixes and independent references can advance in parallel with disjoint ownership.
+
+HELP_HUMAN owns programme graph, cross-project integration and primary Git. WORKING_ITEMS owns connected implementation and child integration; HELPS_HUMANS prepares physical/interface designs where warranted; TASK executes bounded assignments with intended full role read before dispatch. Preserve approved model allocation and actual origin/hash/parentage evidence. Shared product_physics and native/browser/build resources have one integration/execution owner at a time; independent worktrees avoid accidental shared-file writes.
+
+Scope remains Piping plus source-owned Piping check registration when needed. Shared Root/Runtime/App/CI instruction/configuration changes route through their named owners. No release, signing-account change, private dataset publication, third-party purchase, license bypass, professional approval, or false external-solver result is implied. Lawful reference/data and actual host permissions still govern. Do not add another central receipt per tranche; one combined closeout remains at the undertaking’s actual end.
+
+## Subsequent reference-quality steering
+
+The owner further directed:
+
+> analytical references should be confirmed for accuracy and relevance (is newer theory available? You're the expert)
+
+For each physics/numerical repair, qualify the reference before relying on it: independently check derivation, dimensions/signs/boundary conditions, material/geometry/load assumptions and application envelope; consult current primary technical sources for newer relevant theory or methods; state why the chosen reference applies and what it cannot establish. A prior approval/hash, a familiar formula or agreement with production code alone is not proof. Newness alone does not supersede a valid simpler theory; select the method whose justified assumptions fit the application and retain a reasoned comparison with materially relevant alternatives. Keep unit/component checks, live-path validation and professional acceptance distinct. No unreviewed OCR equation artifact is a physics authority.

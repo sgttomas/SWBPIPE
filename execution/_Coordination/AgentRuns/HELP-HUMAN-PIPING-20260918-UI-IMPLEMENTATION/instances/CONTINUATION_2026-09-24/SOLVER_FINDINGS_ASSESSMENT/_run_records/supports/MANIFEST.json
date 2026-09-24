@@ -1,0 +1,424 @@
+{
+  "schema": "bounded-technical-assessment-manifest/v1",
+  "created_utc": "2026-09-24T13:02:27.807945+00:00",
+  "role": "TASK (Type 2)",
+  "parent": "/root",
+  "agent": "/root/solver_supports",
+  "delegation_mechanism": "delegated-harness-native",
+  "os_isolation_claimed": false,
+  "model_allocation": "Inherited Astra/xhigh per supplied sealed brief; no independent runtime model introspection performed",
+  "repository": "/Users/ryan/.codex/worktrees/6614/chirality",
+  "source_candidate": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+  "observed_head": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+  "report_claimed_revision": "bc6d3459be778c7b2b4f8770cb830eb96b18a751",
+  "assigned_findings": [
+    "SUP-01",
+    "SUP-02",
+    "SUP-03",
+    "SUP-04",
+    "SUP-05",
+    "SUP-06",
+    "SUP-07",
+    "SUP-08",
+    "SUP-09",
+    "SUP-10",
+    "SUP-11",
+    "SUP-12",
+    "SUP-13",
+    "SUP-14",
+    "SUP-15",
+    "SUP-16",
+    "SUP-17",
+    "SUP-18",
+    "SUP-19"
+  ],
+  "master_mappings": {
+    "SUP-01": [
+      "M-06"
+    ],
+    "SUP-02": [
+      "M-09"
+    ],
+    "SUP-03": [
+      "M-12"
+    ],
+    "SUP-04": [
+      "M-11"
+    ],
+    "SUP-05": [
+      "M-18"
+    ],
+    "SUP-06": [
+      "M-18"
+    ],
+    "SUP-07": [
+      "M-12"
+    ],
+    "SUP-08": [
+      "M-05"
+    ],
+    "SUP-09": [
+      "M-19"
+    ],
+    "SUP-10": [
+      "M-10",
+      "M-20"
+    ],
+    "SUP-11": [
+      "M-15"
+    ],
+    "SUP-12": [
+      "M-15",
+      "M-21"
+    ],
+    "SUP-13": [
+      "M-19"
+    ],
+    "SUP-14": [
+      "M-19"
+    ],
+    "SUP-15": [
+      "M-19"
+    ],
+    "SUP-16": [
+      "M-06"
+    ],
+    "SUP-17": [
+      "M-03"
+    ],
+    "SUP-18": [
+      "M-06"
+    ],
+    "SUP-19": [
+      "M-38"
+    ]
+  },
+  "brief": {
+    "origin": "/private/tmp/piping-solver-findings-assessment-20260924/supports/BRIEF.md",
+    "sha256": "bc2bccba85df96fd8e9f3dbf521c8f6dd300b050b4932fc4ca0348756f8fa8db"
+  },
+  "claim_excerpt": {
+    "origin": "/private/tmp/piping-solver-findings-assessment-20260924/supports/EXCERPT.md",
+    "sha256": "2d34e486b615bd0fb7fbb5a177d795886543a256cd08972ba88cf60636471db0"
+  },
+  "supplied_report": {
+    "origin": "/Users/ryan/Downloads/SWBPIPE_SOLVER_FINDINGS.md",
+    "sha256": "c9029a07473dcf58c3ba57f4d4c4880fc7dbea03d001d2014b0907183a846dd2"
+  },
+  "expected_report_sha256": "c9029a07473dcf58c3ba57f4d4c4880fc7dbea03d001d2014b0907183a846dd2",
+  "instructions_read_full": [
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+    }
+  ],
+  "additional_source_inspection": "Targeted source, tests-as-source, decision excerpts and symbol search; not a whole-repository audit. Full source-file hashes identify bytes and do not claim whole-file semantic inspection.",
+  "source_origins": [
+    {
+      "repository_relative_path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "candidate": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+      "candidate_sha256": "aa91613c48346654dc7e8b110f22fc74cf9578fb16f21ae9c40cec863b910f15",
+      "working_copy_sha256": "aa91613c48346654dc7e8b110f22fc74cf9578fb16f21ae9c40cec863b910f15",
+      "working_copy_matches_candidate": true
+    },
+    {
+      "repository_relative_path": "projects/chirality-piping/core/product_physics/src/validation.rs",
+      "candidate": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+      "candidate_sha256": "cc98b205467c9a965adc03179e91c43f174ba4b9bafb0f7aff47ed5ad6e936a7",
+      "working_copy_sha256": "cc98b205467c9a965adc03179e91c43f174ba4b9bafb0f7aff47ed5ad6e936a7",
+      "working_copy_matches_candidate": true
+    },
+    {
+      "repository_relative_path": "projects/chirality-piping/core/solver/linear_supports/src/lib.rs",
+      "candidate": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+      "candidate_sha256": "01ac02c48411813d57adf39b4dd97659f19941628002379890e792b2600e5934",
+      "working_copy_sha256": "01ac02c48411813d57adf39b4dd97659f19941628002379890e792b2600e5934",
+      "working_copy_matches_candidate": true
+    },
+    {
+      "repository_relative_path": "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs",
+      "candidate": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+      "candidate_sha256": "3839f407d70d7e85c017bc65ddccbcc5312f3f479eb62587df8ce6e527129a3e",
+      "working_copy_sha256": "3839f407d70d7e85c017bc65ddccbcc5312f3f479eb62587df8ce6e527129a3e",
+      "working_copy_matches_candidate": true
+    },
+    {
+      "repository_relative_path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "candidate": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+      "candidate_sha256": "dcb9f8b9b1c09ba9b35627acce8af42383319ef95242088de45eb74a584e371c",
+      "working_copy_sha256": "dcb9f8b9b1c09ba9b35627acce8af42383319ef95242088de45eb74a584e371c",
+      "working_copy_matches_candidate": true
+    },
+    {
+      "repository_relative_path": "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "candidate": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+      "candidate_sha256": "d657e6507aa5d4ef80124e3f6d10bd5a8af8eae54fe21af787c92814c8b73fde",
+      "working_copy_sha256": "d657e6507aa5d4ef80124e3f6d10bd5a8af8eae54fe21af787c92814c8b73fde",
+      "working_copy_matches_candidate": true
+    },
+    {
+      "repository_relative_path": "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs",
+      "candidate": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+      "candidate_sha256": "b480d2978c42517b156ec013a7c637b31db80a99953947e6788616d9cc8b5b71",
+      "working_copy_sha256": "b480d2978c42517b156ec013a7c637b31db80a99953947e6788616d9cc8b5b71",
+      "working_copy_matches_candidate": true
+    },
+    {
+      "repository_relative_path": "projects/chirality-piping/core/model_operations/operation_applier/src/rich_authoring.rs",
+      "candidate": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+      "candidate_sha256": "4b86c259924ee4b8d083c371154a91b3649fc0a1765f2f113e31e2756224c282",
+      "working_copy_sha256": "4b86c259924ee4b8d083c371154a91b3649fc0a1765f2f113e31e2756224c282",
+      "working_copy_matches_candidate": true
+    },
+    {
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx",
+      "candidate": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+      "candidate_sha256": "980c2812d74628bf71913f1341d3454bc8aaecdc268e96981b576de9f17c2b96",
+      "working_copy_sha256": "980c2812d74628bf71913f1341d3454bc8aaecdc268e96981b576de9f17c2b96",
+      "working_copy_matches_candidate": true
+    },
+    {
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/hanger-selection/HangerSelectionPanel.tsx",
+      "candidate": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+      "candidate_sha256": "ed2fee35f4076f79378129b7cb6b9e9216aaf3573638c1a5e1022cc1350665b5",
+      "working_copy_sha256": "ed2fee35f4076f79378129b7cb6b9e9216aaf3573638c1a5e1022cc1350665b5",
+      "working_copy_matches_candidate": true
+    },
+    {
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/hanger-selection/hangerSelection.ts",
+      "candidate": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+      "candidate_sha256": "c08ab28b37af12365fb05d0581bad6585c4f552752b0330bd9f50475e4d673b9",
+      "working_copy_sha256": "c08ab28b37af12365fb05d0581bad6585c4f552752b0330bd9f50475e4d673b9",
+      "working_copy_matches_candidate": true
+    },
+    {
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/self-weight-authoring/SelfWeightPlanPanel.tsx",
+      "candidate": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+      "candidate_sha256": "4a0c22f313d5fd9fc6e8fab6a31ea97ac3c8f894a83a423ad6c324e7b7f15496",
+      "working_copy_sha256": "4a0c22f313d5fd9fc6e8fab6a31ea97ac3c8f894a83a423ad6c324e7b7f15496",
+      "working_copy_matches_candidate": true
+    },
+    {
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "candidate": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+      "candidate_sha256": "9047e26a578d92f5dc986e1018b7945649b1d9cda662b131e53c4ca633ae10d7",
+      "working_copy_sha256": "9047e26a578d92f5dc986e1018b7945649b1d9cda662b131e53c4ca633ae10d7",
+      "working_copy_matches_candidate": true
+    },
+    {
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+      "candidate": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+      "candidate_sha256": "fe0f9eea5a991d965dc097553e73e8c4c23c7968ed1743a8709af94f02dab20d",
+      "working_copy_sha256": "fe0f9eea5a991d965dc097553e73e8c4c23c7968ed1743a8709af94f02dab20d",
+      "working_copy_matches_candidate": true
+    },
+    {
+      "repository_relative_path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "candidate": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+      "candidate_sha256": "6ea1c8f46a32edc2c5d69cb6f9a94ea64d53e18e3ede324ef5d4e8e9fd56c880",
+      "working_copy_sha256": "6ea1c8f46a32edc2c5d69cb6f9a94ea64d53e18e3ede324ef5d4e8e9fd56c880",
+      "working_copy_matches_candidate": true
+    },
+    {
+      "repository_relative_path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/_REGISTER.md",
+      "candidate": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+      "candidate_sha256": "b4db2b062183f917f2e3dc26796249d41cc99403d291432acfca6a1c98496697",
+      "working_copy_sha256": "b4db2b062183f917f2e3dc26796249d41cc99403d291432acfca6a1c98496697",
+      "working_copy_matches_candidate": true
+    },
+    {
+      "repository_relative_path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-15_spring_hanger_scope.md",
+      "candidate": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+      "candidate_sha256": "47480f9efab74e90f85a856090ebc2635adcb2384d9e7f4a0504a18b722794d4",
+      "working_copy_sha256": "47480f9efab74e90f85a856090ebc2635adcb2384d9e7f4a0504a18b722794d4",
+      "working_copy_matches_candidate": true
+    },
+    {
+      "repository_relative_path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-19_release_convergence_tolerance_policy.md",
+      "candidate": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+      "candidate_sha256": "82dc283c740dc1d3cc83399bbce3b7a45b40d2f2c57c28a7f9417d47aa1c01c7",
+      "working_copy_sha256": "82dc283c740dc1d3cc83399bbce3b7a45b40d2f2c57c28a7f9417d47aa1c01c7",
+      "working_copy_matches_candidate": true
+    },
+    {
+      "repository_relative_path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-35_RULING_2026-07-09.md",
+      "candidate": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+      "candidate_sha256": "0054732952cabd4b591f247510007a8c51bc4a2b42749144f35b8f4da4932302",
+      "working_copy_sha256": "0054732952cabd4b591f247510007a8c51bc4a2b42749144f35b8f4da4932302",
+      "working_copy_matches_candidate": true
+    }
+  ],
+  "history_check": {
+    "method": "git diff --stat/--name-only bc6d3459b..candidate for product_physics, solver, support-configuration, hanger-selection",
+    "observed_changes": []
+  },
+  "probe_artifacts_inspected_read_only": [
+    {
+      "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/sup_probe/Cargo.toml",
+      "sha256": "a110900f45f3bdda1a25f9b941d47d41e5846ee7ca88c8742a71e8dce21ad43f"
+    },
+    {
+      "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/sup_probe/src/main.rs",
+      "sha256": "9c1212c8a83451cae00ef67a5e2aa356fb480a9b65851b2d4f99634aca9cbaff"
+    },
+    {
+      "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/sup_probe/gen.py",
+      "sha256": "76390ad571464c3d468198e585c947b044ff07e2deb63cca650d67d55035dfae"
+    },
+    {
+      "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/sup_probe/p1.py",
+      "sha256": "71239d017304eb2147c0fa4da5b8ad65e3862096452a9593347692bfc890e14c"
+    },
+    {
+      "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/sup_probe/p2.py",
+      "sha256": "b5bd99e77659801a791df623462cc1d5ae97df1e07dca5500fc65a8d8908c979"
+    },
+    {
+      "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/sup_probe/p3.py",
+      "sha256": "43c721860ac9725b2023d486e1526c6bb894f00e914ee655a8fec755dcc8afb4"
+    },
+    {
+      "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/sup_probe/p4.py",
+      "sha256": "369755dc1d06cb4e70baed65fa82487c7ced0d8cb0d7bc26de22803c32650c4d"
+    },
+    {
+      "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/sup_probe/p5.py",
+      "sha256": "7224fec5a5f86a4b65ef1b189b3e3948cf259a30bd195b5627753f9e22c15bd5"
+    },
+    {
+      "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/sup_probe/p5b.py",
+      "sha256": "49b6316a9916209f61dd0b1d168391dfe1b9e53b4f17e8ac489a67c559ee1160"
+    },
+    {
+      "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/sup_probe/p6.py",
+      "sha256": "9f561930948ae1dcdc34d62e5985b0d54d8de61e899701ae85f72c4aec5e1742"
+    },
+    {
+      "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/sup_probe/p7.py",
+      "sha256": "283ca6c0fb0299963c6177a59d3425da25b9264e975f0cf92833c20b380ea348"
+    },
+    {
+      "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/sup_probe/p8.py",
+      "sha256": "95c2eff7209713cb5f83ef9e1043c45a437bf8f26f78699d76952444890d7957"
+    },
+    {
+      "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/sup_probe/p8b.py",
+      "sha256": "3032f509deb0b8a9cfc54034a208ae89c582293edb26938956f0d4e04a21fcff"
+    },
+    {
+      "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/sup_probe/p9.py",
+      "sha256": "4e47a30930100bfbf7b9da9b80cc06fd6f875c235e846f044b58e3ceb4d2d32c"
+    },
+    {
+      "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/sup_probe_cap/Cargo.toml",
+      "sha256": "e12655cb50f841c559685733ceca202561ed8f705351bbbcd96f7bdc91251cec"
+    },
+    {
+      "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/sup_probe_cap/src/main.rs",
+      "sha256": "9c1212c8a83451cae00ef67a5e2aa356fb480a9b65851b2d4f99634aca9cbaff"
+    }
+  ],
+  "probe_json_prefix_inspected": {
+    "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/sup_probe/f20.json",
+    "inspection": "first 1100 bytes only; identifies input model"
+  },
+  "probe_limits": [
+    "Generators and main functions read but not executed",
+    "External base/cap dependencies are not sealed to candidate",
+    "No saved raw solver output found in exact-directory inventories",
+    "Full modified pp_cap source not compared"
+  ],
+  "operations_performed": [
+    "read-only filesystem text/source inspections",
+    "read-only Git status/revision/diff",
+    "administrative hashing and writing the two requested return artifacts"
+  ],
+  "operations_not_performed": [
+    "product execution",
+    "tests",
+    "builds",
+    "servers",
+    "UI/native/browser witness",
+    "web browsing",
+    "source or governance amendment",
+    "delegation",
+    "Git writes"
+  ],
+  "write_boundary": [
+    "/private/tmp/piping-solver-findings-assessment-20260924/supports/RETURN.md",
+    "/private/tmp/piping-solver-findings-assessment-20260924/supports/MANIFEST.json"
+  ],
+  "unreproduced_claims": "All report numerical outputs, iteration counts, timing/scaling measurements and physical-correctness assertions; standards-specific prescriptions and commercial-tool comparisons unverified.",
+  "output": {
+    "origin": "/private/tmp/piping-solver-findings-assessment-20260924/supports/RETURN.md",
+    "sha256": "563bc348d7b56dca4b8e14e4eb42d2c0bb0d3f666afb4907cd76cc7a846824d3"
+  },
+  "acceptance_claimed": false,
+  "probe_input_json_inventory": [
+    {
+      "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/sup_probe/f20.json",
+      "sha256": "1910ffc0b41bbec5e8bb4d3c34a8126f6967a60e0d7a480a631c1b51ee638ac2",
+      "top_level_keys": [
+        "model"
+      ],
+      "inspection": "Read-only JSON parse to classify input versus output; no numerical execution"
+    },
+    {
+      "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/sup_probe/f40.json",
+      "sha256": "b7a19e1001d1b2a17ea3d0963537a916193e842b2e394c2306ba5860cb73180e",
+      "top_level_keys": [
+        "model"
+      ],
+      "inspection": "Read-only JSON parse to classify input versus output; no numerical execution"
+    },
+    {
+      "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/sup_probe/f80.json",
+      "sha256": "bcc7d997d6ef0c623222af77fb5bf8d96b7474de2943f4afa00204e8e14981a4",
+      "top_level_keys": [
+        "model"
+      ],
+      "inspection": "Read-only JSON parse to classify input versus output; no numerical execution"
+    },
+    {
+      "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/sup_probe/n40.json",
+      "sha256": "fafb77ec57e99042c144f58a3bd94f8a0960aa2c319b82dd710369e9308cb959",
+      "top_level_keys": [
+        "model"
+      ],
+      "inspection": "Read-only JSON parse to classify input versus output; no numerical execution"
+    },
+    {
+      "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/sup_probe/s20.json",
+      "sha256": "f81e2f72a38f3494475e1b68d17591419319ea931a3c0df5a414610d795a6f45",
+      "top_level_keys": [
+        "model"
+      ],
+      "inspection": "Read-only JSON parse to classify input versus output; no numerical execution"
+    },
+    {
+      "origin": "/private/tmp/claude-501/-Users-ryan/08937a6e-e544-4c91-b97d-34e629979c7f/scratchpad/review/sup_probe/s40.json",
+      "sha256": "0970dfe21e23c212641ff97de1386dc864a3ebd1ea216daaa49cc74c81441f86",
+      "top_level_keys": [
+        "model"
+      ],
+      "inspection": "Read-only JSON parse to classify input versus output; no numerical execution"
+    }
+  ],
+  "post_assessment_git_status": "Only pre-existing untracked ROOT_NATIVE_1C evidence; no tracked edits"
+}

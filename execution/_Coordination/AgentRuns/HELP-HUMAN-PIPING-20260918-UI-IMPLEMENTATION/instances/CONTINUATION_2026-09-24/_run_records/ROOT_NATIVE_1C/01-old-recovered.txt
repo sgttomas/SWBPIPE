@@ -1,0 +1,191 @@
+Window: "Invented Utility Loop Preview — SWBPIPE", App: SWBPIPE.
+0 standard window Invented Utility Loop Preview — SWBPIPE, Secondary Actions: Raise
+	1 scroll area
+		2 HTML content Description: SWBPIPE, URL: tauri://localhost
+			3 container
+				4 container Toolbar
+					5 heading SWBPIPE, Value: 1
+						6 text SWBPIPE
+					7 container Invented Utility Loop Preview
+						8 text Invented Utility Loop Preview
+					9 container Editing tools
+						10 button (disabled) Undo model edit, Help: Nothing to undo
+						11 button (disabled) Redo model edit, Help: Nothing to redo
+						12 toggle button Description: Select (⎋), Value: on
+					13 container View
+						14 toggle button Table, Help: Table view (⌘1), Value: off
+						15 toggle button Model, Help: Model view (⌘2), Value: on
+						16 toggle button Both, Help: Both view (⌘3), Value: off
+					17 button Run
+					18 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
+					19 container Panels
+						20 button (disabled, expanded) Inspector, Help: The inspector is always docked in Model view, Secondary Actions: Collapse
+						21 button (disabled) Agent, Help: Agent: not available yet
+					22 pop up button Display units, Value: Entered, Help: Display units. Readouts use the selected units where conversion is available. Unavailable quantities retain entered values. Editing uses entered units.
+					23 summary Appearance, Value: off
+					24 container Human toolkit
+						25 button (collapsed) Find modeling commands, Help: Search or command (⌘K), Secondary Actions: Expand
+				26 container Stages
+					27 content list
+						28 toggle button Model, Value: on
+						29 toggle button Loads, Value: off
+						30 toggle button (disabled) Results, Help: No run yet, Value: off
+						31 toggle button (disabled) Review, Help: No run yet, Value: off
+					32 content list
+						33 button (collapsed) Libraries, Secondary Actions: Expand
+						34 button (collapsed) Rules, Secondary Actions: Expand
+						35 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
+				36 container Modeling workspace
+					37 container Tables
+						38 toggle button Model, Value: on
+						39 toggle button Review changes, Value: off
+						40 button (expanded) Collapse table drawer, Secondary Actions: Collapse
+					41 container Model tree
+						42 container Layout grid mode
+							43 toggle button Tree, Value: off
+							44 toggle button Grid, Value: on
+						45 container Model tree filtering
+							46 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
+								47 text Name, ID, type, or group
+							48 button (disabled) Clear model tree filter
+						49 container
+							50 text Family
+							51 pop up button Grid family, Value: Materials (1)
+						52 button (collapsed) Review changes, Secondary Actions: Expand
+						53 button (collapsed) Table details, Secondary Actions: Expand
+						54 container Bulk entity grid
+							55 container
+								56 table (settable) Material fields
+									57 row (selectable)
+										58 cell (settable)
+											59 text Material
+										60 cell (settable)
+											61 button Sort Label
+										62 cell (settable)
+											63 button Sort Elastic
+										64 cell (settable)
+											65 button Sort Shear
+										66 cell (settable)
+											67 button Sort Thermal
+										68 cell (settable)
+											69 button Sort Provenance
+									70 row (selectable)
+										71 cell (selectable, settable) material:invented-carbon-steel
+										72 cell (selectable, settable) material:invented-carbon-steel Label: Invented carbon-steel-like material
+										73 cell (selectable, settable) material:invented-carbon-steel Elastic: 200000000000 Pa
+Quantity readout, Value: Pa
+200000000000
+Pa
+										74 cell (selectable, settable) material:invented-carbon-steel Shear: 77000000000 Pa
+Quantity readout, Value: Pa
+77000000000
+Pa
+										75 cell (selectable, settable) material:invented-carbon-steel Thermal: 0.000012 1/degC
+Quantity readout, Value: 1/degC
+0.000012
+1/degC
+										76 cell (selectable, settable) material:invented-carbon-steel Provenance: invented_example_no_material_standard
+								77 container Material fields footer
+									78 text 1
+									79 text  of 
+									80 text 1
+									81 text  rows
+					82 container Viewport controls
+						83 text 3D Centerline
+						84 container (collapsed) Viewport deformation overlay status, Secondary Actions: Expand
+							85 summary Deformation · unavailable, Value: off
+								86 text Deformation · unavailable
+						87 container Viewport display toggles
+							88 toggle button Labels, Help: Show or hide entity labels, Value: on
+							89 toggle button Loads, Help: Show or hide load arrows, Value: on
+							90 toggle button Grid, Help: Show or hide the ground grid, Value: on
+						91 container Viewport selection tools
+							92 toggle button Box Select, Value: off
+							93 container
+								94 text Selection filter
+								95 pop up button Selection filter, Value: All
+							96 button (disabled) Hide, Help: Select at least one valid drawable node, pipe, support, or component.
+							97 button (disabled) Isolate, Help: Select at least one valid drawable node, pipe, support, or component.
+							98 button (disabled) Show All, Help: All eligible entities are already shown.
+							99 text Isolate captures the selected geometry. Other shown geometry is dimmed to 20% and remains available to click, hover and box selection; nearer dimmed geometry can be picked before farther undimmed geometry. Selection does not change the snapshot. Hide takes precedence. Show All clears both. I and H apply while focus is in the viewport.
+							100 button Fit Model
+							101 button Fit Visible
+							102 button (disabled) Fit Selection, Help: No visible valid selected geometry can be fitted.
+						103 container Viewport geometry
+							104 toggle button Schematic, Value: on
+							105 toggle button Actual OD, Value: off
+							106 toggle button Measure, Value: off
+					107 container Viewport status
+						108 text Selected:  project:invented-loop-01
+						109 container Schematic centerline geometry
+							110 text Schematic centerline geometry
+						111 container View command status, Help: No view command dispatched.
+							112 text No view command dispatched.
+					113 container
+						114 container Three.js pipe centerline viewport, Help: Click a part to select it; drag to orbit, scroll to zoom
+						115 container Viewport entity selection
+							116 toggle button Select Vertical riser in viewport, Help: Vertical riser (pipe:P-110), Value: off
+							117 toggle button Select Invented branch connection marker in viewport, Help: Invented branch connection marker (component:C-120), Value: off
+							118 toggle button Select Low point elbow in viewport, Help: Low point elbow (node:N-110), Value: off
+							119 toggle button Select Riser elbow in viewport, Help: Riser elbow (node:N-120), Value: off
+							120 toggle button Select Rack span in viewport, Help: Rack span (pipe:P-120), Value: off
+							121 toggle button Select Tie-in rise in viewport, Help: Tie-in rise (pipe:P-130), Value: off
+							122 toggle button Select Invented semi-rigid valve marker in viewport, Help: Invented semi-rigid valve marker (component:C-130), Value: off
+							123 toggle button Select Pump nozzle in viewport, Help: Pump nozzle (node:N-100), Value: off
+							124 toggle button Select Preview one-way terminal stop in viewport, Help: Preview one-way terminal stop (support:NL-140), Value: off
+							125 toggle button Select Anchor at pump nozzle in viewport, Help: Anchor at pump nozzle (support:S-100), Value: off
+						126 image Orientation gizmo showing X, Y, Z axes
+						127 container View controls
+							128 toggle button Front, Value: off
+							129 toggle button Top, Value: off
+							130 toggle button Isometric, Value: on
+						131 text 1 m
+					132 container Command and selection bar
+						133 container Object creation tools
+							134 toggle button Node, Help: Arm node creation, Value: off
+							135 toggle button Pipe, Help: Arm pipe-run creation, Value: off
+							136 toggle button Support, Help: Arm support creation in the Inspector, Value: off
+							137 toggle button Component, Help: Arm component-symbol insertion, Value: off
+							138 toggle button Load, Help: Arm load creation in the Load Cases panel, Value: off
+						139 text Select
+						140 summary Selection & navigation, Value: off
+							141 text Selection & navigation
+					142 splitter Resize table drawer, Value: 180
+					143 container Property inspector
+						144 heading Invented Utility Loop Preview — project:project:invented-loop-01, Value: 2
+							145 text Invented Utility Loop Preview —  project : project:invented-loop-01
+						146 tab group (selectable) Inspector views
+							147 tab (selected) Properties
+							148 tab (selectable) Task
+						149 summary All properties, Value: off
+							150 text All properties
+						151 summary Sources and units, Value: off
+							152 text Sources and units
+						153 summary New support configuration, Value: off
+							154 text New support configuration
+						155 summary New section, Value: off
+							156 text New section
+						157 summary New material, Value: off
+							158 text New material
+						159 summary New support, Value: off
+							160 text New support
+						161 summary New component, Value: off
+							162 text New component
+				163 container Agent
+					164 button (disabled) Agent, Help: Agent: not available yet
+				165 container Workspace status
+					166 container Analysis statuses
+					167 button (collapsed) 5 Issues, Secondary Actions: Expand
+					168 text project: project:invented-loop-01 Entered
+					169 button (collapsed) About SWBPIPE…, Secondary Actions: Expand
+	170 close button
+	171 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	172 minimize button
+	173 text Invented Utility Loop Preview — SWBPIPE
+174 menu bar
+	175 SWBPIPE
+	176 File
+	177 Edit
+	178 View
+	179 Insert
+	180 Analyze

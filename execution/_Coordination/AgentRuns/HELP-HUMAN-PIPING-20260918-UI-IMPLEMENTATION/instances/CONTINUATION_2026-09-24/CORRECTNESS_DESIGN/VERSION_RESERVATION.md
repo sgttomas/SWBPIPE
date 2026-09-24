@@ -1,0 +1,7 @@
+# Prospective shared result-version reservation
+
+ROOT HELP_HUMAN selects one coordinated successor under current owner correctness authority: raw mechanics0.2 and product producer0.2, canonical derivative0.3. The model stays0.2 until the separately qualified pressuremodel0.3 integration. The implementation manager must record exact patch/minor strings and a complete consumer dispatch/semantic table before effects; no second child may independently redefine these names.
+
+M34 precision, C-R1 signed reactions and C-P1 pressure share this reservation. Define their known row/formulation semantics and staged capability/producer identity explicitly; unknown future kinds never become implicitly trusted. Historical raw0.1/derivative0.2 readers, original values and hashes remain immutable and readable. Never reconstruct lost digits or promote an old result to new numerical-integrity-qualified standing solely because its model hash matches. Derived compatibility/status can require recomputation while the original record remains intact.
+
+Numerical integrity means its actual qualified checks passed; it does not certify all physics, code acceptability or professional reliance. Retain pressure/component limitations and actual formulation identity. Actual same-unit roundtrip, display of nonzero small values, native/headless/store/export/rule consumers, complete candidate review and required checks remain implementation gates. The reservation itself is not a new schema release or passing result.

@@ -1,0 +1,173 @@
+{
+  "source_candidate": "0be12dc968d78b747beb5e0d10c32e12cc991d75",
+  "report_claimed_candidate": "bc6d3459b",
+  "input_original": "/Users/ryan/Downloads/SWBPIPE_SOLVER_FINDINGS.md",
+  "input_sha256": "c9029a07473dcf58c3ba57f4d4c4880fc7dbea03d001d2014b0907183a846dd2",
+  "parent": "/root HELP_HUMAN",
+  "mechanism": "delegated-harness-native via collaboration.spawn_agent",
+  "children": [
+    {
+      "id": "/root/solver_elements",
+      "role": "TASK",
+      "model": "gpt-6-astra",
+      "reasoning": "xhigh",
+      "fork_turns": "none",
+      "write_scope": "temporary elements return directory; read-only source",
+      "return": "_run_records/elements/RETURN.md"
+    },
+    {
+      "id": "/root/solver_loads",
+      "role": "TASK",
+      "model": "gpt-6-astra",
+      "reasoning": "xhigh",
+      "fork_turns": "none",
+      "write_scope": "temporary loads return directory; read-only source",
+      "return": "_run_records/loads/RETURN.md"
+    },
+    {
+      "id": "/root/solver_supports",
+      "role": "TASK",
+      "model": "gpt-6-astra",
+      "reasoning": "xhigh",
+      "fork_turns": "none",
+      "write_scope": "temporary supports return directory; read-only source",
+      "return": "_run_records/supports/RETURN.md"
+    },
+    {
+      "id": "/root/solver_stress",
+      "role": "TASK",
+      "model": "gpt-6-astra",
+      "reasoning": "xhigh",
+      "fork_turns": "none",
+      "write_scope": "temporary stress return directory; read-only source",
+      "return": "_run_records/stress/RETURN.md"
+    },
+    {
+      "id": "/root/solver_verification",
+      "role": "TASK",
+      "model": "gpt-6-astra",
+      "reasoning": "xhigh",
+      "fork_turns": "none",
+      "write_scope": "temporary verification return directory; read-only source",
+      "return": "_run_records/verification/RETURN.md"
+    },
+    {
+      "id": "/root/solver_app",
+      "role": "TASK",
+      "model": "gpt-6-astra",
+      "reasoning": "xhigh",
+      "fork_turns": "none",
+      "write_scope": "temporary app return directory; read-only source",
+      "return": "_run_records/app/RETURN.md"
+    }
+  ],
+  "supplied_basis": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_HELP_HUMAN.md",
+      "sha256": "0c2fe7a3097ad26c93c0267e4da6aaf90c9264489df8dc368fad657bcac69183"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": ".agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-66_RULING_2026-09-08.md",
+      "sha256": "578087fbad9ed71e61ea7a22acb3b42ede46684669d16cd2b5d480e0ffae904f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-67_RULING_2026-09-14.md",
+      "sha256": "0c605e5548acf6c9b36b4dbe4de82674960d5b2fc3f9f5bc2f968dc9d53be19a"
+    }
+  ],
+  "records": [
+    {
+      "path": "_run_records/elements/RETURN.md",
+      "sha256": "0ceda9205238f58d8435effba5f1d39979b1d7d6058962dfbc0582e864f85921"
+    },
+    {
+      "path": "_run_records/elements/MANIFEST.json",
+      "sha256": "76aa293b13ec1ae997f20a6effdbfa1c17033b6773a95bc912542f0e041116ca"
+    },
+    {
+      "path": "_run_records/elements/record.md",
+      "sha256": "28065813944b38d847ee75edb62a72264859fb7a85c3a3d5980158bb13be959e"
+    },
+    {
+      "path": "_run_records/loads/RETURN.md",
+      "sha256": "187c67f1267d036bf1f19bab60c271f2ba78234fa1b14c76875b0fb514afc07b"
+    },
+    {
+      "path": "_run_records/loads/MANIFEST.json",
+      "sha256": "734dba01c95e98db5e69c97f2fa558c9fa417eee0bf8f5346ee699cc9e594a5f"
+    },
+    {
+      "path": "_run_records/loads/record.md",
+      "sha256": "9839f9e9ac7360040d87014edb1131fbaf02d5167b41a21189fa3e450ea3c44c"
+    },
+    {
+      "path": "_run_records/supports/RETURN.md",
+      "sha256": "563bc348d7b56dca4b8e14e4eb42d2c0bb0d3f666afb4907cd76cc7a846824d3"
+    },
+    {
+      "path": "_run_records/supports/MANIFEST.json",
+      "sha256": "72d07d64b7d57c7f074ada5321c00d95aa6116dc0f77e89f1b5ef595b9eb3eb9"
+    },
+    {
+      "path": "_run_records/supports/record.md",
+      "sha256": "bc2bccba85df96fd8e9f3dbf521c8f6dd300b050b4932fc4ca0348756f8fa8db"
+    },
+    {
+      "path": "_run_records/stress/RETURN.md",
+      "sha256": "3d6f40f5b9e2d0f5addc522922a3a59f53ff8862117e7c300c201231ada9c9fe"
+    },
+    {
+      "path": "_run_records/stress/MANIFEST.json",
+      "sha256": "5bd2c1175e1e55ed8cf020926494490b66a30f198976e710425fe67a74569c31"
+    },
+    {
+      "path": "_run_records/stress/record.md",
+      "sha256": "a35d0c89dfb4f9f501970aa4a0420a1d080aad87d23ba0efabd7d3191807bf0d"
+    },
+    {
+      "path": "_run_records/verification/RETURN.md",
+      "sha256": "e52dd616ca361d1c6c1aca65b7a23f6aab18f09c6091a4fb6121144518b17c8c"
+    },
+    {
+      "path": "_run_records/verification/MANIFEST.json",
+      "sha256": "eeb7728b001f0748cbe8f2539b29df7d6d6ca82d517af2352826778e3ed90a35"
+    },
+    {
+      "path": "_run_records/verification/record.md",
+      "sha256": "6c43213e9c0541a99b0f1c57a78f9242ddae3958ff76cb879a722dce3e42a9a8"
+    },
+    {
+      "path": "_run_records/app/RETURN.md",
+      "sha256": "061aa7acc2aca25f600022b9283e69959bcfb7f24aeb1663e4df0cd959ab63be"
+    },
+    {
+      "path": "_run_records/app/MANIFEST.json",
+      "sha256": "0ab084e793a30329862a1c55b491f9e0534e2915b8a75efa8b33450cbf06daad"
+    },
+    {
+      "path": "_run_records/app/record.md",
+      "sha256": "8fa11b8a9a336cc3e861015f0fd4e040c29121477adcbaa21ba2966b223c7cbe"
+    }
+  ],
+  "limits": "No product/test/oracle/policy edits or numerical execution. Existing report scratch probe sources and some historical outputs inspected, without independently sealed current-candidate reproduction. Report instructions not adopted. No independent OS sandbox or engineering acceptance claim."
+}

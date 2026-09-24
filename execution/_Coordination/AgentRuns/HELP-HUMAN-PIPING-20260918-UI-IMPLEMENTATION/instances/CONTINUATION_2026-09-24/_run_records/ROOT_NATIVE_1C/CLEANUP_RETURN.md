@@ -1,0 +1,7 @@
+# ROOT native cleanup after interruption
+
+Supported native inventory became available on the resumed turn. ROOT selected the old app and verified the same invented utility-loop fixture, Model/Grid/Materials, drawer180 and disabled model Undo/Redo. No user model change was observed. The native family menu first did not change its selection through the indexed menu click; Home/Return then selected Nodes. An attempted keyboard splitter adjustment left focus in the family picker and changed no model; it was dismissed. Fresh state was obtained after the tool reported a foreground change.
+
+ROOT pointer-dragged the drawer from180 to280, restored Tree and Both with inspector collapsed, and restored the window capture from2560x1600 to2880x1840. Screenshots/AX are retained here. No model edit, draft, queue, solve, save or model-history action occurred. System appearance and Comfortable density were not changed. ROOT then used the native Quit shortcut. Process inspection verifies oldPID9925 is absent, while its old binary hash and the separately built repaired artifact hash remain unchanged (launch-preflight.json).
+
+The repaired artifact has NOT been launched: the owner supplied a solver-findings assessment request at this boundary. Native verification remains outstanding. C4 received the sequential functional browser lane while ROOT assesses those findings. This is safe cleanup and a checkpoint, not a native fit pass or undertaking receipt.
