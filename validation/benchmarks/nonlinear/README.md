@@ -33,13 +33,13 @@ validation thresholds remain outside this active-set-count record.
 The current assembled validation seed also carries the governed
 `DEC-046-CV-B-free-dof-force-moment-residual-validation-v1` threshold policy for
 final-iteration free-DOF force and moment equilibrium residuals only. The
-accepted limits are `0.0 N` and `0.0 N-m` on the current invented seed. This
+accepted limits are `0.0 N` and `0.0 N-mm` on the current invented seed. This
 current seed also carries
 `DEC-046-CV-B-free-dof-work-residual-validation-v1` for final-iteration
-free-DOF work residual products, with an accepted `0.0 N-m` limit. These
+free-DOF work residual products, with an accepted `0.0 N-mm` limit. These
 records now also bind the same final-iteration residual-work evidence envelope
 to `DEC-046-CV-B-general-energy-residual-validation-v1`, with an accepted
-`0.0 N-m` limit for the current assembled validation seed only. These records
+`0.0 N-mm` limit for the current assembled validation seed only. These records
 do not define sparse live-path, product-preview, release, external validation,
 total strain-energy, modal-energy, or CI thresholds.
 
@@ -49,8 +49,8 @@ fixture-evidence-envelope final-iteration displacement and reaction deltas from
 the previous active-set solve, using
 `DEC-046-CV-B-displacement-reaction-delta-observation-v1` as the source
 observation ledger. The class-tiered accepted limits are `0.1 mm`, `0.0 rad`,
-`10.0 N`, and `0.0 N-m` for one-way/lift-off/friction and `0.05 mm`,
-`0.0 rad`, `5.0 N`, and `0.0 N-m` for gap. These records do not define general
+`10.0 N`, and `0.0 N-mm` for one-way/lift-off/friction and `0.05 mm`,
+`0.0 rad`, `5.0 N`, and `0.0 N-mm` for gap. These records do not define general
 energy, sparse live-path, product-preview, release, external validation, or CI
 thresholds. Translation deltas are in the fixtures' own millimetres; before the
 `D-75` unit correction (2026-09-23) they were scaled by 1000 and the limits were
@@ -105,7 +105,7 @@ as a fixture-evidence-envelope displacement/reaction delta policy for the same
 set, using
 `DEC-046-CV-B-multisupport-displacement-reaction-delta-observation-v1` as the
 source observation ledger. The accepted multi-support limits are `0.1 mm`,
-`0.005 rad`, `10.0 N`, and `3.0 N-m`, with a `0.0 N-m` general-energy residual
+`0.005 rad`, `10.0 N`, and `3.0 N-mm`, with a `0.0 N-mm` general-energy residual
 limit. These records do not define sparse-default, product-preview, release,
 external validation, total strain-energy, modal-energy, or CI thresholds.
 

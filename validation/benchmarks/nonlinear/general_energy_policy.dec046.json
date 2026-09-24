@@ -8,7 +8,7 @@
   "energy_residual_basis": {
     "name": "general_energy_residual_envelope",
     "source_measure": "max_abs_free_dof_work_residual",
-    "unit": "N-m",
+    "unit": "N-mm",
     "dimension": "moment",
     "note": "zero means no free-DOF residual work/energy product remains in the final linearized solve for the accepted seed fixture"
   },

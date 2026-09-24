@@ -42,12 +42,12 @@ non-seed acceptance companion in the multi-support validation fixture set.
 | Final changed support count | 0 | count | dimensionless |
 | Expected iteration count | 2 | count | dimensionless |
 | Free-DOF force residual | 0.0 | N | force |
-| Free-DOF moment residual | 0.0 | N-m | moment |
-| Final free-DOF work residual | 0.0 | N-m | moment |
+| Free-DOF moment residual | 0.0 | N-mm | moment |
+| Final free-DOF work residual | 0.0 | N-mm | moment |
 | Multi-support translation delta threshold | 0.1 | mm | displacement |
 | Multi-support rotation delta threshold | 0.005 | rad | rotation |
 | Multi-support force-reaction delta threshold | 10.0 | N | force |
-| Multi-support moment-reaction delta threshold | 3.0 | N-m | moment |
+| Multi-support moment-reaction delta threshold | 3.0 | N-mm | moment |
 | Final friction state | sliding | label | dimensionless |
 | Final gap state | active | label | dimensionless |
 | Expected convergence flag | true | label | dimensionless |

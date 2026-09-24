@@ -125,7 +125,7 @@ EXPECTED_MULTISUPPORT_ACCEPTANCE_FIXTURE_IDS = list(
 REQUIRED_UNIT_BASIS_LINES = {
     "Translational support displacement and clearance | `mm` | length",
     "Translational support reaction | `N` | force",
-    "Rotational support reaction | `N-m` | moment",
+    "Rotational support reaction | `N-mm` | moment",
     "Friction coefficient | `ratio` | dimensionless",
     "Active-set residual and iteration counts | `count` | dimensionless",
 }
@@ -530,7 +530,7 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     assert force_moment_policy_record["force_residual_basis"]["name"] == "free_dof_force_residual"
     assert force_moment_policy_record["force_residual_basis"]["unit"] == "N"
     assert force_moment_policy_record["moment_residual_basis"]["name"] == "free_dof_moment_residual"
-    assert force_moment_policy_record["moment_residual_basis"]["unit"] == "N-m"
+    assert force_moment_policy_record["moment_residual_basis"]["unit"] == "N-mm"
     assert [entry["nonlinear_class"] for entry in force_moment_policy_record["entries"]] == [
         "one_way",
         "gap",
@@ -547,7 +547,7 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     assert work_policy_record["decision_ref"] == "DEC-046"
     assert work_policy_record["status"] == "accepted_for_current_assembled_validation_seed"
     assert work_policy_record["work_residual_basis"]["name"] == "free_dof_work_residual"
-    assert work_policy_record["work_residual_basis"]["unit"] == "N-m"
+    assert work_policy_record["work_residual_basis"]["unit"] == "N-mm"
     assert [entry["nonlinear_class"] for entry in work_policy_record["entries"]] == [
         "one_way",
         "gap",
@@ -568,7 +568,7 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     assert general_energy_policy_record["energy_residual_basis"]["source_measure"] == (
         "max_abs_free_dof_work_residual"
     )
-    assert general_energy_policy_record["energy_residual_basis"]["unit"] == "N-m"
+    assert general_energy_policy_record["energy_residual_basis"]["unit"] == "N-mm"
     assert [entry["nonlinear_class"] for entry in general_energy_policy_record["entries"]] == [
         "one_way",
         "gap",
@@ -593,7 +593,7 @@ def test_assembled_global_loop_seed_uses_governed_policy():
     assert displacement_reaction_delta_policy_record["force_reaction_delta_basis"]["unit"] == "N"
     assert (
         displacement_reaction_delta_policy_record["moment_reaction_delta_basis"]["unit"]
-        == "N-m"
+        == "N-mm"
     )
     assert [
         entry["nonlinear_class"]
