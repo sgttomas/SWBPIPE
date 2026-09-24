@@ -4063,3 +4063,54 @@ body { min-width: 760px; min-height: 540px; }
 .engineering-table-enum-popup { z-index: 1000; box-sizing: border-box; border: 1px solid var(--border-hairline); background: var(--surface-panel); color: var(--text-primary); box-shadow: 0 4px 12px #0003; }
 .engineering-table-enum-popup [role="option"] { padding: 6px 10px; cursor: pointer; }
 .engineering-table-enum-popup [role="option"]:hover, .engineering-table-enum-popup [aria-selected="true"] { background: var(--selection-band); }
+
+/* Drawer presentation keeps the control band and footer fixed while the row
+   slot owns vertical scrolling. It shares mounted table/editor state with the
+   full-height presentation; the toolbar portal contains controls only. */
+.model-grid-toolbar { display: contents; }
+.model-grid-toolbar-target:empty { display: none; }
+.app-shell .model-tree[data-compact-grid="true"] {
+  position: relative; padding: 0; gap: 0;
+}
+.model-tree[data-compact-grid="true"] > .panel-title { display: none; }
+.model-tree[data-compact-grid="true"] > .model-grid-toolbar {
+  display: flex; flex: 0 0 30px; min-height: 30px; align-items: center;
+  gap: 4px; overflow-x: auto; overflow-y: hidden; overscroll-behavior: contain;
+}
+.model-tree[data-compact-grid="true"] .model-grid-toolbar-target {
+  display: flex; align-items: center; gap: 4px; flex: 1 0 auto;
+}
+.model-tree[data-compact-grid="true"] .layout-mode-toggle {
+  flex: 0 0 auto; flex-wrap: nowrap; gap: 0; margin: 0;
+}
+.model-tree[data-compact-grid="true"] .layout-mode-toggle svg,
+.model-tree[data-compact-grid="true"] .model-tree-controls label > svg,
+.model-tree[data-compact-grid="true"] .model-tree-controls label > span,
+.model-tree[data-compact-grid="true"] .model-tree-controls > span { display: none; }
+.model-tree[data-compact-grid="true"] .model-tree-controls {
+  display: flex; flex: 0 0 120px; gap: 0; margin: 0;
+}
+.model-tree[data-compact-grid="true"] .model-tree-controls label { display: block; flex: 1; min-width: 0; }
+.model-tree[data-compact-grid="true"] .model-tree-controls input { width: 100%; }
+.model-tree[data-compact-grid="true"] .model-tree-controls button { flex: 0 0 24px; width: 24px; }
+.model-tree[data-compact-grid="true"] .model-grid-toolbar :is(button,input,select) {
+  min-height: 28px; height: 28px; padding: 2px 5px; font-size: 12px; box-sizing: border-box;
+}
+.compact-family-label { display: flex; align-items: center; gap: 3px; white-space: nowrap; font-size: 12px; }
+.compact-family-label select { width: 100px; }
+.model-tree[data-compact-grid="true"] .entity-grid-review-toggle { white-space: nowrap; border: 0; }
+.model-tree[data-compact-grid="true"] .entity-grid-actions { flex-wrap: nowrap; gap: 3px; }
+.model-tree[data-compact-grid="true"] .entity-grid { gap: 0; }
+.model-tree[data-compact-grid="true"] .entity-grid-review-content { gap: 0; }
+.model-tree[data-compact-grid="true"] :is(.entity-grid-summary,.entity-grid-boundary,.retained-direct-draft) { display: none; }
+.model-tree[data-compact-grid="true"] .engineering-table-header { height: 29px; min-height: 29px; }
+.model-tree[data-compact-grid="true"] .engineering-table-header button { min-height: 28px; padding: 2px 6px; }
+.model-tree[data-compact-grid="true"] .engineering-table-footer {
+  flex-wrap: nowrap; height: 32px; min-height: 32px; padding: 1px 4px; gap: 6px;
+  overflow-x: auto; overflow-y: hidden; white-space: nowrap; overscroll-behavior: contain;
+}
+.model-tree[data-compact-grid="true"] .engineering-table-footer > * { flex: 0 0 auto; }
+.model-tree[data-compact-grid="true"] .engineering-table-footer button { min-height: 28px; height: 28px; padding: 2px 6px; }
+.model-tree[data-compact-grid="true"] .engineering-table-message { padding: 0; }
+.compact-table-details { max-width: min(560px, 90vw); border: 1px solid var(--ui-divider); padding: 12px; background: var(--ui-surface); color: var(--ui-text); }
+.compact-table-details p { margin: 0 0 8px; }

@@ -645,3 +645,69 @@ test("B4 Node review retained editor stays contained through hidden families and
   await expect(page.getByTestId(`table-cell-${first.id}-x`)).toHaveText(String(first.position.x)); await expect(page.getByTestId("workspace-undo")).toBeDisabled(); await page.setViewportSize(viewport);
   await info.attach("node-review-retained-host", { body: JSON.stringify({ headerFooterHits: hits, pageReturnAlignment: alignment }), contentType: "application/json" });
 });
+
+for (const density of ["comfortable", "compact"] as const) for (const view of ["model", "both"] as const) for (const drawer of [180, 280, 500]) {
+  test(`B4 compact drawer ${view} ${density} ${drawer} @explicit-viewport`, async ({ page, browser }, info) => {
+    await attachBrowserIdentity(browser, info);
+    // Model uses the native window minimum; stacked Both is browser evidence.
+    await page.setViewportSize(view === "model" ? { width: 1280, height: 800 } : { width: 1024, height: 768 });
+    await page.addInitScript(({ density, drawer }) => localStorage.setItem("chirality.desktop.ui-preferences.v1", JSON.stringify({ version: 1, density, tableDrawerPx: drawer })), { density, drawer });
+    await page.goto("/"); await expect(page.getByTestId("workspace-toolbar")).toBeVisible();
+    await page.getByTestId(`view-switch-${view}`).click(); await ensureTreeExpanded(page); await page.getByTestId("layout-mode-grid").click();
+    const host = page.getByTestId("shell-tree-host"), table = page.getByTestId("engineering-table"), family = page.getByRole("combobox", { name: "Grid entity type" });
+    const observations: unknown[] = [];
+    async function measure(surface = table) {
+      const measured = await surface.evaluate((root) => {
+        const host = root.closest(".shell-tree-host")!, body = root.querySelector<HTMLElement>('[role="rowgroup"]')!, header = root.querySelector<HTMLElement>(".engineering-table-header")!, footer = root.querySelector<HTMLElement>(".engineering-table-footer")!;
+        const rect = (e: Element) => { const r = e.getBoundingClientRect(); return { x: r.x, y: r.y, height: r.height, width: r.width, bottom: r.bottom }; };
+        return { host: rect(host), hostScroll: host.scrollHeight, hostClient: host.clientHeight, body: rect(body), header: rect(header), footer: rect(footer), headerColumns: [...header.children].map(rect), rowColumns: [...body.querySelector('[role="row"]')!.children].map(rect) };
+      });
+      observations.push(measured);
+      if (drawer < 500) expect(measured.host.height).toBeCloseTo(drawer - 53, 0);
+      else { expect(measured.host.height).toBeGreaterThan(227); expect(measured.host.height).toBeLessThanOrEqual(drawer - 53); }
+      expect(measured.hostScroll).toBe(measured.hostClient);
+      expect(measured.body.height).toBeGreaterThanOrEqual(36); expect(measured.body.y).toBeGreaterThanOrEqual(measured.header.bottom - 1);
+      expect(measured.body.bottom).toBeLessThanOrEqual(measured.footer.y + 1); expect(measured.footer.bottom).toBeLessThanOrEqual(measured.host.bottom + 1);
+      measured.headerColumns.forEach((column, i) => { expect(measured.rowColumns[i].x).toBeCloseTo(column.x, 0); expect(measured.rowColumns[i].width).toBeCloseTo(column.width, 0); });
+    }
+    async function hit(locator: ReturnType<typeof page.locator>) {
+      const scrolls = () => page.locator(".model-grid-toolbar, .engineering-table-footer:visible").evaluateAll((es) => es.map((e) => ({ className: e.className, scrollLeft: e.scrollLeft, clientWidth: e.clientWidth, scrollWidth: e.scrollWidth })));
+      const before = await scrolls(); await locator.scrollIntoViewIfNeeded(); observations.push({ pointerTarget: await locator.getAttribute("aria-label") ?? await locator.textContent(), before, after: await scrolls() });
+      expect(await locator.evaluate((element) => { const r = element.getBoundingClientRect(), top = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2); return top === element || element.contains(top); })).toBe(true);
+    }
+    await measure(); await hit(family); await hit(page.getByTestId("model-tree-filter-input"));
+    const cell = page.getByTestId("table-cell-node:N-100-y"); await cell.dblclick(); const editor = table.getByRole("textbox");
+    await editor.fill("invalid"); await editor.press("Enter"); await expect(editor).toHaveAttribute("aria-invalid", "true"); await measure(); await hit(editor);
+    await hit(table.getByRole("button", { name: "Apply", exact: true })); await hit(table.getByRole("button", { name: "Cancel", exact: true }));
+    await expect(table.getByRole("alert")).toContainText("finite");
+    const er = await editor.boundingBox(), br = await table.getByRole("rowgroup").boundingBox();
+    expect(er!.height).toBeGreaterThanOrEqual(28); expect(er!.y).toBeGreaterThanOrEqual(br!.y); expect(er!.y + er!.height).toBeLessThanOrEqual(br!.y + br!.height);
+    await family.selectOption("materials"); await family.selectOption("sections"); await family.selectOption("pipes");
+    await expect(page.getByTestId("entity-grid-table-pipes")).toBeVisible(); await hit(page.getByTestId("clear-entity-grid-drafts")); expect(await host.evaluate((e) => e.scrollHeight === e.clientHeight)).toBe(true);
+    await family.selectOption("nodes"); await expect(editor).toHaveValue("invalid");
+    await table.getByRole("button", { name: "Cancel", exact: true }).click(); await expect(cell).toHaveText("0"); await expect(page.getByTestId("workspace-undo")).toBeDisabled();
+    await cell.dblclick(); await table.getByRole("textbox").fill("0.25"); await table.getByRole("button", { name: "Apply", exact: true }).click();
+    await expect(cell).toHaveText("0.25"); await page.getByTestId("workspace-undo").click(); await expect(cell).toHaveText("0");
+    await page.getByTestId("workspace-redo").click(); await expect(cell).toHaveText("0.25"); await page.getByTestId("workspace-undo").click(); await expect(cell).toHaveText("0");
+    await page.getByTestId("node-grid-review-disclosure").click(); const review = page.getByTestId("engineering-table-review"); await measure(review);
+    const reviewCell = review.getByTestId("review-cell-node:N-100-y"); await reviewCell.dblclick(); await review.getByRole("textbox").fill("0.5");
+    await review.getByRole("button", { name: "Keep draft", exact: true }).click(); await measure(review);
+    await hit(page.getByTestId("queue-entity-grid-intents")); await hit(page.getByTestId("clear-entity-grid-drafts"));
+    await page.getByRole("button", { name: "Table details", exact: true }).click(); const details = page.locator(".compact-table-details:popover-open");
+    await expect(details).toBeFocused(); await expect(details).toContainText("1 changed cells"); await expect(details).toContainText("keeping a draft does not change the model"); await page.keyboard.press("Escape"); await expect(details).toBeHidden(); await expect(review).toBeVisible();
+    await page.getByTestId("clear-entity-grid-drafts").click(); await expect(reviewCell).toHaveText("0");
+    await reviewCell.dblclick(); await review.getByRole("textbox").fill("0.75"); await review.getByRole("button", { name: "Keep draft", exact: true }).click();
+    await page.getByTestId("queue-entity-grid-intents").click(); await showModelTree(page); await expect(page.locator(".compact-queued-message")).toContainText("Queued 1 review intent"); await measure(review);
+    await expect(page.getByTestId("workspace-undo")).toBeDisabled(); await page.getByTestId("node-grid-review-disclosure").click(); await expect(cell).toHaveText("0");
+    const body = table.getByRole("rowgroup"), b = await body.boundingBox(); await page.mouse.move(b!.x + 80, b!.y + 15); await page.mouse.wheel(0, 500);
+    if (drawer === 180) await expect.poll(() => body.evaluate((e) => e.scrollTop)).toBeGreaterThan(0);
+    expect(await host.evaluate((e) => e.scrollTop)).toBe(0);
+    await page.getByTestId("model-tree-filter-input").fill("N-100"); await expect(cell).toHaveText("0");
+    await page.getByTestId("toggle-tree").click(); await expect(table).toBeHidden(); await page.getByTestId("toggle-tree").click(); await expect(table).toBeVisible();
+    await expect(page.getByTestId("model-tree-filter-input")).toHaveValue("N-100");
+    await page.getByRole("button", { name: "Table details", exact: true }).click(); await expect(page.locator(".compact-table-details:popover-open")).toBeVisible();
+    await page.getByTestId("layout-mode-tree").click(); await expect(page.locator(".compact-table-details:popover-open")).toHaveCount(0); await expect(family).toHaveCount(0);
+    await page.getByTestId("layout-mode-grid").click(); await expect(family).toHaveValue("nodes");
+    await info.attach("compact-drawer-geometry", { body: JSON.stringify({ density, view, drawer, observations }, null, 2), contentType: "application/json" }); await page.screenshot({ path: info.outputPath("compact-drawer.png") });
+  });
+}

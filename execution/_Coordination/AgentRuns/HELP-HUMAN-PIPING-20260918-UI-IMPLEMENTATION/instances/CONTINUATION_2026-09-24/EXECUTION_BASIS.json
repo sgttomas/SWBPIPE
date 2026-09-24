@@ -62,7 +62,7 @@
       "brief": "IMPLEMENTATION_MANAGER_BRIEF.md",
       "fork_turns": "none",
       "writes": "apps/desktop and additive tools/ci under project; B4_MANAGER evidence; ROOT owns Git/graph",
-      "state": "launched",
+      "state": "source/evidence returned; six-file digest verified; source/browser/build resources released; native unexecuted",
       "brief_sha256": "190383d57b9788904ba6c9dbb066daa8abe7b114852c398302949c254091e5e3"
     },
     {
@@ -97,7 +97,18 @@
       "brief_sha256": "fd3a24e13e6be0839907719d537aa4590cad5d1296ddeca51e0d34b1d39a0d3b",
       "fork_turns": "none",
       "writes": "LIVE_MANAGER evidence only until acknowledged product handback",
-      "state": "launched after actual owner activation; preparation active"
+      "state": "preparation returned; wire91f491 review active; no product writes/resources"
+    },
+    {
+      "id": "/root/wire_review",
+      "role": "TASK independent wire/source-fit reviewer",
+      "model": "gpt-6-astra",
+      "reasoning": "xhigh",
+      "brief": "WIRE_REVIEW_BRIEF.md",
+      "brief_sha256": "3ff8a1e7243c8903340df92162245ab6c0749b513e077680e4098925804990d5",
+      "fork_turns": "none",
+      "writes": "WIRE_REVIEW/RETURN.md only",
+      "state": "launched; exact wire91f491 and plans/source fit only"
     }
   ],
   "enforcement": "Logical role and write scopes; actual host workspace-write permissions apply. Children share checkout; no independent OS sandbox guarantee claimed. No historical worker was resumed."

@@ -391,7 +391,8 @@ function AppSession() {
             <div className="shell-table-body" id="shell-table-body">
             <div className={shell.tab === "model-tree" ? "shell-tree-host" : "shell-tree-host inactive"} data-testid="shell-tree-host">
             <ModelTree
-              boundedGrid={!tableDrawer.collapsible}
+              boundedGrid
+              compactGrid={tableDrawer.collapsible}
               density={uiPreferences.density}
               hiddenKeys={effectiveHiddenKeys}
               model={model}

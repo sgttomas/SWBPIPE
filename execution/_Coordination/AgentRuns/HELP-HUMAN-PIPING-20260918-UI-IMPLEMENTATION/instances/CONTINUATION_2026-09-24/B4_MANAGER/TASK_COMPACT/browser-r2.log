@@ -1,0 +1,21 @@
+
+Running 12 tests using 1 worker
+
+(node:66591) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:66591) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [chromium-desktop] › e2e/b4-table-editing.spec.ts:650:3 › B4 compact drawer model comfortable 180 @explicit-viewport (3.6s)
+  ✓   2 [chromium-desktop] › e2e/b4-table-editing.spec.ts:650:3 › B4 compact drawer model comfortable 280 @explicit-viewport (2.9s)
+  ✓   3 [chromium-desktop] › e2e/b4-table-editing.spec.ts:650:3 › B4 compact drawer model comfortable 500 @explicit-viewport (2.9s)
+  ✓   4 [chromium-desktop] › e2e/b4-table-editing.spec.ts:650:3 › B4 compact drawer both comfortable 180 @explicit-viewport (3.1s)
+  ✓   5 [chromium-desktop] › e2e/b4-table-editing.spec.ts:650:3 › B4 compact drawer both comfortable 280 @explicit-viewport (3.0s)
+  ✓   6 [chromium-desktop] › e2e/b4-table-editing.spec.ts:650:3 › B4 compact drawer both comfortable 500 @explicit-viewport (3.0s)
+  ✓   7 [chromium-desktop] › e2e/b4-table-editing.spec.ts:650:3 › B4 compact drawer model compact 180 @explicit-viewport (2.9s)
+  ✓   8 [chromium-desktop] › e2e/b4-table-editing.spec.ts:650:3 › B4 compact drawer model compact 280 @explicit-viewport (2.9s)
+  ✓   9 [chromium-desktop] › e2e/b4-table-editing.spec.ts:650:3 › B4 compact drawer model compact 500 @explicit-viewport (2.8s)
+  ✓  10 [chromium-desktop] › e2e/b4-table-editing.spec.ts:650:3 › B4 compact drawer both compact 180 @explicit-viewport (3.0s)
+  ✓  11 [chromium-desktop] › e2e/b4-table-editing.spec.ts:650:3 › B4 compact drawer both compact 280 @explicit-viewport (2.9s)
+  ✓  12 [chromium-desktop] › e2e/b4-table-editing.spec.ts:650:3 › B4 compact drawer both compact 500 @explicit-viewport (3.0s)
+
+  12 passed (50.1s)

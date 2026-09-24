@@ -1,0 +1,6 @@
+{
+  "fixture": "projects/chirality-piping/fixtures/product_preview/invented_preview_model.json",
+  "fixture_sha256": "986c055944776ca8d0d849d552678e1f2bfb6c4559bbb9ff8a1928157a4f871c",
+  "new_cases": "Model at1280x800; Both at1024x768; density comfortable/compact; requested drawer180/280/500; inherited shell reserve unchanged",
+  "package_lock_sha256": "0dd1616e1ef3c596d5cdaa8e56994f26127c20943bfde066f26c9f924c65d732"
+}

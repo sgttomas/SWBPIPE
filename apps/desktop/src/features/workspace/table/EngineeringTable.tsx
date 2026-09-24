@@ -15,6 +15,7 @@ type Props = Readonly<{
   testIdPrefix?: string;
   persistentEditor?: boolean;
   bounded?: boolean;
+  compact?: boolean;
   active?: boolean;
   onDraftStateChange?: (retained: boolean) => void;
   rows: readonly TableRow[];
@@ -289,6 +290,11 @@ export function EngineeringTable(props: Props) {
   }, [editorPosition, edit, generation, surfaceActive]);
   const template = `minmax(130px, 1.4fr) ${columns.map((column) => column.minWidth ? `minmax(${column.minWidth}px, 1fr)` : column.kind === "text" ? "minmax(150px, 1.5fr)" : review ? "minmax(160px, 1fr)" : "minmax(90px, 1fr)").join(" ")}`;
   const tableWidth = 130 + columns.reduce((sum, column) => sum + (column.minWidth ?? (column.kind === "text" ? 150 : review ? 160 : 90)), 0);
+  const messages = <>
+    {body.allocationConflict ? <p role="alert" className="engineering-table-message">No space is available for table rows. Expand the table view to continue.</p> : null}
+    {edit?.error ? <p id={errorId} role="alert" className="engineering-table-message">{edit.error}</p> : null}
+    {feedback ? <p role="status" className="engineering-table-message">{feedback}</p> : null}
+  </>;
   return <div className={`engineering-table${bounded ? " bounded" : ""}`} ref={root} style={{ "--table-min-width": `${tableWidth}px` } as React.CSSProperties} tabIndex={-1} data-testid={`${props.testIdPrefix ?? ""}${review ? "engineering-table-review" : "engineering-table"}`}>
     <div role="grid" aria-label={label} aria-rowcount={viewRows.length + 1} aria-colcount={columns.length + 1}>
       <div role="row" className="engineering-table-row engineering-table-header" style={{ gridTemplateColumns: template }}>
@@ -328,10 +334,9 @@ export function EngineeringTable(props: Props) {
       {sort ? <button type="button" onClick={() => setSort(null)}>{sortUnavailable ? "Requested sort" : "Sorted"} by {columns.find((column) => column.key === sort.columnKey)?.label} · Clear</button> : null}
       {edit && !rows.some((row) => row.key === edit.captured.rowKey) ? <span role="alert">The edited row was removed. This retained draft cannot be applied; Cancel to return to the current model.</span>
         : edit && !matchingRows.some((row) => row.key === edit.captured.rowKey) ? <span>Editing row retained outside the filter.</span> : null}
+      {props.compact ? messages : null}
     </div>
-    {body.allocationConflict ? <p role="alert" className="engineering-table-message">No space is available for table rows. Expand the table view to continue.</p> : null}
-    {edit?.error ? <p id={errorId} role="alert" className="engineering-table-message">{edit.error}</p> : null}
-    {feedback ? <p role="status" className="engineering-table-message">{feedback}</p> : null}
+    {!props.compact ? messages : null}
   </div>;
 }
 

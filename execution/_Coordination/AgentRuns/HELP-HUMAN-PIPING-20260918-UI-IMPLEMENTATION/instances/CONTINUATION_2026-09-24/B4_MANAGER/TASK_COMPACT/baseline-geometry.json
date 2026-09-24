@@ -1,0 +1,3965 @@
+{
+  "browser": "153.0.8010.54",
+  "results": [
+    {
+      "density": "comfortable",
+      "drawer": 180,
+      "view": "model",
+      "mode": "direct",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 649,
+          "width": 840,
+          "height": 127,
+          "bottom": 776,
+          "scrollHeight": 661,
+          "clientHeight": 127
+        },
+        "model": {
+          "x": 56,
+          "y": 649,
+          "width": 840,
+          "height": 661.1875,
+          "bottom": 1310.1875,
+          "scrollHeight": 661,
+          "clientHeight": 661
+        },
+        "title": {
+          "x": 68,
+          "y": 661,
+          "width": 816,
+          "height": 16.796875,
+          "bottom": 677.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 687.796875,
+          "width": 816,
+          "height": 32,
+          "bottom": 719.796875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "filter": {
+          "x": 68,
+          "y": 727.796875,
+          "width": 816,
+          "height": 53.390625,
+          "bottom": 781.1875,
+          "scrollHeight": 53,
+          "clientHeight": 53
+        },
+        "family": {
+          "x": 68,
+          "y": 791.1875,
+          "width": 816,
+          "height": 34,
+          "bottom": 825.1875,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        },
+        "header": {
+          "x": 68,
+          "y": 833.1875,
+          "width": 816,
+          "height": 33,
+          "bottom": 866.1875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "rows": {
+          "x": 68,
+          "y": 866.1875,
+          "width": 816,
+          "height": 360,
+          "bottom": 1226.1875,
+          "scrollHeight": 360,
+          "clientHeight": 360
+        },
+        "footer": {
+          "x": 68,
+          "y": 1226.1875,
+          "width": 816,
+          "height": 32,
+          "bottom": 1258.1875,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "error": null,
+        "review": {
+          "x": 68,
+          "y": 1266.1875,
+          "width": 816,
+          "height": 32,
+          "bottom": 1298.1875,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": null,
+        "actions": null,
+        "boundary": null
+      }
+    },
+    {
+      "density": "comfortable",
+      "drawer": 180,
+      "view": "model",
+      "mode": "error",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 649,
+          "width": 840,
+          "height": 127,
+          "bottom": 776,
+          "scrollHeight": 697,
+          "clientHeight": 127
+        },
+        "model": {
+          "x": 56,
+          "y": 478,
+          "width": 840,
+          "height": 696.984375,
+          "bottom": 1174.984375,
+          "scrollHeight": 697,
+          "clientHeight": 697
+        },
+        "title": {
+          "x": 68,
+          "y": 490,
+          "width": 816,
+          "height": 16.796875,
+          "bottom": 506.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 516.796875,
+          "width": 816,
+          "height": 32,
+          "bottom": 548.796875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "filter": {
+          "x": 68,
+          "y": 556.796875,
+          "width": 816,
+          "height": 53.390625,
+          "bottom": 610.1875,
+          "scrollHeight": 53,
+          "clientHeight": 53
+        },
+        "family": {
+          "x": 68,
+          "y": 620.1875,
+          "width": 816,
+          "height": 34,
+          "bottom": 654.1875,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        },
+        "header": {
+          "x": 68,
+          "y": 662.1875,
+          "width": 816,
+          "height": 33,
+          "bottom": 695.1875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "rows": {
+          "x": 68,
+          "y": 695.1875,
+          "width": 816,
+          "height": 360,
+          "bottom": 1055.1875,
+          "scrollHeight": 360,
+          "clientHeight": 360
+        },
+        "footer": {
+          "x": 68,
+          "y": 1055.1875,
+          "width": 816,
+          "height": 41,
+          "bottom": 1096.1875,
+          "scrollHeight": 40,
+          "clientHeight": 40
+        },
+        "error": {
+          "x": 68,
+          "y": 1096.1875,
+          "width": 816,
+          "height": 26.796875,
+          "bottom": 1122.984375,
+          "scrollHeight": 27,
+          "clientHeight": 27
+        },
+        "review": {
+          "x": 68,
+          "y": 1130.984375,
+          "width": 816,
+          "height": 32,
+          "bottom": 1162.984375,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": null,
+        "actions": null,
+        "boundary": null
+      }
+    },
+    {
+      "density": "comfortable",
+      "drawer": 180,
+      "view": "model",
+      "mode": "review",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 649,
+          "width": 840,
+          "height": 127,
+          "bottom": 776,
+          "scrollHeight": 744,
+          "clientHeight": 127
+        },
+        "model": {
+          "x": 56,
+          "y": 32,
+          "width": 840,
+          "height": 743.578125,
+          "bottom": 775.578125,
+          "scrollHeight": 744,
+          "clientHeight": 744
+        },
+        "title": {
+          "x": 68,
+          "y": 44,
+          "width": 816,
+          "height": 16.796875,
+          "bottom": 60.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 70.796875,
+          "width": 816,
+          "height": 32,
+          "bottom": 102.796875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "filter": {
+          "x": 68,
+          "y": 110.796875,
+          "width": 816,
+          "height": 53.390625,
+          "bottom": 164.1875,
+          "scrollHeight": 53,
+          "clientHeight": 53
+        },
+        "family": {
+          "x": 68,
+          "y": 174.1875,
+          "width": 816,
+          "height": 34,
+          "bottom": 208.1875,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        },
+        "header": {
+          "x": 68,
+          "y": 232.984375,
+          "width": 910,
+          "height": 33,
+          "bottom": 265.984375,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "rows": null,
+        "footer": {
+          "x": 68,
+          "y": 625.984375,
+          "width": 816,
+          "height": 32,
+          "bottom": 657.984375,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "error": null,
+        "review": {
+          "x": 68,
+          "y": 731.578125,
+          "width": 816,
+          "height": 32,
+          "bottom": 763.578125,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": {
+          "x": 68,
+          "y": 216.1875,
+          "width": 816,
+          "height": 16.796875,
+          "bottom": 232.984375,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "actions": {
+          "x": 68,
+          "y": 657.984375,
+          "width": 816,
+          "height": 32,
+          "bottom": 689.984375,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "boundary": {
+          "x": 68,
+          "y": 689.984375,
+          "width": 816,
+          "height": 33.59375,
+          "bottom": 723.578125,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        }
+      }
+    },
+    {
+      "density": "comfortable",
+      "drawer": 180,
+      "view": "both",
+      "mode": "direct",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 109,
+          "width": 648,
+          "height": 667,
+          "bottom": 776,
+          "scrollHeight": 667,
+          "clientHeight": 667
+        },
+        "model": {
+          "x": 56,
+          "y": 109,
+          "width": 648,
+          "height": 667,
+          "bottom": 776,
+          "scrollHeight": 667,
+          "clientHeight": 667
+        },
+        "title": {
+          "x": 68,
+          "y": 121,
+          "width": 624,
+          "height": 16.796875,
+          "bottom": 137.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 147.796875,
+          "width": 624,
+          "height": 32,
+          "bottom": 179.796875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "filter": {
+          "x": 68,
+          "y": 187.796875,
+          "width": 624,
+          "height": 53.390625,
+          "bottom": 241.1875,
+          "scrollHeight": 53,
+          "clientHeight": 53
+        },
+        "family": {
+          "x": 68,
+          "y": 251.1875,
+          "width": 624,
+          "height": 34,
+          "bottom": 285.1875,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        },
+        "header": {
+          "x": 68,
+          "y": 293.1875,
+          "width": 700,
+          "height": 33,
+          "bottom": 326.1875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "rows": {
+          "x": 68,
+          "y": 326.1875,
+          "width": 700,
+          "height": 180,
+          "bottom": 506.1875,
+          "scrollHeight": 180,
+          "clientHeight": 180
+        },
+        "footer": {
+          "x": 68,
+          "y": 692,
+          "width": 624,
+          "height": 32,
+          "bottom": 724,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "error": null,
+        "review": {
+          "x": 68,
+          "y": 732,
+          "width": 624,
+          "height": 32,
+          "bottom": 764,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": null,
+        "actions": null,
+        "boundary": null
+      }
+    },
+    {
+      "density": "comfortable",
+      "drawer": 180,
+      "view": "both",
+      "mode": "error",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 109,
+          "width": 648,
+          "height": 667,
+          "bottom": 776,
+          "scrollHeight": 667,
+          "clientHeight": 667
+        },
+        "model": {
+          "x": 56,
+          "y": 109,
+          "width": 648,
+          "height": 667,
+          "bottom": 776,
+          "scrollHeight": 667,
+          "clientHeight": 667
+        },
+        "title": {
+          "x": 68,
+          "y": 121,
+          "width": 624,
+          "height": 16.796875,
+          "bottom": 137.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 147.796875,
+          "width": 624,
+          "height": 32,
+          "bottom": 179.796875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "filter": {
+          "x": 68,
+          "y": 187.796875,
+          "width": 624,
+          "height": 53.390625,
+          "bottom": 241.1875,
+          "scrollHeight": 53,
+          "clientHeight": 53
+        },
+        "family": {
+          "x": 68,
+          "y": 251.1875,
+          "width": 624,
+          "height": 34,
+          "bottom": 285.1875,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        },
+        "header": {
+          "x": 68,
+          "y": 293.1875,
+          "width": 700,
+          "height": 33,
+          "bottom": 326.1875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "rows": {
+          "x": 68,
+          "y": 326.1875,
+          "width": 700,
+          "height": 180,
+          "bottom": 506.1875,
+          "scrollHeight": 180,
+          "clientHeight": 180
+        },
+        "footer": {
+          "x": 68,
+          "y": 656.203125,
+          "width": 624,
+          "height": 41,
+          "bottom": 697.203125,
+          "scrollHeight": 40,
+          "clientHeight": 40
+        },
+        "error": {
+          "x": 68,
+          "y": 697.203125,
+          "width": 624,
+          "height": 26.796875,
+          "bottom": 724,
+          "scrollHeight": 27,
+          "clientHeight": 27
+        },
+        "review": {
+          "x": 68,
+          "y": 732,
+          "width": 624,
+          "height": 32,
+          "bottom": 764,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": null,
+        "actions": null,
+        "boundary": null
+      }
+    },
+    {
+      "density": "comfortable",
+      "drawer": 180,
+      "view": "both",
+      "mode": "review",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 109,
+          "width": 648,
+          "height": 667,
+          "bottom": 776,
+          "scrollHeight": 667,
+          "clientHeight": 667
+        },
+        "model": {
+          "x": 56,
+          "y": 109,
+          "width": 648,
+          "height": 667,
+          "bottom": 776,
+          "scrollHeight": 667,
+          "clientHeight": 667
+        },
+        "title": {
+          "x": 68,
+          "y": 121,
+          "width": 624,
+          "height": 16.796875,
+          "bottom": 137.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 147.796875,
+          "width": 624,
+          "height": 32,
+          "bottom": 179.796875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "filter": {
+          "x": 68,
+          "y": 187.796875,
+          "width": 624,
+          "height": 53.390625,
+          "bottom": 241.1875,
+          "scrollHeight": 53,
+          "clientHeight": 53
+        },
+        "family": {
+          "x": 68,
+          "y": 251.1875,
+          "width": 624,
+          "height": 34,
+          "bottom": 285.1875,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        },
+        "header": {
+          "x": 68,
+          "y": 317.984375,
+          "width": 910,
+          "height": 33,
+          "bottom": 350.984375,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "rows": null,
+        "footer": {
+          "x": 68,
+          "y": 610.40625,
+          "width": 624,
+          "height": 32,
+          "bottom": 642.40625,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "error": null,
+        "review": {
+          "x": 68,
+          "y": 732,
+          "width": 624,
+          "height": 32,
+          "bottom": 764,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": {
+          "x": 68,
+          "y": 293.1875,
+          "width": 624,
+          "height": 16.796875,
+          "bottom": 309.984375,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "actions": {
+          "x": 68,
+          "y": 650.40625,
+          "width": 624,
+          "height": 32,
+          "bottom": 682.40625,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "boundary": {
+          "x": 68,
+          "y": 690.40625,
+          "width": 624,
+          "height": 33.59375,
+          "bottom": 724,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        }
+      }
+    },
+    {
+      "density": "comfortable",
+      "drawer": 280,
+      "view": "model",
+      "mode": "direct",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 549,
+          "width": 840,
+          "height": 227,
+          "bottom": 776,
+          "scrollHeight": 661,
+          "clientHeight": 227
+        },
+        "model": {
+          "x": 56,
+          "y": 549,
+          "width": 840,
+          "height": 661.1875,
+          "bottom": 1210.1875,
+          "scrollHeight": 661,
+          "clientHeight": 661
+        },
+        "title": {
+          "x": 68,
+          "y": 561,
+          "width": 816,
+          "height": 16.796875,
+          "bottom": 577.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 587.796875,
+          "width": 816,
+          "height": 32,
+          "bottom": 619.796875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "filter": {
+          "x": 68,
+          "y": 627.796875,
+          "width": 816,
+          "height": 53.390625,
+          "bottom": 681.1875,
+          "scrollHeight": 53,
+          "clientHeight": 53
+        },
+        "family": {
+          "x": 68,
+          "y": 691.1875,
+          "width": 816,
+          "height": 34,
+          "bottom": 725.1875,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        },
+        "header": {
+          "x": 68,
+          "y": 733.1875,
+          "width": 816,
+          "height": 33,
+          "bottom": 766.1875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "rows": {
+          "x": 68,
+          "y": 766.1875,
+          "width": 816,
+          "height": 360,
+          "bottom": 1126.1875,
+          "scrollHeight": 360,
+          "clientHeight": 360
+        },
+        "footer": {
+          "x": 68,
+          "y": 1126.1875,
+          "width": 816,
+          "height": 32,
+          "bottom": 1158.1875,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "error": null,
+        "review": {
+          "x": 68,
+          "y": 1166.1875,
+          "width": 816,
+          "height": 32,
+          "bottom": 1198.1875,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": null,
+        "actions": null,
+        "boundary": null
+      }
+    },
+    {
+      "density": "comfortable",
+      "drawer": 280,
+      "view": "model",
+      "mode": "error",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 549,
+          "width": 840,
+          "height": 227,
+          "bottom": 776,
+          "scrollHeight": 697,
+          "clientHeight": 227
+        },
+        "model": {
+          "x": 56,
+          "y": 523,
+          "width": 840,
+          "height": 696.984375,
+          "bottom": 1219.984375,
+          "scrollHeight": 697,
+          "clientHeight": 697
+        },
+        "title": {
+          "x": 68,
+          "y": 535,
+          "width": 816,
+          "height": 16.796875,
+          "bottom": 551.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 561.796875,
+          "width": 816,
+          "height": 32,
+          "bottom": 593.796875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "filter": {
+          "x": 68,
+          "y": 601.796875,
+          "width": 816,
+          "height": 53.390625,
+          "bottom": 655.1875,
+          "scrollHeight": 53,
+          "clientHeight": 53
+        },
+        "family": {
+          "x": 68,
+          "y": 665.1875,
+          "width": 816,
+          "height": 34,
+          "bottom": 699.1875,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        },
+        "header": {
+          "x": 68,
+          "y": 707.1875,
+          "width": 816,
+          "height": 33,
+          "bottom": 740.1875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "rows": {
+          "x": 68,
+          "y": 740.1875,
+          "width": 816,
+          "height": 360,
+          "bottom": 1100.1875,
+          "scrollHeight": 360,
+          "clientHeight": 360
+        },
+        "footer": {
+          "x": 68,
+          "y": 1100.1875,
+          "width": 816,
+          "height": 41,
+          "bottom": 1141.1875,
+          "scrollHeight": 40,
+          "clientHeight": 40
+        },
+        "error": {
+          "x": 68,
+          "y": 1141.1875,
+          "width": 816,
+          "height": 26.796875,
+          "bottom": 1167.984375,
+          "scrollHeight": 27,
+          "clientHeight": 27
+        },
+        "review": {
+          "x": 68,
+          "y": 1175.984375,
+          "width": 816,
+          "height": 32,
+          "bottom": 1207.984375,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": null,
+        "actions": null,
+        "boundary": null
+      }
+    },
+    {
+      "density": "comfortable",
+      "drawer": 280,
+      "view": "model",
+      "mode": "review",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 549,
+          "width": 840,
+          "height": 227,
+          "bottom": 776,
+          "scrollHeight": 744,
+          "clientHeight": 227
+        },
+        "model": {
+          "x": 56,
+          "y": 32,
+          "width": 840,
+          "height": 743.578125,
+          "bottom": 775.578125,
+          "scrollHeight": 744,
+          "clientHeight": 744
+        },
+        "title": {
+          "x": 68,
+          "y": 44,
+          "width": 816,
+          "height": 16.796875,
+          "bottom": 60.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 70.796875,
+          "width": 816,
+          "height": 32,
+          "bottom": 102.796875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "filter": {
+          "x": 68,
+          "y": 110.796875,
+          "width": 816,
+          "height": 53.390625,
+          "bottom": 164.1875,
+          "scrollHeight": 53,
+          "clientHeight": 53
+        },
+        "family": {
+          "x": 68,
+          "y": 174.1875,
+          "width": 816,
+          "height": 34,
+          "bottom": 208.1875,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        },
+        "header": {
+          "x": 68,
+          "y": 232.984375,
+          "width": 910,
+          "height": 33,
+          "bottom": 265.984375,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "rows": null,
+        "footer": {
+          "x": 68,
+          "y": 625.984375,
+          "width": 816,
+          "height": 32,
+          "bottom": 657.984375,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "error": null,
+        "review": {
+          "x": 68,
+          "y": 731.578125,
+          "width": 816,
+          "height": 32,
+          "bottom": 763.578125,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": {
+          "x": 68,
+          "y": 216.1875,
+          "width": 816,
+          "height": 16.796875,
+          "bottom": 232.984375,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "actions": {
+          "x": 68,
+          "y": 657.984375,
+          "width": 816,
+          "height": 32,
+          "bottom": 689.984375,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "boundary": {
+          "x": 68,
+          "y": 689.984375,
+          "width": 816,
+          "height": 33.59375,
+          "bottom": 723.578125,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        }
+      }
+    },
+    {
+      "density": "comfortable",
+      "drawer": 280,
+      "view": "both",
+      "mode": "direct",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 109,
+          "width": 648,
+          "height": 667,
+          "bottom": 776,
+          "scrollHeight": 667,
+          "clientHeight": 667
+        },
+        "model": {
+          "x": 56,
+          "y": 109,
+          "width": 648,
+          "height": 667,
+          "bottom": 776,
+          "scrollHeight": 667,
+          "clientHeight": 667
+        },
+        "title": {
+          "x": 68,
+          "y": 121,
+          "width": 624,
+          "height": 16.796875,
+          "bottom": 137.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 147.796875,
+          "width": 624,
+          "height": 32,
+          "bottom": 179.796875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "filter": {
+          "x": 68,
+          "y": 187.796875,
+          "width": 624,
+          "height": 53.390625,
+          "bottom": 241.1875,
+          "scrollHeight": 53,
+          "clientHeight": 53
+        },
+        "family": {
+          "x": 68,
+          "y": 251.1875,
+          "width": 624,
+          "height": 34,
+          "bottom": 285.1875,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        },
+        "header": {
+          "x": 68,
+          "y": 293.1875,
+          "width": 700,
+          "height": 33,
+          "bottom": 326.1875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "rows": {
+          "x": 68,
+          "y": 326.1875,
+          "width": 700,
+          "height": 180,
+          "bottom": 506.1875,
+          "scrollHeight": 180,
+          "clientHeight": 180
+        },
+        "footer": {
+          "x": 68,
+          "y": 692,
+          "width": 624,
+          "height": 32,
+          "bottom": 724,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "error": null,
+        "review": {
+          "x": 68,
+          "y": 732,
+          "width": 624,
+          "height": 32,
+          "bottom": 764,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": null,
+        "actions": null,
+        "boundary": null
+      }
+    },
+    {
+      "density": "comfortable",
+      "drawer": 280,
+      "view": "both",
+      "mode": "error",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 109,
+          "width": 648,
+          "height": 667,
+          "bottom": 776,
+          "scrollHeight": 667,
+          "clientHeight": 667
+        },
+        "model": {
+          "x": 56,
+          "y": 109,
+          "width": 648,
+          "height": 667,
+          "bottom": 776,
+          "scrollHeight": 667,
+          "clientHeight": 667
+        },
+        "title": {
+          "x": 68,
+          "y": 121,
+          "width": 624,
+          "height": 16.796875,
+          "bottom": 137.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 147.796875,
+          "width": 624,
+          "height": 32,
+          "bottom": 179.796875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "filter": {
+          "x": 68,
+          "y": 187.796875,
+          "width": 624,
+          "height": 53.390625,
+          "bottom": 241.1875,
+          "scrollHeight": 53,
+          "clientHeight": 53
+        },
+        "family": {
+          "x": 68,
+          "y": 251.1875,
+          "width": 624,
+          "height": 34,
+          "bottom": 285.1875,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        },
+        "header": {
+          "x": 68,
+          "y": 293.1875,
+          "width": 700,
+          "height": 33,
+          "bottom": 326.1875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "rows": {
+          "x": 68,
+          "y": 326.1875,
+          "width": 700,
+          "height": 180,
+          "bottom": 506.1875,
+          "scrollHeight": 180,
+          "clientHeight": 180
+        },
+        "footer": {
+          "x": 68,
+          "y": 656.203125,
+          "width": 624,
+          "height": 41,
+          "bottom": 697.203125,
+          "scrollHeight": 40,
+          "clientHeight": 40
+        },
+        "error": {
+          "x": 68,
+          "y": 697.203125,
+          "width": 624,
+          "height": 26.796875,
+          "bottom": 724,
+          "scrollHeight": 27,
+          "clientHeight": 27
+        },
+        "review": {
+          "x": 68,
+          "y": 732,
+          "width": 624,
+          "height": 32,
+          "bottom": 764,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": null,
+        "actions": null,
+        "boundary": null
+      }
+    },
+    {
+      "density": "comfortable",
+      "drawer": 280,
+      "view": "both",
+      "mode": "review",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 109,
+          "width": 648,
+          "height": 667,
+          "bottom": 776,
+          "scrollHeight": 667,
+          "clientHeight": 667
+        },
+        "model": {
+          "x": 56,
+          "y": 109,
+          "width": 648,
+          "height": 667,
+          "bottom": 776,
+          "scrollHeight": 667,
+          "clientHeight": 667
+        },
+        "title": {
+          "x": 68,
+          "y": 121,
+          "width": 624,
+          "height": 16.796875,
+          "bottom": 137.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 147.796875,
+          "width": 624,
+          "height": 32,
+          "bottom": 179.796875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "filter": {
+          "x": 68,
+          "y": 187.796875,
+          "width": 624,
+          "height": 53.390625,
+          "bottom": 241.1875,
+          "scrollHeight": 53,
+          "clientHeight": 53
+        },
+        "family": {
+          "x": 68,
+          "y": 251.1875,
+          "width": 624,
+          "height": 34,
+          "bottom": 285.1875,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        },
+        "header": {
+          "x": 68,
+          "y": 317.984375,
+          "width": 910,
+          "height": 33,
+          "bottom": 350.984375,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "rows": null,
+        "footer": {
+          "x": 68,
+          "y": 610.40625,
+          "width": 624,
+          "height": 32,
+          "bottom": 642.40625,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "error": null,
+        "review": {
+          "x": 68,
+          "y": 732,
+          "width": 624,
+          "height": 32,
+          "bottom": 764,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": {
+          "x": 68,
+          "y": 293.1875,
+          "width": 624,
+          "height": 16.796875,
+          "bottom": 309.984375,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "actions": {
+          "x": 68,
+          "y": 650.40625,
+          "width": 624,
+          "height": 32,
+          "bottom": 682.40625,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "boundary": {
+          "x": 68,
+          "y": 690.40625,
+          "width": 624,
+          "height": 33.59375,
+          "bottom": 724,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        }
+      }
+    },
+    {
+      "density": "comfortable",
+      "drawer": 500,
+      "view": "model",
+      "mode": "direct",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 457,
+          "width": 840,
+          "height": 319,
+          "bottom": 776,
+          "scrollHeight": 661,
+          "clientHeight": 319
+        },
+        "model": {
+          "x": 56,
+          "y": 457,
+          "width": 840,
+          "height": 661.1875,
+          "bottom": 1118.1875,
+          "scrollHeight": 661,
+          "clientHeight": 661
+        },
+        "title": {
+          "x": 68,
+          "y": 469,
+          "width": 816,
+          "height": 16.796875,
+          "bottom": 485.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 495.796875,
+          "width": 816,
+          "height": 32,
+          "bottom": 527.796875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "filter": {
+          "x": 68,
+          "y": 535.796875,
+          "width": 816,
+          "height": 53.390625,
+          "bottom": 589.1875,
+          "scrollHeight": 53,
+          "clientHeight": 53
+        },
+        "family": {
+          "x": 68,
+          "y": 599.1875,
+          "width": 816,
+          "height": 34,
+          "bottom": 633.1875,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        },
+        "header": {
+          "x": 68,
+          "y": 641.1875,
+          "width": 816,
+          "height": 33,
+          "bottom": 674.1875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "rows": {
+          "x": 68,
+          "y": 674.1875,
+          "width": 816,
+          "height": 360,
+          "bottom": 1034.1875,
+          "scrollHeight": 360,
+          "clientHeight": 360
+        },
+        "footer": {
+          "x": 68,
+          "y": 1034.1875,
+          "width": 816,
+          "height": 32,
+          "bottom": 1066.1875,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "error": null,
+        "review": {
+          "x": 68,
+          "y": 1074.1875,
+          "width": 816,
+          "height": 32,
+          "bottom": 1106.1875,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": null,
+        "actions": null,
+        "boundary": null
+      }
+    },
+    {
+      "density": "comfortable",
+      "drawer": 500,
+      "view": "model",
+      "mode": "error",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 457,
+          "width": 840,
+          "height": 319,
+          "bottom": 776,
+          "scrollHeight": 697,
+          "clientHeight": 319
+        },
+        "model": {
+          "x": 56,
+          "y": 457,
+          "width": 840,
+          "height": 696.984375,
+          "bottom": 1153.984375,
+          "scrollHeight": 697,
+          "clientHeight": 697
+        },
+        "title": {
+          "x": 68,
+          "y": 469,
+          "width": 816,
+          "height": 16.796875,
+          "bottom": 485.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 495.796875,
+          "width": 816,
+          "height": 32,
+          "bottom": 527.796875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "filter": {
+          "x": 68,
+          "y": 535.796875,
+          "width": 816,
+          "height": 53.390625,
+          "bottom": 589.1875,
+          "scrollHeight": 53,
+          "clientHeight": 53
+        },
+        "family": {
+          "x": 68,
+          "y": 599.1875,
+          "width": 816,
+          "height": 34,
+          "bottom": 633.1875,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        },
+        "header": {
+          "x": 68,
+          "y": 641.1875,
+          "width": 816,
+          "height": 33,
+          "bottom": 674.1875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "rows": {
+          "x": 68,
+          "y": 674.1875,
+          "width": 816,
+          "height": 360,
+          "bottom": 1034.1875,
+          "scrollHeight": 360,
+          "clientHeight": 360
+        },
+        "footer": {
+          "x": 68,
+          "y": 1034.1875,
+          "width": 816,
+          "height": 41,
+          "bottom": 1075.1875,
+          "scrollHeight": 40,
+          "clientHeight": 40
+        },
+        "error": {
+          "x": 68,
+          "y": 1075.1875,
+          "width": 816,
+          "height": 26.796875,
+          "bottom": 1101.984375,
+          "scrollHeight": 27,
+          "clientHeight": 27
+        },
+        "review": {
+          "x": 68,
+          "y": 1109.984375,
+          "width": 816,
+          "height": 32,
+          "bottom": 1141.984375,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": null,
+        "actions": null,
+        "boundary": null
+      }
+    },
+    {
+      "density": "comfortable",
+      "drawer": 500,
+      "view": "model",
+      "mode": "review",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 457,
+          "width": 840,
+          "height": 319,
+          "bottom": 776,
+          "scrollHeight": 744,
+          "clientHeight": 319
+        },
+        "model": {
+          "x": 56,
+          "y": 32,
+          "width": 840,
+          "height": 743.578125,
+          "bottom": 775.578125,
+          "scrollHeight": 744,
+          "clientHeight": 744
+        },
+        "title": {
+          "x": 68,
+          "y": 44,
+          "width": 816,
+          "height": 16.796875,
+          "bottom": 60.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 70.796875,
+          "width": 816,
+          "height": 32,
+          "bottom": 102.796875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "filter": {
+          "x": 68,
+          "y": 110.796875,
+          "width": 816,
+          "height": 53.390625,
+          "bottom": 164.1875,
+          "scrollHeight": 53,
+          "clientHeight": 53
+        },
+        "family": {
+          "x": 68,
+          "y": 174.1875,
+          "width": 816,
+          "height": 34,
+          "bottom": 208.1875,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        },
+        "header": {
+          "x": 68,
+          "y": 232.984375,
+          "width": 910,
+          "height": 33,
+          "bottom": 265.984375,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "rows": null,
+        "footer": {
+          "x": 68,
+          "y": 625.984375,
+          "width": 816,
+          "height": 32,
+          "bottom": 657.984375,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "error": null,
+        "review": {
+          "x": 68,
+          "y": 731.578125,
+          "width": 816,
+          "height": 32,
+          "bottom": 763.578125,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": {
+          "x": 68,
+          "y": 216.1875,
+          "width": 816,
+          "height": 16.796875,
+          "bottom": 232.984375,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "actions": {
+          "x": 68,
+          "y": 657.984375,
+          "width": 816,
+          "height": 32,
+          "bottom": 689.984375,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "boundary": {
+          "x": 68,
+          "y": 689.984375,
+          "width": 816,
+          "height": 33.59375,
+          "bottom": 723.578125,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        }
+      }
+    },
+    {
+      "density": "comfortable",
+      "drawer": 500,
+      "view": "both",
+      "mode": "direct",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 109,
+          "width": 648,
+          "height": 667,
+          "bottom": 776,
+          "scrollHeight": 667,
+          "clientHeight": 667
+        },
+        "model": {
+          "x": 56,
+          "y": 109,
+          "width": 648,
+          "height": 667,
+          "bottom": 776,
+          "scrollHeight": 667,
+          "clientHeight": 667
+        },
+        "title": {
+          "x": 68,
+          "y": 121,
+          "width": 624,
+          "height": 16.796875,
+          "bottom": 137.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 147.796875,
+          "width": 624,
+          "height": 32,
+          "bottom": 179.796875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "filter": {
+          "x": 68,
+          "y": 187.796875,
+          "width": 624,
+          "height": 53.390625,
+          "bottom": 241.1875,
+          "scrollHeight": 53,
+          "clientHeight": 53
+        },
+        "family": {
+          "x": 68,
+          "y": 251.1875,
+          "width": 624,
+          "height": 34,
+          "bottom": 285.1875,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        },
+        "header": {
+          "x": 68,
+          "y": 293.1875,
+          "width": 700,
+          "height": 33,
+          "bottom": 326.1875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "rows": {
+          "x": 68,
+          "y": 326.1875,
+          "width": 700,
+          "height": 180,
+          "bottom": 506.1875,
+          "scrollHeight": 180,
+          "clientHeight": 180
+        },
+        "footer": {
+          "x": 68,
+          "y": 692,
+          "width": 624,
+          "height": 32,
+          "bottom": 724,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "error": null,
+        "review": {
+          "x": 68,
+          "y": 732,
+          "width": 624,
+          "height": 32,
+          "bottom": 764,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": null,
+        "actions": null,
+        "boundary": null
+      }
+    },
+    {
+      "density": "comfortable",
+      "drawer": 500,
+      "view": "both",
+      "mode": "error",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 109,
+          "width": 648,
+          "height": 667,
+          "bottom": 776,
+          "scrollHeight": 667,
+          "clientHeight": 667
+        },
+        "model": {
+          "x": 56,
+          "y": 109,
+          "width": 648,
+          "height": 667,
+          "bottom": 776,
+          "scrollHeight": 667,
+          "clientHeight": 667
+        },
+        "title": {
+          "x": 68,
+          "y": 121,
+          "width": 624,
+          "height": 16.796875,
+          "bottom": 137.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 147.796875,
+          "width": 624,
+          "height": 32,
+          "bottom": 179.796875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "filter": {
+          "x": 68,
+          "y": 187.796875,
+          "width": 624,
+          "height": 53.390625,
+          "bottom": 241.1875,
+          "scrollHeight": 53,
+          "clientHeight": 53
+        },
+        "family": {
+          "x": 68,
+          "y": 251.1875,
+          "width": 624,
+          "height": 34,
+          "bottom": 285.1875,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        },
+        "header": {
+          "x": 68,
+          "y": 293.1875,
+          "width": 700,
+          "height": 33,
+          "bottom": 326.1875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "rows": {
+          "x": 68,
+          "y": 326.1875,
+          "width": 700,
+          "height": 180,
+          "bottom": 506.1875,
+          "scrollHeight": 180,
+          "clientHeight": 180
+        },
+        "footer": {
+          "x": 68,
+          "y": 656.203125,
+          "width": 624,
+          "height": 41,
+          "bottom": 697.203125,
+          "scrollHeight": 40,
+          "clientHeight": 40
+        },
+        "error": {
+          "x": 68,
+          "y": 697.203125,
+          "width": 624,
+          "height": 26.796875,
+          "bottom": 724,
+          "scrollHeight": 27,
+          "clientHeight": 27
+        },
+        "review": {
+          "x": 68,
+          "y": 732,
+          "width": 624,
+          "height": 32,
+          "bottom": 764,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": null,
+        "actions": null,
+        "boundary": null
+      }
+    },
+    {
+      "density": "comfortable",
+      "drawer": 500,
+      "view": "both",
+      "mode": "review",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 109,
+          "width": 648,
+          "height": 667,
+          "bottom": 776,
+          "scrollHeight": 667,
+          "clientHeight": 667
+        },
+        "model": {
+          "x": 56,
+          "y": 109,
+          "width": 648,
+          "height": 667,
+          "bottom": 776,
+          "scrollHeight": 667,
+          "clientHeight": 667
+        },
+        "title": {
+          "x": 68,
+          "y": 121,
+          "width": 624,
+          "height": 16.796875,
+          "bottom": 137.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 147.796875,
+          "width": 624,
+          "height": 32,
+          "bottom": 179.796875,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "filter": {
+          "x": 68,
+          "y": 187.796875,
+          "width": 624,
+          "height": 53.390625,
+          "bottom": 241.1875,
+          "scrollHeight": 53,
+          "clientHeight": 53
+        },
+        "family": {
+          "x": 68,
+          "y": 251.1875,
+          "width": 624,
+          "height": 34,
+          "bottom": 285.1875,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        },
+        "header": {
+          "x": 68,
+          "y": 317.984375,
+          "width": 910,
+          "height": 33,
+          "bottom": 350.984375,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "rows": null,
+        "footer": {
+          "x": 68,
+          "y": 610.40625,
+          "width": 624,
+          "height": 32,
+          "bottom": 642.40625,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "error": null,
+        "review": {
+          "x": 68,
+          "y": 732,
+          "width": 624,
+          "height": 32,
+          "bottom": 764,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": {
+          "x": 68,
+          "y": 293.1875,
+          "width": 624,
+          "height": 16.796875,
+          "bottom": 309.984375,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "actions": {
+          "x": 68,
+          "y": 650.40625,
+          "width": 624,
+          "height": 32,
+          "bottom": 682.40625,
+          "scrollHeight": 32,
+          "clientHeight": 32
+        },
+        "boundary": {
+          "x": 68,
+          "y": 690.40625,
+          "width": 624,
+          "height": 33.59375,
+          "bottom": 724,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        }
+      }
+    },
+    {
+      "density": "compact",
+      "drawer": 180,
+      "view": "model",
+      "mode": "direct",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 649,
+          "width": 840,
+          "height": 127,
+          "bottom": 776,
+          "scrollHeight": 649,
+          "clientHeight": 127
+        },
+        "model": {
+          "x": 56,
+          "y": 649,
+          "width": 840,
+          "height": 648.78125,
+          "bottom": 1297.78125,
+          "scrollHeight": 649,
+          "clientHeight": 649
+        },
+        "title": {
+          "x": 68,
+          "y": 661,
+          "width": 816,
+          "height": 16.796875,
+          "bottom": 677.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 687.796875,
+          "width": 816,
+          "height": 28,
+          "bottom": 715.796875,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        "filter": {
+          "x": 68,
+          "y": 723.796875,
+          "width": 816,
+          "height": 51.390625,
+          "bottom": 775.1875,
+          "scrollHeight": 51,
+          "clientHeight": 51
+        },
+        "family": {
+          "x": 68,
+          "y": 785.1875,
+          "width": 816,
+          "height": 30.796875,
+          "bottom": 815.984375,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "header": {
+          "x": 68,
+          "y": 823.984375,
+          "width": 816,
+          "height": 30,
+          "bottom": 853.984375,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "rows": {
+          "x": 68,
+          "y": 853.984375,
+          "width": 816,
+          "height": 360,
+          "bottom": 1213.984375,
+          "scrollHeight": 360,
+          "clientHeight": 360
+        },
+        "footer": {
+          "x": 68,
+          "y": 1213.984375,
+          "width": 816,
+          "height": 32,
+          "bottom": 1245.984375,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "error": null,
+        "review": {
+          "x": 68,
+          "y": 1253.984375,
+          "width": 816,
+          "height": 31.796875,
+          "bottom": 1285.78125,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": null,
+        "actions": null,
+        "boundary": null
+      }
+    },
+    {
+      "density": "compact",
+      "drawer": 180,
+      "view": "model",
+      "mode": "error",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 649,
+          "width": 840,
+          "height": 127,
+          "bottom": 776,
+          "scrollHeight": 681,
+          "clientHeight": 127
+        },
+        "model": {
+          "x": 56,
+          "y": 493,
+          "width": 840,
+          "height": 680.578125,
+          "bottom": 1173.578125,
+          "scrollHeight": 681,
+          "clientHeight": 681
+        },
+        "title": {
+          "x": 68,
+          "y": 505,
+          "width": 816,
+          "height": 16.796875,
+          "bottom": 521.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 531.796875,
+          "width": 816,
+          "height": 28,
+          "bottom": 559.796875,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        "filter": {
+          "x": 68,
+          "y": 567.796875,
+          "width": 816,
+          "height": 51.390625,
+          "bottom": 619.1875,
+          "scrollHeight": 51,
+          "clientHeight": 51
+        },
+        "family": {
+          "x": 68,
+          "y": 629.1875,
+          "width": 816,
+          "height": 30.796875,
+          "bottom": 659.984375,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "header": {
+          "x": 68,
+          "y": 667.984375,
+          "width": 816,
+          "height": 30,
+          "bottom": 697.984375,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "rows": {
+          "x": 68,
+          "y": 697.984375,
+          "width": 816,
+          "height": 360,
+          "bottom": 1057.984375,
+          "scrollHeight": 360,
+          "clientHeight": 360
+        },
+        "footer": {
+          "x": 68,
+          "y": 1057.984375,
+          "width": 816,
+          "height": 37,
+          "bottom": 1094.984375,
+          "scrollHeight": 36,
+          "clientHeight": 36
+        },
+        "error": {
+          "x": 68,
+          "y": 1094.984375,
+          "width": 816,
+          "height": 26.796875,
+          "bottom": 1121.78125,
+          "scrollHeight": 27,
+          "clientHeight": 27
+        },
+        "review": {
+          "x": 68,
+          "y": 1129.78125,
+          "width": 816,
+          "height": 31.796875,
+          "bottom": 1161.578125,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": null,
+        "actions": null,
+        "boundary": null
+      }
+    },
+    {
+      "density": "compact",
+      "drawer": 180,
+      "view": "model",
+      "mode": "review",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 649,
+          "width": 840,
+          "height": 127,
+          "bottom": 776,
+          "scrollHeight": 727,
+          "clientHeight": 127
+        },
+        "model": {
+          "x": 56,
+          "y": 49,
+          "width": 840,
+          "height": 727.171875,
+          "bottom": 776.171875,
+          "scrollHeight": 727,
+          "clientHeight": 727
+        },
+        "title": {
+          "x": 68,
+          "y": 61,
+          "width": 816,
+          "height": 16.796875,
+          "bottom": 77.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 87.796875,
+          "width": 816,
+          "height": 28,
+          "bottom": 115.796875,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        "filter": {
+          "x": 68,
+          "y": 123.796875,
+          "width": 816,
+          "height": 51.390625,
+          "bottom": 175.1875,
+          "scrollHeight": 51,
+          "clientHeight": 51
+        },
+        "family": {
+          "x": 68,
+          "y": 185.1875,
+          "width": 816,
+          "height": 30.796875,
+          "bottom": 215.984375,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "header": {
+          "x": 68,
+          "y": 240.78125,
+          "width": 910,
+          "height": 30,
+          "bottom": 270.78125,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "rows": null,
+        "footer": {
+          "x": 68,
+          "y": 630.78125,
+          "width": 816,
+          "height": 32,
+          "bottom": 662.78125,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "error": null,
+        "review": {
+          "x": 68,
+          "y": 732.375,
+          "width": 816,
+          "height": 31.796875,
+          "bottom": 764.171875,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": {
+          "x": 68,
+          "y": 223.984375,
+          "width": 816,
+          "height": 16.796875,
+          "bottom": 240.78125,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "actions": {
+          "x": 68,
+          "y": 662.78125,
+          "width": 816,
+          "height": 28,
+          "bottom": 690.78125,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        "boundary": {
+          "x": 68,
+          "y": 690.78125,
+          "width": 816,
+          "height": 33.59375,
+          "bottom": 724.375,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        }
+      }
+    },
+    {
+      "density": "compact",
+      "drawer": 180,
+      "view": "both",
+      "mode": "direct",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 105,
+          "width": 648,
+          "height": 671,
+          "bottom": 776,
+          "scrollHeight": 671,
+          "clientHeight": 671
+        },
+        "model": {
+          "x": 56,
+          "y": 105,
+          "width": 648,
+          "height": 671,
+          "bottom": 776,
+          "scrollHeight": 671,
+          "clientHeight": 671
+        },
+        "title": {
+          "x": 68,
+          "y": 117,
+          "width": 624,
+          "height": 16.796875,
+          "bottom": 133.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 143.796875,
+          "width": 624,
+          "height": 28,
+          "bottom": 171.796875,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        "filter": {
+          "x": 68,
+          "y": 179.796875,
+          "width": 624,
+          "height": 51.390625,
+          "bottom": 231.1875,
+          "scrollHeight": 51,
+          "clientHeight": 51
+        },
+        "family": {
+          "x": 68,
+          "y": 241.1875,
+          "width": 624,
+          "height": 30.796875,
+          "bottom": 271.984375,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "header": {
+          "x": 68,
+          "y": 279.984375,
+          "width": 700,
+          "height": 30,
+          "bottom": 309.984375,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "rows": {
+          "x": 68,
+          "y": 309.984375,
+          "width": 700,
+          "height": 150,
+          "bottom": 459.984375,
+          "scrollHeight": 150,
+          "clientHeight": 150
+        },
+        "footer": {
+          "x": 68,
+          "y": 692.203125,
+          "width": 624,
+          "height": 32,
+          "bottom": 724.203125,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "error": null,
+        "review": {
+          "x": 68,
+          "y": 732.203125,
+          "width": 624,
+          "height": 31.796875,
+          "bottom": 764,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": null,
+        "actions": null,
+        "boundary": null
+      }
+    },
+    {
+      "density": "compact",
+      "drawer": 180,
+      "view": "both",
+      "mode": "error",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 105,
+          "width": 648,
+          "height": 671,
+          "bottom": 776,
+          "scrollHeight": 671,
+          "clientHeight": 671
+        },
+        "model": {
+          "x": 56,
+          "y": 105,
+          "width": 648,
+          "height": 671,
+          "bottom": 776,
+          "scrollHeight": 671,
+          "clientHeight": 671
+        },
+        "title": {
+          "x": 68,
+          "y": 117,
+          "width": 624,
+          "height": 16.796875,
+          "bottom": 133.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 143.796875,
+          "width": 624,
+          "height": 28,
+          "bottom": 171.796875,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        "filter": {
+          "x": 68,
+          "y": 179.796875,
+          "width": 624,
+          "height": 51.390625,
+          "bottom": 231.1875,
+          "scrollHeight": 51,
+          "clientHeight": 51
+        },
+        "family": {
+          "x": 68,
+          "y": 241.1875,
+          "width": 624,
+          "height": 30.796875,
+          "bottom": 271.984375,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "header": {
+          "x": 68,
+          "y": 279.984375,
+          "width": 700,
+          "height": 30,
+          "bottom": 309.984375,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "rows": {
+          "x": 68,
+          "y": 309.984375,
+          "width": 700,
+          "height": 150,
+          "bottom": 459.984375,
+          "scrollHeight": 150,
+          "clientHeight": 150
+        },
+        "footer": {
+          "x": 68,
+          "y": 660.40625,
+          "width": 624,
+          "height": 37,
+          "bottom": 697.40625,
+          "scrollHeight": 36,
+          "clientHeight": 36
+        },
+        "error": {
+          "x": 68,
+          "y": 697.40625,
+          "width": 624,
+          "height": 26.796875,
+          "bottom": 724.203125,
+          "scrollHeight": 27,
+          "clientHeight": 27
+        },
+        "review": {
+          "x": 68,
+          "y": 732.203125,
+          "width": 624,
+          "height": 31.796875,
+          "bottom": 764,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": null,
+        "actions": null,
+        "boundary": null
+      }
+    },
+    {
+      "density": "compact",
+      "drawer": 180,
+      "view": "both",
+      "mode": "review",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 105,
+          "width": 648,
+          "height": 671,
+          "bottom": 776,
+          "scrollHeight": 671,
+          "clientHeight": 671
+        },
+        "model": {
+          "x": 56,
+          "y": 105,
+          "width": 648,
+          "height": 671,
+          "bottom": 776,
+          "scrollHeight": 671,
+          "clientHeight": 671
+        },
+        "title": {
+          "x": 68,
+          "y": 117,
+          "width": 624,
+          "height": 16.796875,
+          "bottom": 133.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 143.796875,
+          "width": 624,
+          "height": 28,
+          "bottom": 171.796875,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        "filter": {
+          "x": 68,
+          "y": 179.796875,
+          "width": 624,
+          "height": 51.390625,
+          "bottom": 231.1875,
+          "scrollHeight": 51,
+          "clientHeight": 51
+        },
+        "family": {
+          "x": 68,
+          "y": 241.1875,
+          "width": 624,
+          "height": 30.796875,
+          "bottom": 271.984375,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "header": {
+          "x": 68,
+          "y": 304.78125,
+          "width": 910,
+          "height": 30,
+          "bottom": 334.78125,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "rows": null,
+        "footer": {
+          "x": 68,
+          "y": 614.609375,
+          "width": 624,
+          "height": 32,
+          "bottom": 646.609375,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "error": null,
+        "review": {
+          "x": 68,
+          "y": 732.203125,
+          "width": 624,
+          "height": 31.796875,
+          "bottom": 764,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": {
+          "x": 68,
+          "y": 279.984375,
+          "width": 624,
+          "height": 16.796875,
+          "bottom": 296.78125,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "actions": {
+          "x": 68,
+          "y": 654.609375,
+          "width": 624,
+          "height": 28,
+          "bottom": 682.609375,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        "boundary": {
+          "x": 68,
+          "y": 690.609375,
+          "width": 624,
+          "height": 33.59375,
+          "bottom": 724.203125,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        }
+      }
+    },
+    {
+      "density": "compact",
+      "drawer": 280,
+      "view": "model",
+      "mode": "direct",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 549,
+          "width": 840,
+          "height": 227,
+          "bottom": 776,
+          "scrollHeight": 649,
+          "clientHeight": 227
+        },
+        "model": {
+          "x": 56,
+          "y": 549,
+          "width": 840,
+          "height": 648.78125,
+          "bottom": 1197.78125,
+          "scrollHeight": 649,
+          "clientHeight": 649
+        },
+        "title": {
+          "x": 68,
+          "y": 561,
+          "width": 816,
+          "height": 16.796875,
+          "bottom": 577.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 587.796875,
+          "width": 816,
+          "height": 28,
+          "bottom": 615.796875,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        "filter": {
+          "x": 68,
+          "y": 623.796875,
+          "width": 816,
+          "height": 51.390625,
+          "bottom": 675.1875,
+          "scrollHeight": 51,
+          "clientHeight": 51
+        },
+        "family": {
+          "x": 68,
+          "y": 685.1875,
+          "width": 816,
+          "height": 30.796875,
+          "bottom": 715.984375,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "header": {
+          "x": 68,
+          "y": 723.984375,
+          "width": 816,
+          "height": 30,
+          "bottom": 753.984375,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "rows": {
+          "x": 68,
+          "y": 753.984375,
+          "width": 816,
+          "height": 360,
+          "bottom": 1113.984375,
+          "scrollHeight": 360,
+          "clientHeight": 360
+        },
+        "footer": {
+          "x": 68,
+          "y": 1113.984375,
+          "width": 816,
+          "height": 32,
+          "bottom": 1145.984375,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "error": null,
+        "review": {
+          "x": 68,
+          "y": 1153.984375,
+          "width": 816,
+          "height": 31.796875,
+          "bottom": 1185.78125,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": null,
+        "actions": null,
+        "boundary": null
+      }
+    },
+    {
+      "density": "compact",
+      "drawer": 280,
+      "view": "model",
+      "mode": "error",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 549,
+          "width": 840,
+          "height": 227,
+          "bottom": 776,
+          "scrollHeight": 681,
+          "clientHeight": 227
+        },
+        "model": {
+          "x": 56,
+          "y": 541,
+          "width": 840,
+          "height": 680.578125,
+          "bottom": 1221.578125,
+          "scrollHeight": 681,
+          "clientHeight": 681
+        },
+        "title": {
+          "x": 68,
+          "y": 553,
+          "width": 816,
+          "height": 16.796875,
+          "bottom": 569.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 579.796875,
+          "width": 816,
+          "height": 28,
+          "bottom": 607.796875,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        "filter": {
+          "x": 68,
+          "y": 615.796875,
+          "width": 816,
+          "height": 51.390625,
+          "bottom": 667.1875,
+          "scrollHeight": 51,
+          "clientHeight": 51
+        },
+        "family": {
+          "x": 68,
+          "y": 677.1875,
+          "width": 816,
+          "height": 30.796875,
+          "bottom": 707.984375,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "header": {
+          "x": 68,
+          "y": 715.984375,
+          "width": 816,
+          "height": 30,
+          "bottom": 745.984375,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "rows": {
+          "x": 68,
+          "y": 745.984375,
+          "width": 816,
+          "height": 360,
+          "bottom": 1105.984375,
+          "scrollHeight": 360,
+          "clientHeight": 360
+        },
+        "footer": {
+          "x": 68,
+          "y": 1105.984375,
+          "width": 816,
+          "height": 37,
+          "bottom": 1142.984375,
+          "scrollHeight": 36,
+          "clientHeight": 36
+        },
+        "error": {
+          "x": 68,
+          "y": 1142.984375,
+          "width": 816,
+          "height": 26.796875,
+          "bottom": 1169.78125,
+          "scrollHeight": 27,
+          "clientHeight": 27
+        },
+        "review": {
+          "x": 68,
+          "y": 1177.78125,
+          "width": 816,
+          "height": 31.796875,
+          "bottom": 1209.578125,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": null,
+        "actions": null,
+        "boundary": null
+      }
+    },
+    {
+      "density": "compact",
+      "drawer": 280,
+      "view": "model",
+      "mode": "review",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 549,
+          "width": 840,
+          "height": 227,
+          "bottom": 776,
+          "scrollHeight": 727,
+          "clientHeight": 227
+        },
+        "model": {
+          "x": 56,
+          "y": 49,
+          "width": 840,
+          "height": 727.171875,
+          "bottom": 776.171875,
+          "scrollHeight": 727,
+          "clientHeight": 727
+        },
+        "title": {
+          "x": 68,
+          "y": 61,
+          "width": 816,
+          "height": 16.796875,
+          "bottom": 77.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 87.796875,
+          "width": 816,
+          "height": 28,
+          "bottom": 115.796875,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        "filter": {
+          "x": 68,
+          "y": 123.796875,
+          "width": 816,
+          "height": 51.390625,
+          "bottom": 175.1875,
+          "scrollHeight": 51,
+          "clientHeight": 51
+        },
+        "family": {
+          "x": 68,
+          "y": 185.1875,
+          "width": 816,
+          "height": 30.796875,
+          "bottom": 215.984375,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "header": {
+          "x": 68,
+          "y": 240.78125,
+          "width": 910,
+          "height": 30,
+          "bottom": 270.78125,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "rows": null,
+        "footer": {
+          "x": 68,
+          "y": 630.78125,
+          "width": 816,
+          "height": 32,
+          "bottom": 662.78125,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "error": null,
+        "review": {
+          "x": 68,
+          "y": 732.375,
+          "width": 816,
+          "height": 31.796875,
+          "bottom": 764.171875,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": {
+          "x": 68,
+          "y": 223.984375,
+          "width": 816,
+          "height": 16.796875,
+          "bottom": 240.78125,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "actions": {
+          "x": 68,
+          "y": 662.78125,
+          "width": 816,
+          "height": 28,
+          "bottom": 690.78125,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        "boundary": {
+          "x": 68,
+          "y": 690.78125,
+          "width": 816,
+          "height": 33.59375,
+          "bottom": 724.375,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        }
+      }
+    },
+    {
+      "density": "compact",
+      "drawer": 280,
+      "view": "both",
+      "mode": "direct",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 105,
+          "width": 648,
+          "height": 671,
+          "bottom": 776,
+          "scrollHeight": 671,
+          "clientHeight": 671
+        },
+        "model": {
+          "x": 56,
+          "y": 105,
+          "width": 648,
+          "height": 671,
+          "bottom": 776,
+          "scrollHeight": 671,
+          "clientHeight": 671
+        },
+        "title": {
+          "x": 68,
+          "y": 117,
+          "width": 624,
+          "height": 16.796875,
+          "bottom": 133.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 143.796875,
+          "width": 624,
+          "height": 28,
+          "bottom": 171.796875,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        "filter": {
+          "x": 68,
+          "y": 179.796875,
+          "width": 624,
+          "height": 51.390625,
+          "bottom": 231.1875,
+          "scrollHeight": 51,
+          "clientHeight": 51
+        },
+        "family": {
+          "x": 68,
+          "y": 241.1875,
+          "width": 624,
+          "height": 30.796875,
+          "bottom": 271.984375,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "header": {
+          "x": 68,
+          "y": 279.984375,
+          "width": 700,
+          "height": 30,
+          "bottom": 309.984375,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "rows": {
+          "x": 68,
+          "y": 309.984375,
+          "width": 700,
+          "height": 150,
+          "bottom": 459.984375,
+          "scrollHeight": 150,
+          "clientHeight": 150
+        },
+        "footer": {
+          "x": 68,
+          "y": 692.203125,
+          "width": 624,
+          "height": 32,
+          "bottom": 724.203125,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "error": null,
+        "review": {
+          "x": 68,
+          "y": 732.203125,
+          "width": 624,
+          "height": 31.796875,
+          "bottom": 764,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": null,
+        "actions": null,
+        "boundary": null
+      }
+    },
+    {
+      "density": "compact",
+      "drawer": 280,
+      "view": "both",
+      "mode": "error",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 105,
+          "width": 648,
+          "height": 671,
+          "bottom": 776,
+          "scrollHeight": 671,
+          "clientHeight": 671
+        },
+        "model": {
+          "x": 56,
+          "y": 105,
+          "width": 648,
+          "height": 671,
+          "bottom": 776,
+          "scrollHeight": 671,
+          "clientHeight": 671
+        },
+        "title": {
+          "x": 68,
+          "y": 117,
+          "width": 624,
+          "height": 16.796875,
+          "bottom": 133.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 143.796875,
+          "width": 624,
+          "height": 28,
+          "bottom": 171.796875,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        "filter": {
+          "x": 68,
+          "y": 179.796875,
+          "width": 624,
+          "height": 51.390625,
+          "bottom": 231.1875,
+          "scrollHeight": 51,
+          "clientHeight": 51
+        },
+        "family": {
+          "x": 68,
+          "y": 241.1875,
+          "width": 624,
+          "height": 30.796875,
+          "bottom": 271.984375,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "header": {
+          "x": 68,
+          "y": 279.984375,
+          "width": 700,
+          "height": 30,
+          "bottom": 309.984375,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "rows": {
+          "x": 68,
+          "y": 309.984375,
+          "width": 700,
+          "height": 150,
+          "bottom": 459.984375,
+          "scrollHeight": 150,
+          "clientHeight": 150
+        },
+        "footer": {
+          "x": 68,
+          "y": 660.40625,
+          "width": 624,
+          "height": 37,
+          "bottom": 697.40625,
+          "scrollHeight": 36,
+          "clientHeight": 36
+        },
+        "error": {
+          "x": 68,
+          "y": 697.40625,
+          "width": 624,
+          "height": 26.796875,
+          "bottom": 724.203125,
+          "scrollHeight": 27,
+          "clientHeight": 27
+        },
+        "review": {
+          "x": 68,
+          "y": 732.203125,
+          "width": 624,
+          "height": 31.796875,
+          "bottom": 764,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": null,
+        "actions": null,
+        "boundary": null
+      }
+    },
+    {
+      "density": "compact",
+      "drawer": 280,
+      "view": "both",
+      "mode": "review",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 105,
+          "width": 648,
+          "height": 671,
+          "bottom": 776,
+          "scrollHeight": 671,
+          "clientHeight": 671
+        },
+        "model": {
+          "x": 56,
+          "y": 105,
+          "width": 648,
+          "height": 671,
+          "bottom": 776,
+          "scrollHeight": 671,
+          "clientHeight": 671
+        },
+        "title": {
+          "x": 68,
+          "y": 117,
+          "width": 624,
+          "height": 16.796875,
+          "bottom": 133.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 143.796875,
+          "width": 624,
+          "height": 28,
+          "bottom": 171.796875,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        "filter": {
+          "x": 68,
+          "y": 179.796875,
+          "width": 624,
+          "height": 51.390625,
+          "bottom": 231.1875,
+          "scrollHeight": 51,
+          "clientHeight": 51
+        },
+        "family": {
+          "x": 68,
+          "y": 241.1875,
+          "width": 624,
+          "height": 30.796875,
+          "bottom": 271.984375,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "header": {
+          "x": 68,
+          "y": 304.78125,
+          "width": 910,
+          "height": 30,
+          "bottom": 334.78125,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "rows": null,
+        "footer": {
+          "x": 68,
+          "y": 614.609375,
+          "width": 624,
+          "height": 32,
+          "bottom": 646.609375,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "error": null,
+        "review": {
+          "x": 68,
+          "y": 732.203125,
+          "width": 624,
+          "height": 31.796875,
+          "bottom": 764,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": {
+          "x": 68,
+          "y": 279.984375,
+          "width": 624,
+          "height": 16.796875,
+          "bottom": 296.78125,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "actions": {
+          "x": 68,
+          "y": 654.609375,
+          "width": 624,
+          "height": 28,
+          "bottom": 682.609375,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        "boundary": {
+          "x": 68,
+          "y": 690.609375,
+          "width": 624,
+          "height": 33.59375,
+          "bottom": 724.203125,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        }
+      }
+    },
+    {
+      "density": "compact",
+      "drawer": 500,
+      "view": "model",
+      "mode": "direct",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 449,
+          "width": 840,
+          "height": 327,
+          "bottom": 776,
+          "scrollHeight": 649,
+          "clientHeight": 327
+        },
+        "model": {
+          "x": 56,
+          "y": 449,
+          "width": 840,
+          "height": 648.78125,
+          "bottom": 1097.78125,
+          "scrollHeight": 649,
+          "clientHeight": 649
+        },
+        "title": {
+          "x": 68,
+          "y": 461,
+          "width": 816,
+          "height": 16.796875,
+          "bottom": 477.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 487.796875,
+          "width": 816,
+          "height": 28,
+          "bottom": 515.796875,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        "filter": {
+          "x": 68,
+          "y": 523.796875,
+          "width": 816,
+          "height": 51.390625,
+          "bottom": 575.1875,
+          "scrollHeight": 51,
+          "clientHeight": 51
+        },
+        "family": {
+          "x": 68,
+          "y": 585.1875,
+          "width": 816,
+          "height": 30.796875,
+          "bottom": 615.984375,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "header": {
+          "x": 68,
+          "y": 623.984375,
+          "width": 816,
+          "height": 30,
+          "bottom": 653.984375,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "rows": {
+          "x": 68,
+          "y": 653.984375,
+          "width": 816,
+          "height": 360,
+          "bottom": 1013.984375,
+          "scrollHeight": 360,
+          "clientHeight": 360
+        },
+        "footer": {
+          "x": 68,
+          "y": 1013.984375,
+          "width": 816,
+          "height": 32,
+          "bottom": 1045.984375,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "error": null,
+        "review": {
+          "x": 68,
+          "y": 1053.984375,
+          "width": 816,
+          "height": 31.796875,
+          "bottom": 1085.78125,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": null,
+        "actions": null,
+        "boundary": null
+      }
+    },
+    {
+      "density": "compact",
+      "drawer": 500,
+      "view": "model",
+      "mode": "error",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 449,
+          "width": 840,
+          "height": 327,
+          "bottom": 776,
+          "scrollHeight": 681,
+          "clientHeight": 327
+        },
+        "model": {
+          "x": 56,
+          "y": 449,
+          "width": 840,
+          "height": 680.578125,
+          "bottom": 1129.578125,
+          "scrollHeight": 681,
+          "clientHeight": 681
+        },
+        "title": {
+          "x": 68,
+          "y": 461,
+          "width": 816,
+          "height": 16.796875,
+          "bottom": 477.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 487.796875,
+          "width": 816,
+          "height": 28,
+          "bottom": 515.796875,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        "filter": {
+          "x": 68,
+          "y": 523.796875,
+          "width": 816,
+          "height": 51.390625,
+          "bottom": 575.1875,
+          "scrollHeight": 51,
+          "clientHeight": 51
+        },
+        "family": {
+          "x": 68,
+          "y": 585.1875,
+          "width": 816,
+          "height": 30.796875,
+          "bottom": 615.984375,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "header": {
+          "x": 68,
+          "y": 623.984375,
+          "width": 816,
+          "height": 30,
+          "bottom": 653.984375,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "rows": {
+          "x": 68,
+          "y": 653.984375,
+          "width": 816,
+          "height": 360,
+          "bottom": 1013.984375,
+          "scrollHeight": 360,
+          "clientHeight": 360
+        },
+        "footer": {
+          "x": 68,
+          "y": 1013.984375,
+          "width": 816,
+          "height": 37,
+          "bottom": 1050.984375,
+          "scrollHeight": 36,
+          "clientHeight": 36
+        },
+        "error": {
+          "x": 68,
+          "y": 1050.984375,
+          "width": 816,
+          "height": 26.796875,
+          "bottom": 1077.78125,
+          "scrollHeight": 27,
+          "clientHeight": 27
+        },
+        "review": {
+          "x": 68,
+          "y": 1085.78125,
+          "width": 816,
+          "height": 31.796875,
+          "bottom": 1117.578125,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": null,
+        "actions": null,
+        "boundary": null
+      }
+    },
+    {
+      "density": "compact",
+      "drawer": 500,
+      "view": "model",
+      "mode": "review",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 449,
+          "width": 840,
+          "height": 327,
+          "bottom": 776,
+          "scrollHeight": 727,
+          "clientHeight": 327
+        },
+        "model": {
+          "x": 56,
+          "y": 49,
+          "width": 840,
+          "height": 727.171875,
+          "bottom": 776.171875,
+          "scrollHeight": 727,
+          "clientHeight": 727
+        },
+        "title": {
+          "x": 68,
+          "y": 61,
+          "width": 816,
+          "height": 16.796875,
+          "bottom": 77.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 87.796875,
+          "width": 816,
+          "height": 28,
+          "bottom": 115.796875,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        "filter": {
+          "x": 68,
+          "y": 123.796875,
+          "width": 816,
+          "height": 51.390625,
+          "bottom": 175.1875,
+          "scrollHeight": 51,
+          "clientHeight": 51
+        },
+        "family": {
+          "x": 68,
+          "y": 185.1875,
+          "width": 816,
+          "height": 30.796875,
+          "bottom": 215.984375,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "header": {
+          "x": 68,
+          "y": 240.78125,
+          "width": 910,
+          "height": 30,
+          "bottom": 270.78125,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "rows": null,
+        "footer": {
+          "x": 68,
+          "y": 630.78125,
+          "width": 816,
+          "height": 32,
+          "bottom": 662.78125,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "error": null,
+        "review": {
+          "x": 68,
+          "y": 732.375,
+          "width": 816,
+          "height": 31.796875,
+          "bottom": 764.171875,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": {
+          "x": 68,
+          "y": 223.984375,
+          "width": 816,
+          "height": 16.796875,
+          "bottom": 240.78125,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "actions": {
+          "x": 68,
+          "y": 662.78125,
+          "width": 816,
+          "height": 28,
+          "bottom": 690.78125,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        "boundary": {
+          "x": 68,
+          "y": 690.78125,
+          "width": 816,
+          "height": 33.59375,
+          "bottom": 724.375,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        }
+      }
+    },
+    {
+      "density": "compact",
+      "drawer": 500,
+      "view": "both",
+      "mode": "direct",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 105,
+          "width": 648,
+          "height": 671,
+          "bottom": 776,
+          "scrollHeight": 671,
+          "clientHeight": 671
+        },
+        "model": {
+          "x": 56,
+          "y": 105,
+          "width": 648,
+          "height": 671,
+          "bottom": 776,
+          "scrollHeight": 671,
+          "clientHeight": 671
+        },
+        "title": {
+          "x": 68,
+          "y": 117,
+          "width": 624,
+          "height": 16.796875,
+          "bottom": 133.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 143.796875,
+          "width": 624,
+          "height": 28,
+          "bottom": 171.796875,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        "filter": {
+          "x": 68,
+          "y": 179.796875,
+          "width": 624,
+          "height": 51.390625,
+          "bottom": 231.1875,
+          "scrollHeight": 51,
+          "clientHeight": 51
+        },
+        "family": {
+          "x": 68,
+          "y": 241.1875,
+          "width": 624,
+          "height": 30.796875,
+          "bottom": 271.984375,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "header": {
+          "x": 68,
+          "y": 279.984375,
+          "width": 700,
+          "height": 30,
+          "bottom": 309.984375,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "rows": {
+          "x": 68,
+          "y": 309.984375,
+          "width": 700,
+          "height": 150,
+          "bottom": 459.984375,
+          "scrollHeight": 150,
+          "clientHeight": 150
+        },
+        "footer": {
+          "x": 68,
+          "y": 692.203125,
+          "width": 624,
+          "height": 32,
+          "bottom": 724.203125,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "error": null,
+        "review": {
+          "x": 68,
+          "y": 732.203125,
+          "width": 624,
+          "height": 31.796875,
+          "bottom": 764,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": null,
+        "actions": null,
+        "boundary": null
+      }
+    },
+    {
+      "density": "compact",
+      "drawer": 500,
+      "view": "both",
+      "mode": "error",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 105,
+          "width": 648,
+          "height": 671,
+          "bottom": 776,
+          "scrollHeight": 671,
+          "clientHeight": 671
+        },
+        "model": {
+          "x": 56,
+          "y": 105,
+          "width": 648,
+          "height": 671,
+          "bottom": 776,
+          "scrollHeight": 671,
+          "clientHeight": 671
+        },
+        "title": {
+          "x": 68,
+          "y": 117,
+          "width": 624,
+          "height": 16.796875,
+          "bottom": 133.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 143.796875,
+          "width": 624,
+          "height": 28,
+          "bottom": 171.796875,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        "filter": {
+          "x": 68,
+          "y": 179.796875,
+          "width": 624,
+          "height": 51.390625,
+          "bottom": 231.1875,
+          "scrollHeight": 51,
+          "clientHeight": 51
+        },
+        "family": {
+          "x": 68,
+          "y": 241.1875,
+          "width": 624,
+          "height": 30.796875,
+          "bottom": 271.984375,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "header": {
+          "x": 68,
+          "y": 279.984375,
+          "width": 700,
+          "height": 30,
+          "bottom": 309.984375,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "rows": {
+          "x": 68,
+          "y": 309.984375,
+          "width": 700,
+          "height": 150,
+          "bottom": 459.984375,
+          "scrollHeight": 150,
+          "clientHeight": 150
+        },
+        "footer": {
+          "x": 68,
+          "y": 660.40625,
+          "width": 624,
+          "height": 37,
+          "bottom": 697.40625,
+          "scrollHeight": 36,
+          "clientHeight": 36
+        },
+        "error": {
+          "x": 68,
+          "y": 697.40625,
+          "width": 624,
+          "height": 26.796875,
+          "bottom": 724.203125,
+          "scrollHeight": 27,
+          "clientHeight": 27
+        },
+        "review": {
+          "x": 68,
+          "y": 732.203125,
+          "width": 624,
+          "height": 31.796875,
+          "bottom": 764,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": null,
+        "actions": null,
+        "boundary": null
+      }
+    },
+    {
+      "density": "compact",
+      "drawer": 500,
+      "view": "both",
+      "mode": "review",
+      "geometry": {
+        "host": {
+          "x": 56,
+          "y": 105,
+          "width": 648,
+          "height": 671,
+          "bottom": 776,
+          "scrollHeight": 671,
+          "clientHeight": 671
+        },
+        "model": {
+          "x": 56,
+          "y": 105,
+          "width": 648,
+          "height": 671,
+          "bottom": 776,
+          "scrollHeight": 671,
+          "clientHeight": 671
+        },
+        "title": {
+          "x": 68,
+          "y": 117,
+          "width": 624,
+          "height": 16.796875,
+          "bottom": 133.796875,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "layout": {
+          "x": 68,
+          "y": 143.796875,
+          "width": 624,
+          "height": 28,
+          "bottom": 171.796875,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        "filter": {
+          "x": 68,
+          "y": 179.796875,
+          "width": 624,
+          "height": 51.390625,
+          "bottom": 231.1875,
+          "scrollHeight": 51,
+          "clientHeight": 51
+        },
+        "family": {
+          "x": 68,
+          "y": 241.1875,
+          "width": 624,
+          "height": 30.796875,
+          "bottom": 271.984375,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "header": {
+          "x": 68,
+          "y": 304.78125,
+          "width": 910,
+          "height": 30,
+          "bottom": 334.78125,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "rows": null,
+        "footer": {
+          "x": 68,
+          "y": 614.609375,
+          "width": 624,
+          "height": 32,
+          "bottom": 646.609375,
+          "scrollHeight": 31,
+          "clientHeight": 31
+        },
+        "error": null,
+        "review": {
+          "x": 68,
+          "y": 732.203125,
+          "width": 624,
+          "height": 31.796875,
+          "bottom": 764,
+          "scrollHeight": 29,
+          "clientHeight": 29
+        },
+        "summary": {
+          "x": 68,
+          "y": 279.984375,
+          "width": 624,
+          "height": 16.796875,
+          "bottom": 296.78125,
+          "scrollHeight": 17,
+          "clientHeight": 17
+        },
+        "actions": {
+          "x": 68,
+          "y": 654.609375,
+          "width": 624,
+          "height": 28,
+          "bottom": 682.609375,
+          "scrollHeight": 28,
+          "clientHeight": 28
+        },
+        "boundary": {
+          "x": 68,
+          "y": 690.609375,
+          "width": 624,
+          "height": 33.59375,
+          "bottom": 724.203125,
+          "scrollHeight": 34,
+          "clientHeight": 34
+        }
+      }
+    }
+  ]
+}
