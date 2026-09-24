@@ -1,0 +1,368 @@
+{
+  "schema": "bounded-independent-review/v1",
+  "created_at_utc": "2026-09-24T17:53:36.204782+00:00",
+  "role": "TASK Type 2",
+  "agent": "/root/apt_trial_review",
+  "parent": "/root",
+  "mechanism": "delegated-harness-native descendant",
+  "delegation_performed": false,
+  "independence": "Fresh independent reviewer; did not implement any candidate file. Full TASK instructions loaded from resolved checkout.",
+  "model_attribution": "Model settings inherited from launcher; this review did not query or independently verify host model settings.",
+  "supplied_basis": {
+    "parent_message": "NEW_TASK from /root, bounded frozen 32-file APT acquisition trial review; no Git mutations, GUI, network or heavy test/build; permitted durable outputs only RETURN.md and MANIFEST.json in assigned return directory.",
+    "companion_authority": "Relied on parent-supplied explicit Piping ROOT sole narrow shared-action writer grant; no independent companion contact.",
+    "prior_slice": "53-file base candidate independent review and 38-crate/1082-test hosted numerical success supplied by parent; outside repeated review scope."
+  },
+  "repo_root": "/private/tmp/piping-numerical-ci-20260924",
+  "working_root": "/private/tmp/piping-numerical-ci-20260924/projects/chirality-piping",
+  "base_head": "a957e0a23e27807bd6ade21c723675bd5e9d7cec",
+  "candidate_manifest": {
+    "path": "/private/tmp/piping-numerical-ci-manager-20260924/apt-candidate-files.json",
+    "sha256": "118cae5e255df20ccaba903abe992ec19a45f2ab7205d965420678f8ebbd3579",
+    "file_count": 32
+  },
+  "candidate_sha256": {
+    ".github/actions/setup-piping-e2e/action.yml": "31113359ce0054d09b132b71e03ee270fdf2ba6a095f26e9a36ae9f715bd9645",
+    "projects/chirality-piping/tests/test_ci_apt_sources.py": "d5ad39f2b6c971d615ffce0f47175580d924d6a626c88f8bac91de35dc89b4c3",
+    "docs/governance_harness/tranche_manifests/PIPING-NUMERICAL-CI-20260924.yaml": "f4312b0324837d0fc65219465c122db83296c5dc2b28e45279583932ac72102c",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/NOTICE.md": "4c08b22e47274e644593cb4acf8c7f5a9eba4b55b46869e9f67c0c5e228ebe72",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/DIAGNOSIS.md": "44ff2dbda28cd3d5d96d856be3389f24216748d956ca3062718e82a0526d02ae",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/886-barrier-apt-excerpt.log": "9b51a1e7cf8d65859a13a14c2f76c11957ff77efb91ea21f9821a7fc457cde1a",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/APT_FAILURE_ATTEMPT1_EXCERPT.txt": "2f7aa192f70eba3b25a2318f249acf192dd1b7ead8738388994d3a13de3178e7",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/APT_FAILURE_ATTEMPT2_EXCERPT.txt": "efdeeab501fb503924dc65360d6a5918f392ffa953ac11b251a06ad8f8424dd3",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/APT_FAILURE_EXCERPTS.json": "e0dc4797d646959de01802a89961216049aa88e6beb28c318a49d6a0268d809d",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/apt-implementation-basis.json": "460eaeb62806feaffdfbfba84e3b16d5abbefd7cfe0f062ea2e765aa2bcf4be0",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/apt-test-result.json": "af6090d676ecad59025e69794c0f4677e8af6d2a5b27522469e9788fb06496ca",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/apt-tests-final.log": "edbf7384fe9ec1cc06a32ad5dd0d241dd9c4075aca895fb03a4cc2ae9047033e",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/apt-tests.log": "a7976d9f991b6ea6cee6cfa50b2e58829dd2393f43e8222d629665f073bc020d",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/apt_probe.py": "f933c827413f67278ec12ef5fbcb3ce51798d4f6339870eb7ae6d49a3dc7386b",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/apt_probe_differential.py": "68e6e7f7a7bc7e2a5a8e9531eabeb213495647252366edd40b31f05e86c15b9f",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/apt_probe_sources.py": "c4046d7ede8b89b7ead1289f5d67b0bc13cec7daa1095fb12f767ee5df1cfe14",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/custody.json": "93c91aeffcaa84fa18785fd0e578818b348c6c07358a163f6bb05adc1bb06ab4",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/http/bodies/298d6aac769c3cb7cdaa5199052c12f2c44ded50f903ae1fedcf73c69f0adae9.bin": "298d6aac769c3cb7cdaa5199052c12f2c44ded50f903ae1fedcf73c69f0adae9",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/http/bodies/418fe4332cf89d080647793901969eb240424f58f068d78485a239cecc7309e1.bin": "418fe4332cf89d080647793901969eb240424f58f068d78485a239cecc7309e1",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/http/bodies/5914f242dd289eb47e4e592db25970499a713b7624661ec76f67a8ea5f896ff5.bin": "5914f242dd289eb47e4e592db25970499a713b7624661ec76f67a8ea5f896ff5",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/http/bodies/5b49c23ed1f2a5079fb736bc7be78176efef5579491a960880c49fb9550046a5.bin": "5b49c23ed1f2a5079fb736bc7be78176efef5579491a960880c49fb9550046a5",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/http/bodies/d496ea56793772dc49dda1c3884843dad93a3bb7f5751d11562587edd4295806.bin": "d496ea56793772dc49dda1c3884843dad93a3bb7f5751d11562587edd4295806",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/http/bodies/f27b1c1614309930af01263d43401071171f65aa282c3a74c57ed74e814018e9.bin": "f27b1c1614309930af01263d43401071171f65aa282c3a74c57ed74e814018e9",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/http/bodies/fd7e89202e85e4b0f53e92654b3ce1f2175261aa13f366a902663e707541fb38.bin": "fd7e89202e85e4b0f53e92654b3ce1f2175261aa13f366a902663e707541fb38",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/http/http-differential.json": "07be4742783341a5582f67f927fe7c7348c4ebc9c6af68fde87d7547a1bf2216",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/http/http-observations-unsandboxed.json": "8706a942b54aa607ef5fab4182b5e1a9438bff51ddf69b489aec020bde92237d",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/http/http-observations.json": "b1066eec490221520c191075288fdb13f973f7f2f1656635993eadd8d94c38cb",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/http/http-primary-sources.json": "bf547d24087fd0ff8cf29213c6566e8ecb259fc849fcc3f5ff55b283121b92fc",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/immutable-index-proof.json": "8c116e43b0923c3da43b8448a7661818e619686b0f49052a4a93181303c824cc",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/manager-basis.json": "f33a3a9e703fb8c3a0fb672332a354b81b760e983cb2ce2234ad58cf5cf1da92",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/path-anchors.json": "c5fb96da73261f0dbd770959b173901dc9e8d1bfd6a17477c073d77144d396f8",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/source-freeze.json": "fc41eb4e73095b898f33ddc5bbc454c01d9e806ecfcb472eca810c2512bec946"
+  },
+  "candidate_hashes_verified_at_start_and_return": true,
+  "instructions": [
+    {
+      "origin": "/private/tmp/piping-numerical-ci-20260924/AGENTS.md",
+      "portable_path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-ci-20260924/agents/AGENT_TASK.md",
+      "portable_path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-ci-20260924/projects/chirality-piping/AGENTS.md",
+      "portable_path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-ci-20260924/projects/chirality-piping/loop/LOOP_INIT.md",
+      "portable_path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-ci-20260924/.agents/skills/software-code-review/SKILL.md",
+      "portable_path": ".agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+    }
+  ],
+  "other_consulted_context": [
+    {
+      "origin": "/private/tmp/piping-numerical-ci-20260924/.github/workflows/piping-desktop-e2e.yml",
+      "portable_path": ".github/workflows/piping-desktop-e2e.yml",
+      "sha256": "9cb061969f12c6890aa5b20e37ff9dab67430d91a788d706b05aa3dddd571183"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-ci-20260924/.github/workflows/piping-e2e-cache.yml",
+      "portable_path": ".github/workflows/piping-e2e-cache.yml",
+      "sha256": "3013f93503e094e8abd1d2c6da1a851e63883dd76620f32a7ed5ca9025980ba2"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-ci-20260924/tools/software_workflow/validate_change_scope.py",
+      "portable_path": "tools/software_workflow/validate_change_scope.py",
+      "sha256": "6275277dcb214f78dfad6c159333decda95f9aa3e086d12e39c7f2f73a70cb0d"
+    }
+  ],
+  "wider_role_consultation": "No other full role body loaded. Historical manager/implementation instruction lists inspected only as evidence records.",
+  "permissions": {
+    "candidate": "read-only by assignment",
+    "durable_write_targets": [
+      "/private/tmp/piping-apt-trial-review-20260924/RETURN.md",
+      "/private/tmp/piping-apt-trial-review-20260924/MANIFEST.json"
+    ],
+    "host": "workspace-write sandbox; no escalation; ordinary stdlib test temporary fixtures only",
+    "actual_operations": "read-only source/Git inspection, Python stdlib tests, hash/byte/range comparisons, approved return writes"
+  },
+  "checks": [
+    {
+      "name": "candidate identity and scope",
+      "result": "PASS",
+      "frozen_files": 32,
+      "actual_delta_paths": 32,
+      "violations": [],
+      "command": "python3 -B tools/software_workflow/validate_change_scope.py . --base a957e0a23e27807bd6ade21c723675bd5e9d7cec with --allowed repeated for each candidate_sha256 key"
+    },
+    {
+      "name": "APT source contract tests",
+      "command": "python3 -B -m unittest discover -s projects/chirality-piping/tests -p test_ci_apt_sources.py -v",
+      "python_version": "3.9.6",
+      "exit_code": 0,
+      "tests_passed": 3,
+      "stdout": "",
+      "stderr": "test_bash_syntax_and_bounded_diagnostics (test_ci_apt_sources.UbuntuSourceTests) ... ok\ntest_both_playwright_cache_paths_remain_available (test_ci_apt_sources.UbuntuSourceTests) ... ok\ntest_rendered_sources_preserve_trust_and_request_by_hash (test_ci_apt_sources.UbuntuSourceTests) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 0.034s\n\nOK\n"
+    },
+    {
+      "name": "diff whitespace",
+      "command": "git diff --check a957e0a23e27807bd6ade21c723675bd5e9d7cec",
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "name": "failure log custody",
+      "result": "PASS",
+      "method": "SHA-256 original bytes; reconstruct recorded inclusive line ranges; numbered PR887 excerpts and plain PR886 excerpt equal preserved bytes",
+      "ranges": [
+        {
+          "attempt": 1,
+          "first_line": 936,
+          "last_line": 1080,
+          "raw_sha256": "b49b2fa67f152248217a59c3d09f2f70c56872b26aa1ecca7066edc1a292a7ef"
+        },
+        {
+          "attempt": 2,
+          "first_line": 933,
+          "last_line": 1072,
+          "raw_sha256": "27b79de7bf7e6f585e2035537833ae9f15dda838e17755e27117d29b82b6c6fc"
+        },
+        {
+          "pr": 886,
+          "first_line": 937,
+          "last_line": 1100,
+          "raw_sha256": "f5f87f3d08a15c36408699462dc03a6930154ff4ea05357f0c8a6b61fa7cea86"
+        }
+      ]
+    },
+    {
+      "name": "retained immutable-index proof",
+      "result": "PASS",
+      "method": "Read http-differential.json response body map; parse exact SHA-256, size and Date from each retained InRelease; independently digest and size each corresponding retained payload; decode XZ; compare proof claims",
+      "security": {
+        "byhash_matches_release": true,
+        "stable_matches_release": true,
+        "bytes": 46392,
+        "expected_sha256": "fd7e89202e85e4b0f53e92654b3ce1f2175261aa13f366a902663e707541fb38"
+      },
+      "updates": {
+        "byhash_matches_release": true,
+        "stable_matches_release": false,
+        "expected_bytes": 1698176,
+        "expected_sha256": "298d6aac769c3cb7cdaa5199052c12f2c44ded50f903ae1fedcf73c69f0adae9",
+        "stable_bytes": 1698296,
+        "stable_sha256": "5914f242dd289eb47e4e592db25970499a713b7624661ec76f67a8ea5f896ff5"
+      }
+    }
+  ],
+  "custody_verification": [
+    {
+      "original_path": "/private/tmp/piping-numerical-ci-manager-20260924/apt-diagnostics/http-observations-unsandboxed.json",
+      "original_sha256": "8706a942b54aa607ef5fab4182b5e1a9438bff51ddf69b489aec020bde92237d",
+      "original_hash_verified": true,
+      "preserved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/http/http-observations-unsandboxed.json",
+      "preserved_sha256": "8706a942b54aa607ef5fab4182b5e1a9438bff51ddf69b489aec020bde92237d",
+      "preserved_hash_verified": true
+    },
+    {
+      "original_path": "/private/tmp/piping-numerical-ci-manager-20260924/apt-diagnostics/noble-aptconf.body",
+      "original_sha256": "142bce53e7472cee338906d0df029054916191e6e75b770ad89bb441fa3673e1",
+      "original_hash_verified": true
+    },
+    {
+      "original_path": "/private/tmp/piping-numerical-ci-manager-20260924/apt-diagnostics/noble-transport-https.body",
+      "original_sha256": "3dfdf487f390b95e83ed75ac3974df0e34b5a1c7c75ce6fd6c2b72ba92c4a6b8",
+      "original_hash_verified": true
+    },
+    {
+      "original_path": "/private/tmp/piping-numerical-ci-manager-20260924/apt-diagnostics/noble-transport-http.body",
+      "original_sha256": "d74946ffac752b6a8fc72d51f5c990eeb5e58f6e189ac40e8f6ec55bf72257e7",
+      "original_hash_verified": true
+    },
+    {
+      "original_path": "/private/tmp/piping-numerical-ci-manager-20260924/apt-diagnostics/security-fresh-byhash.body",
+      "original_sha256": "fd7e89202e85e4b0f53e92654b3ce1f2175261aa13f366a902663e707541fb38",
+      "original_hash_verified": true,
+      "preserved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/http/bodies/fd7e89202e85e4b0f53e92654b3ce1f2175261aa13f366a902663e707541fb38.bin",
+      "preserved_sha256": "fd7e89202e85e4b0f53e92654b3ce1f2175261aa13f366a902663e707541fb38",
+      "preserved_hash_verified": true
+    },
+    {
+      "original_path": "/private/tmp/piping-numerical-ci-manager-20260924/apt-diagnostics/http-primary-sources.json",
+      "original_sha256": "bf547d24087fd0ff8cf29213c6566e8ecb259fc849fcc3f5ff55b283121b92fc",
+      "original_hash_verified": true,
+      "preserved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/http/http-primary-sources.json",
+      "preserved_sha256": "bf547d24087fd0ff8cf29213c6566e8ecb259fc849fcc3f5ff55b283121b92fc",
+      "preserved_hash_verified": true
+    },
+    {
+      "original_path": "/private/tmp/piping-numerical-ci-manager-20260924/apt-diagnostics/updates-stable-nocache.body",
+      "original_sha256": "5914f242dd289eb47e4e592db25970499a713b7624661ec76f67a8ea5f896ff5",
+      "original_hash_verified": true,
+      "preserved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/http/bodies/5914f242dd289eb47e4e592db25970499a713b7624661ec76f67a8ea5f896ff5.bin",
+      "preserved_sha256": "5914f242dd289eb47e4e592db25970499a713b7624661ec76f67a8ea5f896ff5",
+      "preserved_hash_verified": true
+    },
+    {
+      "original_path": "/private/tmp/piping-numerical-ci-manager-20260924/apt-diagnostics/updates-fresh-byhash.body",
+      "original_sha256": "298d6aac769c3cb7cdaa5199052c12f2c44ded50f903ae1fedcf73c69f0adae9",
+      "original_hash_verified": true,
+      "preserved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/http/bodies/298d6aac769c3cb7cdaa5199052c12f2c44ded50f903ae1fedcf73c69f0adae9.bin",
+      "preserved_sha256": "298d6aac769c3cb7cdaa5199052c12f2c44ded50f903ae1fedcf73c69f0adae9",
+      "preserved_hash_verified": true
+    },
+    {
+      "original_path": "/private/tmp/piping-numerical-ci-manager-20260924/apt-diagnostics/updates-fresh-inrelease.body",
+      "original_sha256": "418fe4332cf89d080647793901969eb240424f58f068d78485a239cecc7309e1",
+      "original_hash_verified": true,
+      "preserved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/http/bodies/418fe4332cf89d080647793901969eb240424f58f068d78485a239cecc7309e1.bin",
+      "preserved_sha256": "418fe4332cf89d080647793901969eb240424f58f068d78485a239cecc7309e1",
+      "preserved_hash_verified": true
+    },
+    {
+      "original_path": "/private/tmp/piping-numerical-ci-manager-20260924/apt-diagnostics/updates-inrelease.body",
+      "original_sha256": "d496ea56793772dc49dda1c3884843dad93a3bb7f5751d11562587edd4295806",
+      "original_hash_verified": true,
+      "preserved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/http/bodies/d496ea56793772dc49dda1c3884843dad93a3bb7f5751d11562587edd4295806.bin",
+      "preserved_sha256": "d496ea56793772dc49dda1c3884843dad93a3bb7f5751d11562587edd4295806",
+      "preserved_hash_verified": true
+    },
+    {
+      "original_path": "/private/tmp/piping-numerical-ci-manager-20260924/apt-diagnostics/http-differential.json",
+      "original_sha256": "07be4742783341a5582f67f927fe7c7348c4ebc9c6af68fde87d7547a1bf2216",
+      "original_hash_verified": true,
+      "preserved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/http/http-differential.json",
+      "preserved_sha256": "07be4742783341a5582f67f927fe7c7348c4ebc9c6af68fde87d7547a1bf2216",
+      "preserved_hash_verified": true
+    },
+    {
+      "original_path": "/private/tmp/piping-numerical-ci-manager-20260924/apt-diagnostics/apt-2.8.3-source.body",
+      "original_sha256": "0b9edfe3d0b0198d3d87d3478d1ece913f07a33c96ebdc9ce2aa3635dced040f",
+      "original_hash_verified": true
+    },
+    {
+      "original_path": "/private/tmp/piping-numerical-ci-manager-20260924/apt-diagnostics/apt-repository-format.body",
+      "original_sha256": "a6895b712c7ecac6ed84b62afb9b3152dc5ecc3c0fd00ba4e54a856266b40d67",
+      "original_hash_verified": true
+    },
+    {
+      "original_path": "/private/tmp/piping-numerical-ci-manager-20260924/apt-diagnostics/security-stable-nocache.body",
+      "original_sha256": "fd7e89202e85e4b0f53e92654b3ce1f2175261aa13f366a902663e707541fb38",
+      "original_hash_verified": true,
+      "preserved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/http/bodies/fd7e89202e85e4b0f53e92654b3ce1f2175261aa13f366a902663e707541fb38.bin",
+      "preserved_sha256": "fd7e89202e85e4b0f53e92654b3ce1f2175261aa13f366a902663e707541fb38",
+      "preserved_hash_verified": true
+    },
+    {
+      "original_path": "/private/tmp/piping-numerical-ci-manager-20260924/apt-diagnostics/security-fresh-inrelease.body",
+      "original_sha256": "5b49c23ed1f2a5079fb736bc7be78176efef5579491a960880c49fb9550046a5",
+      "original_hash_verified": true,
+      "preserved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/http/bodies/5b49c23ed1f2a5079fb736bc7be78176efef5579491a960880c49fb9550046a5.bin",
+      "preserved_sha256": "5b49c23ed1f2a5079fb736bc7be78176efef5579491a960880c49fb9550046a5",
+      "preserved_hash_verified": true
+    },
+    {
+      "original_path": "/private/tmp/piping-numerical-ci-manager-20260924/apt-diagnostics/noble-sources.body",
+      "original_sha256": "f04c007957bb098f3395272a9adceb676bd86691652f0dd85cdc28c0346a9c24",
+      "original_hash_verified": true
+    },
+    {
+      "original_path": "/private/tmp/piping-numerical-ci-manager-20260924/apt-diagnostics/security-inrelease.body",
+      "original_sha256": "f27b1c1614309930af01263d43401071171f65aa282c3a74c57ed74e814018e9",
+      "original_hash_verified": true,
+      "preserved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/http/bodies/f27b1c1614309930af01263d43401071171f65aa282c3a74c57ed74e814018e9.bin",
+      "preserved_sha256": "f27b1c1614309930af01263d43401071171f65aa282c3a74c57ed74e814018e9",
+      "preserved_hash_verified": true
+    },
+    {
+      "original_path": "/private/tmp/piping-numerical-ci-manager-20260924/apt-diagnostics/http-observations.json",
+      "original_sha256": "b1066eec490221520c191075288fdb13f973f7f2f1656635993eadd8d94c38cb",
+      "original_hash_verified": true,
+      "preserved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/http/http-observations.json",
+      "preserved_sha256": "b1066eec490221520c191075288fdb13f973f7f2f1656635993eadd8d94c38cb",
+      "preserved_hash_verified": true
+    },
+    {
+      "original_path": "/private/tmp/piping-numerical-ci-manager-20260924/apt-diagnostics/runner-image-apt.body",
+      "original_sha256": "217808ff019a6421d6f52775bbbba4f9b687d2c34819fbb9d858404c9ba7f3fa",
+      "original_hash_verified": true
+    },
+    {
+      "original_path": "/private/tmp/piping-numerical-ci-manager-20260924/apt-diagnostics/updates-observed-hash.body",
+      "original_sha256": "5914f242dd289eb47e4e592db25970499a713b7624661ec76f67a8ea5f896ff5",
+      "original_hash_verified": true,
+      "preserved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/http/bodies/5914f242dd289eb47e4e592db25970499a713b7624661ec76f67a8ea5f896ff5.bin",
+      "preserved_sha256": "5914f242dd289eb47e4e592db25970499a713b7624661ec76f67a8ea5f896ff5",
+      "preserved_hash_verified": true
+    },
+    {
+      "original_path": "/private/tmp/piping-hosted-binding-20260924/887/APT_FAILURE_ATTEMPT1_EXCERPT.txt",
+      "original_sha256": "2f7aa192f70eba3b25a2318f249acf192dd1b7ead8738388994d3a13de3178e7",
+      "original_hash_verified": true,
+      "preserved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/APT_FAILURE_ATTEMPT1_EXCERPT.txt",
+      "preserved_sha256": "2f7aa192f70eba3b25a2318f249acf192dd1b7ead8738388994d3a13de3178e7",
+      "preserved_hash_verified": true
+    },
+    {
+      "original_path": "/private/tmp/piping-hosted-binding-20260924/887/APT_FAILURE_ATTEMPT2_EXCERPT.txt",
+      "original_sha256": "efdeeab501fb503924dc65360d6a5918f392ffa953ac11b251a06ad8f8424dd3",
+      "original_hash_verified": true,
+      "preserved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/APT_FAILURE_ATTEMPT2_EXCERPT.txt",
+      "preserved_sha256": "efdeeab501fb503924dc65360d6a5918f392ffa953ac11b251a06ad8f8424dd3",
+      "preserved_hash_verified": true
+    },
+    {
+      "original_path": "/private/tmp/piping-hosted-binding-20260924/887/APT_FAILURE_EXCERPTS.json",
+      "original_sha256": "e0dc4797d646959de01802a89961216049aa88e6beb28c318a49d6a0268d809d",
+      "original_hash_verified": true,
+      "preserved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/APT_FAILURE_EXCERPTS.json",
+      "preserved_sha256": "e0dc4797d646959de01802a89961216049aa88e6beb28c318a49d6a0268d809d",
+      "preserved_hash_verified": true
+    },
+    {
+      "original_path": "/private/tmp/piping-hosted-binding-20260924/886-e857/job-107734334458.log",
+      "original_sha256": "f5f87f3d08a15c36408699462dc03a6930154ff4ea05357f0c8a6b61fa7cea86",
+      "original_hash_verified": true,
+      "preserved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/APT_REPAIR/_run_records/886-barrier-apt-excerpt.log",
+      "preserved_sha256": "9b51a1e7cf8d65859a13a14c2f76c11957ff77efb91ea21f9821a7fc457cde1a",
+      "preserved_hash_verified": true
+    }
+  ],
+  "findings": [],
+  "disposition": "SUITABLE_FOR_ROOT_FAN_IN_AS_HOSTED_TRIAL",
+  "remaining_limits": [
+    "Hosted trial and integrating-revision source gates remain ROOT obligations.",
+    "No claim that force disables stable fallback or repairs already-enabled by-hash acquisition when objects are absent.",
+    "No local APT execution or independent InRelease signature authentication.",
+    "No proof of former runner effective settings or of the cause merely from future hosted success.",
+    "No lifecycle, merge, release or engineering acceptance."
+  ],
+  "output": {
+    "path": "/private/tmp/piping-apt-trial-review-20260924/RETURN.md",
+    "sha256": "f01dc06b7f51f736dab58a9432991d360f61ac49d704199b6f2c6a2dd90fac02"
+  }
+}

@@ -1,0 +1,215 @@
+{
+  "base": "f7e8b467cb2db244f11fe49cede636140031b387",
+  "toolchain": "1.97.1",
+  "offline": true,
+  "commands": [
+    {
+      "argv": [
+        "cargo",
+        "generate-lockfile",
+        "--offline",
+        "--manifest-path",
+        "projects/chirality-piping/core/loads/load_case_algebra/Cargo.toml"
+      ],
+      "exit_code": 0,
+      "output": "     Locking 3 packages to latest compatible versions\n",
+      "manifest_sha256": "b675c2414a573332d33e9e29d5db907ec4582c75b1bd53ece52a6dda26f746da",
+      "lock_sha256": "abad8a64f1329cd12f3f89d2a99a3f720c570597f38860f1be28b3cbd126880e"
+    },
+    {
+      "argv": [
+        "cargo",
+        "generate-lockfile",
+        "--offline",
+        "--manifest-path",
+        "projects/chirality-piping/core/loads/primitive_loads/Cargo.toml"
+      ],
+      "exit_code": 0,
+      "output": "     Locking 2 packages to latest compatible versions\n",
+      "manifest_sha256": "97959fbf7124f55b39ea51a33ae1da1f1abcc9fc1b969f7d42d9ea0fcab894a0",
+      "lock_sha256": "4cc8edcfe1a36df477b0fcb9852ad63926bf75795e60615f1f820d5a7581a854"
+    },
+    {
+      "argv": [
+        "cargo",
+        "generate-lockfile",
+        "--offline",
+        "--manifest-path",
+        "projects/chirality-piping/core/reporting/audit_manifest/Cargo.toml"
+      ],
+      "exit_code": 0,
+      "output": "",
+      "manifest_sha256": "3445e3291a48e01d9ebeaf3d07308b34c22a2ade3a808597cabd6788b33ce237",
+      "lock_sha256": "cf614e760a1b93f35ed11498048c9669205204468d6a5115b6f7ecdc3475c6f2"
+    },
+    {
+      "argv": [
+        "cargo",
+        "generate-lockfile",
+        "--offline",
+        "--manifest-path",
+        "projects/chirality-piping/core/reporting/report_generator/Cargo.toml"
+      ],
+      "exit_code": 0,
+      "output": "     Locking 7 packages to latest compatible versions\n",
+      "manifest_sha256": "8fbc574d818a9a459e5a914c37cc6861c0e4b389e179408738933ab6ac94414f",
+      "lock_sha256": "ad699ba4553e8a13a6240b8e9916f9d5266372a0448699b15c42f294d6b74e0f"
+    },
+    {
+      "argv": [
+        "cargo",
+        "generate-lockfile",
+        "--offline",
+        "--manifest-path",
+        "projects/chirality-piping/core/reporting/result_export/Cargo.toml"
+      ],
+      "exit_code": 0,
+      "output": "     Locking 23 packages to latest compatible versions\n",
+      "manifest_sha256": "1fcbed32019b21118382bb935fc8ae61fc876b1ee28063f9fcf36a05d6da9bd4",
+      "lock_sha256": "963573b91a229f41472bbd3100e2cf48e5dad8a2b2009dc85017c41ef3bdb4f1"
+    },
+    {
+      "argv": [
+        "cargo",
+        "generate-lockfile",
+        "--offline",
+        "--manifest-path",
+        "projects/chirality-piping/core/rules/completeness_checker/Cargo.toml"
+      ],
+      "exit_code": 0,
+      "output": "",
+      "manifest_sha256": "3f3e2c40814d61aa058d20aafbe9195198d16e6d39868b409cbacd02813ca98d",
+      "lock_sha256": "dff3336149333fa815d35e8f6b28b9b628c8eb5114504ccdd1787672133a2c34"
+    },
+    {
+      "argv": [
+        "cargo",
+        "generate-lockfile",
+        "--offline",
+        "--manifest-path",
+        "projects/chirality-piping/core/rules/rule_pack_lifecycle/Cargo.toml"
+      ],
+      "exit_code": 0,
+      "output": "",
+      "manifest_sha256": "bb3ca5cfd2e37d864234ad56c41cceba05ec3baa9bd7036247203d46f432d0da",
+      "lock_sha256": "6f2dc15a4f90c373ae1d642364af4c6b8fe34cf03f870e206b363c921533425e"
+    },
+    {
+      "argv": [
+        "cargo",
+        "generate-lockfile",
+        "--offline",
+        "--manifest-path",
+        "projects/chirality-piping/core/runner/headless/Cargo.toml"
+      ],
+      "exit_code": 0,
+      "output": "     Locking 48 packages to latest compatible versions\n",
+      "manifest_sha256": "8ca4a4c2955852edc4386212d1e3b2b0b7784af9b607417f03764c7011b98ef6",
+      "lock_sha256": "661095df4a112a8884d8b39709eac134d8b95cdb5cb8d346f835c1851debe544"
+    },
+    {
+      "argv": [
+        "cargo",
+        "generate-lockfile",
+        "--offline",
+        "--manifest-path",
+        "projects/chirality-piping/core/solver/curved_bend/Cargo.toml"
+      ],
+      "exit_code": 0,
+      "output": "     Locking 1 package to latest compatible version\n",
+      "manifest_sha256": "49e42be72ad63f6f7c215f2fb39592d4134f37533f876b5161591c9004f1f239",
+      "lock_sha256": "673aed6ccd24ed82f89b9f5fd949880eb800641f1975879685712af827620f9c"
+    },
+    {
+      "argv": [
+        "cargo",
+        "generate-lockfile",
+        "--offline",
+        "--manifest-path",
+        "projects/chirality-piping/core/solver/diagnostics/Cargo.toml"
+      ],
+      "exit_code": 0,
+      "output": "     Locking 4 packages to latest compatible versions\n",
+      "manifest_sha256": "b97f1331ea132a493008eb94d985b6afd26c8ea13476e56c1fa2a098f34244b6",
+      "lock_sha256": "e80edc2f981aa904e2146072db14d31eed2680cf5975eea0ea3b8b5a4175ee64"
+    },
+    {
+      "argv": [
+        "cargo",
+        "generate-lockfile",
+        "--offline",
+        "--manifest-path",
+        "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml"
+      ],
+      "exit_code": 0,
+      "output": "",
+      "manifest_sha256": "c124ff5534616207027d932d561b810fed824ee7a095b4a06f738ff9d226c317",
+      "lock_sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "argv": [
+        "cargo",
+        "generate-lockfile",
+        "--offline",
+        "--manifest-path",
+        "projects/chirality-piping/core/solver/linear_supports/Cargo.toml"
+      ],
+      "exit_code": 0,
+      "output": "     Locking 1 package to latest compatible version\n",
+      "manifest_sha256": "db634677878b548ca51ad7b14d0532540b0471a439ac7e8d7e28a405b32e5b08",
+      "lock_sha256": "5792a728c5b0687e3306a96ace1bc79eac4d0b5be8294e40de34849921c64537"
+    },
+    {
+      "argv": [
+        "cargo",
+        "generate-lockfile",
+        "--offline",
+        "--manifest-path",
+        "projects/chirality-piping/core/solver/nonlinear_supports/Cargo.toml"
+      ],
+      "exit_code": 0,
+      "output": "     Locking 5 packages to latest compatible versions\n",
+      "manifest_sha256": "328a321c2d77b620665f449dbdb58246953299cacffcaae25bb542e7339f3b64",
+      "lock_sha256": "8bf2ad74a9b4d415e825c60fbc45bdb2b62b673fc2914e561ffa85c992bc2657"
+    },
+    {
+      "argv": [
+        "cargo",
+        "generate-lockfile",
+        "--offline",
+        "--manifest-path",
+        "projects/chirality-piping/core/solver/performance_harness/Cargo.toml"
+      ],
+      "exit_code": 0,
+      "output": "     Locking 5 packages to latest compatible versions\n",
+      "manifest_sha256": "e0b4a13926a7fffdb45547b2b35e00b72ce2d24a038aa10d0662be16ab99bc0a",
+      "lock_sha256": "c191d3f5d2ca8cdc6c6237effbc18d5e477cf1362d79bf45c62821486f94ab8b"
+    },
+    {
+      "argv": [
+        "cargo",
+        "generate-lockfile",
+        "--offline",
+        "--manifest-path",
+        "projects/chirality-piping/core/solver/sparse_direct/Cargo.toml"
+      ],
+      "exit_code": 0,
+      "output": "     Locking 1 package to latest compatible version\n",
+      "manifest_sha256": "3c80029904a6af6443cd5af5c7b8de98e1eaf6ba573a50408fce6ea63fc2192e",
+      "lock_sha256": "86a316b6f076f21b01531b16c1336abeccfb484d8425ad44fc560831d1c34b36"
+    },
+    {
+      "argv": [
+        "cargo",
+        "generate-lockfile",
+        "--offline",
+        "--manifest-path",
+        "projects/chirality-piping/core/solver/straight_pipe/Cargo.toml"
+      ],
+      "exit_code": 0,
+      "output": "     Locking 1 package to latest compatible version\n",
+      "manifest_sha256": "7aed2782a0421df01ca78d58c26c8648d179b871d5cdd2503b2e911bacd42ff4",
+      "lock_sha256": "53c41652cf335be092d3eb651d25263a1e2bea87457e4206e0decc00e56e1d7c"
+    }
+  ]
+}

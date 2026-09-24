@@ -52,6 +52,29 @@ class PolicyTests(unittest.TestCase):
         return ci.make_plan(self.root, kw.get('event', 'pull_request'), kw.get('base', self.base),
                             'HEAD', kw.get('pr', '827'))
 
+    def test_numerical_policy_is_independent_and_whole_pr(self):
+        for path in [ci.PROJECT + p for p in ['core/x.rs', 'validation/hand_calcs/x.md',
+                'fixtures/x.json', 'schemas/x.yaml', 'examples/rule_packs/x.json', '.cargo/config.toml',
+                'tools/release/check_release_readiness.py', 'tools/ci/numerical_ci.py']] + list(ci.NUMERICAL_EVIDENCE_INPUTS) + ['.github/workflows/piping-desktop-e2e.yml', 'unknown-build-input']:
+            with self.subTest(path=path):
+                self.assertTrue(ci.numerical_input(path))
+        for path in [ci.DESKTOP + 'src/App.tsx', ci.PROJECT + 'docs/design.md',
+                ci.PROJECT + 'validation/evidence/other.json', 'projects/other/core/x.rs']:
+            self.assertFalse(ci.numerical_input(path), path)
+        resource = next(iter(ci.NUMERICAL_EVIDENCE_INPUTS))
+        self.write(resource)
+        self.commit()
+        self.assertEqual(self.plan()['mode'], 'not-applicable')
+        self.assertTrue(self.plan()['numerical_required'])
+        self.write(ci.DESKTOP + ci.FAST)
+        self.commit()
+        self.assertTrue(self.plan()['numerical_required'])
+        base = self.git('rev-parse', 'HEAD')
+        (self.root / resource).rename(self.root / resource.replace('.json', '-renamed.json'))
+        self.commit()
+        self.assertTrue(self.plan(base=base)['numerical_required'])
+        self.assertTrue(self.plan(event='workflow_dispatch')['numerical_required'])
+
     def test_known_unrelated_projects_and_records_are_explicit_na(self):
         for path in ['projects/chirality-app-dev/src/App.tsx', 'projects/chirality-runtime/core/a.rs',
                      ci.PROJECT + 'execution/run/evidence.json', 'docs/design.md']:
@@ -375,19 +398,22 @@ class WorkflowTriggerTests(unittest.TestCase):
 
 
 class GateTests(unittest.TestCase):
+    def gate(self, *args):
+        return ci.aggregate(*args, 'false', 'skipped')
+
     def test_every_mode_fails_closed(self):
         valid = [('not-applicable', 'skipped', 'skipped'), ('full', 'success', 'success'),
                  ('lean', 'success', 'skipped'), ('lean-affected', 'success', 'skipped'), ('changed-specs', 'success', 'skipped')]
         for mode, barrier, remainder in valid:
-            self.assertTrue(ci.aggregate(mode, 'success', barrier, remainder))
+            self.assertTrue(self.gate(mode, 'success', barrier, remainder))
             for state in ['failure', 'cancelled', '', 'unknown']:
-                self.assertFalse(ci.aggregate(mode, state, barrier, remainder))
-                self.assertFalse(ci.aggregate(mode, 'success', state, remainder))
-                self.assertFalse(ci.aggregate(mode, 'success', barrier, state))
+                self.assertFalse(self.gate(mode, state, barrier, remainder))
+                self.assertFalse(self.gate(mode, 'success', state, remainder))
+                self.assertFalse(self.gate(mode, 'success', barrier, state))
         for mode in ['', 'pr825-repair', 'instruments']:
-            self.assertFalse(ci.aggregate(mode, 'success', 'success', 'skipped'))
-        self.assertFalse(ci.aggregate('not-applicable', 'success', 'success', 'skipped'))
-        self.assertFalse(ci.aggregate('full', 'success', 'success', 'skipped'))
+            self.assertFalse(self.gate(mode, 'success', 'success', 'skipped'))
+        self.assertFalse(self.gate('not-applicable', 'success', 'success', 'skipped'))
+        self.assertFalse(self.gate('full', 'success', 'success', 'skipped'))
 
 
 if __name__ == '__main__':

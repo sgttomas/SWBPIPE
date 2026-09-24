@@ -1,0 +1,39 @@
+{
+  "kind": "read-only HTTPS payload identity comparison; not local APT/signature/hosted execution",
+  "checks": [
+    {
+      "pocket": "security",
+      "index": "main/dep11/Components-amd64.yml.xz",
+      "release_date": "Date: Thu, 24 Sep 2026  3:01:47 UTC",
+      "expected_sha256": "fd7e89202e85e4b0f53e92654b3ce1f2175261aa13f366a902663e707541fb38",
+      "expected_bytes": 46392,
+      "fresh-byhash": {
+        "sha256": "fd7e89202e85e4b0f53e92654b3ce1f2175261aa13f366a902663e707541fb38",
+        "bytes": 46392,
+        "matches_release": true
+      },
+      "stable-nocache": {
+        "sha256": "fd7e89202e85e4b0f53e92654b3ce1f2175261aa13f366a902663e707541fb38",
+        "bytes": 46392,
+        "matches_release": true
+      }
+    },
+    {
+      "pocket": "updates",
+      "index": "universe/binary-amd64/Packages.xz",
+      "release_date": "Date: Thu, 24 Sep 2026  3:02:36 UTC",
+      "expected_sha256": "298d6aac769c3cb7cdaa5199052c12f2c44ded50f903ae1fedcf73c69f0adae9",
+      "expected_bytes": 1698176,
+      "fresh-byhash": {
+        "sha256": "298d6aac769c3cb7cdaa5199052c12f2c44ded50f903ae1fedcf73c69f0adae9",
+        "bytes": 1698176,
+        "matches_release": true
+      },
+      "stable-nocache": {
+        "sha256": "5914f242dd289eb47e4e592db25970499a713b7624661ec76f67a8ea5f896ff5",
+        "bytes": 1698296,
+        "matches_release": false
+      }
+    }
+  ]
+}

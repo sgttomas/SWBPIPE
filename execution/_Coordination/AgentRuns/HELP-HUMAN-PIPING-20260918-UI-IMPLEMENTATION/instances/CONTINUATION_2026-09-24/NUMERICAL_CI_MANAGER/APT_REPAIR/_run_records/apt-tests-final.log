@@ -1,0 +1,8 @@
+test_bash_syntax_and_bounded_diagnostics (test_ci_apt_sources.UbuntuSourceTests.test_bash_syntax_and_bounded_diagnostics) ... ok
+test_both_playwright_cache_paths_remain_available (test_ci_apt_sources.UbuntuSourceTests.test_both_playwright_cache_paths_remain_available) ... ok
+test_rendered_sources_preserve_trust_and_request_by_hash (test_ci_apt_sources.UbuntuSourceTests.test_rendered_sources_preserve_trust_and_request_by_hash) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.019s
+
+OK

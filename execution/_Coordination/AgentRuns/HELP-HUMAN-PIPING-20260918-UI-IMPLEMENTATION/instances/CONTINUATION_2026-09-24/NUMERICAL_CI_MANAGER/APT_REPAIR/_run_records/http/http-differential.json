@@ -1,0 +1,252 @@
+[
+  {
+    "name": "security-fresh-inrelease",
+    "url": "https://security.ubuntu.com/ubuntu/dists/noble-security/InRelease",
+    "request_headers": {
+      "Cache-Control": "no-cache",
+      "Pragma": "no-cache"
+    },
+    "at": "2026-09-24T16:54:07Z",
+    "status": 200,
+    "response_headers": {
+      "Date": "Thu, 24 Sep 2026 16:54:08 GMT",
+      "Server": "Apache/2.4.52 (Ubuntu)",
+      "Last-Modified": "Thu, 24 Sep 2026 03:02:22 GMT",
+      "ETag": "\"1ecaf-65c31d42109d5\"",
+      "Accept-Ranges": "bytes",
+      "Content-Length": "126127",
+      "Cache-Control": "max-age=0, proxy-revalidate, s-maxage=3300",
+      "Expires": "Thu, 24 Sep 2026 16:54:08 GMT",
+      "Connection": "close"
+    },
+    "length": 126127,
+    "sha256": "5b49c23ed1f2a5079fb736bc7be78176efef5579491a960880c49fb9550046a5"
+  },
+  {
+    "name": "security-fresh-byhash",
+    "url": "https://security.ubuntu.com/ubuntu/dists/noble-security/main/dep11/by-hash/SHA256/fd7e89202e85e4b0f53e92654b3ce1f2175261aa13f366a902663e707541fb38",
+    "request_headers": {
+      "Cache-Control": "no-cache",
+      "Pragma": "no-cache"
+    },
+    "at": "2026-09-24T16:54:08Z",
+    "status": 200,
+    "response_headers": {
+      "Date": "Thu, 24 Sep 2026 16:54:09 GMT",
+      "Server": "Apache/2.4.52 (Ubuntu)",
+      "Last-Modified": "Wed, 23 Sep 2026 07:02:40 GMT",
+      "ETag": "\"b538-65c2111ac7951\"",
+      "Accept-Ranges": "bytes",
+      "Content-Length": "46392",
+      "Cache-Control": "max-age=86400",
+      "Connection": "close"
+    },
+    "length": 46392,
+    "sha256": "fd7e89202e85e4b0f53e92654b3ce1f2175261aa13f366a902663e707541fb38"
+  },
+  {
+    "name": "security-stable-nocache",
+    "url": "https://security.ubuntu.com/ubuntu/dists/noble-security/main/dep11/Components-amd64.yml.xz",
+    "request_headers": {
+      "Cache-Control": "no-cache",
+      "Pragma": "no-cache"
+    },
+    "at": "2026-09-24T16:54:09Z",
+    "status": 200,
+    "response_headers": {
+      "Date": "Thu, 24 Sep 2026 16:54:10 GMT",
+      "Server": "Apache/2.4.52 (Ubuntu)",
+      "Last-Modified": "Wed, 23 Sep 2026 07:02:40 GMT",
+      "ETag": "\"b538-65c2111ac7951\"",
+      "Accept-Ranges": "bytes",
+      "Content-Length": "46392",
+      "Connection": "close",
+      "Content-Type": "application/x-xz"
+    },
+    "length": 46392,
+    "sha256": "fd7e89202e85e4b0f53e92654b3ce1f2175261aa13f366a902663e707541fb38"
+  },
+  {
+    "name": "updates-fresh-inrelease",
+    "url": "https://archive.ubuntu.com/ubuntu/dists/noble-updates/InRelease",
+    "request_headers": {
+      "Cache-Control": "no-cache",
+      "Pragma": "no-cache"
+    },
+    "at": "2026-09-24T16:54:10Z",
+    "status": 200,
+    "response_headers": {
+      "Date": "Thu, 24 Sep 2026 16:54:10 GMT",
+      "Server": "Apache/2.4.52 (Ubuntu)",
+      "Last-Modified": "Thu, 24 Sep 2026 03:03:17 GMT",
+      "ETag": "\"1ecad-65c31d7645fa2\"",
+      "Accept-Ranges": "bytes",
+      "Content-Length": "126125",
+      "Cache-Control": "max-age=0, proxy-revalidate, s-maxage=3300",
+      "Expires": "Thu, 24 Sep 2026 16:54:10 GMT",
+      "Connection": "close"
+    },
+    "length": 126125,
+    "sha256": "418fe4332cf89d080647793901969eb240424f58f068d78485a239cecc7309e1"
+  },
+  {
+    "name": "updates-fresh-byhash",
+    "url": "https://archive.ubuntu.com/ubuntu/dists/noble-updates/universe/binary-amd64/by-hash/SHA256/298d6aac769c3cb7cdaa5199052c12f2c44ded50f903ae1fedcf73c69f0adae9",
+    "request_headers": {
+      "Cache-Control": "no-cache",
+      "Pragma": "no-cache"
+    },
+    "at": "2026-09-24T16:54:11Z",
+    "status": 200,
+    "response_headers": {
+      "Date": "Thu, 24 Sep 2026 16:54:12 GMT",
+      "Server": "Apache/2.4.52 (Ubuntu)",
+      "Last-Modified": "Thu, 24 Sep 2026 01:42:27 GMT",
+      "ETag": "\"19e980-65c30b65331ff\"",
+      "Accept-Ranges": "bytes",
+      "Content-Length": "1698176",
+      "Cache-Control": "max-age=86400",
+      "Connection": "close"
+    },
+    "length": 1698176,
+    "sha256": "298d6aac769c3cb7cdaa5199052c12f2c44ded50f903ae1fedcf73c69f0adae9"
+  },
+  {
+    "name": "updates-stable-nocache",
+    "url": "https://archive.ubuntu.com/ubuntu/dists/noble-updates/universe/binary-amd64/Packages.xz",
+    "request_headers": {
+      "Cache-Control": "no-cache",
+      "Pragma": "no-cache"
+    },
+    "at": "2026-09-24T16:54:13Z",
+    "status": 200,
+    "response_headers": {
+      "Date": "Thu, 24 Sep 2026 16:54:14 GMT",
+      "Server": "Apache/2.4.52 (Ubuntu)",
+      "Last-Modified": "Thu, 24 Sep 2026 15:14:06 GMT",
+      "ETag": "\"19e9f8-65c3c0d093ef8\"",
+      "Accept-Ranges": "bytes",
+      "Content-Length": "1698296",
+      "Cache-Control": "max-age=0, proxy-revalidate, s-maxage=3300",
+      "Expires": "Thu, 24 Sep 2026 16:54:14 GMT",
+      "Connection": "close",
+      "Content-Type": "application/x-xz"
+    },
+    "length": 1698296,
+    "sha256": "5914f242dd289eb47e4e592db25970499a713b7624661ec76f67a8ea5f896ff5"
+  },
+  {
+    "name": "apt-2.8.3-source",
+    "url": "https://salsa.debian.org/apt-team/apt/-/raw/2.8.3/apt-pkg/acquire-item.cc",
+    "request_headers": {},
+    "at": "2026-09-24T16:54:15Z",
+    "status": 200,
+    "response_headers": {
+      "date": "Thu, 24 Sep 2026 16:54:15 GMT",
+      "server": "Apache",
+      "permissions-policy": "interest-cohort=()",
+      "strict-transport-security": "max-age=15552000",
+      "cache-control": "max-age=60, public, must-revalidate, stale-while-revalidate=60, stale-if-error=300, s-maxage=60",
+      "content-disposition": "inline",
+      "content-security-policy": "connect-src 'self' http://localhost:* ws://localhost:* wss://localhost:*; default-src 'self'; frame-ancestors 'self'; frame-src 'self' https://www.google.com/recaptcha/ https://www.recaptcha.net/ https://content.googleapis.com https://content-compute.googleapis.com https://content-cloudbilling.googleapis.com https://content-cloudresourcemanager.googleapis.com; img-src * data: blob:; object-src 'none'; script-src 'self' 'unsafe-eval' http://localhost:* https://www.google.com/recaptcha/ https://www.recaptcha.net/ https://www.gstatic.com/recaptcha/ https://apis.google.com 'nonce-1MXLM+xn+m5V0LXge3wRnw=='; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:",
+      "content-type": "text/plain; charset=utf-8",
+      "nel": "{\"max_age\": 0}",
+      "ratelimit-limit": "60",
+      "ratelimit-name": "throttle_unauthenticated_web",
+      "ratelimit-observed": "1",
+      "ratelimit-remaining": "3599",
+      "ratelimit-reset": "1790269200",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      "x-accel-buffering": "no",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "x-gitlab-meta": "{\"correlation_id\":\"01M3A5DNCCF4QARZJVNBQFWNQ4\",\"version\":\"1\"}",
+      "x-permitted-cross-domain-policies": "none",
+      "x-request-id": "01M3A5DNCCF4QARZJVNBQFWNQ4",
+      "x-runtime": "0.070884",
+      "x-ua-compatible": "IE=edge",
+      "x-xss-protection": "1; mode=block",
+      "vary": "Accept-Encoding",
+      "x-clacks-overhead": "GNU Terry Pratchett",
+      "x-varnish": "3142386412",
+      "age": "0",
+      "via": "1.1 proxy-ca-01 (Varnish/7.7)",
+      "etag": "W/\"8799ae9d3a2d819aab539710b1bfc080-gzip\"",
+      "accept-ranges": "bytes",
+      "x-backend": "salsa_godard",
+      "alt-svc": "h3=\":443\"; ma=60",
+      "connection": "close",
+      "transfer-encoding": "chunked"
+    },
+    "length": 148368,
+    "sha256": "0b9edfe3d0b0198d3d87d3478d1ece913f07a33c96ebdc9ce2aa3635dced040f"
+  },
+  {
+    "name": "apt-repository-format",
+    "url": "https://wiki.debian.org/DebianRepository/Format",
+    "request_headers": {},
+    "at": "2026-09-24T16:54:15Z",
+    "status": 200,
+    "response_headers": {
+      "date": "Thu, 24 Sep 2026 16:54:16 GMT",
+      "server": "Apache",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "sameorigin",
+      "referrer-policy": "no-referrer",
+      "x-xss-protection": "1",
+      "permissions-policy": "interest-cohort=()",
+      "strict-transport-security": "max-age=15552000",
+      "vary": "Cookie,User-Agent,Accept-Language,Accept-Encoding",
+      "x-clacks-overhead": "GNU Terry Pratchett",
+      "content-type": "text/html; charset=utf-8",
+      "x-varnish": "3098382690",
+      "age": "0",
+      "via": "1.1 proxy-ca-01 (Varnish/7.7)",
+      "accept-ranges": "bytes",
+      "x-backend": "wiki_wilder",
+      "alt-svc": "h3=\":443\"; ma=60",
+      "connection": "close",
+      "transfer-encoding": "chunked"
+    },
+    "length": 88943,
+    "sha256": "a6895b712c7ecac6ed84b62afb9b3152dc5ecc3c0fd00ba4e54a856266b40d67"
+  },
+  {
+    "name": "noble-transport-http",
+    "url": "https://manpages.ubuntu.com/manpages/noble/man1/apt-transport-http.1.html",
+    "request_headers": {},
+    "at": "2026-09-24T16:54:16Z",
+    "status": 200,
+    "response_headers": {
+      "content-security-policy": "default-src 'none'; script-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline' https://assets.ubuntu.com; img-src 'self' data: https://assets.ubuntu.com; font-src 'self' https://assets.ubuntu.com https://fonts.gstatic.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+      "content-type": "text/html; charset=utf-8",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY",
+      "date": "Thu, 24 Sep 2026 16:54:24 GMT",
+      "transfer-encoding": "chunked",
+      "connection": "close"
+    },
+    "length": 20321,
+    "sha256": "d74946ffac752b6a8fc72d51f5c990eeb5e58f6e189ac40e8f6ec55bf72257e7"
+  },
+  {
+    "name": "noble-transport-https",
+    "url": "https://manpages.ubuntu.com/manpages/noble/man1/apt-transport-https.1.html",
+    "request_headers": {},
+    "at": "2026-09-24T16:54:24Z",
+    "status": 200,
+    "response_headers": {
+      "content-security-policy": "default-src 'none'; script-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline' https://assets.ubuntu.com; img-src 'self' data: https://assets.ubuntu.com; font-src 'self' https://assets.ubuntu.com https://fonts.gstatic.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+      "content-type": "text/html; charset=utf-8",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY",
+      "date": "Thu, 24 Sep 2026 16:54:32 GMT",
+      "transfer-encoding": "chunked",
+      "connection": "close"
+    },
+    "length": 19562,
+    "sha256": "3dfdf487f390b95e83ed75ac3974df0e34b5a1c7c75ce6fd6c2b72ba92c4a6b8"
+  }
+]

@@ -1,0 +1,4 @@
+Running: rustc --version
+Running: cargo --version
+Running: cargo fetch --locked --manifest-path core/failure_control/Cargo.toml
+Running: cargo test --offline --manifest-path core/failure_control/Cargo.toml --locked

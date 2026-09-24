@@ -1,0 +1,12 @@
+{
+  "repo_root": "/private/tmp/piping-numerical-ci-20260924",
+  "checked_file_count": 11724,
+  "finding_count": 0,
+  "findings": [],
+  "semantic_invariants": {
+    "unacknowledged_control": 0,
+    "active_unclassified": 0,
+    "policy_issues": 0,
+    "acknowledged_control": 45
+  }
+}

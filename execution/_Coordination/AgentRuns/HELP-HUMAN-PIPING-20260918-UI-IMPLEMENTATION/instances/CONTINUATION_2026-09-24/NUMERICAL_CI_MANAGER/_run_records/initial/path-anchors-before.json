@@ -1,0 +1,199 @@
+{
+  "repo_root": "/private/tmp/piping-numerical-ci-20260924",
+  "checked_file_count": 11719,
+  "finding_count": 31,
+  "findings": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/EXECUTION.json",
+      "line": 7,
+      "match": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "text": "\"basis_checkout\": \"/Users/ryan/.codex/worktrees/6614/chirality\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/EXECUTION.json",
+      "line": 57,
+      "match": "/private/tmp/piping-numerical-ci-20260924",
+      "text": "\"implementation_checkout\": \"/private/tmp/piping-numerical-ci-20260924\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/implementation-basis.json",
+      "line": 10,
+      "match": "/private/tmp/piping-numerical-ci-20260924/AGENTS.md",
+      "text": "\"path\": \"/private/tmp/piping-numerical-ci-20260924/AGENTS.md\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/implementation-basis.json",
+      "line": 14,
+      "match": "/private/tmp/piping-numerical-ci-20260924/agents/AGENT_TASK.md",
+      "text": "\"path\": \"/private/tmp/piping-numerical-ci-20260924/agents/AGENT_TASK.md\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/implementation-basis.json",
+      "line": 18,
+      "match": "/private/tmp/piping-numerical-ci-20260924/projects/chirality-piping/AGENTS.md",
+      "text": "\"path\": \"/private/tmp/piping-numerical-ci-20260924/projects/chirality-piping/AGENTS.md\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/implementation-basis.json",
+      "line": 22,
+      "match": "/private/tmp/piping-numerical-ci-20260924/projects/chirality-piping/loop/LOOP_INIT.md",
+      "text": "\"path\": \"/private/tmp/piping-numerical-ci-20260924/projects/chirality-piping/loop/LOOP_INIT.md\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/implementation-basis.json",
+      "line": 26,
+      "match": "/private/tmp/piping-numerical-ci-20260924/.agents/skills/chirality-change/SKILL.md",
+      "text": "\"path\": \"/private/tmp/piping-numerical-ci-20260924/.agents/skills/chirality-change/SKILL.md\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/control.json",
+      "line": 4,
+      "match": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v",
+      "text": "\"fixture_root\": \"/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/control.json",
+      "line": 18,
+      "match": "/private/tmp/chirality-piping-dec025-venv/bin/python",
+      "text": "\"/private/tmp/chirality-piping-dec025-venv/bin/python\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/control.json",
+      "line": 19,
+      "match": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/projects/chirality-piping/tools/ci/numerical_ci.py",
+      "text": "\"/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/projects/chirality-piping/tools/ci/numerical_ci.py\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/control.json",
+      "line": 21,
+      "match": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/plan.json",
+      "text": "\"/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/plan.json\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/control.json",
+      "line": 23,
+      "match": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/evidence",
+      "text": "\"/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/evidence\""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/control.json",
+      "line": 27,
+      "match": "/private/tmp/chirality-piping-dec025-venv/bin/python",
+      "text": "\"/private/tmp/chirality-piping-dec025-venv/bin/python\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/control.json",
+      "line": 28,
+      "match": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/projects/chirality-piping/tools/ci/e2e_plan.py",
+      "text": "\"/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/projects/chirality-piping/tools/ci/e2e_plan.py\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/evidence/numerical.json",
+      "line": 40,
+      "match": "/private/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/projects/chirality-piping",
+      "text": "\"cwd\": \"/private/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/projects/chirality-piping\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/evidence/numerical.json",
+      "line": 50,
+      "match": "/private/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/projects/chirality-piping",
+      "text": "\"cwd\": \"/private/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/projects/chirality-piping\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/evidence/numerical.json",
+      "line": 63,
+      "match": "/private/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/projects/chirality-piping",
+      "text": "\"cwd\": \"/private/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/projects/chirality-piping\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/evidence/numerical.json",
+      "line": 77,
+      "match": "/private/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/projects/chirality-piping",
+      "text": "\"cwd\": \"/private/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/projects/chirality-piping\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/evidence/numerical.json",
+      "line": 109,
+      "match": "/private/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/evidence/target",
+      "text": "\"CARGO_TARGET_DIR\": \"/private/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/evidence/target\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/review-basis.json",
+      "line": 10,
+      "match": "/private/tmp/piping-numerical-ci-20260924",
+      "text": "\"checkout\": \"/private/tmp/piping-numerical-ci-20260924\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/review-basis.json",
+      "line": 15,
+      "match": "/private/tmp/piping-numerical-ci-20260924/AGENTS.md",
+      "text": "\"path\": \"/private/tmp/piping-numerical-ci-20260924/AGENTS.md\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/review-basis.json",
+      "line": 20,
+      "match": "/private/tmp/piping-numerical-ci-20260924/agents/AGENT_TASK.md",
+      "text": "\"path\": \"/private/tmp/piping-numerical-ci-20260924/agents/AGENT_TASK.md\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/review-basis.json",
+      "line": 25,
+      "match": "/private/tmp/piping-numerical-ci-20260924/projects/chirality-piping/AGENTS.md",
+      "text": "\"path\": \"/private/tmp/piping-numerical-ci-20260924/projects/chirality-piping/AGENTS.md\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/review-basis.json",
+      "line": 30,
+      "match": "/private/tmp/piping-numerical-ci-20260924/projects/chirality-piping/loop/LOOP_INIT.md",
+      "text": "\"path\": \"/private/tmp/piping-numerical-ci-20260924/projects/chirality-piping/loop/LOOP_INIT.md\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/review-basis.json",
+      "line": 35,
+      "match": "/private/tmp/piping-numerical-ci-20260924/.agents/skills/software-code-review/SKILL.md",
+      "text": "\"path\": \"/private/tmp/piping-numerical-ci-20260924/.agents/skills/software-code-review/SKILL.md\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/review-basis.json",
+      "line": 40,
+      "match": "/private/tmp/piping-numerical-ci-20260924/.agents/skills/chirality-change/SKILL.md",
+      "text": "\"path\": \"/private/tmp/piping-numerical-ci-20260924/.agents/skills/chirality-change/SKILL.md\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/review-basis.json",
+      "line": 46,
+      "match": "/private/tmp/piping-numerical-ci-manager-20260924/review-basis.json",
+      "text": "\"/private/tmp/piping-numerical-ci-manager-20260924/review-basis.json\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/review-basis.json",
+      "line": 47,
+      "match": "/private/tmp/piping-numerical-ci-manager-20260924/review.md",
+      "text": "\"/private/tmp/piping-numerical-ci-manager-20260924/review.md\""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/review-basis.json",
+      "line": 497,
+      "match": "/private/tmp/chirality-piping-dec025-venv/bin/python",
+      "text": "\"command\": \"PYTHONDONTWRITEBYTECODE=1 /private/tmp/chirality-piping-dec025-venv/bin/python -m unittest discover -s projects/chirality-piping/tests -p 'test_ci_*.py' -v\""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/review.md",
+      "line": 5,
+      "match": "/private/tmp/piping-numerical-ci-20260924",
+      "text": "The review covers the complete working candidate over `f7e8b467cb2db244f11fe49cede636140031b387` in `/private/tmp/piping-numerical-ci-20260924`: five maintained workflow/helper/test files, the canonical tranche manifest, all sixteen declared new Cargo.lock files, and all seventeen manager evidence files present at review completion (39 files total). The lockfiles are ignored by crate-local rules and therefore were explicitly enumerated and read rather than inferred from ordinary Git diff/status. Instruction origins/hashes, actual native delegated-harness parentage and Astra/xhigh attribution, and every reviewed candidate file SHA-256 are in adjacent `review-basis.json`. Workflow, selector, runner, lockfile, and tranche bytes remained unchanged during review. The requested maintained resource-regression tests and final documentary updates were independently backchecked and hash-bound."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/review.md",
+      "line": 20,
+      "match": "/private/tmp/chirality-piping-dec025-venv/bin/python",
+      "text": "The reviewer independently ran `PYTHONDONTWRITEBYTECODE=1 /private/tmp/chirality-piping-dec025-venv/bin/python -m unittest discover -s projects/chirality-piping/tests -p 'test_ci_*.py' -v`: **44 tests passed** (4.298 seconds). `git diff --check` passed for the tracked diff."
+    }
+  ],
+  "semantic_invariants": {
+    "unacknowledged_control": 0,
+    "active_unclassified": 6,
+    "policy_issues": 0,
+    "acknowledged_control": 45
+  }
+}

@@ -71,6 +71,32 @@ def irrelevant(path):
     return path.startswith(('docs/', 'agents/', 'workflows/', '.agents/', 'skills/', 'plans/', 'init/')) or path in {'README.md', 'AGENTS.md', 'CLAUDE.md'}
 
 
+# Maintained Rust resource dependency outside the ordinary validation inputs.
+NUMERICAL_EVIDENCE_INPUTS = {
+    PROJECT + 'validation/evidence/comparison_measurement/DEL0904_VD_20260811/CURRENT_25_FIXTURE_RUNNER_OUTPUT.json',
+}
+
+
+def numerical_input(path):
+    """Independent numerical policy; removals and rename halves use the same rule."""
+    if path in NUMERICAL_EVIDENCE_INPUTS:
+        return True
+    if irrelevant(path):
+        return False
+    if not path.startswith(PROJECT):
+        return True  # Unknown shared/root build and CI inputs fail conservative.
+    relative = path[len(PROJECT):]
+    if Path(relative).name in {'Cargo.toml', 'Cargo.lock', 'build.rs', 'rust-toolchain', 'rust-toolchain.toml'} or '.cargo' in Path(relative).parts:
+        return True
+    if relative.startswith(('core/', 'validation/', 'fixtures/', 'schemas/', 'examples/', 'tools/ci/')):
+        return True
+    if relative in {'tools/release/check_release_readiness.py', 'tests/test_ci_numerical.py', 'tests/test_ci_e2e_plan.py', 'tests/test_release_readiness_script.py'}:
+        return True
+    # UI-only changes do not require the independent crate suite. Unknown
+    # project inputs remain conservative; ordinary project prose is exempt above.
+    return not relative.startswith('apps/')
+
+
 def instrument_consumers(root, path, specs):
     """Transitive literal import ownership, only for reviewed module entrypoints."""
     if not path.startswith(E2E + 'ui-foundation/') or path[len(E2E + 'ui-foundation/'):] not in INSTRUMENT_MODULES:
@@ -121,12 +147,13 @@ def make_plan(root, event, base='', head='HEAD', pr=''):
     plan = dict(version=3, mode='full', coverage_full=True, event=event, pr=str(pr),
                 base=None, target_base=base, head=head, changed_paths=[],
                 projects=PROJECTS, inventory=specs, selected_specs=specs, selected_titles={},
-                appearance=False, ownership={}, reasons=['Full source coverage'])
+                numerical_required=True, appearance=False, ownership={}, reasons=['Full source coverage'])
     if event == 'pull_request':
         try:
             merge_base = git(root, 'merge-base', base, head).strip()
             delta = changes(root, merge_base, head)
-            plan.update(base=merge_base, changed_paths=delta)
+            plan.update(base=merge_base, changed_paths=delta,
+                        numerical_required=any(numerical_input(c['path']) for c in delta))
         except (subprocess.CalledProcessError, UnicodeError, IndexError):
             plan['reasons'] = ['Unavailable PR diff; full coverage, target validation still required']
         else:
@@ -428,7 +455,9 @@ def collect_candidate(root, plan, stage, shard, evidence_dir):
     return evidence
 
 
-def aggregate(mode, selection, barrier, remainder):
+def aggregate(mode, selection, barrier, remainder, numerical_required, numerical):
+    if numerical_required not in {'true', 'false'} or numerical != ('success' if numerical_required == 'true' else 'skipped'):
+        return False
     if selection != 'success':
         return False
     if mode == 'not-applicable':
@@ -450,13 +479,13 @@ def main():
     run.add_argument('--list', action='store_true')
     run.add_argument('--evidence-dir', required=True)
     gate = sub.add_parser('aggregate')
-    for key in ('mode', 'selection', 'barrier', 'remainder'):
+    for key in ('mode', 'selection', 'barrier', 'remainder', 'numerical-required', 'numerical'):
         gate.add_argument('--' + key, required=True)
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[4]
     if args.action == 'aggregate':
-        ok = aggregate(args.mode, args.selection, args.barrier, args.remainder)
-        print('Validated not-applicable: no Piping tests selected or passed' if ok and args.mode == 'not-applicable'
+        ok = aggregate(args.mode, args.selection, args.barrier, args.remainder, args.numerical_required, args.numerical)
+        print('Validated browser not-applicable; numerical requirement satisfied' if ok and args.mode == 'not-applicable'
               else 'Required selected coverage succeeded' if ok else 'Required CI failed, cancelled, missing or invalid')
         raise SystemExit(0 if ok else 1)
     if args.action == 'plan':
@@ -471,6 +500,7 @@ def main():
         if os.getenv('GITHUB_OUTPUT'):
             with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
                 out.write('mode=' + plan['mode'] + '\n')
+                out.write('numerical_required=' + str(plan['numerical_required']).lower() + '\n')
     else:
         plan = json.loads(Path(args.plan).read_text())
         evidence = collect_candidate(root, plan, args.stage, args.shard, args.evidence_dir)

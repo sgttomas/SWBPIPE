@@ -1,0 +1,44 @@
+[
+  {
+    "name": "noble-sources",
+    "url": "https://manpages.ubuntu.com/manpages/noble/man5/sources.list.5.html",
+    "observed_at_utc": "2026-09-24T16:51:14Z",
+    "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
+  },
+  {
+    "name": "noble-aptconf",
+    "url": "https://manpages.ubuntu.com/manpages/noble/man5/apt.conf.5.html",
+    "observed_at_utc": "2026-09-24T16:51:14Z",
+    "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
+  },
+  {
+    "name": "apt-by-hash",
+    "url": "https://wiki.debian.org/AptByHash",
+    "observed_at_utc": "2026-09-24T16:51:14Z",
+    "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
+  },
+  {
+    "name": "security-inrelease",
+    "url": "https://security.ubuntu.com/ubuntu/dists/noble-security/InRelease",
+    "observed_at_utc": "2026-09-24T16:51:14Z",
+    "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
+  },
+  {
+    "name": "updates-inrelease",
+    "url": "https://archive.ubuntu.com/ubuntu/dists/noble-updates/InRelease",
+    "observed_at_utc": "2026-09-24T16:51:14Z",
+    "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
+  },
+  {
+    "name": "security-observed-hash",
+    "url": "https://security.ubuntu.com/ubuntu/dists/noble-security/main/dep11/by-hash/SHA256/97b1c360f55cc33b9bc5b51019c29be4d060e64c6d4004dcea0e3b2bad855ef5",
+    "observed_at_utc": "2026-09-24T16:51:14Z",
+    "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
+  },
+  {
+    "name": "updates-observed-hash",
+    "url": "https://archive.ubuntu.com/ubuntu/dists/noble-updates/universe/binary-amd64/by-hash/SHA256/5914f242dd289eb47e4e592db25970499a713b7624661ec76f67a8ea5f896ff5",
+    "observed_at_utc": "2026-09-24T16:51:14Z",
+    "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
+  }
+]

@@ -1,0 +1,18 @@
+[
+  {
+    "attempt": 1,
+    "raw_log": "job-107729709064.log",
+    "raw_sha256": "b49b2fa67f152248217a59c3d09f2f70c56872b26aa1ecca7066edc1a292a7ef",
+    "first_line": 936,
+    "last_line": 1080,
+    "excerpt": "APT_FAILURE_ATTEMPT1_EXCERPT.txt"
+  },
+  {
+    "attempt": 2,
+    "raw_log": "attempt2/job-107733053415.log",
+    "raw_sha256": "27b79de7bf7e6f585e2035537833ae9f15dda838e17755e27117d29b82b6c6fc",
+    "first_line": 933,
+    "last_line": 1072,
+    "excerpt": "APT_FAILURE_ATTEMPT2_EXCERPT.txt"
+  }
+]
