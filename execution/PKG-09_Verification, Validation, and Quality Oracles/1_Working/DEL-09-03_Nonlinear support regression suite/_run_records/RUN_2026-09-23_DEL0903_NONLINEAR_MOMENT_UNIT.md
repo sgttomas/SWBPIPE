@@ -34,7 +34,23 @@ README, and the regression test (5 occurrences: 4 asserts and 1 required unit-ba
 | `python3 -m pytest -q tests/test_nonlinear_support_regression.py` | `8 passed` |
 | `python3 docs/validation_manual/cases/generate_validation_case_pages.py --check` | 64 pages, no mismatch (nonlinear case records carry no moment unit) |
 
-Repository checks, the evidence sweep and independent review are recorded in the PR.
+Repository checks:
+
+| Check | Result |
+|---|---|
+| `harness-self-check` | exit 0 |
+| `harness-pytest` | `379 passed` |
+| `piping-pytest` | `1143 passed` |
+| DEC-025 evidence sweep, candidate `60dde0d2a` (clean tree) | overall `pass`, all five surfaces; Playwright dev lane `455 passed`, dist lane `53 passed`. Summary `validation/evidence/sweeps/SWEEP_20260924T021013Z_60dde0d2a72a.json`. An earlier run on `761c02856`, made while a reviewer was compiling in parallel, failed at Playwright when the dev server stopped responding (136 `ERR_CONNECTION_REFUSED`, one solve left `failed` as it went down); that summary was not kept. |
+
+Pass counts are from console output; the sweep summary records exit status per surface.
+
+Independent review (fresh-context agent, did not implement): PASS WITH
+NON-BLOCKING NOTES on `761c02856`. Addressed in `60dde0d2a`: the legacy
+`...-MM-N-NM` unit-system identifier is explained in the README and the ruling,
+the ruling says the case pages are the swbpipe.org pages outside the
+repository, and the test count is stated exactly. Not changed (pre-existing):
+the work and energy residual bases carry `"dimension": "moment"`.
 
 ## Boundary
 
