@@ -1,0 +1,13 @@
+   Compiling open_pipe_stress_product_physics v0.1.0 (/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/core/product_physics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.85s
+     Running unittests src/lib.rs (/private/tmp/piping-solver-correctness-target/debug/deps/open_pipe_stress_product_physics-da45d493e1934648)
+
+running 5 tests
+test tests::input_contract_hydrotest_pressure_blocks_instead_of_silently_ignoring ... ok
+test tests::input_contract_unused_stiffness_and_conflicting_spring_axis_block ... ok
+test tests::input_contract_local_provenance_is_traceability_not_clearance ... ok
+test tests::input_contract_guided_rest_preserves_disjoint_restraint ... ok
+test tests::input_contract_authored_moment_axes_reach_live_solve ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 175 filtered out; finished in 0.02s
+

@@ -1,0 +1,325 @@
+--- a/projects/chirality-piping/core/product_physics/src/lib.rs
++++ b/projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -15326,6 +15326,255 @@
+     }
+ 
+     #[test]
++    fn input_contract_repair_colocated_constant_force_and_contact_obey_equilibrium() {
++        check_colocated_parallel_contact_equilibrium(false);
++    }
++
++    #[test]
++    fn input_contract_repair_colocated_spring_and_contact_obey_equilibrium() {
++        check_colocated_parallel_contact_equilibrium(true);
++    }
++
++    fn check_colocated_parallel_contact_equilibrium(spring: bool) {
++        // Synthetic prismatic axial bar: exact EA/L stiffness, no bending/shear oracle.
++        let area = std::f64::consts::PI * (0.168_f64.powi(2) - 0.154_f64.powi(2)) / 4.0;
++        let bar_stiffness = 200e9 * area / 2.0;
++        let gap_m = 0.05e-3;
++        for mode in [
++            PreviewSolverMode::SparseInteractive,
++            PreviewSolverMode::DenseScrutiny,
++        ] {
++            for applied in [1000.0, 50_000.0] {
++                let mut input = gap_closure_preview_request();
++                input.model.combinations.clear();
++                input.model.nodes[1].position.x = 2.0;
++                input.model.load_cases[0].primitive_loads[0].magnitude.value = applied;
++                let (parallel_stiffness, constant_force) =
++                    if spring { (1e8, 0.0) } else { (0.0, 1500.0) };
++                let mut parallel = if spring {
++                    let mut support = input.model.supports[0].clone();
++                    support.family = Some("spring".into());
++                    support.stiffness = Some(SupportStiffnessInput {
++                        dof: "UX".into(),
++                        value: Quantity {
++                            value: parallel_stiffness,
++                            unit: "N/m".into(),
++                        },
++                    });
++                    support
++                } else {
++                    let mut support = cantilever_constant_effort_request(&["UX"], true, None)
++                        .model
++                        .supports
++                        .remove(1);
++                    support.hanger.as_mut().unwrap().constant_load = Some(Quantity {
++                        value: constant_force,
++                        unit: "N".into(),
++                    });
++                    support
++                };
++                parallel.id = "support:PARALLEL".into();
++                parallel.node = "node:N-110".into();
++                parallel.restraints = vec!["UX".into()];
++                input.model.supports.push(parallel);
++                let result = run_linear_static_preview_with_mode(input.clone(), mode);
++                assert_eq!(
++                    result.status.mechanics, "MECHANICS_SOLVED",
++                    "spring={spring}, force={applied}, {:?}",
++                    result.diagnostics
++                );
++                let total_force = applied + constant_force;
++                let expected_u = (total_force / (bar_stiffness + parallel_stiffness)).min(gap_m);
++                let expected_contact =
++                    (bar_stiffness + parallel_stiffness) * expected_u - total_force;
++                let u = result_value(&result, "result:disp:node-N-110:ux") * 1e-3;
++                assert!((u - expected_u).abs() <= 0.5e-9 + 1e-12);
++                let contact = result_value(
++                    &result,
++                    "result:nonlinear-support:support-NL-GAP-110:ux-reaction",
++                );
++                assert!((contact - expected_contact).abs() <= 1e-6);
++                assert!(contact <= 1e-6 && u <= gap_m + 0.5e-9 + 1e-12);
++                assert!(
++                    (result_value(&result, "result:reaction:support-S-100")
++                        - bar_stiffness * expected_u)
++                        .abs()
++                        <= 1e-6
++                );
++                if spring {
++                    assert!(
++                        (result_value(&result, "result:reaction:support-PARALLEL")
++                            - parallel_stiffness * expected_u)
++                            .abs()
++                            <= 1e-6
++                    );
++                    // Same-record law overlap is blocked: its current scalar action attribution cannot combine both laws.
++                    input.model.supports[2].nonlinear = input.model.supports[1].nonlinear.clone();
++                    input.model.supports.remove(1);
++                    let blocked = run_linear_static_preview_with_mode(input, mode);
++                    assert_eq!(blocked.status.mechanics, "MODEL_INCOMPLETE");
++                    assert!(blocked
++                        .diagnostics
++                        .iter()
++                        .any(|d| d.code == "SUPPORT_LINEAR_NONLINEAR_DOF_CONFLICT"));
++                } else {
++                    assert_eq!(
++                        result_value(
++                            &result,
++                            "result:constant-effort-support:support-PARALLEL:applied-load"
++                        ),
++                        constant_force
++                    );
++                }
++            }
++        }
++    }
++
++    #[test]
++    fn input_contract_repair_conflicting_spring_family_constant_hanger_blocks() {
++        for mode in [
++            PreviewSolverMode::SparseInteractive,
++            PreviewSolverMode::DenseScrutiny,
++        ] {
++            for stiffness in [false, true] {
++                let mut input = cantilever_constant_effort_request(&["UY"], true, Some(350.0));
++                input.model.components.clear();
++                let support = &mut input.model.supports[1];
++                support.family = Some("spring".into());
++                if stiffness {
++                    support.stiffness = Some(SupportStiffnessInput {
++                        dof: "UY".into(),
++                        value: Quantity {
++                            value: 100_000.0,
++                            unit: "N/m".into(),
++                        },
++                    });
++                }
++                let result = run_linear_static_preview_with_mode(input, mode);
++                assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
++                assert!(result
++                    .diagnostics
++                    .iter()
++                    .any(|d| d.code == "SUPPORT_FAMILY_HANGER_CONFLICT"));
++                if stiffness {
++                    assert!(result
++                        .diagnostics
++                        .iter()
++                        .any(|d| d.code == "SUPPORT_STIFFNESS_FAMILY_UNSUPPORTED"));
++                }
++                assert!(result.results.is_empty());
++            }
++        }
++    }
++
++    #[test]
++    fn input_contract_repair_skew_authored_moments_match_rotated_analytical_couples() {
++        // Proper rotation columns e1,e2,e3; no solver output supplies the oracle.
++        let axes = [
++            [1.0 / 3.0, 2.0 / 3.0, -2.0 / 3.0],
++            [-2.0 / 3.0, 2.0 / 3.0, 1.0 / 3.0],
++            [2.0 / 3.0, 1.0 / 3.0, 2.0 / 3.0],
++        ];
++        let inertia = std::f64::consts::PI * (0.168_f64.powi(4) - 0.154_f64.powi(4)) / 64.0;
++        for mode in [
++            PreviewSolverMode::SparseInteractive,
++            PreviewSolverMode::DenseScrutiny,
++        ] {
++            for local_axis in 0..3 {
++                for sign in [-1.0, 1.0] {
++                    let mut input = p5_beam_request();
++                    input.model.nodes[1].position = Vec3 {
++                        x: 2.0 * axes[0][0],
++                        y: 2.0 * axes[0][1],
++                        z: 2.0 * axes[0][2],
++                    };
++                    input.model.pipe_segments[0].y_reference = Some(Vec3 {
++                        x: axes[1][0],
++                        y: axes[1][1],
++                        z: axes[1][2],
++                    });
++                    let template = input.model.load_cases[0].primitive_loads[0].clone();
++                    input.model.load_cases[0].primitive_loads =
++                        ["rotation_x", "rotation_y", "rotation_z"]
++                            .iter()
++                            .enumerate()
++                            .map(|(global, axis)| {
++                                let mut load = template.clone();
++                                load.id = format!("load:COUPLE-{global}");
++                                load.category = "concentrated_moment".into();
++                                load.direction = (*axis).into();
++                                load.dimension = "moment".into();
++                                load.magnitude = Quantity {
++                                    value: sign * 250.0 * axes[local_axis][global],
++                                    unit: "N*m".into(),
++                                };
++                                load
++                            })
++                            .collect();
++                    let result = run_linear_static_preview_with_mode(input, mode);
++                    assert_eq!(
++                        result.status.mechanics, "MECHANICS_SOLVED",
++                        "{:?}",
++                        result.diagnostics
++                    );
++                    let rigidity = if local_axis == 0 {
++                        77e9 * 2.0 * inertia
++                    } else {
++                        200e9 * inertia
++                    };
++                    let theta = sign * 250.0 * 2.0 / rigidity;
++                    for (global, component) in ["rx", "ry", "rz"].iter().enumerate() {
++                        let expected = axes[local_axis][global] * theta;
++                        let actual =
++                            result_value(&result, &format!("result:disp:node-N-110:{component}"));
++                        assert!((actual - expected).abs() <= 0.5e-6 + 1e-12, "local={local_axis}, sign={sign}, global={component}: {actual} vs {expected}");
++                    }
++                    // u = L²/(2EI) (M cross e1), valid for the zero-shear end-couple case.
++                    let moment = axes[local_axis].map(|value| sign * 250.0 * value);
++                    let cross = [
++                        moment[1] * axes[0][2] - moment[2] * axes[0][1],
++                        moment[2] * axes[0][0] - moment[0] * axes[0][2],
++                        moment[0] * axes[0][1] - moment[1] * axes[0][0],
++                    ];
++                    for (global, component) in ["ux", "uy", "uz"].iter().enumerate() {
++                        let expected_mm =
++                            1000.0 * 2.0_f64.powi(2) / (2.0 * 200e9 * inertia) * cross[global];
++                        let actual_mm =
++                            result_value(&result, &format!("result:disp:node-N-110:{component}"));
++                        assert!((actual_mm - expected_mm).abs() <= 0.5e-6 + 1e-10);
++                    }
++                    for (axis, component) in
++                        ["torsion", "bending-y", "bending-z"].iter().enumerate()
++                    {
++                        let expected = if axis == local_axis {
++                            sign * 250.0
++                        } else {
++                            0.0
++                        };
++                        assert!(
++                            (result_value(
++                                &result,
++                                &format!("result:moment:pipe-P-100:{component}")
++                            ) + expected)
++                                .abs()
++                                <= 1e-6
++                        );
++                        assert!(
++                            (result_value(
++                                &result,
++                                &format!("result:moment:pipe-P-100:{component}:end-j")
++                            ) - expected)
++                                .abs()
++                                <= 1e-6
++                        );
++                    }
++                    assert!(result_value(&result, "result:reaction:support-S-100").abs() <= 1e-6);
++                }
++            }
++        }
++    }
++
++    #[test]
+     fn input_contract_local_provenance_is_traceability_not_clearance() {
+         for mode in [
+             PreviewSolverMode::SparseInteractive,
+--- a/projects/chirality-piping/core/product_physics/src/validation.rs
++++ b/projects/chirality-piping/core/product_physics/src/validation.rs
+@@ -40,8 +40,18 @@
+         }
+     }
+     for support in &model.supports {
+-        let spring_family =
+-            support.family.as_deref() == Some("spring") || is_variable_spring_hanger(support);
++        let constant_effort = is_constant_effort_support(support);
++        if support.family.as_deref() == Some("spring") && constant_effort {
++            diagnostics.push(diag(
++                &format!("diagnostic:support:{}:family-hanger", stable_suffix(&support.id)),
++                "SUPPORT_FAMILY_HANGER_CONFLICT", "blocking",
++                "spring family conflicts with constant-effort hanger type; choose one support law so stiffness and applied force cannot be silently substituted",
++                vec![support.id.clone()],
++            ));
++        }
++        // Match build_model: constant-effort records never contribute stiffness.
++        let spring_family = !constant_effort
++            && (support.family.as_deref() == Some("spring") || is_variable_spring_hanger(support));
+         if let Some(stiffness) = support_stiffness_input(support) {
+             if !spring_family {
+                 diagnostics.push(diag(
+@@ -76,17 +86,36 @@
+             .iter()
+             .filter(|s| s.node == nonlinear_support.node)
+         {
+-            let overlap = linear_support
+-                .restraints
+-                .iter()
+-                .any(|dof| parse_dof(dof).ok() == Some(nonlinear_dof))
+-                || support_stiffness_input(linear_support)
+-                    .is_some_and(|input| parse_dof(&input.dof).ok() == Some(nonlinear_dof));
++            // Match assembly semantics: a constant-effort restraint is a force axis,
++            // not a rigid constraint. A separate finite spring can act in parallel
++            // with contact; same-record overlap cannot yet attribute both actions.
++            if is_constant_effort_support(linear_support) {
++                continue;
++            }
++            let spring_family = linear_support.family.as_deref() == Some("spring")
++                || is_variable_spring_hanger(linear_support);
++            let overlap = if spring_family {
++                linear_support.id == nonlinear_support.id
++                    && support_stiffness_input(linear_support)
++                        .and_then(|input| parse_dof(&input.dof).ok())
++                        .or_else(|| {
++                            linear_support
++                                .restraints
++                                .first()
++                                .and_then(|dof| parse_dof(dof).ok())
++                        })
++                        == Some(nonlinear_dof)
++            } else {
++                linear_support
++                    .restraints
++                    .iter()
++                    .any(|dof| parse_dof(dof).ok() == Some(nonlinear_dof))
++            };
+             if overlap {
+                 diagnostics.push(diag(
+                     &format!("diagnostic:support:{}:{}:dof-overlap", stable_suffix(&nonlinear_support.id), stable_suffix(&linear_support.id)),
+                     "SUPPORT_LINEAR_NONLINEAR_DOF_CONFLICT", "blocking",
+-                    format!("linear restraint or spring {} overlaps nonlinear support {} on node {} DOF {}; remove the overlap or model the intended support law explicitly; disjoint linear restraints are retained", linear_support.id, nonlinear_support.id, nonlinear_support.node, nonlinear.dof),
++                    format!("rigid restraint or same-record spring {} overlaps nonlinear support {} on node {} DOF {}; remove the overlap or use separate spring/contact records; disjoint linear restraints are retained", linear_support.id, nonlinear_support.id, nonlinear_support.node, nonlinear.dof),
+                     vec![linear_support.id.clone(), nonlinear_support.id.clone(), nonlinear_support.node.clone()],
+                 ));
+             }

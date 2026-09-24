@@ -3514,7 +3514,10 @@ fn build_model(
         .supports
         .iter()
         .filter_map(|support| {
-            if support.nonlinear.is_some() {
+            if support.nonlinear.is_some()
+                && support.restraints.is_empty()
+                && support_stiffness_input(support).is_none()
+            {
                 return None;
             }
             if is_constant_effort_support(support) {
@@ -9592,6 +9595,9 @@ fn parse_direction(value: &str) -> Result<LoadDirection, String> {
         "global_x" | "GLOBAL_X" => Ok(LoadDirection::GlobalX),
         "global_y" | "GLOBAL_Y" => Ok(LoadDirection::GlobalY),
         "global_z" | "GLOBAL_Z" => Ok(LoadDirection::GlobalZ),
+        "rotation_x" => Ok(LoadDirection::Dof(FrameDof::Rx)),
+        "rotation_y" => Ok(LoadDirection::Dof(FrameDof::Ry)),
+        "rotation_z" => Ok(LoadDirection::Dof(FrameDof::Rz)),
         _ => parse_dof(value).map(LoadDirection::Dof),
     }
 }
@@ -15320,6 +15326,463 @@ mod tests {
     }
 
     #[test]
+    fn input_contract_repair_colocated_constant_force_and_contact_obey_equilibrium() {
+        check_colocated_parallel_contact_equilibrium(false);
+    }
+
+    #[test]
+    fn input_contract_repair_colocated_spring_and_contact_obey_equilibrium() {
+        check_colocated_parallel_contact_equilibrium(true);
+    }
+
+    fn check_colocated_parallel_contact_equilibrium(spring: bool) {
+        // Synthetic prismatic axial bar: exact EA/L stiffness, no bending/shear oracle.
+        let area = std::f64::consts::PI * (0.168_f64.powi(2) - 0.154_f64.powi(2)) / 4.0;
+        let bar_stiffness = 200e9 * area / 2.0;
+        let gap_m = 0.05e-3;
+        for mode in [
+            PreviewSolverMode::SparseInteractive,
+            PreviewSolverMode::DenseScrutiny,
+        ] {
+            for applied in [1000.0, 50_000.0] {
+                let mut input = gap_closure_preview_request();
+                input.model.combinations.clear();
+                input.model.nodes[1].position.x = 2.0;
+                input.model.load_cases[0].primitive_loads[0].magnitude.value = applied;
+                let (parallel_stiffness, constant_force) =
+                    if spring { (1e8, 0.0) } else { (0.0, 1500.0) };
+                let mut parallel = if spring {
+                    let mut support = input.model.supports[0].clone();
+                    support.family = Some("spring".into());
+                    support.stiffness = Some(SupportStiffnessInput {
+                        dof: "UX".into(),
+                        value: Quantity {
+                            value: parallel_stiffness,
+                            unit: "N/m".into(),
+                        },
+                    });
+                    support
+                } else {
+                    let mut support = cantilever_constant_effort_request(&["UX"], true, None)
+                        .model
+                        .supports
+                        .remove(1);
+                    support.hanger.as_mut().unwrap().constant_load = Some(Quantity {
+                        value: constant_force,
+                        unit: "N".into(),
+                    });
+                    support
+                };
+                parallel.id = "support:PARALLEL".into();
+                parallel.node = "node:N-110".into();
+                parallel.restraints = vec!["UX".into()];
+                input.model.supports.push(parallel);
+                let result = run_linear_static_preview_with_mode(input.clone(), mode);
+                assert_eq!(
+                    result.status.mechanics, "MECHANICS_SOLVED",
+                    "spring={spring}, force={applied}, {:?}",
+                    result.diagnostics
+                );
+                let total_force = applied + constant_force;
+                let expected_u = (total_force / (bar_stiffness + parallel_stiffness)).min(gap_m);
+                let expected_contact =
+                    (bar_stiffness + parallel_stiffness) * expected_u - total_force;
+                let u = result_value(&result, "result:disp:node-N-110:ux") * 1e-3;
+                assert!((u - expected_u).abs() <= 0.5e-9 + 1e-12);
+                let contact = result_value(
+                    &result,
+                    "result:nonlinear-support:support-NL-GAP-110:ux-reaction",
+                );
+                assert!((contact - expected_contact).abs() <= 1e-6);
+                assert!(contact <= 1e-6 && u <= gap_m + 0.5e-9 + 1e-12);
+                assert!(
+                    (result_value(&result, "result:reaction:support-S-100")
+                        - bar_stiffness * expected_u)
+                        .abs()
+                        <= 1e-6
+                );
+                if spring {
+                    assert!(
+                        (result_value(&result, "result:reaction:support-PARALLEL")
+                            - parallel_stiffness * expected_u)
+                            .abs()
+                            <= 1e-6
+                    );
+                    // Same-record law overlap is blocked: its current scalar action attribution cannot combine both laws.
+                    input.model.supports[2].nonlinear = input.model.supports[1].nonlinear.clone();
+                    input.model.supports.remove(1);
+                    let blocked = run_linear_static_preview_with_mode(input, mode);
+                    assert_eq!(blocked.status.mechanics, "MODEL_INCOMPLETE");
+                    assert!(blocked
+                        .diagnostics
+                        .iter()
+                        .any(|d| d.code == "SUPPORT_LINEAR_NONLINEAR_DOF_CONFLICT"));
+                } else {
+                    assert_eq!(
+                        result_value(
+                            &result,
+                            "result:constant-effort-support:support-PARALLEL:applied-load"
+                        ),
+                        constant_force
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn input_contract_repair_conflicting_spring_family_constant_hanger_blocks() {
+        for mode in [
+            PreviewSolverMode::SparseInteractive,
+            PreviewSolverMode::DenseScrutiny,
+        ] {
+            for stiffness in [false, true] {
+                let mut input = cantilever_constant_effort_request(&["UY"], true, Some(350.0));
+                input.model.components.clear();
+                let support = &mut input.model.supports[1];
+                support.family = Some("spring".into());
+                if stiffness {
+                    support.stiffness = Some(SupportStiffnessInput {
+                        dof: "UY".into(),
+                        value: Quantity {
+                            value: 100_000.0,
+                            unit: "N/m".into(),
+                        },
+                    });
+                }
+                let result = run_linear_static_preview_with_mode(input, mode);
+                assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+                assert!(result
+                    .diagnostics
+                    .iter()
+                    .any(|d| d.code == "SUPPORT_FAMILY_HANGER_CONFLICT"));
+                if stiffness {
+                    assert!(result
+                        .diagnostics
+                        .iter()
+                        .any(|d| d.code == "SUPPORT_STIFFNESS_FAMILY_UNSUPPORTED"));
+                }
+                assert!(result.results.is_empty());
+            }
+        }
+    }
+
+    #[test]
+    fn input_contract_repair_skew_authored_moments_match_rotated_analytical_couples() {
+        // Proper rotation columns e1,e2,e3; no solver output supplies the oracle.
+        let axes = [
+            [1.0 / 3.0, 2.0 / 3.0, -2.0 / 3.0],
+            [-2.0 / 3.0, 2.0 / 3.0, 1.0 / 3.0],
+            [2.0 / 3.0, 1.0 / 3.0, 2.0 / 3.0],
+        ];
+        let inertia = std::f64::consts::PI * (0.168_f64.powi(4) - 0.154_f64.powi(4)) / 64.0;
+        for mode in [
+            PreviewSolverMode::SparseInteractive,
+            PreviewSolverMode::DenseScrutiny,
+        ] {
+            for local_axis in 0..3 {
+                for sign in [-1.0, 1.0] {
+                    let mut input = p5_beam_request();
+                    input.model.nodes[1].position = Vec3 {
+                        x: 2.0 * axes[0][0],
+                        y: 2.0 * axes[0][1],
+                        z: 2.0 * axes[0][2],
+                    };
+                    input.model.pipe_segments[0].y_reference = Some(Vec3 {
+                        x: axes[1][0],
+                        y: axes[1][1],
+                        z: axes[1][2],
+                    });
+                    let template = input.model.load_cases[0].primitive_loads[0].clone();
+                    input.model.load_cases[0].primitive_loads =
+                        ["rotation_x", "rotation_y", "rotation_z"]
+                            .iter()
+                            .enumerate()
+                            .map(|(global, axis)| {
+                                let mut load = template.clone();
+                                load.id = format!("load:COUPLE-{global}");
+                                load.category = "concentrated_moment".into();
+                                load.direction = (*axis).into();
+                                load.dimension = "moment".into();
+                                load.magnitude = Quantity {
+                                    value: sign * 250.0 * axes[local_axis][global],
+                                    unit: "N*m".into(),
+                                };
+                                load
+                            })
+                            .collect();
+                    let result = run_linear_static_preview_with_mode(input, mode);
+                    assert_eq!(
+                        result.status.mechanics, "MECHANICS_SOLVED",
+                        "{:?}",
+                        result.diagnostics
+                    );
+                    let rigidity = if local_axis == 0 {
+                        77e9 * 2.0 * inertia
+                    } else {
+                        200e9 * inertia
+                    };
+                    let theta = sign * 250.0 * 2.0 / rigidity;
+                    for (global, component) in ["rx", "ry", "rz"].iter().enumerate() {
+                        let expected = axes[local_axis][global] * theta;
+                        let actual =
+                            result_value(&result, &format!("result:disp:node-N-110:{component}"));
+                        assert!((actual - expected).abs() <= 0.5e-6 + 1e-12, "local={local_axis}, sign={sign}, global={component}: {actual} vs {expected}");
+                    }
+                    // u = L²/(2EI) (M cross e1), valid for the zero-shear end-couple case.
+                    let moment = axes[local_axis].map(|value| sign * 250.0 * value);
+                    let cross = [
+                        moment[1] * axes[0][2] - moment[2] * axes[0][1],
+                        moment[2] * axes[0][0] - moment[0] * axes[0][2],
+                        moment[0] * axes[0][1] - moment[1] * axes[0][0],
+                    ];
+                    for (global, component) in ["ux", "uy", "uz"].iter().enumerate() {
+                        let expected_mm =
+                            1000.0 * 2.0_f64.powi(2) / (2.0 * 200e9 * inertia) * cross[global];
+                        let actual_mm =
+                            result_value(&result, &format!("result:disp:node-N-110:{component}"));
+                        assert!((actual_mm - expected_mm).abs() <= 0.5e-6 + 1e-10);
+                    }
+                    for (axis, component) in
+                        ["torsion", "bending-y", "bending-z"].iter().enumerate()
+                    {
+                        let expected = if axis == local_axis {
+                            sign * 250.0
+                        } else {
+                            0.0
+                        };
+                        assert!(
+                            (result_value(
+                                &result,
+                                &format!("result:moment:pipe-P-100:{component}")
+                            ) + expected)
+                                .abs()
+                                <= 1e-6
+                        );
+                        assert!(
+                            (result_value(
+                                &result,
+                                &format!("result:moment:pipe-P-100:{component}:end-j")
+                            ) - expected)
+                                .abs()
+                                <= 1e-6
+                        );
+                    }
+                    assert!(result_value(&result, "result:reaction:support-S-100").abs() <= 1e-6);
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn input_contract_local_provenance_is_traceability_not_clearance() {
+        for mode in [
+            PreviewSolverMode::SparseInteractive,
+            PreviewSolverMode::DenseScrutiny,
+        ] {
+            for source in ["user-entered", "local project drawing — not cleared"] {
+                let mut input = p5_beam_request();
+                input.model.load_cases[0].primitive_loads[0].provenance = Some(source.into());
+                let preserved = input.clone();
+                let result = run_linear_static_preview_with_mode(input, mode);
+                assert_eq!(
+                    result.status.mechanics, "MECHANICS_SOLVED",
+                    "{:?}",
+                    result.diagnostics
+                );
+                assert_eq!(
+                    preserved.model.load_cases[0].primitive_loads[0]
+                        .provenance
+                        .as_deref(),
+                    Some(source)
+                );
+            }
+            let mut input = p5_beam_request();
+            input.model.nodes[0].provenance = Some("  ".into());
+            let result = run_linear_static_preview_with_mode(input, mode);
+            assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
+            assert!(result
+                .diagnostics
+                .iter()
+                .any(|d| d.code == "PROVENANCE_INPUT_MISSING"));
+        }
+    }
+
+    #[test]
+    fn input_contract_authored_moment_axes_reach_live_solve() {
+        for mode in [
+            PreviewSolverMode::SparseInteractive,
+            PreviewSolverMode::DenseScrutiny,
+        ] {
+            for (axis, legacy, component) in [
+                ("rotation_x", "RX", "rx"),
+                ("rotation_y", "RY", "ry"),
+                ("rotation_z", "RZ", "rz"),
+            ] {
+                let mut input = p5_beam_request();
+                let load = &mut input.model.load_cases[0].primitive_loads[0];
+                load.category = "concentrated_moment".into();
+                load.direction = axis.into();
+                load.dimension = "moment".into();
+                load.magnitude = Quantity {
+                    value: 250.0,
+                    unit: "N*m".into(),
+                };
+                let mut alias = input.clone();
+                alias.model.load_cases[0].primitive_loads[0].direction = legacy.into();
+                let result = run_linear_static_preview_with_mode(input.clone(), mode);
+                let reference = run_linear_static_preview_with_mode(alias, mode);
+                assert_eq!(
+                    result.status.mechanics, "MECHANICS_SOLVED",
+                    "{:?}",
+                    result.diagnostics
+                );
+                assert_eq!(reference.status.mechanics, "MECHANICS_SOLVED");
+                let id = format!("result:disp:node-N-110:{component}");
+                assert_ne!(result_value(&result, &id), 0.0);
+                assert_eq!(result_value(&result, &id), result_value(&reference, &id));
+                // Independent cantilever relation: theta = M L / (E I), or T L / (G J).
+                let inertia = std::f64::consts::PI * (0.168_f64.powi(4) - 0.154_f64.powi(4)) / 64.0;
+                let rigidity = if axis == "rotation_x" {
+                    77e9 * 2.0 * inertia
+                } else {
+                    200e9 * inertia
+                };
+                assert!((result_value(&result, &id) - 250.0 * 2.0 / rigidity).abs() <= 1e-6);
+                assert!(result_value(&result, "result:reaction:support-S-100").abs() < 1e-6);
+                let mut reversed = input.clone();
+                reversed.model.load_cases[0].primitive_loads[0]
+                    .magnitude
+                    .value = -250.0;
+                let negative = run_linear_static_preview_with_mode(reversed, mode);
+                assert_eq!(negative.status.mechanics, "MECHANICS_SOLVED");
+                assert!((result_value(&negative, &id) + 250.0 * 2.0 / rigidity).abs() <= 1e-6);
+                input.model.load_cases[0].primitive_loads[0].dimension = "force".into();
+                input.model.load_cases[0].primitive_loads[0].magnitude.unit = "N".into();
+                assert_ne!(
+                    run_linear_static_preview_with_mode(input, mode)
+                        .status
+                        .mechanics,
+                    "MECHANICS_SOLVED"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn input_contract_guided_rest_preserves_disjoint_restraint() {
+        for mode in [
+            PreviewSolverMode::SparseInteractive,
+            PreviewSolverMode::DenseScrutiny,
+        ] {
+            let mut input = gap_closure_preview_request();
+            input.model.combinations.clear();
+            input.model.supports[1].nonlinear.as_mut().unwrap().dof = "UZ".into();
+            input.model.supports[1].restraints = vec!["UY".into()];
+            input.model.load_cases[0].primitive_loads[0].direction = "global_y".into();
+            input.model.load_cases[0].primitive_loads[0].magnitude.value = 1000.0;
+            let result = run_linear_static_preview_with_mode(input.clone(), mode);
+            assert_eq!(
+                result.status.mechanics, "MECHANICS_SOLVED",
+                "{:?}",
+                result.diagnostics
+            );
+            assert_eq!(result_value(&result, "result:disp:node-N-110:uy"), 0.0);
+            // Tip load is applied at the guided DOF: its ground reaction is 1 kN.
+            assert!(
+                (result_value(&result, "result:reaction:support-NL-GAP-110") - 1000.0).abs() < 1e-6
+            );
+            let mut split = input.clone();
+            let mut guide = split.model.supports[1].clone();
+            guide.id = "support:GUIDE".into();
+            guide.nonlinear = None;
+            guide.family = Some("guide".into());
+            split.model.supports[1].restraints.clear();
+            split.model.supports.push(guide);
+            let split_result = run_linear_static_preview_with_mode(split, mode);
+            assert_eq!(
+                split_result.status.mechanics, "MECHANICS_SOLVED",
+                "{:?}",
+                split_result.diagnostics
+            );
+            assert_eq!(
+                result_value(&split_result, "result:disp:node-N-110:uy"),
+                0.0
+            );
+            assert!(
+                (result_value(&split_result, "result:reaction:support-GUIDE") - 1000.0).abs()
+                    < 1e-6
+            );
+            // Activate the independent Z contact while retaining the Y guide.
+            let mut contact = input.clone();
+            let mut z_load = contact.model.load_cases[0].primitive_loads[0].clone();
+            z_load.id = "load:Z-CONTACT".into();
+            z_load.direction = "global_z".into();
+            z_load.magnitude.value = 1000.0;
+            contact.model.load_cases[0].primitive_loads.push(z_load);
+            let active = run_linear_static_preview_with_mode(contact, mode);
+            assert_eq!(
+                active.status.mechanics, "MECHANICS_SOLVED",
+                "{:?}",
+                active.diagnostics
+            );
+            assert_eq!(result_value(&active, "result:disp:node-N-110:uy"), 0.0);
+            assert!((result_value(&active, "result:disp:node-N-110:uz") - 0.05).abs() < 1e-6);
+            input.model.supports[1].restraints.push("uz".into());
+            let blocked = run_linear_static_preview_with_mode(input, mode);
+            assert_eq!(blocked.status.mechanics, "MODEL_INCOMPLETE");
+            assert!(blocked
+                .diagnostics
+                .iter()
+                .any(|d| d.code == "SUPPORT_LINEAR_NONLINEAR_DOF_CONFLICT"));
+            assert!(blocked.results.is_empty());
+        }
+    }
+
+    #[test]
+    fn input_contract_unused_stiffness_and_conflicting_spring_axis_block() {
+        for mode in [
+            PreviewSolverMode::SparseInteractive,
+            PreviewSolverMode::DenseScrutiny,
+        ] {
+            let mut input = p5_beam_request();
+            input.model.supports[0].stiffness = Some(SupportStiffnessInput {
+                dof: "UY".into(),
+                value: Quantity {
+                    value: 100_000.0,
+                    unit: "N/m".into(),
+                },
+            });
+            let blocked = run_linear_static_preview_with_mode(input.clone(), mode);
+            assert_eq!(blocked.status.mechanics, "MODEL_INCOMPLETE");
+            assert!(blocked
+                .diagnostics
+                .iter()
+                .any(|d| d.code == "SUPPORT_STIFFNESS_FAMILY_UNSUPPORTED"));
+            let mut spring = input.model.supports[0].clone();
+            input.model.supports[0].stiffness = None;
+            spring.id = "support:SPRING".into();
+            spring.node = "node:N-110".into();
+            spring.family = Some("spring".into());
+            spring.restraints = vec!["UY".into()];
+            input.model.supports.push(spring);
+            assert_eq!(
+                run_linear_static_preview_with_mode(input.clone(), mode)
+                    .status
+                    .mechanics,
+                "MECHANICS_SOLVED"
+            );
+            input.model.supports[1].restraints.push("UZ".into());
+            let blocked = run_linear_static_preview_with_mode(input, mode);
+            assert_eq!(blocked.status.mechanics, "MODEL_INCOMPLETE");
+            assert!(blocked
+                .diagnostics
+                .iter()
+                .any(|d| d.code == "SUPPORT_SPRING_AXIS_CONFLICT"));
+        }
+    }
+
+    #[test]
     fn missing_public_preview_provenance_blocks_with_diagnostic() {
         let mut request = request();
         request.model.load_cases[0].primitive_loads[0].provenance = None;
@@ -15823,22 +16286,28 @@ mod tests {
     }
 
     #[test]
-    fn endpoint_section_cut_hydrotest_pressure_dimension_has_no_phantom_pressure_effect() {
-        let mut request =
-            endpoint_section_cut_pressure_request(&[("load:L-HYDRO", "hydrotest", 1_300_000.0)]);
-        request.model.supports.truncate(1);
-        let result = run_linear_static_preview(request);
-        assert_eq!(
-            result.status.mechanics, "MECHANICS_SOLVED",
-            "{:?}",
-            result.diagnostics
-        );
-        assert_eq!(result_value(&result, "result:disp:node-N-110:ux"), 0.0);
-        assert_eq!(result_value(&result, "result:reaction:support-S-100"), 0.0);
-        assert!(result.results.iter().all(|row| {
-            row.kind != "pipe_section_pressure_hoop_stress"
-                && row.kind != "pipe_section_pressure_longitudinal_stress"
-        }));
+    fn input_contract_hydrotest_pressure_blocks_instead_of_silently_ignoring() {
+        for mode in [
+            PreviewSolverMode::SparseInteractive,
+            PreviewSolverMode::DenseScrutiny,
+        ] {
+            let request = endpoint_section_cut_pressure_request(&[(
+                "load:L-HYDRO",
+                "hydrotest",
+                1_300_000.0,
+            )]);
+            let result = run_linear_static_preview_with_mode(request, mode);
+            assert_eq!(
+                result.status.mechanics, "MODEL_INCOMPLETE",
+                "{:?}",
+                result.diagnostics
+            );
+            assert!(result
+                .diagnostics
+                .iter()
+                .any(|d| d.code == "HYDROTEST_PRESSURE_UNSUPPORTED"));
+            assert!(result.results.is_empty());
+        }
     }
 
     #[test]
@@ -15910,32 +16379,30 @@ mod tests {
     }
 
     #[test]
-    fn endpoint_section_cut_mixed_pressure_uses_only_the_genuine_record() {
-        let genuine = run_linear_static_preview(endpoint_section_cut_pressure_request(&[(
-            "load:L-P-700",
-            "pressure",
-            700_000.0,
-        )]));
-        let mixed = run_linear_static_preview(endpoint_section_cut_pressure_request(&[
-            ("load:L-P-700", "pressure", 700_000.0),
-            ("load:L-HYDRO-1100", "hydrotest", 1_100_000.0),
-        ]));
-        assert_eq!(mixed.status.mechanics, "MECHANICS_SOLVED");
-        assert_eq!(genuine.status.mechanics, "MECHANICS_SOLVED");
-        for row_id in [
-            "result:disp:node-N-110:ux",
-            "result:reaction:support-S-100",
-            "result:force:pipe-P-100:axial",
-            "result:force:pipe-P-100:axial:end-j",
-            "result:stress:pipe-P-100:end-i:axial-normal",
-            "result:stress:pipe-P-100:end-j:pressure-hoop",
-            "result:stress:pipe-P-100:midspan:pressure-hoop",
+    fn endpoint_section_cut_mixed_hydrotest_pressure_blocks_entire_solve() {
+        for mode in [
+            PreviewSolverMode::SparseInteractive,
+            PreviewSolverMode::DenseScrutiny,
         ] {
-            assert_eq!(
-                result_value(&mixed, row_id),
-                result_value(&genuine, row_id),
-                "{row_id} must ignore the hydrotest pressure-dimension record"
+            let genuine = run_linear_static_preview_with_mode(
+                endpoint_section_cut_pressure_request(&[("load:L-P-700", "pressure", 700_000.0)]),
+                mode,
             );
+            let mixed = run_linear_static_preview_with_mode(
+                endpoint_section_cut_pressure_request(&[
+                    ("load:L-P-700", "pressure", 700_000.0),
+                    ("load:L-HYDRO-1100", "hydrotest", 1_100_000.0),
+                ]),
+                mode,
+            );
+            assert_eq!(genuine.status.mechanics, "MECHANICS_SOLVED");
+            assert_eq!(mixed.status.mechanics, "MODEL_INCOMPLETE");
+            assert!(mixed.results.is_empty());
+            assert!(mixed
+                .diagnostics
+                .iter()
+                .any(|d| d.code == "HYDROTEST_PRESSURE_UNSUPPORTED"
+                    && d.affected_refs.contains(&"load:L-HYDRO-1100".to_string())));
         }
     }
 

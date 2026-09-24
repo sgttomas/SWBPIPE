@@ -1,0 +1,105 @@
+diff --git a/projects/chirality-piping/core/product_physics/src/lib.rs b/projects/chirality-piping/core/product_physics/src/lib.rs
+index 8e8cbf838..a949c6565 100644
+--- a/projects/chirality-piping/core/product_physics/src/lib.rs
++++ b/projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -15319,6 +15319,72 @@ mod tests {
+         assert!(result.results.is_empty());
+     }
+ 
++    #[test]
++    fn input_contract_local_provenance_is_traceability_not_clearance() {
++        for source in ["user-entered", "local project drawing — not cleared"] {
++            let mut input = p5_beam_request();
++            input.model.load_cases[0].primitive_loads[0].provenance = Some(source.into());
++            let preserved = input.clone();
++            let result = run_linear_static_preview(input);
++            assert_eq!(result.status.mechanics, "MECHANICS_SOLVED", "{:?}", result.diagnostics);
++            assert_eq!(preserved.model.load_cases[0].primitive_loads[0].provenance.as_deref(), Some(source));
++        }
++        let mut input = p5_beam_request();
++        input.model.nodes[0].provenance = Some("  ".into());
++        let result = run_linear_static_preview(input);
++        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
++        assert!(result.diagnostics.iter().any(|d| d.code == "PROVENANCE_INPUT_MISSING"));
++    }
++
++    #[test]
++    fn input_contract_authored_moment_axes_reach_live_solve() {
++        for (axis, legacy, component) in [("rotation_x", "RX", "rx"), ("rotation_y", "RY", "ry"), ("rotation_z", "RZ", "rz")] {
++            let mut input = p5_beam_request();
++            let load = &mut input.model.load_cases[0].primitive_loads[0];
++            load.category = "concentrated_moment".into();
++            load.direction = axis.into();
++            load.dimension = "moment".into();
++            load.magnitude = Quantity { value: 250.0, unit: "N*m".into() };
++            let mut alias = input.clone();
++            alias.model.load_cases[0].primitive_loads[0].direction = legacy.into();
++            let result = run_linear_static_preview(input.clone());
++            let reference = run_linear_static_preview(alias);
++            assert_eq!(result.status.mechanics, "MECHANICS_SOLVED", "{:?}", result.diagnostics);
++            assert_eq!(reference.status.mechanics, "MECHANICS_SOLVED");
++            let id = format!("result:disp:node-N-110:{component}");
++            assert_ne!(result_value(&result, &id), 0.0);
++            assert_eq!(result_value(&result, &id), result_value(&reference, &id));
++            // Independent cantilever relation: theta = M L / (E I), or T L / (G J).
++            let inertia = std::f64::consts::PI * (0.168_f64.powi(4) - 0.154_f64.powi(4)) / 64.0;
++            let rigidity = if axis == "rotation_x" { 77e9 * 2.0 * inertia } else { 200e9 * inertia };
++            assert!((result_value(&result, &id) - 250.0 * 2.0 / rigidity).abs() <= 1e-6);
++            assert!(result_value(&result, "result:reaction:support-S-100").abs() < 1e-6);
++            input.model.load_cases[0].primitive_loads[0].dimension = "force".into();
++            input.model.load_cases[0].primitive_loads[0].magnitude.unit = "N".into();
++            assert_ne!(run_linear_static_preview(input).status.mechanics, "MECHANICS_SOLVED");
++        }
++    }
++
++    #[test]
++    fn input_contract_guided_rest_preserves_disjoint_restraint() {
++        let mut input = gap_closure_preview_request();
++        input.model.combinations.clear();
++        input.model.supports[1].nonlinear.as_mut().unwrap().dof = "UZ".into();
++        input.model.supports[1].restraints = vec!["UY".into()];
++        input.model.load_cases[0].primitive_loads[0].direction = "global_y".into();
++        input.model.load_cases[0].primitive_loads[0].magnitude.value = 1000.0;
++        let result = run_linear_static_preview(input.clone());
++        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED", "{:?}", result.diagnostics);
++        assert_eq!(result_value(&result, "result:disp:node-N-110:uy"), 0.0);
++        // Tip load is applied at the guided DOF: its ground reaction is 1 kN.
++        assert!((result_value(&result, "result:reaction:support-NL-GAP-110") - 1000.0).abs() < 1e-6);
++        input.model.supports[1].restraints.push("uz".into());
++        let blocked = run_linear_static_preview(input);
++        assert_eq!(blocked.status.mechanics, "MODEL_INCOMPLETE");
++        assert!(blocked.diagnostics.iter().any(|d| d.code == "SUPPORT_LINEAR_NONLINEAR_DOF_CONFLICT"));
++        assert!(blocked.results.is_empty());
++    }
++
+     #[test]
+     fn missing_public_preview_provenance_blocks_with_diagnostic() {
+         let mut request = request();
+@@ -15823,22 +15889,12 @@ mod tests {
+     }
+ 
+     #[test]
+-    fn endpoint_section_cut_hydrotest_pressure_dimension_has_no_phantom_pressure_effect() {
+-        let mut request =
+-            endpoint_section_cut_pressure_request(&[("load:L-HYDRO", "hydrotest", 1_300_000.0)]);
+-        request.model.supports.truncate(1);
++    fn input_contract_hydrotest_pressure_blocks_instead_of_silently_ignoring() {
++        let request = endpoint_section_cut_pressure_request(&[("load:L-HYDRO", "hydrotest", 1_300_000.0)]);
+         let result = run_linear_static_preview(request);
+-        assert_eq!(
+-            result.status.mechanics, "MECHANICS_SOLVED",
+-            "{:?}",
+-            result.diagnostics
+-        );
+-        assert_eq!(result_value(&result, "result:disp:node-N-110:ux"), 0.0);
+-        assert_eq!(result_value(&result, "result:reaction:support-S-100"), 0.0);
+-        assert!(result.results.iter().all(|row| {
+-            row.kind != "pipe_section_pressure_hoop_stress"
+-                && row.kind != "pipe_section_pressure_longitudinal_stress"
+-        }));
++        assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE", "{:?}", result.diagnostics);
++        assert!(result.diagnostics.iter().any(|d| d.code == "HYDROTEST_PRESSURE_UNSUPPORTED"));
++        assert!(result.results.is_empty());
+     }
+ 
+     #[test]

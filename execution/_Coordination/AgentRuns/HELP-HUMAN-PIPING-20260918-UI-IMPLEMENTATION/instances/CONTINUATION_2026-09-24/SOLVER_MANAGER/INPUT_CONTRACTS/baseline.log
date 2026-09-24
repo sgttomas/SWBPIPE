@@ -1,0 +1,65 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling proc-macro2 v1.0.106
+   Compiling open_pipe_stress_linear_supports v0.1.0 (/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/core/solver/linear_supports)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling unicode-ident v1.0.24
+   Compiling quote v1.0.45
+   Compiling serde_core v1.0.228
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling zmij v1.0.21
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/core/solver/diagnostics)
+   Compiling syn v2.0.117
+   Compiling serde_json v1.0.149
+   Compiling serde v1.0.228
+   Compiling serde_derive v1.0.228
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_straight_pipe v0.1.0 (/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/core/solver/straight_pipe)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/core/solver/curved_bend)
+   Compiling memchr v2.8.0
+   Compiling itoa v1.0.18
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/core/solver/nonlinear_integration)
+   Compiling open_pipe_stress_stress_recovery v0.1.0 (/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/core/loads/stress_recovery)
+   Compiling open_pipe_stress_load_case_algebra v0.1.0 (/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/core/loads/load_case_algebra)
+   Compiling open_pipe_stress_units v0.1.0 (/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/core/units)
+   Compiling open_pipe_stress_product_physics v0.1.0 (/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/core/product_physics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 10.70s
+     Running unittests src/lib.rs (/private/tmp/piping-solver-correctness-target/debug/deps/open_pipe_stress_product_physics-da45d493e1934648)
+
+running 4 tests
+
+thread 'tests::input_contract_local_provenance_is_traceability_not_clearance' (78202453) panicked at src/lib.rs:15329:13:
+assertion `left == right` failed: [Diagnostic { id: "diagnostic:provenance:primitive-load:load-L-TIP", code: "PROVENANCE_INPUT_MISSING", severity: "blocking", message: "primitive-load record requires explicit invented or cleared provenance for public preview mechanics", source: Some("core/product_physics"), affected_refs: ["load:L-TIP"] }]
+  left: "MODEL_INCOMPLETE"
+ right: "MECHANICS_SOLVED"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test tests::input_contract_local_provenance_is_traceability_not_clearance ... FAILED
+
+thread 'tests::input_contract_authored_moment_axes_reach_live_solve' (78202450) panicked at src/lib.rs:15352:13:
+assertion `left == right` failed: [Diagnostic { id: "diagnostic:load:load-L-TIP:kind", code: "LOAD_INPUT_INVALID", severity: "blocking", message: "load category, direction, and dimension must use supported preview values", source: Some("core/product_physics"), affected_refs: ["load:L-TIP", "load:L-100"] }]
+  left: "MODEL_INCOMPLETE"
+ right: "MECHANICS_SOLVED"
+
+thread 'tests::input_contract_hydrotest_pressure_blocks_instead_of_silently_ignoring' (78202452) panicked at src/lib.rs:15895:9:
+assertion `left == right` failed: [Diagnostic { id: "diagnostic:component:component-C-120:node", code: "COMPONENT_NODE_UNKNOWN", severity: "warning", message: "component node is not present in preview model; component stress modifier rows will not be generated for this record", source: Some("core/product_physics"), affected_refs: ["component:C-120", "node:N-120"] }, Diagnostic { id: "diagnostic:component:component-C-120:branch-mapping", code: "BRANCH_MAPPING_INPUT_INVALID", severity: "warning", message: "branch component header and branch pipe references must exist and terminate at the component node before stress modifier rows can be generated for those pipe sides", source: Some("core/product_physics"), affected_refs: ["component:C-120"] }, Diagnostic { id: "diagnostic:component:component-C-130:node", code: "COMPONENT_NODE_UNKNOWN", severity: "warning", message: "component node is not present in preview model; component stress modifier rows will not be generated for this record", source: Some("core/product_physics"), affected_refs: ["component:C-130", "node:N-130"] }, Diagnostic { id: "diagnostic:component:component-C-130:rigid-mapping", code: "RIGID_COMPONENT_MAPPING_INPUT_INVALID", severity: "warning", message: "rigid/semi-rigid component pipe mapping must reference an existing generic frame member that terminates at the component node; no stiffness scaling is silently applied without a valid mapping", source: Some("core/product_physics"), affected_refs: ["component:C-130"] }, Diagnostic { id: "diagnostic:component:component-C-140:node", code: "COMPONENT_NODE_UNKNOWN", severity: "warning", message: "component node is not present in preview model; component stress modifier rows will not be generated for this record", source: Some("core/product_physics"), affected_refs: ["component:C-140", "node:N-140"] }, Diagnostic { id: "diagnostic:component:component-C-150:node", code: "COMPONENT_NODE_UNKNOWN", severity: "warning", message: "component node is not present in preview model; component stress modifier rows will not be generated for this record", source: Some("core/product_physics"), affected_refs: ["component:C-150", "node:N-140"] }, Diagnostic { id: "diagnostic:component:component-C-150:expansion-joint-mapping", code: "EXPANSION_JOINT_MAPPING_INPUT_INVALID", severity: "warning", message: "expansion joint pipe mapping must reference an existing frame member that terminates at the component node before user-stiffness macro-element evidence can be generated", source: Some("core/product_physics"), affected_refs: ["component:C-150"] }, Diagnostic { id: "diagnostic:component-stress-multiplier:component-C-110:pipe-P-100:end-j", code: "COMPONENT_STRESS_MULTIPLIER_APPLIED", severity: "info", message: "bend component component:C-110 applies user-entered through SIF 1.15 and flexibility factor 1.08 to pipe:P-100 end_j stress-recovery review; solver_consumption remains mechanics_geometry_only; no protected or default component factor is supplied", source: Some("core/product_physics"), affected_refs: ["component:C-110", "pipe:P-100", "result:stress:component-C-110:pipe-P-100:end-j:user-multiplier", "invented_user_entered_preview_no_code_table"] }, Diagnostic { id: "diagnostic:physics:rule-inputs-missing", code: "RULE_CHECK_INPUTS_MISSING", severity: "warning", message: "rule-check inputs and protected criteria are absent; no compliance result is produced", source: Some("core/product_physics"), affected_refs: [] }]
+  left: "MECHANICS_SOLVED"
+ right: "MODEL_INCOMPLETE"
+test tests::input_contract_authored_moment_axes_reach_live_solve ... FAILED
+thread 'tests::input_contract_guided_rest_preserves_disjoint_restraint' (78202451) panicked at src/lib.rs:15378:9:
+assertion `left == right` failed
+  left: 0.145008
+ right: 0.0
+
+test tests::input_contract_hydrotest_pressure_blocks_instead_of_silently_ignoring ... FAILED
+test tests::input_contract_guided_rest_preserves_disjoint_restraint ... FAILED
+
+failures:
+
+failures:
+    tests::input_contract_authored_moment_axes_reach_live_solve
+    tests::input_contract_guided_rest_preserves_disjoint_restraint
+    tests::input_contract_hydrotest_pressure_blocks_instead_of_silently_ignoring
+    tests::input_contract_local_provenance_is_traceability_not_clearance
+
+test result: FAILED. 0 passed; 4 failed; 0 ignored; 0 measured; 175 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `--lib`

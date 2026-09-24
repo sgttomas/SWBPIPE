@@ -1,0 +1,45 @@
+{
+  "method": "Independent Python arithmetic and direct equilibrium/curvature derivation; no production solver called",
+  "I_m4": 1.1493591335983794e-05,
+  "J_m4": 2.2987182671967588e-05,
+  "area_m2": 0.003540574920595698,
+  "bending_rotation_rad": 0.00021751251866534304,
+  "torsion_rotation_rad": 0.00028248379047447145,
+  "bending_tip_mm": 0.21751251866534305,
+  "implied_isotropic_poisson": 0.2987012987012987,
+  "skew_companion": {
+    "n": [
+      0.3333333333333333,
+      0.6666666666666666,
+      0.6666666666666666
+    ],
+    "M_Nm": [
+      250.0,
+      0.0,
+      0.0
+    ],
+    "L_m": 2,
+    "theta_global_rad": [
+      0.00022473154886635733,
+      1.4438060402028532e-05,
+      1.4438060402028532e-05
+    ],
+    "u_global_mm": [
+      0.0,
+      -0.14500834577689536,
+      0.14500834577689536
+    ]
+  },
+  "separate_spring_gap_control": {
+    "L_m": 1,
+    "beam_axial_stiffness_Npm": 708114984.1191397,
+    "spring_stiffness_Npm": 1000000.0,
+    "F_N": 100000.0,
+    "gap_m": 5e-05,
+    "inactive_u_m": 0.00014102085309087027,
+    "active_u_m": 5e-05,
+    "root_R_N": -35405.749205956985,
+    "spring_R_N": -50.0,
+    "contact_R_N": -64544.250794043015
+  }
+}

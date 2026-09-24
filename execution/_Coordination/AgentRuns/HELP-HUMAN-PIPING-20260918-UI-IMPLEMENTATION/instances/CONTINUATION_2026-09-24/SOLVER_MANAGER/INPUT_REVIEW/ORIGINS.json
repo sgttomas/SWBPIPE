@@ -1,0 +1,105 @@
+{
+  "role": "TASK Type 2",
+  "child": "/root/solver_manager/input_review",
+  "parent": "/root/solver_manager",
+  "mechanism": "delegated-harness-native",
+  "fresh_context": "Assigned independent review; no implementation authorship",
+  "candidate_base": "f7e8b467cb2db244f11fe49cede636140031b387",
+  "working_repository": "/private/tmp/piping-solver-correctness-20260924",
+  "instruction_origin_note": "Instructions first read completely from primary checkout; hashes verified identical to implementation worktree copies. Activation exists on primary checkout.",
+  "isolation": "Shared filesystem and coordinated write scopes; no OS isolation claimed.",
+  "model_diversity": "No diversity or owner review claim.",
+  "write_scope": "/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REVIEW",
+  "basis": [
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_ACTIVATION.md",
+      "sha256": "dd98701526a31248f36a5e6e03490975af682f748dd349aa52faa1bfafc912a0"
+    },
+    {
+      "origin": "/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_CONTRACTS/RETURN.md",
+      "sha256": "ffc8cab1f0aa2306a89fa3080a4add98e4c3e3fe6f45e2dcd265dad63675ca5b"
+    },
+    {
+      "origin": "/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_CONTRACTS/ORIGINS.json",
+      "sha256": "21641b2f688e8191ee40dea1e11cc30ec7a2b87d2f70b5a70304a47932eb7683"
+    },
+    {
+      "origin": "/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_CONTRACTS/CANDIDATE_RUN.json",
+      "sha256": "987b1db1177890d1226238a1d99e070751b38ef9fa48e5fd6de016a416fdf329"
+    },
+    {
+      "origin": "/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_CONTRACTS/BASELINE_RUN.json",
+      "sha256": "7cbe91a078c67cd3af13ac83187cb43daeced444a0eaf3405dd0fff231f5af1a"
+    },
+    {
+      "origin": "/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_CONTRACTS/PRE_FIX_TESTS.patch",
+      "sha256": "f2334ce02e17d85397f8d56a52bf5d46ed29867e82ca03cd309a6fb3aa96759e"
+    },
+    {
+      "origin": "/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_CONTRACTS/baseline.log",
+      "sha256": "4182db64d9cec8420293c96d2949bdc0c46fc4e6eac16ff18ef96368d80035e6"
+    },
+    {
+      "origin": "/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_CONTRACTS/full-final.log",
+      "sha256": "3aa9c64a7f833170a92435ef093e25f593f7f4ee43204dcc5d84c123eb1f4d33"
+    },
+    {
+      "origin": "/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_CONTRACTS/REFERENCE_QUALIFICATION.md",
+      "sha256": "68ee07c60b9ac193d117009ffc8da1e7a892ea45b9752bf3e553a50596ea9084"
+    },
+    {
+      "origin": "/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "1477faebbad58c5437382c835d25c2e7cb2feeaf24e2b2a165a5ecdd77af47b0"
+    },
+    {
+      "origin": "/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/core/product_physics/src/validation.rs",
+      "sha256": "d74e1d453ac902b6fd2a40edb5a69d1924672185194cdbaffedbef0024fdf611"
+    },
+    {
+      "origin": "/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "sha256": "dcb9f8b9b1c09ba9b35627acce8af42383319ef95242088de45eb74a584e371c"
+    },
+    {
+      "origin": "/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/apps/desktop/src/features/support-configuration/SupportConfigurationForm.tsx",
+      "sha256": "980c2812d74628bf71913f1341d3454bc8aaecdc268e96981b576de9f17c2b96"
+    },
+    {
+      "origin": "/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/fixtures/product_preview/invented_preview_model.json",
+      "sha256": "986c055944776ca8d0d849d552678e1f2bfb6c4559bbb9ff8a1928157a4f871c"
+    },
+    {
+      "origin": "/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/software-workflow.json",
+      "sha256": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7"
+    },
+    {
+      "origin": "/private/tmp/piping-solver-correctness-20260924/tools/software_workflow/validate_change_scope.py",
+      "sha256": "6275277dcb214f78dfad6c159333decda95f9aa3e086d12e39c7f2f73a70cb0d"
+    }
+  ],
+  "web_reference_access_date": "2026-09-24",
+  "web_reference_urls": [
+    "https://interactivetextbooks.citg.tudelft.nl/computational-modelling/structural_linear/timoshenko_md.html",
+    "https://ocw.tudelft.nl/course-readings/summary-key-formulas-torsion-2/",
+    "https://ocw.mit.edu/courses/3-11-mechanics-of-materials-fall-1999/0e0845a9e3abe430080eaffb0c5015ba_MIT3_11F99_torsion.pdf"
+  ]
+}

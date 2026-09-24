@@ -1,0 +1,26 @@
+{
+  "mechanism": "delegated-harness-native",
+  "parent": "/root/solver_manager",
+  "child": "/root/solver_manager/input_repair",
+  "role": "TASK Type 2",
+  "model": {
+    "parent_supplied_dispatch_model": "gpt-6-astra",
+    "reasoning_effort": "low",
+    "fork_turns": "none",
+    "qualification": "Dispatch configuration reported by parent; runtime model not independently introspected."
+  },
+  "isolation": "shared filesystem; coordinated scopes and resource lane, no OS isolation claim",
+  "base": "f7e8b467cb2db244f11fe49cede636140031b387",
+  "instructions": {
+    "AGENTS.md": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+    "agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "projects/chirality-piping/AGENTS.md": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+    "projects/chirality-piping/loop/LOOP_INIT.md": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+  },
+  "write_scope": [
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "projects/chirality-piping/core/product_physics/src/validation.rs",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR"
+  ],
+  "initial_source_hold": "No source edits until parent independent-review handback; no Cargo/build/native/browser until ROOT lane grant relayed by parent."
+}

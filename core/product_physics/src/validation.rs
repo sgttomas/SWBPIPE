@@ -17,11 +17,110 @@ pub(crate) fn validate_model_inputs(
     validate_required_collections(model, diagnostics);
     validate_ids(model, materials, diagnostics);
     validate_provenance(model, materials, diagnostics);
+    validate_connected_input_contracts(model, diagnostics);
     validate_units(model, materials, diagnostics);
     validate_spring_hangers(model, diagnostics);
     validate_components(model, diagnostics);
     validate_thermal_inputs(model, materials, diagnostics);
     validate_combinations(model, diagnostics);
+}
+
+// Local solve readiness only: records remain deserializable and editable.
+fn validate_connected_input_contracts(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
+    for case in &model.load_cases {
+        for load in &case.primitive_loads {
+            if load.category == "hydrotest" && load.dimension == "pressure" {
+                diagnostics.push(diag(
+                    &format!("diagnostic:load:{}:hydrotest-pressure", stable_suffix(&load.id)),
+                    "HYDROTEST_PRESSURE_UNSUPPORTED", "blocking",
+                    "hydrotest pressure is not yet supported by the mechanics solver; keep this record for editing, but solve is blocked until a supported test-pressure state is implemented",
+                    vec![load.id.clone(), case.id.clone()],
+                ));
+            }
+        }
+    }
+    for support in &model.supports {
+        let constant_effort = is_constant_effort_support(support);
+        if support.family.as_deref() == Some("spring") && constant_effort {
+            diagnostics.push(diag(
+                &format!("diagnostic:support:{}:family-hanger", stable_suffix(&support.id)),
+                "SUPPORT_FAMILY_HANGER_CONFLICT", "blocking",
+                "spring family conflicts with constant-effort hanger type; choose one support law so stiffness and applied force cannot be silently substituted",
+                vec![support.id.clone()],
+            ));
+        }
+        // Match build_model: constant-effort records never contribute stiffness.
+        let spring_family = !constant_effort
+            && (support.family.as_deref() == Some("spring") || is_variable_spring_hanger(support));
+        if let Some(stiffness) = support_stiffness_input(support) {
+            if !spring_family {
+                diagnostics.push(diag(
+                    &format!("diagnostic:support:{}:unused-stiffness", stable_suffix(&support.id)),
+                    "SUPPORT_STIFFNESS_FAMILY_UNSUPPORTED", "blocking",
+                    "finite stiffness is only consumed by spring or variable spring hanger families; select a supported spring family or remove the unused stiffness",
+                    vec![support.id.clone()],
+                ));
+            } else if support
+                .restraints
+                .iter()
+                .any(|dof| parse_dof(dof).ok() != parse_dof(&stiffness.dof).ok())
+            {
+                diagnostics.push(diag(
+                    &format!("diagnostic:support:{}:spring-axis", stable_suffix(&support.id)),
+                    "SUPPORT_SPRING_AXIS_CONFLICT", "blocking",
+                    "spring restraints declare its acting axis and must agree with the stiffness DOF; model additional rigid guides as separate support records",
+                    vec![support.id.clone()],
+                ));
+            }
+        }
+    }
+    for nonlinear_support in &model.supports {
+        let Some(nonlinear) = &nonlinear_support.nonlinear else {
+            continue;
+        };
+        let Ok(nonlinear_dof) = parse_dof(&nonlinear.dof) else {
+            continue;
+        };
+        for linear_support in model
+            .supports
+            .iter()
+            .filter(|s| s.node == nonlinear_support.node)
+        {
+            // Match assembly semantics: a constant-effort restraint is a force axis,
+            // not a rigid constraint. A separate finite spring can act in parallel
+            // with contact; same-record overlap cannot yet attribute both actions.
+            if is_constant_effort_support(linear_support) {
+                continue;
+            }
+            let spring_family = linear_support.family.as_deref() == Some("spring")
+                || is_variable_spring_hanger(linear_support);
+            let overlap = if spring_family {
+                linear_support.id == nonlinear_support.id
+                    && support_stiffness_input(linear_support)
+                        .and_then(|input| parse_dof(&input.dof).ok())
+                        .or_else(|| {
+                            linear_support
+                                .restraints
+                                .first()
+                                .and_then(|dof| parse_dof(dof).ok())
+                        })
+                        == Some(nonlinear_dof)
+            } else {
+                linear_support
+                    .restraints
+                    .iter()
+                    .any(|dof| parse_dof(dof).ok() == Some(nonlinear_dof))
+            };
+            if overlap {
+                diagnostics.push(diag(
+                    &format!("diagnostic:support:{}:{}:dof-overlap", stable_suffix(&nonlinear_support.id), stable_suffix(&linear_support.id)),
+                    "SUPPORT_LINEAR_NONLINEAR_DOF_CONFLICT", "blocking",
+                    format!("rigid restraint or same-record spring {} overlaps nonlinear support {} on node {} DOF {}; remove the overlap or use separate spring/contact records; disjoint linear restraints are retained", linear_support.id, nonlinear_support.id, nonlinear_support.node, nonlinear.dof),
+                    vec![linear_support.id.clone(), nonlinear_support.id.clone(), nonlinear_support.node.clone()],
+                ));
+            }
+        }
+    }
 }
 
 fn validate_required_collections(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
@@ -140,13 +239,13 @@ fn validate_provenance(
     diagnostics: &mut Vec<Diagnostic>,
 ) {
     for node in &model.nodes {
-        expect_public_preview_provenance("node", &node.id, node.provenance.as_deref(), diagnostics);
+        expect_local_input_provenance("node", &node.id, node.provenance.as_deref(), diagnostics);
     }
     for pipe in &model.pipe_segments {
-        expect_public_preview_provenance("pipe", &pipe.id, pipe.provenance.as_deref(), diagnostics);
+        expect_local_input_provenance("pipe", &pipe.id, pipe.provenance.as_deref(), diagnostics);
     }
     for support in &model.supports {
-        expect_public_preview_provenance(
+        expect_local_input_provenance(
             "support",
             &support.id,
             support.provenance.as_deref(),
@@ -154,7 +253,7 @@ fn validate_provenance(
         );
     }
     for component in &model.components {
-        expect_public_preview_provenance(
+        expect_local_input_provenance(
             "component",
             &component.id,
             component.provenance.as_deref(),
@@ -162,7 +261,7 @@ fn validate_provenance(
         );
     }
     for material in materials {
-        expect_public_preview_provenance(
+        expect_local_input_provenance(
             "material",
             &material.id,
             material.provenance.as_deref(),
@@ -170,14 +269,14 @@ fn validate_provenance(
         );
     }
     for load_case in &model.load_cases {
-        expect_public_preview_provenance(
+        expect_local_input_provenance(
             "load-case",
             &load_case.id,
             load_case.provenance.as_deref(),
             diagnostics,
         );
         for load in &load_case.primitive_loads {
-            expect_public_preview_provenance(
+            expect_local_input_provenance(
                 "primitive-load",
                 &load.id,
                 load.provenance.as_deref(),
@@ -185,7 +284,7 @@ fn validate_provenance(
             );
         }
         if let Some(equivalent_static) = &load_case.equivalent_static {
-            expect_public_preview_provenance(
+            expect_local_input_provenance(
                 "equivalent-static-generation",
                 &load_case.id,
                 equivalent_static.provenance.as_deref(),
@@ -194,7 +293,7 @@ fn validate_provenance(
         }
     }
     for combination in &model.combinations {
-        expect_public_preview_provenance(
+        expect_local_input_provenance(
             "combination",
             &combination.id,
             combination.provenance.as_deref(),
@@ -1317,7 +1416,7 @@ fn detect_duplicate_ids<'a>(
     }
 }
 
-fn expect_public_preview_provenance(
+fn expect_local_input_provenance(
     entity: &str,
     id: &str,
     provenance: Option<&str>,
@@ -1327,8 +1426,7 @@ fn expect_public_preview_provenance(
         diagnostics.push(provenance_diag(entity, id));
         return;
     };
-    let normalized = value.to_ascii_lowercase();
-    if !(normalized.contains("invented") || normalized.contains("cleared")) {
+    if value.trim().is_empty() {
         diagnostics.push(provenance_diag(entity, id));
     }
 }
@@ -1339,7 +1437,7 @@ fn provenance_diag(entity: &str, id: &str) -> Diagnostic {
         "PROVENANCE_INPUT_MISSING",
         "blocking",
         format!(
-            "{entity} record requires explicit invented or cleared provenance for public preview mechanics"
+            "{entity} record requires a nonempty source reference for local mechanics traceability; source text does not establish publication clearance"
         ),
         vec![id.to_string()],
     )

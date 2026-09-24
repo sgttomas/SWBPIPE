@@ -1,0 +1,13 @@
+{
+  "source_hashes_match_candidate": true,
+  "source_sha256": {
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "1477faebbad58c5437382c835d25c2e7cb2feeaf24e2b2a165a5ecdd77af47b0",
+    "projects/chirality-piping/core/product_physics/src/validation.rs": "d74e1d453ac902b6fd2a40edb5a69d1924672185194cdbaffedbef0024fdf611"
+  },
+  "baseline_lib_reconstructed_sha256": "6502f2d8b4f369bf2f6456928b7e4a127a6070b0f730189970adca219edf813d",
+  "baseline_validation_sha256": "cc98b205467c9a965adc03179e91c43f174ba4b9bafb0f7aff47ed5ad6e936a7",
+  "baseline_matches_record": true,
+  "scope": "PASS for explicitly selected two-file subset only",
+  "diff_check": "PASS",
+  "cargo_or_build_or_native_run_by_reviewer": false
+}
