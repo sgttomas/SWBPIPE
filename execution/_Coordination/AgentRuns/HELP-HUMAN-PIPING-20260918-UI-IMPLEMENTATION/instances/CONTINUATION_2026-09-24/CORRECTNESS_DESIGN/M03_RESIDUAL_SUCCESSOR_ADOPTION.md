@@ -1,0 +1,37 @@
+# Prospective product equilibrium measurement — expert selection
+
+Status: method selected for the new full-precision product path; implementation and actual-candidate qualification remain required. HELP_HUMAN ROOT, 2026-09-24.
+
+This is the explicit owning disposition and recorded governance event for the bounded product-preview continuous residual measurement. It is an expert decision under the owner's live instruction, “Continue fixing all the findings and any other errors you encounter. Use your own expert knowledge to decide correctness for the application,” and the subsequent requirement to confirm analytical reference accuracy and relevance. [CORRECTNESS_ACTIVATION.md](../CORRECTNESS_ACTIVATION.md) preserves those actual acts. The owner did not personally select the formulas below; no such approval is asserted.
+
+The [scope review and subsequent authority clarification](NUMERICAL_POLICY_REVIEW/PRODUCT_RESIDUAL_SCOPE.md) establish both the real adopted DEC-046 preview policy and the flawed inference from rounded output to raw zero. The [independent original-row backcheck](NUMERICAL_POLICY_REVIEW/ROW_SUCCESSOR_BACKCHECK.md) supports the prospective successor. The selected operational numerical basis remains [M03-INTEGRITY-v1](NUMERICAL_IMPLEMENTATION.md) with its independently reviewed assumptions, range controls and limits. This event changes no general benchmark, code-assessment, professional-acceptance or release rule.
+
+## Selected successor
+
+Use the new policy identity `M03-PRODUCT-PREVIEW-EQUILIBRIUM-v1` for current full-precision product force/moment equilibrium and its derived residual-work evidence. Preserve the historical `DEC-046-CV-B-product-preview-*` zero policies, records and hashes under their original interpretation. Do not reuse those accepted-zero identities for a different metric or describe the exposed nonzero residual as passing their old zero assertion.
+
+For the actual final selected state, check the original free equations `r = K_original u - f_same_state`, including constrained-value contributions, springs and actual affine/sliding loads. Reducing the system must not erase the original `K_fc u_c` terms or their numerical fidelity. For each free row use the independently selected guarded componentwise residual relative to `d_i = (|K| |u| + |f|)_i`, with explicit evaluation allowance, range handling and operation counts. The target is `64 gamma(m_i)`, where `gamma(m) = m u_roundoff / (1 - m u_roundoff)` and binary64 `u_roundoff = 2^-53`; the exact count follows the reviewed implemented arithmetic. Lost contributions, unsafe denominator/range, failed assembly fidelity or unqualified completion paths cannot acquire a pass from this formula. Positive factorization, conditioning/sensitivity and physical-rigid-mode checks remain separate requirements.
+
+The factor 64 is the previously independently reviewed engineering screen; it is not fitted to the newly exposed residual, a certified error theorem, or a promise of forward accuracy. Preserve the original analytical relative accuracy requirement `1e-9` and its independent oracles. Intended-contribution accuracy failures such as N05/N06 remain unresolved until the actual assembly/solve/recovery repair satisfies them.
+
+Continue publishing raw finite force and moment residuals in N and N*m with their actual node/DOF identities. Derive work evidence per row from `|u_i r_i| <= |u_i| tau_i d_i`, including the evaluation allowance; select and label the governing row for the particular measured or exact-reference quantity. A zero work product cannot substitute for equilibrium. The historical “general energy” alias of this residual-work measure must not be presented as a separate total-energy balance proof.
+
+Retain the discrete changed-support tolerance/floor zero, existing iteration cap four, contact/complementarity/sliding/recovery checks and protected displacement/reaction-delta limits. They are independent of this continuous equilibrium metric. Changing those laws or limits is outside this event. The benchmark seed and multi-support zero limits, DEC-026 comparison criteria, DEC-050/053 observations, release policy, and D-75/D-76 unit decisions remain on their existing bases.
+
+## Why this is warranted
+
+The unchanged old assertion fails on the captured mixed-support example: evaluated UZ residual `-5.684341886080802e-14 N`, versus exact arithmetic on the represented K/u/f `-5.419598456585851e-14 N`. It is not solely an evaluation artifact. With denominator approximately 776 N, the exact componentwise ratio is approximately `6.9840e-17`; the guarded observational ratio is approximately `1.1835e-15`, below the already selected `64 gamma(10)` target of approximately `7.1054e-14`. All five original free rows pass the independent method check. Five nonzero element-theory comparisons retain and meet the original `1e-9` criterion.
+
+The observed maximum residual work is on UZ; the exact represented maximum is on RZ, approximately `1.15595e-18 N*m`. Preserve that distinction and the exact nonzero moment residuals despite their evaluated zeros. The short beam reference checks the implemented Euler–Bernoulli theory, not negligible real-pipe shear; the separate M31 shear qualification addresses that physical limitation.
+
+An omitted tiny-load control passes the old rounded-zero observation while the successor correctly rejects its componentwise error of one. A stale first-state solution fails the final-state equilibrium/prescribed-boundary checks. The latter is not an isolated contact-law mutation and does not qualify contact admissibility. These controls support the measurement change without relaxing the analytical oracle or manufacturing a zero.
+
+## Implementation and evidence boundary
+
+SOLVER_MANAGER may now replace the explicit prospective-policy hold with the actual evaluated successor predicate and update the corresponding current producer metadata, tests and connected consumers together. Preserve truthful historical readers, old fixture bytes and named historical quantization witnesses. The shared result-family versions remain [the V2 reservation](VERSION_RESERVATION_V2.md); no additional public version is allocated here.
+
+Current qualification requires the final same-state report, complete requested-case coverage, actual source/model/row/semantic bindings and all other applicable checks. Accepted policy metadata alone never establishes observed compliance. Publish pass, failure and uncertainty honestly; unknown methods or incomplete evidence remain unqualified. Add an isolated wrong-contact-state/admissibility control as well as equilibrium and prescribed-value mutations. Cover both actual dense and sparse paths, including fallback behavior, and retain the original failed run.
+
+The observational packet predates the latest kernel repairs and ran SparseInteractive. It therefore supplies method/reference evidence, not a passing updated implementation or cross-mode qualification. Fresh complete candidate review, repaired source-binding/export round trips, focused and registered checks, native workflows and the remaining undertaking gates are still required. This event selects the scientifically justified prospective measurement; it does not mark M03, M06, M34, or the overall workbench complete.
+
+The original observation inputs are retained in canonical repository custody; see [portable replay and exact-byte provenance](NUMERICAL_POLICY_REVIEW/ROW_SUCCESSOR_REPLAY.md). Historical execution paths and hashes remain unchanged.

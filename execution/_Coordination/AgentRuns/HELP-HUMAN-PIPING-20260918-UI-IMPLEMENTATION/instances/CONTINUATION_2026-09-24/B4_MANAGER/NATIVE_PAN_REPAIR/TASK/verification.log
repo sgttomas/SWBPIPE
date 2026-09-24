@@ -1,0 +1,13 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/workspace/table/ModelTree.table.test.tsx src/features/workspace/table/EngineeringTable.test.tsx src/features/workspace/table/OverflowRail.test.tsx
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop
+
+
+ Test Files  3 passed (3)
+      Tests  96 passed (96)
+   Start at  12:13:51
+   Duration  5.88s (transform 350ms, setup 214ms, import 457ms, tests 6.58s, environment 612ms)
+

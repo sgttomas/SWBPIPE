@@ -1,0 +1,44 @@
+# Independent native fit evidence review
+
+**Result: bounded evidence accepted for fan-in; hold B4-FIT native closeout for two targeted evidence supplements.** This review found no proven new product defect. It reviewed ROOT's existing witness; it is neither a second native execution nor an independent practitioner witness.
+
+Executor `/root/native_fit_evidence_review`, TASK Type 2; parent and return route `/root`. Mechanism: delegated-harness-native `collaboration.spawn_agent`. No descendants. Read-only candidate/evidence work; only this directory's RETURN.md and MANIFEST.json are written. No GUI, browser, network, build, heavy test or Git operation was performed. No skill or workflow body was selected; the supplied bounded review brief was the method.
+
+## Identity and evidence integrity
+
+The candidate is product source `1c1b8b072a25a5014f41dcc0e0fd8fd9d1ab0a9a`, with executable SHA-256 `daaac8f9839acce0e873bbb52a6e0079c88e537a236459f68c7a8a1cfd14fea6`. I freshly rehashed the stored executable and all three bundle files: all match the build identity. The launch preflight binds the same absolute executable path and hash. The 857-entry pre/post maintained-input manifests have identical path sets and all before/after/candidate hashes agree; this is a check of recorded build inputs, not a new Git checkout attestation. The build records identify macOS 26.6.2 arm64, Node 24.18.0, Rust 1.97.1 and Tauri CLI 2.11.1, an exit-0 normal debug app build, separate target and absent SWBPIPE_LIVE_CONTROL.
+
+All 79 entries bound by ROOT_NATIVE_1C/MANIFEST.json match their recorded length and SHA-256. Records 03–49 were the functional review scope; 01–02 and cleanup files received integrity checks only. I read the functional AX/JSON records, treating AX as ordered differential observations, and viewed the 15 representative JPEGs listed in the review manifest. Image inspection is qualitative; physical screenshot dimensions and the splitter's declared height do not constitute CSS/client-size or pixel-tolerance measurement.
+
+## Supported claims
+
+| Area | Review result |
+|---|---|
+| Nodes fit and scrolling | 05→06 and 09→10 visually show rows changing while family/filter toolbar, headings and footer remain fixed. Minimum 180 has a full visible row and reachable footer; 11–12 show the whole Z editor, Apply/Cancel and finite-number feedback. Compact/Light minimum/default/430-expanded and Comfortable/System-dark minimum/default/430-expanded are supported by the capture sequence. Expanded 22/46 fit all five Nodes. No obvious header/body drift appears in the inspected Nodes views; no numerical alignment result follows. |
+| Direct editing and interruption | 11–13 show N-140 Z 2.2, invalid Not-a-number feedback, then 2.25 with Edited/Undo. 14 explicitly preserves the locked-Mac uncertain Undo attempt. 15 observes 2.2 with Undo disabled/Redo enabled; 16 observes 2.25; 17 restores 2.2. The uncertain attempt itself is not a pass. |
+| Keyboard column/control reach | 27–29 identify Later columns focused, boundary disable and transfer to Earlier, then the reverse. 39–40 similarly show table-control rail boundary focus transfer. 25–26 are pointer-state observations and do not themselves establish keyboard focus. These captures do not contain an active editor. |
+| Review path | 31–32 preserve canonical 2.2 while retaining draft 2.3. 33 shows one queued intent, 34 visually exposes Validate/Apply after expansion/scrolling, 35 records validate_only/not_applied with passed schema/units/prior-state through tauri_backend_apply, 36 shows application and changed model-derived inspector value, and 37–38 restore 2.2 through Undo. This is agent-operated local-session Apply, not an actual-human live-controller witness. |
+| Filter and family | 41 filters to one of five Nodes. 42 proves the family menu opens and exposes its choices with Nodes selected. It does not prove selection of Materials/Pipes or native typeahead. The return correctly says menu opening/escape only. |
+| Restoration and limits | 48 restores all five baseline Node coordinates; 49 visibly shows Tree/Both, project selection, 27 entities, no Edited marker and disabled model-history arrows after the stated restart. The dark appearance is visible; System/Comfortable restoration is the operator's sequence account, with the ending AX files being diffs. This verifies the unsaved bundled example, not file-save/reopen. 45 is a wide side-by-side Both layout at the reported 1280 logical floor; native narrowBoth remains unavailable, not passed. |
+
+The failed Home/resize/theme/pointer-focus attempts are explicitly separated from later successful observations. The final pre-restart window-size attempt is likewise not misrepresented as restoration. Nothing in this review promotes these results to solver, timing, performance, C4, practitioner, release, or I1/I2/H1/H2 qualification.
+
+## Findings required before native-fit closeout
+
+### NF-E1 — Backcheck the previously failing wide Materials shape
+
+The accepted NATIVE_FIT_REPAIR_DISPOSITION.md, lines 3 and 7–9, and its accepted DESIGN_MANAGER/NATIVE_COMPACT_DESIGN.md, lines 61–63, require native backcheck of the wide-family horizontal/header pressure as well as Nodes' vertical gutter. The entire new functional packet remains in Nodes/Node review; 42 opens the menu and retains Nodes. Node review panning demonstrates the new control, but does not exercise the previously failing Materials header/unit/row geometry. Therefore this packet does not yet close that diagnosed native failure mode.
+
+**Bounded repair to evidence:** on the same exact candidate, select the existing invented Materials family through the native selector; capture minimum fit in both densities, complete mixed-unit header meaning, first/last columns and a full row/editor after pointer and keyboard pan, then restore Nodes. Record a fitting/empty transition and offset reset where available. Existing fixture Sections are empty; do not fabricate a populated Section or virtual-count native result. Explicitly retain any unavailable native matrix cells with their existing browser/component evidence limits. This is shared compact-fit evidence, not Pipes or remaining-family migration.
+
+### NF-E2 — Witness full feedback and active draft integrity through the new reach controls
+
+The same accepted disposition, lines 7–9, requires complete error/status/retained-draft feedback and no Apply/queue/model-history mutation from panning/disclosure/focus reveal. The accepted design, lines 41–43 and 61–63, specifically requires complete full-length feedback and active editor through pan. Info10 shows only rows/column meanings; Details23 shows the ordinary review explanation; the error in 12 fits visibly without overflow. Column pans 27–29 precede editor31, and table-control pans39–40 occur after that editor has closed. They cannot establish that an active draft survives those operations or that full overflowing feedback is reachable in the native host.
+
+**Bounded repair to evidence:** at minimum height, retain an invalid direct draft, create the supported outside-filter/long-status condition, and expose its complete text via Info/rail using pointer and keyboard. While an editor remains active, pan to/from the edge and open/close Info/Details; record text/value/focus and model/history before/after, then cancel/clear through the visible controls. Include Escape/focus return and a compact hidden/reveal or Tree/Grid round trip already called for by the native plan. The missing native Clear and selector keyboard journeys can be covered in the same short supplement; review Apply/Undo does not demonstrate those distinct controls. Preserve any inaccessible route as unavailable rather than inferring a pass from AX text alone.
+
+These findings are evidence completion needs within the current B4-FIT node. They do not reopen the completed Nodes/Materials/Sections migrations or require future B4 family semantics, broad grammar/copy/CSV/Checked commitments, or the inherited wide Both+Inspector Provenance pointer gate to close now. The latter remains explicitly allocated to B4-FAMILIES in the work graph. Nor do they require forcing a native window below its protected 1280 minimum.
+
+## Fan-in and return boundary
+
+Integrate the supported Nodes fit, direct/review outcomes, focus-at-boundary and restoration account as bounded evidence. Keep NF-E1/NF-E2 open and append a small same-candidate native supplement, then backcheck it before declaring native fit complete. Narrow “Info and Details exposed full content” to their captured column metadata/review explanation until NF-E2 is satisfied. All actual-head CI, independent source/diff review, clean DEC-025 sweep and merge gates remain ROOT-owned and are not independently reasserted here. No source, scope, acceptance, lifecycle or release change is made by this return.

@@ -1,0 +1,133 @@
+{
+  "date": "2026-09-24",
+  "agent": "/root/correctness_design",
+  "role": "HELPS_HUMANS",
+  "parent": "/root",
+  "mechanism": "delegated-harness-native",
+  "primary_head_at_manifest": "d46139f0e240837637e1fe30649048681e7b2ae3",
+  "isolated_head": "63b9a56cbcc40fd2ba7e1a3c2f2555214aa6d8d9",
+  "limits": "Read-only product and current uncommitted isolated source. Hashes identify whole files, not whole-file review. Full role/TASK refreshed before delegation; project/loop/authority full earlier basis retained. No production/tests/build/native/UI/endpoint/Git mutation or new public version. Candidate can change during other managers work; revalidate before implementation.",
+  "child": {
+    "agent": "/root/correctness_design/precision_refutation",
+    "role": "TASK",
+    "model": "gpt-6-astra",
+    "effort": "xhigh",
+    "fork_turns": "none",
+    "scope": "INDEPENDENT_REFUTATION and own _run_records only; no further delegation",
+    "enforcement": "Same host permissions; declared logical write fence only",
+    "reference_arithmetic": "Fraction/per-operation p-bit and two-word prototypes permitted, no product imports; exact code/output recorded separately"
+  },
+  "sources": [
+    {
+      "checkout": "primary",
+      "path": "AGENTS.md",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "checkout": "primary",
+      "path": "agents/AGENT_HELPS_HUMANS.md",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/agents/AGENT_HELPS_HUMANS.md",
+      "sha256": "a0c9fb9443d8671d694c1f7b24ff3c402ffd626c781a2739342c938f2f3c3d1e"
+    },
+    {
+      "checkout": "primary",
+      "path": "agents/AGENT_TASK.md",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "checkout": "primary",
+      "path": "projects/chirality-piping/AGENTS.md",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "checkout": "primary",
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "checkout": "primary",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_ACTIVATION.md",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_ACTIVATION.md",
+      "sha256": "dd98701526a31248f36a5e6e03490975af682f748dd349aa52faa1bfafc912a0"
+    },
+    {
+      "checkout": "primary",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/RETURN.md",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/RETURN.md",
+      "sha256": "c83877d55ddb23c634112551fb3319f3f39080b2839c285a81f32296177a9216"
+    },
+    {
+      "checkout": "primary",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/_run_records/DERIVATIONS_AND_REFERENCES.md",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/_run_records/DERIVATIONS_AND_REFERENCES.md",
+      "sha256": "59b341232b5051b00b39f5a39442476a0c5764ac855a56994c7f89cd5cbf5d11"
+    },
+    {
+      "checkout": "numerical_worktree",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+      "sha256": "3a016181fc49092d2775cc365dd2956b4c137c1f6bb64046a77b925ef5f9cce0"
+    },
+    {
+      "checkout": "numerical_worktree",
+      "path": "projects/chirality-piping/core/solver/sparse_direct/src/structural.rs",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/sparse_direct/src/structural.rs",
+      "sha256": "89af5f9e72867072b0f9e2a54245592aa51745f1992ec20f118d20d1e13ae08f"
+    },
+    {
+      "checkout": "numerical_worktree",
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "1e44318df4d1a469ad0ecf3fbeeeecd2a3744ba83505782a129b36ed136c0f41"
+    },
+    {
+      "checkout": "numerical_worktree",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/Cargo.lock",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/frame_kernel/Cargo.lock",
+      "sha256": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9"
+    },
+    {
+      "checkout": "numerical_worktree",
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+      "sha256": "be0edb2bfc9e3c97cc0a85df4bcf63ee276785be22f689657a2d3730bd551b49"
+    },
+    {
+      "checkout": "numerical_worktree",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/KERNEL/REVIEW_REPAIR.md",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/KERNEL/REVIEW_REPAIR.md",
+      "sha256": "531ff2537f025146461d267c636aad9206390798c3d16b6b83613428c92cbe41"
+    },
+    {
+      "checkout": "numerical_worktree",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/ORACLES/FREEZE.json",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/ORACLES/FREEZE.json",
+      "sha256": "61ae62cf5c44cb7fa4132fe06fd1fa3ef3644509123df6973e93c59e6aa7b83c"
+    },
+    {
+      "checkout": "numerical_worktree",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/REFERENCE_REVIEW/RETURN.md",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/REFERENCE_REVIEW/RETURN.md",
+      "sha256": "b08827847a3d675effa6b36dadd6e65c75049e21f71a103cebe3bb1171c6144c"
+    },
+    {
+      "checkout": "numerical_worktree",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/REFERENCE_REVIEW/_run_records/DERIVATIONS.md",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/REFERENCE_REVIEW/_run_records/DERIVATIONS.md",
+      "sha256": "3ed2ff0042c626206d8825ef4d42b14b3012b712ccff81a58bc9ebb35d72d283"
+    }
+  ],
+  "web": {
+    "date": "2026-09-24",
+    "primary_urls": [
+      "https://mpfr.org/mpfr-current/mpfr.html",
+      "https://www.davidhbailey.com/dhbpapers/qd.pdf",
+      "https://eprints.maths.manchester.ac.uk/2629/1/cahi18.pdf"
+    ],
+    "limits": "Primary documents inspected via web; no software install/build/runtime comparison; no remote byte hashes asserted."
+  }
+}

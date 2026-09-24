@@ -1,0 +1,42 @@
+{
+  "role": "TASK Type 2",
+  "parent": "/root/numerical_ci_manager",
+  "agent": "/root/numerical_ci_manager/apt_implementation",
+  "mechanism": "delegated-harness-native descendant",
+  "model": "gpt-6-astra",
+  "reasoning_effort": "low",
+  "basis_head": "a957e0a23e27807bd6ade21c723675bd5e9d7cec",
+  "instructions": [
+    {
+      "origin": "/private/tmp/piping-numerical-ci-20260924/AGENTS.md",
+      "portable_path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-ci-20260924/agents/AGENT_TASK.md",
+      "portable_path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-ci-20260924/projects/chirality-piping/AGENTS.md",
+      "portable_path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-ci-20260924/projects/chirality-piping/loop/LOOP_INIT.md",
+      "portable_path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-ci-20260924/.agents/skills/software-defect-diagnosis/SKILL.md",
+      "portable_path": ".agents/skills/software-defect-diagnosis/SKILL.md",
+      "sha256": "f281558734732ab0a97cf1407ba80a53c25e8c2b9dd96069bec589fd521a7a23"
+    },
+    {
+      "origin": "/private/tmp/piping-numerical-ci-20260924/.agents/skills/chirality-change/SKILL.md",
+      "portable_path": ".agents/skills/chirality-change/SKILL.md",
+      "sha256": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba"
+    }
+  ],
+  "scope": "Read-only APT diagnosis first; no source edits before manager selection. Future action.yml and directly related helper/test only. No delegation, Git mutation, hosted execution, local APT installation, browser, Cargo/npm/heavy tests, Docker/VM or network policy changes."
+}

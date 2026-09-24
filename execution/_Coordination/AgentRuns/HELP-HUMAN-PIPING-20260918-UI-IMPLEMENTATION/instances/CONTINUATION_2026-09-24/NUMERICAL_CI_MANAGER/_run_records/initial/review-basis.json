@@ -1,0 +1,532 @@
+{
+  "parent": "/root/numerical_ci_manager",
+  "child": "/root/numerical_ci_manager/review_numerical_ci",
+  "role": "TASK",
+  "model": "gpt-6-astra",
+  "reasoning_effort": "xhigh",
+  "mechanism": "delegated-harness-native",
+  "fresh_context": true,
+  "basis": "f7e8b467cb2db244f11fe49cede636140031b387",
+  "checkout": "/private/tmp/piping-numerical-ci-20260924",
+  "head": "f7e8b467cb2db244f11fe49cede636140031b387",
+  "instruction_origins": [
+    {
+      "origin": "AGENTS.md",
+      "path": "/private/tmp/piping-numerical-ci-20260924/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "origin": "agents/AGENT_TASK.md",
+      "path": "/private/tmp/piping-numerical-ci-20260924/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "projects/chirality-piping/AGENTS.md",
+      "path": "/private/tmp/piping-numerical-ci-20260924/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "origin": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "path": "/private/tmp/piping-numerical-ci-20260924/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "origin": ".agents/skills/software-code-review/SKILL.md",
+      "path": "/private/tmp/piping-numerical-ci-20260924/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+    },
+    {
+      "origin": ".agents/skills/chirality-change/SKILL.md",
+      "path": "/private/tmp/piping-numerical-ci-20260924/.agents/skills/chirality-change/SKILL.md",
+      "sha256": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba"
+    }
+  ],
+  "scope": "Complete independent candidate diff including untracked/ignored declared lockfiles; read-only source and Git",
+  "allowed_outputs": [
+    "/private/tmp/piping-numerical-ci-manager-20260924/review-basis.json",
+    "/private/tmp/piping-numerical-ci-manager-20260924/review.md"
+  ],
+  "enforcement_limits": "No delegation; no source or Git writes; no Cargo/npm/browser/hosted commands; only small Python policy tests permitted; native tool host permissions remain actual enforcement",
+  "candidate_sha256": {
+    ".github/workflows/piping-desktop-e2e.yml": "9cb061969f12c6890aa5b20e37ff9dab67430d91a788d706b05aa3dddd571183",
+    "docs/governance_harness/tranche_manifests/PIPING-NUMERICAL-CI-20260924.yaml": "83891ac7babe76d32f2d53d5fcccab24b98aea3567121ca379495b5adb694bb9",
+    "projects/chirality-piping/core/loads/load_case_algebra/Cargo.lock": "abad8a64f1329cd12f3f89d2a99a3f720c570597f38860f1be28b3cbd126880e",
+    "projects/chirality-piping/core/loads/primitive_loads/Cargo.lock": "4cc8edcfe1a36df477b0fcb9852ad63926bf75795e60615f1f820d5a7581a854",
+    "projects/chirality-piping/core/reporting/audit_manifest/Cargo.lock": "cf614e760a1b93f35ed11498048c9669205204468d6a5115b6f7ecdc3475c6f2",
+    "projects/chirality-piping/core/reporting/report_generator/Cargo.lock": "ad699ba4553e8a13a6240b8e9916f9d5266372a0448699b15c42f294d6b74e0f",
+    "projects/chirality-piping/core/reporting/result_export/Cargo.lock": "963573b91a229f41472bbd3100e2cf48e5dad8a2b2009dc85017c41ef3bdb4f1",
+    "projects/chirality-piping/core/rules/completeness_checker/Cargo.lock": "dff3336149333fa815d35e8f6b28b9b628c8eb5114504ccdd1787672133a2c34",
+    "projects/chirality-piping/core/rules/rule_pack_lifecycle/Cargo.lock": "6f2dc15a4f90c373ae1d642364af4c6b8fe34cf03f870e206b363c921533425e",
+    "projects/chirality-piping/core/runner/headless/Cargo.lock": "661095df4a112a8884d8b39709eac134d8b95cdb5cb8d346f835c1851debe544",
+    "projects/chirality-piping/core/solver/curved_bend/Cargo.lock": "673aed6ccd24ed82f89b9f5fd949880eb800641f1975879685712af827620f9c",
+    "projects/chirality-piping/core/solver/diagnostics/Cargo.lock": "e80edc2f981aa904e2146072db14d31eed2680cf5975eea0ea3b8b5a4175ee64",
+    "projects/chirality-piping/core/solver/frame_kernel/Cargo.lock": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+    "projects/chirality-piping/core/solver/linear_supports/Cargo.lock": "5792a728c5b0687e3306a96ace1bc79eac4d0b5be8294e40de34849921c64537",
+    "projects/chirality-piping/core/solver/nonlinear_supports/Cargo.lock": "8bf2ad74a9b4d415e825c60fbc45bdb2b62b673fc2914e561ffa85c992bc2657",
+    "projects/chirality-piping/core/solver/performance_harness/Cargo.lock": "c191d3f5d2ca8cdc6c6237effbc18d5e477cf1362d79bf45c62821486f94ab8b",
+    "projects/chirality-piping/core/solver/sparse_direct/Cargo.lock": "86a316b6f076f21b01531b16c1336abeccfb484d8425ad44fc560831d1c34b36",
+    "projects/chirality-piping/core/solver/straight_pipe/Cargo.lock": "53c41652cf335be092d3eb651d25263a1e2bea87457e4206e0decc00e56e1d7c",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/BASELINE_MISSING_LOCKS.json": "fc3aeda415185821acfddb6c3b130abc446963946a492284ee9a26d8e8518390",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/EXECUTION.json": "7d8376f56f2aaab65f7fa94a2e70b9913b68a0accc16d7561b15819802823d7a",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/LOCK_GENERATION.json": "2236676529ab02675d097a26dcf08178edbd143fce20b69a151767378f6068d8",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/LOCK_VERSION_COMPARISON.json": "24dd398d31d2eb85f8775a4de9b9ac954554e26e6c95749fdf9b99bcb30523b3",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/REVIEW_RECORD.md": "0abd017124c433c80a9c6ffd9448f94924628f7f1e385ad9a87b7bebde30c27f",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/implementation-basis.json": "e259db40273559645f46293eba5847462eac62dd3aedeb55f57845795b203a6c",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/implementation-hashes.json": "bad3beffb96161040cc8af3db726ff71c048ff356a7747f6dae1435b521b7e81",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/aggregate.stdout.log": "07c1346ac1b282815cdff4d5c1b428bda64267c72e267cc424265ada10dd2b84",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/control.json": "30077e9cbc357aa0851da8301f5b0dd16b8c8d7be6f3f0b99b7b20da34605c0f",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/evidence/cargo-logs/command-000.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/evidence/cargo-logs/command-001.log": "1b246728e7f195839368631421d4c815d4cd44b1040e174843a75d61ad86436b",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/evidence/command-000.log": "4ad84f16acc2f3bdcfbc7b0788f1e74a4e649b962154a585b8f8d0b28eb0dd06",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/evidence/command-001.log": "1aedaa9cce116919d39b1eb303a58865771582bc24fc259aa8e26cb212e0f59e",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/evidence/numerical.json": "8aa1af4f863ddf2698e3e51cc2c793433fbcddd57b1bfb88d574479b9a2d2bb8",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/rerun.py": "c111ff984f914ba512b67898b05fdd66d42f0039198d7dc711d01952da62a461",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/runner.stdout.log": "eb4d9caf41dc8f23b9c739cc355cbe657c3cf7c42172e2aacf065c177a7ddf61",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/python-tests.log": "8fd41c8eb7ef9837ba908226323f70ba54d91d3de0bd8b9fb5fa9edd985a05a8",
+    "projects/chirality-piping/tests/test_ci_e2e_plan.py": "6aadbd41535936b6d01feffda1b5ba635ac82d666ef0dd94611e13a8a421341e",
+    "projects/chirality-piping/tests/test_ci_numerical.py": "ed5c5a5c67e70904663d6654fb4968214bdfbe4a418744e1bb8d393273709d2d",
+    "projects/chirality-piping/tools/ci/e2e_plan.py": "cc57406835c8413caeb224ee6cac250385b308e46849ed37fcddac6604dfaf56",
+    "projects/chirality-piping/tools/ci/numerical_ci.py": "c1763b3be06836dc44a9f1a4c456207f102cf6feac12cf85c5a0ef19fab1ae37"
+  },
+  "scope_validation": {
+    "allowed": [
+      ".github/workflows/piping-desktop-e2e.yml",
+      "docs/governance_harness/tranche_manifests/PIPING-NUMERICAL-CI-20260924.yaml",
+      "projects/chirality-piping/tools/ci/e2e_plan.py",
+      "projects/chirality-piping/tools/ci/numerical_ci.py",
+      "projects/chirality-piping/tests/test_ci_e2e_plan.py",
+      "projects/chirality-piping/tests/test_ci_numerical.py",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER",
+      "projects/chirality-piping/core/loads/load_case_algebra/Cargo.lock",
+      "projects/chirality-piping/core/loads/primitive_loads/Cargo.lock",
+      "projects/chirality-piping/core/reporting/audit_manifest/Cargo.lock",
+      "projects/chirality-piping/core/reporting/report_generator/Cargo.lock",
+      "projects/chirality-piping/core/reporting/result_export/Cargo.lock",
+      "projects/chirality-piping/core/rules/completeness_checker/Cargo.lock",
+      "projects/chirality-piping/core/rules/rule_pack_lifecycle/Cargo.lock",
+      "projects/chirality-piping/core/runner/headless/Cargo.lock",
+      "projects/chirality-piping/core/solver/curved_bend/Cargo.lock",
+      "projects/chirality-piping/core/solver/diagnostics/Cargo.lock",
+      "projects/chirality-piping/core/solver/frame_kernel/Cargo.lock",
+      "projects/chirality-piping/core/solver/linear_supports/Cargo.lock",
+      "projects/chirality-piping/core/solver/nonlinear_supports/Cargo.lock",
+      "projects/chirality-piping/core/solver/performance_harness/Cargo.lock",
+      "projects/chirality-piping/core/solver/sparse_direct/Cargo.lock",
+      "projects/chirality-piping/core/solver/straight_pipe/Cargo.lock"
+    ],
+    "paths": [
+      ".github/workflows/piping-desktop-e2e.yml",
+      "docs/governance_harness/tranche_manifests/PIPING-NUMERICAL-CI-20260924.yaml",
+      "projects/chirality-piping/core/loads/load_case_algebra/Cargo.lock",
+      "projects/chirality-piping/core/loads/primitive_loads/Cargo.lock",
+      "projects/chirality-piping/core/reporting/audit_manifest/Cargo.lock",
+      "projects/chirality-piping/core/reporting/report_generator/Cargo.lock",
+      "projects/chirality-piping/core/reporting/result_export/Cargo.lock",
+      "projects/chirality-piping/core/rules/completeness_checker/Cargo.lock",
+      "projects/chirality-piping/core/rules/rule_pack_lifecycle/Cargo.lock",
+      "projects/chirality-piping/core/runner/headless/Cargo.lock",
+      "projects/chirality-piping/core/solver/curved_bend/Cargo.lock",
+      "projects/chirality-piping/core/solver/diagnostics/Cargo.lock",
+      "projects/chirality-piping/core/solver/frame_kernel/Cargo.lock",
+      "projects/chirality-piping/core/solver/linear_supports/Cargo.lock",
+      "projects/chirality-piping/core/solver/nonlinear_supports/Cargo.lock",
+      "projects/chirality-piping/core/solver/performance_harness/Cargo.lock",
+      "projects/chirality-piping/core/solver/sparse_direct/Cargo.lock",
+      "projects/chirality-piping/core/solver/straight_pipe/Cargo.lock",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/BASELINE_MISSING_LOCKS.json",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/EXECUTION.json",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/LOCK_GENERATION.json",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/LOCK_VERSION_COMPARISON.json",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/REVIEW_RECORD.md",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/implementation-basis.json",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/implementation-hashes.json",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/aggregate.stdout.log",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/control.json",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/evidence/cargo-logs/command-000.log",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/evidence/cargo-logs/command-001.log",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/evidence/command-000.log",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/evidence/command-001.log",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/evidence/numerical.json",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/rerun.py",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/negative-control/runner.stdout.log",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/python-tests.log",
+      "projects/chirality-piping/tests/test_ci_e2e_plan.py",
+      "projects/chirality-piping/tests/test_ci_numerical.py",
+      "projects/chirality-piping/tools/ci/e2e_plan.py",
+      "projects/chirality-piping/tools/ci/numerical_ci.py"
+    ],
+    "schema": "chirality-change-scope/v1",
+    "status": "PASS",
+    "violations": []
+  },
+  "source_dependency_audit": {
+    "literal_include_resources": [
+      {
+        "source": "projects/chirality-piping/core/library_import/library_import_document/src/lib.rs",
+        "line": 743,
+        "input": "projects/chirality-piping/schemas/hanger.schema.yaml",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/product_physics/examples/preview_result.rs",
+        "line": 6,
+        "input": "projects/chirality-piping/fixtures/product_preview/invented_preview_model.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/product_physics/src/lib.rs",
+        "line": 9938,
+        "input": "projects/chirality-piping/fixtures/product_preview/invented_preview_model.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/product_physics/src/lib.rs",
+        "line": 10250,
+        "input": "projects/chirality-piping/fixtures/product_preview/invented_preview_model.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/product_physics/src/lib.rs",
+        "line": 10436,
+        "input": "projects/chirality-piping/fixtures/product_preview/invented_preview_model.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/product_physics/src/lib.rs",
+        "line": 14251,
+        "input": "projects/chirality-piping/fixtures/product_preview/invented_dec092_temperature_g_request.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/product_physics/src/lib.rs",
+        "line": 14890,
+        "input": "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/product_physics/src/lib.rs",
+        "line": 15338,
+        "input": "projects/chirality-piping/fixtures/product_preview/invented_preview_model.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/product_physics/src/lib.rs",
+        "line": 15474,
+        "input": "projects/chirality-piping/fixtures/product_preview/invented_preview_model.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/reporting/pdf_emitter/tests/emit.rs",
+        "line": 11,
+        "input": "projects/chirality-piping/fixtures/reports/invented/calculation_report_fixture.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/reporting/report_package/src/wire.rs",
+        "line": 696,
+        "input": "projects/chirality-piping/fixtures/reports/invented/component_provenance_cross_layer_projection.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/reporting/report_package/src/wire.rs",
+        "line": 699,
+        "input": "projects/chirality-piping/validation/witness/inputs/del1005_export_results_success_input.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/reporting/report_package/src/wire.rs",
+        "line": 887,
+        "input": "projects/chirality-piping/validation/witness/inputs/del1005_export_results_success_input.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/reporting/report_package/src/wire.rs",
+        "line": 905,
+        "input": "projects/chirality-piping/validation/witness/inputs/del1005_export_results_success_input.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/reporting/report_package/tests/container.rs",
+        "line": 19,
+        "input": "projects/chirality-piping/fixtures/reports/invented/calculation_report_fixture.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/reporting/report_renderer/tests/render.rs",
+        "line": 11,
+        "input": "projects/chirality-piping/fixtures/reports/invented/calculation_report_fixture.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+        "line": 869,
+        "input": "projects/chirality-piping/fixtures/results/invented/tp_phys_015_canonical_solve_result_envelope.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+        "line": 872,
+        "input": "projects/chirality-piping/fixtures/results/invented/tp_phys_015_section_property_stress_evidence_envelope.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs",
+        "line": 6,
+        "input": "projects/chirality-piping/fixtures/results/semantic_contract_v0_2.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/reporting/result_export/tests/derivative_contract.rs",
+        "line": 5,
+        "input": "projects/chirality-piping/fixtures/results/invented/tp_phys_015_canonical_solve_result_envelope.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/reporting/result_export/tests/derivative_contract.rs",
+        "line": 15,
+        "input": "projects/chirality-piping/fixtures/results/invented/result_export_v0_2.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/reporting/result_export/tests/derivative_contract.rs",
+        "line": 27,
+        "input": "projects/chirality-piping/fixtures/results/invented/result_export_v0_2_rejections.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/reporting/result_export/tests/derivative_contract.rs",
+        "line": 39,
+        "input": "projects/chirality-piping/fixtures/results/semantic_contract_v0_2.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/runner/headless/src/benchmark_binding.rs",
+        "line": 1422,
+        "input": "projects/chirality-piping/validation/evidence/comparison_measurement/DEL0904_VD_20260811/CURRENT_25_FIXTURE_RUNNER_OUTPUT.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/runner/headless/src/bin/openpipestress-runner.rs",
+        "line": 900,
+        "input": "projects/chirality-piping/fixtures/product_preview/invented_preview_model.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/runner/headless/src/lib.rs",
+        "line": 1009,
+        "input": "projects/chirality-piping/fixtures/results/invented/tp_phys_015_canonical_solve_result_envelope.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/runner/headless/src/lib.rs",
+        "line": 1067,
+        "input": "projects/chirality-piping/fixtures/product_preview/invented_preview_model.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/runner/headless/src/redaction_binding.rs",
+        "line": 703,
+        "input": "projects/chirality-piping/fixtures/redaction_export_controls/cases.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+        "line": 432,
+        "input": "projects/chirality-piping/fixtures/product_preview/invented_preview_model.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+        "line": 433,
+        "input": "projects/chirality-piping/fixtures/results/invented/result_export_v0_2.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/core/units/src/lib.rs",
+        "line": 1301,
+        "input": "projects/chirality-piping/schemas/units.schema.yaml",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs",
+        "line": 54,
+        "input": "projects/chirality-piping/validation/benchmarks/mechanics/README.md",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs",
+        "line": 55,
+        "input": "projects/chirality-piping/validation/hand_calcs/mechanics/README.md",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs",
+        "line": 57,
+        "input": "projects/chirality-piping/validation/benchmarks/mechanics/fixtures/tp_phys_014_canonical_analytical_payload.json",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/validation/benchmarks/stress/src/lib.rs",
+        "line": 2003,
+        "input": "projects/chirality-piping/validation/benchmarks/stress/README.md",
+        "exists": true,
+        "selected": true
+      },
+      {
+        "source": "projects/chirality-piping/validation/benchmarks/stress/src/lib.rs",
+        "line": 2004,
+        "input": "projects/chirality-piping/validation/hand_calcs/stress/README.md",
+        "exists": true,
+        "selected": true
+      }
+    ],
+    "crate_count": 38,
+    "new_lock_count": 16,
+    "lock_findings": [],
+    "provenance_resource_references": [
+      "projects/chirality-piping/validation/hand_calcs/mechanics/branch_assembly.md",
+      "projects/chirality-piping/validation/hand_calcs/mechanics/cantilever_tip_force.md",
+      "projects/chirality-piping/validation/hand_calcs/mechanics/constant_effort_support_applied_load.md",
+      "projects/chirality-piping/validation/hand_calcs/mechanics/curved_bend_distributed_load_fixed_end.md",
+      "projects/chirality-piping/validation/hand_calcs/mechanics/curved_bend_pressure_thrust_arc.md",
+      "projects/chirality-piping/validation/hand_calcs/mechanics/expansion_loop_curved_bend_thermal.md",
+      "projects/chirality-piping/validation/hand_calcs/mechanics/fixed_fixed_thermal_axial.md",
+      "projects/chirality-piping/validation/hand_calcs/mechanics/imposed_displacement_spring.md",
+      "projects/chirality-piping/validation/hand_calcs/mechanics/inclined_member_transform.md",
+      "projects/chirality-piping/validation/hand_calcs/mechanics/portal_frame_sway.md",
+      "projects/chirality-piping/validation/hand_calcs/mechanics/primitive_load_preparation.md",
+      "projects/chirality-piping/validation/hand_calcs/mechanics/straight_pipe_weight_recovery.md",
+      "projects/chirality-piping/validation/hand_calcs/mechanics/support_boundary_mixed.md",
+      "projects/chirality-piping/validation/hand_calcs/mechanics/tp_dec092_temperature_indexed_shear_modulus_torsion.md",
+      "projects/chirality-piping/validation/hand_calcs/mechanics/tp_phys_002_linear_static_integration.md",
+      "projects/chirality-piping/validation/hand_calcs/mechanics/tp_phys_004_load_to_resultant.md",
+      "projects/chirality-piping/validation/hand_calcs/mechanics/tp_phys_005_oriented_load_to_resultant.md",
+      "projects/chirality-piping/validation/hand_calcs/mechanics/tp_phys_006_partial_span_load_to_resultant.md",
+      "projects/chirality-piping/validation/hand_calcs/mechanics/tp_phys_007_station_sweep_resultants.md",
+      "projects/chirality-piping/validation/hand_calcs/mechanics/tp_phys_008_thermal_pressure_axial_effects.md",
+      "projects/chirality-piping/validation/hand_calcs/mechanics/tp_phys_009_combined_load_axial_effects.md",
+      "projects/chirality-piping/validation/hand_calcs/mechanics/tp_phys_014_canonical_analytical_payload.md",
+      "projects/chirality-piping/validation/hand_calcs/mechanics/tp_phys_015a_canonical_solve_result_envelope.md",
+      "projects/chirality-piping/validation/hand_calcs/mechanics/tp_pmm_p3_occloadgen_equivalent_static.md",
+      "projects/chirality-piping/validation/hand_calcs/mechanics/tp_pmm_p3_subspan_wind_exposure.md",
+      "projects/chirality-piping/validation/hand_calcs/nonlinear/active_set_one_way.md",
+      "projects/chirality-piping/validation/hand_calcs/nonlinear/assembled_friction_bounded_sliding.md",
+      "projects/chirality-piping/validation/hand_calcs/nonlinear/assembled_friction_derived_normal.md",
+      "projects/chirality-piping/validation/hand_calcs/nonlinear/assembled_friction_sliding.md",
+      "projects/chirality-piping/validation/hand_calcs/nonlinear/assembled_friction_sticking.md",
+      "projects/chirality-piping/validation/hand_calcs/nonlinear/assembled_gap_closure.md",
+      "projects/chirality-piping/validation/hand_calcs/nonlinear/assembled_gap_lift_off.md",
+      "projects/chirality-piping/validation/hand_calcs/nonlinear/assembled_lift_off.md",
+      "projects/chirality-piping/validation/hand_calcs/nonlinear/assembled_multi_support_cascade_gap_lift_off_acceptance.md",
+      "projects/chirality-piping/validation/hand_calcs/nonlinear/assembled_multi_support_derived_normal_gap_acceptance.md",
+      "projects/chirality-piping/validation/hand_calcs/nonlinear/assembled_multi_support_derived_normal_rotational_acceptance.md",
+      "projects/chirality-piping/validation/hand_calcs/nonlinear/assembled_multi_support_four_class_acceptance.md",
+      "projects/chirality-piping/validation/hand_calcs/nonlinear/assembled_multi_support_friction_gap_acceptance.md",
+      "projects/chirality-piping/validation/hand_calcs/nonlinear/assembled_multi_support_gap_lift_off_acceptance.md",
+      "projects/chirality-piping/validation/hand_calcs/nonlinear/assembled_multi_support_multi_dof.md",
+      "projects/chirality-piping/validation/hand_calcs/nonlinear/assembled_multi_support_multi_dof_acceptance.md",
+      "projects/chirality-piping/validation/hand_calcs/nonlinear/assembled_multi_support_negative_gap_acceptance.md",
+      "projects/chirality-piping/validation/hand_calcs/nonlinear/assembled_multi_support_opposing_gaps_acceptance.md",
+      "projects/chirality-piping/validation/hand_calcs/nonlinear/assembled_multi_support_rotational_acceptance.md",
+      "projects/chirality-piping/validation/hand_calcs/nonlinear/assembled_multi_support_three_dof_acceptance.md",
+      "projects/chirality-piping/validation/hand_calcs/nonlinear/assembled_multi_support_two_span_acceptance.md",
+      "projects/chirality-piping/validation/hand_calcs/nonlinear/assembled_multi_support_two_span_opposing_gaps_acceptance.md",
+      "projects/chirality-piping/validation/hand_calcs/nonlinear/assembled_one_way_deactivation.md",
+      "projects/chirality-piping/validation/hand_calcs/nonlinear/assembled_one_way_reengagement.md",
+      "projects/chirality-piping/validation/hand_calcs/nonlinear/friction_transition.md",
+      "projects/chirality-piping/validation/hand_calcs/nonlinear/gap_closure.md",
+      "projects/chirality-piping/validation/hand_calcs/nonlinear/lift_off.md",
+      "projects/chirality-piping/validation/hand_calcs/nonlinear/unresolved_nonconvergence.md",
+      "projects/chirality-piping/validation/hand_calcs/stress/axial_normal.md",
+      "projects/chirality-piping/validation/hand_calcs/stress/bending_normal.md",
+      "projects/chirality-piping/validation/hand_calcs/stress/integrated_straight_pipe_resultants.md",
+      "projects/chirality-piping/validation/hand_calcs/stress/pressure_membrane.md",
+      "projects/chirality-piping/validation/hand_calcs/stress/stress_range.md",
+      "projects/chirality-piping/validation/hand_calcs/stress/torsional_shear.md",
+      "projects/chirality-piping/validation/hand_calcs/stress/tp_phys_004_load_to_resultant_stress.md",
+      "projects/chirality-piping/validation/hand_calcs/stress/tp_phys_005_oriented_load_to_stress.md",
+      "projects/chirality-piping/validation/hand_calcs/stress/tp_phys_006_partial_span_load_to_stress.md",
+      "projects/chirality-piping/validation/hand_calcs/stress/tp_phys_007_station_sweep_stress.md",
+      "projects/chirality-piping/validation/hand_calcs/stress/tp_phys_008_thermal_axial_effect_to_stress.md",
+      "projects/chirality-piping/validation/hand_calcs/stress/tp_phys_009_combined_axial_bending_to_stress.md",
+      "projects/chirality-piping/validation/hand_calcs/stress/tp_phys_015_canonical_resultant_stress.md",
+      "projects/chirality-piping/validation/hand_calcs/stress/tp_pmm_p3_milltol_effective_wall_stress.md",
+      "projects/chirality-piping/validation/hand_calcs/stress/tp_pmm_p3_modulusbasis_range_stress.md"
+    ],
+    "audit_note": "Rust backslash-newline whitespace continuation normalized before resolving include resources; runtime filesystem fixture and Python parity consumer paths manually traced."
+  },
+  "verification": {
+    "independent_python_policy_tests": {
+      "count": 44,
+      "result": "PASS",
+      "duration_seconds": 4.298,
+      "command": "PYTHONDONTWRITEBYTECODE=1 /private/tmp/chirality-piping-dec025-venv/bin/python -m unittest discover -s projects/chirality-piping/tests -p 'test_ci_*.py' -v"
+    },
+    "negative_control": "Read and hash-verified manager-produced actual CLI evidence: runner 101, aggregate 1; reviewer did not run Cargo",
+    "lock_generation": "Read and hash-verified manager-produced generation evidence for all sixteen; reviewer did not run Cargo",
+    "hosted_run": "Not performed; outstanding ROOT integration check",
+    "git_diff_check": "PASS against f7e8b467cb2db244f11fe49cede636140031b387; tracked diff only",
+    "future_resource_regression_backcheck": {
+      "status": "PASS",
+      "reviewed_test_sha256": "ed5c5a5c67e70904663d6654fb4968214bdfbe4a418744e1bb8d393273709d2d",
+      "checks": [
+        "44 real focused policy tests passed",
+        "Temporary new excluded evidence fixture correctly rejected for literal include",
+        "Temporary new excluded evidence fixture correctly rejected for runtime path"
+      ],
+      "reviewer_fixture_note": "Initial temporary fixture attempt used a symlinked /var root, causing relative_to mismatch; corrected by resolving the temporary root to match production MODULE resolution, then both controls passed. No candidate defect or edit."
+    }
+  },
+  "candidate_content_digest_sha256": "6e460b3440254236e9cb2627d36282bab5dce1712fd85e29d0c37e282627ccb0",
+  "review_result": "No actionable findings; suitable for manager fan-in, not a merge-readiness determination",
+  "supporting_sources_sha256": {
+    "projects/chirality-piping/software-workflow.json": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7",
+    "tools/software_workflow/validate_change_scope.py": "6275277dcb214f78dfad6c159333decda95f9aa3e086d12e39c7f2f73a70cb0d",
+    "projects/chirality-piping/tools/release/check_release_readiness.py": "c386cdef9fe16ae0239dc509cb29dbadf0f6ce138cf7c0b7ab40867cb34e930f",
+    ".github/actions/setup-piping-e2e/action.yml": "6fc0a7db9ab474fffbbd6ea8198c5662866c6e1dd593fca4e2a6bdf26caf4dd3"
+  },
+  "review_backcheck": {
+    "changed_paths": [
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/EXECUTION.json",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/REVIEW_RECORD.md",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/implementation-hashes.json",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/python-tests.log",
+      "projects/chirality-piping/tests/test_ci_numerical.py"
+    ],
+    "result": "No actionable findings; requested maintained resource checks and corresponding evidence updates reviewed"
+  }
+}

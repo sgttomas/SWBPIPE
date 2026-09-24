@@ -1,0 +1,16 @@
+[
+  {
+    "prior_manifest": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_ARTIFACT_1C/TASK/_run_records/cargo-dependency-bytes.json.gz",
+    "prior_manifest_sha256": "02f65c59368de79f4f83bb19655579f881df20d54673a866a6b3f24fe4002bf0",
+    "verified_entries": 12136,
+    "mismatches": [],
+    "note": "Existing installed dependency bytes rehashed during build; conservative inventory, not consumed-file trace."
+  },
+  {
+    "prior_manifest": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_ARTIFACT_1C/TASK/_run_records/npm-installed-bytes.json.gz",
+    "prior_manifest_sha256": "97bd75fc69ad661f97d59c5a814c20d393db8d4adee10d7499d7e250ca437401",
+    "verified_entries": 11331,
+    "mismatches": [],
+    "note": "Existing installed dependency bytes rehashed during build; conservative inventory, not consumed-file trace."
+  }
+]

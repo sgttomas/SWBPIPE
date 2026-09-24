@@ -1,0 +1,82 @@
+[
+  {
+    "path": "_run_records/artifact-identity.json",
+    "bytes": 6147,
+    "sha256": "09ea0238e9622d64c5e74606fd92e14f9f05c61b0c69d175616a3db6733f57e7"
+  },
+  {
+    "path": "_run_records/basis.json",
+    "bytes": 1385,
+    "sha256": "090f8d59f0ddb21c6c9c98a7244cb85df45aec19a7130484d2a2bb1a28841029"
+  },
+  {
+    "path": "_run_records/build-command.json",
+    "bytes": 1609,
+    "sha256": "a8cee4e9ffdf782d2127c55372d28c771c644b9c3ba5801a5fe797ee4391b2d2"
+  },
+  {
+    "path": "_run_records/build.log",
+    "bytes": 15528,
+    "sha256": "a6ab1317ea0a5c2b120de9ba22b5ecabe674357ff42cdfb2d149e3a6f3753385"
+  },
+  {
+    "path": "_run_records/build.py",
+    "bytes": 4685,
+    "sha256": "7b8c577f1049805eb1faa4161a0e8c06135b4c91d1ffe955c5304c308cae4e78"
+  },
+  {
+    "path": "_run_records/custody-move.json",
+    "bytes": 2472,
+    "sha256": "46d5c3f184c369ddd670a54468d01e7eddd7e7ffec59bcec32486fcec0a3e478"
+  },
+  {
+    "path": "_run_records/dependency-revalidation.json",
+    "bytes": 1048,
+    "sha256": "410de62a53bfb2210fd2c23b4bda0456dffaed80e8f8d9b3e4c30c169be176a2"
+  },
+  {
+    "path": "_run_records/git-status-post.txt",
+    "bytes": 24274,
+    "sha256": "5f5701ad54bc8b65f0635297b5eb0b76b4bfc1ee13a1bd07112bfd2d506f57aa"
+  },
+  {
+    "path": "_run_records/git-status-pre.txt",
+    "bytes": 24274,
+    "sha256": "5f5701ad54bc8b65f0635297b5eb0b76b4bfc1ee13a1bd07112bfd2d506f57aa"
+  },
+  {
+    "path": "_run_records/inputs-post.json",
+    "bytes": 162988,
+    "sha256": "a085216d0835acf8d8cac13cbd95074b46c4fdb81fd846cb0abd1ff46d3d19d7"
+  },
+  {
+    "path": "_run_records/inputs-pre.json",
+    "bytes": 162988,
+    "sha256": "a085216d0835acf8d8cac13cbd95074b46c4fdb81fd846cb0abd1ff46d3d19d7"
+  },
+  {
+    "path": "_run_records/old-bundles-pre.json",
+    "bytes": 1216,
+    "sha256": "3c221ebe744575714c3341fda19de9b8435bc0f5978966d41a87309d9e96fb7f"
+  },
+  {
+    "path": "_run_records/post-check.json",
+    "bytes": 156,
+    "sha256": "a09485c8e2f96dc4b7cafd7a1a9b66c3b10117a241cae10000637b1ce2d1a6b2"
+  },
+  {
+    "path": "_run_records/source.diff",
+    "bytes": 11983,
+    "sha256": "94ee4d02cc05bcba668f665575310e86af7e912addfa61257adaea81d33f3a9b"
+  },
+  {
+    "path": "_run_records/tool-binaries.json",
+    "bytes": 1764,
+    "sha256": "85d66cfe6691d7d698e599aee680c0b3ad307b21bb7424e62ec1a6dd5cb4dc1b"
+  },
+  {
+    "path": "_run_records/tools.json",
+    "bytes": 2176,
+    "sha256": "f7010f84e9b74e014fbfb302df74ae949978898367daf1ae427fb2ec4294bc59"
+  }
+]

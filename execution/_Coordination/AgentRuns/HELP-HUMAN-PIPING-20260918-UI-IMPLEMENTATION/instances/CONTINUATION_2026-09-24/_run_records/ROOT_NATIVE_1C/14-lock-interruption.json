@@ -1,0 +1,59 @@
+{
+  "recorded_at": "2026-09-24T17:02:04.923708+00:00",
+  "last_confirmed": "13-minimum-direct-applied: invented node:N-140 Z changed2.2\u21922.25m through grid Apply; unsaved Edited marker, Undo enabled;5nodes retained",
+  "uncertain_action": "Next CUA call attempted Undo button10 then AX; returned Maclocked/automaticunlockfailed; action outcome unavailable",
+  "required_next": "After actualunlock first observe state, restoreoriginal2.2 throughverifiedUndo ifstill2.25, verifyredo/undo asappropriate; restoreoriginalui preferences/history beforeclosing",
+  "gui": "No furtherUIactions whilelocked; a freshunlockrequestpending",
+  "captures": [
+    {
+      "path": "04-candidate-initial.jpg",
+      "bytes": 470807,
+      "magic": "ffd8ffe000104a46"
+    },
+    {
+      "path": "05-model-grid-default.jpg",
+      "bytes": 466734,
+      "magic": "ffd8ffe000104a46"
+    },
+    {
+      "path": "06-default-rows-scrolled.jpg",
+      "bytes": 470743,
+      "magic": "ffd8ffe000104a46"
+    },
+    {
+      "path": "07-model-minimum.jpg",
+      "bytes": 470981,
+      "magic": "ffd8ffe000104a46"
+    },
+    {
+      "path": "08-drawer-drag.jpg",
+      "bytes": 472511,
+      "magic": "ffd8ffe000104a46"
+    },
+    {
+      "path": "09-model-minimum-actual.jpg",
+      "bytes": 442198,
+      "magic": "ffd8ffe000104a46"
+    },
+    {
+      "path": "10-minimum-last-row-info.jpg",
+      "bytes": 443138,
+      "magic": "ffd8ffe000104a46"
+    },
+    {
+      "path": "11-minimum-editor.jpg",
+      "bytes": 572830,
+      "magic": "ffd8ffe000104a46"
+    },
+    {
+      "path": "12-minimum-invalid-edit.jpg",
+      "bytes": 582431,
+      "magic": "ffd8ffe000104a46"
+    },
+    {
+      "path": "13-minimum-direct-applied.jpg",
+      "bytes": 571560,
+      "magic": "ffd8ffe000104a46"
+    }
+  ]
+}

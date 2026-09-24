@@ -1,0 +1,46 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 54-56, 58-76, 81-84, 91, 208-212
+~						52 button (expanded) Return to material fields, Secondary Actions: Collapse
++						206 button (disabled) Queue
++						207 button (disabled) Clear
++						208 container Pan columns
++							209 button (disabled) Earlier columns
++							210 button Later columns
++							211 container
++								212 table (settable) Material review drafts
++									213 row (selectable)
++										214 cell (settable)
++											215 text Material
++										216 cell (settable)
++											217 button Sort Label
++										218 cell (settable)
++											219 button Sort Elastic [row unit]
++										220 cell (settable)
++											221 button Sort Shear [row unit]
++										222 cell (settable)
++											223 button Sort Thermal [row unit]
++										224 cell (settable)
++											225 button Sort Provenance
++									226 row (selected)
++										227 cell (selectable, settable) material:invented-carbon-steel
++										228 cell (selectable, settable) material:invented-carbon-steel Label: Invented carbon-steel-like material
++										229 cell (selectable, settable) material:invented-carbon-steel Elastic: 200000000000 Pa
+Quantity readout, Value: Pa
+200000000000
+Pa
++										230 cell (selectable, settable) material:invented-carbon-steel Shear: 77000000000 Pa
+Quantity readout, Value: Pa
+77000000000
+Pa
++										231 cell (selectable, settable) material:invented-carbon-steel Thermal: 0.000012 1/degC
+Quantity readout, Value: 1/degC
+0.000012
+1/degC
++										232 cell (selectable, settable) material:invented-carbon-steel Provenance: invented_example_no_material_standard
++								233 container Material review drafts footer
++									234 text 1
++									235 text  of 
++									236 text 1
++									237 text  rows
++									238 button (collapsed) Material review drafts Info, Secondary Actions: Expand
+The focused UI element is 2 HTML content Description: SWBPIPE, URL: tauri://localhost

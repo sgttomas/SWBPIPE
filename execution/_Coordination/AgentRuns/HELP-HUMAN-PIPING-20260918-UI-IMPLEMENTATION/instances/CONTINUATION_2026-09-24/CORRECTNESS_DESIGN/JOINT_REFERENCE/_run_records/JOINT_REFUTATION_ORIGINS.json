@@ -1,0 +1,192 @@
+{
+  "kind": "independent_task_refutation_origins",
+  "recorded_utc": "2026-09-24T15:54:38.561502+00:00",
+  "parent_task": "/root/correctness_design",
+  "task": "/root/correctness_design/joint_refutation",
+  "role": "TASK (Type 2)",
+  "mechanism": "delegated-harness-native child; no further delegation",
+  "configured_allocation": {
+    "model": "gpt-6-astra",
+    "reasoning_effort": "xhigh",
+    "fork_turns": "none",
+    "source": "parent launch attribution confirmed by parent message; no different allocation inferred"
+  },
+  "brief": "Independently refute M07 midpoint connector kinematics, virtual work, finite/small rotation limits, frame/reversal/scaling, scalar-rate meaning, pressure wall/cap/face bookkeeping and tied/untied two-stub analytical controls. Sole report plus own origins; no product/tests/build/native/browserUI/endpoint/Git writes; no delegation.",
+  "host_boundary": "workspace-write sandbox; scoped report and own origins plus parent-authorized preservation of prior arithmetic command/output/metadata; no production effect",
+  "local_origins": [
+    {
+      "absolute_path": "/Users/ryan/.codex/worktrees/6614/chirality/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "role": "instruction",
+      "read": true
+    },
+    {
+      "absolute_path": "/Users/ryan/.codex/worktrees/6614/chirality/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "role": "instruction",
+      "read": true
+    },
+    {
+      "absolute_path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "role": "instruction",
+      "read": true
+    },
+    {
+      "absolute_path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "role": "instruction",
+      "read": true
+    },
+    {
+      "absolute_path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_ACTIVATION.md",
+      "sha256": "dd98701526a31248f36a5e6e03490975af682f748dd349aa52faa1bfafc912a0",
+      "role": "instruction",
+      "read": true
+    },
+    {
+      "absolute_path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/contracts/CONNECTOR_CONTRACT_V1.md",
+      "sha256": "2f7939eb1f11eeb42e537d2edb7dd4b98e71fb232eeaebfd2db77152212fc4c4",
+      "role": "candidate_reference",
+      "read": true
+    },
+    {
+      "absolute_path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/verification/ANALYTICAL_ORACLES_V1.json",
+      "sha256": "6549d544accae7131127e8a87c748ea514c21b4f4c0381b5cec7c135d9c0d76c",
+      "role": "candidate_reference",
+      "read": true
+    },
+    {
+      "absolute_path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/JOINT_REFERENCE/CONTRACT.md",
+      "sha256": "4f3fd302229f7889a9469056e516a772596e3f129fa653bc1bd4d9fba596c39d",
+      "role": "candidate_reference",
+      "read": true,
+      "previously_recorded_sha256": "7a873ffde97182434b0afb85193072342a07f6cc83cf22a5860c95fc7f16ecf3",
+      "final_bounded_backcheck": true,
+      "intermediate_interface_node_sha256": "642165d15982ff1e7c464bae5d978f3b9ae321b9b6e30e1e96289bdaf6bcefa8"
+    }
+  ],
+  "web_origins": [
+    {
+      "url": "https://docs.software.vt.edu/abaqusv2025/English/SIMACAEELMRefMap/simaelm-c-connectiontypeuse.htm",
+      "access_date": "2026-09-24",
+      "primary_source": true,
+      "preservation": "tool-return excerpts retained in task conversation; original remote bytes not downloaded or hashed"
+    },
+    {
+      "url": "https://docs.software.vt.edu/abaqusv2025/English/SIMACAEELMRefMap/simaelm-c-connectiontypedesc-rotation.htm",
+      "access_date": "2026-09-24",
+      "primary_source": true,
+      "preservation": "tool-return excerpts retained in task conversation; original remote bytes not downloaded or hashed"
+    },
+    {
+      "url": "https://docs.software.vt.edu/abaqusv2025/English/SIMACAEELMRefMap/simaelm-c-connelastbehav.htm",
+      "access_date": "2026-09-24",
+      "primary_source": true,
+      "preservation": "tool-return excerpts retained in task conversation; original remote bytes not downloaded or hashed"
+    },
+    {
+      "url": "https://docs.software.vt.edu/abaqusv2025/English/SIMACAEELMRefMap/simaelm-c-connectiontypedesc-cartesian.htm",
+      "access_date": "2026-09-24",
+      "primary_source": true,
+      "preservation": "tool-return excerpts retained in task conversation; original remote bytes not downloaded or hashed"
+    },
+    {
+      "url": "https://docs.software.vt.edu/abaqusv2025/English/SIMACAEPRCRefMap/simaprc-c-loaddistributed.htm",
+      "access_date": "2026-09-24",
+      "primary_source": true,
+      "preservation": "tool-return excerpts retained in task conversation; original remote bytes not downloaded or hashed"
+    },
+    {
+      "url": "https://docs.software.vt.edu/abaqusv2025/English/SIMACAEELMRefMap/simaelm-r-beamlibrary.htm",
+      "access_date": "2026-09-24",
+      "primary_source": true,
+      "preservation": "tool-return excerpts retained in task conversation; original remote bytes not downloaded or hashed"
+    },
+    {
+      "url": "https://flexonics.com/application-engineering/",
+      "access_date": "2026-09-24",
+      "primary_source": true,
+      "preservation": "tool-return excerpts retained in task conversation; original remote bytes not downloaded or hashed"
+    },
+    {
+      "url": "https://link.springer.com/article/10.1007/s11044-024-09998-w",
+      "access_date": "2026-09-24",
+      "primary_source": true,
+      "preservation": "tool-return excerpts retained in task conversation; original remote bytes not downloaded or hashed"
+    },
+    {
+      "url": "https://media.witzenmann.com/mediapool/documents/brochures/expansion-joint-manual.pdf",
+      "access_date": "2026-09-24",
+      "primary_source": true,
+      "preservation": "tool-return excerpts retained in task conversation; original remote bytes not downloaded or hashed"
+    }
+  ],
+  "web_limits": "Witzenmann PDF text used for prose. Screenshot requests returned references but no rendered image inspected in this harness. No equation from OCR/extracted domain corpus used as authority. No assertion that 2025 vendor documentation is latest release.",
+  "analytical_execution": {
+    "runtime": "Python 3 standard library fractions/math; executed inline, no production import",
+    "checks": [
+      "B columns from kinematic basis vectors",
+      "six exact rational rigid modes with nonzero offsets",
+      "exact arbitrary-origin force and moment equilibrium",
+      "exact virtual work 1567/170",
+      "independent floating evaluation of exact pressure cases",
+      "finite-rotation counterexample"
+    ],
+    "scope": "analytical arithmetic only; not product tests/build or external solver",
+    "raw_subprocess_exit_code": null,
+    "inferred_normal_exit_code": 0,
+    "exit_evidence_correction": "Original wrapper emitted r.output only; raw subprocess exit metadata was not preserved. Prior unqualified exit_code=0 is superseded. All assertions completed and final output returned.",
+    "preserved_execution_record": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/JOINT_REFERENCE/_run_records/ARITHMETIC_EXECUTION.json",
+    "arithmetic_rerun_during_preservation": false
+  },
+  "parent_contract_backcheck": {
+    "result": "PASS",
+    "reviewed_sha256": "4f3fd302229f7889a9469056e516a772596e3f129fa653bc1bd4d9fba596c39d",
+    "scope": "Previously reviewed \u00a7\u00a72\u20136; repaired common-bore cancellation wording; \u00a75 typed additions including unique pressure owner and unpressurized-mode rejection; \u00a72 distinct-end-node clarification; \u00a74 axial-face work versus complete deforming-shell work qualification. All PASS; equations/cases unchanged.",
+    "policy_boundaries": "Explicit pressure-domain graph extension required; no repurposing old pipe-only region; no shared version or numerical policy amendment.",
+    "change_extent_check": {
+      "method": "Revert axial-work qualification paragraph; then remove typed-interface subsection and revert distinct-node sentence.",
+      "intermediate_sha256": "642165d15982ff1e7c464bae5d978f3b9ae321b9b6e30e1e96289bdaf6bcefa8",
+      "original_restored_sha256": "7a873ffde97182434b0afb85193072342a07f6cc83cf22a5860c95fc7f16ecf3",
+      "matches_prior_recorded_identities": true
+    },
+    "outstanding_findings": []
+  },
+  "git_head_read_only": "d46139f0e240837637e1fe30649048681e7b2ae3",
+  "outputs": [
+    {
+      "absolute_path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/JOINT_REFERENCE/INDEPENDENT_REFUTATION.md",
+      "sha256": "0f8cc31620672a629661cce2affe562e792759f84b7fd5d38c09790ca2d5723f"
+    },
+    {
+      "absolute_path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/JOINT_REFERENCE/_run_records/ARITHMETIC_COMMAND.sh",
+      "sha256": "c552ba9dc26b01d8d91d2e8b6aa510b29fed81f006e9094460577dd6dbf8ca97"
+    },
+    {
+      "absolute_path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/JOINT_REFERENCE/_run_records/ARITHMETIC_STDOUT.txt",
+      "sha256": "9c4918eef50ba0af6b24119cc5ea2c3d338e8fedf509f5eed287b65d82fff89b"
+    },
+    {
+      "absolute_path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/JOINT_REFERENCE/_run_records/ARITHMETIC_EXECUTION.json",
+      "sha256": "2fc2a8650424d9fb68e507e9214485086b7b17feb0c684b3c561e7fb8755c37a"
+    },
+    {
+      "absolute_path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/JOINT_REFERENCE/_run_records/JOINT_REFUTATION_ORIGINS.json",
+      "sha256": "self-referential manifest; omitted"
+    }
+  ],
+  "prohibited_effects_performed": false,
+  "not_executed": [
+    "production source changes",
+    "product tests",
+    "build",
+    "native or browser UI",
+    "endpoint interaction",
+    "Git mutations",
+    "delegation",
+    "manufacturer or professional qualification"
+  ],
+  "method": "Instructions and historical candidate read first; independent symbolic mechanics/freebody derivation developed while consulting current primary references. Rational arithmetic then checked the independently derived identities. Parent CONTRACT \u00a7\u00a72\u20136 read after the independent report was drafted. No production connector source inspected.",
+  "updated_utc": "2026-09-24T16:02:00.570108+00:00"
+}

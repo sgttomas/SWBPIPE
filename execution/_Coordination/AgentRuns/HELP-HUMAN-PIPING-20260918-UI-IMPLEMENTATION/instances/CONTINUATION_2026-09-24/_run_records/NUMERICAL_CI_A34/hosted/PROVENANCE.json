@@ -1,0 +1,28 @@
+{
+  "actor": "/root",
+  "role": "HELP_HUMAN",
+  "mechanism": "direct supported gh API and deterministic verification",
+  "instruction_basis": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_HELP_HUMAN.md",
+      "sha256": "0c2fe7a3097ad26c93c0267e4da6aaf90c9264489df8dc368fad657bcac69183"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    }
+  ],
+  "verifier_origins": [
+    "../886/verify.py",
+    "../887/verify-numerical.py"
+  ],
+  "scope": "Exact a34 CI evidence only; no test/build/native/merge/acceptance claim"
+}

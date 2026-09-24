@@ -1,0 +1,122 @@
+{
+  "base": "5112636cb8c8c25bab352cda6dfbdbbf1aa7d086",
+  "scope": "Shear and contribution-precision reference packages, residual successor adoption and independent row backcheck, current derivative graph",
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/CONTRACT.md",
+      "sha256": "3e239d5535a1b1d864a8220e3716c42a9bace07bd9bd6376a8ff2d8f40a6ac3a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/INDEPENDENT_REFUTATION.md",
+      "sha256": "62c969a407c74cae1db7fea8382331c89c94da42e996679234e2d1605b59d0b0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/RETURN.md",
+      "sha256": "357a4ea581b0a4836d4359ea646d546db3000f3e739fb32cd7cc43f6418dbf40"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/SOURCE_QUALIFICATION.md",
+      "sha256": "1234db1335109c2233e92a92c171d18839a319174fd4ecbe579795db982fd622"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/_run_records/DELIVERY.json",
+      "sha256": "8c87c2fe2e1931ce04fc748002b66b57a927faf0da9be3c922676dab68776897"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/_run_records/origins.json",
+      "sha256": "d18952899cc868bca3588b7b13df1d1835d1f3f79f894797c519d28a588a10ca"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/_run_records/precision_refutation/DELIVERY_HASHES.json",
+      "sha256": "8a5cd3af5ca736739a23e4448acb54bd0be7003c8b4a12e9ebd45a382945af7f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/_run_records/precision_refutation/FINAL_BACKCHECK.json",
+      "sha256": "3d4b6a3ab39653ee3432208168af923ae85c01252cb77e7564009f6f98010170"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/_run_records/precision_refutation/ORIGINS_AND_EXECUTION.md",
+      "sha256": "782c00035f2e61abd8f879ea0aca5fab6124de513f303974310243041a10b6de"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/_run_records/precision_refutation/SOURCE_MANIFEST.json",
+      "sha256": "21f8b5babf06cb83cf3116cf5fd5166d0cee440d472c25b2728c675e25539f57"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/_run_records/precision_refutation/probe.py",
+      "sha256": "74f4a59f07de4f4a1409bff939084d4bcce912e982df66c76e953af1724e8171"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/_run_records/precision_refutation/probe.stdout.json",
+      "sha256": "a117e683333c13446317d2fb3cc1086f298104fc5d268d2b3a35ac9494277e89"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/M03_RESIDUAL_SUCCESSOR_ADOPTION.md",
+      "sha256": "082d52b3064d10f892e877afba7e618ee6c81afea055abe853eba4289557ac2b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/ROW_SUCCESSOR_BACKCHECK.md",
+      "sha256": "9c54463a1e5287aafe7e2b0a0063479634c8c3af933d6aae7048c81f39009d9b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/_run_records/ROW_SUCCESSOR_BASIS.json",
+      "sha256": "7672287db076a223d90d4c13738c41b94cd7495c220f7f2a0fb0d6a679ed08e9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/_run_records/ROW_SUCCESSOR_PROOF.json",
+      "sha256": "c83f1433dcbedfe862c2bd45419714a3cc0a20659bc522f27863bd4195ab0a8e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/_run_records/row_successor_backcheck.py",
+      "sha256": "47d1de8ece2b4bf7fd422e2cc70f60bbf1a17a43d39fddf6c1b0e7e9781f646e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE/CONTRACT.md",
+      "sha256": "40cd61e22f129a8fc2e198d4bdfcf6cfec83670e45f318b1d901158af88964c1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE/INDEPENDENT_REFUTATION.md",
+      "sha256": "0e4e75d06f815a1285db754c20f81e1e2ddca0c20c0eb03d8806c2c861ea5cfa"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE/RETURN.md",
+      "sha256": "e93a93f3cdb852ffccb9213b5cf53b8d0b0cf58c367be5765056a88c0848b5c1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE/SOURCE_QUALIFICATION.md",
+      "sha256": "31a933d06288b90c8803c39eef65c1761e37d5378472268f1fe4d86642caed6d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE/_run_records/DELIVERY.json",
+      "sha256": "f4261bfc82fbcb6c381d14d03d2f1cff979ce3bce19933166efaed15ada808a4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE/_run_records/origins.json",
+      "sha256": "78b94616bbde57207f73eb3b5cf2c6929d7d8e912271563604d0f8e5e493835f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE/_run_records/shear_refutation/FINAL_BACKCHECK.md",
+      "sha256": "4e2c6137155a1dfd5de4c521772eb9f84aefb45fbeb0b4812a713a99cc9b1a8a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE/_run_records/shear_refutation/ORIGINS_AND_EXECUTION.md",
+      "sha256": "d44f11bf3c14531086aa1b9bf6f3a31e3db7b352c10c3e84936a788e5c2eda1b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE/_run_records/shear_refutation/commands_and_access.txt",
+      "sha256": "ce39345da89b6c28594bc5f9f5fc1973dbca34b090aa0f9bbdbc4f24a8a9e5fa"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE/_run_records/shear_refutation/reference_arithmetic.py",
+      "sha256": "47261fc5096b9eda70ce1554303b65773d258aa8c7a6db8b11f6f591e6bad9ef"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE/_run_records/shear_refutation/reference_arithmetic.stdout.txt",
+      "sha256": "84da10333d6cb190be7e4df24b25e5add6e4655559f1b75cd5fdb12b8086ddd1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md",
+      "sha256": "4e794567a6249507c11807aadc06476b09fe6bbd16aa321551dd55cfa55c594b"
+    }
+  ]
+}

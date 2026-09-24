@@ -1,0 +1,17 @@
+[WebServer] (node:8017) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] error when starting dev server:
+[WebServer] Error: listen EPERM: operation not permitted 127.0.0.1:5174
+[WebServer]     at Server.setupListenHandle [as _listen2] (node:net:1987:21)
+[WebServer]     at listenInCluster (node:net:2066:12)
+[WebServer]     at node:net:2275:7
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+[WebServer] npm error Lifecycle script `dev` failed with error:
+[WebServer] npm error code 1
+[WebServer] npm error path /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop
+[WebServer] npm error workspace @openpipestress/desktop@0.1.0
+[WebServer] npm error location /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop
+[WebServer] npm error command failed
+[WebServer] npm error command sh -c vite --host 127.0.0.1 --port 5174
+Error: Process from config.webServer was not able to start. Exit code: 1
+

@@ -1,0 +1,42 @@
+{
+  "basis": "f7e8b467cb2db244f11fe49cede636140031b387",
+  "discovered_crates": 38,
+  "missing_locks": [
+    "projects/chirality-piping/core/loads/load_case_algebra/Cargo.lock",
+    "projects/chirality-piping/core/loads/primitive_loads/Cargo.lock",
+    "projects/chirality-piping/core/reporting/audit_manifest/Cargo.lock",
+    "projects/chirality-piping/core/reporting/report_generator/Cargo.lock",
+    "projects/chirality-piping/core/reporting/result_export/Cargo.lock",
+    "projects/chirality-piping/core/rules/completeness_checker/Cargo.lock",
+    "projects/chirality-piping/core/rules/rule_pack_lifecycle/Cargo.lock",
+    "projects/chirality-piping/core/runner/headless/Cargo.lock",
+    "projects/chirality-piping/core/solver/curved_bend/Cargo.lock",
+    "projects/chirality-piping/core/solver/diagnostics/Cargo.lock",
+    "projects/chirality-piping/core/solver/frame_kernel/Cargo.lock",
+    "projects/chirality-piping/core/solver/linear_supports/Cargo.lock",
+    "projects/chirality-piping/core/solver/nonlinear_supports/Cargo.lock",
+    "projects/chirality-piping/core/solver/performance_harness/Cargo.lock",
+    "projects/chirality-piping/core/solver/sparse_direct/Cargo.lock",
+    "projects/chirality-piping/core/solver/straight_pipe/Cargo.lock"
+  ],
+  "rationale": "38 crate-local readiness test graphs; 22 already commit locks, 16 omitted. No root/Piping Cargo.lock ignore rule. New locks freeze test dependency resolution without workspace restructure or manifest version changes.",
+  "ignore_disposition": "All sixteen omitted locks match crate-local .gitignore Cargo.lock rules, although root/Piping .gitignore has no such rule. Authorized reproducible CI test locks require force-adding exactly these sixteen paths; no ignore-file amendment.",
+  "ignore_matches": [
+    "projects/chirality-piping/core/loads/load_case_algebra/.gitignore:2:Cargo.lock\tprojects/chirality-piping/core/loads/load_case_algebra/Cargo.lock",
+    "projects/chirality-piping/core/loads/primitive_loads/.gitignore:2:Cargo.lock\tprojects/chirality-piping/core/loads/primitive_loads/Cargo.lock",
+    "projects/chirality-piping/core/reporting/audit_manifest/.gitignore:2:Cargo.lock\tprojects/chirality-piping/core/reporting/audit_manifest/Cargo.lock",
+    "projects/chirality-piping/core/reporting/report_generator/.gitignore:2:Cargo.lock\tprojects/chirality-piping/core/reporting/report_generator/Cargo.lock",
+    "projects/chirality-piping/core/reporting/result_export/.gitignore:2:Cargo.lock\tprojects/chirality-piping/core/reporting/result_export/Cargo.lock",
+    "projects/chirality-piping/core/rules/completeness_checker/.gitignore:2:Cargo.lock\tprojects/chirality-piping/core/rules/completeness_checker/Cargo.lock",
+    "projects/chirality-piping/core/rules/rule_pack_lifecycle/.gitignore:2:Cargo.lock\tprojects/chirality-piping/core/rules/rule_pack_lifecycle/Cargo.lock",
+    "projects/chirality-piping/core/runner/headless/.gitignore:2:Cargo.lock\tprojects/chirality-piping/core/runner/headless/Cargo.lock",
+    "projects/chirality-piping/core/solver/curved_bend/.gitignore:2:/Cargo.lock\tprojects/chirality-piping/core/solver/curved_bend/Cargo.lock",
+    "projects/chirality-piping/core/solver/diagnostics/.gitignore:2:/Cargo.lock\tprojects/chirality-piping/core/solver/diagnostics/Cargo.lock",
+    "projects/chirality-piping/core/solver/frame_kernel/.gitignore:2:/Cargo.lock\tprojects/chirality-piping/core/solver/frame_kernel/Cargo.lock",
+    "projects/chirality-piping/core/solver/linear_supports/.gitignore:2:/Cargo.lock\tprojects/chirality-piping/core/solver/linear_supports/Cargo.lock",
+    "projects/chirality-piping/core/solver/nonlinear_supports/.gitignore:2:/Cargo.lock\tprojects/chirality-piping/core/solver/nonlinear_supports/Cargo.lock",
+    "projects/chirality-piping/core/solver/performance_harness/.gitignore:2:/Cargo.lock\tprojects/chirality-piping/core/solver/performance_harness/Cargo.lock",
+    "projects/chirality-piping/core/solver/sparse_direct/.gitignore:2:/Cargo.lock\tprojects/chirality-piping/core/solver/sparse_direct/Cargo.lock",
+    "projects/chirality-piping/core/solver/straight_pipe/.gitignore:2:/Cargo.lock\tprojects/chirality-piping/core/solver/straight_pipe/Cargo.lock"
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "kind": "contribution-preserving arithmetic design delivery, not product verification",
+  "date": "2026-09-24",
+  "manager": "/root/correctness_design",
+  "parent": "/root",
+  "reviewer": "/root/correctness_design/precision_refutation",
+  "disposition": "bounded analytical design/backcheck has no unresolved blocking findings; original1e-9 intended-reference criterion unchanged",
+  "limits": "No production/Cargo/build/product tests/native/UI/endpoints/Git/dependency installation. Independent standard-library mathematical prototypes and exact oracles executed by reviewer with retained raw evidence. Backend/platform/product-family/consumer qualification still required. No public versions or protected criteria changed.",
+  "artifacts": [
+    {
+      "path": "CONTRACT.md",
+      "sha256": "3e239d5535a1b1d864a8220e3716c42a9bace07bd9bd6376a8ff2d8f40a6ac3a"
+    },
+    {
+      "path": "INDEPENDENT_REFUTATION.md",
+      "sha256": "62c969a407c74cae1db7fea8382331c89c94da42e996679234e2d1605b59d0b0"
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "357a4ea581b0a4836d4359ea646d546db3000f3e739fb32cd7cc43f6418dbf40"
+    },
+    {
+      "path": "SOURCE_QUALIFICATION.md",
+      "sha256": "1234db1335109c2233e92a92c171d18839a319174fd4ecbe579795db982fd622"
+    },
+    {
+      "path": "_run_records/origins.json",
+      "sha256": "d18952899cc868bca3588b7b13df1d1835d1f3f79f894797c519d28a588a10ca"
+    },
+    {
+      "path": "_run_records/precision_refutation/DELIVERY_HASHES.json",
+      "sha256": "8a5cd3af5ca736739a23e4448acb54bd0be7003c8b4a12e9ebd45a382945af7f"
+    },
+    {
+      "path": "_run_records/precision_refutation/FINAL_BACKCHECK.json",
+      "sha256": "3d4b6a3ab39653ee3432208168af923ae85c01252cb77e7564009f6f98010170"
+    },
+    {
+      "path": "_run_records/precision_refutation/ORIGINS_AND_EXECUTION.md",
+      "sha256": "782c00035f2e61abd8f879ea0aca5fab6124de513f303974310243041a10b6de"
+    },
+    {
+      "path": "_run_records/precision_refutation/SOURCE_MANIFEST.json",
+      "sha256": "21f8b5babf06cb83cf3116cf5fd5166d0cee440d472c25b2728c675e25539f57"
+    },
+    {
+      "path": "_run_records/precision_refutation/probe.py",
+      "sha256": "74f4a59f07de4f4a1409bff939084d4bcce912e982df66c76e953af1724e8171"
+    },
+    {
+      "path": "_run_records/precision_refutation/probe.stdout.json",
+      "sha256": "a117e683333c13446317d2fb3cc1086f298104fc5d268d2b3a35ac9494277e89"
+    }
+  ]
+}

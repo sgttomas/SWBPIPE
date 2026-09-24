@@ -1,0 +1,806 @@
+{
+  "schema": "chirality-custody-backcheck/v1",
+  "created_at": "2026-09-24T18:40:37.623895+00:00",
+  "reviewer": "/root/native_pan_manager/pan_review",
+  "parent": "/root/native_pan_manager",
+  "role": "TASK Type 2",
+  "allocation": "gpt-6-astra/xhigh",
+  "mechanism": "delegated-harness-native",
+  "same_original_reviewer": true,
+  "descendants": [],
+  "scope": "Custody relocation, portable pointers, future replay routing and original source/review integrity only. No product review repetition or execution.",
+  "result": "PASS",
+  "findings": [],
+  "basis": "Parent custody-only follow-up; original role/project/skill instructions retained from preceding review and their original manifest hashes reverified among the 49 referents.",
+  "repo_root": "/Users/ryan/.codex/worktrees/6614/chirality",
+  "inputs": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/CUSTODY_MAP.json",
+      "sha256": "72e2a1fa416cfbdd5cd568a03d6f95beaeeb58df91682558247c9395eafad54f",
+      "bytes": 12884
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/REVIEW/RETURN.md",
+      "sha256": "45fae79f33bda2679e8a9056ba372d2e3fd6a8782642e5d34ca5f534800791ec",
+      "bytes": 730
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/README.md",
+      "sha256": "685f845ec1d4554ba2a83cc8f35f4805de836886d1a7f1ab41fe1a6c83a8504c",
+      "bytes": 1097
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/run_browser.py",
+      "sha256": "6cd208a400744acd4622fce5dbfef6e1640ea955a5810aabd43adafd87b1e519",
+      "bytes": 2251
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/RETURN.md",
+      "sha256": "7b8197f16ccd21c8e6d34c76d9f4084c2d1aee696caebea98b474b5e8cb96e33",
+      "bytes": 7193
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/FREEZE.json",
+      "sha256": "9fac943d13bb512b2a98dfb8b97fa191ccd6272fc27c8dd58b6a32e18965512f",
+      "bytes": 4715
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/REVIEW/RETURN.md",
+      "sha256": "2e7c239f2eefb53e812c511d560d60a62d856b6301f47ac82c79972c7ff6ecc2",
+      "bytes": 7655
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/REVIEW/MANIFEST.json",
+      "sha256": "d4f40ad7b58d939bab19bb4226c7fb1bf68456ba6d080cbd2d960058ab65df64",
+      "bytes": 24893
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/CUSTODY/MANAGER_MANIFEST.before.json",
+      "sha256": "24d7072365f1ce7c402f871a8f4aa73d2b54b39830e017886be22559660dd007",
+      "bytes": 14101
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/CUSTODY/path-anchors-after.json",
+      "sha256": "0115f26a109c91c6e283f4913940c4aa26d1ca7c90f201846580f7cf6cdd351a",
+      "bytes": 7386
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/run_browser.py",
+      "sha256": "baaa5950880731177badad2db609ac725321601b6f6c05070f17281108f29ba7",
+      "bytes": 1973
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/playwright.config.ts",
+      "sha256": "d861a8567ce54c803e2bef914a5b9965906f90e0eda58ab4d907160d10eed31a",
+      "bytes": 3703
+    }
+  ],
+  "moves_verified": [
+    {
+      "old_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chrome153-artifacts/.last-run.json",
+      "new_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/chrome153-artifacts/.last-run.json",
+      "bytes": 45,
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "verified_current": true,
+      "matches_prior_manager_entry": true
+    },
+    {
+      "old_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chrome153-command.json",
+      "new_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/chrome153-command.json",
+      "bytes": 1302,
+      "sha256": "ea3622a0bd2a405e34d7d497df6b445a090df6e2f6a10a581e3e27b2852ebb1c",
+      "verified_current": true,
+      "matches_prior_manager_entry": true
+    },
+    {
+      "old_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chrome153-ports-before.txt",
+      "new_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/chrome153-ports-before.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "verified_current": true,
+      "matches_prior_manager_entry": true
+    },
+    {
+      "old_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chrome153-result.json",
+      "new_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/chrome153-result.json",
+      "bytes": 17,
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17",
+      "verified_current": true,
+      "matches_prior_manager_entry": true
+    },
+    {
+      "old_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chrome153-sandbox-denied-command.json",
+      "new_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/chrome153-sandbox-denied-command.json",
+      "bytes": 671,
+      "sha256": "52dd8099e0c8dcc6459e7fb58a48d85314987b24819bd31118927ed76853df08",
+      "verified_current": true,
+      "matches_prior_manager_entry": true
+    },
+    {
+      "old_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chrome153-sandbox-denied-result.json",
+      "new_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/chrome153-sandbox-denied-result.json",
+      "bytes": 17,
+      "sha256": "5cc319f54b05a38799195a491c303aa686eab7caccfdbbf1e8b8c07405cb7392",
+      "verified_current": true,
+      "matches_prior_manager_entry": true
+    },
+    {
+      "old_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chrome153-sandbox-denied.log",
+      "new_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/chrome153-sandbox-denied.log",
+      "bytes": 1124,
+      "sha256": "ccb194f1adbdad3103081f92ffcefd23ecbad16ae7abe63265410d5bccc0a3ed",
+      "verified_current": true,
+      "matches_prior_manager_entry": true
+    },
+    {
+      "old_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chrome153-version.txt",
+      "new_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/chrome153-version.txt",
+      "bytes": 29,
+      "sha256": "84d0d69d53c4b90ed6877e63681032ba28dd473911e5aff082b406a29945b155",
+      "verified_current": true,
+      "matches_prior_manager_entry": true
+    },
+    {
+      "old_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chrome153.log",
+      "new_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/chrome153.log",
+      "bytes": 1824,
+      "sha256": "88aac4bac72a6aeb5bd7e2449134cb8286479668144fa77abd786c35d92af26a",
+      "verified_current": true,
+      "matches_prior_manager_entry": true
+    },
+    {
+      "old_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chromium148-artifacts/.last-run.json",
+      "new_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/chromium148-artifacts/.last-run.json",
+      "bytes": 45,
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "verified_current": true,
+      "matches_prior_manager_entry": true
+    },
+    {
+      "old_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chromium148-command.json",
+      "new_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/chromium148-command.json",
+      "bytes": 1386,
+      "sha256": "76a2920a6935a1dbedf96244904e730c73c191dd193a2435ca582cf3896ca360",
+      "verified_current": true,
+      "matches_prior_manager_entry": true
+    },
+    {
+      "old_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chromium148-ports-before.txt",
+      "new_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/chromium148-ports-before.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "verified_current": true,
+      "matches_prior_manager_entry": true
+    },
+    {
+      "old_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chromium148-result.json",
+      "new_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/chromium148-result.json",
+      "bytes": 17,
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17",
+      "verified_current": true,
+      "matches_prior_manager_entry": true
+    },
+    {
+      "old_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chromium148-version.txt",
+      "new_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/chromium148-version.txt",
+      "bytes": 41,
+      "sha256": "19d17dcf23d727daf5c49aab7bd1778a8ef2da4876e33251fc817b4c5580478a",
+      "verified_current": true,
+      "matches_prior_manager_entry": true
+    },
+    {
+      "old_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chromium148.log",
+      "new_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/chromium148.log",
+      "bytes": 1824,
+      "sha256": "27e2e05206eb8a714e5ea754974d79e166a16d9e950ce9cd97551cfe34c2502f",
+      "verified_current": true,
+      "matches_prior_manager_entry": true
+    },
+    {
+      "old_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/ports-after.txt",
+      "new_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/ports-after.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "verified_current": true,
+      "matches_prior_manager_entry": true
+    },
+    {
+      "old_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/ports-before.txt",
+      "new_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/ports-before.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "verified_current": true,
+      "matches_prior_manager_entry": true
+    },
+    {
+      "old_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/post-source-check.json",
+      "new_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/post-source-check.json",
+      "bytes": 48,
+      "sha256": "1defa5cd31ccc6e35f73090d8462c42c221af7bc9c0bc7bdef91e93a28cdb1ea",
+      "verified_current": true,
+      "matches_prior_manager_entry": true
+    },
+    {
+      "old_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/run_browser.py",
+      "new_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/run_browser.py",
+      "bytes": 1973,
+      "sha256": "baaa5950880731177badad2db609ac725321601b6f6c05070f17281108f29ba7",
+      "verified_current": true,
+      "matches_prior_manager_entry": true
+    },
+    {
+      "old_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/REVIEW/MANIFEST.json",
+      "new_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/REVIEW/MANIFEST.json",
+      "bytes": 24893,
+      "sha256": "d4f40ad7b58d939bab19bb4226c7fb1bf68456ba6d080cbd2d960058ab65df64",
+      "verified_current": true,
+      "matches_prior_manager_entry": true
+    },
+    {
+      "old_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/REVIEW/RETURN.md",
+      "new_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/REVIEW/RETURN.md",
+      "bytes": 7655,
+      "sha256": "2e7c239f2eefb53e812c511d560d60a62d856b6301f47ac82c79972c7ff6ecc2",
+      "verified_current": true,
+      "matches_prior_manager_entry": true
+    },
+    {
+      "old_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/MANAGER_MANIFEST.json",
+      "new_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/CUSTODY/MANAGER_MANIFEST.before.json",
+      "bytes": 14101,
+      "sha256": "24d7072365f1ce7c402f871a8f4aa73d2b54b39830e017886be22559660dd007",
+      "verified_current": true,
+      "matches_prior_manager_entry": false
+    }
+  ],
+  "original_review_referents_verified": [
+    {
+      "historical_path": "AGENTS.md",
+      "resolved_path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "matches": true
+    },
+    {
+      "historical_path": "agents/AGENT_TASK.md",
+      "resolved_path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/AGENTS.md",
+      "resolved_path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "resolved_path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "matches": true
+    },
+    {
+      "historical_path": ".agents/skills/software-code-review/SKILL.md",
+      "resolved_path": ".agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/DESIGN_MANAGER/NATIVE_COMPACT_DESIGN.md",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/DESIGN_MANAGER/NATIVE_COMPACT_DESIGN.md",
+      "sha256": "aa3d9be6bfa5a3024f80bc5dfc0c5cda479cbbe4759f905e8de774c9a6db7189",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NATIVE_FIT_REPAIR_DISPOSITION.md",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NATIVE_FIT_REPAIR_DISPOSITION.md",
+      "sha256": "0c54ec97086c95c8b1af8fbbf58e7036813d89d7a67f403945b81108c356c323",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/software-workflow.json",
+      "resolved_path": "projects/chirality-piping/software-workflow.json",
+      "sha256": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7",
+      "matches": true
+    },
+    {
+      "historical_path": "tools/software_workflow/validate_change_scope.py",
+      "resolved_path": "tools/software_workflow/validate_change_scope.py",
+      "sha256": "6275277dcb214f78dfad6c159333decda95f9aa3e086d12e39c7f2f73a70cb0d",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx",
+      "resolved_path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx",
+      "sha256": "9a6bbecbb166ea989f239d231ec7a77266eca41a2d3d502d6146c4c07d56c370",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/OverflowRail.tsx",
+      "resolved_path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/OverflowRail.tsx",
+      "sha256": "4406f87b20fb4bac4eb5b3c3b7f707d8fcf5fc2e6789f400e7150c15aae3adfb",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/ModelTree.table.test.tsx",
+      "resolved_path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/ModelTree.table.test.tsx",
+      "sha256": "1942a46f62dec06e38d0804e1cd75a32ccea4e19946d0c675d29c082a9bf99e8",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+      "resolved_path": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+      "sha256": "e3c0e0363dfe81892de475e3b056c02018f1b7d20bbc4e3c203f68d50633b522",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.test.tsx",
+      "resolved_path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.test.tsx",
+      "sha256": "81a81dc4e62494d15d6c4c98416c7df99222ad672bae5fe6b94328749978770a",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/OverflowRail.test.tsx",
+      "resolved_path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/OverflowRail.test.tsx",
+      "sha256": "07dc4b3b57ad2ac8e6c811778cce1d48941765a577de360678eaeab91fe51e45",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+      "resolved_path": "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+      "sha256": "14aec754b7c41a68075d7e2be02ee08d3c59ef7da58d78e2aec438667c977e45",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/apps/desktop/src/test/setup.ts",
+      "resolved_path": "projects/chirality-piping/apps/desktop/src/test/setup.ts",
+      "sha256": "65c02a3ba648174d681c4389b61707c58e8ee02cc7228b9446074a2ac1772e38",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BASIS.json",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BASIS.json",
+      "sha256": "a7d0d885fbc0d3e00a59a3ac3377bc24225c2b0a243d0195ef8315c54af49fca",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/DIAGNOSIS.md",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/DIAGNOSIS.md",
+      "sha256": "b8c1fd25102e9820715eeced2ce331d5b2144ce0741d0c7cb7051d5803c26bf3",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/RETURN.md",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/RETURN.md",
+      "sha256": "2277ac2b9057a62f3d94af38f5d9011f26985bbc464dc034ef599f7a640c7dab",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/FREEZE.json",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/FREEZE.json",
+      "sha256": "9fac943d13bb512b2a98dfb8b97fa191ccd6272fc27c8dd58b6a32e18965512f",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/candidate.diff",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/candidate.diff",
+      "sha256": "94ee4d02cc05bcba668f665575310e86af7e912addfa61257adaea81d33f3a9b",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/EVIDENCE_HASHES.json",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/EVIDENCE_HASHES.json",
+      "sha256": "081922cda797dfe97fcfa876418a2677160dd1470f1b7f84a767765f9976a979",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/fail-first.log",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/fail-first.log",
+      "sha256": "292f0a42961cb676a17c8328f806244450cef054f9aa9ea84a958ebdfd7f6410",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/verification.log",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/verification.log",
+      "sha256": "27f5160e7c26a3d4cfc76283ceb06db7e11ab941c7e565b67148d629d424b552",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/typecheck.log",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/typecheck-failure.log",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/typecheck-failure.log",
+      "sha256": "4fa811d8401c9b8603ed63df303371c319a6ba5e9ac96ec9b01742d75f3884bc",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/verification-final.log",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/verification-final.log",
+      "sha256": "1a3d9cd48ec4b6d9abe85917d10822ec06dc44827a8a1059910f8672cb9e45a7",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/fixture-failure.log",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/fixture-failure.log",
+      "sha256": "e4f9933bf2f8541af9c2a50cc778766ea2ec62377690f11f413bd597ce5a6bad",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/fixture-failure-2.log",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/fixture-failure-2.log",
+      "sha256": "c374f169d52f338eeb90bfcd979ee37d7af278533f8b611bcd6e424995a398fa",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/fixture-probe.log",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/fixture-probe.log",
+      "sha256": "7b0c00ef7624f5d4f95f98a95d3875d064824193e3bfdd8ec1323f4840136317",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/fixture-probe-2.log",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/fixture-probe-2.log",
+      "sha256": "dc6de9c92c60c7620481f725026ea06d908e6b56b1d77fca07d2e99ea9954678",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/fixture-probe-3.log",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/fixture-probe-3.log",
+      "sha256": "e19ae69d85b030db8efeb550b768276430a0d3c6b130c8f4bba242d71aba2bf6",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/fixture-probe-4.log",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/fixture-probe-4.log",
+      "sha256": "154c1d2d412888bfb9ce423bb0182d4a25dbad635e723b0d7a77a4827c68e918",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE_1C/58-material-draft-before-pan.txt",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE_1C/58-material-draft-before-pan.txt",
+      "sha256": "12c1eca3bdffd8d9fdf6b6357d3262bad2c02b5721d85e797deb87330729f0ff",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE_1C/59-material-draft-after-pan.txt",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE_1C/59-material-draft-after-pan.txt",
+      "sha256": "455fb4fd558380d0921ba7c0f714a4cdbf1556d9b664291f6960f3934e66759f",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE_1C/60-material-second-undo-restored.txt",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE_1C/60-material-second-undo-restored.txt",
+      "sha256": "6fbbcff6c1d1bf255e2c88f8a1cac1ad161e14afa64e77b5de2eecbf6d9bf3c7",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chrome153-command.json",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/chrome153-command.json",
+      "sha256": "ea3622a0bd2a405e34d7d497df6b445a090df6e2f6a10a581e3e27b2852ebb1c",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chrome153-result.json",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/chrome153-result.json",
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chrome153-version.txt",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/chrome153-version.txt",
+      "sha256": "84d0d69d53c4b90ed6877e63681032ba28dd473911e5aff082b406a29945b155",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chrome153.log",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/chrome153.log",
+      "sha256": "88aac4bac72a6aeb5bd7e2449134cb8286479668144fa77abd786c35d92af26a",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chromium148-command.json",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/chromium148-command.json",
+      "sha256": "76a2920a6935a1dbedf96244904e730c73c191dd193a2435ca582cf3896ca360",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chromium148-result.json",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/chromium148-result.json",
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chromium148-version.txt",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/chromium148-version.txt",
+      "sha256": "19d17dcf23d727daf5c49aab7bd1778a8ef2da4876e33251fc817b4c5580478a",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chromium148.log",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/chromium148.log",
+      "sha256": "27e2e05206eb8a714e5ea754974d79e166a16d9e950ce9cd97551cfe34c2502f",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chrome153-sandbox-denied-result.json",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/chrome153-sandbox-denied-result.json",
+      "sha256": "5cc319f54b05a38799195a491c303aa686eab7caccfdbbf1e8b8c07405cb7392",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chrome153-sandbox-denied.log",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/BROWSER/chrome153-sandbox-denied.log",
+      "sha256": "ccb194f1adbdad3103081f92ffcefd23ecbad16ae7abe63265410d5bccc0a3ed",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/MANAGER_SOURCE_CHECK.json",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/MANAGER_SOURCE_CHECK.json",
+      "sha256": "ce41a2559ec9fe533b4e77d12d354c73d30a2541a14700ef861661dd4b7dd650",
+      "matches": true
+    },
+    {
+      "historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/REVIEW/RETURN.md",
+      "resolved_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/_run_records/REVIEW/RETURN.md",
+      "sha256": "2e7c239f2eefb53e812c511d560d60a62d856b6301f47ac82c79972c7ff6ecc2",
+      "matches": true
+    }
+  ],
+  "checks": [
+    {
+      "check": "Unique complete custody map",
+      "result": "PASS",
+      "detail": "22 unique old/new pairs"
+    },
+    {
+      "check": "Mapped bytes _run_records/BROWSER/chrome153-artifacts/.last-run.json",
+      "result": "PASS",
+      "detail": {
+        "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+        "bytes": 45
+      }
+    },
+    {
+      "check": "Mapped bytes _run_records/BROWSER/chrome153-command.json",
+      "result": "PASS",
+      "detail": {
+        "sha256": "ea3622a0bd2a405e34d7d497df6b445a090df6e2f6a10a581e3e27b2852ebb1c",
+        "bytes": 1302
+      }
+    },
+    {
+      "check": "Mapped bytes _run_records/BROWSER/chrome153-ports-before.txt",
+      "result": "PASS",
+      "detail": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "check": "Mapped bytes _run_records/BROWSER/chrome153-result.json",
+      "result": "PASS",
+      "detail": {
+        "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17",
+        "bytes": 17
+      }
+    },
+    {
+      "check": "Mapped bytes _run_records/BROWSER/chrome153-sandbox-denied-command.json",
+      "result": "PASS",
+      "detail": {
+        "sha256": "52dd8099e0c8dcc6459e7fb58a48d85314987b24819bd31118927ed76853df08",
+        "bytes": 671
+      }
+    },
+    {
+      "check": "Mapped bytes _run_records/BROWSER/chrome153-sandbox-denied-result.json",
+      "result": "PASS",
+      "detail": {
+        "sha256": "5cc319f54b05a38799195a491c303aa686eab7caccfdbbf1e8b8c07405cb7392",
+        "bytes": 17
+      }
+    },
+    {
+      "check": "Mapped bytes _run_records/BROWSER/chrome153-sandbox-denied.log",
+      "result": "PASS",
+      "detail": {
+        "sha256": "ccb194f1adbdad3103081f92ffcefd23ecbad16ae7abe63265410d5bccc0a3ed",
+        "bytes": 1124
+      }
+    },
+    {
+      "check": "Mapped bytes _run_records/BROWSER/chrome153-version.txt",
+      "result": "PASS",
+      "detail": {
+        "sha256": "84d0d69d53c4b90ed6877e63681032ba28dd473911e5aff082b406a29945b155",
+        "bytes": 29
+      }
+    },
+    {
+      "check": "Mapped bytes _run_records/BROWSER/chrome153.log",
+      "result": "PASS",
+      "detail": {
+        "sha256": "88aac4bac72a6aeb5bd7e2449134cb8286479668144fa77abd786c35d92af26a",
+        "bytes": 1824
+      }
+    },
+    {
+      "check": "Mapped bytes _run_records/BROWSER/chromium148-artifacts/.last-run.json",
+      "result": "PASS",
+      "detail": {
+        "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+        "bytes": 45
+      }
+    },
+    {
+      "check": "Mapped bytes _run_records/BROWSER/chromium148-command.json",
+      "result": "PASS",
+      "detail": {
+        "sha256": "76a2920a6935a1dbedf96244904e730c73c191dd193a2435ca582cf3896ca360",
+        "bytes": 1386
+      }
+    },
+    {
+      "check": "Mapped bytes _run_records/BROWSER/chromium148-ports-before.txt",
+      "result": "PASS",
+      "detail": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "check": "Mapped bytes _run_records/BROWSER/chromium148-result.json",
+      "result": "PASS",
+      "detail": {
+        "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17",
+        "bytes": 17
+      }
+    },
+    {
+      "check": "Mapped bytes _run_records/BROWSER/chromium148-version.txt",
+      "result": "PASS",
+      "detail": {
+        "sha256": "19d17dcf23d727daf5c49aab7bd1778a8ef2da4876e33251fc817b4c5580478a",
+        "bytes": 41
+      }
+    },
+    {
+      "check": "Mapped bytes _run_records/BROWSER/chromium148.log",
+      "result": "PASS",
+      "detail": {
+        "sha256": "27e2e05206eb8a714e5ea754974d79e166a16d9e950ce9cd97551cfe34c2502f",
+        "bytes": 1824
+      }
+    },
+    {
+      "check": "Mapped bytes _run_records/BROWSER/ports-after.txt",
+      "result": "PASS",
+      "detail": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "check": "Mapped bytes _run_records/BROWSER/ports-before.txt",
+      "result": "PASS",
+      "detail": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "check": "Mapped bytes _run_records/BROWSER/post-source-check.json",
+      "result": "PASS",
+      "detail": {
+        "sha256": "1defa5cd31ccc6e35f73090d8462c42c221af7bc9c0bc7bdef91e93a28cdb1ea",
+        "bytes": 48
+      }
+    },
+    {
+      "check": "Mapped bytes _run_records/BROWSER/run_browser.py",
+      "result": "PASS",
+      "detail": {
+        "sha256": "baaa5950880731177badad2db609ac725321601b6f6c05070f17281108f29ba7",
+        "bytes": 1973
+      }
+    },
+    {
+      "check": "Mapped bytes _run_records/REVIEW/MANIFEST.json",
+      "result": "PASS",
+      "detail": {
+        "sha256": "d4f40ad7b58d939bab19bb4226c7fb1bf68456ba6d080cbd2d960058ab65df64",
+        "bytes": 24893
+      }
+    },
+    {
+      "check": "Mapped bytes _run_records/REVIEW/RETURN.md",
+      "result": "PASS",
+      "detail": {
+        "sha256": "2e7c239f2eefb53e812c511d560d60a62d856b6301f47ac82c79972c7ff6ecc2",
+        "bytes": 7655
+      }
+    },
+    {
+      "check": "Mapped bytes _run_records/CUSTODY/MANAGER_MANIFEST.before.json",
+      "result": "PASS",
+      "detail": {
+        "sha256": "24d7072365f1ce7c402f871a8f4aa73d2b54b39830e017886be22559660dd007",
+        "bytes": 14101
+      }
+    },
+    {
+      "check": "Browser/review preimage agreement",
+      "result": "PASS",
+      "detail": "21/21 agree with the preserved manager manifest. The 22nd file is that manifest itself and has no self-hash entry."
+    },
+    {
+      "check": "Complete original packets",
+      "result": "PASS",
+      "detail": "No missing or extra files before this new backcheck output"
+    },
+    {
+      "check": "Prior packet coverage",
+      "result": "PASS",
+      "detail": "All prior manager browser/review packet entries are mapped"
+    },
+    {
+      "check": "Relocated originals and portable replacements",
+      "result": "PASS",
+      "detail": "19 removed old locations; portable runner/review pointer and pending final manager manifest occupy the other three"
+    },
+    {
+      "check": "Original review identity _run_records/REVIEW/RETURN.md",
+      "result": "PASS",
+      "detail": "2e7c239f2eefb53e812c511d560d60a62d856b6301f47ac82c79972c7ff6ecc2"
+    },
+    {
+      "check": "Original review identity _run_records/REVIEW/MANIFEST.json",
+      "result": "PASS",
+      "detail": "d4f40ad7b58d939bab19bb4226c7fb1bf68456ba6d080cbd2d960058ab65df64"
+    },
+    {
+      "check": "Original review references preserved",
+      "result": "PASS",
+      "detail": "All 48 sources and 1 original output resolve to their original hashes through the custody map"
+    },
+    {
+      "check": "Product source freeze unchanged",
+      "result": "PASS",
+      "detail": "All three original file hashes match; product behavior was not re-reviewed or executed"
+    },
+    {
+      "check": "Portable review links resolve",
+      "result": "PASS",
+      "detail": [
+        "../_run_records/REVIEW/RETURN.md",
+        "../_run_records/REVIEW/MANIFEST.json",
+        "../CUSTODY_MAP.json"
+      ]
+    },
+    {
+      "check": "Portable runner static routing",
+      "result": "PASS",
+      "detail": "Static syntax and route inspection only. Run-name allowlist prevents traversal; unused directory prevents overwriting originals; all explicit record writes and Playwright output use out. Existing list reporter writes stdout into the captured lane log."
+    },
+    {
+      "check": "Supplied full path-validator result",
+      "result": "PASS",
+      "detail": "Zero NATIVE_PAN_REPAIR findings; 14 NATIVE_PAN_BUILD findings remain outside this assignment. No repository-wide pass claimed and validator not rerun."
+    }
+  ],
+  "limits": [
+    "Manager final manifest and whitelist are pending parent regeneration.",
+    "Supplied path-validator result inspected; validator not rerun. Its 14 outside-scope NATIVE_PAN_BUILD findings are not closed here.",
+    "Replay routing verified statically; no tests, browser, native or build executed.",
+    "Original native verification and final integration gates remain outstanding as stated in original review."
+  ],
+  "outputs": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/REVIEW/CUSTODY_BACKCHECK.md",
+      "sha256": "e4ac0dc34ab5e4d4bffb906358136eebe1cce13e2adbf97cd8f7bc1d97d3ea15"
+    }
+  ]
+}

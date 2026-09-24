@@ -1,0 +1,11 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 153, 161
+~							202 button (selected) Invented Utility Loop Preview project:invented-loop-01, Help: Invented Utility Loop Preview (project:invented-loop-01)
+~							210 button Terminal tie-in node:N-140, Help: Terminal tie-in (node:N-140)
+~							133 button (disabled) Hide, Help: Select at least one valid drawable node, pipe, support, or component.
+~							134 button (disabled) Isolate, Help: Select at least one valid drawable node, pipe, support, or component.
+~							139 button (disabled) Fit Selection, Help: No visible valid selected geometry can be fitted.
+~						145 text Selected:  project:invented-loop-01
++							237 toggle button Select Terminal tie-in in viewport, Help: Terminal tie-in (node:N-140), Value: off
+~					188 text project: project:invented-loop-01 Entered
+The focused UI element is 202 button (selected) Invented Utility Loop Preview project:invented-loop-01, Help: Invented Utility Loop Preview (project:invented-loop-01)

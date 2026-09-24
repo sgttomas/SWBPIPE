@@ -1,0 +1,36 @@
+{
+  "/private/tmp/piping-native-fit-1c-20260924/debug/bundle/macos/SWBPIPE.app": [
+    {
+      "path": "Contents/Info.plist",
+      "bytes": 979,
+      "sha256": "573a9848c4b521dc352ba10ef10298c645702b53f0557e62bade6a1855261fd8"
+    },
+    {
+      "path": "Contents/MacOS/openpipestress-desktop",
+      "bytes": 56418744,
+      "sha256": "daaac8f9839acce0e873bbb52a6e0079c88e537a236459f68c7a8a1cfd14fea6"
+    },
+    {
+      "path": "Contents/Resources/icon.icns",
+      "bytes": 77148,
+      "sha256": "2ddf5cdbfe7c2023349d49fd45efee4debad28e72a4cf8401834aa402f3d238e"
+    }
+  ],
+  "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app": [
+    {
+      "path": "Contents/Info.plist",
+      "bytes": 979,
+      "sha256": "573a9848c4b521dc352ba10ef10298c645702b53f0557e62bade6a1855261fd8"
+    },
+    {
+      "path": "Contents/MacOS/openpipestress-desktop",
+      "bytes": 56561016,
+      "sha256": "9dd718236fb8d9eb94dba221d0ee2dab0d5cd58ca37a0fc1430ef1b89088d07d"
+    },
+    {
+      "path": "Contents/Resources/icon.icns",
+      "bytes": 77148,
+      "sha256": "2ddf5cdbfe7c2023349d49fd45efee4debad28e72a4cf8401834aa402f3d238e"
+    }
+  ]
+}

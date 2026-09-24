@@ -1,0 +1,1074 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/workspace/table/ModelTree.table.test.tsx -t compact pan active material draft ownership
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/workspace/table/ModelTree.table.test.tsx (38 tests | 18 failed | 9 skipped) 3778ms
+     × retains numeric material draft through pointer Earlier columns 248ms
+     × retains numeric material draft through pointer Later columns 138ms
+     × retains numeric material draft through pointer Earlier table controls 108ms
+     × retains numeric material draft through pointer Later table controls 88ms
+     × retains numeric material draft through pointer Earlier table status 90ms
+     × retains numeric material draft through pointer Later table status 126ms
+     × leaves ordinary null blur Apply intact after pointercancel on Earlier columns 105ms
+     × leaves ordinary null blur Apply intact after drag-away on Earlier columns 126ms
+     × leaves ordinary null blur Apply intact after pointercancel on Later columns 85ms
+     × leaves ordinary null blur Apply intact after drag-away on Later columns 130ms
+     × leaves ordinary null blur Apply intact after pointercancel on Earlier table controls 85ms
+     × leaves ordinary null blur Apply intact after drag-away on Earlier table controls 129ms
+     × leaves ordinary null blur Apply intact after pointercancel on Later table controls 101ms
+     × leaves ordinary null blur Apply intact after drag-away on Later table controls 170ms
+     × leaves ordinary null blur Apply intact after pointercancel on Earlier table status 117ms
+     × leaves ordinary null blur Apply intact after drag-away on Earlier table status 140ms
+     × leaves ordinary null blur Apply intact after pointercancel on Later table status 88ms
+     × leaves ordinary null blur Apply intact after drag-away on Later table status 130ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 18 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/workspace/table/ModelTree.table.test.tsx > compact pan active material draft ownership > retains numeric material draft through pointer Earlier columns
+Error: expect(element).toHaveFocus()
+
+Expected element with focus:
+  <button
+  aria-label="Earlier columns"
+  data-table-chrome-owner="_r_9_"
+  type="button"
+>
+  ‹
+</button>
+Received element with focus:
+  <input
+  aria-invalid="false"
+  aria-label="material:invented-carbon-steel Elastic [Pa]"
+  data-kind="quantity"
+  id="_r_8_"
+  readonly=""
+  value="210000000000"
+/>
+ ❯ src/features/workspace/table/ModelTree.table.test.tsx:222:26
+    220|           // Programmatic focus must supply the real owned blur destin…
+    221|           if (fireEvent.pointerDown(button)) fireEvent.blur(input, { r…
+    222|           expect(button).toHaveFocus(); expect(apply).not.toHaveBeenCa…
+       |                          ^
+    223|           fireEvent.pointerUp(button);
+    224|         } else act(() => button.focus());
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/18]⎯
+
+ FAIL  src/features/workspace/table/ModelTree.table.test.tsx > compact pan active material draft ownership > retains numeric material draft through pointer Later columns
+Error: expect(element).toHaveFocus()
+
+Expected element with focus:
+  <button
+  aria-label="Later columns"
+  data-table-chrome-owner="_r_29_"
+  type="button"
+>
+  ›
+</button>
+Received element with focus:
+  <input
+  aria-invalid="false"
+  aria-label="material:invented-carbon-steel Elastic [Pa]"
+  data-kind="quantity"
+  id="_r_28_"
+  readonly=""
+  value="210000000000"
+/>
+ ❯ src/features/workspace/table/ModelTree.table.test.tsx:222:26
+    220|           // Programmatic focus must supply the real owned blur destin…
+    221|           if (fireEvent.pointerDown(button)) fireEvent.blur(input, { r…
+    222|           expect(button).toHaveFocus(); expect(apply).not.toHaveBeenCa…
+       |                          ^
+    223|           fireEvent.pointerUp(button);
+    224|         } else act(() => button.focus());
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/18]⎯
+
+ FAIL  src/features/workspace/table/ModelTree.table.test.tsx > compact pan active material draft ownership > retains numeric material draft through pointer Earlier table controls
+Error: expect(element).toHaveFocus()
+
+Expected element with focus:
+  <button
+  aria-label="Earlier table controls"
+  data-table-chrome-owner="_r_49_"
+  type="button"
+>
+  ‹
+</button>
+Received element with focus:
+  <input
+  aria-invalid="false"
+  aria-label="material:invented-carbon-steel Elastic [Pa]"
+  data-kind="quantity"
+  id="_r_48_"
+  readonly=""
+  value="210000000000"
+/>
+ ❯ src/features/workspace/table/ModelTree.table.test.tsx:222:26
+    220|           // Programmatic focus must supply the real owned blur destin…
+    221|           if (fireEvent.pointerDown(button)) fireEvent.blur(input, { r…
+    222|           expect(button).toHaveFocus(); expect(apply).not.toHaveBeenCa…
+       |                          ^
+    223|           fireEvent.pointerUp(button);
+    224|         } else act(() => button.focus());
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/18]⎯
+
+ FAIL  src/features/workspace/table/ModelTree.table.test.tsx > compact pan active material draft ownership > retains numeric material draft through pointer Later table controls
+Error: expect(element).toHaveFocus()
+
+Expected element with focus:
+  <button
+  aria-label="Later table controls"
+  data-table-chrome-owner="_r_69_"
+  type="button"
+>
+  ›
+</button>
+Received element with focus:
+  <input
+  aria-invalid="false"
+  aria-label="material:invented-carbon-steel Elastic [Pa]"
+  data-kind="quantity"
+  id="_r_68_"
+  readonly=""
+  value="210000000000"
+/>
+ ❯ src/features/workspace/table/ModelTree.table.test.tsx:222:26
+    220|           // Programmatic focus must supply the real owned blur destin…
+    221|           if (fireEvent.pointerDown(button)) fireEvent.blur(input, { r…
+    222|           expect(button).toHaveFocus(); expect(apply).not.toHaveBeenCa…
+       |                          ^
+    223|           fireEvent.pointerUp(button);
+    224|         } else act(() => button.focus());
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/18]⎯
+
+ FAIL  src/features/workspace/table/ModelTree.table.test.tsx > compact pan active material draft ownership > retains numeric material draft through pointer Earlier table status
+Error: expect(element).toHaveFocus()
+
+Expected element with focus:
+  <button
+  aria-label="Earlier table status"
+  data-table-chrome-owner="_r_89_"
+  type="button"
+>
+  ‹
+</button>
+Received element with focus:
+  <input
+  aria-invalid="false"
+  aria-label="material:invented-carbon-steel Elastic [Pa]"
+  data-kind="quantity"
+  id="_r_88_"
+  readonly=""
+  value="210000000000"
+/>
+ ❯ src/features/workspace/table/ModelTree.table.test.tsx:222:26
+    220|           // Programmatic focus must supply the real owned blur destin…
+    221|           if (fireEvent.pointerDown(button)) fireEvent.blur(input, { r…
+    222|           expect(button).toHaveFocus(); expect(apply).not.toHaveBeenCa…
+       |                          ^
+    223|           fireEvent.pointerUp(button);
+    224|         } else act(() => button.focus());
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/18]⎯
+
+ FAIL  src/features/workspace/table/ModelTree.table.test.tsx > compact pan active material draft ownership > retains numeric material draft through pointer Later table status
+Error: expect(element).toHaveFocus()
+
+Expected element with focus:
+  <button
+  aria-label="Later table status"
+  data-table-chrome-owner="_r_a9_"
+  type="button"
+>
+  ›
+</button>
+Received element with focus:
+  <input
+  aria-invalid="false"
+  aria-label="material:invented-carbon-steel Elastic [Pa]"
+  data-kind="quantity"
+  id="_r_a8_"
+  readonly=""
+  value="210000000000"
+/>
+ ❯ src/features/workspace/table/ModelTree.table.test.tsx:222:26
+    220|           // Programmatic focus must supply the real owned blur destin…
+    221|           if (fireEvent.pointerDown(button)) fireEvent.blur(input, { r…
+    222|           expect(button).toHaveFocus(); expect(apply).not.toHaveBeenCa…
+       |                          ^
+    223|           fireEvent.pointerUp(button);
+    224|         } else act(() => button.focus());
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/18]⎯
+
+ FAIL  src/features/workspace/table/ModelTree.table.test.tsx > compact pan active material draft ownership > leaves ordinary null blur Apply intact after pointercancel on Earlier columns
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      Object {
+        "audit_boundary": Object {
+          "direct_model_mutation_allowed": false,
+          "mutates_accepted_model_state": false,
+          "mutation_route": "structured_operations_only",
+          "requires_user_acceptance": true,
+        },
+        "author_type": "user",
+        "change": Object {
+          "after": "{"value":210000000000,"unit":"Pa"}",
+          "before": "200000000000",
+          "change_id": "change:table-cell-4c022742-3625-4a09-853c-b930e95674ae",
+          "change_kind": "set_field",
+          "dimension": "stress",
+          "field_label": "Elastic",
+          "field_path": "elastic_modulus.value",
+          "source_note": "layout_table_cell; unit metadata required; entered unit captured explicitly",
+          "unit": "Pa",
+        },
+        "operation_id": "op:table-cell-4c022742-3625-4a09-853c-b930e95674ae",
+        "operation_kind": "modify",
+        "operation_status": "proposed",
+        "professional_boundary": Object {
+          "human_review_required": true,
+          "software_makes_approval_claim": false,
+          "software_makes_authentication_claim": false,
+          "software_makes_certification_claim": false,
+          "software_makes_compliance_claim": false,
+          "software_makes_sealing_claim": false,
+        },
+        "rationale": "layout_table_cell_apply",
+        "source": Object {
+          "source_channel": "local_desktop_preview",
+          "source_ref": "grid:project:invented-loop-01:material:invented-carbon-steel",
+          "source_role": "gui_editor",
+        },
+        "target": Object {
+          "object_type": "Material",
+          "ref": "material:invented-carbon-steel",
+        },
+        "validation": Object {
+          "application_status": "not_applied",
+          "constraint_validation": "not_run",
+          "diff_preview_status": "not_generated",
+          "schema_validation": "not_run",
+          "unit_validation": "not_run",
+        },
+      },
+    ]
+
+
+Number of calls: 1
+
+ ❯ src/features/workspace/table/ModelTree.table.test.tsx:242:27
+    240|         if (abandon === "pointercancel") fireEvent.pointerCancel(butto…
+    241|         else { fireEvent.pointerLeave(button); fireEvent.pointerUp(scr…
+    242|         expect(apply).not.toHaveBeenCalled(); expect(queue).not.toHave…
+       |                           ^
+    243|         act(() => input.focus()); fireEvent.blur(input, { relatedTarge…
+    244|         await waitFor(() => expect(apply).toHaveBeenCalledTimes(1));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/18]⎯
+
+ FAIL  src/features/workspace/table/ModelTree.table.test.tsx > compact pan active material draft ownership > leaves ordinary null blur Apply intact after drag-away on Earlier columns
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      Object {
+        "audit_boundary": Object {
+          "direct_model_mutation_allowed": false,
+          "mutates_accepted_model_state": false,
+          "mutation_route": "structured_operations_only",
+          "requires_user_acceptance": true,
+        },
+        "author_type": "user",
+        "change": Object {
+          "after": "{"value":210000000000,"unit":"Pa"}",
+          "before": "200000000000",
+          "change_id": "change:table-cell-a73c0b7a-1852-43ac-a909-10d6f35a4085",
+          "change_kind": "set_field",
+          "dimension": "stress",
+          "field_label": "Elastic",
+          "field_path": "elastic_modulus.value",
+          "source_note": "layout_table_cell; unit metadata required; entered unit captured explicitly",
+          "unit": "Pa",
+        },
+        "operation_id": "op:table-cell-a73c0b7a-1852-43ac-a909-10d6f35a4085",
+        "operation_kind": "modify",
+        "operation_status": "proposed",
+        "professional_boundary": Object {
+          "human_review_required": true,
+          "software_makes_approval_claim": false,
+          "software_makes_authentication_claim": false,
+          "software_makes_certification_claim": false,
+          "software_makes_compliance_claim": false,
+          "software_makes_sealing_claim": false,
+        },
+        "rationale": "layout_table_cell_apply",
+        "source": Object {
+          "source_channel": "local_desktop_preview",
+          "source_ref": "grid:project:invented-loop-01:material:invented-carbon-steel",
+          "source_role": "gui_editor",
+        },
+        "target": Object {
+          "object_type": "Material",
+          "ref": "material:invented-carbon-steel",
+        },
+        "validation": Object {
+          "application_status": "not_applied",
+          "constraint_validation": "not_run",
+          "diff_preview_status": "not_generated",
+          "schema_validation": "not_run",
+          "unit_validation": "not_run",
+        },
+      },
+    ]
+
+
+Number of calls: 1
+
+ ❯ src/features/workspace/table/ModelTree.table.test.tsx:242:27
+    240|         if (abandon === "pointercancel") fireEvent.pointerCancel(butto…
+    241|         else { fireEvent.pointerLeave(button); fireEvent.pointerUp(scr…
+    242|         expect(apply).not.toHaveBeenCalled(); expect(queue).not.toHave…
+       |                           ^
+    243|         act(() => input.focus()); fireEvent.blur(input, { relatedTarge…
+    244|         await waitFor(() => expect(apply).toHaveBeenCalledTimes(1));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/18]⎯
+
+ FAIL  src/features/workspace/table/ModelTree.table.test.tsx > compact pan active material draft ownership > leaves ordinary null blur Apply intact after pointercancel on Later columns
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      Object {
+        "audit_boundary": Object {
+          "direct_model_mutation_allowed": false,
+          "mutates_accepted_model_state": false,
+          "mutation_route": "structured_operations_only",
+          "requires_user_acceptance": true,
+        },
+        "author_type": "user",
+        "change": Object {
+          "after": "{"value":210000000000,"unit":"Pa"}",
+          "before": "200000000000",
+          "change_id": "change:table-cell-7a468c2c-3e0d-4171-bdfc-91c40460218c",
+          "change_kind": "set_field",
+          "dimension": "stress",
+          "field_label": "Elastic",
+          "field_path": "elastic_modulus.value",
+          "source_note": "layout_table_cell; unit metadata required; entered unit captured explicitly",
+          "unit": "Pa",
+        },
+        "operation_id": "op:table-cell-7a468c2c-3e0d-4171-bdfc-91c40460218c",
+        "operation_kind": "modify",
+        "operation_status": "proposed",
+        "professional_boundary": Object {
+          "human_review_required": true,
+          "software_makes_approval_claim": false,
+          "software_makes_authentication_claim": false,
+          "software_makes_certification_claim": false,
+          "software_makes_compliance_claim": false,
+          "software_makes_sealing_claim": false,
+        },
+        "rationale": "layout_table_cell_apply",
+        "source": Object {
+          "source_channel": "local_desktop_preview",
+          "source_ref": "grid:project:invented-loop-01:material:invented-carbon-steel",
+          "source_role": "gui_editor",
+        },
+        "target": Object {
+          "object_type": "Material",
+          "ref": "material:invented-carbon-steel",
+        },
+        "validation": Object {
+          "application_status": "not_applied",
+          "constraint_validation": "not_run",
+          "diff_preview_status": "not_generated",
+          "schema_validation": "not_run",
+          "unit_validation": "not_run",
+        },
+      },
+    ]
+
+
+Number of calls: 1
+
+ ❯ src/features/workspace/table/ModelTree.table.test.tsx:242:27
+    240|         if (abandon === "pointercancel") fireEvent.pointerCancel(butto…
+    241|         else { fireEvent.pointerLeave(button); fireEvent.pointerUp(scr…
+    242|         expect(apply).not.toHaveBeenCalled(); expect(queue).not.toHave…
+       |                           ^
+    243|         act(() => input.focus()); fireEvent.blur(input, { relatedTarge…
+    244|         await waitFor(() => expect(apply).toHaveBeenCalledTimes(1));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/18]⎯
+
+ FAIL  src/features/workspace/table/ModelTree.table.test.tsx > compact pan active material draft ownership > leaves ordinary null blur Apply intact after drag-away on Later columns
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      Object {
+        "audit_boundary": Object {
+          "direct_model_mutation_allowed": false,
+          "mutates_accepted_model_state": false,
+          "mutation_route": "structured_operations_only",
+          "requires_user_acceptance": true,
+        },
+        "author_type": "user",
+        "change": Object {
+          "after": "{"value":210000000000,"unit":"Pa"}",
+          "before": "200000000000",
+          "change_id": "change:table-cell-6708cb3c-322a-476e-9ce1-1876a170664b",
+          "change_kind": "set_field",
+          "dimension": "stress",
+          "field_label": "Elastic",
+          "field_path": "elastic_modulus.value",
+          "source_note": "layout_table_cell; unit metadata required; entered unit captured explicitly",
+          "unit": "Pa",
+        },
+        "operation_id": "op:table-cell-6708cb3c-322a-476e-9ce1-1876a170664b",
+        "operation_kind": "modify",
+        "operation_status": "proposed",
+        "professional_boundary": Object {
+          "human_review_required": true,
+          "software_makes_approval_claim": false,
+          "software_makes_authentication_claim": false,
+          "software_makes_certification_claim": false,
+          "software_makes_compliance_claim": false,
+          "software_makes_sealing_claim": false,
+        },
+        "rationale": "layout_table_cell_apply",
+        "source": Object {
+          "source_channel": "local_desktop_preview",
+          "source_ref": "grid:project:invented-loop-01:material:invented-carbon-steel",
+          "source_role": "gui_editor",
+        },
+        "target": Object {
+          "object_type": "Material",
+          "ref": "material:invented-carbon-steel",
+        },
+        "validation": Object {
+          "application_status": "not_applied",
+          "constraint_validation": "not_run",
+          "diff_preview_status": "not_generated",
+          "schema_validation": "not_run",
+          "unit_validation": "not_run",
+        },
+      },
+    ]
+
+
+Number of calls: 1
+
+ ❯ src/features/workspace/table/ModelTree.table.test.tsx:242:27
+    240|         if (abandon === "pointercancel") fireEvent.pointerCancel(butto…
+    241|         else { fireEvent.pointerLeave(button); fireEvent.pointerUp(scr…
+    242|         expect(apply).not.toHaveBeenCalled(); expect(queue).not.toHave…
+       |                           ^
+    243|         act(() => input.focus()); fireEvent.blur(input, { relatedTarge…
+    244|         await waitFor(() => expect(apply).toHaveBeenCalledTimes(1));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/18]⎯
+
+ FAIL  src/features/workspace/table/ModelTree.table.test.tsx > compact pan active material draft ownership > leaves ordinary null blur Apply intact after pointercancel on Earlier table controls
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      Object {
+        "audit_boundary": Object {
+          "direct_model_mutation_allowed": false,
+          "mutates_accepted_model_state": false,
+          "mutation_route": "structured_operations_only",
+          "requires_user_acceptance": true,
+        },
+        "author_type": "user",
+        "change": Object {
+          "after": "{"value":210000000000,"unit":"Pa"}",
+          "before": "200000000000",
+          "change_id": "change:table-cell-66d7d201-9042-43c9-accc-f5a46490e1b6",
+          "change_kind": "set_field",
+          "dimension": "stress",
+          "field_label": "Elastic",
+          "field_path": "elastic_modulus.value",
+          "source_note": "layout_table_cell; unit metadata required; entered unit captured explicitly",
+          "unit": "Pa",
+        },
+        "operation_id": "op:table-cell-66d7d201-9042-43c9-accc-f5a46490e1b6",
+        "operation_kind": "modify",
+        "operation_status": "proposed",
+        "professional_boundary": Object {
+          "human_review_required": true,
+          "software_makes_approval_claim": false,
+          "software_makes_authentication_claim": false,
+          "software_makes_certification_claim": false,
+          "software_makes_compliance_claim": false,
+          "software_makes_sealing_claim": false,
+        },
+        "rationale": "layout_table_cell_apply",
+        "source": Object {
+          "source_channel": "local_desktop_preview",
+          "source_ref": "grid:project:invented-loop-01:material:invented-carbon-steel",
+          "source_role": "gui_editor",
+        },
+        "target": Object {
+          "object_type": "Material",
+          "ref": "material:invented-carbon-steel",
+        },
+        "validation": Object {
+          "application_status": "not_applied",
+          "constraint_validation": "not_run",
+          "diff_preview_status": "not_generated",
+          "schema_validation": "not_run",
+          "unit_validation": "not_run",
+        },
+      },
+    ]
+
+
+Number of calls: 1
+
+ ❯ src/features/workspace/table/ModelTree.table.test.tsx:242:27
+    240|         if (abandon === "pointercancel") fireEvent.pointerCancel(butto…
+    241|         else { fireEvent.pointerLeave(button); fireEvent.pointerUp(scr…
+    242|         expect(apply).not.toHaveBeenCalled(); expect(queue).not.toHave…
+       |                           ^
+    243|         act(() => input.focus()); fireEvent.blur(input, { relatedTarge…
+    244|         await waitFor(() => expect(apply).toHaveBeenCalledTimes(1));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/18]⎯
+
+ FAIL  src/features/workspace/table/ModelTree.table.test.tsx > compact pan active material draft ownership > leaves ordinary null blur Apply intact after drag-away on Earlier table controls
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      Object {
+        "audit_boundary": Object {
+          "direct_model_mutation_allowed": false,
+          "mutates_accepted_model_state": false,
+          "mutation_route": "structured_operations_only",
+          "requires_user_acceptance": true,
+        },
+        "author_type": "user",
+        "change": Object {
+          "after": "{"value":210000000000,"unit":"Pa"}",
+          "before": "200000000000",
+          "change_id": "change:table-cell-59da5b0d-20a8-444e-924d-4672281915ba",
+          "change_kind": "set_field",
+          "dimension": "stress",
+          "field_label": "Elastic",
+          "field_path": "elastic_modulus.value",
+          "source_note": "layout_table_cell; unit metadata required; entered unit captured explicitly",
+          "unit": "Pa",
+        },
+        "operation_id": "op:table-cell-59da5b0d-20a8-444e-924d-4672281915ba",
+        "operation_kind": "modify",
+        "operation_status": "proposed",
+        "professional_boundary": Object {
+          "human_review_required": true,
+          "software_makes_approval_claim": false,
+          "software_makes_authentication_claim": false,
+          "software_makes_certification_claim": false,
+          "software_makes_compliance_claim": false,
+          "software_makes_sealing_claim": false,
+        },
+        "rationale": "layout_table_cell_apply",
+        "source": Object {
+          "source_channel": "local_desktop_preview",
+          "source_ref": "grid:project:invented-loop-01:material:invented-carbon-steel",
+          "source_role": "gui_editor",
+        },
+        "target": Object {
+          "object_type": "Material",
+          "ref": "material:invented-carbon-steel",
+        },
+        "validation": Object {
+          "application_status": "not_applied",
+          "constraint_validation": "not_run",
+          "diff_preview_status": "not_generated",
+          "schema_validation": "not_run",
+          "unit_validation": "not_run",
+        },
+      },
+    ]
+
+
+Number of calls: 1
+
+ ❯ src/features/workspace/table/ModelTree.table.test.tsx:242:27
+    240|         if (abandon === "pointercancel") fireEvent.pointerCancel(butto…
+    241|         else { fireEvent.pointerLeave(button); fireEvent.pointerUp(scr…
+    242|         expect(apply).not.toHaveBeenCalled(); expect(queue).not.toHave…
+       |                           ^
+    243|         act(() => input.focus()); fireEvent.blur(input, { relatedTarge…
+    244|         await waitFor(() => expect(apply).toHaveBeenCalledTimes(1));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/18]⎯
+
+ FAIL  src/features/workspace/table/ModelTree.table.test.tsx > compact pan active material draft ownership > leaves ordinary null blur Apply intact after pointercancel on Later table controls
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      Object {
+        "audit_boundary": Object {
+          "direct_model_mutation_allowed": false,
+          "mutates_accepted_model_state": false,
+          "mutation_route": "structured_operations_only",
+          "requires_user_acceptance": true,
+        },
+        "author_type": "user",
+        "change": Object {
+          "after": "{"value":210000000000,"unit":"Pa"}",
+          "before": "200000000000",
+          "change_id": "change:table-cell-5acab6a5-b619-4a5a-b527-dce7db80452d",
+          "change_kind": "set_field",
+          "dimension": "stress",
+          "field_label": "Elastic",
+          "field_path": "elastic_modulus.value",
+          "source_note": "layout_table_cell; unit metadata required; entered unit captured explicitly",
+          "unit": "Pa",
+        },
+        "operation_id": "op:table-cell-5acab6a5-b619-4a5a-b527-dce7db80452d",
+        "operation_kind": "modify",
+        "operation_status": "proposed",
+        "professional_boundary": Object {
+          "human_review_required": true,
+          "software_makes_approval_claim": false,
+          "software_makes_authentication_claim": false,
+          "software_makes_certification_claim": false,
+          "software_makes_compliance_claim": false,
+          "software_makes_sealing_claim": false,
+        },
+        "rationale": "layout_table_cell_apply",
+        "source": Object {
+          "source_channel": "local_desktop_preview",
+          "source_ref": "grid:project:invented-loop-01:material:invented-carbon-steel",
+          "source_role": "gui_editor",
+        },
+        "target": Object {
+          "object_type": "Material",
+          "ref": "material:invented-carbon-steel",
+        },
+        "validation": Object {
+          "application_status": "not_applied",
+          "constraint_validation": "not_run",
+          "diff_preview_status": "not_generated",
+          "schema_validation": "not_run",
+          "unit_validation": "not_run",
+        },
+      },
+    ]
+
+
+Number of calls: 1
+
+ ❯ src/features/workspace/table/ModelTree.table.test.tsx:242:27
+    240|         if (abandon === "pointercancel") fireEvent.pointerCancel(butto…
+    241|         else { fireEvent.pointerLeave(button); fireEvent.pointerUp(scr…
+    242|         expect(apply).not.toHaveBeenCalled(); expect(queue).not.toHave…
+       |                           ^
+    243|         act(() => input.focus()); fireEvent.blur(input, { relatedTarge…
+    244|         await waitFor(() => expect(apply).toHaveBeenCalledTimes(1));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/18]⎯
+
+ FAIL  src/features/workspace/table/ModelTree.table.test.tsx > compact pan active material draft ownership > leaves ordinary null blur Apply intact after drag-away on Later table controls
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      Object {
+        "audit_boundary": Object {
+          "direct_model_mutation_allowed": false,
+          "mutates_accepted_model_state": false,
+          "mutation_route": "structured_operations_only",
+          "requires_user_acceptance": true,
+        },
+        "author_type": "user",
+        "change": Object {
+          "after": "{"value":210000000000,"unit":"Pa"}",
+          "before": "200000000000",
+          "change_id": "change:table-cell-7a808b0e-f42e-4603-b0ae-32c094640498",
+          "change_kind": "set_field",
+          "dimension": "stress",
+          "field_label": "Elastic",
+          "field_path": "elastic_modulus.value",
+          "source_note": "layout_table_cell; unit metadata required; entered unit captured explicitly",
+          "unit": "Pa",
+        },
+        "operation_id": "op:table-cell-7a808b0e-f42e-4603-b0ae-32c094640498",
+        "operation_kind": "modify",
+        "operation_status": "proposed",
+        "professional_boundary": Object {
+          "human_review_required": true,
+          "software_makes_approval_claim": false,
+          "software_makes_authentication_claim": false,
+          "software_makes_certification_claim": false,
+          "software_makes_compliance_claim": false,
+          "software_makes_sealing_claim": false,
+        },
+        "rationale": "layout_table_cell_apply",
+        "source": Object {
+          "source_channel": "local_desktop_preview",
+          "source_ref": "grid:project:invented-loop-01:material:invented-carbon-steel",
+          "source_role": "gui_editor",
+        },
+        "target": Object {
+          "object_type": "Material",
+          "ref": "material:invented-carbon-steel",
+        },
+        "validation": Object {
+          "application_status": "not_applied",
+          "constraint_validation": "not_run",
+          "diff_preview_status": "not_generated",
+          "schema_validation": "not_run",
+          "unit_validation": "not_run",
+        },
+      },
+    ]
+
+
+Number of calls: 1
+
+ ❯ src/features/workspace/table/ModelTree.table.test.tsx:242:27
+    240|         if (abandon === "pointercancel") fireEvent.pointerCancel(butto…
+    241|         else { fireEvent.pointerLeave(button); fireEvent.pointerUp(scr…
+    242|         expect(apply).not.toHaveBeenCalled(); expect(queue).not.toHave…
+       |                           ^
+    243|         act(() => input.focus()); fireEvent.blur(input, { relatedTarge…
+    244|         await waitFor(() => expect(apply).toHaveBeenCalledTimes(1));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/18]⎯
+
+ FAIL  src/features/workspace/table/ModelTree.table.test.tsx > compact pan active material draft ownership > leaves ordinary null blur Apply intact after pointercancel on Earlier table status
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      Object {
+        "audit_boundary": Object {
+          "direct_model_mutation_allowed": false,
+          "mutates_accepted_model_state": false,
+          "mutation_route": "structured_operations_only",
+          "requires_user_acceptance": true,
+        },
+        "author_type": "user",
+        "change": Object {
+          "after": "{"value":210000000000,"unit":"Pa"}",
+          "before": "200000000000",
+          "change_id": "change:table-cell-f3e8c83e-615d-4c6f-a4db-9d715b69b849",
+          "change_kind": "set_field",
+          "dimension": "stress",
+          "field_label": "Elastic",
+          "field_path": "elastic_modulus.value",
+          "source_note": "layout_table_cell; unit metadata required; entered unit captured explicitly",
+          "unit": "Pa",
+        },
+        "operation_id": "op:table-cell-f3e8c83e-615d-4c6f-a4db-9d715b69b849",
+        "operation_kind": "modify",
+        "operation_status": "proposed",
+        "professional_boundary": Object {
+          "human_review_required": true,
+          "software_makes_approval_claim": false,
+          "software_makes_authentication_claim": false,
+          "software_makes_certification_claim": false,
+          "software_makes_compliance_claim": false,
+          "software_makes_sealing_claim": false,
+        },
+        "rationale": "layout_table_cell_apply",
+        "source": Object {
+          "source_channel": "local_desktop_preview",
+          "source_ref": "grid:project:invented-loop-01:material:invented-carbon-steel",
+          "source_role": "gui_editor",
+        },
+        "target": Object {
+          "object_type": "Material",
+          "ref": "material:invented-carbon-steel",
+        },
+        "validation": Object {
+          "application_status": "not_applied",
+          "constraint_validation": "not_run",
+          "diff_preview_status": "not_generated",
+          "schema_validation": "not_run",
+          "unit_validation": "not_run",
+        },
+      },
+    ]
+
+
+Number of calls: 1
+
+ ❯ src/features/workspace/table/ModelTree.table.test.tsx:242:27
+    240|         if (abandon === "pointercancel") fireEvent.pointerCancel(butto…
+    241|         else { fireEvent.pointerLeave(button); fireEvent.pointerUp(scr…
+    242|         expect(apply).not.toHaveBeenCalled(); expect(queue).not.toHave…
+       |                           ^
+    243|         act(() => input.focus()); fireEvent.blur(input, { relatedTarge…
+    244|         await waitFor(() => expect(apply).toHaveBeenCalledTimes(1));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/18]⎯
+
+ FAIL  src/features/workspace/table/ModelTree.table.test.tsx > compact pan active material draft ownership > leaves ordinary null blur Apply intact after drag-away on Earlier table status
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      Object {
+        "audit_boundary": Object {
+          "direct_model_mutation_allowed": false,
+          "mutates_accepted_model_state": false,
+          "mutation_route": "structured_operations_only",
+          "requires_user_acceptance": true,
+        },
+        "author_type": "user",
+        "change": Object {
+          "after": "{"value":210000000000,"unit":"Pa"}",
+          "before": "200000000000",
+          "change_id": "change:table-cell-4e5d4127-492c-4a8c-a634-1e804187b8dd",
+          "change_kind": "set_field",
+          "dimension": "stress",
+          "field_label": "Elastic",
+          "field_path": "elastic_modulus.value",
+          "source_note": "layout_table_cell; unit metadata required; entered unit captured explicitly",
+          "unit": "Pa",
+        },
+        "operation_id": "op:table-cell-4e5d4127-492c-4a8c-a634-1e804187b8dd",
+        "operation_kind": "modify",
+        "operation_status": "proposed",
+        "professional_boundary": Object {
+          "human_review_required": true,
+          "software_makes_approval_claim": false,
+          "software_makes_authentication_claim": false,
+          "software_makes_certification_claim": false,
+          "software_makes_compliance_claim": false,
+          "software_makes_sealing_claim": false,
+        },
+        "rationale": "layout_table_cell_apply",
+        "source": Object {
+          "source_channel": "local_desktop_preview",
+          "source_ref": "grid:project:invented-loop-01:material:invented-carbon-steel",
+          "source_role": "gui_editor",
+        },
+        "target": Object {
+          "object_type": "Material",
+          "ref": "material:invented-carbon-steel",
+        },
+        "validation": Object {
+          "application_status": "not_applied",
+          "constraint_validation": "not_run",
+          "diff_preview_status": "not_generated",
+          "schema_validation": "not_run",
+          "unit_validation": "not_run",
+        },
+      },
+    ]
+
+
+Number of calls: 1
+
+ ❯ src/features/workspace/table/ModelTree.table.test.tsx:242:27
+    240|         if (abandon === "pointercancel") fireEvent.pointerCancel(butto…
+    241|         else { fireEvent.pointerLeave(button); fireEvent.pointerUp(scr…
+    242|         expect(apply).not.toHaveBeenCalled(); expect(queue).not.toHave…
+       |                           ^
+    243|         act(() => input.focus()); fireEvent.blur(input, { relatedTarge…
+    244|         await waitFor(() => expect(apply).toHaveBeenCalledTimes(1));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/18]⎯
+
+ FAIL  src/features/workspace/table/ModelTree.table.test.tsx > compact pan active material draft ownership > leaves ordinary null blur Apply intact after pointercancel on Later table status
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      Object {
+        "audit_boundary": Object {
+          "direct_model_mutation_allowed": false,
+          "mutates_accepted_model_state": false,
+          "mutation_route": "structured_operations_only",
+          "requires_user_acceptance": true,
+        },
+        "author_type": "user",
+        "change": Object {
+          "after": "{"value":210000000000,"unit":"Pa"}",
+          "before": "200000000000",
+          "change_id": "change:table-cell-359051c5-0583-4931-a092-9011b229a9c6",
+          "change_kind": "set_field",
+          "dimension": "stress",
+          "field_label": "Elastic",
+          "field_path": "elastic_modulus.value",
+          "source_note": "layout_table_cell; unit metadata required; entered unit captured explicitly",
+          "unit": "Pa",
+        },
+        "operation_id": "op:table-cell-359051c5-0583-4931-a092-9011b229a9c6",
+        "operation_kind": "modify",
+        "operation_status": "proposed",
+        "professional_boundary": Object {
+          "human_review_required": true,
+          "software_makes_approval_claim": false,
+          "software_makes_authentication_claim": false,
+          "software_makes_certification_claim": false,
+          "software_makes_compliance_claim": false,
+          "software_makes_sealing_claim": false,
+        },
+        "rationale": "layout_table_cell_apply",
+        "source": Object {
+          "source_channel": "local_desktop_preview",
+          "source_ref": "grid:project:invented-loop-01:material:invented-carbon-steel",
+          "source_role": "gui_editor",
+        },
+        "target": Object {
+          "object_type": "Material",
+          "ref": "material:invented-carbon-steel",
+        },
+        "validation": Object {
+          "application_status": "not_applied",
+          "constraint_validation": "not_run",
+          "diff_preview_status": "not_generated",
+          "schema_validation": "not_run",
+          "unit_validation": "not_run",
+        },
+      },
+    ]
+
+
+Number of calls: 1
+
+ ❯ src/features/workspace/table/ModelTree.table.test.tsx:242:27
+    240|         if (abandon === "pointercancel") fireEvent.pointerCancel(butto…
+    241|         else { fireEvent.pointerLeave(button); fireEvent.pointerUp(scr…
+    242|         expect(apply).not.toHaveBeenCalled(); expect(queue).not.toHave…
+       |                           ^
+    243|         act(() => input.focus()); fireEvent.blur(input, { relatedTarge…
+    244|         await waitFor(() => expect(apply).toHaveBeenCalledTimes(1));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/18]⎯
+
+ FAIL  src/features/workspace/table/ModelTree.table.test.tsx > compact pan active material draft ownership > leaves ordinary null blur Apply intact after drag-away on Later table status
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      Object {
+        "audit_boundary": Object {
+          "direct_model_mutation_allowed": false,
+          "mutates_accepted_model_state": false,
+          "mutation_route": "structured_operations_only",
+          "requires_user_acceptance": true,
+        },
+        "author_type": "user",
+        "change": Object {
+          "after": "{"value":210000000000,"unit":"Pa"}",
+          "before": "200000000000",
+          "change_id": "change:table-cell-754aaa9e-ae01-43c1-9351-dd3ef545823c",
+          "change_kind": "set_field",
+          "dimension": "stress",
+          "field_label": "Elastic",
+          "field_path": "elastic_modulus.value",
+          "source_note": "layout_table_cell; unit metadata required; entered unit captured explicitly",
+          "unit": "Pa",
+        },
+        "operation_id": "op:table-cell-754aaa9e-ae01-43c1-9351-dd3ef545823c",
+        "operation_kind": "modify",
+        "operation_status": "proposed",
+        "professional_boundary": Object {
+          "human_review_required": true,
+          "software_makes_approval_claim": false,
+          "software_makes_authentication_claim": false,
+          "software_makes_certification_claim": false,
+          "software_makes_compliance_claim": false,
+          "software_makes_sealing_claim": false,
+        },
+        "rationale": "layout_table_cell_apply",
+        "source": Object {
+          "source_channel": "local_desktop_preview",
+          "source_ref": "grid:project:invented-loop-01:material:invented-carbon-steel",
+          "source_role": "gui_editor",
+        },
+        "target": Object {
+          "object_type": "Material",
+          "ref": "material:invented-carbon-steel",
+        },
+        "validation": Object {
+          "application_status": "not_applied",
+          "constraint_validation": "not_run",
+          "diff_preview_status": "not_generated",
+          "schema_validation": "not_run",
+          "unit_validation": "not_run",
+        },
+      },
+    ]
+
+
+Number of calls: 1
+
+ ❯ src/features/workspace/table/ModelTree.table.test.tsx:242:27
+    240|         if (abandon === "pointercancel") fireEvent.pointerCancel(butto…
+    241|         else { fireEvent.pointerLeave(button); fireEvent.pointerUp(scr…
+    242|         expect(apply).not.toHaveBeenCalled(); expect(queue).not.toHave…
+       |                           ^
+    243|         act(() => input.focus()); fireEvent.blur(input, { relatedTarge…
+    244|         await waitFor(() => expect(apply).toHaveBeenCalledTimes(1));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/18]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  18 failed | 11 passed | 9 skipped (38)
+   Start at  12:13:20
+   Duration  4.35s (transform 181ms, setup 65ms, import 242ms, tests 3.78s, environment 183ms)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run src/features/workspace/table/ModelTree.table.test.tsx -t 'compact pan active material draft ownership'

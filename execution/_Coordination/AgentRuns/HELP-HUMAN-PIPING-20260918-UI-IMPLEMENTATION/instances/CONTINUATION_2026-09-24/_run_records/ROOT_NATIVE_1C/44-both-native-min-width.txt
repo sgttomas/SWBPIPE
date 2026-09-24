@@ -1,0 +1,40 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 21, 42-46, 49-58, 83-88, 143-169, 188
+~						15 toggle button Model, Help: Model view (⌘2), Value: off
+~						16 toggle button Both, Help: Both view (⌘3), Value: on
+~						20 button (collapsed) Inspector, Help: Inspector (⌘I), Secondary Actions: Expand
+~						40 button (disabled, expanded) Collapse table drawer, Help: Both view keeps the tables open, Secondary Actions: Collapse
++						223 text MODEL
++						224 container
++							225 container Layout grid mode
++								226 toggle button Tree, Value: off
++								227 toggle button Grid, Value: on
++							228 container Model tree filtering
++								229 container
++									230 text Filter model
++									231 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
++										232 text Name, ID, type, or group
++								233 text 27  of  27  model entities visible
++								234 button (disabled) Clear model tree filter
++							235 container Grid entity type
++								236 toggle button Nodes, Value: on
++								237 toggle button Pipes, Value: off
++								238 toggle button Supports, Value: off
++								239 toggle button Materials, Value: off
++								240 toggle button Sections, Value: off
++								241 toggle button Components, Value: off
++								242 toggle button Load Cases, Value: off
++								243 toggle button Combinations, Value: off
+~											68 button Sort X
+~											70 button Sort Y
+~											72 button Sort Z
++									244 container
++										245 text 5  of  5  rows
++								246 text Cell applied.
++							247 button (collapsed) Review multiple changes, Secondary Actions: Expand
++					248 splitter Resize table and canvas, Value: 55
++							249 toggle button Select Rack span in viewport, Help: Rack span (pipe:P-120), Value: off
++							250 toggle button Select Tie-in rise in viewport, Help: Tie-in rise (pipe:P-130), Value: off
++							251 toggle button Select Rack turn in viewport, Help: Rack turn (node:N-130), Value: off
++							252 toggle button Select Preview sliding-friction rack shoe in viewport, Help: Preview sliding-friction rack shoe (support:NL-130-FRIC), Value: off
+The focused UI element is 2 HTML content Description: SWBPIPE, URL: tauri://localhost

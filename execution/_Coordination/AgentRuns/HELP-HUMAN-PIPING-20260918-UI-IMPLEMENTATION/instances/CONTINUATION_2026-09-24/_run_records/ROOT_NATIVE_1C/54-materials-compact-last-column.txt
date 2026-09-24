@@ -1,0 +1,6 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 348-354
+~					347 summary Appearance, Value: off
+~							227 button Earlier columns
+~							228 button (disabled) Later columns
+The focused UI element is 174 HTML content Description: SWBPIPE, URL: tauri://localhost

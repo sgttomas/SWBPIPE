@@ -1,0 +1,11 @@
+{
+  "status": "PASS_BOUNDED_REFERENCE_BACKCHECK",
+  "row_count": 5,
+  "max_true_ratio": 6.984018629620945e-17,
+  "failed_stale_rows": [
+    6,
+    8
+  ],
+  "pi_bound": "2.55836358149594918000440374641547134481501595637783896515604223170916180741071488226479081E-142",
+  "output": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-row-proof-ws869qiw/ROW_SUCCESSOR_PROOF.json"
+}

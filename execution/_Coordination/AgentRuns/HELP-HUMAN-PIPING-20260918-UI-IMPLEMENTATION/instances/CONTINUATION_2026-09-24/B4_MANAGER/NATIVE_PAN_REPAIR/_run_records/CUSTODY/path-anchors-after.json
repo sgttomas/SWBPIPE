@@ -1,0 +1,97 @@
+{
+  "repo_root": "/Users/ryan/.codex/worktrees/6614/chirality",
+  "checked_file_count": 12050,
+  "finding_count": 14,
+  "findings": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_BUILD/build-command.json",
+      "line": 12,
+      "match": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop",
+      "text": "\"cwd\": \"/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_BUILD/build-command.json",
+      "line": 15,
+      "match": "/private/tmp/piping-native-pan-20260924",
+      "text": "\"CARGO_TARGET_DIR\": \"/private/tmp/piping-native-pan-20260924\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_BUILD/build-command.json",
+      "line": 25,
+      "match": "/Users/ryan/.local/share/mise/installs/node/24/bin:/Users/ryan/.local/share/mise/installs/python/3.13/bin:/Users/ryan/.cargo/bin:/Users/ryan/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Users/ryan/.local/bin:/Users/ryan/.codex/tmp/arg0/codex-arg0GtPj3W:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+      "text": "\"PATH\": \"/Users/ryan/.local/share/mise/installs/node/24/bin:/Users/ryan/.local/share/mise/installs/python/3.13/bin:/Users/ryan/.cargo/bin:/Users/ryan/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Users/ryan/.local/bin:/Users/ryan/.codex/tmp/arg0/codex-arg0GtPj3W:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources\""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_BUILD/old-bundles-pre.json",
+      "line": 2,
+      "match": "/private/tmp/piping-native-fit-1c-20260924/debug/bundle/macos/SWBPIPE.app",
+      "text": "\"/private/tmp/piping-native-fit-1c-20260924/debug/bundle/macos/SWBPIPE.app\": ["
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_BUILD/old-bundles-pre.json",
+      "line": 19,
+      "match": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app",
+      "text": "\"/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app\": ["
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_BUILD/tools.json",
+      "line": 7,
+      "match": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "text": "\"cwd\": \"/Users/ryan/.codex/worktrees/6614/chirality\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_BUILD/tools.json",
+      "line": 17,
+      "match": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop",
+      "text": "\"cwd\": \"/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_BUILD/tools.json",
+      "line": 27,
+      "match": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "text": "\"cwd\": \"/Users/ryan/.codex/worktrees/6614/chirality\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_BUILD/tools.json",
+      "line": 37,
+      "match": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "text": "\"cwd\": \"/Users/ryan/.codex/worktrees/6614/chirality\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_BUILD/tools.json",
+      "line": 49,
+      "match": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "text": "\"cwd\": \"/Users/ryan/.codex/worktrees/6614/chirality\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_BUILD/tools.json",
+      "line": 59,
+      "match": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "text": "\"cwd\": \"/Users/ryan/.codex/worktrees/6614/chirality\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_BUILD/tools.json",
+      "line": 72,
+      "match": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop",
+      "text": "\"cwd\": \"/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_BUILD/tools.json",
+      "line": 81,
+      "match": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "text": "\"cwd\": \"/Users/ryan/.codex/worktrees/6614/chirality\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_BUILD/tools.json",
+      "line": 91,
+      "match": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "text": "\"cwd\": \"/Users/ryan/.codex/worktrees/6614/chirality\","
+    }
+  ],
+  "semantic_invariants": {
+    "unacknowledged_control": 0,
+    "active_unclassified": 3,
+    "policy_issues": 0,
+    "acknowledged_control": 45
+  }
+}

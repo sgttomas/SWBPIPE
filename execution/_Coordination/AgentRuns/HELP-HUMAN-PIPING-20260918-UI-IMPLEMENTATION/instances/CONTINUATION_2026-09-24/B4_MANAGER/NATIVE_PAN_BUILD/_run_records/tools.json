@@ -1,0 +1,96 @@
+[
+  {
+    "command": [
+      "node",
+      "--version"
+    ],
+    "cwd": "/Users/ryan/.codex/worktrees/6614/chirality",
+    "exit": 0,
+    "stdout": "v24.18.0\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "npm",
+      "--version"
+    ],
+    "cwd": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop",
+    "exit": 0,
+    "stdout": "11.16.0\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "rustc",
+      "-Vv"
+    ],
+    "cwd": "/Users/ryan/.codex/worktrees/6614/chirality",
+    "exit": 0,
+    "stdout": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: aarch64-apple-darwin\nrelease: 1.97.1\nLLVM version: 22.1.6\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "cargo",
+      "--version"
+    ],
+    "cwd": "/Users/ryan/.codex/worktrees/6614/chirality",
+    "exit": 0,
+    "stdout": "cargo 1.97.1 (c980f4866 2026-06-30)\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "rustup",
+      "target",
+      "list",
+      "--installed"
+    ],
+    "cwd": "/Users/ryan/.codex/worktrees/6614/chirality",
+    "exit": 0,
+    "stdout": "aarch64-apple-darwin\nwasm32-unknown-unknown\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "wasm-bindgen",
+      "--version"
+    ],
+    "cwd": "/Users/ryan/.codex/worktrees/6614/chirality",
+    "exit": 0,
+    "stdout": "wasm-bindgen 0.2.123\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "npm",
+      "run",
+      "tauri",
+      "--",
+      "--version"
+    ],
+    "cwd": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop",
+    "exit": 0,
+    "stdout": "\n> @openpipestress/desktop@0.1.0 tauri\n> tauri --version\n\ntauri-cli 2.11.1\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "sw_vers"
+    ],
+    "cwd": "/Users/ryan/.codex/worktrees/6614/chirality",
+    "exit": 0,
+    "stdout": "ProductName:\t\tmacOS\nProductVersion:\t\t26.6.2\nBuildVersion:\t\t25G83\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "uname",
+      "-m"
+    ],
+    "cwd": "/Users/ryan/.codex/worktrees/6614/chirality",
+    "exit": 0,
+    "stdout": "arm64\n",
+    "stderr": ""
+  }
+]

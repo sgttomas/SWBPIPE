@@ -1,0 +1,44 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (/private/tmp/piping-dec046-row-probe-20260924/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling proc-macro2 v1.0.106
+   Compiling open_pipe_stress_linear_supports v0.1.0 (/private/tmp/piping-dec046-row-probe-20260924/projects/chirality-piping/core/solver/linear_supports)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (/private/tmp/piping-dec046-row-probe-20260924/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling unicode-ident v1.0.24
+   Compiling quote v1.0.45
+   Compiling serde_core v1.0.228
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (/private/tmp/piping-dec046-row-probe-20260924/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling zmij v1.0.21
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (/private/tmp/piping-dec046-row-probe-20260924/projects/chirality-piping/core/solver/diagnostics)
+   Compiling syn v2.0.117
+   Compiling serde_json v1.0.149
+   Compiling serde v1.0.228
+   Compiling serde_derive v1.0.228
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (/private/tmp/piping-dec046-row-probe-20260924/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (/private/tmp/piping-dec046-row-probe-20260924/projects/chirality-piping/core/solver/curved_bend)
+   Compiling open_pipe_stress_straight_pipe v0.1.0 (/private/tmp/piping-dec046-row-probe-20260924/projects/chirality-piping/core/solver/straight_pipe)
+   Compiling itoa v1.0.18
+   Compiling memchr v2.8.0
+   Compiling open_pipe_stress_stress_recovery v0.1.0 (/private/tmp/piping-dec046-row-probe-20260924/projects/chirality-piping/core/loads/stress_recovery)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (/private/tmp/piping-dec046-row-probe-20260924/projects/chirality-piping/core/solver/nonlinear_integration)
+   Compiling open_pipe_stress_load_case_algebra v0.1.0 (/private/tmp/piping-dec046-row-probe-20260924/projects/chirality-piping/core/loads/load_case_algebra)
+   Compiling open_pipe_stress_units v0.1.0 (/private/tmp/piping-dec046-row-probe-20260924/projects/chirality-piping/core/units)
+   Compiling open_pipe_stress_product_physics v0.2.0 (/private/tmp/piping-dec046-row-probe-20260924/projects/chirality-piping/core/product_physics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 10.06s
+     Running unittests src/lib.rs (/private/tmp/piping-dec046-row-probe-target/debug/deps/open_pipe_stress_product_physics-d13dbc0f8315b4d8)
+
+running 1 test
+test tests::mixed_nonlinear_preview_bundle_converges_and_emits_each_support_state ... 
+thread 'tests::mixed_nonlinear_preview_bundle_converges_and_emits_each_support_state' (78489077) panicked at src/lib.rs:11620:9:
+assertion `left == right` failed
+  left: 5.684341886080802e-14
+ right: 0.0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    tests::mixed_nonlinear_preview_bundle_converges_and_emits_each_support_state
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 189 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `--lib`

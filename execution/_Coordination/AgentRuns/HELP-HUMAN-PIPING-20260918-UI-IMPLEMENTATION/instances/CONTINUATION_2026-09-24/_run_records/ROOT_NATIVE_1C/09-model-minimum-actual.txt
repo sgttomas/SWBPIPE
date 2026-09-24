@@ -1,0 +1,7 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~						120 container View command status, Help: Fit Model applied to the displayed geometry envelope.
+~							121 text Fit Model applied to the displayed geometry envelope.
++							263 toggle button Select Low point elbow in viewport, Help: Low point elbow (node:N-110), Value: off
++							264 toggle button Select Riser elbow in viewport, Help: Riser elbow (node:N-120), Value: off
+~					173 splitter Resize table drawer, Value: 180
+The focused UI element is 2 HTML content Description: SWBPIPE, URL: tauri://localhost

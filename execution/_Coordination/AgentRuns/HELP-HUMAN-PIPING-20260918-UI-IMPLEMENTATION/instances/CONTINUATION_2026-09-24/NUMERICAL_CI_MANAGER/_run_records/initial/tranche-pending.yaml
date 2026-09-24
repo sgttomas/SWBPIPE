@@ -1,0 +1,57 @@
+schema: instruction-tranche-manifest/v1
+tranche_id: PIPING-NUMERICAL-CI-20260924
+title: Add discovered numerical Rust tests to Piping hosted CI
+date: 2026-09-24
+basis: f7e8b467cb2db244f11fe49cede636140031b387
+instruction_surface_paths:
+  - .github/workflows/piping-desktop-e2e.yml
+  - docs/governance_harness/tranche_manifests/PIPING-NUMERICAL-CI-20260924.yaml
+m2_gate:
+  authorization: >-
+    Owner Ryan Tufts authorized repair of all solver findings and connected
+    errors using expert correctness. ROOT allocated the M27 hosted numerical
+    Rust coverage gap to WORKING_ITEMS numerical_ci_manager. The companion
+    Runtime/App owner confirmed Piping ownership of the Piping CI workflow and
+    selector integration with no competing edits. ROOT explicitly assigned
+    the maintained and tranche paths plus the sixteen omitted crate-local
+    test lockfiles in the isolated candidate and
+    retains Git integration and hosted execution. Existing source browser
+    coverage, shared setup action and exporter boundaries remain preserved.
+  authorized_by: Ryan Tufts
+  authorization_date: 2026-09-24
+  integration_owner: HELP_HUMAN ROOT, GPT-6 Astra
+  merge_gate: owner-authorized-pr
+  self_merge: true
+m6_notice:
+  disposition: pending
+  routed_to: []
+  rationale: >-
+    ROOT coordinates final downstream notice disposition. The existing Piping
+    workflow filename retains the exporter exclusion; no new workflow/action
+    path, shared setup action, exporter or Root/App/Runtime workflow changes
+    are included. This declaration records scope and does not establish
+    hosted execution, engineering acceptance or product release.
+candidate_paths:
+  - .github/workflows/piping-desktop-e2e.yml
+  - docs/governance_harness/tranche_manifests/PIPING-NUMERICAL-CI-20260924.yaml
+  - projects/chirality-piping/tools/ci/e2e_plan.py
+  - projects/chirality-piping/tools/ci/numerical_ci.py
+  - projects/chirality-piping/tests/test_ci_e2e_plan.py
+  - projects/chirality-piping/tests/test_ci_numerical.py
+  - projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/**
+  - projects/chirality-piping/core/loads/load_case_algebra/Cargo.lock
+  - projects/chirality-piping/core/loads/primitive_loads/Cargo.lock
+  - projects/chirality-piping/core/reporting/audit_manifest/Cargo.lock
+  - projects/chirality-piping/core/reporting/report_generator/Cargo.lock
+  - projects/chirality-piping/core/reporting/result_export/Cargo.lock
+  - projects/chirality-piping/core/rules/completeness_checker/Cargo.lock
+  - projects/chirality-piping/core/rules/rule_pack_lifecycle/Cargo.lock
+  - projects/chirality-piping/core/runner/headless/Cargo.lock
+  - projects/chirality-piping/core/solver/curved_bend/Cargo.lock
+  - projects/chirality-piping/core/solver/diagnostics/Cargo.lock
+  - projects/chirality-piping/core/solver/frame_kernel/Cargo.lock
+  - projects/chirality-piping/core/solver/linear_supports/Cargo.lock
+  - projects/chirality-piping/core/solver/nonlinear_supports/Cargo.lock
+  - projects/chirality-piping/core/solver/performance_harness/Cargo.lock
+  - projects/chirality-piping/core/solver/sparse_direct/Cargo.lock
+  - projects/chirality-piping/core/solver/straight_pipe/Cargo.lock

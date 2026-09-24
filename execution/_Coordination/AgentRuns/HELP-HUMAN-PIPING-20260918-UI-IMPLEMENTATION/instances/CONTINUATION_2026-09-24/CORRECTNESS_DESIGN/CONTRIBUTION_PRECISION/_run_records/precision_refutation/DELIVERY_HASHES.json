@@ -1,0 +1,32 @@
+[
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/INDEPENDENT_REFUTATION.md",
+    "sha256": "62c969a407c74cae1db7fea8382331c89c94da42e996679234e2d1605b59d0b0",
+    "bytes": 22720
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/_run_records/precision_refutation/probe.py",
+    "sha256": "74f4a59f07de4f4a1409bff939084d4bcce912e982df66c76e953af1724e8171",
+    "bytes": 10057
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/_run_records/precision_refutation/probe.stdout.json",
+    "sha256": "a117e683333c13446317d2fb3cc1086f298104fc5d268d2b3a35ac9494277e89",
+    "bytes": 39403
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/_run_records/precision_refutation/ORIGINS_AND_EXECUTION.md",
+    "sha256": "782c00035f2e61abd8f879ea0aca5fab6124de513f303974310243041a10b6de",
+    "bytes": 4587
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/_run_records/precision_refutation/SOURCE_MANIFEST.json",
+    "sha256": "21f8b5babf06cb83cf3116cf5fd5166d0cee440d472c25b2728c675e25539f57",
+    "bytes": 6666
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/_run_records/precision_refutation/FINAL_BACKCHECK.json",
+    "sha256": "3d4b6a3ab39653ee3432208168af923ae85c01252cb77e7564009f6f98010170",
+    "bytes": 1607
+  }
+]

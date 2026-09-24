@@ -1,0 +1,24 @@
+   Compiling piping_ci_failure_control v0.1.0 (/private/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/projects/chirality-piping/core/failure_control)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.64s
+     Running unittests src/lib.rs (/private/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/evidence/target/debug/deps/piping_ci_failure_control-0d31be24c787f09a)
+
+running 1 test
+test expected_negative_numerical_control ... FAILED
+
+failures:
+
+---- expected_negative_numerical_control stdout ----
+
+thread 'expected_negative_numerical_control' (78393816) panicked at src/lib.rs:3:5:
+assertion `left == right` failed: intentional numerical failure control
+  left: 4
+ right: 5
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    expected_negative_numerical_control
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--lib`

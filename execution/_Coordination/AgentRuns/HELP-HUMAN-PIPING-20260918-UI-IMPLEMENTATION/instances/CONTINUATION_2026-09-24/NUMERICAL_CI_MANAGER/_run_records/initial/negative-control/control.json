@@ -1,0 +1,45 @@
+{
+  "kind": "expected-negative-control",
+  "not_product_or_hosted_execution": true,
+  "fixture_root": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v",
+  "fixture_head": "e3f44096720f75c7838dc24517eb5e4e209da7ba",
+  "candidate_base": "f7e8b467cb2db244f11fe49cede636140031b387",
+  "candidate_runner_sha256": {
+    "tools/ci/e2e_plan.py": "cc57406835c8413caeb224ee6cac250385b308e46849ed37fcddac6604dfaf56",
+    "tools/ci/numerical_ci.py": "c1763b3be06836dc44a9f1a4c456207f102cf6feac12cf85c5a0ef19fab1ae37",
+    "tools/release/check_release_readiness.py": "c386cdef9fe16ae0239dc509cb29dbadf0f6ce138cf7c0b7ab40867cb34e930f"
+  },
+  "fixture_inputs": {
+    "Cargo.toml": "[package]\nname = \"piping_ci_failure_control\"\nversion = \"0.1.0\"\nedition = \"2021\"\n",
+    "Cargo.lock": "version = 4\n\n[[package]]\nname = \"piping_ci_failure_control\"\nversion = \"0.1.0\"\n",
+    "src/lib.rs": "#[test]\nfn expected_negative_numerical_control() {\n    assert_eq!(2 + 2, 5, \"intentional numerical failure control\");\n}\n"
+  },
+  "runner_argv": [
+    "/private/tmp/chirality-piping-dec025-venv/bin/python",
+    "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/projects/chirality-piping/tools/ci/numerical_ci.py",
+    "--plan",
+    "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/plan.json",
+    "--evidence-dir",
+    "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/evidence"
+  ],
+  "runner_exit": 101,
+  "aggregate_argv": [
+    "/private/tmp/chirality-piping-dec025-venv/bin/python",
+    "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/projects/chirality-piping/tools/ci/e2e_plan.py",
+    "aggregate",
+    "--mode",
+    "full",
+    "--selection",
+    "success",
+    "--barrier",
+    "success",
+    "--remainder",
+    "success",
+    "--numerical-required",
+    "true",
+    "--numerical",
+    "failure"
+  ],
+  "aggregate_exit": 1,
+  "aggregate_inputs_note": "Controlled job-status inputs isolate numerical failure; no browser run/pass is claimed."
+}

@@ -1,0 +1,113 @@
+{
+  "status": "failed",
+  "head": "e3f44096720f75c7838dc24517eb5e4e209da7ba",
+  "target_base": "",
+  "plan": {
+    "version": 3,
+    "mode": "full",
+    "coverage_full": true,
+    "event": "workflow_dispatch",
+    "pr": "",
+    "base": null,
+    "target_base": "",
+    "head": "e3f44096720f75c7838dc24517eb5e4e209da7ba",
+    "changed_paths": [],
+    "projects": [
+      "chromium-desktop",
+      "chromium-compact"
+    ],
+    "inventory": [
+      "e2e/b3-accessibility.spec.ts"
+    ],
+    "selected_specs": [
+      "e2e/b3-accessibility.spec.ts"
+    ],
+    "selected_titles": {},
+    "numerical_required": true,
+    "appearance": false,
+    "ownership": {},
+    "reasons": [
+      "Deliberate manual full integration milestone or unknown event"
+    ],
+    "coverage_note": "Full deduplicated source coverage requires barrier and four exact partitions to succeed."
+  },
+  "commands": [
+    {
+      "argv": [
+        "rustc",
+        "--version"
+      ],
+      "cwd": "/private/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/projects/chirality-piping",
+      "output": "command-000.log",
+      "exit_code": 0,
+      "output_sha256": "4ad84f16acc2f3bdcfbc7b0788f1e74a4e649b962154a585b8f8d0b28eb0dd06"
+    },
+    {
+      "argv": [
+        "cargo",
+        "--version"
+      ],
+      "cwd": "/private/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/projects/chirality-piping",
+      "output": "command-001.log",
+      "exit_code": 0,
+      "output_sha256": "1aedaa9cce116919d39b1eb303a58865771582bc24fc259aa8e26cb212e0f59e"
+    },
+    {
+      "argv": [
+        "cargo",
+        "fetch",
+        "--locked",
+        "--manifest-path",
+        "core/failure_control/Cargo.toml"
+      ],
+      "cwd": "/private/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/projects/chirality-piping",
+      "output": "cargo-logs/command-000.log",
+      "exit_code": 0,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "cargo",
+        "test",
+        "--offline",
+        "--manifest-path",
+        "core/failure_control/Cargo.toml",
+        "--locked"
+      ],
+      "cwd": "/private/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/projects/chirality-piping",
+      "output": "cargo-logs/command-001.log",
+      "exit_code": 101,
+      "output_sha256": "1b246728e7f195839368631421d4c815d4cd44b1040e174843a75d61ad86436b"
+    }
+  ],
+  "manifests": [
+    "core/failure_control/Cargo.toml"
+  ],
+  "plan_validated": true,
+  "input_sha256": {
+    "core/failure_control/Cargo.toml": "a7d7e3c5a7be16a70dcac8319388fb756d1b5f4c8313aa2e7696452be53b9a99",
+    "core/failure_control/Cargo.lock": "c8160421a73753b29094dd65c4b69522d95502e6b60db6158c84ab6453f2bdfb"
+  },
+  "planned_commands": [
+    [
+      "cargo",
+      "fetch",
+      "--locked",
+      "--manifest-path",
+      "core/failure_control/Cargo.toml"
+    ],
+    [
+      "cargo",
+      "test",
+      "--offline",
+      "--manifest-path",
+      "core/failure_control/Cargo.toml",
+      "--locked"
+    ]
+  ],
+  "environment": {
+    "CARGO_TARGET_DIR": "/private/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-numerical-expected-failure-l8dp2a_v/evidence/target",
+    "python": "3.13.14 (main, Jul 18 2026, 16:56:45) [Clang 22.1.3 ]"
+  },
+  "exit_code": 101
+}

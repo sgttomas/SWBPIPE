@@ -1,0 +1,11 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 212-227
+~						53 button (expanded) Table details, Secondary Actions: Collapse
++						212 container Table details
++							213 container
++								214 text 1  of  1 Materials ;  0  changed cells.
++							215 container
++								216 text Grid mode fans each changed cell into a structured review intent; storage remains local. Blank or whitespace text becomes TBD when queued; keeping a draft does not change the model.
++							217 text Direct material edit retained. Return to material fields to correct or cancel it.
+~									85 button (collapsed) Material fields Info, Secondary Actions: Expand
+The focused UI element is 212 container Table details

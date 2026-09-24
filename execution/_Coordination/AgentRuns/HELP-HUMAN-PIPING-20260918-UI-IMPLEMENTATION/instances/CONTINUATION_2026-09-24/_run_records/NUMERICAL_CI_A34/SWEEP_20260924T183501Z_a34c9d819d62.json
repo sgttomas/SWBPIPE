@@ -1,0 +1,135 @@
+{
+  "artifact": "openpipestress.evidence_sweep_summary",
+  "schema_version": 3,
+  "decision_basis": [
+    "DEC-025",
+    "DEC-093"
+  ],
+  "boundary_note": "Commit-bound development evidence; the tool performs no network lookup. Not a release claim, professional approval, certification, sealing, authentication, or code-compliance determination.",
+  "git": {
+    "commit_hash": "a34c9d819d62b54b74d7f07edde87738b97b87cf",
+    "branch": "codex/piping-numerical-ci-20260924",
+    "status_capture_failed": false,
+    "working_tree_dirty": false,
+    "dirty_paths": []
+  },
+  "runtime": {
+    "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+    "python": "3.13.14",
+    "node": "v24.18.0",
+    "npm": "11.16.0",
+    "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+    "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)"
+  },
+  "started_utc": "2026-09-24T18:35:01+00:00",
+  "finished_utc": "2026-09-24T18:40:20+00:00",
+  "duration_seconds": 319.15,
+  "surfaces": [
+    {
+      "order": 1,
+      "surface_id": "cargo_crate_sweep",
+      "description": "Rust crate tests across all discovered crate manifests.",
+      "execution_capability": "sandboxed",
+      "commands": [
+        {
+          "argv": [
+            "/private/tmp/chirality-piping-dec025-venv/bin/python",
+            "tools/release/check_release_readiness.py",
+            "--profile",
+            "cargo",
+            "--execute"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 87.315
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 2,
+      "surface_id": "python_pytest",
+      "description": "Repository Python contract, governance, and validation tests.",
+      "execution_capability": "sandboxed",
+      "commands": [
+        {
+          "argv": [
+            "/private/tmp/chirality-piping-dec025-venv/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "tests"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 75.1
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 3,
+      "surface_id": "desktop_vitest",
+      "description": "Desktop unit/contract tests; wasm engine built first.",
+      "execution_capability": "sandboxed",
+      "commands": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "build:wasm:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 15.448
+        },
+        {
+          "argv": [
+            "npm",
+            "run",
+            "test:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 133.654
+        }
+      ],
+      "status": "pass"
+    },
+    {
+      "order": 4,
+      "surface_id": "desktop_playwright_e2e",
+      "description": "Registered source-mode Playwright e2e specs across both viewport projects, bound to the successful DEC-093 Actions run.",
+      "execution_capability": "ci",
+      "commands": [],
+      "status": "pass",
+      "ci_binding": {
+        "workflow_path": ".github/workflows/piping-desktop-e2e.yml",
+        "run_id": 36037700066,
+        "run_attempt": 1,
+        "head_sha": "a34c9d819d62b54b74d7f07edde87738b97b87cf",
+        "conclusion": "success",
+        "registered_e2e_specs_executed": true,
+        "viewport_projects": [
+          "chromium-desktop",
+          "chromium-compact"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "surface_id": "desktop_production_build",
+      "description": "Desktop production build (tsc -b && vite build).",
+      "execution_capability": "sandboxed",
+      "commands": [
+        {
+          "argv": [
+            "npm",
+            "run",
+            "build:desktop"
+          ],
+          "exit_code": 0,
+          "duration_seconds": 7.655
+        }
+      ],
+      "status": "pass"
+    }
+  ],
+  "overall_status": "pass"
+}

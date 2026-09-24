@@ -1,0 +1,106 @@
+[
+  {
+    "name": "noble-sources",
+    "url": "https://manpages.ubuntu.com/manpages/noble/man5/sources.list.5.html",
+    "observed_at_utc": "2026-09-24T16:51:59Z",
+    "status": 200,
+    "headers": {
+      "content-security-policy": "default-src 'none'; script-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline' https://assets.ubuntu.com; img-src 'self' data: https://assets.ubuntu.com; font-src 'self' https://assets.ubuntu.com https://fonts.gstatic.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+      "content-type": "text/html; charset=utf-8",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY",
+      "date": "Thu, 24 Sep 2026 16:52:05 GMT",
+      "transfer-encoding": "chunked",
+      "connection": "close"
+    },
+    "length": 44207,
+    "sha256": "f04c007957bb098f3395272a9adceb676bd86691652f0dd85cdc28c0346a9c24"
+  },
+  {
+    "name": "noble-aptconf",
+    "url": "https://manpages.ubuntu.com/manpages/noble/man5/apt.conf.5.html",
+    "observed_at_utc": "2026-09-24T16:52:05Z",
+    "status": 200,
+    "headers": {
+      "content-security-policy": "default-src 'none'; script-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline' https://assets.ubuntu.com; img-src 'self' data: https://assets.ubuntu.com; font-src 'self' https://assets.ubuntu.com https://fonts.gstatic.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+      "content-type": "text/html; charset=utf-8",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY",
+      "date": "Thu, 24 Sep 2026 16:52:12 GMT",
+      "transfer-encoding": "chunked",
+      "connection": "close"
+    },
+    "length": 67953,
+    "sha256": "142bce53e7472cee338906d0df029054916191e6e75b770ad89bb441fa3673e1"
+  },
+  {
+    "name": "apt-by-hash",
+    "url": "https://wiki.debian.org/AptByHash",
+    "observed_at_utc": "2026-09-24T16:52:13Z",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "name": "security-inrelease",
+    "url": "https://security.ubuntu.com/ubuntu/dists/noble-security/InRelease",
+    "observed_at_utc": "2026-09-24T16:52:14Z",
+    "status": 200,
+    "headers": {
+      "Date": "Thu, 24 Sep 2026 16:52:14 GMT",
+      "Server": "Apache/2.4.52 (Ubuntu)",
+      "Last-Modified": "Thu, 24 Sep 2026 15:13:21 GMT",
+      "ETag": "\"1ecaf-65c3c0a55972c\"",
+      "Accept-Ranges": "bytes",
+      "Content-Length": "126127",
+      "Cache-Control": "max-age=0, proxy-revalidate, s-maxage=3300",
+      "Expires": "Thu, 24 Sep 2026 16:52:14 GMT",
+      "Connection": "close"
+    },
+    "length": 126127,
+    "sha256": "f27b1c1614309930af01263d43401071171f65aa282c3a74c57ed74e814018e9"
+  },
+  {
+    "name": "updates-inrelease",
+    "url": "https://archive.ubuntu.com/ubuntu/dists/noble-updates/InRelease",
+    "observed_at_utc": "2026-09-24T16:52:15Z",
+    "status": 200,
+    "headers": {
+      "Date": "Thu, 24 Sep 2026 16:52:18 GMT",
+      "Server": "Apache/2.4.52 (Ubuntu)",
+      "Last-Modified": "Thu, 24 Sep 2026 09:36:46 GMT",
+      "ETag": "\"1ecad-65c37569ff4ba\"",
+      "Accept-Ranges": "bytes",
+      "Content-Length": "126125",
+      "Cache-Control": "max-age=0, proxy-revalidate, s-maxage=3300",
+      "Expires": "Thu, 24 Sep 2026 16:52:18 GMT",
+      "Connection": "close"
+    },
+    "length": 126125,
+    "sha256": "d496ea56793772dc49dda1c3884843dad93a3bb7f5751d11562587edd4295806"
+  },
+  {
+    "name": "security-observed-hash",
+    "url": "https://security.ubuntu.com/ubuntu/dists/noble-security/main/dep11/by-hash/SHA256/97b1c360f55cc33b9bc5b51019c29be4d060e64c6d4004dcea0e3b2bad855ef5",
+    "observed_at_utc": "2026-09-24T16:52:19Z",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "name": "updates-observed-hash",
+    "url": "https://archive.ubuntu.com/ubuntu/dists/noble-updates/universe/binary-amd64/by-hash/SHA256/5914f242dd289eb47e4e592db25970499a713b7624661ec76f67a8ea5f896ff5",
+    "observed_at_utc": "2026-09-24T16:52:19Z",
+    "status": 200,
+    "headers": {
+      "Date": "Thu, 24 Sep 2026 16:52:20 GMT",
+      "Server": "Apache/2.4.52 (Ubuntu)",
+      "Last-Modified": "Thu, 24 Sep 2026 15:14:06 GMT",
+      "ETag": "\"19e9f8-65c3c0d093ef8\"",
+      "Accept-Ranges": "bytes",
+      "Content-Length": "1698296",
+      "Cache-Control": "max-age=86400",
+      "Connection": "close"
+    },
+    "length": 1698296,
+    "sha256": "5914f242dd289eb47e4e592db25970499a713b7624661ec76f67a8ea5f896ff5"
+  }
+]

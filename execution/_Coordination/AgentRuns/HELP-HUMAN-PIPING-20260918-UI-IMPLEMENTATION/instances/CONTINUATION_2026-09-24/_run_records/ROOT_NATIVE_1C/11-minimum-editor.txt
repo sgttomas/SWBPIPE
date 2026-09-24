@@ -1,0 +1,41 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 125-126, 129, 131-133, 258-261, 263-278
+~									250 row (selected)
+~										255 cell (selected, settable)
++											263 text field (settable) node:N-140 Z [m], Value: 2.2
++									264 text Editing 
++									265 text Z
++									266 text  · 
++									267 text node:N-140
++									268 button Apply, Help: Apply (Enter)
++									269 button Cancel, Help: Cancel (Escape)
+~									262 button (collapsed) Node fields Info, Secondary Actions: Expand
+~							105 button Hide, Help: Hide selected geometry (H). Hidden geometry is removed from canvas picking.
+~							106 button Isolate, Help: Isolate selected geometry (I): dim other shown geometry to 20%. Dimmed geometry remains selectable; Hide wins.
+~							111 button Fit Selection, Help: Fit currently visible selected geometry.
+~						117 text Selected:  node:N-140
++							270 toggle button Select Terminal tie-in in viewport, Help: Terminal tie-in (node:N-140), Value: on
++							271 toggle button Select Vertical riser in viewport, Help: Vertical riser (pipe:P-110), Value: off
++							272 toggle button Select Invented branch connection marker in viewport, Help: Invented branch connection marker (component:C-120), Value: off
++							273 toggle button Select Low point elbow in viewport, Help: Low point elbow (node:N-110), Value: off
++							274 toggle button Select Riser elbow in viewport, Help: Riser elbow (node:N-120), Value: off
++							275 toggle button Select Rack span in viewport, Help: Rack span (pipe:P-120), Value: off
++							276 toggle button Select Invented semi-rigid valve marker in viewport, Help: Invented semi-rigid valve marker (component:C-130), Value: off
++							277 toggle button Select Invented tie-in marker in viewport, Help: Invented tie-in marker (component:C-140), Value: off
++							278 toggle button Select Pump nozzle in viewport, Help: Pump nozzle (node:N-100), Value: off
++							279 toggle button Select Rack turn in viewport, Help: Rack turn (node:N-130), Value: off
++							280 toggle button Select Preview sliding-friction rack shoe in viewport, Help: Preview sliding-friction rack shoe (support:NL-130-FRIC), Value: off
+~						175 heading Terminal tie-in — node: node:N-140, Value: 2
+~							176 text Terminal tie-in —  node :  node:N-140
++						281 container Delete node intent
++							282 heading Delete node, Value: 3
++								283 text Delete node
++							284 button Queue delete node, Help: Queue node delete intent
++							285 container
++								286 text Operation op:delete-node-node:N-140; delete; proposed Target Node; node:N-140 Change delete_node; Explicit node deletion; nodes; before=Terminal tie-in; x=7.6; y=2.4; z=2.2; after=not_present Unit basis dimensionless; unit=none; explicit user-entered node deletion; endpoint and load reference integrity required Validation not_run; not_run; not_required_dimensionless; not_generated; not_applied Audit boundary Routed through the structured operations only; no direct model mutation; requires your acceptance; does not change the accepted model until applied Professional boundary Requires human review; no compliance claim; no approval claim Rationale explicit user-entered node deletion for project:invented-loop-01; requires reference validation before durable model change.
+~					160 text node: node:N-140 Entered
+Selected text: ```
+2.2
+```
+
+Note: Pay special attention to the content selected by the user. If the user asks a question or refers to the content they are looking at on-screen, they might be referring to the selected content (but they might be referring to something else that's visible, too).

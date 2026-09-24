@@ -1,0 +1,31 @@
+{
+  "parent": "/root/numerical_ci_manager",
+  "child": "/root/numerical_ci_manager/implement_numerical_ci",
+  "role": "TASK",
+  "model": "gpt-6-astra",
+  "reasoning_effort": "low",
+  "mechanism": "delegated-harness-native",
+  "basis": [
+    {
+      "path": "/private/tmp/piping-numerical-ci-20260924/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-ci-20260924/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-ci-20260924/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-ci-20260924/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": "/private/tmp/piping-numerical-ci-20260924/.agents/skills/chirality-change/SKILL.md",
+      "sha256": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba"
+    }
+  ],
+  "limits": "Five assigned implementation files only; no git mutations or Cargo/npm/browser/build/hosted execution"
+}

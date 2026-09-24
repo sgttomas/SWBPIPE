@@ -1,0 +1,9 @@
+{
+  "pr": "https://github.com/sgttomas/chirality/pull/887",
+  "head": "a34c9d819d62b54b74d7f07edde87738b97b87cf",
+  "merge_commit": "84de34695ab4b30f471d50b30ba63989998be9a1",
+  "state": "MERGED",
+  "merged_at": "2026-09-24T19:01:57Z",
+  "source": "gh pr view --json state,mergedAt,mergeCommit,headRefOid,url; actual tool observation",
+  "authorization": "Root standingGit grant; actualcandidate checks/review passed; no release"
+}

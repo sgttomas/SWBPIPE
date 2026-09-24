@@ -1,0 +1,17 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~									262 button (expanded) Node fields Info, Secondary Actions: Collapse
++								265 container Node fields Info
++									266 button Close Info
++									267 container
++										268 text 5  of  5  rows.
++									269 heading Columns, Value: 3
++										270 text Columns
++									271 text Label
++									272 container
++										273 text X  [m]
++									274 container
++										275 text Y  [m]
++									276 container
++										277 text Z  [m]
++									278 text Provenance
+The focused UI element is 265 container Node fields Info
