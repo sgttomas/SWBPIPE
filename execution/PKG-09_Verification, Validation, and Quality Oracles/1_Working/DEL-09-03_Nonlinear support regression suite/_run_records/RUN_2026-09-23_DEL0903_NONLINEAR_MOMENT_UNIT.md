@@ -24,7 +24,7 @@ different units, so no verdict was wrong; only the label was.
 
 100 occurrences of `N-m` became `N-mm` across the benchmark code (13), ten
 DEC-046 JSON records (one unit field each), the nonlinear hand-calc notes and
-README, and the regression test (5 assertions). No number changed.
+README, and the regression test (5 occurrences: 4 asserts and 1 required unit-basis line). No number changed.
 
 ## Commands and results (from `projects/chirality-piping`)
 

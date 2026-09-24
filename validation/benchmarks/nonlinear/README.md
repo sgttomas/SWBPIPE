@@ -13,6 +13,10 @@ Fixture values carry explicit unit identifiers in code under
 `PKG09-NONLINEAR-FIXTURE-UNITS-EXPLICIT-MM-N-NM`. This is a fixture-local basis
 only: it records units for evidence review and does not define project
 conversion constants or the canonical unit catalog, which remain `TBD`.
+Lengths and displacements are in `mm`, forces in `N`, and moments, moment
+reactions and work/energy residuals in `N-mm` (`D-76`). The `NM` in the
+identifier above is a legacy opaque reference kept for continuity; it does not
+mean newton-metres.
 
 Hand-calculation and provenance notes are in `validation/hand_calcs/nonlinear/`.
 
