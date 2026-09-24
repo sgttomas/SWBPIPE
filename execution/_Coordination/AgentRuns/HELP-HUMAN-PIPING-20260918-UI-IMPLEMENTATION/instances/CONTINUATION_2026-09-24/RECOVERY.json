@@ -124,7 +124,17 @@
         "B2"
       ],
       "pr": 805,
-      "mergeCommit": "172cd5689"
+      "mergeCommit": "172cd5689",
+      "defers": [
+        {
+          "item": "the native menu is not disabled during a busy project request; a save superseded by another project request after its bytes landed keeps the open-time record",
+          "retiresWith": "B3B"
+        },
+        {
+          "item": "a landed save nulls the integrity record instead of re-deriving it",
+          "retiresWith": "B3B"
+        }
+      ]
     },
     {
       "id": "B3",
@@ -135,7 +145,17 @@
         "C1"
       ],
       "pr": "https://github.com/sgttomas/chirality/pull/825",
-      "mergeCommit": "7e6a7f2578e5df12ea891c2d604d0cd48e869934"
+      "mergeCommit": "7e6a7f2578e5df12ea891c2d604d0cd48e869934",
+      "defers": [
+        {
+          "item": "specification 10.9 states C to E: the slide-over inspector and the agent-column collapse",
+          "retiresWith": "B5"
+        },
+        {
+          "item": "contrast witnesses for rail captions and the Inspector toggle's label",
+          "retiresWith": "CLOSING-VISUAL-PASS"
+        }
+      ]
     },
     {
       "id": "B3A",
@@ -167,6 +187,36 @@
       "status": "B4.1/B4.2/Materials/Sections and their bounded repairs merged. Wider B4 and compact-fit scope remain open; owner pause effective.",
       "dependsOn": [
         "B3B"
+      ],
+      "defers": [
+        {
+          "item": "Retire duplicate Node bulk grid after equivalent label/provenance and multi-change review capability reaches common table grammar",
+          "retireAt": "later B4 increment before claiming full B4/MVP table completion",
+          "evidence": "B4_1_COMPATIBILITY_DISPOSITION.md; independent equivalence review required",
+          "state": "retired in merged PR832; Node direct/review use one renderer, other families remain legacy",
+          "retirementEvidence": "instances/B4-2-CODEX/RETURN.md and B4-2-REVIEW node; common core renders both Node policies, other families still legacy"
+        },
+        {
+          "item": "Short collapsible drawers (Model and narrow Both) retain whole-pane scrolling; adaptive full-height Both/Table repair does not establish stationary chrome at their127px minimum host",
+          "retireAt": "later B4 compact Model-drawer presentation before full B4/MVP table closure",
+          "evidence": "instances/B4-1-CODEX/_run_records/vertical-scroll-repair/MANAGER_COMPACT_SCOPE.md",
+          "rationale": "Existing drawer measurements: default host227px; minimum127px; expanded439px desktop/319px compact. Preserve accepted pane budgets and all controls; do not create zero-height body. This bounds the increment, not a proof that every compact design is impossible."
+        },
+        {
+          "item": "Both+Inspector-open Provenance native pointer exposure remains unverified where no scrollbar thumb was observable; native Table and Both/Inspector-closed routes pass",
+          "retireAt": "full B4/closing fit verification; current internal increment keeps the stated evidence limitation",
+          "evidence": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_2_ROOT_NATIVE_FINAL/RETURN.md",
+          "state": "verification limit; no product defect inferred from unavailable method"
+        },
+        {
+          "item": "Check Node review text-Undo while a draft changes active sort order; Node still uses inline editor and the Materials probe showed Chromium history loss on actual ancestor movement",
+          "state": "closed for demonstrated Node-review case in PR833; no universal Node-direct or full B4 keyboard/fit claim",
+          "retireAt": "bounded B4 follow-up before claiming complete common-table/MVP keyboard coverage",
+          "basis": "B4-3 architecture/undo-dom probe plus unchanged Node review sorting path; no Node repair authorized by the Materials brief",
+          "diagnosticBrief": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/B4_NODE_SORT_UNDO_DIAGNOSTIC_BRIEF.md",
+          "diagnosticBriefSha256": "8866966443b009b1aace77d127eded2088fcd7e2e0a2d33b203b36aa06f4b847",
+          "next": "Continue the remaining B4 work; this case is merged and need not be restarted absent new evidence."
+        }
       ]
     },
     {
@@ -183,6 +233,9 @@
       "status": "planned",
       "dependsOn": [
         "B5"
+      ],
+      "discoveredFollowups": [
+        "Native File Save has no Cmd-S accelerator in current source; B3A native witness used explicit File Save. Review accelerator coverage with menu completion, without claiming a new regression or silently adding it to B3A/B3B."
       ]
     },
     {
@@ -206,7 +259,17 @@
       "title": "canvas colours from tokens, the edge line (C1E), the guidance probe T1, the stylesheet rows (C1b), the empty-layer guard",
       "status": "merged",
       "pr": 806,
-      "mergeCommit": "d20eb1294"
+      "mergeCommit": "d20eb1294",
+      "defers": [
+        {
+          "item": "C1E stage 3: side rings at free ends and section changes",
+          "retiresWith": "C5"
+        },
+        {
+          "item": "derived silhouette shades, the line at device pixel ratio 1, unnamed roles, the deformed shape's ink (C1-D1)",
+          "retiresWith": "CLOSING-VISUAL-PASS"
+        }
+      ]
     },
     {
       "id": "C2",
@@ -216,7 +279,21 @@
         "C1"
       ],
       "pr": 807,
-      "mergeCommit": "b313ce821d334aa741292248fba748c5d531d972"
+      "mergeCommit": "b313ce821d334aa741292248fba748c5d531d972",
+      "defers": [
+        {
+          "item": "the casing (P1 ASK-4): the halo alone fails the pair rule in dense fixtures",
+          "retiresWith": "the owner's decision, with the second profile's freeze package"
+        },
+        {
+          "item": "halo and hover contrast, coverage at ratio 1, the diamond beside the halo",
+          "retiresWith": "CLOSING-VISUAL-PASS"
+        },
+        {
+          "item": "review's residual risks: matrixWorld read at sync time; open-ended torus and the front-face mask",
+          "retiresWith": "C3 and C5 notes"
+        }
+      ]
     },
     {
       "id": "I1",

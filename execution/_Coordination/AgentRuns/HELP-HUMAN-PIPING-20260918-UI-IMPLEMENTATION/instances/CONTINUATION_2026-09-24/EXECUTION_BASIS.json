@@ -73,8 +73,31 @@
       "brief": "DESIGN_MANAGER_BRIEF.md",
       "fork_turns": "none",
       "writes": "DESIGN_MANAGER evidence only; product read-only",
-      "state": "launched",
+      "state": "returned; parent inspected RETURN and source delta; integrated mapping/route corrections",
       "brief_sha256": "4882d53f41ad2b2d2251f1ea891dbef19f2bc0e2b8aa74cc8005e396f34ae024"
+    },
+    {
+      "id": "/root/graph_review",
+      "role": "TASK independent structure reviewer",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "brief": "GRAPH_REVIEW_BRIEF.md",
+      "brief_sha256": "730699e0a03942b5ec2e2afe381be94644a261ba136440d7cea95c7de0720159",
+      "fork_turns": "none",
+      "candidate": "31f1600b5",
+      "writes": "GRAPH_REVIEW/RETURN.md only",
+      "state": "returned GR-1 P2; ROOT carried specific inherited follow-ups; backcheck pending"
+    },
+    {
+      "id": "/root/live_manager",
+      "role": "WORKING_ITEMS live preparation",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "brief": "LIVE_MANAGER_BRIEF.md",
+      "brief_sha256": "fd3a24e13e6be0839907719d537aa4590cad5d1296ddeca51e0d34b1d39a0d3b",
+      "fork_turns": "none",
+      "writes": "LIVE_MANAGER evidence only until acknowledged product handback",
+      "state": "launched after actual owner activation; preparation active"
     }
   ],
   "enforcement": "Logical role and write scopes; actual host workspace-write permissions apply. Children share checkout; no independent OS sandbox guarantee claimed. No historical worker was resumed."
