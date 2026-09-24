@@ -1,0 +1,81 @@
+{
+  "basis": "42bd234f671508ba9ab157e1981334ba8610279f",
+  "mechanism": "delegated-harness-native via collaboration.spawn_agent",
+  "parent": "/root HELP_HUMAN",
+  "basis_note": "Only actual consulted instructions and selected method included; current role wider consultation is for child assignment preparation. Model allocation follows preserved owner direction, not old harness labels.",
+  "inputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_HELP_HUMAN.md",
+      "sha256": "0c2fe7a3097ad26c93c0267e4da6aaf90c9264489df8dc368fad657bcac69183"
+    },
+    {
+      "path": "agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "agents/AGENT_HELPS_HUMANS.md",
+      "sha256": "a0c9fb9443d8671d694c1f7b24ff3c402ffd626c781a2739342c938f2f3c3d1e"
+    },
+    {
+      "path": ".agents/skills/chirality-change/SKILL.md",
+      "sha256": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba"
+    },
+    {
+      "path": "workflows/construct-local-work-graph/WORKFLOW.md",
+      "sha256": "24268f3545eae68ac86bbfcb830314f5c8539f6da9de08bf4365b14d6f544525"
+    },
+    {
+      "path": "workflows/construct-local-work-graph/resources/work-graph-template.md",
+      "sha256": "4411d0c25b1dc88da182e05660cb061d8e885ab97f4de8f27b05f7d3b0f12261"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": "projects/chirality-piping/software-workflow.json",
+      "sha256": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/_LATEST.md",
+      "sha256": "6335bc5cb1b0d1c13c41181b0fbd3e3ab4547fa355b6c9ddc49513307b721422"
+    }
+  ],
+  "children": [
+    {
+      "id": "/root/b4_manager",
+      "role": "WORKING_ITEMS",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "brief": "IMPLEMENTATION_MANAGER_BRIEF.md",
+      "fork_turns": "none",
+      "writes": "apps/desktop and additive tools/ci under project; B4_MANAGER evidence; ROOT owns Git/graph",
+      "state": "launched",
+      "brief_sha256": "190383d57b9788904ba6c9dbb066daa8abe7b114852c398302949c254091e5e3"
+    },
+    {
+      "id": "/root/design_manager",
+      "role": "HELPS_HUMANS",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "brief": "DESIGN_MANAGER_BRIEF.md",
+      "fork_turns": "none",
+      "writes": "DESIGN_MANAGER evidence only; product read-only",
+      "state": "launched",
+      "brief_sha256": "4882d53f41ad2b2d2251f1ea891dbef19f2bc0e2b8aa74cc8005e396f34ae024"
+    }
+  ],
+  "enforcement": "Logical role and write scopes; actual host workspace-write permissions apply. Children share checkout; no independent OS sandbox guarantee claimed. No historical worker was resumed."
+}

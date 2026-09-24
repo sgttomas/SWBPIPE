@@ -1,0 +1,691 @@
+{
+  "source_commit": "44a30112a2d4af21768a9eef822ad1974a3869ec",
+  "source_branch": "codex/swbpipe-continuation-20260919",
+  "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.json",
+  "source_sha256": "dd04c85f7f9c6c664eaa8a8684ad0bfd43f6e0b99175c1f1994f31e4fad26f12",
+  "checked_main": "42bd234f671508ba9ab157e1981334ba8610279f",
+  "nodes": [
+    {
+      "id": "ROOT",
+      "status": "active HELP_HUMAN after owner resume: B4.2 coordination/next decisions, records, integration and independent review",
+      "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/DECISION_AND_STRATEGY.md"
+    },
+    {
+      "id": "A1-LINT",
+      "status": "accepted_after_independent_review"
+    },
+    {
+      "id": "A1-APP",
+      "status": "accepted_after_independent_review"
+    },
+    {
+      "id": "A1-DOCS",
+      "status": "accepted_after_independent_review"
+    },
+    {
+      "id": "A1-REVIEW",
+      "status": "complete_pass_on_backcheck"
+    },
+    {
+      "id": "B1-TOKENS",
+      "status": "merged",
+      "dependsOn": [],
+      "merge": {
+        "pullRequest": 801,
+        "mergeCommit": "4dcab750501d039af5b2973991cbe0f3f423b80a",
+        "ciHead": "0439d1babd7539507f4608dfcc2cdb05934e101f"
+      }
+    },
+    {
+      "id": "B-SHELL",
+      "status": "B4.1 merged; retained manager assigned bounded B4.2 Node scalar/common review renderer under fresh sealed brief",
+      "dependsOn": []
+    },
+    {
+      "id": "B-CANVAS",
+      "status": "I1 frozen and returned at 045acae749fe1acc95bce221cdb58c2db4a7064c; independent review active. C3 awaits integration and bounded activation.",
+      "dependsOn": []
+    },
+    {
+      "id": "B1-REVIEW",
+      "status": "returned_pass_no_actionable_finding",
+      "return": "instances/B1-REVIEW/RETURN.md"
+    },
+    {
+      "id": "A1F-FOLLOWUPS",
+      "status": "merged",
+      "dependsOn": [],
+      "merge": {
+        "pullRequest": 802,
+        "mergeCommit": "8e4c5df6ec84928ca343224e5244ccdae5771cd4",
+        "ciHead": "e989522aacfee98fa9a4ab7207c06ffbe1852c43",
+        "mergedAt": "2026-09-19T00:47:54Z"
+      },
+      "return": "instances/A1F-FOLLOWUPS/RETURN.md"
+    },
+    {
+      "id": "A1F-REVIEW",
+      "status": "returned_pass_no_actionable_finding",
+      "return": "instances/A1F-REVIEW/RETURN.md"
+    },
+    {
+      "id": "DESIGN-SYSTEM-05",
+      "status": "parked with its branch (DS5-D3, adopted by the owner on 2026-09-19: reopened at the closing visual pass): candidate ff4c71689 with correction 1 checked by ROOT; correction 2 sealed and not executed; the reviewer's backcheck not run; branch head 4dddd44128e052cfe518f84c0b718e6125cb2b69, pushed, no pull request",
+      "dependsOn": [],
+      "return": "lanes/DESIGN-SYSTEM-05/returns/DESIGN-SYSTEM-05_RETURN.md"
+    },
+    {
+      "id": "B1B-TOKENS13",
+      "status": "unsealed draft, waits with design system V1.4 for the closing visual pass",
+      "dependsOn": [
+        "DESIGN-SYSTEM-05"
+      ]
+    },
+    {
+      "id": "CLOSING-VISUAL-PASS",
+      "status": "planned: after both lanes' control work",
+      "dependsOn": [
+        "B7",
+        "G-17",
+        "C5"
+      ],
+      "record": "ORCHESTRATION_PLAN.md, amendment 1"
+    },
+    {
+      "id": "D72-QUALIFICATION",
+      "status": "planned: last in Tranche B, after the closing visual pass; the second profile's freeze goes to the owner first",
+      "dependsOn": [
+        "CLOSING-VISUAL-PASS",
+        "SECOND-PROFILE"
+      ]
+    },
+    {
+      "id": "PROBE-NESTED-FOREGROUND",
+      "status": "returned: a nested foreground child's reply reaches its parent directly",
+      "return": "instances/ROOT/PROBE_NESTED_FOREGROUND_2026-09-19.md"
+    },
+    {
+      "id": "HANDOFF-REVIEW",
+      "status": "returned FINDINGS, none blocking; backcheck: all six closed, two new trivial findings applied as the reviewer worded them",
+      "return": "instances/HANDOFF-REVIEW/RETURN.md"
+    },
+    {
+      "id": "B2",
+      "title": "state extraction, no behaviour change",
+      "status": "merged",
+      "pr": 803,
+      "mergeCommit": "b9a07040857d2e6d3ec0f6a530697720801c7b59"
+    },
+    {
+      "id": "B2F-B2G",
+      "title": "project-handler repairs (B2F, B2G, corrections B2G-C1 and B2G-C2)",
+      "status": "merged",
+      "dependsOn": [
+        "B2"
+      ],
+      "pr": 805,
+      "mergeCommit": "172cd5689"
+    },
+    {
+      "id": "B3",
+      "title": "the visible shell: toolbar, stage rail, Table / Model / Both, status bar, agent strip",
+      "status": "Merged PR825 as7e6a7f25; same head64260a3c now has all selected CI checks green. Owner parity/bounded-rerun ruling applied; original failed sweep retained.",
+      "dependsOn": [
+        "B2F-B2G",
+        "C1"
+      ],
+      "pr": "https://github.com/sgttomas/chirality/pull/825",
+      "mergeCommit": "7e6a7f2578e5df12ea891c2d604d0cd48e869934"
+    },
+    {
+      "id": "B3A",
+      "title": "the unsaved-edits mark; the 'Solver \u00b7 Not solved' fallback chip",
+      "status": "merged as 88c6c746; all local and hosted checks subsequently passed; technical integration only",
+      "dependsOn": [
+        "B3"
+      ],
+      "merge": {
+        "pr": 826,
+        "head": "713568e8db8ad830e86afc33ef9035addb983141",
+        "commit": "88c6c7463199d1d69caebde04678fa74facca78f",
+        "mergedAt": "2026-09-20T17:48:22Z",
+        "desktopCompletedAt": "2026-09-20T18:00:32Z",
+        "method": "Observed owner UI action; ROOT did not issue merge command. CI continued after merge."
+      }
+    },
+    {
+      "id": "B3B",
+      "title": "the native menu disabled during a busy project request (with its src-tauri part); a landed save re-derives the integrity record as verified at save",
+      "status": "merged in PR828; bounded code/review/local/native/hosted evidence at recorded scopes; no product qualification inferred",
+      "dependsOn": [
+        "B3A"
+      ]
+    },
+    {
+      "id": "B4",
+      "title": "the table component through the one operation route",
+      "status": "B4.1/B4.2/Materials/Sections and their bounded repairs merged. Wider B4 and compact-fit scope remain open; owner pause effective.",
+      "dependsOn": [
+        "B3B"
+      ]
+    },
+    {
+      "id": "B5",
+      "title": "the docked inspector's remainder and the slide-over",
+      "status": "planned; read-only inventory complete, writes await B4 predecessor and shared-writer handback",
+      "dependsOn": [
+        "B4"
+      ]
+    },
+    {
+      "id": "B6",
+      "title": "results header, run menu, the Historical band, issues drawer, palette search",
+      "status": "planned",
+      "dependsOn": [
+        "B5"
+      ]
+    },
+    {
+      "id": "G-11",
+      "title": "a Stale run stays readable (typed-interface gap, authorized by the owner 2026-09-19, with a result-integrity review); G-17 with it or later",
+      "status": "planned",
+      "dependsOn": [
+        "B6"
+      ]
+    },
+    {
+      "id": "B7",
+      "title": "the Review page's chrome",
+      "status": "planned",
+      "dependsOn": [
+        "G-11"
+      ]
+    },
+    {
+      "id": "C1",
+      "title": "canvas colours from tokens, the edge line (C1E), the guidance probe T1, the stylesheet rows (C1b), the empty-layer guard",
+      "status": "merged",
+      "pr": 806,
+      "mergeCommit": "d20eb1294"
+    },
+    {
+      "id": "C2",
+      "title": "selection and hover as halos over the element's own colour (G-31); depth mask, no renderer-construction change",
+      "status": "merged",
+      "dependsOn": [
+        "C1"
+      ],
+      "pr": 807,
+      "mergeCommit": "b313ce821d334aa741292248fba748c5d531d972"
+    },
+    {
+      "id": "I1",
+      "title": "repair of the benchmark first profile's four defects (instrument code only)",
+      "status": "merged as 88c6c746; all local and hosted checks subsequently passed; technical integration only",
+      "dependsOn": [
+        "C2"
+      ],
+      "merge": {
+        "pr": 826,
+        "head": "713568e8db8ad830e86afc33ef9035addb983141",
+        "commit": "88c6c7463199d1d69caebde04678fa74facca78f",
+        "mergedAt": "2026-09-20T17:48:22Z",
+        "desktopCompletedAt": "2026-09-20T18:00:32Z",
+        "method": "Observed owner UI action; ROOT did not issue merge command. CI continued after merge."
+      },
+      "return": "instances/I1-CODEX/MANAGER_RETURN.md"
+    },
+    {
+      "id": "C3",
+      "title": "isolate as dimming, a stated pick rule, a total hidden count (G-30)",
+      "status": "merged in PR828; bounded code/review/local/native/hosted evidence at recorded scopes; no product qualification inferred",
+      "dependsOn": [
+        "I1"
+      ]
+    },
+    {
+      "id": "C4",
+      "title": "the label budget with All, Budget and Off",
+      "status": "prepared; two owner questions pending: Off inspection context and capacity/non-overlap conflict; dependent implementation held",
+      "dependsOn": [
+        "C3"
+      ]
+    },
+    {
+      "id": "C5",
+      "title": "real outside diameter, the HUD, the fitted camera (G-32); C1E's side rings",
+      "status": "planned",
+      "dependsOn": [
+        "C4"
+      ]
+    },
+    {
+      "id": "SECOND-PROFILE",
+      "title": "the benchmark's second profile prepared; its freeze, with the casing, goes to the owner as one package before any timed run",
+      "status": "planned",
+      "dependsOn": [
+        "C5",
+        "B3"
+      ]
+    },
+    {
+      "id": "TRANCHE-A2",
+      "status": "planned: after the closing visual pass, not overlapping it (the owner, 2026-09-19); its own plan",
+      "dependsOn": [
+        "CLOSING-VISUAL-PASS"
+      ]
+    },
+    {
+      "id": "B2F-REVIEW",
+      "status": "returned_pass_no_actionable_finding",
+      "return": "lanes/B-SHELL/reviews/B2F-REVIEW_RETURN.md"
+    },
+    {
+      "id": "B2G-REVIEW",
+      "status": "returned FINDINGS (one, corrected as B2G-C1); backcheck found one more (corrected as B2G-C2); second backcheck PASS for the combined candidate",
+      "return": "lanes/B-SHELL/reviews/B2G-REVIEW_RETURN.md"
+    },
+    {
+      "id": "C-PR1-REVIEW",
+      "status": "returned_pass_no_actionable_finding",
+      "return": "lanes/B-CANVAS/reviews/PR1-REVIEW_RETURN.md"
+    },
+    {
+      "id": "C2-REVIEW",
+      "status": "returned_pass_no_actionable_finding",
+      "return": "lanes/B-CANVAS/reviews/C2-REVIEW_RETURN.md"
+    },
+    {
+      "id": "HANDOFF2-REVIEW",
+      "status": "returned FINDINGS, eight, none blocking; all applied; no backcheck run, to spare the owner's usage",
+      "return": "instances/HANDOFF2-REVIEW/RETURN.md"
+    },
+    {
+      "id": "B3-CODEX-MANAGER",
+      "status": "bounded CI repair complete; clean handofff7dcbf and all resources released; post-B3 activation awaits merge",
+      "return": "instances/B3-CODEX/RETURN.md"
+    },
+    {
+      "id": "CONTINUATION-RECORDS-REVIEW",
+      "status": "PASS through 2fd1416ac after tail backcheck; subsequent candidate changes still require review coverage",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/RECORDS_REVIEW_RETURN.md"
+    },
+    {
+      "id": "B3-CODE-REVIEW",
+      "status": "All original accessibility, native responder and selector findings independently closed; final test-only3line backcheck passed7afd; full lanes/sweep/CI remain",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3_CODE_REVIEW_RETURN.md"
+    },
+    {
+      "id": "B3-FIDELITY-CODEX",
+      "status": "F1 and affected compact-control backchecks passed; native is separately bound; no acceptance claim",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/fidelity/RETURN.md"
+    },
+    {
+      "id": "CI-STRATEGY",
+      "title": "Early interaction gate, conservative affected selection and isolated full-run shards",
+      "status": "Merged with B3; actual focused hosted path passed. Full four-shard mode has collection/contract validation; first broad product slice will exercise hosted full mode.",
+      "dependsOn": []
+    },
+    {
+      "id": "CI-INVENTORY",
+      "status": "returned; independent custody/source/timing review PASS after row-order correction",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/CI_INVENTORY_RETURN.md"
+    },
+    {
+      "id": "CI-IMPLEMENTER",
+      "status": "returned repaired candidate7174f78b;28unitpasses; independent backcheck PASS; no browser/full-suite/hosted claim"
+    },
+    {
+      "id": "G-17",
+      "title": "compatible persisted view state",
+      "status": "authorized, scheduled after G-11; bounded brief not yet launched",
+      "dependsOn": [
+        "G-11",
+        "B7"
+      ]
+    },
+    {
+      "id": "B3A-CODEX-MANAGER",
+      "status": "complete final frozen handoff dada3482; resources released",
+      "return": "instances/B3A-CODEX/RETURN.md"
+    },
+    {
+      "id": "I1-CODEX-MANAGER",
+      "status": "complete; clean frozen I1 return; no C3 work",
+      "return": "instances/I1-CODEX/MANAGER_RETURN.md"
+    },
+    {
+      "id": "I1-CODEX-REVIEW",
+      "status": "complete PASS, no actionable findings",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/I1_INDEPENDENT_REVIEW_RETURN.md"
+    },
+    {
+      "id": "B3A-CODEX-REVIEW",
+      "status": "complete packet PASS through dada3482, no findings",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3A_P2_BACKCHECK_RETURN.md"
+    },
+    {
+      "id": "C3-PREPARATION-CODEX",
+      "status": "complete read-only; no implementation or resource use",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/C3_PREPARATION_RETURN.md"
+    },
+    {
+      "id": "B3A-I1-INTEGRATION",
+      "status": "merged; all checks complete PASS on same unchanged head",
+      "dependsOn": [
+        "B3A",
+        "I1"
+      ],
+      "pullRequest": "https://github.com/sgttomas/chirality/pull/826",
+      "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3A_I1_SWEEP_46436a60/DISPOSITION.json"
+    },
+    {
+      "id": "B3A-I1-REVIEW",
+      "status": "complete PASS; 576 paths / 22 maintained files; no findings",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/COMBINED_B3A_I1_REVIEW_RETURN.md"
+    },
+    {
+      "id": "B3B-PREPARATION-CODEX",
+      "status": "complete; no implementation/resources acquired",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3B_PREPARATION_RETURN.md"
+    },
+    {
+      "id": "B3B-CODEX-MANAGER",
+      "status": "returned clean784ab62d test-only repair; affected/adjacent checks andTS pass; product/config/lock/core unchanged"
+    },
+    {
+      "id": "C3-CODEX-MANAGER",
+      "status": "edge differential test-only repair fb720420 returned;24edgecases pass; product/protected83 unchanged",
+      "return": "instances/C3-CODEX/MANAGER_RETURN.md"
+    },
+    {
+      "id": "CI-ECONOMY-CODEX",
+      "status": "merged in PR828; bounded code/review/local/native/hosted evidence at recorded scopes; no product qualification inferred",
+      "return": "instances/CI-ECONOMY-CODEX/RETURN.md"
+    },
+    {
+      "id": "B3B-C3-CI-INTEGRATION",
+      "status": "merged PR828 after independent publication review and all9actual-head checks passed",
+      "dependsOn": [
+        "B3B",
+        "C3",
+        "CI-ECONOMY-CODEX"
+      ],
+      "pr": "https://github.com/sgttomas/chirality/pull/828",
+      "merge": "fd195cf4287e84572a12183169478a6f7ddf6a92"
+    },
+    {
+      "id": "B3B-C3-CI-REVIEW",
+      "status": "complete through actual published127677: independent complete code/evidence coverage plus38path records-only publication tail PASS; all findings closed",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B3B_C3_CI_REVIEW_RETURN.md"
+    },
+    {
+      "id": "MVP-PUBLISHING-DISCUSSION",
+      "status": "agent control required before planned validation; owner selected Codex first and embedded agent later, CAEPIPE on sameMac/Windows; remaining publishing details proposed",
+      "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/MVP_PUBLISHING_DISCUSSION.md"
+    },
+    {
+      "id": "B4-1-CODEX-MANAGER",
+      "status": "B4.1 merged; manager and all children returned/idle; next-table preparation retained but implementation unlaunched"
+    },
+    {
+      "id": "LIVE-CONTROL-PREPARATION",
+      "status": "prepared; peer fit review closed; exact bounded owner activation requested and pending; no integration writes",
+      "dependsOn": [
+        "B3B",
+        "B4"
+      ]
+    },
+    {
+      "id": "MVP-COMPARISON-PREPARATION",
+      "status": "complete read-only inventory; ROOT checked key source seam; no installed-package witness or scope adoption",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/MVP_COMPARISON_CAPABILITY_RETURN.md"
+    },
+    {
+      "id": "MVP-BASELINE-COMPARISON-PROPOSAL",
+      "status": "proposal only; no implementation or broader States/Comparison adoption",
+      "record": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/MVP_COMPARISON_CAPABILITY_RETURN.md"
+    },
+    {
+      "id": "PR828-CLOSEOUT-REVIEW",
+      "status": "PASS complete30path records-only candidatef50435cef; B4 source excluded",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR828_CLOSEOUT_B4_PREP_REVIEW_RETURN.md"
+    },
+    {
+      "id": "CI-DURATION-CALIBRATION",
+      "status": "independent complete7path backcheck PASS at2a6b; exact replay435IDs,29policycases/7subtests pass; next actual candidate collection/CI pending"
+    },
+    {
+      "id": "B4-1-REVIEW",
+      "status": "PASS complete14-path vertical source backcheck c8..ed8; source coverage current throughed8; native/final gates pending"
+    },
+    {
+      "id": "B4-1-INTEGRATION",
+      "status": "MERGED PR829 after all8 actual-head checks passed; owner pause effective",
+      "dependsOn": [
+        "B4",
+        "CI-DURATION-CALIBRATION"
+      ],
+      "pr": "https://github.com/sgttomas/chirality/pull/829",
+      "merge": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c"
+    },
+    {
+      "id": "B5-PREPARATION-CODEX",
+      "status": "returned; ROOT inspected source-grounded recommendation; no B5 writes activated",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B5_INSPECTOR_PREPARATION_RETURN.md"
+    },
+    {
+      "id": "B4-VERTICAL-RECORDS-REVIEW",
+      "status": "PASS complete12path records delta4537ab1b..53b0dd687; subsequent cleanup/source/native/final gates excluded",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_VERTICAL_RECORDS_BACKCHECK_RETURN.md"
+    },
+    {
+      "id": "B4-EARLY-RECORDS-REVIEW",
+      "status": "PASS complete12path early-records delta53b0..08326; later source/native/publication excluded",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_EARLY_RECORDS_REVIEW_RETURN.md"
+    },
+    {
+      "id": "B4-COMBINED-CANDIDATE-REVIEW",
+      "status": "PASS640path candidate integration/evidence; full sweep/final tail/actual-head CI pending",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_COMBINED_CANDIDATE_REVIEW_RETURN.md"
+    },
+    {
+      "id": "B4-REMAINDER-PREPARATION",
+      "status": "returned; manager idle under owner pause; implementation unlaunched",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_REMAINDER_PREPARATION_RETURN.md"
+    },
+    {
+      "id": "B4-PUBLICATION-TAIL-REVIEW",
+      "status": "PASS complete19path47ad..412; reviewer now idle for owner pause",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_PUBLICATION_TAIL_REVIEW_RETURN.md"
+    },
+    {
+      "id": "B4-FINAL-BOUNDARY-REVIEW",
+      "status": "PASS exact6path412..8f24; reviewer idle",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_FINAL_BOUNDARY_BACKCHECK_RETURN.md"
+    },
+    {
+      "id": "B4-2-CODEX-MANAGER",
+      "status": "final source/native evidence handed back cleanc578; rebuilt native scopedPASS and ROOT own lookPASS; all app processes closed, manager/workers idle",
+      "dependsOn": [
+        "B4-1-INTEGRATION"
+      ]
+    },
+    {
+      "id": "B4-2-INTEGRATION",
+      "status": "merged PR832/c9f19195 after all8 actual-head checks pass at8077",
+      "dependsOn": [
+        "B4-2-CODEX-MANAGER"
+      ]
+    },
+    {
+      "id": "PR829-RESUME-RECORDS-REVIEW",
+      "status": "PASS22paths with sealed addendum resolving initialP3 Queue/Clear ambiguity; product not inspected",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/PR829_RESUME_RECORDS_REVIEW_RETURN.md"
+    },
+    {
+      "id": "B4-2-REVIEW",
+      "status": "complete source review, R1 and character correction backchecks PASS througha064; native rebuilt witness pending"
+    },
+    {
+      "id": "B4-3-FAMILY-PREPARATION",
+      "status": "returned, clarified and activated for Materials only after PR832 merge; Sections awaits later brief",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_FAMILY_PREPARATION_RETURN.md"
+    },
+    {
+      "id": "CI-CACHE-WARMING",
+      "status": "source review complete; P3 CLOSED by independent bounded backcheck; ready for later coherent fan-in, final combined/CI and actual main-cache observations still required",
+      "state": "merged in PR833; guarded main job35592484895 SUCCESS created4Piping caches; later consumer hits/timing benefit remain unobserved"
+    },
+    {
+      "id": "B4-3-CODEX-MANAGER",
+      "state": "all Materials/Node implementation and scoped native work returned; source and resources handed to ROOT for final integration",
+      "dependsOn": [
+        "B4-2-INTEGRATION"
+      ]
+    },
+    {
+      "id": "B4-3-REVIEW",
+      "state": "initial source review plus independent P2 backcheck PASS; native/final combined gates remain",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_3_INITIAL_SOURCE_REVIEW_RETURN.md"
+    },
+    {
+      "id": "B4-NODE-SORT-UNDO-DIAG",
+      "state": "source backcheck PASS; native witness and ROOT own look PASS at recorded scopes; final combined review/sweep/CI remain",
+      "dependsOn": [
+        "B4-3-REVIEW"
+      ]
+    },
+    {
+      "id": "B4-3-INTEGRATION",
+      "state": "MERGED PR833 after all9 actual-head checks SUCCESS; candidate/merge trees identical",
+      "dependsOn": [
+        "B4-3-CODEX-MANAGER",
+        "B4-3-REVIEW",
+        "CI-CACHE-WARMING"
+      ]
+    },
+    {
+      "id": "B4-4-SECTIONS-PREPARATION",
+      "state": "returned and adopted as bounded activation after PR833; no owner ruling/qualification inferred",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_4_SECTIONS_PREPARATION_RETURN.md"
+    },
+    {
+      "id": "B4-4-CODEX-MANAGER",
+      "state": "Sections merged; manager and TASKs returned, paused with no new assignment",
+      "dependsOn": [
+        "B4-3-INTEGRATION",
+        "B4-4-SECTIONS-PREPARATION"
+      ]
+    },
+    {
+      "id": "B4-4-CI-COVERAGE",
+      "state": "merged viaPR834, independently reviewed additive mapping; actual-head fullCI passed"
+    },
+    {
+      "id": "B4-4-INTEGRATION",
+      "state": "PR834 merged after all8actual-head checks passed; candidate/merge trees identical; owner pause effective",
+      "dependsOn": [
+        "B4-4-CODEX-MANAGER",
+        "B4-4-CI-COVERAGE"
+      ],
+      "pullRequest": "https://github.com/sgttomas/chirality/pull/834",
+      "merge": "620ff6387b211c774c0de7dabec0a170acdf6017"
+    },
+    {
+      "id": "B4-4-SOURCE-REVIEW",
+      "state": "both P2 findings closed atdb35; no new actionable findings",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_4_SOURCE_REVIEW_RETURN.md"
+    },
+    {
+      "id": "B4-NEXT-PREPARATION",
+      "state": "returned, ROOT source bindings/actual compact routing checked; recommended compact drawer fit next, then Pipes; no implementation yet",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_NEXT_PREPARATION_RETURN.md"
+    },
+    {
+      "id": "B4-4-COMBINED-REVIEW",
+      "state": "PASS complete368-path candidate through9cd1; all15maintained paths and canonical evidence checked",
+      "return": "instances/ROOT/CONTINUATION_2026-09-19_CODEX/_run_records/B4_4_COMBINED_REVIEW_RETURN.md"
+    }
+  ],
+  "completed_integrations": [
+    {
+      "pr": 801,
+      "merge_commit": "4dcab750501d039af5b2973991cbe0f3f423b80a",
+      "ancestor_of_checked_main": true,
+      "subject": "Merge pull request #801 from sgttomas/codex/swbpipe-b1-tokens-20260918"
+    },
+    {
+      "pr": 802,
+      "merge_commit": "8e4c5df6ec84928ca343224e5244ccdae5771cd4",
+      "ancestor_of_checked_main": true,
+      "subject": "Merge pull request #802 from sgttomas/codex/swbpipe-a1-followups-20260918"
+    },
+    {
+      "pr": 803,
+      "merge_commit": "b9a07040857d2e6d3ec0f6a530697720801c7b59",
+      "ancestor_of_checked_main": true,
+      "subject": "Merge pull request #803 from sgttomas/codex/swbpipe-b-shell-20260918"
+    },
+    {
+      "pr": 805,
+      "merge_commit": "172cd5689e26842e5ec6ca0af21d52a4141f59bf",
+      "ancestor_of_checked_main": true,
+      "subject": "Merge pull request #805 from sgttomas/codex/swbpipe-b2f-20260919"
+    },
+    {
+      "pr": 806,
+      "merge_commit": "d20eb12945a0358e192312df01bc33095fe740ed",
+      "ancestor_of_checked_main": true,
+      "subject": "Merge pull request #806 from sgttomas/codex/swbpipe-c-pr1-20260919"
+    },
+    {
+      "pr": 807,
+      "merge_commit": "b313ce821d334aa741292248fba748c5d531d972",
+      "ancestor_of_checked_main": true,
+      "subject": "Merge pull request #807 from sgttomas/codex/swbpipe-c2-20260919"
+    },
+    {
+      "pr": 825,
+      "merge_commit": "7e6a7f2578e5df12ea891c2d604d0cd48e869934",
+      "ancestor_of_checked_main": true,
+      "subject": "Merge pull request #825 from sgttomas/codex/swbpipe-b3-20260919"
+    },
+    {
+      "pr": 826,
+      "merge_commit": "88c6c7463199d1d69caebde04678fa74facca78f",
+      "ancestor_of_checked_main": true,
+      "subject": "Merge pull request #826 from sgttomas/codex/swbpipe-b3a-i1-20260920"
+    },
+    {
+      "pr": 828,
+      "merge_commit": "fd195cf4287e84572a12183169478a6f7ddf6a92",
+      "ancestor_of_checked_main": true,
+      "subject": "Merge pull request #828 from sgttomas/codex/swbpipe-ci-economy-20260920"
+    },
+    {
+      "pr": 829,
+      "merge_commit": "15e8b7a72ce0ed440f1f46b9b6ca83503af9c02c",
+      "ancestor_of_checked_main": true,
+      "subject": "Merge pull request #829 from sgttomas/codex/swbpipe-b4-controls-20260920"
+    },
+    {
+      "pr": 832,
+      "merge_commit": "c9f19195214b2e097980dde5e0d5fccbfba8e34c",
+      "ancestor_of_checked_main": true,
+      "subject": "Merge pull request #832 from sgttomas/codex/swbpipe-b4-node-integration-20260920"
+    },
+    {
+      "pr": 833,
+      "merge_commit": "fd002217f067020d44deaee22866e14eed81173f",
+      "ancestor_of_checked_main": true,
+      "subject": "Merge pull request #833 from sgttomas/codex/swbpipe-b4-materials-integration-20260921"
+    },
+    {
+      "pr": 834,
+      "merge_commit": "620ff6387b211c774c0de7dabec0a170acdf6017",
+      "ancestor_of_checked_main": true,
+      "subject": "Merge pull request #834 from sgttomas/codex/swbpipe-b4-sections-integration-20260921"
+    }
+  ]
+}
