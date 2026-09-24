@@ -654,7 +654,7 @@ for (const density of ["comfortable", "compact"] as const) for (const view of ["
     await page.addInitScript(({ density, drawer }) => localStorage.setItem("chirality.desktop.ui-preferences.v1", JSON.stringify({ version: 1, density, tableDrawerPx: drawer })), { density, drawer });
     await page.goto("/"); await expect(page.getByTestId("workspace-toolbar")).toBeVisible();
     await page.getByTestId(`view-switch-${view}`).click(); await ensureTreeExpanded(page); await page.getByTestId("layout-mode-grid").click();
-    const host = page.getByTestId("shell-tree-host"), table = page.getByTestId("engineering-table"), family = page.getByRole("combobox", { name: "Grid entity type" });
+    const host = page.getByTestId("shell-tree-host"), table = page.getByTestId("engineering-table"), family = page.getByRole("combobox", { name: "Grid family" });
     const observations: unknown[] = [];
     async function measure(surface = table) {
       const measured = await surface.evaluate((root) => {
@@ -675,7 +675,7 @@ for (const density of ["comfortable", "compact"] as const) for (const view of ["
       const before = await scrolls(); await locator.scrollIntoViewIfNeeded(); observations.push({ pointerTarget: await locator.getAttribute("aria-label") ?? await locator.textContent(), before, after: await scrolls() });
       expect(await locator.evaluate((element) => { const r = element.getBoundingClientRect(), top = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2); return top === element || element.contains(top); })).toBe(true);
     }
-    await measure(); await hit(family); await hit(page.getByTestId("model-tree-filter-input"));
+    await measure(); await expect(family).toHaveAccessibleName("Grid family"); await hit(family); await hit(page.getByTestId("model-tree-filter-input"));
     const cell = page.getByTestId("table-cell-node:N-100-y"); await cell.dblclick(); const editor = table.getByRole("textbox");
     await editor.fill("invalid"); await editor.press("Enter"); await expect(editor).toHaveAttribute("aria-invalid", "true"); await measure(); await hit(editor);
     await hit(table.getByRole("button", { name: "Apply", exact: true })); await hit(table.getByRole("button", { name: "Cancel", exact: true }));
@@ -709,5 +709,65 @@ for (const density of ["comfortable", "compact"] as const) for (const view of ["
     await page.getByTestId("layout-mode-tree").click(); await expect(page.locator(".compact-table-details:popover-open")).toHaveCount(0); await expect(family).toHaveCount(0);
     await page.getByTestId("layout-mode-grid").click(); await expect(family).toHaveValue("nodes");
     await info.attach("compact-drawer-geometry", { body: JSON.stringify({ density, view, drawer, observations }, null, 2), contentType: "application/json" }); await page.screenshot({ path: info.outputPath("compact-drawer.png") });
+  });
+}
+
+for (const view of ["model", "both"] as const) {
+  test(`B4 Details owns traversed Escape and preserves editor ownership in ${view} @explicit-viewport`, async ({ page, browser }, info) => {
+    await attachBrowserIdentity(browser, info);
+    await page.setViewportSize(view === "model" ? { width: 1280, height: 800 } : { width: 1024, height: 768 });
+    const { model } = await readFixture("precision-origin-base.model.json");
+    model.sections = [{ id: "section:repair", name: "Invented repair", section_type: "pipe", properties: {
+      outside_diameter: { value: 100, unit: "mm" }, wall_thickness: { value: 10, unit: "mm" }
+    }, provenance: "invented keyboard regression" }];
+    await gotoModel(page, model); await page.getByTestId(`view-switch-${view}`).click(); await ensureTreeExpanded(page); await page.getByTestId("layout-mode-grid").click();
+    const family = page.getByRole("combobox", { name: "Grid family" });
+    await expect(page.locator(".compact-family-label")).toContainText("Family"); await expect(family).toHaveAccessibleName("Grid family");
+    const trigger = page.getByRole("button", { name: "Table details", exact: true });
+    const details = page.getByRole("dialog", { name: "Table details", exact: true });
+    const drawer = page.getByTestId("toggle-tree"), table = page.getByTestId("engineering-table");
+    const observations: unknown[] = [];
+    for (const traversal of ["Tab", "Shift+Tab"]) {
+      await trigger.click(); await expect(details).toBeFocused(); await page.keyboard.press(traversal);
+      await expect(details).toBeVisible(); await expect(details).not.toBeFocused();
+      observations.push({ traversal, focusBeforeEscape: await page.evaluate(() => document.activeElement?.outerHTML) });
+      await page.keyboard.press("Escape"); await expect(details).toBeHidden(); await expect(trigger).toBeFocused(); await expect(drawer).toHaveAttribute("aria-expanded", "true");
+    }
+    await trigger.click(); await expect(details).toBeFocused(); await page.keyboard.press("Escape"); await expect(details).toBeHidden(); await expect(trigger).toBeFocused();
+    // Native typeahead changes the family through an actual key, while the
+    // platform popup itself is outside headless Chromium keyboard control.
+    await family.focus(); await page.keyboard.press("p"); await expect(family).toHaveValue("pipes");
+    await family.selectOption("nodes"); await expect(family).toHaveValue("nodes");
+    const node = model.nodes[0], cell = page.getByTestId(`table-cell-${node.id}-x`);
+    await cell.dblclick(); const input = table.getByRole("textbox"); await input.fill("invalid retained"); await input.press("Enter");
+    await trigger.click(); await expect(details).toBeVisible(); await input.focus();
+    // Descendant editor Escape runs first; it must not be stolen by Details.
+    await page.keyboard.press("Escape"); await expect(input).toHaveCount(0); await expect(details).toBeVisible(); await expect(cell).toHaveText(String(node.position.x));
+    await page.keyboard.press("Escape"); await expect(details).toBeHidden(); await expect(trigger).toBeFocused(); await expect(drawer).toHaveAttribute("aria-expanded", "true");
+    await family.selectOption("sections"); const section = page.getByTestId("section-engineering-table"), type = page.getByTestId("table-cell-section:repair-type");
+    await type.dblclick(); const enumeration = section.getByRole("combobox"); await enumeration.fill("p"); await trigger.click(); await expect(details).toBeVisible();
+    await enumeration.focus(); const popup = page.getByRole("listbox", { name: "Supported values" }); await expect(popup).toBeVisible();
+    await page.keyboard.press("Escape"); await expect(popup).toHaveCount(0); await expect(enumeration).toHaveValue("p"); await expect(details).toBeVisible();
+    await page.keyboard.press("Escape"); await expect(enumeration).toHaveCount(0); await expect(type).toHaveText("pipe"); await expect(details).toBeVisible();
+    await page.keyboard.press("Escape"); await expect(details).toBeHidden(); await expect(trigger).toBeFocused(); await expect(drawer).toHaveAttribute("aria-expanded", "true");
+    await family.selectOption("nodes"); await cell.dblclick(); await input.fill("retained transition"); await input.press("Enter"); const originalInput = await input.elementHandle();
+    await trigger.click(); await expect(details).toBeFocused();
+    // True focus exit closes Details without stealing focus from the destination.
+    const outside = page.getByTestId("workspace-undo"); const destination = page.getByTestId("view-switch-table");
+    await destination.focus(); await expect(details).toBeHidden(); await expect(destination).toBeFocused();
+    await destination.click(); await expect(family).toHaveCount(0); await expect(page.locator(".compact-table-details")).toHaveCount(0); await expect(input).toHaveValue("retained transition"); expect(await originalInput!.evaluate((element) => element.isConnected)).toBe(true);
+    await input.focus(); await page.keyboard.press("Escape"); await expect(input).toHaveCount(0); await expect(cell).toBeFocused(); await expect(outside).toBeDisabled();
+    await page.getByTestId(`view-switch-${view}`).click(); await expect(family).toBeVisible();
+    await cell.dblclick(); await input.fill("retained tree"); await input.press("Enter"); const treeInput = await input.elementHandle();
+    await trigger.click(); await page.getByTestId("layout-mode-tree").click(); await expect(page.locator(".compact-table-details")).toHaveCount(0); await expect(family).toHaveCount(0);
+    await page.getByTestId("layout-mode-grid").click(); await expect(input).toHaveValue("retained tree"); expect(await treeInput!.evaluate((element) => element.isConnected)).toBe(true);
+    // The previous editor was deliberately cancelled, not unmounted by view change.
+    expect(await originalInput!.evaluate((element) => element.isConnected)).toBe(false);
+    await table.getByRole("button", { name: "Cancel", exact: true }).click(); await expect(outside).toBeDisabled();
+    if (view === "both") {
+      await family.focus(); await page.keyboard.press("Escape"); await expect(drawer).toHaveAttribute("aria-expanded", "false");
+      await drawer.click(); await expect(family).toBeVisible(); await expect(page.locator(".compact-table-details:popover-open")).toHaveCount(0);
+    }
+    await info.attach("details-escape-regression", { body: JSON.stringify({ view, observations }, null, 2), contentType: "application/json" });
   });
 }

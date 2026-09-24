@@ -1,0 +1,139 @@
+{
+  "repo_root": "/Users/ryan/.codex/worktrees/6614/chirality",
+  "checked_file_count": 11755,
+  "finding_count": 21,
+  "findings": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/browser-r1-report.json",
+      "line": 3,
+      "match": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/playwright.config.ts",
+      "text": "\"configFile\": \"/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/playwright.config.ts\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/browser-r1-report.json",
+      "line": 4,
+      "match": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e",
+      "text": "\"rootDir\": \"/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/browser-r1-report.json",
+      "line": 19,
+      "match": "/tmp/piping-compact-repair-r1",
+      "text": "\"outputDir\": \"/tmp/piping-compact-repair-r1\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/browser-r1-report.json",
+      "line": 27,
+      "match": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e",
+      "text": "\"testDir\": \"/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/browser-r1-report.json",
+      "line": 37,
+      "match": "/tmp/piping-compact-repair-r1",
+      "text": "\"outputDir\": \"/tmp/piping-compact-repair-r1\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/browser-r1-report.json",
+      "line": 45,
+      "match": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e",
+      "text": "\"testDir\": \"/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/browser-r1-report.json",
+      "line": 109,
+      "match": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts:738:123",
+      "text": "\"stack\": \"Error: \\u001b[2mexpect(\\u001b[22m\\u001b[31mlocator\\u001b[39m\\u001b[2m).\\u001b[22mtoHaveValue\\u001b[2m(\\u001b[22m\\u001b[32mexpected\\u001b[39m\\u001b[2m)\\u001b[22m failed\\n\\nLocator:  getByRole('combobox', { name: 'Grid family' })\\nExpected: \\u001b[32m\\\"\\u001b[7mpip\\u001b[27mes\\\"\\u001b[39m\\nReceived: \\u001b[31m\\\"\\u001b[7mnod\\u001b[27mes\\\"\\u001b[39m\\nTimeout:  10000ms\\n\\nCall log:\\n\\u001b[2m  - Expect \\\"toHaveValue\\\" with timeout 10000ms\\u001b[22m\\n\\u001b[2m  - waiting for getByRole('combobox', { name: 'Grid family' })\\u001b[22m\\n\\u001b[2m    24 \u00d7 locator resolved to <select aria-label=\\\"Grid family\\\" data-testid=\\\"entity-grid-family\\\">\u2026</select>\\u001b[22m\\n\\u001b[2m       - unexpected value \\\"nodes\\\"\\u001b[22m\\n\\n    at /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts:738:123\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/browser-r1-report.json",
+      "line": 111,
+      "match": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+      "text": "\"file\": \"/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/browser-r1-report.json",
+      "line": 120,
+      "match": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+      "text": "\"file\": \"/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/browser-r1-report.json",
+      "line": 124,
+      "match": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts:738:123",
+      "text": "\"message\": \"Error: \\u001b[2mexpect(\\u001b[22m\\u001b[31mlocator\\u001b[39m\\u001b[2m).\\u001b[22mtoHaveValue\\u001b[2m(\\u001b[22m\\u001b[32mexpected\\u001b[39m\\u001b[2m)\\u001b[22m failed\\n\\nLocator:  getByRole('combobox', { name: 'Grid family' })\\nExpected: \\u001b[32m\\\"\\u001b[7mpip\\u001b[27mes\\\"\\u001b[39m\\nReceived: \\u001b[31m\\\"\\u001b[7mnod\\u001b[27mes\\\"\\u001b[39m\\nTimeout:  10000ms\\n\\nCall log:\\n\\u001b[2m  - Expect \\\"toHaveValue\\\" with timeout 10000ms\\u001b[22m\\n\\u001b[2m  - waiting for getByRole('combobox', { name: 'Grid family' })\\u001b[22m\\n\\u001b[2m    24 \u00d7 locator resolved to <select aria-label=\\\"Grid family\\\" data-testid=\\\"entity-grid-family\\\">\u2026</select>\\u001b[22m\\n\\u001b[2m       - unexpected value \\\"nodes\\\"\\u001b[22m\\n\\n\\n  736 |     await trigger.click(); await expect(details).toBeFocused(); await page.keyboard.press(\\\"Escape\\\"); await expect(details).toBeHidden(); await expect(trigger).toBeFocused();\\n  737 |     // The labelled native select retains ordinary keyboard operation.\\n> 738 |     await family.focus(); await page.keyboard.press(\\\"Home\\\"); await page.keyboard.press(\\\"ArrowDown\\\"); await expect(family).toHaveValue(\\\"pipes\\\");\\n      |                                                                                                                           ^\\n  739 |     await page.keyboard.press(\\\"Home\\\"); await expect(family).toHaveValue(\\\"nodes\\\");\\n  740 |     const node = model.nodes[0], cell = page.getByTestId(`table-cell-${node.id}-x`);\\n  741 |     await cell.dblclick(); const input = table.getByRole(\\\"textbox\\\"); await input.fill(\\\"invalid retained\\\"); await input.press(\\\"Enter\\\");\\n    at /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts:738:123\""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/browser-r1-report.json",
+      "line": 141,
+      "match": "/tmp/piping-compact-repair-r1/b4-table-editing-B4-Detail-d404b--in-model-explicit-viewport-chromium-desktop/error-context.md",
+      "text": "\"path\": \"/tmp/piping-compact-repair-r1/b4-table-editing-B4-Detail-d404b--in-model-explicit-viewport-chromium-desktop/error-context.md\""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/browser-r1-report.json",
+      "line": 146,
+      "match": "/tmp/piping-compact-repair-r1/b4-table-editing-B4-Detail-d404b--in-model-explicit-viewport-chromium-desktop/trace.zip",
+      "text": "\"path\": \"/tmp/piping-compact-repair-r1/b4-table-editing-B4-Detail-d404b--in-model-explicit-viewport-chromium-desktop/trace.zip\""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/browser-r1-report.json",
+      "line": 150,
+      "match": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+      "text": "\"file\": \"/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/COMMANDS.md",
+      "line": 9,
+      "match": "/tmp/piping-geometry.mjs",
+      "text": "- From repo root: `node /tmp/piping-geometry.mjs` and `node /tmp/piping-candidate-geometry.mjs` were exploratory36-state measurements, each exit0. Preserved relocatable versions are `baseline-measurement.mjs` and `candidate-measurement.mjs`. Baseline measured unmodified product42bd234f6; exploratory candidate preceded the final Details keyboard repair and is not final candidate proof. Run these scripts from repo root against the intended source and an already-running5174 server; preserve existing raw outputs before rerunning."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/COMMANDS.md",
+      "line": 9,
+      "match": "/tmp/piping-candidate-geometry.mjs",
+      "text": "- From repo root: `node /tmp/piping-geometry.mjs` and `node /tmp/piping-candidate-geometry.mjs` were exploratory36-state measurements, each exit0. Preserved relocatable versions are `baseline-measurement.mjs` and `candidate-measurement.mjs`. Baseline measured unmodified product42bd234f6; exploratory candidate preceded the final Details keyboard repair and is not final candidate proof. Run these scripts from repo root against the intended source and an already-running5174 server; preserve existing raw outputs before rerunning."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/browser-r4-report.json",
+      "line": 3,
+      "match": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/playwright.config.ts",
+      "text": "\"configFile\": \"/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/playwright.config.ts\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/browser-r4-report.json",
+      "line": 4,
+      "match": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e",
+      "text": "\"rootDir\": \"/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/browser-r4-report.json",
+      "line": 19,
+      "match": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/browser-r4",
+      "text": "\"outputDir\": \"/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/browser-r4\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/browser-r4-report.json",
+      "line": 27,
+      "match": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e",
+      "text": "\"testDir\": \"/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/browser-r4-report.json",
+      "line": 37,
+      "match": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/browser-r4",
+      "text": "\"outputDir\": \"/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/browser-r4\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/browser-r4-report.json",
+      "line": 45,
+      "match": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e",
+      "text": "\"testDir\": \"/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e\","
+    }
+  ],
+  "semantic_invariants": {
+    "unacknowledged_control": 0,
+    "active_unclassified": 3,
+    "policy_issues": 0,
+    "acknowledged_control": 45
+  }
+}

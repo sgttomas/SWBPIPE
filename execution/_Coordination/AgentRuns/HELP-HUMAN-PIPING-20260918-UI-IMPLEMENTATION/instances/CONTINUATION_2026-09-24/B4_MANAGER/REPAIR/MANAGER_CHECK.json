@@ -1,0 +1,24 @@
+{
+  "frozen_source_digest": "e31a1920e479bd8c386025a4c189b81980d34349d61c7eb69eb2ae383eec686d",
+  "all_hashes_match": true,
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts",
+      "matches": true
+    }
+  ],
+  "diff_check": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "assessment": "Manager integration inspection only; independent SOURCE_REVIEW backcheck remains required."
+}

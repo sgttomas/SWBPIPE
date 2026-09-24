@@ -24,7 +24,7 @@ App.tsx source handback is offered at the frozen digest; workspaceSession/operat
 
 - Final65 component tests PASS in2 files; final TypeScript `tsc -b` PASS. Exact commands and output are in TASK_COMPACT.
 - B4+Sections source compatibility32/32 PASS (1.7m), including12 new explicit-viewport matrix cases.
-- Bounded evidence-persistence rerun of those12 new cases with JSON reporter:12 expected,0 skipped/unexpected/flaky,48.5s; browser-r4-report.json retains exact successful geometry/scroll observations. This is source browser evidence, not dist/native.
+- Bounded evidence-persistence rerun of those12 new cases with JSON reporter:12 expected,0 skipped/unexpected/flaky,48.5s; _run_records/browser-r4-report.json retains exact successful geometry/scroll observations. This is source browser evidence, not dist/native.
 - Initial component attempt failed before tests because WASM assets were absent; normal WASM build supplied them, then component tests passed. Initial browser attempt exposed Details Escape bubbling; source repair and subsequent checks cover it. Earlier failed attempts remain in raw logs, not relabeled as passes.
 - Full desktop suite/build, clean DEC-025, full applicable source/dist, hosted gates and native witness remain ROOT-coordinated downstream work. The adapted dist appearance selector has not been executed by this bounded task.
 

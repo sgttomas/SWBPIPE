@@ -1,0 +1,72 @@
+[
+  {
+    "key": "p",
+    "value": "pipes",
+    "focus": "<select aria-label=\"Grid family\" data-testid=\"entity-grid-family\"><option value=\"nodes\">Nodes</option><option value=\"pipes\">Pipes (4)</option><option value=\"supports\">Supports</option><option value=\"materials\">Materials</option><option value=\"sections\">Sections</option><option value=\"components\">Components</option><option value=\"load_cases\">Load Cases</option><option value=\"combinations\">Combinations</option></select>"
+  },
+  {
+    "key": "Enter",
+    "value": "pipes",
+    "focus": "<select aria-label=\"Grid family\" data-testid=\"entity-grid-family\"><option value=\"nodes\">Nodes</option><option value=\"pipes\">Pipes (4)</option><option value=\"supports\">Supports</option><option value=\"materials\">Materials</option><option value=\"sections\">Sections</option><option value=\"components\">Components</option><option value=\"load_cases\">Load Cases</option><option value=\"combinations\">Combinations</option></select>"
+  },
+  {
+    "key": "ArrowDown",
+    "value": "pipes",
+    "focus": "<select aria-label=\"Grid family\" data-testid=\"entity-grid-family\"><option value=\"nodes\">Nodes</option><option value=\"pipes\">Pipes (4)</option><option value=\"supports\">Supports</option><option value=\"materials\">Materials</option><option value=\"sections\">Sections</option><option value=\"components\">Components</option><option value=\"load_cases\">Load Cases</option><option value=\"combinations\">Combinations</option></select>"
+  },
+  {
+    "key": "ArrowDown",
+    "value": "pipes",
+    "focus": "<select aria-label=\"Grid family\" data-testid=\"entity-grid-family\"><option value=\"nodes\">Nodes</option><option value=\"pipes\">Pipes (4)</option><option value=\"supports\">Supports</option><option value=\"materials\">Materials</option><option value=\"sections\">Sections</option><option value=\"components\">Components</option><option value=\"load_cases\">Load Cases</option><option value=\"combinations\">Combinations</option></select>"
+  },
+  {
+    "key": "Enter",
+    "value": "pipes",
+    "focus": "<select aria-label=\"Grid family\" data-testid=\"entity-grid-family\"><option value=\"nodes\">Nodes</option><option value=\"pipes\">Pipes (4)</option><option value=\"supports\">Supports</option><option value=\"materials\">Materials</option><option value=\"sections\">Sections</option><option value=\"components\">Components</option><option value=\"load_cases\">Load Cases</option><option value=\"combinations\">Combinations</option></select>"
+  },
+  {
+    "key": "n",
+    "value": "pipes",
+    "focus": "<select aria-label=\"Grid family\" data-testid=\"entity-grid-family\"><option value=\"nodes\">Nodes</option><option value=\"pipes\">Pipes (4)</option><option value=\"supports\">Supports</option><option value=\"materials\">Materials</option><option value=\"sections\">Sections</option><option value=\"components\">Components</option><option value=\"load_cases\">Load Cases</option><option value=\"combinations\">Combinations</option></select>"
+  },
+  {
+    "key": "Enter",
+    "value": "pipes",
+    "focus": "<select aria-label=\"Grid family\" data-testid=\"entity-grid-family\"><option value=\"nodes\">Nodes</option><option value=\"pipes\">Pipes (4)</option><option value=\"supports\">Supports</option><option value=\"materials\">Materials</option><option value=\"sections\">Sections</option><option value=\"components\">Components</option><option value=\"load_cases\">Load Cases</option><option value=\"combinations\">Combinations</option></select>"
+  },
+  {
+    "bare": true,
+    "key": "ArrowDown",
+    "value": "nodes"
+  },
+  {
+    "bare": true,
+    "key": "ArrowDown",
+    "value": "nodes"
+  },
+  {
+    "bare": true,
+    "key": "Enter",
+    "value": "nodes"
+  },
+  {
+    "bare": true,
+    "key": "n",
+    "value": "nodes"
+  },
+  {
+    "bare": true,
+    "key": "Enter",
+    "value": "nodes"
+  },
+  {
+    "bare": true,
+    "key": "p",
+    "value": "nodes"
+  },
+  {
+    "bare": true,
+    "key": "Enter",
+    "value": "nodes"
+  }
+]

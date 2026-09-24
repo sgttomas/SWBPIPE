@@ -1,0 +1,11 @@
+
+Running 2 tests using 1 worker
+
+(node:91249) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:91249) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium-desktop] › e2e/b4-table-editing.spec.ts:650:3 › B4 compact drawer model comfortable 180 @explicit-viewport (5.5s)
+  ✓  2 [chromium-desktop] › e2e/b4-table-editing.spec.ts:650:3 › B4 compact drawer both compact 180 @explicit-viewport (4.7s)
+
+  2 passed (11.1s)

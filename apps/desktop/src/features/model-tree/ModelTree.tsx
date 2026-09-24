@@ -126,8 +126,24 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
     });
   }, [filterText, filteredTree.count, onFilterPublication]);
 
+  // Details is nonmodal: Tab can leave the dialog while staying in the table.
+  // Own Escape after the editor/enum handlers but before the shell drawer.
+  // Leaving this surface dismisses Details without taking focus back.
+  function closeCompactDetails(restoreFocus = false) {
+    if (!compactGrid || layoutMode !== "grid") return false;
+    const details = toolbarTarget?.querySelector<HTMLElement>(".compact-table-details");
+    if (!details?.matches(":popover-open")) return false;
+    details.hidePopover();
+    if (restoreFocus) toolbarTarget?.querySelector<HTMLButtonElement>(".compact-table-info")?.focus();
+    return true;
+  }
+
   return (
-    <div className="panel model-tree" data-bounded-grid={boundedGrid && layoutMode === "grid"} data-compact-grid={compactGrid && layoutMode === "grid"} aria-label="Model tree">
+    <div className="panel model-tree" data-bounded-grid={boundedGrid && layoutMode === "grid"} data-compact-grid={compactGrid && layoutMode === "grid"} aria-label="Model tree"
+      onKeyDown={(event) => {
+        if (event.key === "Escape" && !event.defaultPrevented && closeCompactDetails(true)) { event.preventDefault(); event.stopPropagation(); }
+      }}
+      onBlur={(event) => { if (!(event.relatedTarget instanceof Node) || !event.currentTarget.contains(event.relatedTarget)) closeCompactDetails(); }}>
       <div className="panel-title">Model</div>
       <div className="model-grid-toolbar">
       <section className="layout-mode-toggle" aria-label="Layout grid mode" data-testid="layout-grid-mode-toggle">
@@ -828,7 +844,6 @@ function EntityGrid({
   }
 
   const compactInfoId = useId();
-  const compactInfoButton = useRef<HTMLButtonElement>(null);
   const gridActions = <div className="entity-grid-actions">
         <button
           data-testid="queue-entity-grid-intents"
@@ -855,17 +870,16 @@ function EntityGrid({
       </button>;
   const compactControls = <>
     <label className="compact-family-label">Family
-      <select aria-label="Grid entity type" data-testid="entity-grid-family" value={entityType} onChange={(event) => onEntityTypeChange(event.target.value as GridEntityType)}>
+      <select aria-label="Grid family" data-testid="entity-grid-family" value={entityType} onChange={(event) => onEntityTypeChange(event.target.value as GridEntityType)}>
         {GRID_ENTITY_TYPES.map((item) => <option key={item.id} value={item.id}>{item.label}{item.id === entityType ? ` (${rows.length})` : ""}</option>)}
       </select>
     </label>
     {reviewToggle}
     {reviewVisible ? gridActions : null}
     {queuedMessage ? <span role="status" className="compact-queued-message">{queuedMessage}</span> : null}
-    <button ref={compactInfoButton} type="button" popoverTarget={compactInfoId} aria-label="Table details" className="compact-table-info">Details</button>
+    <button type="button" popoverTarget={compactInfoId} aria-label="Table details" className="compact-table-info">Details</button>
     <div id={compactInfoId} popover="auto" className="compact-table-details" role="dialog" aria-label="Table details" tabIndex={-1}
-      onToggle={(event) => { if (event.currentTarget.matches(":popover-open")) event.currentTarget.focus(); }}
-      onKeyDown={(event) => { if (event.key === "Escape") { event.preventDefault(); event.stopPropagation(); event.currentTarget.hidePopover(); compactInfoButton.current?.focus(); } }}>
+      onToggle={(event) => { if (event.currentTarget.matches(":popover-open")) event.currentTarget.focus(); }}>
       <p>{visibleRows.length} of {rows.length} {GRID_ENTITY_TYPES.find((item) => item.id === entityType)?.label}; {changedCells.length} changed cells.</p>
       <p>Grid mode fans each changed cell into a structured review intent; storage remains local. {commonFamily ? "Blank or whitespace text becomes TBD when queued; keeping a draft does not change the model." : ""}</p>
       {directDraftRetained ? <p>Direct node edit retained. Return to node fields to correct or cancel it.</p> : null}

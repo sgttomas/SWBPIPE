@@ -726,8 +726,9 @@ for (const theme of APPEARANCE_THEMES) {
         const nodeGridTab = page.getByTestId("entity-grid-type-nodes");
         const queueGridEdits = page.getByTestId("queue-entity-grid-intents");
         const clearGridEdits = page.getByTestId("clear-entity-grid-drafts");
-        const compactFamily = page.getByRole("combobox", { name: "Grid entity type" });
+        const compactFamily = page.getByRole("combobox", { name: "Grid family" });
         if (await compactFamily.isVisible()) {
+          await expect(compactFamily).toHaveAccessibleName("Grid family");
           await expect(compactFamily).toHaveValue("pipes");
           await expect(compactFamily.locator('option[value="nodes"]')).toHaveCount(1);
           for (const control of [compactFamily, queueGridEdits, clearGridEdits]) await expect(control).toBeVisible();

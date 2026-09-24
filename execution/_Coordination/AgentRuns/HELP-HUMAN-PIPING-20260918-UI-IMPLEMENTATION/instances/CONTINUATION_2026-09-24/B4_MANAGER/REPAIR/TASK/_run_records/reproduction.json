@@ -1,0 +1,31 @@
+{
+  "browser": "153.0.8010.54",
+  "results": [
+    {
+      "traversal": "Tab",
+      "before": {
+        "focus": "<button type=\"button\" aria-label=\"Sort Label\">Label <span aria-hidden=\"true\">↕</span></button>",
+        "popover": true,
+        "familyName": "Grid entity type"
+      },
+      "after": {
+        "focus": "<button type=\"button\" class=\"shell-drawer-chevron\" data-testid=\"toggle-tree\" aria-controls=\"shell-table-body\" aria-expanded=\"false\" aria-label=\"Expand table drawer\" title=\"Expand table drawer\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-chevron-up\" aria-hidden=\"true\"><path d=\"m18 15-6-6-6 6\"></path></svg></button>",
+        "popover": true,
+        "drawer": "false"
+      }
+    },
+    {
+      "traversal": "Shift+Tab",
+      "before": {
+        "focus": "<button class=\"entity-grid-review-toggle\" data-testid=\"node-grid-review-disclosure\" type=\"button\" aria-expanded=\"false\" aria-controls=\"_r_15_\">Review changes</button>",
+        "popover": true,
+        "familyName": "Grid entity type"
+      },
+      "after": {
+        "focus": "<button type=\"button\" class=\"shell-drawer-chevron\" data-testid=\"toggle-tree\" aria-controls=\"shell-table-body\" aria-expanded=\"false\" aria-label=\"Expand table drawer\" title=\"Expand table drawer\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-chevron-up\" aria-hidden=\"true\"><path d=\"m18 15-6-6-6 6\"></path></svg></button>",
+        "popover": true,
+        "drawer": "false"
+      }
+    }
+  ]
+}

@@ -35,7 +35,7 @@ Track this canonical payload (all paths relative to this TASK directory):
 
 - `RETURN.md`, `PROVENANCE.json`, `INPUTS.json`, `CANDIDATE.json`, `CHECK_EXITS.json`, `COMMANDS.md`.
 - `unit.log`, `unit-after-wasm.log`, `unit-final.log`, `wasm.log`, `typecheck-final.log`, `browser.log`, `browser-r2.log`, `browser-r3.log`, `browser-r4.log`.
-- `baseline-measurement.mjs`, `baseline-geometry.json`, `candidate-measurement.mjs`, `candidate-geometry.json` (exploratory chronology), plus final `browser-r4-report.json` and decoded `GEOMETRY_FINAL.json`.
+- `baseline-measurement.mjs`, `baseline-geometry.json`, `candidate-measurement.mjs`, `candidate-geometry.json` (exploratory chronology), plus final `_run_records/browser-r4-report.json` and decoded `GEOMETRY_FINAL.json`.
 - Selected final screenshots: `browser-r4/b4-table-editing-B4-compac-3abeb-table-180-explicit-viewport-chromium-desktop/compact-drawer.png` (comfortable Model minimum) and `browser-r4/b4-table-editing-B4-compac-38279-mpact-180-explicit-viewport-chromium-desktop/compact-drawer.png` (compact stacked Both minimum).
 
 Other repeated screenshots, Playwright caches, and trace ZIPs are not needed for the canonical payload; retain locally if useful, without force-adding ignored traces. The successful JSON report binds geometry/scroll attachments to all 12 final cases. The selected screenshots are corroborating presentations, not a substitute for those assertions.

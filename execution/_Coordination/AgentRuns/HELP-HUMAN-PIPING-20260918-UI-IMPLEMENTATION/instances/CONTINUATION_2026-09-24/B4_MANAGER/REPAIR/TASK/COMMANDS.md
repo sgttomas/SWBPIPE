@@ -1,0 +1,16 @@
+# Repair checks and rerun method
+
+Run from the repository root to resolve `projects/chirality-piping`; run package checks from `projects/chirality-piping/apps/desktop`. `EVIDENCE` below means this repository-relative repair TASK directory. The unchanged installed dependencies and generated WASM assets were reused. The approved local server used port 5174. Browser checks used installed Chrome, one worker, and source configuration; no native application/CUA or broad suite was run.
+
+Versions retained from the same setup: Node 24.18.0, npm 11.16.0, TypeScript 5.9.3, Vitest 4.1.10, Playwright 1.60.0, Vite 7.3.3, Chrome 153.0.8010.54. Final JSON reporter records preserve actual browser identity. Exact executed temporary output paths and command lines are classified as raw evidence in `_run_records/commands.txt`.
+
+1. `npm run dev -- --port 5174` started the owned Vite process with approved escalation.
+2. From repository root, `node EVIDENCE/reproduce.mjs` reproduced both SR-1 paths on the unchanged candidate: Tab focused Sort Label, Shift+Tab focused Review changes; Escape collapsed the drawer while Details stayed open. The same observations record the old accessible name. Raw result: `_run_records/reproduction.json`.
+3. `npm test -- --run src/features/model-tree/ModelTree.test.tsx src/features/workspace/table/EngineeringTable.test.tsx` passed 65 tests against the final repaired product source (`unit.log`). Later changes were confined to regression test interactions; no product repair changed after this run.
+4. `npx tsc -b` passed. `typecheck-final.log` is the final source/test candidate check (empty output, exit zero).
+5. Playwright selected `--grep 'Details owns traversed'` from `e2e/b4-table-editing.spec.ts`, desktop project, one worker, one-failure stop, 30-second timeout, list and JSON reporters. First two attempts failed only the newly introduced native select arrow/menu key assumptions after their leading Details Escape assertions passed. Raw logs and JSON reports are preserved separately.
+6. The two diagnosis scripts exercised key-by-key product and minimal HTML select behavior. Arrow/menu sequences did not change either select in this headless macOS Chromium. A printable `p` on the focused product select did select Pipes. The maintained regression now verifies this actual native typeahead transition and uses `selectOption` to return Nodes. OS-native popup menu keyboard interaction remains a native-witness matter; there is no claim that the failed arrow sequence worked.
+7. The repaired two-journey selection passed in Model at 1280×800 and narrow Both at 1024×768 (`browser-r3.log`, `_run_records/browser-r3-report.json`).
+8. The existing minimum-host cases selected by `--grep 'compact drawer (model comfortable 180|both compact 180)'` backcheck the renamed family control and repaired ownership in opposite densities. Result is recorded in RETURN, with raw list and JSON report.
+
+Raw reports live under `_run_records` without sanitization. Successful geometry and keyboard attachments remain embedded in the final JSON reports; no new screenshots or trace ZIPs are required for the canonical repair payload. The changed dist assertion was not independently run through the full dist appearance matrix; parent final checks retain that obligation.

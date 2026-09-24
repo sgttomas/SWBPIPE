@@ -1,0 +1,11 @@
+
+Running 2 tests using 1 worker
+
+(node:91138) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:91138) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium-desktop] › e2e/b4-table-editing.spec.ts:716:3 › B4 Details owns traversed Escape and preserves editor ownership in model @explicit-viewport (3.6s)
+  ✓  2 [chromium-desktop] › e2e/b4-table-editing.spec.ts:716:3 › B4 Details owns traversed Escape and preserves editor ownership in both @explicit-viewport (3.6s)
+
+  2 passed (8.3s)
