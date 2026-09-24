@@ -62,7 +62,7 @@
       "brief": "IMPLEMENTATION_MANAGER_BRIEF.md",
       "fork_turns": "none",
       "writes": "apps/desktop and additive tools/ci under project; B4_MANAGER evidence; ROOT owns Git/graph",
-      "state": "native-fit repair470dac01 returned:68units/TS,40affectedbrowser pass; source/browser/build released, fresh review required; ROOT native cleanup pending Mac unlock",
+      "state": "native-fit repair470dac01 and independent review passed; primary frozen under ROOT; no B4 source/test resources outstanding; controller/native/Cargo handback to isolated live manager acknowledged; native pending manual unlock",
       "brief_sha256": "190383d57b9788904ba6c9dbb066daa8abe7b114852c398302949c254091e5e3"
     },
     {
@@ -86,18 +86,20 @@
       "fork_turns": "none",
       "candidate": "31f1600b5",
       "writes": "GRAPH_REVIEW/RETURN.md only",
-      "state": "returned GR-1 P2; ROOT carried specific inherited follow-ups; backcheck pending"
+      "state": "returned GR-1 P2; corrected at3ba429874 and independent backcheck passed; later graph covered in subsequent candidate reviews"
     },
     {
       "id": "/root/live_manager",
-      "role": "WORKING_ITEMS live preparation",
+      "role": "WORKING_ITEMS live implementation",
       "model": "gpt-6-astra",
       "reasoning": "high",
       "brief": "LIVE_MANAGER_BRIEF.md",
       "brief_sha256": "fd3a24e13e6be0839907719d537aa4590cad5d1296ddeca51e0d34b1d39a0d3b",
       "fork_turns": "none",
-      "writes": "LIVE_MANAGER evidence only until acknowledged product handback",
-      "state": "preparation returned; wire91f491 review active; no product writes/resources"
+      "writes": "named native/frontend scopes and own evidence only in isolated branch codex/piping-live-control-20260924; primary remains ROOT-owned",
+      "state": "isolated source-only assignment acknowledged; writer wire ACKs pending before product writes; no execution resources yet",
+      "activation": "LIVE_IMPLEMENTATION_ACTIVATION.md",
+      "activation_sha256": "9fda39962acb516469ddcfa7898119e16a9104316b57ebb0d2a5e6b9356c6628"
     },
     {
       "id": "/root/wire_review",
@@ -146,6 +148,18 @@
       "fork_turns": "none",
       "state": "PASS21files through9dff,58hashbindings; no UI/renderer/native/performance claim",
       "writes": "isolated C4_MANAGER/INDEPENDENT_REVIEW/RETURN.md only"
+    },
+    {
+      "id": "/root/native_fit_review",
+      "role": "TASK independent software reviewer",
+      "model": "gpt-6-astra",
+      "reasoning": "xhigh",
+      "brief": "NATIVE_FIT_REVIEW_BRIEF.md",
+      "brief_sha256": "5a32cabf7d4c2155c24f791b9388aafb8be77555104d36c22ff54e8365421685",
+      "fork_turns": "none",
+      "writes": "NATIVE_FIT_REVIEW/RETURN.md only",
+      "state": "PASS no actionable findings at e1d7cc48; complete188paths covered; native and broad gates open",
+      "return_sha256": "471f7e83586231cfd0ad4f5a0d461ae878cc41374f9e44a9d3cee45d05e8831d"
     }
   ],
   "enforcement": "Logical role and write scopes; actual host workspace-write permissions apply. Children share checkout; no independent OS sandbox guarantee claimed. No historical worker was resumed."
