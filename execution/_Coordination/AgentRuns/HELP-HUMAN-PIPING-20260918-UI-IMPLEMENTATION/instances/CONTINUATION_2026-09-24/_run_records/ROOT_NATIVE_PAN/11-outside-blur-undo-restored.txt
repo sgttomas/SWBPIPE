@@ -1,0 +1,11 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 206-207
+~0 standard window Invented Utility Loop Preview — SWBPIPE, Secondary Actions: Raise
+~						10 button (disabled) Undo model edit, Help: Nothing to undo
+~						11 button Redo model edit, Help: Redo (⇧⌘Z)
+~										76 cell (selected, settable) material:invented-carbon-steel Elastic: 200000000000 Pa
+Quantity readout, Value: Pa
+200000000000
+Pa
+~	198 text Invented Utility Loop Preview — SWBPIPE
+The focused UI element is 2 HTML content Description: SWBPIPE, URL: tauri://localhost

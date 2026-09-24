@@ -1,0 +1,52 @@
+{
+  "kind": "M31 reference/design delivery identities; no implementation verification",
+  "date": "2026-09-24",
+  "manager": "/root/correctness_design",
+  "parent": "/root",
+  "independent_reviewer": "/root/correctness_design/shear_refutation",
+  "selection": "homogeneous annular energy-matched static Timoshenko, explicit EB limit/alternative",
+  "review_disposition": "qualified PASS; final contract stiffness-scaling statement corrected and backchecked; no unresolved blocking reference/design findings",
+  "execution_limits": "No product/source edits, product tests, builds, Git/native/browser/endpoint actions. Independent exact reference arithmetic ran separately; script/commands/rawoutput retained. No new public version or shared numerical policy.",
+  "artifacts": [
+    {
+      "path": "CONTRACT.md",
+      "sha256": "40cd61e22f129a8fc2e198d4bdfcf6cfec83670e45f318b1d901158af88964c1"
+    },
+    {
+      "path": "INDEPENDENT_REFUTATION.md",
+      "sha256": "0e4e75d06f815a1285db754c20f81e1e2ddca0c20c0eb03d8806c2c861ea5cfa"
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "e93a93f3cdb852ffccb9213b5cf53b8d0b0cf58c367be5765056a88c0848b5c1"
+    },
+    {
+      "path": "SOURCE_QUALIFICATION.md",
+      "sha256": "31a933d06288b90c8803c39eef65c1761e37d5378472268f1fe4d86642caed6d"
+    },
+    {
+      "path": "_run_records/origins.json",
+      "sha256": "78b94616bbde57207f73eb3b5cf2c6929d7d8e912271563604d0f8e5e493835f"
+    },
+    {
+      "path": "_run_records/shear_refutation/FINAL_BACKCHECK.md",
+      "sha256": "4e2c6137155a1dfd5de4c521772eb9f84aefb45fbeb0b4812a713a99cc9b1a8a"
+    },
+    {
+      "path": "_run_records/shear_refutation/ORIGINS_AND_EXECUTION.md",
+      "sha256": "d44f11bf3c14531086aa1b9bf6f3a31e3db7b352c10c3e84936a788e5c2eda1b"
+    },
+    {
+      "path": "_run_records/shear_refutation/commands_and_access.txt",
+      "sha256": "ce39345da89b6c28594bc5f9f5fc1973dbca34b090aa0f9bbdbc4f24a8a9e5fa"
+    },
+    {
+      "path": "_run_records/shear_refutation/reference_arithmetic.py",
+      "sha256": "47261fc5096b9eda70ce1554303b65773d258aa8c7a6db8b11f6f591e6bad9ef"
+    },
+    {
+      "path": "_run_records/shear_refutation/reference_arithmetic.stdout.txt",
+      "sha256": "84da10333d6cb190be7e4df24b25e5add6e4655559f1b75cd5fdb12b8086ddd1"
+    }
+  ]
+}

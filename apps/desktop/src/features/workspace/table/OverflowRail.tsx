@@ -1,8 +1,16 @@
-import { createContext, useLayoutEffect, useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
+import { createContext, useLayoutEffect, useRef, useState, type Dispatch, type PointerEvent, type ReactNode, type SetStateAction } from "react";
 
 export const TableChromeContext = createContext<{
   target: HTMLElement | null; owner: string | null; setOwner: Dispatch<SetStateAction<string | null>>;
 }>({ target: null, owner: null, setOwner: () => {} });
+
+/** Establish an owned blur destination even on hosts whose pointer default
+ * does not focus buttons. Activation still belongs to click (including keyboard).
+ * No retained guard: a later outside or null editor blur still applies normally. */
+export function focusPanControl(event: PointerEvent<HTMLButtonElement>) {
+  event.preventDefault();
+  event.currentTarget.focus({ preventScroll: true });
+}
 
 /** Width-only navigation. The rail and its children stay mounted as presentation
  * changes; only its named controls are conditional. No scrollbar consumes height. */
@@ -62,9 +70,9 @@ export function OverflowRail({ enabled, name, owner, children }: {
     </div>
     {enabled && extent.maximum > 0 ? <div ref={pans} className="table-pan-pair" role="group" aria-label={`Pan ${name}`}>
       <button type="button" aria-label={`Earlier ${name}`} data-table-chrome-owner={owner ?? undefined} disabled={extent.left <= 0}
-        onClick={(event) => pan(-1, event.currentTarget)}>‹</button>
+        onPointerDown={focusPanControl} onClick={(event) => pan(-1, event.currentTarget)}>‹</button>
       <button type="button" aria-label={`Later ${name}`} data-table-chrome-owner={owner ?? undefined} disabled={extent.left >= extent.maximum - .5}
-        onClick={(event) => pan(1, event.currentTarget)}>›</button>
+        onPointerDown={focusPanControl} onClick={(event) => pan(1, event.currentTarget)}>›</button>
     </div> : null}
   </div>;
 }

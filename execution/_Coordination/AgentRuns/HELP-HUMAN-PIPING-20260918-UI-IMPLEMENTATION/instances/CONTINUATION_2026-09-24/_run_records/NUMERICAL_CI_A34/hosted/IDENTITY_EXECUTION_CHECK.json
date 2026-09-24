@@ -1,0 +1,116 @@
+{
+  "head": "a34c9d819d62b54b74d7f07edde87738b97b87cf",
+  "run_id": 36037700066,
+  "run_url": "https://github.com/sgttomas/chirality/actions/runs/36037700066",
+  "run_attempt": 1,
+  "canonical_identity": [
+    "id",
+    "project",
+    "file",
+    "title_path"
+  ],
+  "discovered": 475,
+  "union": 475,
+  "missing": 0,
+  "duplicates": 0,
+  "unexpected": 0,
+  "profiles": [
+    "chromium-compact",
+    "chromium-desktop"
+  ],
+  "passed": 455,
+  "skipped": 20,
+  "jobs": [
+    {
+      "stage": "barrier",
+      "job_id": 107762220867,
+      "job_url": "https://github.com/sgttomas/chirality/actions/runs/36037700066/job/107762220867",
+      "step": {
+        "name": "Run accessibility first, then any reduced selection",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-09-24T17:58:51Z",
+        "completed_at": "2026-09-24T18:00:38Z"
+      },
+      "identities": 30,
+      "passed": 30,
+      "skipped": 0,
+      "collection": "extracted/piping-e2e-collection-barrier-36037700066-1/collection.json",
+      "collection_sha256": "d991257343f07e27ee85a0f4435def434c815bd030710d954e7b6fcb1f19ae24"
+    },
+    {
+      "stage": "shard-1",
+      "job_id": 107763678704,
+      "job_url": "https://github.com/sgttomas/chirality/actions/runs/36037700066/job/107763678704",
+      "step": {
+        "name": "Run isolated source remainder shard",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-09-24T18:02:32Z",
+        "completed_at": "2026-09-24T18:09:48Z"
+      },
+      "identities": 96,
+      "passed": 96,
+      "skipped": 0,
+      "collection": "extracted/piping-e2e-collection-shard-1-36037700066-1/collection.json",
+      "collection_sha256": "8388c36c51b9cfaf331f5ac06584d7321f3aa62480cbfe59c7f484eab04c30df"
+    },
+    {
+      "stage": "shard-2",
+      "job_id": 107763678756,
+      "job_url": "https://github.com/sgttomas/chirality/actions/runs/36037700066/job/107763678756",
+      "step": {
+        "name": "Run isolated source remainder shard",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-09-24T18:02:34Z",
+        "completed_at": "2026-09-24T18:10:06Z"
+      },
+      "identities": 59,
+      "passed": 59,
+      "skipped": 0,
+      "collection": "extracted/piping-e2e-collection-shard-2-36037700066-1/collection.json",
+      "collection_sha256": "31e73212f0127913eb890ef57e10f3c6ec69312e217bf13bb9a967959d22bdea"
+    },
+    {
+      "stage": "shard-3",
+      "job_id": 107763678831,
+      "job_url": "https://github.com/sgttomas/chirality/actions/runs/36037700066/job/107763678831",
+      "step": {
+        "name": "Run isolated source remainder shard",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-09-24T18:02:51Z",
+        "completed_at": "2026-09-24T18:08:12Z"
+      },
+      "identities": 160,
+      "passed": 150,
+      "skipped": 10,
+      "collection": "extracted/piping-e2e-collection-shard-3-36037700066-1/collection.json",
+      "collection_sha256": "d0dc54a7ad0d6e68d553759d963744031a501ef75f318cb8c77f0ee98d4eb87f"
+    },
+    {
+      "stage": "shard-4",
+      "job_id": 107763678709,
+      "job_url": "https://github.com/sgttomas/chirality/actions/runs/36037700066/job/107763678709",
+      "step": {
+        "name": "Run isolated source remainder shard",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-09-24T18:08:39Z",
+        "completed_at": "2026-09-24T18:13:50Z"
+      },
+      "identities": 130,
+      "passed": 120,
+      "skipped": 10,
+      "collection": "extracted/piping-e2e-collection-shard-4-36037700066-1/collection.json",
+      "collection_sha256": "cb922ef88bce8b402d8a67aff99ad39df01c3ad633ea1110d91ac45980188f86"
+    }
+  ],
+  "limitations": "Collection-only artifacts establish identities, not execution. Successful hosted execution steps and raw logs independently establish actual execution. Skipped cases are not claimed passed. No engineering correctness or native-host claims."
+}

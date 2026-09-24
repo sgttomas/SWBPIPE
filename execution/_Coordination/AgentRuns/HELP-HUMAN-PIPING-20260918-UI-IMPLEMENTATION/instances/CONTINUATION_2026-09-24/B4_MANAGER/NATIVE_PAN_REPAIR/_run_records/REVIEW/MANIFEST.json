@@ -1,0 +1,451 @@
+{
+  "schema": "chirality-native-pan-independent-review/v1",
+  "created_at": "2026-09-24T18:22:53.696709+00:00",
+  "agent": "/root/native_pan_manager/pan_review",
+  "parent": "/root/native_pan_manager",
+  "role": "TASK Type 2",
+  "mechanism": "delegated-harness-native",
+  "allocation": "gpt-6-astra/xhigh",
+  "implementer": {
+    "agent": "/root/native_pan_manager/pan_repair",
+    "allocation": "gpt-6-astra/low",
+    "independent_from_reviewer": true,
+    "model_diversity_claim": false
+  },
+  "delegation": {
+    "actual_executing_child": true,
+    "assignment_origin": "parent task dispatch and browser-result updates in this harness conversation",
+    "descendants": [],
+    "write_scope": [
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/REVIEW/RETURN.md",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/REVIEW/MANIFEST.json"
+    ],
+    "authority": "Read-only product review with review-artifact writes only; no Git, lifecycle, native, browser, build or heavy-test authority. Host exposes broader workspace-write permissions; brief and role provide the narrower operating boundary."
+  },
+  "selected_skill": {
+    "path": ".agents/skills/software-code-review/SKILL.md",
+    "origin": "project skill at active REPO_ROOT",
+    "same_name_rebinding": false
+  },
+  "source_basis": {
+    "head": "5112636cb8c8c25bab352cda6dfbdbbf1aa7d086",
+    "native_symptom_source": "1c1b8b072a25a5014f41dcc0e0fd8fd9d1ab0a9a",
+    "changed": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx",
+        "sha256": "9a6bbecbb166ea989f239d231ec7a77266eca41a2d3d502d6146c4c07d56c370"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/OverflowRail.tsx",
+        "sha256": "4406f87b20fb4bac4eb5b3c3b7f707d8fcf5fc2e6789f400e7150c15aae3adfb"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/ModelTree.table.test.tsx",
+        "sha256": "1942a46f62dec06e38d0804e1cd75a32ccea4e19946d0c675d29c082a9bf99e8"
+      }
+    ],
+    "candidate_diff_sha256": "94ee4d02cc05bcba668f665575310e86af7e912addfa61257adaea81d33f3a9b"
+  },
+  "reviewer_checks": [
+    {
+      "check": "resolve REPO_ROOT with git rev-parse --show-toplevel",
+      "result": "PASS",
+      "resolved_root": "/Users/ryan/.codex/worktrees/6614/chirality"
+    },
+    {
+      "check": "current HEAD matches frozen base",
+      "result": "PASS"
+    },
+    {
+      "check": "three frozen file SHA-256 matches",
+      "result": "PASS",
+      "count": 3
+    },
+    {
+      "check": "git diff frozen base -- three candidate paths equals candidate.diff bytes",
+      "result": "PASS"
+    },
+    {
+      "check": "git diff --name-only frozen base -- projects/chirality-piping/apps/desktop contains exactly frozen three paths",
+      "result": "PASS"
+    },
+    {
+      "check": "python3 tools/software_workflow/validate_change_scope.py REPO_ROOT with --allowed and --path for each frozen file",
+      "result": "PASS",
+      "exit_code": 0,
+      "violations": []
+    },
+    {
+      "check": "git diff --check frozen base -- three frozen paths",
+      "result": "PASS",
+      "exit_code": 0
+    },
+    {
+      "check": "TASK/EVIDENCE_HASHES.json entries match bytes and SHA-256",
+      "result": "PASS",
+      "count": 14
+    },
+    {
+      "check": "MANAGER_SOURCE_CHECK.json browser source entries match SHA-256",
+      "result": "PASS",
+      "count": 277
+    },
+    {
+      "check": "git diff --name-only native_symptom_source head -- apps/desktop",
+      "result": "PASS",
+      "changed_paths": []
+    }
+  ],
+  "inspection_notes": [
+    "Root software-workflow.json was initially probed and was absent; the project-owned profile was then read successfully. This read failure is not a failed software check.",
+    "Full TASK role and selected review skill were read. Other role/skill bodies referenced inside parent manifests were not activated; their hash verification alone is not body consultation.",
+    "No product test, browser, native, build, sweep or CI rerun was performed by this reviewer. Browser results are manager-produced evidence.",
+    "Final tsc output is empty; exit 0 is attributed to the implementer RETURN, not inferred from empty stdout."
+  ],
+  "findings": [],
+  "disposition": "Suitable for bounded manager fan-in; native verification remains open; no acceptance or merge readiness determination.",
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "bytes": 14200,
+      "kind": "active_instruction",
+      "inspection": "full body read"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499,
+      "kind": "active_instruction",
+      "inspection": "full body read"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "bytes": 9016,
+      "kind": "active_instruction",
+      "inspection": "full body read"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "bytes": 8475,
+      "kind": "active_instruction",
+      "inspection": "full body read"
+    },
+    {
+      "path": ".agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
+      "bytes": 1303,
+      "kind": "active_instruction",
+      "inspection": "full body read"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/DESIGN_MANAGER/NATIVE_COMPACT_DESIGN.md",
+      "sha256": "aa3d9be6bfa5a3024f80bc5dfc0c5cda479cbbe4759f905e8de774c9a6db7189",
+      "bytes": 13563,
+      "kind": "accepted_basis",
+      "inspection": "full body read"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NATIVE_FIT_REPAIR_DISPOSITION.md",
+      "sha256": "0c54ec97086c95c8b1af8fbbf58e7036813d89d7a67f403945b81108c356c323",
+      "bytes": 3303,
+      "kind": "accepted_basis",
+      "inspection": "full body read"
+    },
+    {
+      "path": "projects/chirality-piping/software-workflow.json",
+      "sha256": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7",
+      "bytes": 1101,
+      "kind": "check_configuration",
+      "inspection": "full body read"
+    },
+    {
+      "path": "tools/software_workflow/validate_change_scope.py",
+      "sha256": "6275277dcb214f78dfad6c159333decda95f9aa3e086d12e39c7f2f73a70cb0d",
+      "bytes": 1941,
+      "kind": "check_configuration",
+      "inspection": "full body read"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx",
+      "sha256": "9a6bbecbb166ea989f239d231ec7a77266eca41a2d3d502d6146c4c07d56c370",
+      "bytes": 39643,
+      "kind": "candidate_source",
+      "inspection": "complete frozen diff reviewed; full product file inspected; test added block inspected"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/OverflowRail.tsx",
+      "sha256": "4406f87b20fb4bac4eb5b3c3b7f707d8fcf5fc2e6789f400e7150c15aae3adfb",
+      "bytes": 5070,
+      "kind": "candidate_source",
+      "inspection": "complete frozen diff reviewed; full product file inspected; test added block inspected"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/ModelTree.table.test.tsx",
+      "sha256": "1942a46f62dec06e38d0804e1cd75a32ccea4e19946d0c675d29c082a9bf99e8",
+      "bytes": 24244,
+      "kind": "candidate_source",
+      "inspection": "complete changed test block reviewed with original assertion preservation verified by diff"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+      "sha256": "e3c0e0363dfe81892de475e3b056c02018f1b7d20bbc4e3c203f68d50633b522",
+      "bytes": 83382,
+      "kind": "supporting_source",
+      "inspection": "selective caller, ownership and Apply-route reads: 112-206, 844-950, 1087-1173"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.test.tsx",
+      "sha256": "81a81dc4e62494d15d6c4c98416c7df99222ad672bae5fe6b94328749978770a",
+      "bytes": 44730,
+      "kind": "supporting_source",
+      "inspection": "targeted test searches and ownership/Info tests 413-470; file unchanged against supplied basis"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/OverflowRail.test.tsx",
+      "sha256": "07dc4b3b57ad2ac8e6c811778cce1d48941765a577de360678eaeab91fe51e45",
+      "bytes": 4250,
+      "kind": "supporting_source",
+      "inspection": "full file read; unchanged against supplied basis"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts",
+      "sha256": "14aec754b7c41a68075d7e2be02ee08d3c59ef7da58d78e2aec438667c977e45",
+      "bytes": 94627,
+      "kind": "supporting_source",
+      "inspection": "retained classic tests 776-864 read, adjacent disclosure cases 737-774 inspected"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/test/setup.ts",
+      "sha256": "65c02a3ba648174d681c4389b61707c58e8ee02cc7228b9446074a2ac1772e38",
+      "bytes": 466,
+      "kind": "supporting_source",
+      "inspection": "full file read"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BASIS.json",
+      "sha256": "a7d0d885fbc0d3e00a59a3ac3377bc24225c2b0a243d0195ef8315c54af49fca",
+      "bytes": 4538,
+      "kind": "parent_or_implementer_evidence",
+      "inspection": "full document read; source manifests are provenance references and do not activate every nested instruction"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/DIAGNOSIS.md",
+      "sha256": "b8c1fd25102e9820715eeced2ce331d5b2144ce0741d0c7cb7051d5803c26bf3",
+      "bytes": 3292,
+      "kind": "parent_or_implementer_evidence",
+      "inspection": "full document read; source manifests are provenance references and do not activate every nested instruction"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/RETURN.md",
+      "sha256": "2277ac2b9057a62f3d94af38f5d9011f26985bbc464dc034ef599f7a640c7dab",
+      "bytes": 4692,
+      "kind": "parent_or_implementer_evidence",
+      "inspection": "full document read; source manifests are provenance references and do not activate every nested instruction"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/FREEZE.json",
+      "sha256": "9fac943d13bb512b2a98dfb8b97fa191ccd6272fc27c8dd58b6a32e18965512f",
+      "bytes": 4715,
+      "kind": "parent_or_implementer_evidence",
+      "inspection": "full document read; source manifests are provenance references and do not activate every nested instruction"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/candidate.diff",
+      "sha256": "94ee4d02cc05bcba668f665575310e86af7e912addfa61257adaea81d33f3a9b",
+      "bytes": 11983,
+      "kind": "parent_or_implementer_evidence",
+      "inspection": "full document read; source manifests are provenance references and do not activate every nested instruction"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/EVIDENCE_HASHES.json",
+      "sha256": "081922cda797dfe97fcfa876418a2677160dd1470f1b7f84a767765f9976a979",
+      "bytes": 1992,
+      "kind": "parent_or_implementer_evidence",
+      "inspection": "full document read; source manifests are provenance references and do not activate every nested instruction"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/fail-first.log",
+      "sha256": "292f0a42961cb676a17c8328f806244450cef054f9aa9ea84a958ebdfd7f6410",
+      "bytes": 44141,
+      "kind": "implementer_check_log",
+      "inspection": "read; repetitive fail-first output additionally parsed for all failure identities and numeric Apply payload counts"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/verification.log",
+      "sha256": "27f5160e7c26a3d4cfc76283ceb06db7e11ab941c7e565b67148d629d424b552",
+      "bytes": 485,
+      "kind": "implementer_check_log",
+      "inspection": "read; repetitive fail-first output additionally parsed for all failure identities and numeric Apply payload counts"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "kind": "implementer_check_log",
+      "inspection": "read; repetitive fail-first output additionally parsed for all failure identities and numeric Apply payload counts"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/typecheck-failure.log",
+      "sha256": "4fa811d8401c9b8603ed63df303371c319a6ba5e9ac96ec9b01742d75f3884bc",
+      "bytes": 3164,
+      "kind": "implementer_check_log",
+      "inspection": "read; repetitive fail-first output additionally parsed for all failure identities and numeric Apply payload counts"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/verification-final.log",
+      "sha256": "1a3d9cd48ec4b6d9abe85917d10822ec06dc44827a8a1059910f8672cb9e45a7",
+      "bytes": 378,
+      "kind": "implementer_check_log",
+      "inspection": "read; repetitive fail-first output additionally parsed for all failure identities and numeric Apply payload counts"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/fixture-failure.log",
+      "sha256": "e4f9933bf2f8541af9c2a50cc778766ea2ec62377690f11f413bd597ce5a6bad",
+      "bytes": 789765,
+      "kind": "retained_failed_fixture_log",
+      "inspection": "hash verified and error/test-summary lines inspected; not a defect reproduction"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/fixture-failure-2.log",
+      "sha256": "c374f169d52f338eeb90bfcd979ee37d7af278533f8b611bcd6e424995a398fa",
+      "bytes": 789765,
+      "kind": "retained_failed_fixture_log",
+      "inspection": "hash verified and error/test-summary lines inspected; not a defect reproduction"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/fixture-probe.log",
+      "sha256": "7b0c00ef7624f5d4f95f98a95d3875d064824193e3bfdd8ec1323f4840136317",
+      "bytes": 28269,
+      "kind": "retained_failed_fixture_log",
+      "inspection": "hash verified and error/test-summary lines inspected; not a defect reproduction"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/fixture-probe-2.log",
+      "sha256": "dc6de9c92c60c7620481f725026ea06d908e6b56b1d77fca07d2e99ea9954678",
+      "bytes": 16351,
+      "kind": "retained_failed_fixture_log",
+      "inspection": "hash verified and error/test-summary lines inspected; not a defect reproduction"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/fixture-probe-3.log",
+      "sha256": "e19ae69d85b030db8efeb550b768276430a0d3c6b130c8f4bba242d71aba2bf6",
+      "bytes": 16998,
+      "kind": "retained_failed_fixture_log",
+      "inspection": "hash verified and error/test-summary lines inspected; not a defect reproduction"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/fixture-probe-4.log",
+      "sha256": "154c1d2d412888bfb9ce423bb0182d4a25dbad635e723b0d7a77a4827c68e918",
+      "bytes": 16320,
+      "kind": "retained_failed_fixture_log",
+      "inspection": "hash verified and error/test-summary lines inspected; not a defect reproduction"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE_1C/58-material-draft-before-pan.txt",
+      "sha256": "12c1eca3bdffd8d9fdf6b6357d3262bad2c02b5721d85e797deb87330729f0ff",
+      "bytes": 449,
+      "kind": "prior_native_evidence",
+      "inspection": "full AX text read; no fresh native session or image inspection"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE_1C/59-material-draft-after-pan.txt",
+      "sha256": "455fb4fd558380d0921ba7c0f714a4cdbf1556d9b664291f6960f3934e66759f",
+      "bytes": 1034,
+      "kind": "prior_native_evidence",
+      "inspection": "full AX text read; no fresh native session or image inspection"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE_1C/60-material-second-undo-restored.txt",
+      "sha256": "6fbbcff6c1d1bf255e2c88f8a1cac1ad161e14afa64e77b5de2eecbf6d9bf3c7",
+      "bytes": 751,
+      "kind": "prior_native_evidence",
+      "inspection": "full AX text read; no fresh native session or image inspection"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chrome153-command.json",
+      "sha256": "ea3622a0bd2a405e34d7d497df6b445a090df6e2f6a10a581e3e27b2852ebb1c",
+      "bytes": 1302,
+      "kind": "manager_browser_evidence",
+      "inspection": "full text read; not executed by reviewer"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chrome153-result.json",
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17",
+      "bytes": 17,
+      "kind": "manager_browser_evidence",
+      "inspection": "full text read; not executed by reviewer"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chrome153-version.txt",
+      "sha256": "84d0d69d53c4b90ed6877e63681032ba28dd473911e5aff082b406a29945b155",
+      "bytes": 29,
+      "kind": "manager_browser_evidence",
+      "inspection": "full text read; not executed by reviewer"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chrome153.log",
+      "sha256": "88aac4bac72a6aeb5bd7e2449134cb8286479668144fa77abd786c35d92af26a",
+      "bytes": 1824,
+      "kind": "manager_browser_evidence",
+      "inspection": "full text read; not executed by reviewer"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chromium148-command.json",
+      "sha256": "76a2920a6935a1dbedf96244904e730c73c191dd193a2435ca582cf3896ca360",
+      "bytes": 1386,
+      "kind": "manager_browser_evidence",
+      "inspection": "full text read; not executed by reviewer"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chromium148-result.json",
+      "sha256": "e89df0eae5ec7db81135aed16463968955c578bcc4f2ec43172eff351f080c17",
+      "bytes": 17,
+      "kind": "manager_browser_evidence",
+      "inspection": "full text read; not executed by reviewer"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chromium148-version.txt",
+      "sha256": "19d17dcf23d727daf5c49aab7bd1778a8ef2da4876e33251fc817b4c5580478a",
+      "bytes": 41,
+      "kind": "manager_browser_evidence",
+      "inspection": "full text read; not executed by reviewer"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chromium148.log",
+      "sha256": "27e2e05206eb8a714e5ea754974d79e166a16d9e950ce9cd97551cfe34c2502f",
+      "bytes": 1824,
+      "kind": "manager_browser_evidence",
+      "inspection": "full text read; not executed by reviewer"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chrome153-sandbox-denied-result.json",
+      "sha256": "5cc319f54b05a38799195a491c303aa686eab7caccfdbbf1e8b8c07405cb7392",
+      "bytes": 17,
+      "kind": "manager_browser_evidence",
+      "inspection": "full text read; not executed by reviewer"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chrome153-sandbox-denied.log",
+      "sha256": "ccb194f1adbdad3103081f92ffcefd23ecbad16ae7abe63265410d5bccc0a3ed",
+      "bytes": 1124,
+      "kind": "manager_browser_evidence",
+      "inspection": "full text read; not executed by reviewer"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/MANAGER_SOURCE_CHECK.json",
+      "sha256": "ce41a2559ec9fe533b4e77d12d354c73d30a2541a14700ef861661dd4b7dd650",
+      "bytes": 55933,
+      "kind": "manager_source_manifest",
+      "inspection": "identity fields inspected; all 277 browser_source_inputs independently rehashed; nested source bodies not all read"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/REVIEW/RETURN.md",
+      "sha256": "2e7c239f2eefb53e812c511d560d60a62d856b6301f47ac82c79972c7ff6ecc2"
+    }
+  ]
+}

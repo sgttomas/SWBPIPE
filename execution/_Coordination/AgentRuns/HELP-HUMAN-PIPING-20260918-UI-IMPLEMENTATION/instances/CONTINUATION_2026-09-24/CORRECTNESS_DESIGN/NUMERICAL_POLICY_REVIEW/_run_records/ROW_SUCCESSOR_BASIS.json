@@ -1,0 +1,47 @@
+{
+  "date": "2026-09-24",
+  "actor": "/root/numerical_policy_review",
+  "parent": "/root",
+  "role": "TASK Type 2",
+  "mechanism": "delegated-harness-native continued assignment",
+  "delegation": false,
+  "instruction_basis": "BASIS.md and PRODUCT_RESIDUAL_SCOPE_BASIS.md retain previously read Root/TASK/Piping/LOOP/activation origins; no new full role, workflow or skill body selected.",
+  "authority_clarification": "ROOT owns interpretation of the live owner delegation. This TASK previously clarified that no concrete non-delegable reservation of this measured successor was found beyond the general owning-decision/governance-event rules. The new record preserves old limits/history and attributes expert selection to agents, not personal owner formula approval.",
+  "scope": "Independent arithmetic/reference/evidence check only; write ROW_SUCCESSOR_BACKCHECK.md and new origin/proof files under _run_records. No previously frozen checkpoint/graph file changed.",
+  "packet_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/POLICY_ROW_PROBE",
+  "packet_observation_limits": "Captured source predates pending kernel repairs; SparseInteractive one-fixture observation. No current implementation or full nonlinear qualification.",
+  "read_inputs_sha256": {
+    "analyze.py": "a1f89e2a7b5c4c6ba06b45b61acd3850d8a85ddfd205370c9b5375fd82d34b83",
+    "ANALYSIS.json": "4cb3b3edb8f9991d86e7d37c4db66f5e47f424f2c271b45981a3ebe9c95dec41",
+    "RETURN.md": "e149282511d36257367c03d426a77f7de343f8e5a584211be87c7d8bd1b2ce07",
+    "_run_records/rows.jsonl": "3ab27e31fd568c48899f351a39a2796dfa094b82833b2f592771b9dc78915a4f",
+    "_run_records/model.json": "c1236b88fdeb04852580246af96542812a97a5ac963b88cc48afd99b90bde149",
+    "_run_records/result.json": "ce8899d0df4b3409f16a5a21daa687082037240ce5260357e69bbbb833364453",
+    "_run_records/run.log": "23d08d8c2d836c982b8c972c2c412d29b8a1c2fac51b8ae10f9c8fec8a9d2376",
+    "_run_records/instrumentation.patch": "71a5c088b8eadf9907e82791b7d515a61d00ef782ea84510e07cf6f825481e9d",
+    "_run_records/SOURCE_CONTEXT.json": "d74d4386930a279465291c5a0f037145bc2b6155cb72cdc8c02e06dfb83c27dc",
+    "_run_records/product_before.rs": "4f78091a3bf865f76c2121d25d1d7e0e35c1bbc0b8a144a21d2456144e34bd09",
+    "_run_records/nonlinear_before.rs": "dcb9f8b9b1c09ba9b35627acce8af42383319ef95242088de45eb74a584e371c"
+  },
+  "additional_read_inputs_sha256": {
+    "DELIVERY_HASHES.json": "86932bd6568e7bc06bc2dbff906d2ae51ff462faaf9df35072c1ec43ad56800d"
+  },
+  "execution": {
+    "command": "python3 /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/_run_records/row_successor_backcheck.py /private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/POLICY_ROW_PROBE",
+    "python_version": "3.13.14 (main, Jul 18 2026, 16:56:45) [Clang 22.1.3 ]",
+    "runs": "Two successful lightweight arithmetic executions; second adds captured model/source-identity assertions. No Cargo/test/build/native/Git process ran.",
+    "input_mutations": false,
+    "supplied_analyze_py_executed": false,
+    "independent_method": "Fraction row/product/error/work checks; distinct Machin rational pi with alternating-series bound; no production calculation imports."
+  },
+  "output_sha256": {
+    "ROW_SUCCESSOR_BACKCHECK.md": "9c54463a1e5287aafe7e2b0a0063479634c8c3af933d6aae7048c81f39009d9b",
+    "_run_records/row_successor_backcheck.py": "47d1de8ece2b4bf7fd422e2cc70f60bbf1a17a43d39fddf6c1b0e7e9781f646e",
+    "_run_records/ROW_SUCCESSOR_PROOF.json": "c83f1433dcbedfe862c2bd45419714a3cc0a20659bc522f27863bd4195ab0a8e"
+  },
+  "external_sources": "No new web search; already-read LAPACK and numerical/active-set references retained by previous evidence records.",
+  "return_to": [
+    "/root",
+    "/root/solver_manager"
+  ]
+}

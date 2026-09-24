@@ -1,0 +1,72 @@
+[
+  {
+    "path": "fixture-failure-2.log",
+    "sha256": "c374f169d52f338eeb90bfcd979ee37d7af278533f8b611bcd6e424995a398fa",
+    "bytes": 789765
+  },
+  {
+    "path": "fixture-probe.log",
+    "sha256": "7b0c00ef7624f5d4f95f98a95d3875d064824193e3bfdd8ec1323f4840136317",
+    "bytes": 28269
+  },
+  {
+    "path": "verification-final.log",
+    "sha256": "1a3d9cd48ec4b6d9abe85917d10822ec06dc44827a8a1059910f8672cb9e45a7",
+    "bytes": 378
+  },
+  {
+    "path": "RETURN.md",
+    "sha256": "2277ac2b9057a62f3d94af38f5d9011f26985bbc464dc034ef599f7a640c7dab",
+    "bytes": 4692
+  },
+  {
+    "path": "typecheck.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  {
+    "path": "typecheck-failure.log",
+    "sha256": "4fa811d8401c9b8603ed63df303371c319a6ba5e9ac96ec9b01742d75f3884bc",
+    "bytes": 3164
+  },
+  {
+    "path": "candidate.diff",
+    "sha256": "94ee4d02cc05bcba668f665575310e86af7e912addfa61257adaea81d33f3a9b",
+    "bytes": 11983
+  },
+  {
+    "path": "verification.log",
+    "sha256": "27f5160e7c26a3d4cfc76283ceb06db7e11ab941c7e565b67148d629d424b552",
+    "bytes": 485
+  },
+  {
+    "path": "fixture-probe-4.log",
+    "sha256": "154c1d2d412888bfb9ce423bb0182d4a25dbad635e723b0d7a77a4827c68e918",
+    "bytes": 16320
+  },
+  {
+    "path": "fixture-failure.log",
+    "sha256": "e4f9933bf2f8541af9c2a50cc778766ea2ec62377690f11f413bd597ce5a6bad",
+    "bytes": 789765
+  },
+  {
+    "path": "FREEZE.json",
+    "sha256": "9fac943d13bb512b2a98dfb8b97fa191ccd6272fc27c8dd58b6a32e18965512f",
+    "bytes": 4715
+  },
+  {
+    "path": "fixture-probe-3.log",
+    "sha256": "e19ae69d85b030db8efeb550b768276430a0d3c6b130c8f4bba242d71aba2bf6",
+    "bytes": 16998
+  },
+  {
+    "path": "fail-first.log",
+    "sha256": "292f0a42961cb676a17c8328f806244450cef054f9aa9ea84a958ebdfd7f6410",
+    "bytes": 44141
+  },
+  {
+    "path": "fixture-probe-2.log",
+    "sha256": "dc6de9c92c60c7620481f725026ea06d908e6b56b1d77fca07d2e99ea9954678",
+    "bytes": 16351
+  }
+]

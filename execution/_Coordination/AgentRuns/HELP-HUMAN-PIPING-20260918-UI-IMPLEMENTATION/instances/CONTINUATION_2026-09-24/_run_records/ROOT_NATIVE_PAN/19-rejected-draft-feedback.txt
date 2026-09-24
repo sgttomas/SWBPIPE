@@ -1,0 +1,216 @@
+Window: "Invented Utility Loop Preview — SWBPIPE", App: SWBPIPE.
+0 standard window Invented Utility Loop Preview — SWBPIPE, Secondary Actions: Raise
+	1 scroll area
+		2 HTML content Description: SWBPIPE, URL: tauri://localhost
+			3 container
+				4 container Toolbar
+					5 heading SWBPIPE, Value: 1
+						6 text SWBPIPE
+					7 container Invented Utility Loop Preview
+						8 text Invented Utility Loop Preview
+					9 container Editing tools
+						10 button (disabled) Undo model edit, Help: Nothing to undo
+						11 button Redo model edit, Help: Redo (⇧⌘Z)
+						12 toggle button Description: Select (⎋), Value: on
+					13 container View
+						14 toggle button Table, Help: Table view (⌘1), Value: off
+						15 toggle button Model, Help: Model view (⌘2), Value: on
+						16 toggle button Both, Help: Both view (⌘3), Value: off
+					17 button Run
+					18 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
+					19 container Panels
+						20 button (disabled, expanded) Inspector, Help: The inspector is always docked in Model view, Secondary Actions: Collapse
+						21 button (disabled) Agent, Help: Agent: not available yet
+					22 pop up button Display units, Value: Entered, Help: Display units. Readouts use the selected units where conversion is available. Unavailable quantities retain entered values. Editing uses entered units.
+					23 summary Appearance, Value: off
+					24 container Human toolkit
+						25 button (collapsed) Find modeling commands, Help: Search or command (⌘K), Secondary Actions: Expand
+				26 container Stages
+					27 content list
+						28 toggle button Model, Value: on
+						29 toggle button Loads, Value: off
+						30 toggle button (disabled) Results, Help: No run yet, Value: off
+						31 toggle button (disabled) Review, Help: No run yet, Value: off
+					32 content list
+						33 button (collapsed) Libraries, Secondary Actions: Expand
+						34 button (collapsed) Rules, Secondary Actions: Expand
+						35 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
+				36 container Modeling workspace
+					37 container Tables
+						38 toggle button Model, Value: on
+						39 toggle button Review changes, Value: off
+						40 button (expanded) Collapse table drawer, Secondary Actions: Collapse
+					41 container Model tree
+						42 container Layout grid mode
+							43 toggle button Tree, Value: off
+							44 toggle button Grid, Value: on
+						45 container Model tree filtering
+							46 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
+								47 text Name, ID, type, or group
+							48 button (disabled) Clear model tree filter
+						49 container
+							50 text Family
+							51 pop up button Grid family, Value: Materials (1)
+						52 button (collapsed) Review changes, Secondary Actions: Expand
+						53 button (collapsed) Table details, Secondary Actions: Expand
+						54 container Pan columns
+							55 button Earlier columns
+							56 button (disabled) Later columns
+						57 container Bulk entity grid
+							58 container
+								59 table (settable) Material fields
+									60 row (selectable)
+										61 cell (settable)
+											62 text Material
+										63 cell (settable)
+											64 button Sort Label
+										65 cell (settable)
+											66 button Sort Elastic [row unit]
+										67 cell (settable)
+											68 button Sort Shear [row unit]
+										69 cell (settable)
+											70 button Sort Thermal [row unit]
+										71 cell (settable)
+											72 button Sort Provenance
+									73 row (selected)
+										74 cell (selectable, settable) material:invented-carbon-steel
+										75 cell (selectable, settable) material:invented-carbon-steel Label: Invented carbon-steel-like material
+										76 cell (selected, settable)
+											77 text Pa
+											78 container Quantity readout
+												79 text 200000000000 Pa
+											80 text field (settable) material:invented-carbon-steel Elastic [Pa], Value: -1
+										81 cell (selectable, settable) material:invented-carbon-steel Shear: 77000000000 Pa
+Quantity readout, Value: Pa
+77000000000
+Pa
+										82 cell (selectable, settable) material:invented-carbon-steel Thermal: 0.000012 1/degC
+Quantity readout, Value: 1/degC
+0.000012
+1/degC
+										83 cell (selectable, settable) material:invented-carbon-steel Provenance: invented_example_no_material_standard
+								84 container Material fields footer
+									85 text Editing 
+									86 text Elastic
+									87 text  · 
+									88 text material:invented-carbon-steel
+									89 button Apply, Help: Apply (Enter)
+									90 button Cancel, Help: Cancel (Escape)
+									91 text Enter a finite number greater than zero in the entered unit.
+									92 button (collapsed) Material fields Info, Secondary Actions: Expand
+					93 container Viewport controls
+						94 text 3D Centerline
+						95 container (collapsed) Viewport deformation overlay status, Secondary Actions: Expand
+							96 summary Deformation · unavailable, Value: off
+								97 text Deformation · unavailable
+						98 container Viewport display toggles
+							99 toggle button Labels, Help: Show or hide entity labels, Value: on
+							100 toggle button Loads, Help: Show or hide load arrows, Value: on
+							101 toggle button Grid, Help: Show or hide the ground grid, Value: on
+						102 container Viewport selection tools
+							103 toggle button Box Select, Value: off
+							104 container
+								105 text Selection filter
+								106 pop up button Selection filter, Value: All
+							107 button (disabled) Hide, Help: Select at least one valid drawable node, pipe, support, or component.
+							108 button (disabled) Isolate, Help: Select at least one valid drawable node, pipe, support, or component.
+							109 button (disabled) Show All, Help: All eligible entities are already shown.
+							110 text Isolate captures the selected geometry. Other shown geometry is dimmed to 20% and remains available to click, hover and box selection; nearer dimmed geometry can be picked before farther undimmed geometry. Selection does not change the snapshot. Hide takes precedence. Show All clears both. I and H apply while focus is in the viewport.
+							111 button Fit Model
+							112 button Fit Visible
+							113 button (disabled) Fit Selection, Help: No visible valid selected geometry can be fitted.
+						114 container Viewport geometry
+							115 toggle button Schematic, Value: on
+							116 toggle button Actual OD, Value: off
+							117 toggle button Measure, Value: off
+					118 container Viewport status
+						119 text Selected:  material:invented-carbon-steel
+						120 container Schematic centerline geometry
+							121 text Schematic centerline geometry
+						122 container View command status, Help: No view command dispatched.
+							123 text No view command dispatched.
+					124 container
+						125 container Three.js pipe centerline viewport, Help: Click a part to select it; drag to orbit, scroll to zoom
+						126 container Viewport entity selection
+							127 toggle button Select Vertical riser in viewport, Help: Vertical riser (pipe:P-110), Value: off
+							128 toggle button Select Invented branch connection marker in viewport, Help: Invented branch connection marker (component:C-120), Value: off
+							129 toggle button Select Low point elbow in viewport, Help: Low point elbow (node:N-110), Value: off
+							130 toggle button Select Riser elbow in viewport, Help: Riser elbow (node:N-120), Value: off
+							131 toggle button Select Rack span in viewport, Help: Rack span (pipe:P-120), Value: off
+							132 toggle button Select Tie-in rise in viewport, Help: Tie-in rise (pipe:P-130), Value: off
+							133 toggle button Select Invented semi-rigid valve marker in viewport, Help: Invented semi-rigid valve marker (component:C-130), Value: off
+							134 toggle button Select Pump nozzle in viewport, Help: Pump nozzle (node:N-100), Value: off
+							135 toggle button Select Terminal tie-in in viewport, Help: Terminal tie-in (node:N-140), Value: off
+							136 toggle button Select Preview one-way terminal stop in viewport, Help: Preview one-way terminal stop (support:NL-140), Value: off
+							137 toggle button Select Anchor at pump nozzle in viewport, Help: Anchor at pump nozzle (support:S-100), Value: off
+						138 image Orientation gizmo showing X, Y, Z axes
+						139 container View controls
+							140 toggle button Front, Value: off
+							141 toggle button Top, Value: off
+							142 toggle button Isometric, Value: on
+						143 text 1 m
+					144 container Command and selection bar
+						145 container Object creation tools
+							146 toggle button Node, Help: Arm node creation, Value: off
+							147 toggle button Pipe, Help: Arm pipe-run creation, Value: off
+							148 toggle button Support, Help: Arm support creation in the Inspector, Value: off
+							149 toggle button Component, Help: Arm component-symbol insertion, Value: off
+							150 toggle button Load, Help: Arm load creation in the Load Cases panel, Value: off
+						151 text Select
+						152 summary Selection & navigation, Value: off
+							153 text Selection & navigation
+					154 splitter Resize table drawer, Value: 180
+					155 container Property inspector
+						156 heading Invented carbon-steel-like material — material:material:invented-carbon-steel, Value: 2
+							157 text Invented carbon-steel-like material —  material : material:invented-carbon-steel
+						158 tab group (selectable) Inspector views
+							159 tab (selected) Properties
+							160 tab (selectable) Task
+						161 summary All properties, Value: off
+							162 text All properties
+						163 summary Sources and units, Value: off
+							164 text Sources and units
+						165 container Material temperature table
+							166 heading Temperature-dependent properties, Value: 3
+								167 text Temperature-dependent properties
+							168 text Enter values with their units and provenance. An incomplete point remains incomplete; load-case validation checks whether selected points can be used. Removing a referenced point may be blocked.
+							169 container Invented carbon-steel-like material
+								170 text Invented carbon-steel-like material
+								171 text No temperature points. Add a point to enter temperature-dependent properties.
+								172 button Add temperature point
+								173 button Queue temperature points
+						174 container Remove selected entity
+							175 heading Remove material, Value: 3
+								176 text Remove  material
+							177 container
+								178 text Remove  Invented carbon-steel-like material ( material:invented-carbon-steel ). References from other records can block removal. No connected records will be removed automatically.
+							179 button Queue removal for review
+							180 text The queued change must be validated and explicitly applied in Pending changes.
+						181 summary New section, Value: off
+							182 text New section
+						183 summary New material, Value: off
+							184 text New material
+						185 summary New support, Value: off
+							186 text New support
+						187 summary New component, Value: off
+							188 text New component
+				189 container Agent
+					190 button (disabled) Agent, Help: Agent: not available yet
+				191 container Workspace status
+					192 container Analysis statuses
+					193 button (collapsed) 5 Issues, Secondary Actions: Expand
+					194 text material: material:invented-carbon-steel Entered
+					195 button (collapsed) About SWBPIPE…, Secondary Actions: Expand
+	196 close button
+	197 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	198 minimize button
+	199 text Invented Utility Loop Preview — SWBPIPE
+200 menu bar
+	201 SWBPIPE
+	202 File
+	203 Edit
+	204 View
+	205 Insert
+	206 Analyze
+
+The focused UI element is 80 text field (settable) material:invented-carbon-steel Elastic [Pa], Value: -1

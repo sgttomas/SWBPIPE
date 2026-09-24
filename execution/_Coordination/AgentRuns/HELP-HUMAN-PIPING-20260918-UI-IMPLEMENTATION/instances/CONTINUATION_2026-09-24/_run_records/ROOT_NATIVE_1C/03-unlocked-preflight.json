@@ -1,0 +1,10 @@
+{
+  "recorded_at": "2026-09-24T16:51:11.501010+00:00",
+  "primary_head": "d46139f0e240837637e1fe30649048681e7b2ae3",
+  "product_source": "1c1b8b072a25a5014f41dcc0e0fd8fd9d1ab0a9a",
+  "binary": "/private/tmp/piping-native-fit-1c-20260924/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop",
+  "sha256": "daaac8f9839acce0e873bbb52a6e0079c88e537a236459f68c7a8a1cfd14fea6",
+  "access": "Owner replied unlocked; CUA listApps succeeded with no SWBPIPE running entry",
+  "scope": "B4 compact-fit native functional witness; no timing, new solver, live CLI or human Apply claim",
+  "concurrency": "ROOT owns GUI; isolated jobs2 numerical Rust checks may overlap; no calibrated performance claim"
+}

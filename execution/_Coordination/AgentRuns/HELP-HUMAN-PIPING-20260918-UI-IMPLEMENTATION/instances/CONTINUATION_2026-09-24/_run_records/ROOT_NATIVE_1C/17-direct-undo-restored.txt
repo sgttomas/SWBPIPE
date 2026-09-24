@@ -1,0 +1,9 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 306-307
+~0 standard window Invented Utility Loop Preview — SWBPIPE, Secondary Actions: Raise
+~						10 button (disabled) Undo model edit, Help: Nothing to undo
+~						11 button Redo model edit, Help: Redo (⇧⌘Z)
+~										255 cell (selected, settable) node:N-140 Z: 2.2 m
+~								286 text Operation op:delete-node-node:N-140; delete; proposed Target Node; node:N-140 Change delete_node; Explicit node deletion; nodes; before=Terminal tie-in; x=7.6; y=2.4; z=2.2; after=not_present Unit basis dimensionless; unit=none; explicit user-entered node deletion; endpoint and load reference integrity required Validation not_run; not_run; not_required_dimensionless; not_generated; not_applied Audit boundary Routed through the structured operations only; no direct model mutation; requires your acceptance; does not change the accepted model until applied Professional boundary Requires human review; no compliance claim; no approval claim Rationale explicit user-entered node deletion for project:invented-loop-01; requires reference validation before durable model change.
+~	165 text Invented Utility Loop Preview — SWBPIPE
+The focused UI element is 2 HTML content Description: SWBPIPE, URL: tauri://localhost

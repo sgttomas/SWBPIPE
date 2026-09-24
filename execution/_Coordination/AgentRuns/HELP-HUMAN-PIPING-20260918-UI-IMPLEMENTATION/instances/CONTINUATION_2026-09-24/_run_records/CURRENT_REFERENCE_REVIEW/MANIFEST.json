@@ -1,0 +1,428 @@
+{
+  "schema": "bounded-independent-documentary-review-v1",
+  "created_utc": "2026-09-24T17:59:53.790576+00:00",
+  "executor": "/root/current_reference_review",
+  "parent": "/root",
+  "role": "TASK Type 2",
+  "mechanism": "delegated-harness-native collaboration.spawn_agent",
+  "delegated_children": [],
+  "brief_origin": "Parent /root NEW_TASK message and follow-up scope acknowledgments in this actual task transcript; no separate sealed brief file supplied",
+  "instructions": [
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "bytes": 14200
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "bytes": 9016
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "bytes": 8475
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
+      "bytes": 1303
+    }
+  ],
+  "checkpoint": {
+    "actual_origin": "/private/tmp/piping-current-reference-checkpoint-20260924.json",
+    "sha256": "aeb65a3d8b10a2eae4f1513a63f5d2ee23724f70a13a98e0fecd5e83153b8323",
+    "bytes": 9615
+  },
+  "base": "5112636cb8c8c25bab352cda6dfbdbbf1aa7d086",
+  "observed_head": "5112636cb8c8c25bab352cda6dfbdbbf1aa7d086",
+  "coverage": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/CONTRACT.md",
+      "sha256": "3e239d5535a1b1d864a8220e3716c42a9bace07bd9bd6376a8ff2d8f40a6ac3a",
+      "bytes": 20731,
+      "hash_matches_checkpoint": true,
+      "review": "full documentary/source text; structured raw values parsed and checked against retained claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/INDEPENDENT_REFUTATION.md",
+      "sha256": "62c969a407c74cae1db7fea8382331c89c94da42e996679234e2d1605b59d0b0",
+      "bytes": 22720,
+      "hash_matches_checkpoint": true,
+      "review": "full documentary/source text; structured raw values parsed and checked against retained claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/RETURN.md",
+      "sha256": "357a4ea581b0a4836d4359ea646d546db3000f3e739fb32cd7cc43f6418dbf40",
+      "bytes": 3694,
+      "hash_matches_checkpoint": true,
+      "review": "full documentary/source text; structured raw values parsed and checked against retained claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/SOURCE_QUALIFICATION.md",
+      "sha256": "1234db1335109c2233e92a92c171d18839a319174fd4ecbe579795db982fd622",
+      "bytes": 6098,
+      "hash_matches_checkpoint": true,
+      "review": "full documentary/source text; structured raw values parsed and checked against retained claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/_run_records/DELIVERY.json",
+      "sha256": "8c87c2fe2e1931ce04fc748002b66b57a927faf0da9be3c922676dab68776897",
+      "bytes": 2413,
+      "hash_matches_checkpoint": true,
+      "review": "full documentary/source text; structured raw values parsed and checked against retained claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/_run_records/origins.json",
+      "sha256": "d18952899cc868bca3588b7b13df1d1835d1f3f79f894797c519d28a588a10ca",
+      "bytes": 9019,
+      "hash_matches_checkpoint": true,
+      "review": "full documentary/source text; structured raw values parsed and checked against retained claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/_run_records/precision_refutation/DELIVERY_HASHES.json",
+      "sha256": "8a5cd3af5ca736739a23e4448acb54bd0be7003c8b4a12e9ebd45a382945af7f",
+      "bytes": 2126,
+      "hash_matches_checkpoint": true,
+      "review": "full documentary/source text; structured raw values parsed and checked against retained claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/_run_records/precision_refutation/FINAL_BACKCHECK.json",
+      "sha256": "3d4b6a3ab39653ee3432208168af923ae85c01252cb77e7564009f6f98010170",
+      "bytes": 1607,
+      "hash_matches_checkpoint": true,
+      "review": "full documentary/source text; structured raw values parsed and checked against retained claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/_run_records/precision_refutation/ORIGINS_AND_EXECUTION.md",
+      "sha256": "782c00035f2e61abd8f879ea0aca5fab6124de513f303974310243041a10b6de",
+      "bytes": 4587,
+      "hash_matches_checkpoint": true,
+      "review": "full documentary/source text; structured raw values parsed and checked against retained claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/_run_records/precision_refutation/SOURCE_MANIFEST.json",
+      "sha256": "21f8b5babf06cb83cf3116cf5fd5166d0cee440d472c25b2728c675e25539f57",
+      "bytes": 6666,
+      "hash_matches_checkpoint": true,
+      "review": "full documentary/source text; structured raw values parsed and checked against retained claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/_run_records/precision_refutation/probe.py",
+      "sha256": "74f4a59f07de4f4a1409bff939084d4bcce912e982df66c76e953af1724e8171",
+      "bytes": 10057,
+      "hash_matches_checkpoint": true,
+      "review": "full documentary/source text; structured raw values parsed and checked against retained claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/_run_records/precision_refutation/probe.stdout.json",
+      "sha256": "a117e683333c13446317d2fb3cc1086f298104fc5d268d2b3a35ac9494277e89",
+      "bytes": 39403,
+      "hash_matches_checkpoint": true,
+      "review": "complete JSON parsed; exact semantic equality with independent rerun of retained probe"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/M03_RESIDUAL_SUCCESSOR_ADOPTION.md",
+      "sha256": "082d52b3064d10f892e877afba7e618ee6c81afea055abe853eba4289557ac2b",
+      "bytes": 7298,
+      "hash_matches_checkpoint": true,
+      "review": "full documentary/source text; structured raw values parsed and checked against retained claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/ROW_SUCCESSOR_BACKCHECK.md",
+      "sha256": "9c54463a1e5287aafe7e2b0a0063479634c8c3af933d6aae7048c81f39009d9b",
+      "bytes": 13776,
+      "hash_matches_checkpoint": true,
+      "review": "full documentary/source text; structured raw values parsed and checked against retained claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/_run_records/ROW_SUCCESSOR_BASIS.json",
+      "sha256": "7672287db076a223d90d4c13738c41b94cd7495c220f7f2a0fb0d6a679ed08e9",
+      "bytes": 4260,
+      "hash_matches_checkpoint": true,
+      "review": "full documentary/source text; structured raw values parsed and checked against retained claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/_run_records/ROW_SUCCESSOR_PROOF.json",
+      "sha256": "c83f1433dcbedfe862c2bd45419714a3cc0a20659bc522f27863bd4195ab0a8e",
+      "bytes": 19964,
+      "hash_matches_checkpoint": true,
+      "review": "complete JSON parsed; row/value/limit and negative-control summaries compared with report and proof code; source hashes checked"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/_run_records/row_successor_backcheck.py",
+      "sha256": "47d1de8ece2b4bf7fd422e2cc70f60bbf1a17a43d39fddf6c1b0e7e9781f646e",
+      "bytes": 12364,
+      "hash_matches_checkpoint": true,
+      "review": "full documentary/source text; structured raw values parsed and checked against retained claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE/CONTRACT.md",
+      "sha256": "40cd61e22f129a8fc2e198d4bdfcf6cfec83670e45f318b1d901158af88964c1",
+      "bytes": 19240,
+      "hash_matches_checkpoint": true,
+      "review": "full documentary/source text; structured raw values parsed and checked against retained claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE/INDEPENDENT_REFUTATION.md",
+      "sha256": "0e4e75d06f815a1285db754c20f81e1e2ddca0c20c0eb03d8806c2c861ea5cfa",
+      "bytes": 18045,
+      "hash_matches_checkpoint": true,
+      "review": "full documentary/source text; structured raw values parsed and checked against retained claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE/RETURN.md",
+      "sha256": "e93a93f3cdb852ffccb9213b5cf53b8d0b0cf58c367be5765056a88c0848b5c1",
+      "bytes": 3760,
+      "hash_matches_checkpoint": true,
+      "review": "full documentary/source text; structured raw values parsed and checked against retained claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE/SOURCE_QUALIFICATION.md",
+      "sha256": "31a933d06288b90c8803c39eef65c1761e37d5378472268f1fe4d86642caed6d",
+      "bytes": 8722,
+      "hash_matches_checkpoint": true,
+      "review": "full documentary/source text; structured raw values parsed and checked against retained claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE/_run_records/DELIVERY.json",
+      "sha256": "f4261bfc82fbcb6c381d14d03d2f1cff979ce3bce19933166efaed15ada808a4",
+      "bytes": 2284,
+      "hash_matches_checkpoint": true,
+      "review": "full documentary/source text; structured raw values parsed and checked against retained claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE/_run_records/origins.json",
+      "sha256": "78b94616bbde57207f73eb3b5cf2c6929d7d8e912271563604d0f8e5e493835f",
+      "bytes": 6534,
+      "hash_matches_checkpoint": true,
+      "review": "full documentary/source text; structured raw values parsed and checked against retained claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE/_run_records/shear_refutation/FINAL_BACKCHECK.md",
+      "sha256": "4e2c6137155a1dfd5de4c521772eb9f84aefb45fbeb0b4812a713a99cc9b1a8a",
+      "bytes": 2343,
+      "hash_matches_checkpoint": true,
+      "review": "full documentary/source text; structured raw values parsed and checked against retained claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE/_run_records/shear_refutation/ORIGINS_AND_EXECUTION.md",
+      "sha256": "d44f11bf3c14531086aa1b9bf6f3a31e3db7b352c10c3e84936a788e5c2eda1b",
+      "bytes": 6429,
+      "hash_matches_checkpoint": true,
+      "review": "full documentary/source text; structured raw values parsed and checked against retained claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE/_run_records/shear_refutation/commands_and_access.txt",
+      "sha256": "ce39345da89b6c28594bc5f9f5fc1973dbca34b090aa0f9bbdbc4f24a8a9e5fa",
+      "bytes": 2059,
+      "hash_matches_checkpoint": true,
+      "review": "full documentary/source text; structured raw values parsed and checked against retained claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE/_run_records/shear_refutation/reference_arithmetic.py",
+      "sha256": "47261fc5096b9eda70ce1554303b65773d258aa8c7a6db8b11f6f591e6bad9ef",
+      "bytes": 7180,
+      "hash_matches_checkpoint": true,
+      "review": "full documentary/source text; structured raw values parsed and checked against retained claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE/_run_records/shear_refutation/reference_arithmetic.stdout.txt",
+      "sha256": "84da10333d6cb190be7e4df24b25e5add6e4655559f1b75cd5fdb12b8086ddd1",
+      "bytes": 6024,
+      "hash_matches_checkpoint": true,
+      "review": "full documentary/source text; structured raw values parsed and checked against retained claims"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md",
+      "sha256": "4e794567a6249507c11807aadc06476b09fe6bbd16aa321551dd55cfa55c594b",
+      "bytes": 55708,
+      "hash_matches_checkpoint": true,
+      "review": "full documentary/source text; structured raw values parsed and checked against retained claims"
+    }
+  ],
+  "supporting_full_reads": [
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_ACTIVATION.md",
+      "sha256": "dd98701526a31248f36a5e6e03490975af682f748dd349aa52faa1bfafc912a0",
+      "bytes": 5041
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/PRODUCT_RESIDUAL_SCOPE.md",
+      "sha256": "e719b96953ef7fe566b0113b2c89d1cfff2e7aca12db0f17bc480ce49c39b853",
+      "bytes": 19324
+    }
+  ],
+  "packet_input_custody": [
+    {
+      "path_in_packet": "analyze.py",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/POLICY_ROW_PROBE/analyze.py",
+      "sha256": "a1f89e2a7b5c4c6ba06b45b61acd3850d8a85ddfd205370c9b5375fd82d34b83",
+      "bytes": 8349,
+      "matches_recorded_sha256": true,
+      "inspection": "hash custody only; no complete source review"
+    },
+    {
+      "path_in_packet": "ANALYSIS.json",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/POLICY_ROW_PROBE/ANALYSIS.json",
+      "sha256": "4cb3b3edb8f9991d86e7d37c4db66f5e47f424f2c271b45981a3ebe9c95dec41",
+      "bytes": 38444,
+      "matches_recorded_sha256": true,
+      "inspection": "hash custody only; no complete source review"
+    },
+    {
+      "path_in_packet": "RETURN.md",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/POLICY_ROW_PROBE/RETURN.md",
+      "sha256": "e149282511d36257367c03d426a77f7de343f8e5a584211be87c7d8bd1b2ce07",
+      "bytes": 4497,
+      "matches_recorded_sha256": true,
+      "inspection": "full text"
+    },
+    {
+      "path_in_packet": "_run_records/rows.jsonl",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/POLICY_ROW_PROBE/_run_records/rows.jsonl",
+      "sha256": "3ab27e31fd568c48899f351a39a2796dfa094b82833b2f592771b9dc78915a4f",
+      "bytes": 14755,
+      "matches_recorded_sha256": true,
+      "inspection": "hash custody only; no complete source review"
+    },
+    {
+      "path_in_packet": "_run_records/model.json",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/POLICY_ROW_PROBE/_run_records/model.json",
+      "sha256": "c1236b88fdeb04852580246af96542812a97a5ac963b88cc48afd99b90bde149",
+      "bytes": 6277,
+      "matches_recorded_sha256": true,
+      "inspection": "hash custody only; no complete source review"
+    },
+    {
+      "path_in_packet": "_run_records/result.json",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/POLICY_ROW_PROBE/_run_records/result.json",
+      "sha256": "ce8899d0df4b3409f16a5a21daa687082037240ce5260357e69bbbb833364453",
+      "bytes": 130428,
+      "matches_recorded_sha256": true,
+      "inspection": "hash custody only; no complete source review"
+    },
+    {
+      "path_in_packet": "_run_records/run.log",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/POLICY_ROW_PROBE/_run_records/run.log",
+      "sha256": "23d08d8c2d836c982b8c972c2c412d29b8a1c2fac51b8ae10f9c8fec8a9d2376",
+      "bytes": 3161,
+      "matches_recorded_sha256": true,
+      "inspection": "failure tail inspected"
+    },
+    {
+      "path_in_packet": "_run_records/instrumentation.patch",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/POLICY_ROW_PROBE/_run_records/instrumentation.patch",
+      "sha256": "71a5c088b8eadf9907e82791b7d515a61d00ef782ea84510e07cf6f825481e9d",
+      "bytes": 11218,
+      "matches_recorded_sha256": true,
+      "inspection": "hash custody only; no complete source review"
+    },
+    {
+      "path_in_packet": "_run_records/SOURCE_CONTEXT.json",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/POLICY_ROW_PROBE/_run_records/SOURCE_CONTEXT.json",
+      "sha256": "d74d4386930a279465291c5a0f037145bc2b6155cb72cdc8c02e06dfb83c27dc",
+      "bytes": 6507,
+      "matches_recorded_sha256": true,
+      "inspection": "full text"
+    },
+    {
+      "path_in_packet": "_run_records/product_before.rs",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/POLICY_ROW_PROBE/_run_records/product_before.rs",
+      "sha256": "4f78091a3bf865f76c2121d25d1d7e0e35c1bbc0b8a144a21d2456144e34bd09",
+      "bytes": 748355,
+      "matches_recorded_sha256": true,
+      "inspection": "hash custody only; no complete source review"
+    },
+    {
+      "path_in_packet": "_run_records/nonlinear_before.rs",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/POLICY_ROW_PROBE/_run_records/nonlinear_before.rs",
+      "sha256": "dcb9f8b9b1c09ba9b35627acce8af42383319ef95242088de45eb74a584e371c",
+      "bytes": 174218,
+      "matches_recorded_sha256": true,
+      "inspection": "hash custody only; no complete source review"
+    },
+    {
+      "path_in_packet": "DELIVERY_HASHES.json",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/POLICY_ROW_PROBE/DELIVERY_HASHES.json",
+      "sha256": "86932bd6568e7bc06bc2dbff906d2ae51ff462faaf9df35072c1ec43ad56800d",
+      "bytes": 357,
+      "matches_recorded_sha256": true,
+      "inspection": "hash custody only; no complete source review"
+    }
+  ],
+  "verification": {
+    "checkpoint_hashes_match": 29,
+    "local_markdown_links_checked": 37,
+    "all_local_markdown_link_targets_exist": true,
+    "internal_delivery_hash_counts": [
+      11,
+      10,
+      6
+    ],
+    "standalone_precision_probe": {
+      "command": "python3 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/_run_records/precision_refutation/probe.py",
+      "exit": 0,
+      "stderr_empty": true,
+      "complete_parsed_json_equals_retained": true,
+      "retained_output_sha256": "a117e683333c13446317d2fb3cc1086f298104fc5d268d2b3a35ac9494277e89"
+    },
+    "standalone_shear_probe": {
+      "command": "python3 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE/_run_records/shear_refutation/reference_arithmetic.py",
+      "exit": 0,
+      "stderr_empty": true,
+      "complete_stdout_equals_retained": true,
+      "retained_output_sha256": "84da10333d6cb190be7e4df24b25e5add6e4655559f1b75cd5fdb12b8086ddd1"
+    },
+    "row_successor_probe_executed": false,
+    "row_packet_all_12_hashes_match": true,
+    "row_packet_primary_present": false,
+    "row_packet_git_tracked_files": 0,
+    "row_packet_git_status": "untracked directory"
+  },
+  "findings": [
+    {
+      "id": "CR-1",
+      "priority": 2,
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/_run_records/ROW_SUCCESSOR_BASIS.json",
+      "line": 11,
+      "title": "Retain residual-adoption raw packet in durable portable custody",
+      "status": "open; parent acknowledged repair ownership"
+    },
+    {
+      "id": "CR-2",
+      "priority": 2,
+      "path": "projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md",
+      "lines": [
+        73,
+        105,
+        106,
+        127
+      ],
+      "title": "Reconcile current graph summaries with appended checkpoint",
+      "status": "open; parent acknowledged repair ownership"
+    }
+  ],
+  "limits": [
+    "Read-only review of full frozen documentary scope; not product/source-branch qualification",
+    "No fresh network/reference survey",
+    "Native evidence sufficiency belongs to separate review",
+    "No repeated prior joint review",
+    "Only retained lightweight precision/shear scripts re-executed; no row script output mutation",
+    "Host sandbox shared; narrower two-output write fence observed as role/brief limit",
+    "No Git mutation, source/graph edit, product test/build or application interaction"
+  ],
+  "outputs": [
+    {
+      "actual_origin": "/private/tmp/piping-current-reference-review-20260924/RETURN.md",
+      "sha256": "236d7013295b1f3806237dfa4b0e8b6da59ac3d9e94a7a2f5165688bf8cff694",
+      "bytes": 7300
+    }
+  ],
+  "disposition": "repair two P2 documentary findings and backcheck affected changes before final fan-in; no additional blocking analytical/design finding; no acceptance or release"
+}

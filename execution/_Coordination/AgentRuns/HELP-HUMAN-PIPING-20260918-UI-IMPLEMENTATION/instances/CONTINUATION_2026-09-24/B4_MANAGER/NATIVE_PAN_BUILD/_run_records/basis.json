@@ -1,0 +1,30 @@
+{
+  "head": "5112636cb8c8c25bab352cda6dfbdbbf1aa7d086",
+  "freeze_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/TASK/FREEZE.json",
+  "freeze_sha256": "9fac943d13bb512b2a98dfb8b97fa191ccd6272fc27c8dd58b6a32e18965512f",
+  "diff_sha256": "94ee4d02cc05bcba668f665575310e86af7e912addfa61257adaea81d33f3a9b",
+  "executor": "/root/native_pan_build",
+  "parent": "/root",
+  "role": "TASK Type2",
+  "mechanism": "delegated-harness-native",
+  "instructions": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    }
+  ],
+  "prior_evidence": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_ARTIFACT_1C/TASK/_run_records",
+  "dirty_checkout": true
+}

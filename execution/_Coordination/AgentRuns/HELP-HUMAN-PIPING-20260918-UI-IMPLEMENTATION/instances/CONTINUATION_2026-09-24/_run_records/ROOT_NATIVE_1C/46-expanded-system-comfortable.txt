@@ -1,0 +1,5 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 22-29, 156-157, 159-162
++					224 summary Appearance, Value: off
+~					179 splitter Resize table drawer, Value: 430
+The focused UI element is 224 summary Appearance, Value: off

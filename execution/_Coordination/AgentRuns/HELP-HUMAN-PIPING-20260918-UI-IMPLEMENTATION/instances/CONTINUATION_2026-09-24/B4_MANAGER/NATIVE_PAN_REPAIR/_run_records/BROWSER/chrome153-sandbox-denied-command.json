@@ -1,0 +1,19 @@
+{
+  "cwd": "projects/chirality-piping/apps/desktop",
+  "argv": [
+    "npx",
+    "playwright",
+    "test",
+    "e2e/b4-table-editing.spec.ts",
+    "--project=chromium-desktop",
+    "--grep",
+    "classic scrollbar compact",
+    "--workers=1",
+    "--output=/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PAN_REPAIR/BROWSER/chrome153-artifacts"
+  ],
+  "env": {
+    "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    "PLAYWRIGHT_WORKERS": "1",
+    "CI": "1"
+  }
+}

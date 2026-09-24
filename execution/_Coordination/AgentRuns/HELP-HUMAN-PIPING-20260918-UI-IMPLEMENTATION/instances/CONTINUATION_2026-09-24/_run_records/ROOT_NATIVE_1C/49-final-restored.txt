@@ -1,0 +1,41 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 175-182, 184-236
+~								45 toggle button Tree, Value: on
+~								46 toggle button Grid, Value: off
+~						173 container Model
+~							174 button (selected) Invented Utility Loop Preview project:invented-loop-01, Help: Invented Utility Loop Preview (project:invented-loop-01)
++							175 button (expanded) Materials, Secondary Actions: Collapse
++							176 button Invented carbon-steel-like material material:invented-carbon-steel, Help: Invented carbon-steel-like material (material:invented-carbon-steel)
++							177 button (expanded) Nodes, Secondary Actions: Collapse
++							178 button Pump nozzle node:N-100, Help: Pump nozzle (node:N-100)
++							179 button Low point elbow node:N-110, Help: Low point elbow (node:N-110)
++							180 button Riser elbow node:N-120, Help: Riser elbow (node:N-120)
++							181 button Rack turn node:N-130, Help: Rack turn (node:N-130)
++							182 button Terminal tie-in node:N-140, Help: Terminal tie-in (node:N-140)
+~							183 button (expanded) Pipes, Secondary Actions: Collapse
++							184 button Pump discharge run pipe:P-100, Help: Pump discharge run (pipe:P-100)
++							185 button Vertical riser pipe:P-110, Help: Vertical riser (pipe:P-110)
++							186 button Rack span pipe:P-120, Help: Rack span (pipe:P-120)
++							187 button Tie-in rise pipe:P-130, Help: Tie-in rise (pipe:P-130)
++							188 button (expanded) Supports, Secondary Actions: Collapse
++							189 button Anchor at pump nozzle support:S-100, Help: Anchor at pump nozzle (support:S-100)
++							190 button Guide on riser support:S-120, Help: Guide on riser (support:S-120)
++							191 button Rack shoe support:S-130, Help: Rack shoe (support:S-130)
++							192 button Preview one-way terminal stop support:NL-140, Help: Preview one-way terminal stop (support:NL-140)
++							193 button Preview sliding-friction rack shoe support:NL-130-FRIC, Help: Preview sliding-friction rack shoe (support:NL-130-FRIC)
++							194 button Invented variable spring hanger support:SH-140, Help: Invented variable spring hanger (support:SH-140)
++							195 button Invented constant-effort support support:CE-120, Help: Invented constant-effort support (support:CE-120)
++							196 button (expanded) Components, Secondary Actions: Collapse
++							197 button Invented elbow marker component:C-110, Help: Invented elbow marker (component:C-110)
++							198 button Invented branch connection marker component:C-120, Help: Invented branch connection marker (component:C-120)
++							199 button Invented semi-rigid valve marker component:C-130, Help: Invented semi-rigid valve marker (component:C-130)
++							200 button Invented tie-in marker component:C-140, Help: Invented tie-in marker (component:C-140)
++							201 button Invented expansion joint marker component:C-150, Help: Invented expansion joint marker (component:C-150)
++							202 button (expanded) Load Cases, Secondary Actions: Collapse
++							203 button Invented operating gravity and pressure preview load:L-100, Help: Invented operating gravity and pressure preview (load:L-100)
++							204 button Invented alternate gravity and pressure preview load:L-200, Help: Invented alternate gravity and pressure preview (load:L-200)
++							205 button (expanded) Combinations, Secondary Actions: Collapse
++							206 button Invented explicit operating plus alternate preview combination:C-OPER-ALT, Help: Invented explicit operating plus alternate preview (combination:C-OPER-ALT)
++							207 button (expanded) Diagnostics, Secondary Actions: Collapse
++							208 button RULE_INPUTS_MISSING RULE_INPUTS_MISSING:0, Help: RULE_INPUTS_MISSING (RULE_INPUTS_MISSING:0)
+The focused UI element is 2 HTML content Description: SWBPIPE, URL: tauri://localhost

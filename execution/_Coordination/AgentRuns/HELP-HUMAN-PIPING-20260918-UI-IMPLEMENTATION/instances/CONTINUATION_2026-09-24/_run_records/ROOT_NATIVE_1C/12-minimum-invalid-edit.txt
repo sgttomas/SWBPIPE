@@ -1,0 +1,4 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~											263 text field (settable) node:N-140 Z [m], Value: Not-a-number
++									287 text Enter a finite number in the entered unit.
+The focused UI element is 263 text field (settable) node:N-140 Z [m], Value: Not-a-number

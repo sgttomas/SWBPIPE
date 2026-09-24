@@ -1,0 +1,39 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 220-233, 391-446, 451, 461-467
+~						217 toggle button Model, Value: off
+~						218 toggle button Review changes 1, Help: Review changes, Value: on
++					461 container Operation Apply section
++						462 container Editing and review tools
++							463 toggle button Review changes, Value: on
++							464 toggle button Geometry, Value: off
++							465 toggle button Supports, Value: off
++							466 toggle button Self weight, Value: off
++							467 toggle button Agent, Value: off
++							468 toggle button Details, Value: off
++						469 container Batch review
++							470 heading Batch review, Value: 3
++								471 text Batch review
++							472 container
++								473 text 0  queued batches;  0  batches applied this session.
++							474 text Validate to preview all steps on temporary state. Apply commits the entire batch once or leaves the model unchanged. Batch drafts and receipts shown here belong to this session.
++							475 button (disabled) Clear pending changes and batches, Help: No pending batches or requests to clear.
++						476 container Apply structured operations
++							477 text APPLY OPERATIONS
++							478 container
++								479 text 1  queued;  1  applied this session. Applying validates through the structured-operation seam and replaces the session model document; saving the project stores it locally.
++							480 container Operation status
++								481 text Engine  ready 1 unit-bearing queued, 0 dimensionless queued; passed; 1 applied receipts.
++							482 container Session edit history
++								483 button (disabled) Undo, Help: Undo last local session model edit
++								484 button Redo, Help: Redo last undone local session model edit
++								485 text 0  undo /  1  redo
++							486 text Undid op:table-cell-26d6c4c1-1978-409d-b52c-0c3e8c27e9bf in the local session; previous solve results were cleared. Save is still required to persist the current session model.
++							487 container
++								488 text op:grid-intent-node:N-140-position-z-01 Node node:N-140 ;  position.z : 2.2  to  {"value":2.3,"unit":"m"}
++								489 button Validate, Help: Validate without applying
++								490 button Apply, Help: Validate and apply to the session model
++							491 text APPLIED THIS SESSION
++							492 container
++								493 text op:table-cell-26d6c4c1-1978-409d-b52c-0c3e8c27e9bf Node node:N-140 ;  position.z :  2.2  to {"value":2.25,"unit":"m"} Applied through  tauri_backend_apply . Acceptance basis user_initiated_apply_in_local_session ; persistence session_state_only_not_yet_saved ; professional approval not recorded . model_hash= sha256:f015f4fb2adebe57e…
++							494 text Applying a structured operation records a user-initiated local-session acceptance only. Results of earlier solves are cleared because they no longer describe the edited model.
+The focused UI element is 174 HTML content Description: SWBPIPE, URL: tauri://localhost

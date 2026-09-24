@@ -1,0 +1,9 @@
+{
+  "actor": "/root",
+  "recorded": "2026-09-24T18:36:24.738098+00:00",
+  "binary": "/private/tmp/piping-native-pan-20260924/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop",
+  "sha256": "54c23e2b851cf582db4cf252d0be44c212c98efa27fb2d9af14ce0bb2f1ed09c",
+  "source_diff_sha256": "94ee4d02cc05bcba668f665575310e86af7e912addfa61257adaea81d33f3a9b",
+  "scope": "Native pan draft regression and affected compact behavior; no solver or human live-control witness",
+  "concurrency": "ROOT ownsGUI; separate a34 CI clean sweep runs jobs2, no timed claim"
+}

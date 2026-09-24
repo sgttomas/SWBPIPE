@@ -1,0 +1,314 @@
+--- a/projects/chirality-piping/core/product_physics/src/lib.rs
++++ b/projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -99,7 +99,7 @@
+ // chord before the user bend plane is treated as undefined.
+ const DEC_070_CURVED_BEND_PLANE_TOLERANCE: f64 = 1.0e-9;
+ 
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ pub struct PreviewModel {
+     pub schema_version: String,
+     pub document_kind: String,
+@@ -120,7 +120,7 @@
+     pub combinations: Vec<PreviewCombination>,
+ }
+ 
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ pub struct Project {
+     pub id: String,
+     // Retain authored metadata, including malformed/missing values, so the
+@@ -136,7 +136,7 @@
+     pub professional_acceptance: String,
+ }
+ 
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ pub struct PreviewNode {
+     pub id: String,
+     pub position: Vec3,
+@@ -144,14 +144,14 @@
+     pub provenance: Option<String>,
+ }
+ 
+-#[derive(Debug, Clone, Copy, Deserialize)]
++#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
+ pub struct Vec3 {
+     pub x: f64,
+     pub y: f64,
+     pub z: f64,
+ }
+ 
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ pub struct PreviewPipe {
+     pub id: String,
+     pub from: String,
+@@ -167,7 +167,7 @@
+ }
+ 
+ /// Shared preview-section metadata. Only explicit pipe OD/wall are bindable.
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ pub struct PreviewSection {
+     pub id: String,
+     pub name: String,
+@@ -176,7 +176,7 @@
+     pub provenance: serde_json::Value,
+ }
+ 
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ pub struct PipeSectionInput {
+     pub outside_diameter: Quantity,
+     pub wall_thickness: Quantity,
+@@ -200,14 +200,14 @@
+     pub insulation_density: Option<Quantity>,
+ }
+ 
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ pub struct Quantity {
+     pub value: f64,
+     #[allow(dead_code)]
+     pub unit: String,
+ }
+ 
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ pub struct VectorQuantity {
+     pub x: f64,
+     pub y: f64,
+@@ -216,7 +216,7 @@
+     pub unit: String,
+ }
+ 
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ pub struct PreviewComponent {
+     pub id: String,
+     #[serde(default)]
+@@ -233,7 +233,7 @@
+     pub provenance: Option<String>,
+ }
+ 
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ pub struct ComponentGeometryInput {
+     #[serde(default)]
+     pub bend_pipe_ref: Option<String>,
+@@ -299,7 +299,7 @@
+     pub expansion_joint_source_reference: Option<String>,
+ }
+ 
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ pub struct ComponentModifierInput {
+     #[serde(default)]
+     pub sif_user_value: Option<Quantity>,
+@@ -327,7 +327,7 @@
+     pub source_reference: Option<String>,
+ }
+ 
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ pub struct ComponentMechanicsInterfaceInput {
+     #[serde(default)]
+     pub solver_consumption: Option<String>,
+@@ -335,7 +335,7 @@
+     pub rule_check_consumption: Option<String>,
+ }
+ 
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ pub struct PreviewSupport {
+     pub id: String,
+     pub node: String,
+@@ -352,13 +352,13 @@
+     pub provenance: Option<String>,
+ }
+ 
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ pub struct SupportStiffnessInput {
+     pub dof: String,
+     pub value: Quantity,
+ }
+ 
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ pub struct SpringHangerInput {
+     #[serde(default)]
+     pub hanger_type: Option<String>,
+@@ -386,7 +386,7 @@
+     pub mechanics_consumption: Option<String>,
+ }
+ 
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ pub struct NonlinearSupportInput {
+     pub behavior: String,
+     pub dof: String,
+@@ -408,13 +408,13 @@
+     pub normal_reaction_source: Option<FrictionNormalReactionSourceInput>,
+ }
+ 
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ pub struct FrictionNormalReactionSourceInput {
+     pub support_ref: String,
+     pub dof: String,
+ }
+ 
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ pub struct PreviewLoadCase {
+     pub id: String,
+     #[serde(default)]
+@@ -443,7 +443,7 @@
+     pub provenance: Option<String>,
+ }
+ 
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ pub struct EquivalentStaticGenerationInput {
+     #[serde(default)]
+     pub seismic: Option<SeismicGenerationInput>,
+@@ -453,7 +453,7 @@
+     pub provenance: Option<String>,
+ }
+ 
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ pub struct SeismicGenerationInput {
+     /// User-entered gravity acceleration; an explicit input, not an
+     /// embedded physical-constant default.
+@@ -467,7 +467,7 @@
+     pub g_factor_z: Option<Quantity>,
+ }
+ 
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ pub struct WindGenerationInput {
+     #[serde(default)]
+     pub pressure: Option<Quantity>,
+@@ -490,7 +490,7 @@
+     pub exposed_spans: Vec<WindExposedSpanInput>,
+ }
+ 
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ pub struct WindExposedSpanInput {
+     /// User-marked pipe id the partial extent applies to.
+     #[serde(default)]
+@@ -503,7 +503,7 @@
+     pub end_fraction: Option<Quantity>,
+ }
+ 
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ pub struct PreviewCombination {
+     pub id: String,
+     #[serde(default)]
+@@ -528,13 +528,13 @@
+     pub provenance: Option<String>,
+ }
+ 
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ pub struct PreviewCombinationTerm {
+     pub load_case: String,
+     pub factor: f64,
+ }
+ 
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ pub struct PreviewPrimitiveLoad {
+     pub id: String,
+     pub category: String,
+@@ -546,14 +546,14 @@
+     pub provenance: Option<String>,
+ }
+ 
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ #[serde(tag = "type", rename_all = "snake_case")]
+ pub enum LoadTargetInput {
+     Node { node: String },
+     Element { pipe: String },
+ }
+ 
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ pub struct MaterialInput {
+     pub id: String,
+     pub elastic_modulus: Quantity,
+@@ -571,7 +571,7 @@
+     pub provenance: Option<String>,
+ }
+ 
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ pub struct MaterialTemperaturePointInput {
+     /// Stable user-assigned basis id (e.g. a temperature-case label).
+     pub id: String,
+@@ -590,7 +590,7 @@
+     pub provenance: Option<String>,
+ }
+ 
+-#[derive(Debug, Clone, Deserialize)]
++#[derive(Debug, Clone, Deserialize, Serialize)]
+ pub struct LinearStaticPreviewRequest {
+     pub model: PreviewModel,
+     #[serde(default)]
+@@ -11471,7 +11471,14 @@
+ 
+     #[test]
+     fn mixed_nonlinear_preview_bundle_converges_and_emits_each_support_state() {
+-        let result = run_linear_static_preview(mixed_nonlinear_preview_request());
++        let probe_request = mixed_nonlinear_preview_request();
++        if let Ok(path) = std::env::var("PIPING_DEC046_MODEL_PATH") {
++            std::fs::write(path, serde_json::to_vec_pretty(&probe_request.model).unwrap()).unwrap();
++        }
++        let result = run_linear_static_preview(probe_request);
++        if let Ok(path) = std::env::var("PIPING_DEC046_RESULT_PATH") {
++            std::fs::write(path, serde_json::to_vec_pretty(&result).unwrap()).unwrap();
++        }
+         let result_ids = result
+             .results
+             .iter()
+--- a/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs
++++ b/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs
+@@ -605,6 +605,14 @@
+             active_set,
+         };
+         iterations.push(iteration);
++        if let Ok(path) = std::env::var("PIPING_DEC046_PROBE_PATH") {
++            use std::io::Write;
++            let item = iterations.last().unwrap();
++            let states = item.active_set.states.iter().map(|s| vec![s.support_id.clone(), format!("{:?}",s.state)]).collect::<Vec<_>>();
++            let friction = item.applied_sliding_friction_forces.iter().map(|s| vec![s.global_dof as f64,s.force]).collect::<Vec<_>>();
++            let record = format!("{{\"event\":\"iteration\",\"iteration\":{},\"converged\":{},\"blocked\":{},\"u\":{:?},\"reactions\":{:?},\"prescribed_dofs\":{:?},\"prescribed_values\":{:?},\"states\":{:?},\"friction_dof_force\":{:?},\"active_count_residual\":{:?},\"changed_supports\":{:?},\"convergence_debug\":{:?},\"iteration_debug\":{:?}}}", iteration_index, converged, blocked, item.displacements, item.reactions, item.active_restrained_dofs, item.active_prescribed_displacements, states, friction, item.active_set.residual_norm, item.active_set.changed_supports, format!("{:?}", input.convergence), format!("{:?}",item));
++            writeln!(std::fs::OpenOptions::new().create(true).append(true).open(path).unwrap(), "{}", record).unwrap();
++        }
+ 
+         if converged || blocked || iteration_index == input.convergence.max_iterations {
+             let final_iteration = iterations
+@@ -1520,6 +1528,17 @@
+         max_abs_free_dof_work_residual(&reactions, &displacements, &reduced.free_dofs);
+ 
+     validate_finite("free DOF work residual", max_abs_free_dof_work_residual)?;
++    if let Ok(path) = std::env::var("PIPING_DEC046_PROBE_PATH") {
++        use std::io::Write;
++        let prescribed = boundary.dofs.iter().copied().zip(boundary.displacements.iter().copied()).collect::<Vec<_>>();
++        let system = open_pipe_stress_frame_kernel::structural::StructuralSystem {
++            stiffness, force, free_dofs: &reduced.free_dofs, prescribed: &prescribed,
++            contributions: None, symmetry: None,
++        };
++        let measured = open_pipe_stress_frame_kernel::structural::evaluate_original_residual(&system, &displacements);
++        let record = format!("{{\"event\":\"linearized\",\"mode\":\"{:?}\",\"K\":{:?},\"f\":{:?},\"u\":{:?},\"reactions\":{:?},\"free_dofs\":{:?},\"prescribed_dofs\":{:?},\"prescribed_values\":{:?},\"force_residual\":{:?},\"moment_residual\":{:?},\"work_residual\":{:?},\"m03_rows_debug\":{:?}}}", linear_solve_mode, stiffness, force, displacements, reactions, reduced.free_dofs, boundary.dofs, boundary.displacements, max_abs_free_dof_force_residual, max_abs_free_dof_moment_residual, max_abs_free_dof_work_residual, format!("{:?}", measured));
++        writeln!(std::fs::OpenOptions::new().create(true).append(true).open(path).unwrap(), "{}", record).unwrap();
++    }
+     Ok(LinearizedSolve {
+         displacements,
+         reactions,

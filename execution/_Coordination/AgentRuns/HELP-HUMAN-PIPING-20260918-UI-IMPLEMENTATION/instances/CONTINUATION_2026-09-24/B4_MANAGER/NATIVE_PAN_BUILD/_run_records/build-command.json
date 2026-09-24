@@ -1,0 +1,31 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "tauri",
+    "--",
+    "build",
+    "--debug",
+    "--bundles",
+    "app"
+  ],
+  "cwd": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop",
+  "started": "2026-09-24T18:31:31.814552+00:00",
+  "environment": {
+    "CARGO_TARGET_DIR": "/private/tmp/piping-native-pan-20260924",
+    "CARGO_BUILD_JOBS": "2",
+    "CARGO_NET_OFFLINE": "true",
+    "npm_config_offline": "true",
+    "SWBPIPE_LIVE_CONTROL": null,
+    "RUSTFLAGS": null,
+    "CARGO_ENCODED_RUSTFLAGS": null,
+    "NODE_ENV": null,
+    "SDKROOT": null,
+    "MACOSX_DEPLOYMENT_TARGET": null,
+    "PATH": "/Users/ryan/.local/share/mise/installs/node/24/bin:/Users/ryan/.local/share/mise/installs/python/3.13/bin:/Users/ryan/.cargo/bin:/Users/ryan/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Users/ryan/.local/bin:/Users/ryan/.codex/tmp/arg0/codex-arg0GtPj3W:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources"
+  },
+  "target_absent_before": true,
+  "host_approval": "default sandbox; no escalation requested",
+  "exit": 0,
+  "finished": "2026-09-24T18:33:36.603170+00:00"
+}

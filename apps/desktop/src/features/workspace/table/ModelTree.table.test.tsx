@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ModelTree } from "../../model-tree/ModelTree";
 import { loadPreviewModel } from "../../../services/previewService";
@@ -183,3 +183,92 @@ function reviewValue(cell: string): string {
   if (!input) throw new Error(`Missing requested review cell ${cell}`);
   return input.value;
 }
+
+
+describe("compact pan active material draft ownership", () => {
+  async function setup() {
+    // Bounded jsdom geometry makes all three real pan families available. It is
+    // not native layout evidence; only focus/event and model-intent assertions.
+    vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(400);
+    vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockReturnValue(400);
+    vi.spyOn(HTMLElement.prototype, "scrollWidth", "get").mockReturnValue(500);
+    vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(250);
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({ x: 0, y: 0, left: 0, top: 0, right: 400, bottom: 250, width: 400, height: 250, toJSON: () => ({}) });
+    vi.spyOn(HTMLElement.prototype, "getClientRects").mockReturnValue([{ width: 400, height: 250 }] as unknown as DOMRectList);
+    const model = await loadPreviewModel();
+    const apply = vi.fn(async (_intent: import("../../../types").EditorOperationIntent) => ({ applied: true, messages: [] })), queue = vi.fn();
+    const view = render(<><ModelTree compactGrid boundedGrid model={model} selection={{ type: "material", id: model.materials![0].id }} onSelect={vi.fn()} onApplyCellIntent={apply} onQueueIntent={queue} /><button>Outside pan fixture</button></>);
+    fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    fireEvent.change(screen.getByRole("combobox", { name: "Grid family" }), { target: { value: "materials" } });
+    const cell = screen.getByTestId(`table-cell-${model.materials![0].id}-elastic`);
+    await waitFor(() => expect(cell.closest("[role=gridcell]")).toHaveAttribute("aria-readonly", "false"));
+    act(() => cell.focus());
+    fireEvent.keyDown(cell, { key: "Enter" });
+    const input = await screen.findByRole("textbox", { name: `${model.materials![0].id} Elastic [Pa]` });
+    fireEvent.change(input, { target: { value: "210000000000" } });
+    for (const viewport of view.container.querySelectorAll<HTMLElement>(".table-overflow-viewport")) fireEvent.scroll(viewport, { target: { scrollLeft: 50 } });
+    return { apply, queue, cell, input, cleanup: () => { view.unmount(); vi.restoreAllMocks(); } };
+  }
+  const pans = ["columns", "table controls", "table status"].flatMap((rail) => ["Earlier", "Later"].map((direction) => `${direction} ${rail}`));
+  for (const name of pans) for (const activation of ["pointer", "keyboard"] as const) {
+    it(`retains numeric material draft through ${activation} ${name}`, async () => {
+      const fixture = await setup(); const { input, cell, apply, queue } = fixture;
+      try {
+        const button = screen.getByRole("button", { name }); expect(button).toBeEnabled();
+        if (activation === "pointer") {
+          // Model the native inferred default action only when not cancelled.
+          // Programmatic focus must supply the real owned blur destination.
+          if (fireEvent.pointerDown(button)) fireEvent.blur(input, { relatedTarget: null });
+          expect(button).toHaveFocus(); expect(apply).not.toHaveBeenCalled();
+          fireEvent.pointerUp(button);
+        } else act(() => button.focus());
+        fireEvent.click(button, { detail: activation === "pointer" ? 1 : 0 });
+        expect(button.parentElement).toContainElement(document.activeElement as HTMLElement);
+        expect(input).toHaveValue("210000000000"); expect(cell).toHaveTextContent("200000000000");
+        expect(apply).not.toHaveBeenCalled(); expect(queue).not.toHaveBeenCalled();
+        fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+        expect(input).not.toBeInTheDocument(); expect(apply).not.toHaveBeenCalled();
+      } finally { fixture.cleanup(); }
+    });
+  }
+  for (const name of pans) for (const abandon of ["pointercancel", "drag-away"] as const) {
+    it(`leaves ordinary null blur Apply intact after ${abandon} on ${name}`, async () => {
+      const fixture = await setup(); const { input, apply, queue } = fixture;
+      try {
+        const button = screen.getByRole("button", { name });
+        if (fireEvent.pointerDown(button)) fireEvent.blur(input, { relatedTarget: null });
+        if (abandon === "pointercancel") fireEvent.pointerCancel(button);
+        else { fireEvent.pointerLeave(button); fireEvent.pointerUp(screen.getByRole("button", { name: "Outside pan fixture" })); }
+        expect(apply).not.toHaveBeenCalled(); expect(queue).not.toHaveBeenCalled();
+        act(() => input.focus()); fireEvent.blur(input, { relatedTarget: null });
+        await waitFor(() => expect(apply).toHaveBeenCalledTimes(1));
+        expect(apply.mock.calls[0]).toEqual([expect.objectContaining({ change: expect.objectContaining({ after: expect.stringContaining("210000000000") }) })]);
+      } finally { fixture.cleanup(); }
+    });
+  }
+  for (const destination of ["outside", "foreign", "stale"] as const) {
+    it(`does not exempt ${destination} focus after pan`, async () => {
+      const fixture = await setup();
+      try {
+        fireEvent.pointerDown(screen.getByRole("button", { name: "Later columns" }));
+        expect(fixture.apply).not.toHaveBeenCalled();
+        act(() => fixture.input.focus());
+        const outside = screen.getByRole("button", { name: "Outside pan fixture" });
+        if (destination !== "outside") outside.dataset.tableChromeOwner = destination === "foreign" ? "another-table" : "stale-table-owner";
+        act(() => outside.focus()); await waitFor(() => expect(fixture.apply).toHaveBeenCalledTimes(1));
+        expect(outside).toHaveFocus();
+      } finally { fixture.cleanup(); }
+    });
+  }
+  for (const name of ["Material fields Info", "Table details"]) {
+    it(`retains the material draft on pointer ${name}`, async () => {
+      const fixture = await setup();
+      try {
+        const button = screen.getByRole("button", { name });
+        if (fireEvent.pointerDown(button)) fireEvent.blur(fixture.input, { relatedTarget: null });
+        fireEvent.pointerUp(button); fireEvent.click(button);
+        expect(fixture.input).toHaveValue("210000000000"); expect(fixture.apply).not.toHaveBeenCalled(); expect(fixture.queue).not.toHaveBeenCalled();
+      } finally { fixture.cleanup(); }
+    });
+  }
+});

@@ -1,6 +1,6 @@
 import { useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
-import { OverflowRail, TableChromeContext } from "./OverflowRail";
+import { focusPanControl, OverflowRail, TableChromeContext } from "./OverflowRail";
 import { useTableGeometry } from "./tableGeometry";
 import { useEnumEditor } from "./useEnumEditor";
 import { VirtualList } from "../VirtualList";
@@ -362,9 +362,9 @@ export function EngineeringTable(props: Props) {
     style={{ "--table-min-width": `${geometry.minimums.reduce((sum, value) => sum + value, 0) + geometry.gutter}px`, "--table-gutter": `${geometry.gutter}px` } as React.CSSProperties} tabIndex={-1} data-testid={`${props.testIdPrefix ?? ""}${review ? "engineering-table-review" : "engineering-table"}`}>
     {props.compact && surfaceActive && geometry.visible && chrome.target && maximumOffset > .5 ? createPortal(<div ref={columnPans} className="table-pan-pair" role="group" aria-label="Pan columns">
       <button type="button" aria-label="Earlier columns" data-table-chrome-owner={ownerId} disabled={offset <= 0}
-        onClick={(event) => panColumns(-1, event.currentTarget)}>‹</button>
+        onPointerDown={focusPanControl} onClick={(event) => panColumns(-1, event.currentTarget)}>‹</button>
       <button type="button" aria-label="Later columns" data-table-chrome-owner={ownerId} disabled={offset >= maximumOffset - .5}
-        onClick={(event) => panColumns(1, event.currentTarget)}>›</button>
+        onPointerDown={focusPanControl} onClick={(event) => panColumns(1, event.currentTarget)}>›</button>
     </div>, chrome.target) : null}
     <div role="grid" aria-label={label} aria-rowcount={viewRows.length + 1} aria-colcount={columns.length + 1}>
       <div className="engineering-table-header-clip">

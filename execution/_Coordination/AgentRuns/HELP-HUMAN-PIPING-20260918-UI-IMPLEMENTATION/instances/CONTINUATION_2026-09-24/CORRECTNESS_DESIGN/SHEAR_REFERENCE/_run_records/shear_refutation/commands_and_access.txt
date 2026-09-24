@@ -1,0 +1,31 @@
+Working directory for all commands:
+/Users/ryan/.codex/worktrees/6614/chirality
+
+Final arithmetic command (actual, exit 0):
+python3 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE/_run_records/shear_refutation/reference_arithmetic.py > projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE/_run_records/shear_refutation/reference_arithmetic.stdout.txt
+
+Raw stdout: reference_arithmetic.stdout.txt. No stderr on final run.
+This exact command also ran successfully before the final spring addition;
+the retained stdout is the final complete run, not the earlier partial scope.
+
+Unavailable optional symbolic package probe (actual exit 1):
+python3 -c 'import sympy; print(sympy.__version__)'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sympy; print(sympy.__version__)
+    ^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'sympy'
+
+Primary PDF download attempt (actual exit 6):
+curl --fail --location --max-time 30 --output projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SHEAR_REFERENCE/_run_records/shear_refutation/Kennedy2011b.pdf https://websites.umich.edu/~mdolaboratory/pdf/Kennedy2011b.pdf
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+curl: (6) Could not resolve host: websites.umich.edu
+
+Read-only repository anchor (actual exit 0):
+git rev-parse --show-toplevel
+/Users/ryan/.codex/worktrees/6614/chirality
+
+No product imports, builds, product/test executions, Git mutations, native or
+browser UI interaction, endpoint writes, or further delegation were performed.

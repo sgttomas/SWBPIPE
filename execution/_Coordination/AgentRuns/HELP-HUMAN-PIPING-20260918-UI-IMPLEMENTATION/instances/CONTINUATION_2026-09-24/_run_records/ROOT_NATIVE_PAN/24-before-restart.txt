@@ -1,0 +1,58 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 21, 42-53, 57, 133, 154-188, 207-262
+~						15 toggle button Model, Help: Model view (⌘2), Value: off
+~						16 toggle button Both, Help: Both view (⌘3), Value: on
+~						20 button (collapsed) Inspector, Help: Inspector (⌘I), Secondary Actions: Expand
+~						40 button (disabled, expanded) Collapse table drawer, Help: Both view keeps the tables open, Secondary Actions: Collapse
++						207 text MODEL
++						208 container
++							209 container Layout grid mode
++								210 toggle button Tree, Value: on
++								211 toggle button Grid, Value: off
++							212 container Model tree filtering
++								213 container
++									214 text Filter model
++									215 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
++										216 text Name, ID, type, or group
++								217 text 27  of  27  model entities visible
++								218 button (disabled) Clear model tree filter
++						219 container Model
++							220 button Invented Utility Loop Preview project:invented-loop-01, Help: Invented Utility Loop Preview (project:invented-loop-01)
++							221 button (expanded) Materials, Secondary Actions: Collapse
++							222 button (selected) Invented carbon-steel-like material material:invented-carbon-steel, Help: Invented carbon-steel-like material (material:invented-carbon-steel)
++							223 button (expanded) Nodes, Secondary Actions: Collapse
++							224 button Pump nozzle node:N-100, Help: Pump nozzle (node:N-100)
++							225 button Low point elbow node:N-110, Help: Low point elbow (node:N-110)
++							226 button Riser elbow node:N-120, Help: Riser elbow (node:N-120)
++							227 button Rack turn node:N-130, Help: Rack turn (node:N-130)
++							228 button Terminal tie-in node:N-140, Help: Terminal tie-in (node:N-140)
++							229 button (expanded) Pipes, Secondary Actions: Collapse
++							230 button Pump discharge run pipe:P-100, Help: Pump discharge run (pipe:P-100)
++							231 button Vertical riser pipe:P-110, Help: Vertical riser (pipe:P-110)
++							232 button Rack span pipe:P-120, Help: Rack span (pipe:P-120)
++							233 button Tie-in rise pipe:P-130, Help: Tie-in rise (pipe:P-130)
++							234 button (expanded) Supports, Secondary Actions: Collapse
++							235 button Anchor at pump nozzle support:S-100, Help: Anchor at pump nozzle (support:S-100)
++							236 button Guide on riser support:S-120, Help: Guide on riser (support:S-120)
++							237 button Rack shoe support:S-130, Help: Rack shoe (support:S-130)
++							238 button Preview one-way terminal stop support:NL-140, Help: Preview one-way terminal stop (support:NL-140)
++							239 button Preview sliding-friction rack shoe support:NL-130-FRIC, Help: Preview sliding-friction rack shoe (support:NL-130-FRIC)
++							240 button Invented variable spring hanger support:SH-140, Help: Invented variable spring hanger (support:SH-140)
++							241 button Invented constant-effort support support:CE-120, Help: Invented constant-effort support (support:CE-120)
++							242 button (expanded) Components, Secondary Actions: Collapse
++							243 button Invented elbow marker component:C-110, Help: Invented elbow marker (component:C-110)
++							244 button Invented branch connection marker component:C-120, Help: Invented branch connection marker (component:C-120)
++							245 button Invented semi-rigid valve marker component:C-130, Help: Invented semi-rigid valve marker (component:C-130)
++							246 button Invented tie-in marker component:C-140, Help: Invented tie-in marker (component:C-140)
++							247 button Invented expansion joint marker component:C-150, Help: Invented expansion joint marker (component:C-150)
++							248 button (expanded) Load Cases, Secondary Actions: Collapse
++							249 button Invented operating gravity and pressure preview load:L-100, Help: Invented operating gravity and pressure preview (load:L-100)
++							250 button Invented alternate gravity and pressure preview load:L-200, Help: Invented alternate gravity and pressure preview (load:L-200)
++							251 button (expanded) Combinations, Secondary Actions: Collapse
++							252 button Invented explicit operating plus alternate preview combination:C-OPER-ALT, Help: Invented explicit operating plus alternate preview (combination:C-OPER-ALT)
++							253 button (expanded) Diagnostics, Secondary Actions: Collapse
++							254 button RULE_INPUTS_MISSING RULE_INPUTS_MISSING:0, Help: RULE_INPUTS_MISSING (RULE_INPUTS_MISSING:0)
++					255 splitter Resize table and canvas, Value: 55
++							256 toggle button Select Pump discharge run in viewport, Help: Pump discharge run (pipe:P-100), Value: off
++							257 toggle button Select Terminal tie-in in viewport, Help: Terminal tie-in (node:N-140), Value: off
+The focused UI element is 2 HTML content Description: SWBPIPE, URL: tauri://localhost

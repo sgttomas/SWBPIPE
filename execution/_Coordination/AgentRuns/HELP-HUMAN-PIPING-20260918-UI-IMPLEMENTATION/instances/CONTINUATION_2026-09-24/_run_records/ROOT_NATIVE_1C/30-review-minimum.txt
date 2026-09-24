@@ -1,0 +1,12 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
++							452 toggle button Select Low point elbow in viewport, Help: Low point elbow (node:N-110), Value: off
++							453 toggle button Select Riser elbow in viewport, Help: Riser elbow (node:N-120), Value: off
++							454 toggle button Select Rack span in viewport, Help: Rack span (pipe:P-120), Value: off
++							455 toggle button Select Invented tie-in marker in viewport, Help: Invented tie-in marker (component:C-140), Value: off
++							456 toggle button Select Pump nozzle in viewport, Help: Pump nozzle (node:N-100), Value: off
++							457 toggle button Select Rack turn in viewport, Help: Rack turn (node:N-130), Value: off
++							458 toggle button Select Preview sliding-friction rack shoe in viewport, Help: Preview sliding-friction rack shoe (support:NL-130-FRIC), Value: off
++							459 toggle button Select Preview one-way terminal stop in viewport, Help: Preview one-way terminal stop (support:NL-140), Value: off
++							460 toggle button Select Anchor at pump nozzle in viewport, Help: Anchor at pump nozzle (support:S-100), Value: off
+~					354 splitter Resize table drawer, Value: 180
+The focused UI element is 395 button Later columns

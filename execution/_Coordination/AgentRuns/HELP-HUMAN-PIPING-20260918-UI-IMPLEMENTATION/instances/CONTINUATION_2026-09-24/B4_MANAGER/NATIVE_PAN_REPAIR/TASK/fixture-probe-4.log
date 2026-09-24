@@ -1,0 +1,344 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/workspace/table/ModelTree.table.test.tsx -t retains numeric material draft through pointer Later columns
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/workspace/table/ModelTree.table.test.tsx (38 tests | 1 failed | 37 skipped) 1177ms
+     × retains numeric material draft through pointer Later columns 1175ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/workspace/table/ModelTree.table.test.tsx > compact pan active material draft ownership > retains numeric material draft through pointer Later columns
+TestingLibraryElementError: Unable to find role="textbox" and name "material:invented-carbon-steel Elastic [Pa]"
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33maria-label[39m=[32m"Model tree"[39m
+      [33mclass[39m=[32m"panel model-tree"[39m
+      [33mdata-bounded-grid[39m=[32m"true"[39m
+      [33mdata-compact-grid[39m=[32m"true"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"panel-title"[39m
+      [36m>[39m
+        [0mModel[0m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"model-grid-toolbar"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"table-overflow-rail enabled"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"table-overflow-viewport"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"table-overflow-content"[39m
+            [36m>[39m
+              [36m<section[39m
+                [33maria-label[39m=[32m"Layout grid mode"[39m
+                [33mclass[39m=[32m"layout-mode-toggle"[39m
+                [33mdata-testid[39m=[32m"layout-grid-mode-toggle"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33maria-pressed[39m=[32m"false"[39m
+                  [33mdata-testid[39m=[32m"layout-mode-tree"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33maria-hidden[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"lucide lucide-list-tree"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"14"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mstroke-linecap[39m=[32m"round"[39m
+                    [33mstroke-linejoin[39m=[32m"round"[39m
+                    [33mstroke-width[39m=[32m"2"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [33mwidth[39m=[32m"14"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M21 12h-8"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M21 6H8"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M21 18h-8"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M3 6v4c0 1.1.9 2 2 2h3"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M3 10v6c0 1.1.9 2 2 2h3"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                  [0mTree[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33maria-pressed[39m=[32m"true"[39m
+                  [33mdata-testid[39m=[32m"layout-mode-grid"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33maria-hidden[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"lucide lucide-table2"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"14"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mstroke-linecap[39m=[32m"round"[39m
+                    [33mstroke-linejoin[39m=[32m"round"[39m
+                    [33mstroke-width[39m=[32m"2"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [33mwidth[39m=[32m"14"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                  [0mGrid[0m
+                [36m</button>[39m
+              [36m</section>[39m
+              [36m<section[39m
+                [33maria-label[39m=[32m"Model tree filtering"[39m
+                [33mclass[39m=[32m"model-tree-controls"[39m
+                [33mdata-testid[39m=[32m"model-tree-controls"[39m
+              [36m>[39m
+                [36m<label>[39m
+                  [36m<svg[39m
+                    [33maria-hidden[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"lucide lucide-search"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"14"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mstroke-linecap[39m=[32m"round"[39m
+                    [33mstroke-linejoin[39m=[32m"round"[39m
+                    [33mstroke-width[39m=[32m"2"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [33mwidth[39m=[32m"14"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<circle[39m
+                      [33mcx[39m=[32m"11"[39m
+                      [33mcy[39m=[32m"11"[39m
+                      [33mr[39m=[32m"8"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"m21 21-4.3-4.3"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                  [36m<span>[39m
+                    [0mFilter model[0m
+                  [36m</span>[39m
+                  [36m<input[39m
+                    [33maria-label[39m=[32m"Filter model tree"[39m
+                    [33mdata-testid[39m=[32m"model-tree-filter-input"[39m
+                    [33mplaceholder[39m=[32m"Name, ID, type, or group"[39m
+                    [33mtype[39m=[32m"search"[39m
+                    [33mvalue[39m=[32m""[39m
+                  [36m/>[39m
+                [36m</label>[39m
+                [36m<span[39m
+                  [33mdata-testid[39m=[32m"model-tree-filter-summary"[39m
+                [36m>[39m
+                  [0m27[0m
+                  [0m of [0m
+                  [0m27[0m
+                  [0m model entities visible[0m
+                [36m</span>[39m
+                [36m<button[39m
+                  [33maria-label[39m=[32m"Clear model tree filter"[39m
+                  [33mdata-testid[39m=[32m"clear-model-tree-filter"[39m
+                  [33mdisabled[39m=[32m""[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33maria-hidden[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"lucide lucide-x"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"14"[39m
+               ...
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33maria-label[39m=[32m"Model tree"[39m
+      [33mclass[39m=[32m"panel model-tree"[39m
+      [33mdata-bounded-grid[39m=[32m"true"[39m
+      [33mdata-compact-grid[39m=[32m"true"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"panel-title"[39m
+      [36m>[39m
+        [0mModel[0m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"model-grid-toolbar"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"table-overflow-rail enabled"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"table-overflow-viewport"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"table-overflow-content"[39m
+            [36m>[39m
+              [36m<section[39m
+                [33maria-label[39m=[32m"Layout grid mode"[39m
+                [33mclass[39m=[32m"layout-mode-toggle"[39m
+                [33mdata-testid[39m=[32m"layout-grid-mode-toggle"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33maria-pressed[39m=[32m"false"[39m
+                  [33mdata-testid[39m=[32m"layout-mode-tree"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33maria-hidden[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"lucide lucide-list-tree"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"14"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mstroke-linecap[39m=[32m"round"[39m
+                    [33mstroke-linejoin[39m=[32m"round"[39m
+                    [33mstroke-width[39m=[32m"2"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [33mwidth[39m=[32m"14"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M21 12h-8"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M21 6H8"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M21 18h-8"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M3 6v4c0 1.1.9 2 2 2h3"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M3 10v6c0 1.1.9 2 2 2h3"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                  [0mTree[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33maria-pressed[39m=[32m"true"[39m
+                  [33mdata-testid[39m=[32m"layout-mode-grid"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33maria-hidden[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"lucide lucide-table2"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"14"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mstroke-linecap[39m=[32m"round"[39m
+                    [33mstroke-linejoin[39m=[32m"round"[39m
+                    [33mstroke-width[39m=[32m"2"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [33mwidth[39m=[32m"14"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                  [0mGrid[0m
+                [36m</button>[39m
+              [36m</section>[39m
+              [36m<section[39m
+                [33maria-label[39m=[32m"Model tree filtering"[39m
+                [33mclass[39m=[32m"model-tree-controls"[39m
+                [33mdata-testid[39m=[32m"model-tree-controls"[39m
+              [36m>[39m
+                [36m<label>[39m
+                  [36m<svg[39m
+                    [33maria-hidden[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"lucide lucide-search"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"14"[39m
+                    [33mstroke[39m=[32m"currentColor"[39m
+                    [33mstroke-linecap[39m=[32m"round"[39m
+                    [33mstroke-linejoin[39m=[32m"round"[39m
+                    [33mstroke-width[39m=[32m"2"[39m
+                    [33mviewBox[39m=[32m"0 0 24 24"[39m
+                    [33mwidth[39m=[32m"14"[39m
+                    [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                  [36m>[39m
+                    [36m<circle[39m
+                      [33mcx[39m=[32m"11"[39m
+                      [33mcy[39m=[32m"11"[39m
+                      [33mr[39m=[32m"8"[39m
+                    [36m/>[39m
+                    [36m<path[39m
+                      [33md[39m=[32m"m21 21-4.3-4.3"[39m
+                    [36m/>[39m
+                  [36m</svg>[39m
+                  [36m<span>[39m
+                    [0mFilter model[0m
+                  [36m</span>[39m
+                  [36m<input[39m
+                    [33maria-label[39m=[32m"Filter model tree"[39m
+                    [33mdata-testid[39m=[32m"model-tree-filter-input"[39m
+                    [33mplaceholder[39m=[32m"Name, ID, type, or group"[39m
+                    [33mtype[39m=[32m"search"[39m
+                    [33mvalue[39m=[32m""[39m
+                  [36m/>[39m
+                [36m</label>[39m
+                [36m<span[39m
+                  [33mdata-testid[39m=[32m"model-tree-filter-summary"[39m
+                [36m>[39m
+                  [0m27[0m
+                  [0m of [0m
+                  [0m27[0m
+                  [0m model entities visible[0m
+                [36m</span>[39m
+                [36m<button[39m
+                  [33maria-label[39m=[32m"Clear model tree filter"[39m
+                  [33mdata-testid[39m=[32m"clear-model-tree-filter"[39m
+                  [33mdisabled[39m=[32m""[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [36m<svg[39m
+                    [33maria-hidden[39m=[32m"true"[39m
+                    [33mclass[39m=[32m"lucide lucide-x"[39m
+                    [33mfill[39m=[32m"none"[39m
+                    [33mheight[39m=[32m"14"[39m
+               ...
+ ❯ waitForWrapper ../../node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ setup src/features/workspace/table/ModelTree.table.test.tsx:206:32
+    204|     act(() => cell.focus());
+    205|     fireEvent.keyDown(cell, { key: "Enter" });
+    206|     const input = await screen.findByRole("textbox", { name: `${model.…
+       |                                ^
+    207|     fireEvent.change(input, { target: { value: "210000000000" } });
+    208|     for (const viewport of view.container.querySelectorAll<HTMLElement…
+ ❯ src/features/workspace/table/ModelTree.table.test.tsx:214:23
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 37 skipped (38)
+   Start at  12:12:54
+   Duration  2.24s (transform 400ms, setup 90ms, import 626ms, tests 1.18s, environment 267ms)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run src/features/workspace/table/ModelTree.table.test.tsx -t 'retains numeric material draft through pointer Later columns'

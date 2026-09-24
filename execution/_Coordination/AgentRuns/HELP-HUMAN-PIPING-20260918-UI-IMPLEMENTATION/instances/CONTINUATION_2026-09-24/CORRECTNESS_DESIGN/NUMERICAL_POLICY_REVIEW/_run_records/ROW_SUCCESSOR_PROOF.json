@@ -1,0 +1,529 @@
+{
+  "actor": "/root/numerical_policy_review",
+  "method": "Independent read-only exact Fraction row arithmetic and bounded Machin pi; no production imports or solver/test execution",
+  "python": "3.13.14 (main, Jul 18 2026, 16:56:45) [Clang 22.1.3 ]",
+  "packet_hashes_verified": {
+    "analyze.py": "a1f89e2a7b5c4c6ba06b45b61acd3850d8a85ddfd205370c9b5375fd82d34b83",
+    "ANALYSIS.json": "4cb3b3edb8f9991d86e7d37c4db66f5e47f424f2c271b45981a3ebe9c95dec41",
+    "RETURN.md": "e149282511d36257367c03d426a77f7de343f8e5a584211be87c7d8bd1b2ce07",
+    "_run_records/rows.jsonl": "3ab27e31fd568c48899f351a39a2796dfa094b82833b2f592771b9dc78915a4f",
+    "_run_records/model.json": "c1236b88fdeb04852580246af96542812a97a5ac963b88cc48afd99b90bde149",
+    "_run_records/result.json": "ce8899d0df4b3409f16a5a21daa687082037240ce5260357e69bbbb833364453",
+    "_run_records/run.log": "23d08d8c2d836c982b8c972c2c412d29b8a1c2fac51b8ae10f9c8fec8a9d2376",
+    "_run_records/instrumentation.patch": "71a5c088b8eadf9907e82791b7d515a61d00ef782ea84510e07cf6f825481e9d",
+    "_run_records/SOURCE_CONTEXT.json": "d74d4386930a279465291c5a0f037145bc2b6155cb72cdc8c02e06dfb83c27dc",
+    "_run_records/product_before.rs": "4f78091a3bf865f76c2121d25d1d7e0e35c1bbc0b8a144a21d2456144e34bd09",
+    "_run_records/nonlinear_before.rs": "dcb9f8b9b1c09ba9b35627acce8af42383319ef95242088de45eb74a584e371c"
+  },
+  "linearized_record_count": 2,
+  "iteration_record_count": 2,
+  "selected_mode": "SparseInteractive",
+  "selected_iteration": 2,
+  "all_prescribed_values_match": true,
+  "all_rows_finite_normal_or_zero": true,
+  "all_five_original_row_screens_pass": true,
+  "rows": [
+    {
+      "global_dof": 6,
+      "unit": "N",
+      "residual_exact_fraction": "-86837151260085/19807040628566084398385987584",
+      "residual_exact_decimal": "-4.3841557599900530594385757443189817234192873218745489793946035206317901611328125E-15",
+      "denominator_exact_fraction": "3961408125713216792840046256715/19807040628566084398385987584",
+      "denominator_approx": 200.0,
+      "observed_residual": 0.0,
+      "evaluation_error": 4.384155759990053e-15,
+      "evaluation_bound_gamma26": 5.77315972805083e-13,
+      "effective_evaluation_bound": 1.3322676295501886e-13,
+      "nonzero_coefficient_count": 2,
+      "effective_operation_count": 6,
+      "true_ratio": 2.1920778799950265e-17,
+      "guarded_ratio": 6.661338147750956e-16,
+      "target": 4.263256414560604e-14,
+      "screen_pass": true,
+      "true_work": 6.191304884536129e-22,
+      "observed_work": 0.0,
+      "target_work_bound": 1.2041141651207637e-18,
+      "nonzero_term_products": [
+        {
+          "column": 0,
+          "coefficient_hex": "-0x1.51a7d140f3ff8p+29",
+          "displacement_hex": "0x0.0p+0",
+          "exact_product": "0"
+        },
+        {
+          "column": 6,
+          "coefficient_hex": "0x1.51a7d140f3ff8p+29",
+          "displacement_hex": "0x1.2f44847ddcb6ap-23",
+          "exact_product": "1980704062856608353001447498315/19807040628566084398385987584"
+        }
+      ]
+    },
+    {
+      "global_dof": 8,
+      "unit": "N",
+      "residual_exact_fraction": "-268365517050275/4951760157141521099596496896",
+      "residual_exact_decimal": "-5.419598456585851249469652551753160482465865310786057307268492877483367919921875E-14",
+      "denominator_exact_fraction": "15370263527767277681257966580431/19807040628566084398385987584",
+      "denominator_approx": 775.9999999999998,
+      "observed_residual": -5.684341886080802e-14,
+      "evaluation_error": 2.6474342949495024e-15,
+      "evaluation_bound_gamma26": 2.239985974483722e-12,
+      "effective_evaluation_bound": 8.615330671091222e-13,
+      "nonzero_coefficient_count": 4,
+      "effective_operation_count": 10,
+      "true_ratio": 6.984018629620945e-17,
+      "guarded_ratio": 1.1834748530540371e-15,
+      "target": 7.10542735760101e-14,
+      "screen_pass": true,
+      "true_work": 7.623103967555941e-19,
+      "observed_work": 7.995487033189681e-19,
+      "target_work_bound": 7.755622422193997e-16,
+      "nonzero_term_products": [
+        {
+          "column": 2,
+          "coefficient_hex": "-0x1.a4e86b34d4146p+24",
+          "displacement_hex": "0x0.0p+0",
+          "exact_product": "0"
+        },
+        {
+          "column": 4,
+          "coefficient_hex": "0x1.a4e86b34d4146p+23",
+          "displacement_hex": "0x0.0p+0",
+          "exact_product": "0"
+        },
+        {
+          "column": 8,
+          "coefficient_hex": "0x1.a4e86b34d4146p+24",
+          "displacement_hex": "0x1.d7f8624993fc2p-17",
+          "exact_product": "15370263527767276607795898379331/39614081257132168796771975168"
+        },
+        {
+          "column": 10,
+          "coefficient_hex": "0x1.a4e86b34d4146p+23",
+          "displacement_hex": "-0x1.61fa49b72efd2p-16",
+          "exact_product": "-11527697645825458381433153190235/39614081257132168796771975168"
+        }
+      ]
+    },
+    {
+      "global_dof": 9,
+      "unit": "N*m",
+      "residual_exact_fraction": "0",
+      "residual_exact_decimal": "0",
+      "denominator_exact_fraction": "0",
+      "denominator_approx": 0.0,
+      "observed_residual": 0.0,
+      "evaluation_error": 0.0,
+      "evaluation_bound_gamma26": 0.0,
+      "effective_evaluation_bound": 0.0,
+      "nonzero_coefficient_count": 2,
+      "effective_operation_count": 6,
+      "true_ratio": 0.0,
+      "guarded_ratio": 0.0,
+      "target": 4.263256414560604e-14,
+      "screen_pass": true,
+      "true_work": 0.0,
+      "observed_work": 0.0,
+      "target_work_bound": 0.0,
+      "nonzero_term_products": [
+        {
+          "column": 3,
+          "coefficient_hex": "-0x1.b021d10d46f63p+20",
+          "displacement_hex": "0x0.0p+0",
+          "exact_product": "0"
+        },
+        {
+          "column": 9,
+          "coefficient_hex": "0x1.b021d10d46f63p+20",
+          "displacement_hex": "0x0.0p+0",
+          "exact_product": "0"
+        }
+      ]
+    },
+    {
+      "global_dof": 10,
+      "unit": "N*m",
+      "residual_exact_fraction": "-98120708709407/39614081257132168796771975168",
+      "residual_exact_decimal": "-2.47691491498976073643133952547485860415203695605868006168748252093791961669921875E-15",
+      "denominator_exact_fraction": "7685131763883638352958303544369/19807040628566084398385987584",
+      "denominator_approx": 387.9999999999999,
+      "observed_residual": 0.0,
+      "evaluation_error": 2.4769149149897607e-15,
+      "evaluation_bound_gamma26": 1.1199929872418607e-12,
+      "effective_evaluation_bound": 4.307665335545611e-13,
+      "nonzero_coefficient_count": 4,
+      "effective_operation_count": 10,
+      "true_ratio": 6.3838013272932e-18,
+      "guarded_ratio": 1.1102230246251607e-15,
+      "target": 7.10542735760101e-14,
+      "screen_pass": true,
+      "true_work": 5.22597201628802e-20,
+      "observed_work": 0.0,
+      "target_work_bound": 5.816716816645498e-16,
+      "nonzero_term_products": [
+        {
+          "column": 2,
+          "coefficient_hex": "-0x1.a4e86b34d4146p+23",
+          "displacement_hex": "0x0.0p+0",
+          "exact_product": "0"
+        },
+        {
+          "column": 4,
+          "coefficient_hex": "0x1.189af223380d9p+22",
+          "displacement_hex": "0x0.0p+0",
+          "exact_product": "0"
+        },
+        {
+          "column": 8,
+          "coefficient_hex": "0x1.a4e86b34d4146p+23",
+          "displacement_hex": "0x1.d7f8624993fc2p-17",
+          "exact_product": "15370263527767276607795898379331/79228162514264337593543950336"
+        },
+        {
+          "column": 10,
+          "coefficient_hex": "0x1.189af223380d9p+23",
+          "displacement_hex": "-0x1.61fa49b72efd2p-16",
+          "exact_product": "-15370263527767276804037315798145/79228162514264337593543950336"
+        }
+      ]
+    },
+    {
+      "global_dof": 11,
+      "unit": "N*m",
+      "residual_exact_fraction": "-610559434829973/39614081257132168796771975168",
+      "residual_exact_decimal": "-1.541268699043845967707206275051771529106293956434825531687238253653049468994140625E-14",
+      "denominator_exact_fraction": "54636967334391822520004394851001/39614081257132168796771975168",
+      "denominator_approx": 1379.230960318054,
+      "observed_residual": 0.0,
+      "evaluation_error": 1.541268699043846e-14,
+      "evaluation_bound_gamma26": 3.981260317894531e-12,
+      "effective_evaluation_bound": 1.5312539684209708e-12,
+      "nonzero_coefficient_count": 4,
+      "effective_operation_count": 10,
+      "true_ratio": 1.1174841222302795e-17,
+      "guarded_ratio": 1.1102230246251607e-15,
+      "target": 7.10542735760101e-14,
+      "screen_pass": true,
+      "true_work": 1.1559515242828846e-18,
+      "observed_work": 0.0,
+      "target_work_bound": 7.35001904842066e-15,
+      "nonzero_term_products": [
+        {
+          "column": 1,
+          "coefficient_hex": "0x1.a4e86b34d4146p+23",
+          "displacement_hex": "0x0.0p+0",
+          "exact_product": "0"
+        },
+        {
+          "column": 5,
+          "coefficient_hex": "0x1.189af223380d9p+22",
+          "displacement_hex": "0x0.0p+0",
+          "exact_product": "0"
+        },
+        {
+          "column": 7,
+          "coefficient_hex": "-0x1.a4e86b34d4146p+23",
+          "displacement_hex": "0x1.a36e2eb1c432dp-15",
+          "exact_product": "-27318483667195911565281914840487/39614081257132168796771975168"
+        },
+        {
+          "column": 11,
+          "coefficient_hex": "0x1.189af223380d9p+23",
+          "displacement_hex": "0x1.3a92a30553262p-14",
+          "exact_product": "13659241833597955477361240005257/19807040628566084398385987584"
+        }
+      ]
+    }
+  ],
+  "machin_pi_absolute_error_bound": "2.55836358149594918000440374641547134481501595637783896515604223170916180741071488226479081E-142",
+  "physical_reference": [
+    {
+      "global_dof": 6,
+      "unit": "m",
+      "expected": "1.41220002743474122243907509647306443686299596930307407939367652226172846170564804871440819E-7",
+      "actual": 1.4122000274347406e-07,
+      "relative_error": 4.3272784012605453e-16,
+      "limit": "1e-9"
+    },
+    {
+      "global_dof": 7,
+      "unit": "m",
+      "expected": "0.00005",
+      "actual": 5e-05,
+      "relative_error": 4.7921736023859296e-17,
+      "limit": "1e-9"
+    },
+    {
+      "global_dof": 8,
+      "unit": "m",
+      "expected": "0.0000140658095403588652113043547023886279425707209880526952330829544509703669141776779078729400",
+      "actual": 1.406580954035886e-05,
+      "relative_error": 4.1052917794093916e-16,
+      "limit": "1e-9"
+    },
+    {
+      "global_dof": 10,
+      "unit": "rad",
+      "expected": "-0.0000210987143105382978169565320535829419138560814820790428496244316764555503712665168618094100",
+      "actual": -2.109871431053829e-05,
+      "relative_error": 3.3023680232151786e-16,
+      "limit": "1e-9"
+    },
+    {
+      "global_dof": 11,
+      "unit": "rad",
+      "expected": "0.000075",
+      "actual": 7.500000000000001e-05,
+      "relative_error": 9.309682654408864e-17,
+      "limit": "1e-9"
+    }
+  ],
+  "L_over_OD": "5.95238095238095238095238095238095238095238095238095238095238095238095238095238095238095238",
+  "root_Y_force_N": "-344.807740079513439615149829165252425700865317911611794144002488376766408991132347568331485",
+  "gap_contact_force_N": "-99655.1922599204865603848501708347475742991346820883882058559975116232335910088676524316685",
+  "negative_controls": {
+    "stale_first_state": {
+      "failed_rows": [
+        6,
+        8
+      ],
+      "rows": [
+        {
+          "global_dof": 6,
+          "unit": "N",
+          "residual_exact_fraction": "-100",
+          "residual_exact_decimal": "-100",
+          "denominator_exact_fraction": "100",
+          "denominator_approx": 100.0,
+          "observed_residual": -100.0,
+          "evaluation_error": 0.0,
+          "evaluation_bound_gamma26": 2.8865798640254156e-13,
+          "effective_evaluation_bound": 6.661338147750944e-14,
+          "nonzero_coefficient_count": 2,
+          "effective_operation_count": 6,
+          "true_ratio": 1.0,
+          "guarded_ratio": 1.0000000000000018,
+          "target": 4.263256414560604e-14,
+          "screen_pass": false,
+          "true_work": 0.0,
+          "observed_work": 0.0,
+          "target_work_bound": 0.0,
+          "nonzero_term_products": [
+            {
+              "column": 0,
+              "coefficient_hex": "-0x1.51a7d140f3ff8p+29",
+              "displacement_hex": "0x0.0p+0",
+              "exact_product": "0"
+            },
+            {
+              "column": 6,
+              "coefficient_hex": "0x1.51a7d140f3ff8p+29",
+              "displacement_hex": "0x0.0p+0",
+              "exact_product": "0"
+            }
+          ]
+        },
+        {
+          "global_dof": 8,
+          "unit": "N",
+          "residual_exact_fraction": "-97",
+          "residual_exact_decimal": "-97",
+          "denominator_exact_fraction": "97",
+          "denominator_approx": 97.0,
+          "observed_residual": -97.0,
+          "evaluation_error": 0.0,
+          "evaluation_bound_gamma26": 2.799982468104653e-13,
+          "effective_evaluation_bound": 1.076916333886403e-13,
+          "nonzero_coefficient_count": 4,
+          "effective_operation_count": 10,
+          "true_ratio": 1.0,
+          "guarded_ratio": 1.0000000000000027,
+          "target": 7.10542735760101e-14,
+          "screen_pass": false,
+          "true_work": 0.0,
+          "observed_work": 0.0,
+          "target_work_bound": 0.0,
+          "nonzero_term_products": [
+            {
+              "column": 2,
+              "coefficient_hex": "-0x1.a4e86b34d4146p+24",
+              "displacement_hex": "0x0.0p+0",
+              "exact_product": "0"
+            },
+            {
+              "column": 4,
+              "coefficient_hex": "0x1.a4e86b34d4146p+23",
+              "displacement_hex": "0x0.0p+0",
+              "exact_product": "0"
+            },
+            {
+              "column": 8,
+              "coefficient_hex": "0x1.a4e86b34d4146p+24",
+              "displacement_hex": "0x0.0p+0",
+              "exact_product": "0"
+            },
+            {
+              "column": 10,
+              "coefficient_hex": "0x1.a4e86b34d4146p+23",
+              "displacement_hex": "0x0.0p+0",
+              "exact_product": "0"
+            }
+          ]
+        },
+        {
+          "global_dof": 9,
+          "unit": "N*m",
+          "residual_exact_fraction": "0",
+          "residual_exact_decimal": "0",
+          "denominator_exact_fraction": "0",
+          "denominator_approx": 0.0,
+          "observed_residual": 0.0,
+          "evaluation_error": 0.0,
+          "evaluation_bound_gamma26": 0.0,
+          "effective_evaluation_bound": 0.0,
+          "nonzero_coefficient_count": 2,
+          "effective_operation_count": 6,
+          "true_ratio": 0.0,
+          "guarded_ratio": 0.0,
+          "target": 4.263256414560604e-14,
+          "screen_pass": true,
+          "true_work": 0.0,
+          "observed_work": 0.0,
+          "target_work_bound": 0.0,
+          "nonzero_term_products": [
+            {
+              "column": 3,
+              "coefficient_hex": "-0x1.b021d10d46f63p+20",
+              "displacement_hex": "0x0.0p+0",
+              "exact_product": "0"
+            },
+            {
+              "column": 9,
+              "coefficient_hex": "0x1.b021d10d46f63p+20",
+              "displacement_hex": "0x0.0p+0",
+              "exact_product": "0"
+            }
+          ]
+        },
+        {
+          "global_dof": 10,
+          "unit": "N*m",
+          "residual_exact_fraction": "0",
+          "residual_exact_decimal": "0",
+          "denominator_exact_fraction": "0",
+          "denominator_approx": 0.0,
+          "observed_residual": 0.0,
+          "evaluation_error": 0.0,
+          "evaluation_bound_gamma26": 0.0,
+          "effective_evaluation_bound": 0.0,
+          "nonzero_coefficient_count": 4,
+          "effective_operation_count": 10,
+          "true_ratio": 0.0,
+          "guarded_ratio": 0.0,
+          "target": 7.10542735760101e-14,
+          "screen_pass": true,
+          "true_work": 0.0,
+          "observed_work": 0.0,
+          "target_work_bound": 0.0,
+          "nonzero_term_products": [
+            {
+              "column": 2,
+              "coefficient_hex": "-0x1.a4e86b34d4146p+23",
+              "displacement_hex": "0x0.0p+0",
+              "exact_product": "0"
+            },
+            {
+              "column": 4,
+              "coefficient_hex": "0x1.189af223380d9p+22",
+              "displacement_hex": "0x0.0p+0",
+              "exact_product": "0"
+            },
+            {
+              "column": 8,
+              "coefficient_hex": "0x1.a4e86b34d4146p+23",
+              "displacement_hex": "0x0.0p+0",
+              "exact_product": "0"
+            },
+            {
+              "column": 10,
+              "coefficient_hex": "0x1.189af223380d9p+23",
+              "displacement_hex": "0x0.0p+0",
+              "exact_product": "0"
+            }
+          ]
+        },
+        {
+          "global_dof": 11,
+          "unit": "N*m",
+          "residual_exact_fraction": "-2089790502420603/154742504910672534362390528",
+          "residual_exact_decimal": "-1.3504954592966983230242617618609298445198074745121630257926881313323974609375E-11",
+          "denominator_exact_fraction": "61897001964268993408100364595725/154742504910672534362390528",
+          "denominator_approx": 399999.9999999999,
+          "observed_residual": 0.0,
+          "evaluation_error": 1.3504954592966983e-11,
+          "evaluation_bound_gamma26": 1.1546319456101657e-09,
+          "effective_evaluation_bound": 4.44089209850063e-10,
+          "nonzero_coefficient_count": 4,
+          "effective_operation_count": 10,
+          "true_ratio": 3.376238648241747e-17,
+          "guarded_ratio": 1.1102230246251607e-15,
+          "target": 7.10542735760101e-14,
+          "screen_pass": true,
+          "true_work": 2.9374966879773434e-13,
+          "observed_work": 0.0,
+          "target_work_bound": 6.182077602981718e-10,
+          "nonzero_term_products": [
+            {
+              "column": 1,
+              "coefficient_hex": "0x1.a4e86b34d4146p+23",
+              "displacement_hex": "0x0.0p+0",
+              "exact_product": "0"
+            },
+            {
+              "column": 5,
+              "coefficient_hex": "0x1.189af223380d9p+22",
+              "displacement_hex": "0x0.0p+0",
+              "exact_product": "0"
+            },
+            {
+              "column": 7,
+              "coefficient_hex": "-0x1.a4e86b34d4146p+23",
+              "displacement_hex": "0x1.db29d123501ecp-7",
+              "exact_product": "-7737125245533624437236358377041/38685626227668133590597632"
+            },
+            {
+              "column": 11,
+              "coefficient_hex": "0x1.189af223380d9p+23",
+              "displacement_hex": "0x1.645f5cda7c171p-6",
+              "exact_product": "30948500982134495659154931087561/154742504910672534362390528"
+            }
+          ]
+        }
+      ],
+      "boundary_mismatches": [
+        {
+          "global_dof": 7,
+          "actual": 0.014500834577689546,
+          "required": 5e-05
+        }
+      ],
+      "initial_count": 3.0,
+      "final_count": 0.0,
+      "separate_contact_law_mutation": false
+    },
+    "tiny_omitted_load": {
+      "load_N": 1e-12,
+      "eta": 1,
+      "old_quantized_value": 0,
+      "work_Nm": 0,
+      "rejects": true
+    }
+  },
+  "limits": [
+    "Confirms captured represented rows and selected analytical element theory only.",
+    "The observed residual includes nonzero exact represented residual; it is not solely evaluation error.",
+    "Observation guard used exact rational denominator; it does not qualify current runtime bound arithmetic.",
+    "Stale-state control changes both equations/state and prescribed values; not an isolated complementarity mutation.",
+    "Source predates pending kernel repairs; no current implementation, dense-mode, or complete-candidate pass."
+  ]
+}

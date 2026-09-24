@@ -1,0 +1,21 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~							55 button (disabled) Earlier columns
+~							56 button Later columns
+~									85 button (expanded) Material fields Info, Secondary Actions: Collapse
++								212 container Material fields Info
++									213 button Close Info
++									214 container
++										215 text 1  of  1  rows.
++									216 container
++										217 text Editing  Elastic  ·  material:invented-carbon-steel
++									218 heading Columns, Value: 3
++										219 text Columns
++									220 text Label
++									221 container
++										222 text Elastic modulus  — unit as entered in each row.
++									223 container
++										224 text Shear modulus  — unit as entered in each row.
++									225 container
++										226 text Thermal expansion coefficient  — unit as entered in each row.
++									227 text Provenance
+The focused UI element is 212 container Material fields Info

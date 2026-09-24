@@ -1,0 +1,96 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 234-290, 392-395
+~						231 button (expanded) Return to node fields, Secondary Actions: Collapse
+~						391 button (disabled) Queue
++						392 button (disabled) Clear
++						232 button (collapsed) Table details, Secondary Actions: Expand
++						393 container Pan columns
++							394 button (disabled) Earlier columns
++							395 button Later columns
++							396 container
++								397 table (settable) Node review drafts
++									398 row (selectable)
++										399 cell (settable)
++											400 text Node
++										401 cell (settable)
++											402 button Sort Label
++										403 cell (settable)
++											404 button Sort X [m]
++										405 cell (settable)
++											406 button Sort Y [m]
++										407 cell (settable)
++											408 button Sort Z [m]
++										409 cell (settable)
++											410 button Sort Provenance
++									411 row (selectable)
++										412 cell (selectable, settable) node:N-100
++										413 cell (selectable, settable) node:N-100 Label: Pump nozzle
++										414 cell (selectable, settable) node:N-100 X: 0 m
+Quantity readout, Value: 0
+m
++										415 cell (selectable, settable) node:N-100 Y: 0 m
+Quantity readout, Value: 0
+m
++										416 cell (selectable, settable) node:N-100 Z: 0 m
+Quantity readout, Value: 0
+m
++										417 cell (selectable, settable) node:N-100 Provenance: invented_example
++									418 row (selectable)
++										419 cell (selectable, settable) node:N-110
++										420 cell (selectable, settable) node:N-110 Label: Low point elbow
++										421 cell (selectable, settable) node:N-110 X: 3.2 m
+Quantity readout, Value: 3.2
+m
++										422 cell (selectable, settable) node:N-110 Y: 0 m
+Quantity readout, Value: 0
+m
++										423 cell (selectable, settable) node:N-110 Z: 0 m
+Quantity readout, Value: 0
+m
++										424 cell (selectable, settable) node:N-110 Provenance: invented_example
++									425 row (selectable)
++										426 cell (selectable, settable) node:N-120
++										427 cell (selectable, settable) node:N-120 Label: Riser elbow
++										428 cell (selectable, settable) node:N-120 X: 3.2 m
+Quantity readout, Value: 3.2
+m
++										429 cell (selectable, settable) node:N-120 Y: 2.4 m
+Quantity readout, Value: 2.4
+m
++										430 cell (selectable, settable) node:N-120 Z: 0 m
+Quantity readout, Value: 0
+m
++										431 cell (selectable, settable) node:N-120 Provenance: invented_example
++									432 row (selectable)
++										433 cell (selectable, settable) node:N-130
++										434 cell (selectable, settable) node:N-130 Label: Rack turn
++										435 cell (selectable, settable) node:N-130 X: 7.6 m
+Quantity readout, Value: 7.6
+m
++										436 cell (selectable, settable) node:N-130 Y: 2.4 m
+Quantity readout, Value: 2.4
+m
++										437 cell (selectable, settable) node:N-130 Z: 0 m
+Quantity readout, Value: 0
+m
++										438 cell (selectable, settable) node:N-130 Provenance: invented_example
++									439 row (selected)
++										440 cell (selectable, settable) node:N-140
++										441 cell (selectable, settable) node:N-140 Label: Terminal tie-in
++										442 cell (selectable, settable) node:N-140 X: 7.6 m
+Quantity readout, Value: 7.6
+m
++										443 cell (selectable, settable) node:N-140 Y: 2.4 m
+Quantity readout, Value: 2.4
+m
++										444 cell (selectable, settable) node:N-140 Z: 2.2 m
+Quantity readout, Value: 2.2
+m
++										445 cell (selectable, settable) node:N-140 Provenance: invented_example
++								446 container Node review drafts footer
++									447 text 5
++									448 text  of 
++									449 text 5
++									450 text  rows
++									451 button (collapsed) Node review drafts Info, Secondary Actions: Expand
+The focused UI element is 174 HTML content Description: SWBPIPE, URL: tauri://localhost

@@ -1,0 +1,102 @@
+{
+  "candidate": "a34c9d819d62b54b74d7f07edde87738b97b87cf",
+  "run": 36037700066,
+  "jobs": [
+    {
+      "job": "Accessibility barrier and selected coverage",
+      "job_id": 107762220867,
+      "setup_conclusion": "success",
+      "diagnostic_lines": [
+        "2026-09-24T17:58:33.9518044Z \u001b[36;1mBy-Hash: force\u001b[0m",
+        "2026-09-24T17:58:33.9520427Z \u001b[36;1mBy-Hash: force\u001b[0m",
+        "2026-09-24T17:58:33.9521381Z \u001b[36;1mecho 'Rendered Ubuntu package sources:'\u001b[0m",
+        "2026-09-24T17:58:33.9522239Z \u001b[36;1mecho 'Explicit APT acquisition configuration (unset values are omitted; defaults may apply):'\u001b[0m",
+        "2026-09-24T17:58:33.9752355Z Rendered Ubuntu package sources:",
+        "2026-09-24T17:58:33.9761139Z By-Hash: force",
+        "2026-09-24T17:58:33.9763290Z By-Hash: force",
+        "2026-09-24T17:58:33.9764173Z Explicit APT acquisition configuration (unset values are omitted; defaults may apply):",
+        "2026-09-24T17:58:33.9822300Z HTTP_NO_CACHE='true'",
+        "2026-09-24T17:58:33.9822605Z HTTPS_NO_CACHE='true'",
+        "2026-09-24T17:58:33.9850676Z apt 2.8.3 (amd64)"
+      ],
+      "hash_mismatch_observed": false
+    },
+    {
+      "job": "Source remainder (1/4)",
+      "job_id": 107763678704,
+      "setup_conclusion": "success",
+      "diagnostic_lines": [
+        "2026-09-24T18:02:12.7667999Z \u001b[36;1mBy-Hash: force\u001b[0m",
+        "2026-09-24T18:02:12.7670700Z \u001b[36;1mBy-Hash: force\u001b[0m",
+        "2026-09-24T18:02:12.7671721Z \u001b[36;1mecho 'Rendered Ubuntu package sources:'\u001b[0m",
+        "2026-09-24T18:02:12.7672665Z \u001b[36;1mecho 'Explicit APT acquisition configuration (unset values are omitted; defaults may apply):'\u001b[0m",
+        "2026-09-24T18:02:12.7895952Z Rendered Ubuntu package sources:",
+        "2026-09-24T18:02:12.7907051Z By-Hash: force",
+        "2026-09-24T18:02:12.7911127Z By-Hash: force",
+        "2026-09-24T18:02:12.7912439Z Explicit APT acquisition configuration (unset values are omitted; defaults may apply):",
+        "2026-09-24T18:02:12.7979368Z HTTP_NO_CACHE='true'",
+        "2026-09-24T18:02:12.7979894Z HTTPS_NO_CACHE='true'",
+        "2026-09-24T18:02:12.8014274Z apt 2.8.3 (amd64)"
+      ],
+      "hash_mismatch_observed": false
+    },
+    {
+      "job": "Source remainder (4/4)",
+      "job_id": 107763678709,
+      "setup_conclusion": "success",
+      "diagnostic_lines": [
+        "2026-09-24T18:08:22.0745686Z \u001b[36;1mBy-Hash: force\u001b[0m",
+        "2026-09-24T18:08:22.0749071Z \u001b[36;1mBy-Hash: force\u001b[0m",
+        "2026-09-24T18:08:22.0750308Z \u001b[36;1mecho 'Rendered Ubuntu package sources:'\u001b[0m",
+        "2026-09-24T18:08:22.0751450Z \u001b[36;1mecho 'Explicit APT acquisition configuration (unset values are omitted; defaults may apply):'\u001b[0m",
+        "2026-09-24T18:08:22.1630454Z Rendered Ubuntu package sources:",
+        "2026-09-24T18:08:22.1639139Z By-Hash: force",
+        "2026-09-24T18:08:22.1641723Z By-Hash: force",
+        "2026-09-24T18:08:22.1642554Z Explicit APT acquisition configuration (unset values are omitted; defaults may apply):",
+        "2026-09-24T18:08:22.1701480Z HTTP_NO_CACHE='true'",
+        "2026-09-24T18:08:22.1701881Z HTTPS_NO_CACHE='true'",
+        "2026-09-24T18:08:22.1728663Z apt 2.8.3 (amd64)"
+      ],
+      "hash_mismatch_observed": false
+    },
+    {
+      "job": "Source remainder (2/4)",
+      "job_id": 107763678756,
+      "setup_conclusion": "success",
+      "diagnostic_lines": [
+        "2026-09-24T18:02:15.8486672Z \u001b[36;1mBy-Hash: force\u001b[0m",
+        "2026-09-24T18:02:15.8489165Z \u001b[36;1mBy-Hash: force\u001b[0m",
+        "2026-09-24T18:02:15.8490142Z \u001b[36;1mecho 'Rendered Ubuntu package sources:'\u001b[0m",
+        "2026-09-24T18:02:15.8491084Z \u001b[36;1mecho 'Explicit APT acquisition configuration (unset values are omitted; defaults may apply):'\u001b[0m",
+        "2026-09-24T18:02:15.8810072Z Rendered Ubuntu package sources:",
+        "2026-09-24T18:02:15.8821535Z By-Hash: force",
+        "2026-09-24T18:02:15.8825408Z By-Hash: force",
+        "2026-09-24T18:02:15.8826556Z Explicit APT acquisition configuration (unset values are omitted; defaults may apply):",
+        "2026-09-24T18:02:15.8905934Z HTTP_NO_CACHE='true'",
+        "2026-09-24T18:02:15.8906442Z HTTPS_NO_CACHE='true'",
+        "2026-09-24T18:02:15.8942493Z apt 2.8.3 (amd64)"
+      ],
+      "hash_mismatch_observed": false
+    },
+    {
+      "job": "Source remainder (3/4)",
+      "job_id": 107763678831,
+      "setup_conclusion": "success",
+      "diagnostic_lines": [
+        "2026-09-24T18:02:21.9915849Z \u001b[36;1mBy-Hash: force\u001b[0m",
+        "2026-09-24T18:02:21.9917911Z \u001b[36;1mBy-Hash: force\u001b[0m",
+        "2026-09-24T18:02:21.9918727Z \u001b[36;1mecho 'Rendered Ubuntu package sources:'\u001b[0m",
+        "2026-09-24T18:02:21.9919478Z \u001b[36;1mecho 'Explicit APT acquisition configuration (unset values are omitted; defaults may apply):'\u001b[0m",
+        "2026-09-24T18:02:22.2256365Z Rendered Ubuntu package sources:",
+        "2026-09-24T18:02:22.2267135Z By-Hash: force",
+        "2026-09-24T18:02:22.2278186Z By-Hash: force",
+        "2026-09-24T18:02:22.2279027Z Explicit APT acquisition configuration (unset values are omitted; defaults may apply):",
+        "2026-09-24T18:02:22.2526962Z HTTP_NO_CACHE='true'",
+        "2026-09-24T18:02:22.2527284Z HTTPS_NO_CACHE='true'",
+        "2026-09-24T18:02:22.2564158Z apt 2.8.3 (amd64)"
+      ],
+      "hash_mismatch_observed": false
+    }
+  ],
+  "limit": "Five actual setup executions succeeded and no index hash-size rejection is present. Logs do not trace every immutable URL/fallback or prove elimination of all earlier race causes."
+}

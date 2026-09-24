@@ -1,0 +1,31 @@
+{
+  "scope": "bounded artifact/prototype checks only; no product test",
+  "checks_passed": [
+    "N05 binary_128 displacement/action <1e-9",
+    "N05 genuine_two_word_DD displacement/action <1e-9",
+    "N06 binary_128 displacement/action <1e-9",
+    "N06 genuine_two_word_DD displacement/action <1e-9",
+    "supplemental_small_angle binary_128 displacement/action <1e-9",
+    "supplemental_small_angle genuine_two_word_DD displacement/action <1e-9",
+    "N06_8span_scalar_chain binary_128 displacement/action <1e-9",
+    "N06_8span_scalar_chain genuine_two_word_DD displacement/action <1e-9",
+    "ordinary binary53 displacement/action <1e-9",
+    "N05 stored-matrix promotion still wrong",
+    "N06 stored-matrix promotion nonpositive",
+    "N06 f64 recovery loses torque",
+    "extreme128 requires escalation",
+    "extreme256 succeeds bounded check",
+    "extremeDD loses relative action",
+    "rounded oblique global terms fail",
+    "source oblique factors accurate",
+    "contract 1024-bit verification ceiling explicit",
+    "contract publication rounding basis explicit",
+    "local report link exists _run_records/precision_refutation/ORIGINS_AND_EXECUTION.md",
+    "local report link exists _run_records/precision_refutation/probe.py",
+    "local report link exists _run_records/precision_refutation/probe.stdout.json",
+    "local report link exists CONTRACT.md"
+  ],
+  "count": 23,
+  "contract_sha256": "3e239d5535a1b1d864a8220e3716c42a9bace07bd9bd6376a8ff2d8f40a6ac3a",
+  "status": "no unresolved blocking analytical finding against reviewed contract; implementation verification outstanding"
+}

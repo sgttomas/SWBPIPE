@@ -1,0 +1,4 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 211-227
+~									85 button (collapsed) Material fields Info, Secondary Actions: Expand
+The focused UI element is 85 button (collapsed) Material fields Info, Secondary Actions: Expand

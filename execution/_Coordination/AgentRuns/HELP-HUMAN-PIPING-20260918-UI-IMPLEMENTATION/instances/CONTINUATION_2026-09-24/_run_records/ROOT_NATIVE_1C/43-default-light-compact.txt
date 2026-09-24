@@ -1,0 +1,42 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 47-48
+~							46 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
++								188 text Name, ID, type, or group
+~							49 button (disabled) Clear model tree filter
++									189 row (selectable)
++										190 cell (selectable, settable) node:N-100
++										191 cell (selectable, settable) node:N-100 Label: Pump nozzle
++										192 cell (selectable, settable) node:N-100 X: 0 m
++										193 cell (selectable, settable) node:N-100 Y: 0 m
++										194 cell (selectable, settable) node:N-100 Z: 0 m
++										195 cell (selectable, settable) node:N-100 Provenance: invented_example
++									196 row (selectable)
++										197 cell (selectable, settable) node:N-110
++										198 cell (selectable, settable) node:N-110 Label: Low point elbow
++										199 cell (selectable, settable) node:N-110 X: 3.2 m
++										200 cell (selectable, settable) node:N-110 Y: 0 m
++										201 cell (selectable, settable) node:N-110 Z: 0 m
++										202 cell (selectable, settable) node:N-110 Provenance: invented_example
++									203 row (selectable)
++										204 cell (selectable, settable) node:N-120
++										205 cell (selectable, settable) node:N-120 Label: Riser elbow
++										206 cell (selectable, settable) node:N-120 X: 3.2 m
++										207 cell (selectable, settable) node:N-120 Y: 2.4 m
++										208 cell (selectable, settable) node:N-120 Z: 0 m
++										209 cell (selectable, settable) node:N-120 Provenance: invented_example
++									210 row (selectable)
++										211 cell (selectable, settable) node:N-130
++										212 cell (selectable, settable) node:N-130 Label: Rack turn
++										213 cell (selectable, settable) node:N-130 X: 7.6 m
++										214 cell (selectable, settable) node:N-130 Y: 2.4 m
++										215 cell (selectable, settable) node:N-130 Z: 0 m
++										216 cell (selectable, settable) node:N-130 Provenance: invented_example
+~									83 text 5
++							217 toggle button Select Low point elbow in viewport, Help: Low point elbow (node:N-110), Value: off
++							218 toggle button Select Riser elbow in viewport, Help: Riser elbow (node:N-120), Value: off
++							219 toggle button Select Invented tie-in marker in viewport, Help: Invented tie-in marker (component:C-140), Value: off
++							220 toggle button Select Pump nozzle in viewport, Help: Pump nozzle (node:N-100), Value: off
++							221 toggle button Select Preview one-way terminal stop in viewport, Help: Preview one-way terminal stop (support:NL-140), Value: off
++							222 toggle button Select Anchor at pump nozzle in viewport, Help: Anchor at pump nozzle (support:S-100), Value: off
+~					143 splitter Resize table drawer, Value: 280
+The focused UI element is 2 HTML content Description: SWBPIPE, URL: tauri://localhost

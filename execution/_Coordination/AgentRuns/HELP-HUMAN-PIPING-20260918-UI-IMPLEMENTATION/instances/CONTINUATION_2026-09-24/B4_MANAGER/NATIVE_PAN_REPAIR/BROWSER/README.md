@@ -1,0 +1,5 @@
+# Browser evidence and bounded replay
+
+The original browser command manifests, output logs, results, environment records, artifacts and executed runner are preserved byte-for-byte under `../_run_records/BROWSER/`. They describe past execution, not portable live instructions. `../CUSTODY_MAP.json` maps each original location to current custody with its unchanged hash. The old runner is historical evidence and should not be invoked from its relocated location.
+
+For an authorized replay, resolve REPO_ROOT with `git rev-parse --show-toplevel`, then run this directory's `run_browser.py` with `chrome153` or `chromium148` and an unused run name from REPO_ROOT. The runner verifies the three-file source freeze and free ports, uses existing browser installs/assets, and writes new raw execution records only under `../_run_records/BROWSER/replays/<run-name>/`. Local executable paths remain actual execution facts in those raw records. Browser availability and resource authorization must be established by the coordinating ROOT before replay. This custody repair did not rerun tests or browsers.

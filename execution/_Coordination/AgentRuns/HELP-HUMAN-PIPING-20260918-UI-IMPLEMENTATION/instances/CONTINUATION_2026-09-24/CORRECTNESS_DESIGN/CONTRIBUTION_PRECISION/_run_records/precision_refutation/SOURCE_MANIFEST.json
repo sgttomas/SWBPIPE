@@ -1,0 +1,93 @@
+{
+  "captured_utc": "2026-09-24T17:09:15.916015+00:00",
+  "executor": "/root/correctness_design/precision_refutation",
+  "parent": "/root/correctness_design",
+  "role": "TASK Type 2",
+  "mechanism": "delegated-harness-native collaboration.spawn_agent; no child delegation",
+  "source_records": [
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "bytes": 14200,
+      "inspection": "whole instruction/reference text or relevant analytical/source seams; not whole-source software review"
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499,
+      "inspection": "whole instruction/reference text or relevant analytical/source seams; not whole-source software review"
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "bytes": 9016,
+      "inspection": "whole instruction/reference text or relevant analytical/source seams; not whole-source software review"
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "bytes": 8475,
+      "inspection": "whole instruction/reference text or relevant analytical/source seams; not whole-source software review"
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_ACTIVATION.md",
+      "sha256": "dd98701526a31248f36a5e6e03490975af682f748dd349aa52faa1bfafc912a0",
+      "bytes": 5041,
+      "inspection": "whole instruction/reference text or relevant analytical/source seams; not whole-source software review"
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/RETURN.md",
+      "sha256": "c83877d55ddb23c634112551fb3319f3f39080b2839c285a81f32296177a9216",
+      "bytes": 26014,
+      "inspection": "whole instruction/reference text or relevant analytical/source seams; not whole-source software review"
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/_run_records/DERIVATIONS_AND_REFERENCES.md",
+      "sha256": "59b341232b5051b00b39f5a39442476a0c5764ac855a56994c7f89cd5cbf5d11",
+      "bytes": 18437,
+      "inspection": "whole instruction/reference text or relevant analytical/source seams; not whole-source software review"
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/CONTRACT.md",
+      "sha256": "3e239d5535a1b1d864a8220e3716c42a9bace07bd9bd6376a8ff2d8f40a6ac3a",
+      "bytes": 20731,
+      "inspection": "whole instruction/reference text or relevant analytical/source seams; not whole-source software review"
+    },
+    {
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/KERNEL/REVIEW_REPAIR.md",
+      "sha256": "531ff2537f025146461d267c636aad9206390798c3d16b6b83613428c92cbe41",
+      "bytes": 6106,
+      "inspection": "whole instruction/reference text or relevant analytical/source seams; not whole-source software review"
+    },
+    {
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/ORACLES/RETURN.md",
+      "sha256": "7f90410903f353176e617008976400aed7694c3873a7cb3a243f9ef08d2b88a0",
+      "bytes": 2718,
+      "inspection": "whole instruction/reference text or relevant analytical/source seams; not whole-source software review"
+    },
+    {
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/solver/frame_kernel/src/structural.rs",
+      "sha256": "3a016181fc49092d2775cc365dd2956b4c137c1f6bb64046a77b925ef5f9cce0",
+      "bytes": 61812,
+      "inspection": "whole instruction/reference text or relevant analytical/source seams; not whole-source software review"
+    },
+    {
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/validation/benchmarks/numerical_integrity/generate.py",
+      "sha256": "b491529a4bff8ed0e25de1f85c2488192a8e55677413571da6c260932b1a71a2",
+      "bytes": 7698,
+      "inspection": "whole instruction/reference text or relevant analytical/source seams; not whole-source software review"
+    },
+    {
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/validation/benchmarks/numerical_integrity/fixtures.json",
+      "sha256": "c061d73481d2ad137f7cef988475721681131789ec222e3e93c5ed3836b2910e",
+      "bytes": 354315,
+      "inspection": "whole instruction/reference text or relevant analytical/source seams; not whole-source software review"
+    }
+  ],
+  "runtime": {
+    "python": "3.13.14",
+    "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O"
+  },
+  "write_boundary": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/INDEPENDENT_REFUTATION.md and /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/CONTRIBUTION_PRECISION/_run_records/precision_refutation",
+  "execution_scope": "stdlib arithmetic only; no production imports, Rust/Cargo/build/native/UI/endpoints/Git mutation"
+}

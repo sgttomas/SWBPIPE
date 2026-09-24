@@ -1,0 +1,6 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 389-390, 452-460
++							495 toggle button Select Vertical riser in viewport, Help: Vertical riser (pipe:P-110), Value: off
++							496 toggle button Select Invented branch connection marker in viewport, Help: Invented branch connection marker (component:C-120), Value: off
+~					354 splitter Resize table drawer, Value: 430
+The focused UI element is 174 HTML content Description: SWBPIPE, URL: tauri://localhost

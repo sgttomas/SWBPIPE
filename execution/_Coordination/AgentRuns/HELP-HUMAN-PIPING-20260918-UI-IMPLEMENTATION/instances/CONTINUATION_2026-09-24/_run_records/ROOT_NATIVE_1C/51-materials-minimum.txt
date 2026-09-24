@@ -1,0 +1,186 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 179-380
+~	173 scroll area
+~		174 HTML content Description: SWBPIPE, URL: tauri://localhost
+~			175 container
+~				176 container Toolbar
+~					177 heading SWBPIPE, Value: 1
+~						178 text SWBPIPE
++					179 container Invented Utility Loop Preview
++						180 text Invented Utility Loop Preview
++					181 container Editing tools
++						182 button (disabled) Undo model edit, Help: Nothing to undo
++						183 button (disabled) Redo model edit, Help: Nothing to redo
++						184 toggle button Description: Select (⎋), Value: on
++					185 container View
++						186 toggle button Table, Help: Table view (⌘1), Value: off
++						187 toggle button Model, Help: Model view (⌘2), Value: on
++						188 toggle button Both, Help: Both view (⌘3), Value: off
++					189 button Run
++					190 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
++					191 container Panels
++						192 button (disabled, expanded) Inspector, Help: The inspector is always docked in Model view, Secondary Actions: Collapse
++						193 button (disabled) Agent, Help: Agent: not available yet
++					194 pop up button Display units, Value: Entered, Help: Display units. Readouts use the selected units where conversion is available. Unavailable quantities retain entered values. Editing uses entered units.
++					195 summary Appearance, Value: off
++					196 container Human toolkit
++						197 button (collapsed) Find modeling commands, Help: Search or command (⌘K), Secondary Actions: Expand
++				198 container Stages
++					199 content list
++						200 toggle button Model, Value: on
++						201 toggle button Loads, Value: off
++						202 toggle button (disabled) Results, Help: No run yet, Value: off
++						203 toggle button (disabled) Review, Help: No run yet, Value: off
++					204 content list
++						205 button (collapsed) Libraries, Secondary Actions: Expand
++						206 button (collapsed) Rules, Secondary Actions: Expand
++						207 button (collapsed) Issues, 5, Help: Issues, Secondary Actions: Expand
++				208 container Modeling workspace
++					209 container Tables
++						210 toggle button Model, Value: on
++						211 toggle button Review changes, Value: off
++						212 button (expanded) Collapse table drawer, Secondary Actions: Collapse
++					213 container Model tree
++						214 container Layout grid mode
++							215 toggle button Tree, Value: off
++							216 toggle button Grid, Value: on
++						217 container Model tree filtering
++							218 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
++								219 text Name, ID, type, or group
++							220 button (disabled) Clear model tree filter
++						221 container
++							222 text Family
++							223 pop up button Grid family, Value: Materials (1)
++						224 button (collapsed) Review changes, Secondary Actions: Expand
++						225 button (collapsed) Table details, Secondary Actions: Expand
++						226 container Pan columns
++							227 button (disabled) Earlier columns
++							228 button Later columns
++						229 container Bulk entity grid
++							230 container
++								231 table (settable) Material fields
++									232 row (selectable)
++										233 cell (settable)
++											234 text Material
++										235 cell (settable)
++											236 button Sort Label
++										237 cell (settable)
++											238 button Sort Elastic [row unit]
++										239 cell (settable)
++											240 button Sort Shear [row unit]
++										241 cell (settable)
++											242 button Sort Thermal [row unit]
++										243 cell (settable)
++											244 button Sort Provenance
++									245 row (selectable)
++										246 cell (selectable, settable) material:invented-carbon-steel
++										247 cell (selectable, settable) material:invented-carbon-steel Label: Invented carbon-steel-like material
++										248 cell (selectable, settable) material:invented-carbon-steel Elastic: 200000000000 Pa
+Quantity readout, Value: Pa
+200000000000
+Pa
++										249 cell (selectable, settable) material:invented-carbon-steel Shear: 77000000000 Pa
+Quantity readout, Value: Pa
+77000000000
+Pa
++										250 cell (selectable, settable) material:invented-carbon-steel Thermal: 0.000012 1/degC
+Quantity readout, Value: 1/degC
+0.000012
+1/degC
++										251 cell (selectable, settable) material:invented-carbon-steel Provenance: invented_example_no_material_standard
++								252 container Material fields footer
++									253 text 1
++									254 text  of 
++									255 text 1
++									256 text  rows
++									257 button (collapsed) Material fields Info, Secondary Actions: Expand
++					258 container Viewport controls
++						259 text 3D Centerline
++						260 container (collapsed) Viewport deformation overlay status, Secondary Actions: Expand
++							261 summary Deformation · unavailable, Value: off
++								262 text Deformation · unavailable
++						263 container Viewport display toggles
++							264 toggle button Labels, Help: Show or hide entity labels, Value: on
++							265 toggle button Loads, Help: Show or hide load arrows, Value: on
++							266 toggle button Grid, Help: Show or hide the ground grid, Value: on
++						267 container Viewport selection tools
++							268 toggle button Box Select, Value: off
++							269 container
++								270 text Selection filter
++								271 pop up button Selection filter, Value: All
++							272 button (disabled) Hide, Help: Select at least one valid drawable node, pipe, support, or component.
++							273 button (disabled) Isolate, Help: Select at least one valid drawable node, pipe, support, or component.
++							274 button (disabled) Show All, Help: All eligible entities are already shown.
++							275 text Isolate captures the selected geometry. Other shown geometry is dimmed to 20% and remains available to click, hover and box selection; nearer dimmed geometry can be picked before farther undimmed geometry. Selection does not change the snapshot. Hide takes precedence. Show All clears both. I and H apply while focus is in the viewport.
++							276 button Fit Model
++							277 button Fit Visible
++							278 button (disabled) Fit Selection, Help: No visible valid selected geometry can be fitted.
++						279 container Viewport geometry
++							280 toggle button Schematic, Value: on
++							281 toggle button Actual OD, Value: off
++							282 toggle button Measure, Value: off
++					283 container Viewport status
++						284 text Selected:  project:invented-loop-01
++						285 container Schematic centerline geometry
++							286 text Schematic centerline geometry
++						287 container View command status, Help: No view command dispatched.
++							288 text No view command dispatched.
++					289 container
++						290 container Three.js pipe centerline viewport, Help: Click a part to select it; drag to orbit, scroll to zoom
++						291 container Viewport entity selection
++							292 toggle button Select Vertical riser in viewport, Help: Vertical riser (pipe:P-110), Value: off
++							293 toggle button Select Invented branch connection marker in viewport, Help: Invented branch connection marker (component:C-120), Value: off
++							294 toggle button Select Low point elbow in viewport, Help: Low point elbow (node:N-110), Value: off
++							295 toggle button Select Riser elbow in viewport, Help: Riser elbow (node:N-120), Value: off
++							296 toggle button Select Rack span in viewport, Help: Rack span (pipe:P-120), Value: off
++							297 toggle button Select Tie-in rise in viewport, Help: Tie-in rise (pipe:P-130), Value: off
++							298 toggle button Select Invented semi-rigid valve marker in viewport, Help: Invented semi-rigid valve marker (component:C-130), Value: off
++							299 toggle button Select Pump nozzle in viewport, Help: Pump nozzle (node:N-100), Value: off
++							300 toggle button Select Terminal tie-in in viewport, Help: Terminal tie-in (node:N-140), Value: off
++							301 toggle button Select Preview one-way terminal stop in viewport, Help: Preview one-way terminal stop (support:NL-140), Value: off
++							302 toggle button Select Anchor at pump nozzle in viewport, Help: Anchor at pump nozzle (support:S-100), Value: off
++						303 image Orientation gizmo showing X, Y, Z axes
++						304 container View controls
++							305 toggle button Front, Value: off
++							306 toggle button Top, Value: off
++							307 toggle button Isometric, Value: on
++						308 text 1 m
++					309 container Command and selection bar
++						310 container Object creation tools
++							311 toggle button Node, Help: Arm node creation, Value: off
++							312 toggle button Pipe, Help: Arm pipe-run creation, Value: off
++							313 toggle button Support, Help: Arm support creation in the Inspector, Value: off
++							314 toggle button Component, Help: Arm component-symbol insertion, Value: off
++							315 toggle button Load, Help: Arm load creation in the Load Cases panel, Value: off
++						316 text Select
++						317 summary Selection & navigation, Value: off
++							318 text Selection & navigation
++					319 splitter Resize table drawer, Value: 180
++					320 container Property inspector
++						321 heading Invented Utility Loop Preview — project:project:invented-loop-01, Value: 2
++							322 text Invented Utility Loop Preview —  project : project:invented-loop-01
++						323 tab group (selectable) Inspector views
++							324 tab (selected) Properties
++							325 tab (selectable) Task
++						326 summary All properties, Value: off
++							327 text All properties
++						328 summary Sources and units, Value: off
++							329 text Sources and units
++						330 summary New support configuration, Value: off
++							331 text New support configuration
++						332 summary New section, Value: off
++							333 text New section
++						334 summary New material, Value: off
++							335 text New material
++						336 summary New support, Value: off
++							337 text New support
++						338 summary New component, Value: off
++							339 text New component
++				340 container Agent
++					341 button (disabled) Agent, Help: Agent: not available yet
++				342 container Workspace status
++					343 container Analysis statuses
++					344 button (collapsed) 5 Issues, Secondary Actions: Expand
++					345 text project: project:invented-loop-01 Entered
++					346 button (collapsed) About SWBPIPE…, Secondary Actions: Expand
+The focused UI element is 223 pop up button Grid family, Value: Materials (1)

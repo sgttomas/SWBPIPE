@@ -1,0 +1,1439 @@
+﻿2026-09-24T18:00:44.9326679Z Current runner version: '2.337.0'
+2026-09-24T18:00:44.9352129Z ##[group]Runner Image Provisioner
+2026-09-24T18:00:44.9352955Z Hosted Compute Agent
+2026-09-24T18:00:44.9353589Z Version: 20260828.587
+2026-09-24T18:00:44.9354270Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-09-24T18:00:44.9354986Z Build Date: 2026-08-28T16:44:25Z
+2026-09-24T18:00:44.9355727Z Worker ID: {7dde3b9c-c20b-4e4b-84eb-f6d9e0d74c34}
+2026-09-24T18:00:44.9356471Z Azure Region: eastus
+2026-09-24T18:00:44.9357052Z ##[endgroup]
+2026-09-24T18:00:44.9358739Z ##[group]Operating System
+2026-09-24T18:00:44.9359383Z Ubuntu
+2026-09-24T18:00:44.9359987Z 24.04.5
+2026-09-24T18:00:44.9360871Z LTS
+2026-09-24T18:00:44.9361481Z ##[endgroup]
+2026-09-24T18:00:44.9362116Z ##[group]Runner Image
+2026-09-24T18:00:44.9362709Z Image: ubuntu-24.04
+2026-09-24T18:00:44.9363379Z Version: 20260920.314.1
+2026-09-24T18:00:44.9364632Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260920.314/images/ubuntu/Ubuntu2404-Readme.md
+2026-09-24T18:00:44.9366237Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260920.314
+2026-09-24T18:00:44.9367189Z ##[endgroup]
+2026-09-24T18:00:44.9368338Z ##[group]GITHUB_TOKEN Permissions
+2026-09-24T18:00:44.9370481Z Contents: read
+2026-09-24T18:00:44.9371432Z Metadata: read
+2026-09-24T18:00:44.9371987Z ##[endgroup]
+2026-09-24T18:00:44.9374565Z Secret source: Actions
+2026-09-24T18:00:44.9375510Z Cache mode: write
+2026-09-24T18:00:44.9376492Z Prepare workflow directory
+2026-09-24T18:00:44.9763679Z Prepare all required actions
+2026-09-24T18:00:44.9811993Z Getting action download info
+2026-09-24T18:00:45.2253254Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-09-24T18:00:45.3327529Z Download action repository 'actions/download-artifact@v4' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
+2026-09-24T18:00:45.5044079Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-09-24T18:00:45.7036505Z Complete job name: Source remainder (1/4)
+2026-09-24T18:00:45.7806499Z ##[group]Run actions/checkout@v4
+2026-09-24T18:00:45.7807494Z with:
+2026-09-24T18:00:45.7807973Z   ref: a34c9d819d62b54b74d7f07edde87738b97b87cf
+2026-09-24T18:00:45.7808724Z   fetch-depth: 0
+2026-09-24T18:00:45.7809160Z   filter: blob:none
+2026-09-24T18:00:45.7809604Z   repository: sgttomas/chirality
+2026-09-24T18:00:45.7813368Z   token: ***
+2026-09-24T18:00:45.7813796Z   ssh-strict: true
+2026-09-24T18:00:45.7814218Z   ssh-user: git
+2026-09-24T18:00:45.7814672Z   persist-credentials: true
+2026-09-24T18:00:45.7815152Z   clean: true
+2026-09-24T18:00:45.7815586Z   sparse-checkout-cone-mode: true
+2026-09-24T18:00:45.7816099Z   fetch-tags: false
+2026-09-24T18:00:45.7816537Z   show-progress: true
+2026-09-24T18:00:45.7816988Z   lfs: false
+2026-09-24T18:00:45.7817395Z   submodules: false
+2026-09-24T18:00:45.7817839Z   set-safe-directory: true
+2026-09-24T18:00:45.7818340Z   allow-unsafe-pr-checkout: false
+2026-09-24T18:00:45.7819149Z env:
+2026-09-24T18:00:45.7819541Z   CI: true
+2026-09-24T18:00:45.7819993Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T18:00:45.7820485Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T18:00:45.7821097Z ##[endgroup]
+2026-09-24T18:00:45.8781817Z Syncing repository: sgttomas/chirality
+2026-09-24T18:00:45.8783606Z ##[group]Getting Git version info
+2026-09-24T18:00:45.8784343Z Working directory is '/home/runner/work/chirality/chirality'
+2026-09-24T18:00:45.8785346Z [command]/usr/bin/git version
+2026-09-24T18:00:45.8870081Z git version 2.55.0
+2026-09-24T18:00:45.8899641Z ##[endgroup]
+2026-09-24T18:00:45.8907302Z Temporarily overriding HOME='/home/runner/work/_temp/94a98be0-2ab1-4b64-8da2-efd86df961eb' before making global git config changes
+2026-09-24T18:00:45.8909514Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-24T18:00:45.8912626Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/chirality/chirality
+2026-09-24T18:00:45.8960230Z Deleting the contents of '/home/runner/work/chirality/chirality'
+2026-09-24T18:00:45.8965020Z ##[group]Initializing the repository
+2026-09-24T18:00:45.8968736Z [command]/usr/bin/git init /home/runner/work/chirality/chirality
+2026-09-24T18:00:45.9086854Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-09-24T18:00:45.9088804Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-09-24T18:00:45.9090819Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-09-24T18:00:45.9092292Z hint: call:
+2026-09-24T18:00:45.9093469Z hint:
+2026-09-24T18:00:45.9094452Z hint: 	git config --global init.defaultBranch <name>
+2026-09-24T18:00:45.9095567Z hint:
+2026-09-24T18:00:45.9096665Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-09-24T18:00:45.9098439Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-09-24T18:00:45.9099800Z hint:
+2026-09-24T18:00:45.9100902Z hint: 	git branch -m <name>
+2026-09-24T18:00:45.9102292Z hint:
+2026-09-24T18:00:45.9103406Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-09-24T18:00:45.9104430Z Initialized empty Git repository in /home/runner/work/chirality/chirality/.git/
+2026-09-24T18:00:45.9106076Z [command]/usr/bin/git remote add origin https://github.com/sgttomas/chirality
+2026-09-24T18:00:45.9148065Z ##[endgroup]
+2026-09-24T18:00:45.9148843Z ##[group]Disabling automatic garbage collection
+2026-09-24T18:00:45.9152187Z [command]/usr/bin/git config --local gc.auto 0
+2026-09-24T18:00:45.9180322Z ##[endgroup]
+2026-09-24T18:00:45.9181457Z ##[group]Setting up auth
+2026-09-24T18:00:45.9187266Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-24T18:00:45.9217695Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-24T18:00:45.9593955Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-24T18:00:45.9640063Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-24T18:00:45.9885063Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-24T18:00:45.9916978Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-24T18:00:46.0146691Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-09-24T18:00:46.0182165Z ##[endgroup]
+2026-09-24T18:00:46.0183028Z ##[group]Fetching the repository
+2026-09-24T18:00:46.0191543Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules --filter=blob:none origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+2026-09-24T18:00:47.5591333Z From https://github.com/sgttomas/chirality
+2026-09-24T18:00:47.5593820Z  * [new branch]          claude/app-concordance-d128-activation -> origin/claude/app-concordance-d128-activation
+2026-09-24T18:00:47.5596650Z  * [new branch]          claude/app-concordance-d128-r0 -> origin/claude/app-concordance-d128-r0
+2026-09-24T18:00:47.5599314Z  * [new branch]          claude/app-concordance-d128-r2 -> origin/claude/app-concordance-d128-r2
+2026-09-24T18:00:47.5602187Z  * [new branch]          claude/app-concordance-d128-r3 -> origin/claude/app-concordance-d128-r3
+2026-09-24T18:00:47.5604074Z  * [new branch]          claude/app-concordance-d128-r4-close -> origin/claude/app-concordance-d128-r4-close
+2026-09-24T18:00:47.5605904Z  * [new branch]          claude/app-dev-loop-init-generic -> origin/claude/app-dev-loop-init-generic
+2026-09-24T18:00:47.5607774Z  * [new branch]          claude/app-loop-handoff-hygiene -> origin/claude/app-loop-handoff-hygiene
+2026-09-24T18:00:47.5609553Z  * [new branch]          claude/app-owner-intent-of-record -> origin/claude/app-owner-intent-of-record
+2026-09-24T18:00:47.5681758Z  * [new branch]          claude/chirality-app-release-077eeb -> origin/claude/chirality-app-release-077eeb
+2026-09-24T18:00:47.5684891Z  * [new branch]          claude/chirality-codex-replatform-3999f1 -> origin/claude/chirality-codex-replatform-3999f1
+2026-09-24T18:00:47.5687832Z  * [new branch]          claude/chirality-piping-reconciliation-7f7e70 -> origin/claude/chirality-piping-reconciliation-7f7e70
+2026-09-24T18:00:47.5689896Z  * [new branch]          claude/chirality-piping-ui-design-a31fd2 -> origin/claude/chirality-piping-ui-design-a31fd2
+2026-09-24T18:00:47.5691826Z  * [new branch]          claude/chirality-ui-refinement-20260912 -> origin/claude/chirality-ui-refinement-20260912
+2026-09-24T18:00:47.5693495Z  * [new branch]          claude/chirality-v3-mvp-trial-ab05cb -> origin/claude/chirality-v3-mvp-trial-ab05cb
+2026-09-24T18:00:47.5695089Z  * [new branch]          claude/concordance-claim-granularity -> origin/claude/concordance-claim-granularity
+2026-09-24T18:00:47.5696654Z  * [new branch]          claude/dec046-translation-delta-unit-20260923 -> origin/claude/dec046-translation-delta-unit-20260923
+2026-09-24T18:00:47.5698079Z  * [new branch]          claude/dgov43-launch-prompt -> origin/claude/dgov43-launch-prompt
+2026-09-24T18:00:47.5699568Z  * [new branch]          claude/dgov43-launch-prompt-orientation -> origin/claude/dgov43-launch-prompt-orientation
+2026-09-24T18:00:47.5701399Z  * [new branch]          claude/dgov43-launch-prompt-pointer -> origin/claude/dgov43-launch-prompt-pointer
+2026-09-24T18:00:47.5702732Z  * [new branch]          claude/dgov43-post-merge-closeout -> origin/claude/dgov43-post-merge-closeout
+2026-09-24T18:00:47.5704073Z  * [new branch]          claude/loop-init-consolidation-d-app-112 -> origin/claude/loop-init-consolidation-d-app-112
+2026-09-24T18:00:47.5705579Z  * [new branch]          claude/loop-init-d-app-113-residuals -> origin/claude/loop-init-d-app-113-residuals
+2026-09-24T18:00:47.5707838Z  * [new branch]          claude/nonlinear-moment-unit-20260923 -> origin/claude/nonlinear-moment-unit-20260923
+2026-09-24T18:00:47.5709234Z  * [new branch]          claude/pec-project-assessment-6106d5 -> origin/claude/pec-project-assessment-6106d5
+2026-09-24T18:00:47.5711407Z  * [new branch]          claude/piping-e2e-path-triggers -> origin/claude/piping-e2e-path-triggers
+2026-09-24T18:00:47.5712651Z  * [new branch]          claude/piping-recon-r0-20260921 -> origin/claude/piping-recon-r0-20260921
+2026-09-24T18:00:47.5713854Z  * [new branch]          claude/piping-recon-r2-w1-20260921 -> origin/claude/piping-recon-r2-w1-20260921
+2026-09-24T18:00:47.5715061Z  * [new branch]          claude/piping-recon-r3-20260922 -> origin/claude/piping-recon-r3-20260922
+2026-09-24T18:00:47.5716586Z  * [new branch]          claude/sca-app-010-dependency-closure -> origin/claude/sca-app-010-dependency-closure
+2026-09-24T18:00:47.5717962Z  * [new branch]          claude/sca-app-010-gate1-intake -> origin/claude/sca-app-010-gate1-intake
+2026-09-24T18:00:47.5719056Z  * [new branch]          claude/sca-app-010-pointer -> origin/claude/sca-app-010-pointer
+2026-09-24T18:00:47.5720222Z  * [new branch]          claude/sca-app-010-pointers-d-app-111 -> origin/claude/sca-app-010-pointers-d-app-111
+2026-09-24T18:00:47.5721858Z  * [new branch]          claude/sca-app-010-seating -> origin/claude/sca-app-010-seating
+2026-09-24T18:00:47.5723042Z  * [new branch]          claude/swbpipe-mit-licence-20260922 -> origin/claude/swbpipe-mit-licence-20260922
+2026-09-24T18:00:47.5724427Z  * [new branch]          claude/valmanual-record-reconcile-20260922 -> origin/claude/valmanual-record-reconcile-20260922
+2026-09-24T18:00:47.5725834Z  * [new branch]          codex/add-workflow-proposals-20260922 -> origin/codex/add-workflow-proposals-20260922
+2026-09-24T18:00:47.5727312Z  * [new branch]          codex/alignment-manual-and-agent-guide-20260922 -> origin/codex/alignment-manual-and-agent-guide-20260922
+2026-09-24T18:00:47.5728944Z  * [new branch]          codex/app-agent-card-presentation -> origin/codex/app-agent-card-presentation
+2026-09-24T18:00:47.5730351Z  * [new branch]          codex/app-dapp86-helper-parity-rerun-20260820 -> origin/codex/app-dapp86-helper-parity-rerun-20260820
+2026-09-24T18:00:47.5732226Z  * [new branch]          codex/app-electron-concordance-2026-09-03 -> origin/codex/app-electron-concordance-2026-09-03
+2026-09-24T18:00:47.5734114Z  * [new branch]          codex/app-hold-dapp104-del0907-bootstrap-r2-2026-09-04 -> origin/codex/app-hold-dapp104-del0907-bootstrap-r2-2026-09-04
+2026-09-24T18:00:47.5735868Z  * [new branch]          codex/app-loop-discovery-handoff-cleanup-20260903 -> origin/codex/app-loop-discovery-handoff-cleanup-20260903
+2026-09-24T18:00:47.5737370Z  * [new branch]          codex/app-loop-shell-20260905 -> origin/codex/app-loop-shell-20260905
+2026-09-24T18:00:47.5738906Z  * [new branch]          codex/app-loop-trial    -> origin/codex/app-loop-trial
+2026-09-24T18:00:47.5739987Z  * [new branch]          codex/app-loop-trial-closeout -> origin/codex/app-loop-trial-closeout
+2026-09-24T18:00:47.5741510Z  * [new branch]          codex/app-loop-workgraph-20260919 -> origin/codex/app-loop-workgraph-20260919
+2026-09-24T18:00:47.5743606Z  * [new branch]          codex/app-piping-central-loop-receipts -> origin/codex/app-piping-central-loop-receipts
+2026-09-24T18:00:47.5745101Z  * [new branch]          codex/app-reconciliation-closeout-20260922 -> origin/codex/app-reconciliation-closeout-20260922
+2026-09-24T18:00:47.5746433Z  * [new branch]          codex/app-remaining-exceptions -> origin/codex/app-remaining-exceptions
+2026-09-24T18:00:47.5747818Z  * [new branch]          codex/app-remaining-retire-final -> origin/codex/app-remaining-retire-final
+2026-09-24T18:00:47.5749030Z  * [new branch]          codex/app-remaining-retirement -> origin/codex/app-remaining-retirement
+2026-09-24T18:00:47.5750261Z  * [new branch]          codex/app-tm-g0-rulings-2026-09-03 -> origin/codex/app-tm-g0-rulings-2026-09-03
+2026-09-24T18:00:47.5752025Z  * [new branch]          codex/app-v3-nodeA-credential-ipc-2026-09-03 -> origin/codex/app-v3-nodeA-credential-ipc-2026-09-03
+2026-09-24T18:00:47.5753485Z  * [new branch]          codex/app-v3-nodeB-wp09-prep-2026-09-03 -> origin/codex/app-v3-nodeB-wp09-prep-2026-09-03
+2026-09-24T18:00:47.5754980Z  * [new branch]          codex/app-v3-nodeD-v2-session-access-2026-09-03 -> origin/codex/app-v3-nodeD-v2-session-access-2026-09-03
+2026-09-24T18:00:47.5757855Z  * [new branch]          codex/app-v3-nodeE-at053-evidence-2026-09-03 -> origin/codex/app-v3-nodeE-at053-evidence-2026-09-03
+2026-09-24T18:00:47.5759530Z  * [new branch]          codex/app-v3-nodeF-consent-ux-fixtures-2026-09-03 -> origin/codex/app-v3-nodeF-consent-ux-fixtures-2026-09-03
+2026-09-24T18:00:47.5761613Z  * [new branch]          codex/app-v3-nodeG-egress-probe-restriction-2026-09-03 -> origin/codex/app-v3-nodeG-egress-probe-restriction-2026-09-03
+2026-09-24T18:00:47.5763430Z  * [new branch]          codex/app-v3-nodeH-section8-preservation-2026-09-03 -> origin/codex/app-v3-nodeH-section8-preservation-2026-09-03
+2026-09-24T18:00:47.5765368Z  * [new branch]          codex/app-v3-nodeI-a14-version-identity-deferral-2026-09-03 -> origin/codex/app-v3-nodeI-a14-version-identity-deferral-2026-09-03
+2026-09-24T18:00:47.5767148Z  * [new branch]          codex/app-v3-nodeJ-section8-revision2-2026-09-03 -> origin/codex/app-v3-nodeJ-section8-revision2-2026-09-03
+2026-09-24T18:00:47.5768924Z  * [new branch]          codex/app-v3-nodeK-security-proof-negative-tests-2026-09-03 -> origin/codex/app-v3-nodeK-security-proof-negative-tests-2026-09-03
+2026-09-24T18:00:47.5770862Z  * [new branch]          codex/app-v3-nodeL-consent-fake-guards-2026-09-03 -> origin/codex/app-v3-nodeL-consent-fake-guards-2026-09-03
+2026-09-24T18:00:47.5772482Z  * [new branch]          codex/app-v3-nodeM-a15-owner-rulings-2026-09-04 -> origin/codex/app-v3-nodeM-a15-owner-rulings-2026-09-04
+2026-09-24T18:00:47.5773971Z  * [new branch]          codex/app-v3-nodeN-csp-nonce-2026-09-04 -> origin/codex/app-v3-nodeN-csp-nonce-2026-09-04
+2026-09-24T18:00:47.5775632Z  * [new branch]          codex/app-v3-nodeO-section8-rev3-2026-09-04 -> origin/codex/app-v3-nodeO-section8-rev3-2026-09-04
+2026-09-24T18:00:47.5777060Z  * [new branch]          codex/app-v3-pathway-seating-2026-09-03 -> origin/codex/app-v3-pathway-seating-2026-09-03
+2026-09-24T18:00:47.5778438Z  * [new branch]          codex/automatic-update-checks-20260913 -> origin/codex/automatic-update-checks-20260913
+2026-09-24T18:00:47.5779910Z  * [new branch]          codex/chirality-app-v3-release-plan-20260822 -> origin/codex/chirality-app-v3-release-plan-20260822
+2026-09-24T18:00:47.5781973Z  * [new branch]          codex/chirality-app-v3-release-plan-final-20260822 -> origin/codex/chirality-app-v3-release-plan-final-20260822
+2026-09-24T18:00:47.5783658Z  * [new branch]          codex/chirality-app-v3-release-plan-v2-20260822 -> origin/codex/chirality-app-v3-release-plan-v2-20260822
+2026-09-24T18:00:47.5785273Z  * [new branch]          codex/chirality-app-v3-release-plan-v3-20260822 -> origin/codex/chirality-app-v3-release-plan-v3-20260822
+2026-09-24T18:00:47.5786804Z  * [new branch]          codex/chirality-change-lessons-20260910 -> origin/codex/chirality-change-lessons-20260910
+2026-09-24T18:00:47.5788189Z  * [new branch]          codex/chirality-v3-adoption-20260909 -> origin/codex/chirality-v3-adoption-20260909
+2026-09-24T18:00:47.5789335Z  * [new branch]          codex/day1-maintenance  -> origin/codex/day1-maintenance
+2026-09-24T18:00:47.5790780Z  * [new branch]          codex/deferred-four-graphs-orientation-20260919 -> origin/codex/deferred-four-graphs-orientation-20260919
+2026-09-24T18:00:47.5792309Z  * [new branch]          codex/del0907-init-admission-2026-09-04 -> origin/codex/del0907-init-admission-2026-09-04
+2026-09-24T18:00:47.5793682Z  * [new branch]          codex/del0907-setup-followon-20260905 -> origin/codex/del0907-setup-followon-20260905
+2026-09-24T18:00:47.5795073Z  * [new branch]          codex/del0907-sow-init-20260904 -> origin/codex/del0907-sow-init-20260904
+2026-09-24T18:00:47.5796330Z  * [new branch]          codex/development-loop-integration -> origin/codex/development-loop-integration
+2026-09-24T18:00:47.5797598Z  * [new branch]          codex/domain-separation-20260820 -> origin/codex/domain-separation-20260820
+2026-09-24T18:00:47.5798851Z  * [new branch]          codex/evergreen-development-loops -> origin/codex/evergreen-development-loops
+2026-09-24T18:00:47.5800043Z  * [new branch]          codex/field-book-v1-20260923 -> origin/codex/field-book-v1-20260923
+2026-09-24T18:00:47.5801516Z  * [new branch]          codex/four-role-workflow-overhaul -> origin/codex/four-role-workflow-overhaul
+2026-09-24T18:00:47.5802842Z  * [new branch]          codex/graceful-source-closure-20260908 -> origin/codex/graceful-source-closure-20260908
+2026-09-24T18:00:47.5804088Z  * [new branch]          codex/local-work-graph-loops -> origin/codex/local-work-graph-loops
+2026-09-24T18:00:47.5805290Z  * [new branch]          codex/loop-clarifications-20260919 -> origin/codex/loop-clarifications-20260919
+2026-09-24T18:00:47.5806873Z  * [new branch]          codex/management-manual-authorship-frontmatter-20260922 -> origin/codex/management-manual-authorship-frontmatter-20260922
+2026-09-24T18:00:47.5808689Z  * [new branch]          codex/management-manual-publication-edit-20260922 -> origin/codex/management-manual-publication-edit-20260922
+2026-09-24T18:00:47.5810298Z  * [new branch]          codex/management-manual-v2-formats-20260922 -> origin/codex/management-manual-v2-formats-20260922
+2026-09-24T18:00:47.5812004Z  * [new branch]          codex/management-manual-v7-20260922 -> origin/codex/management-manual-v7-20260922
+2026-09-24T18:00:47.5813206Z  * [new branch]          codex/manual-theory-20260919 -> origin/codex/manual-theory-20260919
+2026-09-24T18:00:47.5814423Z  * [new branch]          codex/pec-d83-d84-activation-20260907 -> origin/codex/pec-d83-d84-activation-20260907
+2026-09-24T18:00:47.5815899Z  * [new branch]          codex/pec-d83-d84-execution-20260907 -> origin/codex/pec-d83-d84-execution-20260907
+2026-09-24T18:00:47.5817176Z  * [new branch]          codex/pec-d85-store-guard-20260908 -> origin/codex/pec-d85-store-guard-20260908
+2026-09-24T18:00:47.5818590Z  * [new branch]          codex/pec-d85-store-guard-production-20260908 -> origin/codex/pec-d85-store-guard-production-20260908
+2026-09-24T18:00:47.5820128Z  * [new branch]          codex/pec-loop-home-consolidation-20260905 -> origin/codex/pec-loop-home-consolidation-20260905
+2026-09-24T18:00:47.5822001Z  * [new branch]          codex/pec-remaining-calibration-20260905 -> origin/codex/pec-remaining-calibration-20260905
+2026-09-24T18:00:47.5823402Z  * [new branch]          codex/pec-remaining-corpus-20260905 -> origin/codex/pec-remaining-corpus-20260905
+2026-09-24T18:00:47.5824816Z  * [new branch]          codex/pec-remaining-reconciliation-20260905 -> origin/codex/pec-remaining-reconciliation-20260905
+2026-09-24T18:00:47.5826176Z  * [new branch]          codex/piping-c4-policy-20260924 -> origin/codex/piping-c4-policy-20260924
+2026-09-24T18:00:47.5827346Z  * [new branch]          codex/piping-dec025-baseline -> origin/codex/piping-dec025-baseline
+2026-09-24T18:00:47.5828574Z  * [new branch]          codex/piping-dec025-records-closeout -> origin/codex/piping-dec025-records-closeout
+2026-09-24T18:00:47.5829948Z  * [new branch]          codex/piping-first-correctness-20260924 -> origin/codex/piping-first-correctness-20260924
+2026-09-24T18:00:47.5831361Z  * [new branch]          codex/piping-linter-closeout -> origin/codex/piping-linter-closeout
+2026-09-24T18:00:47.5832554Z  * [new branch]          codex/piping-live-control-20260924 -> origin/codex/piping-live-control-20260924
+2026-09-24T18:00:47.5833828Z  * [new branch]          codex/piping-loop-trial -> origin/codex/piping-loop-trial
+2026-09-24T18:00:47.5834995Z  * [new branch]          codex/piping-loop-workgraph-20260919 -> origin/codex/piping-loop-workgraph-20260919
+2026-09-24T18:00:47.5836416Z  * [new branch]          codex/piping-modeling-workspace -> origin/codex/piping-modeling-workspace
+2026-09-24T18:00:47.5837673Z  * [new branch]          codex/piping-numerical-ci-20260924 -> origin/codex/piping-numerical-ci-20260924
+2026-09-24T18:00:47.5839046Z  * [new branch]          codex/piping-ownership-amendment-20260922 -> origin/codex/piping-ownership-amendment-20260922
+2026-09-24T18:00:47.5840332Z  * [new branch]          codex/piping-physics-audit -> origin/codex/piping-physics-audit
+2026-09-24T18:00:47.5841960Z  * [new branch]          codex/piping-physics-ui-execution-20260908 -> origin/codex/piping-physics-ui-execution-20260908
+2026-09-24T18:00:47.5843542Z  * [new branch]          codex/piping-physics-ui-implementation-20260908 -> origin/codex/piping-physics-ui-implementation-20260908
+2026-09-24T18:00:47.5845138Z  * [new branch]          codex/piping-physics-ui-preparation-20260907 -> origin/codex/piping-physics-ui-preparation-20260907
+2026-09-24T18:00:47.5846719Z  * [new branch]          codex/piping-picking-runtime-evidence-20260918 -> origin/codex/piping-picking-runtime-evidence-20260918
+2026-09-24T18:00:47.5848252Z  * [new branch]          codex/piping-picking-stability-20260918 -> origin/codex/piping-picking-stability-20260918
+2026-09-24T18:00:47.5849575Z  * [new branch]          codex/piping-product-20260820 -> origin/codex/piping-product-20260820
+2026-09-24T18:00:47.5850951Z  * [new branch]          codex/piping-remaining-retire-final -> origin/codex/piping-remaining-retire-final
+2026-09-24T18:00:47.5852258Z  * [new branch]          codex/piping-remaining-retirement -> origin/codex/piping-remaining-retirement
+2026-09-24T18:00:47.5853657Z  * [new branch]          codex/piping-remaining-retirement-followon -> origin/codex/piping-remaining-retirement-followon
+2026-09-24T18:00:47.5855142Z  * [new branch]          codex/piping-rendering-baseline-20260917 -> origin/codex/piping-rendering-baseline-20260917
+2026-09-24T18:00:47.5856763Z  * [new branch]          codex/piping-result-compatibility-pressure-20260914 -> origin/codex/piping-result-compatibility-pressure-20260914
+2026-09-24T18:00:47.5858585Z  * [new branch]          codex/piping-results-engineering-3d-20260913 -> origin/codex/piping-results-engineering-3d-20260913
+2026-09-24T18:00:47.5860163Z  * [new branch]          codex/piping-standing-loop-alignment-20260919 -> origin/codex/piping-standing-loop-alignment-20260919
+2026-09-24T18:00:47.5862000Z  * [new branch]          codex/piping-ui-foundation-20260915 -> origin/codex/piping-ui-foundation-20260915
+2026-09-24T18:00:47.5863255Z  * [new branch]          codex/piping-ui-resume-20260924 -> origin/codex/piping-ui-resume-20260924
+2026-09-24T18:00:47.5864443Z  * [new branch]          codex/piping-ui-toolkit-parity -> origin/codex/piping-ui-toolkit-parity
+2026-09-24T18:00:47.5865731Z  * [new branch]          codex/piping-viewport-routing-20260909 -> origin/codex/piping-viewport-routing-20260909
+2026-09-24T18:00:47.5867114Z  * [new branch]          codex/piping-workflow-contact-20260913 -> origin/codex/piping-workflow-contact-20260913
+2026-09-24T18:00:47.5868425Z  * [new branch]          codex/plans-four-graphs-20260919 -> origin/codex/plans-four-graphs-20260919
+2026-09-24T18:00:47.5869722Z  * [new branch]          codex/product-instructions-savepoint -> origin/codex/product-instructions-savepoint
+2026-09-24T18:00:47.5871055Z  * [new branch]          codex/public-export-ci  -> origin/codex/public-export-ci
+2026-09-24T18:00:47.5872292Z  * [new branch]          codex/r5-r6-cross-project-reconciliation -> origin/codex/r5-r6-cross-project-reconciliation
+2026-09-24T18:00:47.5873648Z  * [new branch]          codex/readme-human-agent-overview -> origin/codex/readme-human-agent-overview
+2026-09-24T18:00:47.5875083Z  * [new branch]          codex/reconciliation-decision-bundles-20260922 -> origin/codex/reconciliation-decision-bundles-20260922
+2026-09-24T18:00:47.5876355Z  * [new branch]          codex/release-3.0.1     -> origin/codex/release-3.0.1
+2026-09-24T18:00:47.5877567Z  * [new branch]          codex/remove-readme-domain-clone -> origin/codex/remove-readme-domain-clone
+2026-09-24T18:00:47.5879001Z  * [new branch]          codex/retire-harness-contract-facade-20260922 -> origin/codex/retire-harness-contract-facade-20260922
+2026-09-24T18:00:47.5880442Z  * [new branch]          codex/root-d126-custody-application -> origin/codex/root-d126-custody-application
+2026-09-24T18:00:47.5882150Z  * [new branch]          codex/root-four-graph-orientation-20260919 -> origin/codex/root-four-graph-orientation-20260919
+2026-09-24T18:00:47.5883475Z  * [new branch]          codex/root-loop-consolidation -> origin/codex/root-loop-consolidation
+2026-09-24T18:00:47.5884696Z  * [new branch]          codex/root-r16-g05-spikes-2026-08-27 -> origin/codex/root-r16-g05-spikes-2026-08-27
+2026-09-24T18:00:47.5885986Z  * [new branch]          codex/root-r18-tm-root-122-2026-09-03 -> origin/codex/root-r18-tm-root-122-2026-09-03
+2026-09-24T18:00:47.5887473Z  * [new branch]          codex/root-runtime-revision-recognition-20260906 -> origin/codex/root-runtime-revision-recognition-20260906
+2026-09-24T18:00:47.5889085Z  * [new branch]          codex/root-runtime-stage2-adoption-20260907 -> origin/codex/root-runtime-stage2-adoption-20260907
+2026-09-24T18:00:47.5890820Z  * [new branch]          codex/runtime-app-sow-publication -> origin/codex/runtime-app-sow-publication
+2026-09-24T18:00:47.5892192Z  * [new branch]          codex/runtime-application-tools -> origin/codex/runtime-application-tools
+2026-09-24T18:00:47.5893449Z  * [new branch]          codex/runtime-consumer-readiness -> origin/codex/runtime-consumer-readiness
+2026-09-24T18:00:47.5894655Z  * [new branch]          codex/runtime-custody-amendment -> origin/codex/runtime-custody-amendment
+2026-09-24T18:00:47.5895932Z  * [new branch]          codex/runtime-effective-publication -> origin/codex/runtime-effective-publication
+2026-09-24T18:00:47.5897079Z  * [new branch]          codex/runtime-execution -> origin/codex/runtime-execution
+2026-09-24T18:00:47.5898202Z  * [new branch]          codex/runtime-gate5-confirmation -> origin/codex/runtime-gate5-confirmation
+2026-09-24T18:00:47.5899662Z  * [new branch]          codex/runtime-governance-propagation -> origin/codex/runtime-governance-propagation
+2026-09-24T18:00:47.5901408Z  * [new branch]          codex/runtime-hosted-status-hardening -> origin/codex/runtime-hosted-status-hardening
+2026-09-24T18:00:47.5902695Z  * [new branch]          codex/runtime-mcp-v2-evidence -> origin/codex/runtime-mcp-v2-evidence
+2026-09-24T18:00:47.5903928Z  * [new branch]          codex/runtime-packaging-integration -> origin/codex/runtime-packaging-integration
+2026-09-24T18:00:47.5905222Z  * [new branch]          codex/runtime-project-migration -> origin/codex/runtime-project-migration
+2026-09-24T18:00:47.5906501Z  * [new branch]          codex/runtime-project-migration-plan -> origin/codex/runtime-project-migration-plan
+2026-09-24T18:00:47.5907666Z  * [new branch]          codex/runtime-readiness -> origin/codex/runtime-readiness
+2026-09-24T18:00:47.5908856Z  * [new branch]          codex/runtime-stage2-sow-propagation -> origin/codex/runtime-stage2-sow-propagation
+2026-09-24T18:00:47.5910275Z  * [new branch]          codex/sca-app-009-gate5-actual-r4-2026-09-04 -> origin/codex/sca-app-009-gate5-actual-r4-2026-09-04
+2026-09-24T18:00:47.5911719Z  * [new branch]          codex/scoped-pr-ci      -> origin/codex/scoped-pr-ci
+2026-09-24T18:00:47.5912949Z  * [new branch]          codex/shell-redesign-convergence-20260906 -> origin/codex/shell-redesign-convergence-20260906
+2026-09-24T18:00:47.5914357Z  * [new branch]          codex/shell-redesign-resume-20260906 -> origin/codex/shell-redesign-resume-20260906
+2026-09-24T18:00:47.5915608Z  * [new branch]          codex/standing-merge-authority -> origin/codex/standing-merge-authority
+2026-09-24T18:00:47.5916740Z  * [new branch]          codex/swb-ui-contradictions -> origin/codex/swb-ui-contradictions
+2026-09-24T18:00:47.5917815Z  * [new branch]          codex/swb-ui-d71-d72-rulings -> origin/codex/swb-ui-d71-d72-rulings
+2026-09-24T18:00:47.5919336Z  * [new branch]          codex/swb-ui-design-handoff-reconciliation -> origin/codex/swb-ui-design-handoff-reconciliation
+2026-09-24T18:00:47.5921053Z  * [new branch]          codex/swb-ui-revision-pass -> origin/codex/swb-ui-revision-pass
+2026-09-24T18:00:47.5922298Z  * [new branch]          codex/swbpipe-a1-followups-20260918 -> origin/codex/swbpipe-a1-followups-20260918
+2026-09-24T18:00:47.5923683Z  * [new branch]          codex/swbpipe-a1-visible-rename-20260918 -> origin/codex/swbpipe-a1-visible-rename-20260918
+2026-09-24T18:00:47.5925009Z  * [new branch]          codex/swbpipe-b-canvas-20260918 -> origin/codex/swbpipe-b-canvas-20260918
+2026-09-24T18:00:47.5926183Z  * [new branch]          codex/swbpipe-b-shell-20260918 -> origin/codex/swbpipe-b-shell-20260918
+2026-09-24T18:00:47.5927368Z  * [new branch]          codex/swbpipe-b1-tokens-20260918 -> origin/codex/swbpipe-b1-tokens-20260918
+2026-09-24T18:00:47.5928497Z  * [new branch]          codex/swbpipe-b2f-20260919 -> origin/codex/swbpipe-b2f-20260919
+2026-09-24T18:00:47.5929548Z  * [new branch]          codex/swbpipe-b3-20260919 -> origin/codex/swbpipe-b3-20260919
+2026-09-24T18:00:47.5930744Z  * [new branch]          codex/swbpipe-b3a-i1-20260920 -> origin/codex/swbpipe-b3a-i1-20260920
+2026-09-24T18:00:47.5931973Z  * [new branch]          codex/swbpipe-b4-controls-20260920 -> origin/codex/swbpipe-b4-controls-20260920
+2026-09-24T18:00:47.5933434Z  * [new branch]          codex/swbpipe-b4-materials-integration-20260921 -> origin/codex/swbpipe-b4-materials-integration-20260921
+2026-09-24T18:00:47.5935006Z  * [new branch]          codex/swbpipe-b4-node-integration-20260920 -> origin/codex/swbpipe-b4-node-integration-20260920
+2026-09-24T18:00:47.5936556Z  * [new branch]          codex/swbpipe-b4-sections-integration-20260921 -> origin/codex/swbpipe-b4-sections-integration-20260921
+2026-09-24T18:00:47.5937916Z  * [new branch]          codex/swbpipe-c-pr1-20260919 -> origin/codex/swbpipe-c-pr1-20260919
+2026-09-24T18:00:47.5938991Z  * [new branch]          codex/swbpipe-c2-20260919 -> origin/codex/swbpipe-c2-20260919
+2026-09-24T18:00:47.5940290Z  * [new branch]          codex/swbpipe-ci-economy-20260920 -> origin/codex/swbpipe-ci-economy-20260920
+2026-09-24T18:00:47.5941971Z  * [new branch]          codex/swbpipe-continuation-20260919 -> origin/codex/swbpipe-continuation-20260919
+2026-09-24T18:00:47.5943415Z  * [new branch]          codex/swbpipe-control-first-handoff-20260919 -> origin/codex/swbpipe-control-first-handoff-20260919
+2026-09-24T18:00:47.5944920Z  * [new branch]          codex/swbpipe-design-system-v14-20260918 -> origin/codex/swbpipe-design-system-v14-20260918
+2026-09-24T18:00:47.5946435Z  * [new branch]          codex/swbpipe-handoff-selfsufficient-20260919 -> origin/codex/swbpipe-handoff-selfsufficient-20260919
+2026-09-24T18:00:47.5947779Z  * [new branch]          codex/swbpipe-intended-logo -> origin/codex/swbpipe-intended-logo
+2026-09-24T18:00:47.5948964Z  * [new branch]          codex/swbpipe-records-20260919 -> origin/codex/swbpipe-records-20260919
+2026-09-24T18:00:47.5950361Z  * [new branch]          codex/swbpipe-successor-prompt-2-20260919 -> origin/codex/swbpipe-successor-prompt-2-20260919
+2026-09-24T18:00:47.5951973Z  * [new branch]          codex/swbpipe-successor-prompt-20260919 -> origin/codex/swbpipe-successor-prompt-20260919
+2026-09-24T18:00:47.5953438Z  * [new branch]          codex/swbpipe-successor-prompt-3-20260919 -> origin/codex/swbpipe-successor-prompt-3-20260919
+2026-09-24T18:00:47.5954810Z  * [new branch]          codex/swbpipe-workgraph-20260919 -> origin/codex/swbpipe-workgraph-20260919
+2026-09-24T18:00:47.5955922Z  * [new branch]          codex/tm-register-audit -> origin/codex/tm-register-audit
+2026-09-24T18:00:47.5957185Z  * [new branch]          codex/ui-refinement-package-record-20260912 -> origin/codex/ui-refinement-package-record-20260912
+2026-09-24T18:00:47.5958741Z  * [new branch]          codex/ui-refinement-packaged-handoff-20260912 -> origin/codex/ui-refinement-packaged-handoff-20260912
+2026-09-24T18:00:47.5960442Z  * [new branch]          codex/user-journey-build-evidence-20260913 -> origin/codex/user-journey-build-evidence-20260913
+2026-09-24T18:00:47.5962137Z  * [new branch]          codex/user-journey-plan-20260912 -> origin/codex/user-journey-plan-20260912
+2026-09-24T18:00:47.5963512Z  * [new branch]          codex/user-journey-release-handoff-20260913 -> origin/codex/user-journey-release-handoff-20260913
+2026-09-24T18:00:47.5964970Z  * [new branch]          codex/v3-public-release-record-20260913 -> origin/codex/v3-public-release-record-20260913
+2026-09-24T18:00:47.5966372Z  * [new branch]          codex/v3-publication-complete-20260913 -> origin/codex/v3-publication-complete-20260913
+2026-09-24T18:00:47.5967661Z  * [new branch]          codex/v3-readme-release-refresh -> origin/codex/v3-readme-release-refresh
+2026-09-24T18:00:47.5968832Z  * [new branch]          codex/workgraphs-path-anchor -> origin/codex/workgraphs-path-anchor
+2026-09-24T18:00:47.5969939Z  * [new branch]          docs/readme-product-intent -> origin/docs/readme-product-intent
+2026-09-24T18:00:47.5971267Z  * [new branch]          docs/task-mgmt-addendum -> origin/docs/task-mgmt-addendum
+2026-09-24T18:00:47.5972242Z  * [new branch]          feat/daemon-handoff     -> origin/feat/daemon-handoff
+2026-09-24T18:00:47.5973165Z  * [new branch]          feat/daemon-service     -> origin/feat/daemon-service
+2026-09-24T18:00:47.5974298Z  * [new branch]          gov/agentsmd-simplification-20260802 -> origin/gov/agentsmd-simplification-20260802
+2026-09-24T18:00:47.5975497Z  * [new branch]          gov/appdev-maturity-survey -> origin/gov/appdev-maturity-survey
+2026-09-24T18:00:47.5976503Z  * [new branch]          gov/five-explorations   -> origin/gov/five-explorations
+2026-09-24T18:00:47.5977593Z  * [new branch]          gov/five-investigations-report -> origin/gov/five-investigations-report
+2026-09-24T18:00:47.5978746Z  * [new branch]          gov/manifest-gap-disclosure -> origin/gov/manifest-gap-disclosure
+2026-09-24T18:00:47.5980130Z  * [new branch]          gov/pi-agent2-capability-intent -> origin/gov/pi-agent2-capability-intent
+2026-09-24T18:00:47.5981628Z  * [new branch]          gov/piping-intent-record -> origin/gov/piping-intent-record
+2026-09-24T18:00:47.5982654Z  * [new branch]          gov/piping-solver-survey -> origin/gov/piping-solver-survey
+2026-09-24T18:00:47.5983632Z  * [new branch]          gov/stage-a-closure     -> origin/gov/stage-a-closure
+2026-09-24T18:00:47.5984674Z  * [new branch]          gov/stage-a-step0-sha-backfill -> origin/gov/stage-a-step0-sha-backfill
+2026-09-24T18:00:47.5985818Z  * [new branch]          gov/stage-a-step1-ktm-contract -> origin/gov/stage-a-step1-ktm-contract
+2026-09-24T18:00:47.5986993Z  * [new branch]          gov/stage-a-step23-register-seed -> origin/gov/stage-a-step23-register-seed
+2026-09-24T18:00:47.5988134Z  * [new branch]          gov/stage-a-step45-tm-agent -> origin/gov/stage-a-step45-tm-agent
+2026-09-24T18:00:47.5989165Z  * [new branch]          gov/stage-a-step6-triage -> origin/gov/stage-a-step6-triage
+2026-09-24T18:00:47.5990292Z  * [new branch]          gov/stage-a-step7-stageb-packets -> origin/gov/stage-a-step7-stageb-packets
+2026-09-24T18:00:47.5991604Z  * [new branch]          gov/stage-a-step8-taskmgmt -> origin/gov/stage-a-step8-taskmgmt
+2026-09-24T18:00:47.5992667Z  * [new branch]          gov/step1-evidence-landing -> origin/gov/step1-evidence-landing
+2026-09-24T18:00:47.5993714Z  * [new branch]          gov/step2-app-ratification -> origin/gov/step2-app-ratification
+2026-09-24T18:00:47.5994761Z  * [new branch]          gov/step2-pec-ratification -> origin/gov/step2-pec-ratification
+2026-09-24T18:00:47.5995868Z  * [new branch]          gov/step2-piping-ratification -> origin/gov/step2-piping-ratification
+2026-09-24T18:00:47.5996961Z  * [new branch]          gov/step2-root-disclosure -> origin/gov/step2-root-disclosure
+2026-09-24T18:00:47.5997960Z  * [new branch]          gov/step3-d8-candidates -> origin/gov/step3-d8-candidates
+2026-09-24T18:00:47.5999165Z  * [new branch]          gov/step4-operative-surfaces -> origin/gov/step4-operative-surfaces
+2026-09-24T18:00:47.6000270Z  * [new branch]          gov/step4-sca-application -> origin/gov/step4-sca-application
+2026-09-24T18:00:47.6001652Z  * [new branch]          gov/step4-sca-decomposition -> origin/gov/step4-sca-decomposition
+2026-09-24T18:00:47.6002685Z  * [new branch]          gov/step5-loop-slates   -> origin/gov/step5-loop-slates
+2026-09-24T18:00:47.6003663Z  * [new branch]          gov/step5-root-readiness -> origin/gov/step5-root-readiness
+2026-09-24T18:00:47.6004558Z  * [new branch]          main                    -> origin/main
+2026-09-24T18:00:47.6005588Z  * [new branch]          minder/root-r16-g05-spikes-2026-08-27 -> origin/minder/root-r16-g05-spikes-2026-08-27
+2026-09-24T18:00:47.6007027Z  * [new branch]          minder/root-r17-v3-pathway-adoption-2026-08-27 -> origin/minder/root-r17-v3-pathway-adoption-2026-08-27
+2026-09-24T18:00:47.6008300Z  * [new tag]             pre-bridge-session-2026-07-06 -> pre-bridge-session-2026-07-06
+2026-09-24T18:00:47.6010317Z [command]/usr/bin/git rev-parse --verify --quiet a34c9d819d62b54b74d7f07edde87738b97b87cf^{object}
+2026-09-24T18:00:47.6011433Z a34c9d819d62b54b74d7f07edde87738b97b87cf
+2026-09-24T18:00:47.6012916Z ##[endgroup]
+2026-09-24T18:00:47.6013682Z ##[group]Determining the checkout info
+2026-09-24T18:00:47.6014528Z ##[endgroup]
+2026-09-24T18:00:47.6015039Z [command]/usr/bin/git sparse-checkout disable
+2026-09-24T18:00:47.6016427Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-09-24T18:00:47.6018133Z ##[group]Checking out the ref
+2026-09-24T18:00:47.6018960Z [command]/usr/bin/git checkout --progress --force a34c9d819d62b54b74d7f07edde87738b97b87cf
+2026-09-24T18:01:15.6441583Z Updating files:   0% (1/93533)
+2026-09-24T18:01:15.6741753Z Updating files:   1% (936/93533)
+2026-09-24T18:01:15.7156010Z Updating files:   1% (1396/93533)
+2026-09-24T18:01:15.7732018Z Updating files:   2% (1871/93533)
+2026-09-24T18:01:15.8275133Z Updating files:   3% (2806/93533)
+2026-09-24T18:01:15.8856003Z Updating files:   4% (3742/93533)
+2026-09-24T18:01:15.9343719Z Updating files:   5% (4677/93533)
+2026-09-24T18:01:15.9905600Z Updating files:   6% (5612/93533)
+2026-09-24T18:01:16.0822047Z Updating files:   7% (6548/93533)
+2026-09-24T18:01:16.1442115Z Updating files:   8% (7483/93533)
+2026-09-24T18:01:16.2015992Z Updating files:   9% (8418/93533)
+2026-09-24T18:01:16.2570274Z Updating files:  10% (9354/93533)
+2026-09-24T18:01:16.3141372Z Updating files:  11% (10289/93533)
+2026-09-24T18:01:16.3657594Z Updating files:  12% (11224/93533)
+2026-09-24T18:01:16.4242225Z Updating files:  13% (12160/93533)
+2026-09-24T18:01:16.4767191Z Updating files:  14% (13095/93533)
+2026-09-24T18:01:16.5265024Z Updating files:  15% (14030/93533)
+2026-09-24T18:01:16.5700976Z Updating files:  16% (14966/93533)
+2026-09-24T18:01:16.6190864Z Updating files:  17% (15901/93533)
+2026-09-24T18:01:16.6653654Z Updating files:  18% (16836/93533)
+2026-09-24T18:01:16.6740271Z Updating files:  19% (17772/93533)
+2026-09-24T18:01:16.7165980Z Updating files:  19% (17920/93533)
+2026-09-24T18:01:16.7650248Z Updating files:  20% (18707/93533)
+2026-09-24T18:01:16.8116644Z Updating files:  21% (19642/93533)
+2026-09-24T18:01:16.9010824Z Updating files:  22% (20578/93533)
+2026-09-24T18:01:16.9521771Z Updating files:  23% (21513/93533)
+2026-09-24T18:01:17.0034996Z Updating files:  24% (22448/93533)
+2026-09-24T18:01:17.0525146Z Updating files:  25% (23384/93533)
+2026-09-24T18:01:17.1022193Z Updating files:  26% (24319/93533)
+2026-09-24T18:01:17.1487364Z Updating files:  27% (25254/93533)
+2026-09-24T18:01:17.1967249Z Updating files:  28% (26190/93533)
+2026-09-24T18:01:17.2471004Z Updating files:  29% (27125/93533)
+2026-09-24T18:01:17.2930634Z Updating files:  30% (28060/93533)
+2026-09-24T18:01:17.3421831Z Updating files:  31% (28996/93533)
+2026-09-24T18:01:17.3934753Z Updating files:  32% (29931/93533)
+2026-09-24T18:01:17.4433333Z Updating files:  33% (30866/93533)
+2026-09-24T18:01:17.4995176Z Updating files:  34% (31802/93533)
+2026-09-24T18:01:17.5507792Z Updating files:  35% (32737/93533)
+2026-09-24T18:01:17.6019745Z Updating files:  36% (33672/93533)
+2026-09-24T18:01:17.6482534Z Updating files:  37% (34608/93533)
+2026-09-24T18:01:17.6740935Z Updating files:  38% (35543/93533)
+2026-09-24T18:01:17.7036820Z Updating files:  38% (36055/93533)
+2026-09-24T18:01:17.7568519Z Updating files:  39% (36478/93533)
+2026-09-24T18:01:17.8198445Z Updating files:  40% (37414/93533)
+2026-09-24T18:01:17.9316842Z Updating files:  41% (38349/93533)
+2026-09-24T18:01:18.0105489Z Updating files:  42% (39284/93533)
+2026-09-24T18:01:18.0688830Z Updating files:  43% (40220/93533)
+2026-09-24T18:01:18.1344049Z Updating files:  44% (41155/93533)
+2026-09-24T18:01:18.1951698Z Updating files:  45% (42090/93533)
+2026-09-24T18:01:18.2387892Z Updating files:  46% (43026/93533)
+2026-09-24T18:01:18.2874969Z Updating files:  47% (43961/93533)
+2026-09-24T18:01:18.4839861Z Updating files:  48% (44896/93533)
+2026-09-24T18:01:18.5655103Z Updating files:  49% (45832/93533)
+2026-09-24T18:01:18.6742621Z Updating files:  50% (46767/93533)
+2026-09-24T18:01:18.8719916Z Updating files:  50% (46990/93533)
+2026-09-24T18:01:18.9305115Z Updating files:  51% (47702/93533)
+2026-09-24T18:01:19.0264290Z Updating files:  52% (48638/93533)
+2026-09-24T18:01:19.0889211Z Updating files:  53% (49573/93533)
+2026-09-24T18:01:19.1537788Z Updating files:  54% (50508/93533)
+2026-09-24T18:01:19.2164340Z Updating files:  55% (51444/93533)
+2026-09-24T18:01:19.3263795Z Updating files:  56% (52379/93533)
+2026-09-24T18:01:19.4378128Z Updating files:  57% (53314/93533)
+2026-09-24T18:01:19.5102010Z Updating files:  58% (54250/93533)
+2026-09-24T18:01:19.5799031Z Updating files:  59% (55185/93533)
+2026-09-24T18:01:19.7875023Z Updating files:  60% (56120/93533)
+2026-09-24T18:01:19.9585449Z Updating files:  60% (56132/93533)
+2026-09-24T18:01:20.0173711Z Updating files:  61% (57056/93533)
+2026-09-24T18:01:20.0846215Z Updating files:  62% (57991/93533)
+2026-09-24T18:01:20.1424323Z Updating files:  63% (58926/93533)
+2026-09-24T18:01:20.1998020Z Updating files:  64% (59862/93533)
+2026-09-24T18:01:20.2581997Z Updating files:  65% (60797/93533)
+2026-09-24T18:01:20.3654916Z Updating files:  66% (61732/93533)
+2026-09-24T18:01:20.4539809Z Updating files:  67% (62668/93533)
+2026-09-24T18:01:20.5396957Z Updating files:  68% (63603/93533)
+2026-09-24T18:01:20.6220378Z Updating files:  69% (64538/93533)
+2026-09-24T18:01:20.6741898Z Updating files:  70% (65474/93533)
+2026-09-24T18:01:20.7617076Z Updating files:  70% (65968/93533)
+2026-09-24T18:01:20.9605667Z Updating files:  71% (66409/93533)
+2026-09-24T18:01:21.3521272Z Updating files:  72% (67344/93533)
+2026-09-24T18:01:21.6741352Z Updating files:  73% (68280/93533)
+2026-09-24T18:01:21.7254472Z Updating files:  73% (68915/93533)
+2026-09-24T18:01:22.0131848Z Updating files:  74% (69215/93533)
+2026-09-24T18:01:22.1934576Z Updating files:  75% (70150/93533)
+2026-09-24T18:01:22.3711136Z Updating files:  76% (71086/93533)
+2026-09-24T18:01:22.6744428Z Updating files:  77% (72021/93533)
+2026-09-24T18:01:22.7383685Z Updating files:  77% (72817/93533)
+2026-09-24T18:01:22.9058783Z Updating files:  78% (72956/93533)
+2026-09-24T18:01:23.2019533Z Updating files:  79% (73892/93533)
+2026-09-24T18:01:23.4306492Z Updating files:  80% (74827/93533)
+2026-09-24T18:01:23.5709622Z Updating files:  81% (75762/93533)
+2026-09-24T18:01:23.6541291Z Updating files:  82% (76698/93533)
+2026-09-24T18:01:23.6741771Z Updating files:  83% (77633/93533)
+2026-09-24T18:01:23.7531232Z Updating files:  83% (77708/93533)
+2026-09-24T18:01:23.8701593Z Updating files:  84% (78568/93533)
+2026-09-24T18:01:24.0040065Z Updating files:  85% (79504/93533)
+2026-09-24T18:01:24.1304471Z Updating files:  86% (80439/93533)
+2026-09-24T18:01:24.2903694Z Updating files:  87% (81374/93533)
+2026-09-24T18:01:24.3727342Z Updating files:  88% (82310/93533)
+2026-09-24T18:01:24.4391404Z Updating files:  89% (83245/93533)
+2026-09-24T18:01:24.4996932Z Updating files:  90% (84180/93533)
+2026-09-24T18:01:24.5911103Z Updating files:  91% (85116/93533)
+2026-09-24T18:01:24.6426141Z Updating files:  92% (86051/93533)
+2026-09-24T18:01:24.6740661Z Updating files:  93% (86986/93533)
+2026-09-24T18:01:24.6973958Z Updating files:  93% (87533/93533)
+2026-09-24T18:01:24.7578723Z Updating files:  94% (87922/93533)
+2026-09-24T18:01:24.8221214Z Updating files:  95% (88857/93533)
+2026-09-24T18:01:24.9210536Z Updating files:  96% (89792/93533)
+2026-09-24T18:01:25.1950762Z Updating files:  97% (90728/93533)
+2026-09-24T18:01:25.2598991Z Updating files:  98% (91663/93533)
+2026-09-24T18:01:25.3316727Z Updating files:  99% (92598/93533)
+2026-09-24T18:01:25.3317518Z Updating files: 100% (93533/93533)
+2026-09-24T18:01:25.3318037Z Updating files: 100% (93533/93533), done.
+2026-09-24T18:01:25.5289036Z Note: switching to 'a34c9d819d62b54b74d7f07edde87738b97b87cf'.
+2026-09-24T18:01:25.5290043Z 
+2026-09-24T18:01:25.5291077Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-09-24T18:01:25.5321259Z changes and commit them, and you can discard any commits you make in this
+2026-09-24T18:01:25.5322466Z state without impacting any branches by switching back to a branch.
+2026-09-24T18:01:25.5322768Z 
+2026-09-24T18:01:25.5323079Z If you want to create a new branch to retain commits you create, you may
+2026-09-24T18:01:25.5323779Z do so (now or later) by using -c with the switch command. Example:
+2026-09-24T18:01:25.5324049Z 
+2026-09-24T18:01:25.5324162Z   git switch -c <new-branch-name>
+2026-09-24T18:01:25.5324345Z 
+2026-09-24T18:01:25.5324535Z Or undo this operation with:
+2026-09-24T18:01:25.5324825Z 
+2026-09-24T18:01:25.5324976Z   git switch -
+2026-09-24T18:01:25.5325189Z 
+2026-09-24T18:01:25.5325548Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-09-24T18:01:25.5326085Z 
+2026-09-24T18:01:25.5326501Z HEAD is now at a34c9d819 Trial hash-addressed Ubuntu indexes with bounded CI diagnostics
+2026-09-24T18:01:25.5497918Z ##[endgroup]
+2026-09-24T18:01:25.6375837Z [command]/usr/bin/git log -1 --format=%H
+2026-09-24T18:01:25.6404695Z a34c9d819d62b54b74d7f07edde87738b97b87cf
+2026-09-24T18:01:25.8278311Z ##[group]Run actions/download-artifact@v4
+2026-09-24T18:01:25.8278640Z with:
+2026-09-24T18:01:25.8278864Z   name: piping-e2e-selection
+2026-09-24T18:01:25.8279144Z   merge-multiple: false
+2026-09-24T18:01:25.8279392Z   repository: sgttomas/chirality
+2026-09-24T18:01:25.8279658Z   run-id: 36037700066
+2026-09-24T18:01:25.8279876Z env:
+2026-09-24T18:01:25.8280064Z   CI: true
+2026-09-24T18:01:25.8280274Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T18:01:25.8280792Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T18:01:25.8281051Z ##[endgroup]
+2026-09-24T18:01:25.9816797Z Downloading single artifact
+2026-09-24T18:01:25.9985588Z (node:2208) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-24T18:01:25.9986980Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-24T18:01:26.1169579Z Preparing to download the following artifacts:
+2026-09-24T18:01:26.1170743Z - piping-e2e-selection (ID: 10825303437, Size: 2217, Expected Digest: sha256:c5edb0cfa57b24f439ad5eaafe601e576213a08b02c1234bb176ee80bbdb3b73)
+2026-09-24T18:01:26.2522057Z Redirecting to blob download url: https://productionresultssa3.blob.core.windows.net/actions-results/27a65e43-b159-4bb2-994d-117fb53a78e2/workflow-job-run-ddef058b-4997-5f9f-8ceb-351caf24c2fd/artifacts/d76d2c5e34c0118cf5ea8156f64c32d87b2f27d3ec783b1db45e1fdb35b68e2a.zip
+2026-09-24T18:01:26.2524772Z Starting download of artifact to: /home/runner/work/chirality/chirality
+2026-09-24T18:01:26.2796979Z (node:2208) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-09-24T18:01:26.2859114Z SHA256 digest of downloaded artifact is c5edb0cfa57b24f439ad5eaafe601e576213a08b02c1234bb176ee80bbdb3b73
+2026-09-24T18:01:26.2859747Z Artifact download completed successfully.
+2026-09-24T18:01:26.2860053Z Total of 1 artifact(s) downloaded
+2026-09-24T18:01:26.2866070Z Download artifact has finished successfully
+2026-09-24T18:01:26.3198729Z Prepare all required actions
+2026-09-24T18:01:26.3199476Z Getting action download info
+2026-09-24T18:01:26.5013092Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-09-24T18:01:26.6267276Z Download action repository 'dtolnay/rust-toolchain@stable' (SHA:6bed0761d98439e5a578e2877258200ad565ba87)
+2026-09-24T18:01:26.8010106Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-09-24T18:01:26.9381720Z ##[group]Run ./.github/actions/setup-piping-e2e
+2026-09-24T18:01:26.9382059Z env:
+2026-09-24T18:01:26.9382247Z   CI: true
+2026-09-24T18:01:26.9382462Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T18:01:26.9382764Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T18:01:26.9382990Z ##[endgroup]
+2026-09-24T18:01:26.9446785Z ##[start-action display=Setup Node.js;id=__self.__actions_setup-node]
+2026-09-24T18:01:26.9517279Z ##[group]Run actions/setup-node@v4
+2026-09-24T18:01:26.9517558Z with:
+2026-09-24T18:01:26.9517788Z   node-version: 24
+2026-09-24T18:01:26.9517998Z   cache: npm
+2026-09-24T18:01:26.9518317Z   cache-dependency-path: projects/chirality-piping/package-lock.json
+2026-09-24T18:01:26.9518724Z   always-auth: false
+2026-09-24T18:01:26.9518952Z   check-latest: false
+2026-09-24T18:01:26.9521437Z   token: ***
+2026-09-24T18:01:26.9521652Z env:
+2026-09-24T18:01:26.9521836Z   CI: true
+2026-09-24T18:01:26.9522039Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T18:01:26.9522294Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T18:01:26.9522515Z ##[endgroup]
+2026-09-24T18:01:27.0944840Z Found in cache @ /opt/hostedtoolcache/node/24.21.0/x64
+2026-09-24T18:01:27.0950327Z (node:2228) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-24T18:01:27.0951807Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-24T18:01:27.0954950Z ##[group]Environment details
+2026-09-24T18:01:27.4807209Z node: v24.21.0
+2026-09-24T18:01:27.4807809Z npm: 11.19.0
+2026-09-24T18:01:27.4808383Z yarn: 1.22.22
+2026-09-24T18:01:27.4809359Z ##[endgroup]
+2026-09-24T18:01:27.4834453Z [command]/opt/hostedtoolcache/node/24.21.0/x64/bin/npm config get cache
+2026-09-24T18:01:27.5954916Z /home/runner/.npm
+2026-09-24T18:01:27.6717797Z Cache hit for: node-cache-Linux-x64-npm-3f079e5b9c1656dd33060e3e260efb947b678574d15ac514783aee67ea23a336
+2026-09-24T18:01:27.6865123Z (node:2228) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-09-24T18:01:28.0486442Z Received 62580881 of 62580881 (100.0%), 176.1 MBs/sec
+2026-09-24T18:01:28.0487075Z Cache Size: ~60 MB (62580881 B)
+2026-09-24T18:01:28.0516226Z [command]/usr/bin/tar -xf /home/runner/work/_temp/d155e875-ea27-4be2-a073-4cc9b0381e0a/cache.tzst -P -C /home/runner/work/chirality/chirality --use-compress-program unzstd
+2026-09-24T18:01:28.1941145Z Cache restored successfully
+2026-09-24T18:01:28.1979088Z Cache restored from key: node-cache-Linux-x64-npm-3f079e5b9c1656dd33060e3e260efb947b678574d15ac514783aee67ea23a336
+2026-09-24T18:01:28.2164235Z ##[end-action id=__self.__actions_setup-node;outcome=success;conclusion=success;duration_ms=1271]
+2026-09-24T18:01:28.2168367Z ##[start-action display=Setup pinned Rust toolchain;id=__self.__dtolnay_rust-toolchain]
+2026-09-24T18:01:28.2371522Z ##[group]Run dtolnay/rust-toolchain@stable
+2026-09-24T18:01:28.2372018Z with:
+2026-09-24T18:01:28.2372229Z   toolchain: 1.97.1
+2026-09-24T18:01:28.2372461Z   targets: wasm32-unknown-unknown
+2026-09-24T18:01:28.2372716Z env:
+2026-09-24T18:01:28.2372901Z   CI: true
+2026-09-24T18:01:28.2373108Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T18:01:28.2373374Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T18:01:28.2373606Z ##[endgroup]
+2026-09-24T18:01:28.2385584Z ##[start-action display=Parse toolchain version;id=__self.__dtolnay_rust-toolchain.parse]
+2026-09-24T18:01:28.2438474Z ##[group]Run if [[ -z $toolchain ]]; then
+2026-09-24T18:01:28.2439176Z [36;1mif [[ -z $toolchain ]]; then[0m
+2026-09-24T18:01:28.2439758Z [36;1m  # GitHub does not enforce `required: true` inputs itself. https://github.com/actions/runner/issues/1070[0m
+2026-09-24T18:01:28.2440349Z [36;1m  echo "'toolchain' is a required input" >&2[0m
+2026-09-24T18:01:28.2440975Z [36;1m  exit 1[0m
+2026-09-24T18:01:28.2441546Z [36;1melif [[ $toolchain =~ ^stable' '[0-9]+' '(year|month|week|day)s?' 'ago$ ]]; then[0m
+2026-09-24T18:01:28.2441990Z [36;1m  if [[ Linux == macOS ]]; then[0m
+2026-09-24T18:01:28.2442566Z [36;1m    echo "toolchain=1.$((($(date -v-$(sed 's/stable \([0-9]*\) \(.\).*/\1\2/' <<< $toolchain) +%s)/60/60/24-16569)/7/6))" >> $GITHUB_OUTPUT[0m
+2026-09-24T18:01:28.2443111Z [36;1m  else[0m
+2026-09-24T18:01:28.2443541Z [36;1m    echo "toolchain=1.$((($(date --date "${toolchain#stable }" +%s)/60/60/24-16569)/7/6))" >> $GITHUB_OUTPUT[0m
+2026-09-24T18:01:28.2444018Z [36;1m  fi[0m
+2026-09-24T18:01:28.2444328Z [36;1melif [[ $toolchain =~ ^stable' 'minus' '[0-9]+' 'releases?$ ]]; then[0m
+2026-09-24T18:01:28.2444884Z [36;1m  echo "toolchain=1.$((($(date +%s)/60/60/24-16569)/7/6-${toolchain//[^0-9]/}))" >> $GITHUB_OUTPUT[0m
+2026-09-24T18:01:28.2445519Z [36;1melif [[ $toolchain =~ ^1\.[0-9]+$ ]]; then[0m
+2026-09-24T18:01:28.2446065Z [36;1m  echo "toolchain=1.$((i=${toolchain#1.}, c=($(date +%s)/60/60/24-16569)/7/6, i+9*i*(10*i<=c)+90*i*(100*i<=c)))" >> $GITHUB_OUTPUT[0m
+2026-09-24T18:01:28.2446571Z [36;1melse[0m
+2026-09-24T18:01:28.2446827Z [36;1m  echo "toolchain=$toolchain" >> $GITHUB_OUTPUT[0m
+2026-09-24T18:01:28.2447130Z [36;1mfi[0m
+2026-09-24T18:01:28.2729207Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-24T18:01:28.2729667Z env:
+2026-09-24T18:01:28.2729911Z   CI: true
+2026-09-24T18:01:28.2730182Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T18:01:28.2730781Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T18:01:28.2731090Z   toolchain: 1.97.1
+2026-09-24T18:01:28.2731600Z ##[endgroup]
+2026-09-24T18:01:28.2868130Z ##[end-action id=__self.__dtolnay_rust-toolchain.parse;outcome=success;conclusion=success;duration_ms=48]
+2026-09-24T18:01:28.2875321Z ##[start-action display=Construct rustup command line;id=__self.__dtolnay_rust-toolchain.flags]
+2026-09-24T18:01:28.2895130Z ##[group]Run echo "targets=$(for t in ${targets//,/ }; do echo -n ' --target' $t; done)" >> $GITHUB_OUTPUT
+2026-09-24T18:01:28.2895853Z [36;1mecho "targets=$(for t in ${targets//,/ }; do echo -n ' --target' $t; done)" >> $GITHUB_OUTPUT[0m
+2026-09-24T18:01:28.2896546Z [36;1mecho "components=$(for c in ${components//,/ }; do echo -n ' --component' $c; done)" >> $GITHUB_OUTPUT[0m
+2026-09-24T18:01:28.2897089Z [36;1mecho "downgrade=" >> $GITHUB_OUTPUT[0m
+2026-09-24T18:01:28.2958165Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-24T18:01:28.2958541Z env:
+2026-09-24T18:01:28.2958748Z   CI: true
+2026-09-24T18:01:28.2958979Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T18:01:28.2959265Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T18:01:28.2959537Z   targets: wasm32-unknown-unknown
+2026-09-24T18:01:28.2959827Z   components: 
+2026-09-24T18:01:28.2960048Z ##[endgroup]
+2026-09-24T18:01:28.3072966Z ##[end-action id=__self.__dtolnay_rust-toolchain.flags;outcome=success;conclusion=success;duration_ms=19]
+2026-09-24T18:01:28.3076567Z ##[start-action display=Set $CARGO_HOME;id=__self.__dtolnay_rust-toolchain.__run]
+2026-09-24T18:01:28.3096954Z ##[group]Run echo CARGO_HOME=${CARGO_HOME:-"$HOME/.cargo"} >> $GITHUB_ENV
+2026-09-24T18:01:28.3097467Z [36;1mecho CARGO_HOME=${CARGO_HOME:-"$HOME/.cargo"} >> $GITHUB_ENV[0m
+2026-09-24T18:01:28.3161255Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-24T18:01:28.3161645Z env:
+2026-09-24T18:01:28.3161856Z   CI: true
+2026-09-24T18:01:28.3162090Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T18:01:28.3162381Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T18:01:28.3162629Z ##[endgroup]
+2026-09-24T18:01:28.3259424Z ##[end-action id=__self.__dtolnay_rust-toolchain.__run;outcome=success;conclusion=success;duration_ms=18]
+2026-09-24T18:01:28.3262434Z ##[start-action display=Install rustup if needed;id=__self.__dtolnay_rust-toolchain.__run_2]
+2026-09-24T18:01:28.3286063Z ##[group]Run if ! command -v rustup &>/dev/null; then
+2026-09-24T18:01:28.3286486Z [36;1mif ! command -v rustup &>/dev/null; then[0m
+2026-09-24T18:01:28.3287281Z [36;1m  curl --proto '=https' --tlsv1.2 --retry 10 --retry-connrefused --location --silent --show-error --fail https://sh.rustup.rs | sh -s -- --default-toolchain none -y[0m
+2026-09-24T18:01:28.3288075Z [36;1m  echo "$CARGO_HOME/bin" >> $GITHUB_PATH[0m
+2026-09-24T18:01:28.3288389Z [36;1mfi[0m
+2026-09-24T18:01:28.3349986Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-24T18:01:28.3350369Z env:
+2026-09-24T18:01:28.3350837Z   CI: true
+2026-09-24T18:01:28.3351077Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T18:01:28.3351362Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T18:01:28.3351631Z   CARGO_HOME: /home/runner/.cargo
+2026-09-24T18:01:28.3351916Z ##[endgroup]
+2026-09-24T18:01:28.3444432Z ##[end-action id=__self.__dtolnay_rust-toolchain.__run_2;outcome=success;conclusion=success;duration_ms=18]
+2026-09-24T18:01:28.3446863Z ##[start-action display=Install rustup if needed on windows;id=__self.__dtolnay_rust-toolchain.__run_3]
+2026-09-24T18:01:28.3453136Z ##[end-action id=__self.__dtolnay_rust-toolchain.__run_3;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-09-24T18:01:28.3465164Z ##[start-action display=rustup toolchain install 1.97.1;id=__self.__dtolnay_rust-toolchain.__run_4]
+2026-09-24T18:01:28.3484031Z ##[group]Run rustup toolchain install 1.97.1 --target wasm32-unknown-unknown --profile minimal --no-self-update
+2026-09-24T18:01:28.3484834Z [36;1mrustup toolchain install 1.97.1 --target wasm32-unknown-unknown --profile minimal --no-self-update[0m
+2026-09-24T18:01:28.3546545Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-24T18:01:28.3546906Z env:
+2026-09-24T18:01:28.3547099Z   CI: true
+2026-09-24T18:01:28.3547492Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T18:01:28.3547774Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T18:01:28.3548018Z   CARGO_HOME: /home/runner/.cargo
+2026-09-24T18:01:28.3548293Z   RUSTUP_PERMIT_COPY_RENAME: 1
+2026-09-24T18:01:28.3548537Z ##[endgroup]
+2026-09-24T18:01:28.4056598Z info: syncing channel updates for 1.97.1-x86_64-unknown-linux-gnu
+2026-09-24T18:01:28.5262805Z info: latest update on 2026-07-16 for version 1.97.1 (8bab26f4f 2026-07-14)
+2026-09-24T18:01:28.5263492Z info: downloading 4 components
+2026-09-24T18:01:37.5353540Z 
+2026-09-24T18:01:37.5425206Z   1.97.1-x86_64-unknown-linux-gnu installed - rustc 1.97.1 (8bab26f4f 2026-07-14)
+2026-09-24T18:01:37.5425672Z 
+2026-09-24T18:01:37.5483986Z ##[end-action id=__self.__dtolnay_rust-toolchain.__run_4;outcome=success;conclusion=success;duration_ms=9201]
+2026-09-24T18:01:37.5489740Z ##[start-action display=rustup default 1.97.1;id=__self.__dtolnay_rust-toolchain.__run_5]
+2026-09-24T18:01:37.5509289Z ##[group]Run rustup default 1.97.1
+2026-09-24T18:01:37.5509623Z [36;1mrustup default 1.97.1[0m
+2026-09-24T18:01:37.5570317Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-24T18:01:37.5570973Z env:
+2026-09-24T18:01:37.5587469Z   CI: true
+2026-09-24T18:01:37.5587733Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T18:01:37.5588041Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T18:01:37.5588314Z   CARGO_HOME: /home/runner/.cargo
+2026-09-24T18:01:37.5588602Z ##[endgroup]
+2026-09-24T18:01:37.5714351Z info: using existing install for 1.97.1-x86_64-unknown-linux-gnu
+2026-09-24T18:01:37.5720171Z info: default toolchain set to 1.97.1-x86_64-unknown-linux-gnu
+2026-09-24T18:01:37.5720748Z 
+2026-09-24T18:01:37.5787463Z   1.97.1-x86_64-unknown-linux-gnu unchanged - rustc 1.97.1 (8bab26f4f 2026-07-14)
+2026-09-24T18:01:37.5787915Z 
+2026-09-24T18:01:37.5804380Z ##[end-action id=__self.__dtolnay_rust-toolchain.__run_5;outcome=success;conclusion=success;duration_ms=31]
+2026-09-24T18:01:37.5806961Z ##[start-action display=Create cachekey;id=__self.__dtolnay_rust-toolchain.rustc-version]
+2026-09-24T18:01:37.5826527Z ##[group]Run DATE=$(rustc +1.97.1 --version --verbose | sed -ne 's/^commit-date: \(20[0-9][0-9]\)-\([01][0-9]\)-\([0-3][0-9]\)$/\1\2\3/p')
+2026-09-24T18:01:37.5827396Z [36;1mDATE=$(rustc +1.97.1 --version --verbose | sed -ne 's/^commit-date: \(20[0-9][0-9]\)-\([01][0-9]\)-\([0-3][0-9]\)$/\1\2\3/p')[0m
+2026-09-24T18:01:37.5828049Z [36;1mHASH=$(rustc +1.97.1 --version --verbose | sed -ne 's/^commit-hash: //p')[0m
+2026-09-24T18:01:37.5828550Z [36;1mecho "cachekey=$(echo $DATE$HASH | head -c12)" >> $GITHUB_OUTPUT[0m
+2026-09-24T18:01:37.5889211Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-24T18:01:37.5889566Z env:
+2026-09-24T18:01:37.5889760Z   CI: true
+2026-09-24T18:01:37.5889970Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T18:01:37.5890233Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T18:01:37.5890684Z   CARGO_HOME: /home/runner/.cargo
+2026-09-24T18:01:37.5891014Z ##[endgroup]
+2026-09-24T18:01:37.6235797Z ##[end-action id=__self.__dtolnay_rust-toolchain.rustc-version;outcome=success;conclusion=success;duration_ms=42]
+2026-09-24T18:01:37.6238540Z ##[start-action display=Disable incremental compilation;id=__self.__dtolnay_rust-toolchain.__run_6]
+2026-09-24T18:01:37.6256816Z ##[group]Run if [ -z "${CARGO_INCREMENTAL+set}" ]; then
+2026-09-24T18:01:37.6257206Z [36;1mif [ -z "${CARGO_INCREMENTAL+set}" ]; then[0m
+2026-09-24T18:01:37.6257560Z [36;1m  echo CARGO_INCREMENTAL=0 >> $GITHUB_ENV[0m
+2026-09-24T18:01:37.6257857Z [36;1mfi[0m
+2026-09-24T18:01:37.6319462Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-24T18:01:37.6319828Z env:
+2026-09-24T18:01:37.6320023Z   CI: true
+2026-09-24T18:01:37.6320233Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T18:01:37.6320768Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T18:01:37.6321055Z   CARGO_HOME: /home/runner/.cargo
+2026-09-24T18:01:37.6321322Z ##[endgroup]
+2026-09-24T18:01:37.6404600Z ##[end-action id=__self.__dtolnay_rust-toolchain.__run_6;outcome=success;conclusion=success;duration_ms=16]
+2026-09-24T18:01:37.6406932Z ##[start-action display=Enable colors in Cargo output;id=__self.__dtolnay_rust-toolchain.__run_7]
+2026-09-24T18:01:37.6423103Z ##[group]Run if [ -z "${CARGO_TERM_COLOR+set}" ]; then
+2026-09-24T18:01:37.6423504Z [36;1mif [ -z "${CARGO_TERM_COLOR+set}" ]; then[0m
+2026-09-24T18:01:37.6423855Z [36;1m  echo CARGO_TERM_COLOR=always >> $GITHUB_ENV[0m
+2026-09-24T18:01:37.6424170Z [36;1mfi[0m
+2026-09-24T18:01:37.6478289Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-24T18:01:37.6478646Z env:
+2026-09-24T18:01:37.6478834Z   CI: true
+2026-09-24T18:01:37.6479043Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T18:01:37.6479311Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T18:01:37.6479549Z   CARGO_HOME: /home/runner/.cargo
+2026-09-24T18:01:37.6479804Z   CARGO_INCREMENTAL: 0
+2026-09-24T18:01:37.6480028Z ##[endgroup]
+2026-09-24T18:01:37.6561715Z ##[end-action id=__self.__dtolnay_rust-toolchain.__run_7;outcome=success;conclusion=success;duration_ms=15]
+2026-09-24T18:01:37.6563849Z ##[start-action display=Enable Cargo sparse registry;id=__self.__dtolnay_rust-toolchain.__run_8]
+2026-09-24T18:01:37.6580919Z ##[group]Run # implemented in 1.66, stabilized in 1.68, made default in 1.70
+2026-09-24T18:01:37.6581453Z [36;1m# implemented in 1.66, stabilized in 1.68, made default in 1.70[0m
+2026-09-24T18:01:37.6582185Z [36;1mif [ -z "${CARGO_REGISTRIES_CRATES_IO_PROTOCOL+set}" -o -f "/home/runner/work/_temp"/.implicit_cargo_registries_crates_io_protocol ]; then[0m
+2026-09-24T18:01:37.6582944Z [36;1m  if rustc +1.97.1 --version --verbose | grep -q '^release: 1\.6[89]\.'; then[0m
+2026-09-24T18:01:37.6583534Z [36;1m    touch "/home/runner/work/_temp"/.implicit_cargo_registries_crates_io_protocol || true[0m
+2026-09-24T18:01:37.6584095Z [36;1m    echo CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse >> $GITHUB_ENV[0m
+2026-09-24T18:01:37.6584606Z [36;1m  elif rustc +1.97.1 --version --verbose | grep -q '^release: 1\.6[67]\.'; then[0m
+2026-09-24T18:01:37.6585183Z [36;1m    touch "/home/runner/work/_temp"/.implicit_cargo_registries_crates_io_protocol || true[0m
+2026-09-24T18:01:37.6585902Z [36;1m    echo CARGO_REGISTRIES_CRATES_IO_PROTOCOL=git >> $GITHUB_ENV[0m
+2026-09-24T18:01:37.6586291Z [36;1m  fi[0m
+2026-09-24T18:01:37.6586489Z [36;1mfi[0m
+2026-09-24T18:01:37.6641068Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-24T18:01:37.6641438Z env:
+2026-09-24T18:01:37.6641639Z   CI: true
+2026-09-24T18:01:37.6641852Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T18:01:37.6642109Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T18:01:37.6642358Z   CARGO_HOME: /home/runner/.cargo
+2026-09-24T18:01:37.6642616Z   CARGO_INCREMENTAL: 0
+2026-09-24T18:01:37.6642849Z   CARGO_TERM_COLOR: always
+2026-09-24T18:01:37.6643081Z ##[endgroup]
+2026-09-24T18:01:37.6958823Z ##[end-action id=__self.__dtolnay_rust-toolchain.__run_8;outcome=success;conclusion=success;duration_ms=39]
+2026-09-24T18:01:37.6961990Z ##[start-action display=Work around spurious network errors in curl 8.0;id=__self.__dtolnay_rust-toolchain.__run_9]
+2026-09-24T18:01:37.6981220Z ##[group]Run # https://rust-lang.zulipchat.com/#narrow/stream/246057-t-cargo/topic/timeout.20investigation
+2026-09-24T18:01:37.6982006Z [36;1m# https://rust-lang.zulipchat.com/#narrow/stream/246057-t-cargo/topic/timeout.20investigation[0m
+2026-09-24T18:01:37.6982632Z [36;1mif rustc +1.97.1 --version --verbose | grep -q '^release: 1\.7[01]\.'; then[0m
+2026-09-24T18:01:37.6983104Z [36;1m  echo CARGO_HTTP_MULTIPLEXING=false >> $GITHUB_ENV[0m
+2026-09-24T18:01:37.6983427Z [36;1mfi[0m
+2026-09-24T18:01:37.7044150Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-24T18:01:37.7044511Z env:
+2026-09-24T18:01:37.7044703Z   CI: true
+2026-09-24T18:01:37.7044917Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T18:01:37.7045179Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T18:01:37.7045418Z   CARGO_HOME: /home/runner/.cargo
+2026-09-24T18:01:37.7045681Z   CARGO_INCREMENTAL: 0
+2026-09-24T18:01:37.7045906Z   CARGO_TERM_COLOR: always
+2026-09-24T18:01:37.7046134Z ##[endgroup]
+2026-09-24T18:01:37.7288212Z ##[end-action id=__self.__dtolnay_rust-toolchain.__run_9;outcome=success;conclusion=success;duration_ms=32]
+2026-09-24T18:01:37.7292722Z ##[start-action display=rustc +1.97.1 --version --verbose;id=__self.__dtolnay_rust-toolchain.__run_10]
+2026-09-24T18:01:37.7310932Z ##[group]Run rustc +1.97.1 --version --verbose
+2026-09-24T18:01:37.7311307Z [36;1mrustc +1.97.1 --version --verbose[0m
+2026-09-24T18:01:37.7372382Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-24T18:01:37.7372744Z env:
+2026-09-24T18:01:37.7372934Z   CI: true
+2026-09-24T18:01:37.7373153Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T18:01:37.7373418Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T18:01:37.7373669Z   CARGO_HOME: /home/runner/.cargo
+2026-09-24T18:01:37.7373936Z   CARGO_INCREMENTAL: 0
+2026-09-24T18:01:37.7374164Z   CARGO_TERM_COLOR: always
+2026-09-24T18:01:37.7374402Z ##[endgroup]
+2026-09-24T18:01:37.7559466Z rustc 1.97.1 (8bab26f4f 2026-07-14)
+2026-09-24T18:01:37.7560944Z binary: rustc
+2026-09-24T18:01:37.7561859Z commit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452
+2026-09-24T18:01:37.7562862Z commit-date: 2026-07-14
+2026-09-24T18:01:37.7563607Z host: x86_64-unknown-linux-gnu
+2026-09-24T18:01:37.7564259Z release: 1.97.1
+2026-09-24T18:01:37.7565041Z LLVM version: 22.1.6
+2026-09-24T18:01:37.7588381Z ##[end-action id=__self.__dtolnay_rust-toolchain.__run_10;outcome=success;conclusion=success;duration_ms=29]
+2026-09-24T18:01:37.7635254Z ##[end-action id=__self.__dtolnay_rust-toolchain;outcome=success;conclusion=success;duration_ms=9546]
+2026-09-24T18:01:37.7637718Z ##[start-action display=Cache pinned wasm-bindgen CLI;id=__self.wasm-bindgen-cache]
+2026-09-24T18:01:37.7676723Z ##[group]Run actions/cache@v4
+2026-09-24T18:01:37.7676977Z with:
+2026-09-24T18:01:37.7677194Z   path: ~/.cargo/bin/wasm-bindgen
+2026-09-24T18:01:37.7677490Z   key: Linux-wasm-bindgen-cli-0.2.123
+2026-09-24T18:01:37.7689890Z   enableCrossOsArchive: false
+2026-09-24T18:01:37.7690218Z   fail-on-cache-miss: false
+2026-09-24T18:01:37.7690482Z   lookup-only: false
+2026-09-24T18:01:37.7691056Z   save-always: false
+2026-09-24T18:01:37.7691303Z env:
+2026-09-24T18:01:37.7691791Z   CI: true
+2026-09-24T18:01:37.7692019Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T18:01:37.7692286Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T18:01:37.7692523Z   CARGO_HOME: /home/runner/.cargo
+2026-09-24T18:01:37.7692797Z   CARGO_INCREMENTAL: 0
+2026-09-24T18:01:37.7693024Z   CARGO_TERM_COLOR: always
+2026-09-24T18:01:37.7693260Z ##[endgroup]
+2026-09-24T18:01:37.8731374Z (node:2398) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-24T18:01:37.8732421Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-24T18:01:37.9452366Z Cache hit for: Linux-wasm-bindgen-cli-0.2.123
+2026-09-24T18:01:37.9566074Z (node:2398) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-09-24T18:01:38.0432006Z Received 2467956 of 2467956 (100.0%), 39.2 MBs/sec
+2026-09-24T18:01:38.0432790Z Cache Size: ~2 MB (2467956 B)
+2026-09-24T18:01:38.0472522Z [command]/usr/bin/tar -xf /home/runner/work/_temp/ceb7748e-87b0-46a0-96bf-71d6a8aacb52/cache.tzst -P -C /home/runner/work/chirality/chirality --use-compress-program unzstd
+2026-09-24T18:01:38.0674382Z Cache restored successfully
+2026-09-24T18:01:38.0755604Z Cache restored from key: Linux-wasm-bindgen-cli-0.2.123
+2026-09-24T18:01:38.0819893Z ##[end-action id=__self.wasm-bindgen-cache;outcome=success;conclusion=success;duration_ms=318]
+2026-09-24T18:01:38.0822792Z ##[start-action display=Install pinned wasm-bindgen CLI;id=__self.__run]
+2026-09-24T18:01:38.0828616Z ##[end-action id=__self.__run;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-09-24T18:01:38.0831486Z ##[start-action display=Cache Cargo registry and WASM target;id=__self.__actions_cache]
+2026-09-24T18:01:38.1459995Z ##[group]Run actions/cache@v4
+2026-09-24T18:01:38.1460438Z with:
+2026-09-24T18:01:38.1461177Z   path: ~/.cargo/registry/
+projects/chirality-piping/core/model_operations/operation_applier/target
+
+2026-09-24T18:01:38.1461883Z   key: Linux-rust-1.97.1-32f6d9d299e4a9e31ee8c644478f7cec98c94f355b5451c0d7fffc5eff01eaae
+2026-09-24T18:01:38.1462376Z   restore-keys: Linux-rust-1.97.1-
+
+2026-09-24T18:01:38.1462677Z   enableCrossOsArchive: false
+2026-09-24T18:01:38.1462950Z   fail-on-cache-miss: false
+2026-09-24T18:01:38.1463210Z   lookup-only: false
+2026-09-24T18:01:38.1463434Z   save-always: false
+2026-09-24T18:01:38.1463653Z env:
+2026-09-24T18:01:38.1463842Z   CI: true
+2026-09-24T18:01:38.1464064Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T18:01:38.1464334Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T18:01:38.1464585Z   CARGO_HOME: /home/runner/.cargo
+2026-09-24T18:01:38.1464854Z   CARGO_INCREMENTAL: 0
+2026-09-24T18:01:38.1465092Z   CARGO_TERM_COLOR: always
+2026-09-24T18:01:38.1465329Z ##[endgroup]
+2026-09-24T18:01:38.2530971Z (node:2426) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-24T18:01:38.2532547Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-24T18:01:38.3167477Z Cache hit for: Linux-rust-1.97.1-32f6d9d299e4a9e31ee8c644478f7cec98c94f355b5451c0d7fffc5eff01eaae
+2026-09-24T18:01:38.3287568Z (node:2426) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-09-24T18:01:38.7808296Z Received 57496334 of 57496334 (100.0%), 135.7 MBs/sec
+2026-09-24T18:01:38.7809110Z Cache Size: ~55 MB (57496334 B)
+2026-09-24T18:01:38.7841571Z [command]/usr/bin/tar -xf /home/runner/work/_temp/9a079430-1897-4031-b041-a32aff74a639/cache.tzst -P -C /home/runner/work/chirality/chirality --use-compress-program unzstd
+2026-09-24T18:01:39.4308030Z Cache restored successfully
+2026-09-24T18:01:39.4411633Z Cache restored from key: Linux-rust-1.97.1-32f6d9d299e4a9e31ee8c644478f7cec98c94f355b5451c0d7fffc5eff01eaae
+2026-09-24T18:01:39.4519351Z ##[end-action id=__self.__actions_cache;outcome=success;conclusion=success;duration_ms=1368]
+2026-09-24T18:01:39.4523768Z ##[start-action display=Install project dependencies;id=__self.__run_2]
+2026-09-24T18:01:39.4550074Z ##[group]Run npm ci
+2026-09-24T18:01:39.4550351Z [36;1mnpm ci[0m
+2026-09-24T18:01:39.4618964Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-24T18:01:39.4619342Z env:
+2026-09-24T18:01:39.4619570Z   CI: true
+2026-09-24T18:01:39.4619794Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T18:01:39.4620082Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T18:01:39.4620345Z   CARGO_HOME: /home/runner/.cargo
+2026-09-24T18:01:39.4620843Z   CARGO_INCREMENTAL: 0
+2026-09-24T18:01:39.4621107Z   CARGO_TERM_COLOR: always
+2026-09-24T18:01:39.4621364Z ##[endgroup]
+2026-09-24T18:01:41.4136690Z npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+2026-09-24T18:01:45.2667153Z 
+2026-09-24T18:01:45.2668087Z added 206 packages, and audited 208 packages in 6s
+2026-09-24T18:01:45.2668671Z 
+2026-09-24T18:01:45.2669317Z 35 packages are looking for funding
+2026-09-24T18:01:45.2670357Z   run `npm fund` for details
+2026-09-24T18:01:45.2857463Z 
+2026-09-24T18:01:45.2858355Z 12 vulnerabilities (2 low, 5 moderate, 5 high)
+2026-09-24T18:01:45.2859123Z 
+2026-09-24T18:01:45.2859675Z To address all issues, run:
+2026-09-24T18:01:45.2860411Z   npm audit fix
+2026-09-24T18:01:45.2861296Z 
+2026-09-24T18:01:45.2861774Z Run `npm audit` for details.
+2026-09-24T18:01:45.2872225Z npm warn install-scripts 1 package has install scripts not yet covered by allowScripts:
+2026-09-24T18:01:45.2873850Z npm warn install-scripts   esbuild@0.27.7 (postinstall: node install.js)
+2026-09-24T18:01:45.2875323Z npm warn install-scripts
+2026-09-24T18:01:45.2876869Z npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+2026-09-24T18:01:45.3738957Z ##[end-action id=__self.__run_2;outcome=success;conclusion=success;duration_ms=5921]
+2026-09-24T18:01:45.3743182Z ##[start-action display=Fetch complete locked WASM dependency graphs;id=__self.__run_3]
+2026-09-24T18:01:45.3769835Z ##[group]Run cargo fetch --locked --manifest-path core/model_operations/operation_applier/Cargo.toml
+2026-09-24T18:01:45.3771296Z [36;1mcargo fetch --locked --manifest-path core/model_operations/operation_applier/Cargo.toml[0m
+2026-09-24T18:01:45.3772389Z [36;1mcargo fetch --locked --manifest-path core/loads/self_weight_wasm/Cargo.toml[0m
+2026-09-24T18:01:45.3856982Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-24T18:01:45.3857589Z env:
+2026-09-24T18:01:45.3857927Z   CI: true
+2026-09-24T18:01:45.3858296Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T18:01:45.3858755Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T18:01:45.3859185Z   CARGO_HOME: /home/runner/.cargo
+2026-09-24T18:01:45.3859644Z   CARGO_INCREMENTAL: 0
+2026-09-24T18:01:45.3860046Z   CARGO_TERM_COLOR: always
+2026-09-24T18:01:45.3860478Z ##[endgroup]
+2026-09-24T18:01:45.6562157Z ##[end-action id=__self.__run_3;outcome=success;conclusion=success;duration_ms=281]
+2026-09-24T18:01:45.6564488Z ##[start-action display=Build desktop WASM engine;id=__self.__run_4]
+2026-09-24T18:01:45.6605266Z ##[group]Run npm run build:wasm:desktop
+2026-09-24T18:01:45.6605800Z [36;1mnpm run build:wasm:desktop[0m
+2026-09-24T18:01:45.6685304Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-24T18:01:45.6685899Z env:
+2026-09-24T18:01:45.6686228Z   CI: true
+2026-09-24T18:01:45.6686589Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T18:01:45.6687039Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T18:01:45.6687463Z   CARGO_HOME: /home/runner/.cargo
+2026-09-24T18:01:45.6687917Z   CARGO_INCREMENTAL: 0
+2026-09-24T18:01:45.6688314Z   CARGO_TERM_COLOR: always
+2026-09-24T18:01:45.6688727Z ##[endgroup]
+2026-09-24T18:01:45.8062634Z 
+2026-09-24T18:01:45.8063695Z > openpipestress-workspace@0.1.0 build:wasm:desktop
+2026-09-24T18:01:45.8064545Z > npm run build:wasm --workspace apps/desktop
+2026-09-24T18:01:45.8064967Z 
+2026-09-24T18:01:45.9372739Z 
+2026-09-24T18:01:45.9373582Z > @openpipestress/desktop@0.1.0 build:wasm
+2026-09-24T18:01:45.9374391Z > node scripts/build-wasm-engine.mjs
+2026-09-24T18:01:45.9374816Z 
+2026-09-24T18:01:46.0111103Z [build-wasm-engine] cargo build --offline --target wasm32-unknown-unknown --features wasm --release
+2026-09-24T18:01:51.9944598Z [build-wasm-engine] wasm-bindgen --target web --out-dir public/wasm-engine.tmp-2527
+2026-09-24T18:01:52.0944657Z [build-wasm-engine] OK — wasm operation engine generated at public/wasm-engine (wasm-bindgen 0.2.123; artifacts are intentionally not committed)
+2026-09-24T18:01:52.0945783Z [build-wasm-engine] cargo build --offline --target wasm32-unknown-unknown --features wasm --release
+2026-09-24T18:02:10.1995049Z [build-wasm-engine] wasm-bindgen --target web --out-dir public/self-weight-engine.tmp-2527
+2026-09-24T18:02:10.2616131Z [build-wasm-engine] OK — wasm operation engine generated at public/self-weight-engine (wasm-bindgen 0.2.123; artifacts are intentionally not committed)
+2026-09-24T18:02:10.2795059Z ##[end-action id=__self.__run_4;outcome=success;conclusion=success;duration_ms=24622]
+2026-09-24T18:02:10.2797674Z ##[start-action display=Resolve pinned Playwright version;id=__self.playwright-version]
+2026-09-24T18:02:10.2815359Z ##[group]Run set -euo pipefail
+2026-09-24T18:02:10.2815678Z [36;1mset -euo pipefail[0m
+2026-09-24T18:02:10.2816198Z [36;1mversion="$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")"[0m
+2026-09-24T18:02:10.2816756Z [36;1mtest -n "${version}"[0m
+2026-09-24T18:02:10.2817085Z [36;1mecho "version=${version}" >> "${GITHUB_OUTPUT}"[0m
+2026-09-24T18:02:10.2877758Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-24T18:02:10.2878138Z env:
+2026-09-24T18:02:10.2878342Z   CI: true
+2026-09-24T18:02:10.2878569Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T18:02:10.2878859Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T18:02:10.2879288Z   CARGO_HOME: /home/runner/.cargo
+2026-09-24T18:02:10.2879581Z   CARGO_INCREMENTAL: 0
+2026-09-24T18:02:10.2879832Z   CARGO_TERM_COLOR: always
+2026-09-24T18:02:10.2880090Z ##[endgroup]
+2026-09-24T18:02:10.3273073Z ##[end-action id=__self.playwright-version;outcome=success;conclusion=success;duration_ms=47]
+2026-09-24T18:02:10.3275500Z ##[start-action display=Cache Playwright Chromium;id=__self.playwright-cache]
+2026-09-24T18:02:10.3314656Z ##[group]Run actions/cache@v4
+2026-09-24T18:02:10.3314926Z with:
+2026-09-24T18:02:10.3315149Z   path: ~/.cache/ms-playwright
+2026-09-24T18:02:10.3315425Z   key: Linux-playwright-1.60.0
+2026-09-24T18:02:10.3315708Z   enableCrossOsArchive: false
+2026-09-24T18:02:10.3315979Z   fail-on-cache-miss: false
+2026-09-24T18:02:10.3316231Z   lookup-only: false
+2026-09-24T18:02:10.3316459Z   save-always: false
+2026-09-24T18:02:10.3316679Z env:
+2026-09-24T18:02:10.3316866Z   CI: true
+2026-09-24T18:02:10.3317080Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T18:02:10.3317346Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T18:02:10.3317629Z   CARGO_HOME: /home/runner/.cargo
+2026-09-24T18:02:10.3317909Z   CARGO_INCREMENTAL: 0
+2026-09-24T18:02:10.3318154Z   CARGO_TERM_COLOR: always
+2026-09-24T18:02:10.3318394Z ##[endgroup]
+2026-09-24T18:02:10.4421515Z (node:3510) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-24T18:02:10.4422622Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-24T18:02:10.5088366Z Cache hit for: Linux-playwright-1.60.0
+2026-09-24T18:02:10.5199881Z (node:3510) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-09-24T18:02:11.5644550Z Received 251658240 of 271379177 (92.7%), 239.8 MBs/sec
+2026-09-24T18:02:11.6968347Z Received 271379177 of 271379177 (100.0%), 228.4 MBs/sec
+2026-09-24T18:02:11.6972729Z Cache Size: ~259 MB (271379177 B)
+2026-09-24T18:02:11.7014322Z [command]/usr/bin/tar -xf /home/runner/work/_temp/7001d2ce-8194-465f-97dc-959ad0417977/cache.tzst -P -C /home/runner/work/chirality/chirality --use-compress-program unzstd
+2026-09-24T18:02:12.7318448Z Cache restored successfully
+2026-09-24T18:02:12.7512700Z Cache restored from key: Linux-playwright-1.60.0
+2026-09-24T18:02:12.7640982Z ##[end-action id=__self.playwright-cache;outcome=success;conclusion=success;duration_ms=2436]
+2026-09-24T18:02:12.7643634Z ##[start-action display=Configure canonical Ubuntu package sources;id=__self.__run_5]
+2026-09-24T18:02:12.7662959Z ##[group]Run set -euo pipefail
+2026-09-24T18:02:12.7663297Z [36;1mset -euo pipefail[0m
+2026-09-24T18:02:12.7663568Z [36;1msource /etc/os-release[0m
+2026-09-24T18:02:12.7663868Z [36;1mtest -n "${VERSION_CODENAME}"[0m
+2026-09-24T18:02:12.7664267Z [36;1mtest -f /usr/share/keyrings/ubuntu-archive-keyring.gpg[0m
+2026-09-24T18:02:12.7664780Z [36;1m# Explicitly attempt immutable index URLs; APT can still fall back to[0m
+2026-09-24T18:02:12.7665351Z [36;1m# stable filenames. Signature, hash, and expiry checks remain enabled.[0m
+2026-09-24T18:02:12.7665890Z [36;1msudo tee /etc/apt/sources.list.d/ubuntu.sources >/dev/null <<EOF[0m
+2026-09-24T18:02:12.7666291Z [36;1mTypes: deb[0m
+2026-09-24T18:02:12.7666589Z [36;1mURIs: https://archive.ubuntu.com/ubuntu/[0m
+2026-09-24T18:02:12.7667105Z [36;1mSuites: ${VERSION_CODENAME} ${VERSION_CODENAME}-updates ${VERSION_CODENAME}-backports[0m
+2026-09-24T18:02:12.7667647Z [36;1mComponents: main restricted universe multiverse[0m
+2026-09-24T18:02:12.7667999Z [36;1mBy-Hash: force[0m
+2026-09-24T18:02:12.7668352Z [36;1mSigned-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg[0m
+2026-09-24T18:02:12.7668727Z [36;1m[0m
+2026-09-24T18:02:12.7668952Z [36;1mTypes: deb[0m
+2026-09-24T18:02:12.7669241Z [36;1mURIs: https://security.ubuntu.com/ubuntu/[0m
+2026-09-24T18:02:12.7669610Z [36;1mSuites: ${VERSION_CODENAME}-security[0m
+2026-09-24T18:02:12.7669989Z [36;1mComponents: main restricted universe multiverse[0m
+2026-09-24T18:02:12.7670700Z [36;1mBy-Hash: force[0m
+2026-09-24T18:02:12.7671082Z [36;1mSigned-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg[0m
+2026-09-24T18:02:12.7671460Z [36;1mEOF[0m
+2026-09-24T18:02:12.7671721Z [36;1mecho 'Rendered Ubuntu package sources:'[0m
+2026-09-24T18:02:12.7672124Z [36;1mcat /etc/apt/sources.list.d/ubuntu.sources[0m
+2026-09-24T18:02:12.7672665Z [36;1mecho 'Explicit APT acquisition configuration (unset values are omitted; defaults may apply):'[0m
+2026-09-24T18:02:12.7673871Z [36;1mapt-config shell BY_HASH Acquire::By-Hash PACKAGES_BY_HASH Acquire::IndexTargets::deb::Packages::By-Hash DEP11_BY_HASH Acquire::IndexTargets::deb::DEP-11::By-Hash HTTP_NO_CACHE Acquire::http::No-Cache HTTPS_NO_CACHE Acquire::https::No-Cache[0m
+2026-09-24T18:02:12.7674884Z [36;1mapt-config --version[0m
+2026-09-24T18:02:12.7737055Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-24T18:02:12.7737439Z env:
+2026-09-24T18:02:12.7737650Z   CI: true
+2026-09-24T18:02:12.7737889Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T18:02:12.7738176Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T18:02:12.7738439Z   CARGO_HOME: /home/runner/.cargo
+2026-09-24T18:02:12.7738728Z   CARGO_INCREMENTAL: 0
+2026-09-24T18:02:12.7738973Z   CARGO_TERM_COLOR: always
+2026-09-24T18:02:12.7739233Z ##[endgroup]
+2026-09-24T18:02:12.7895952Z Rendered Ubuntu package sources:
+2026-09-24T18:02:12.7904568Z Types: deb
+2026-09-24T18:02:12.7905153Z URIs: https://archive.ubuntu.com/ubuntu/
+2026-09-24T18:02:12.7905737Z Suites: noble noble-updates noble-backports
+2026-09-24T18:02:12.7906445Z Components: main restricted universe multiverse
+2026-09-24T18:02:12.7907051Z By-Hash: force
+2026-09-24T18:02:12.7907765Z Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+2026-09-24T18:02:12.7908292Z 
+2026-09-24T18:02:12.7908493Z Types: deb
+2026-09-24T18:02:12.7909069Z URIs: https://security.ubuntu.com/ubuntu/
+2026-09-24T18:02:12.7909706Z Suites: noble-security
+2026-09-24T18:02:12.7910294Z Components: main restricted universe multiverse
+2026-09-24T18:02:12.7911127Z By-Hash: force
+2026-09-24T18:02:12.7911626Z Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+2026-09-24T18:02:12.7912439Z Explicit APT acquisition configuration (unset values are omitted; defaults may apply):
+2026-09-24T18:02:12.7979368Z HTTP_NO_CACHE='true'
+2026-09-24T18:02:12.7979894Z HTTPS_NO_CACHE='true'
+2026-09-24T18:02:12.8014274Z apt 2.8.3 (amd64)
+2026-09-24T18:02:12.8026509Z ##[end-action id=__self.__run_5;outcome=success;conclusion=success;duration_ms=38]
+2026-09-24T18:02:12.8031116Z ##[start-action display=Install Chromium system dependencies;id=__self.__run_6]
+2026-09-24T18:02:12.8063690Z ##[group]Run npx playwright install-deps chromium
+2026-09-24T18:02:12.8064327Z [36;1mnpx playwright install-deps chromium[0m
+2026-09-24T18:02:12.8130276Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-24T18:02:12.8130929Z env:
+2026-09-24T18:02:12.8131146Z   CI: true
+2026-09-24T18:02:12.8131380Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T18:02:12.8131674Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T18:02:12.8131945Z   CARGO_HOME: /home/runner/.cargo
+2026-09-24T18:02:12.8132231Z   CARGO_INCREMENTAL: 0
+2026-09-24T18:02:12.8132483Z   CARGO_TERM_COLOR: always
+2026-09-24T18:02:12.8132736Z ##[endgroup]
+2026-09-24T18:02:13.5594868Z Installing dependencies...
+2026-09-24T18:02:13.5680709Z Switching to root user to install dependencies...
+2026-09-24T18:02:13.6851930Z Get:1 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+2026-09-24T18:02:13.7413255Z Get:2 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [491 kB]
+2026-09-24T18:02:13.8584385Z Get:3 https://archive.ubuntu.com/ubuntu noble InRelease [256 kB]
+2026-09-24T18:02:13.9305031Z Get:4 https://archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+2026-09-24T18:02:13.9491793Z Get:5 https://archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+2026-09-24T18:02:13.9592090Z Get:6 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [441 kB]
+2026-09-24T18:02:13.9866774Z Get:7 https://archive.ubuntu.com/ubuntu noble/main amd64 Packages [1401 kB]
+2026-09-24T18:02:14.0555258Z Get:8 https://archive.ubuntu.com/ubuntu noble/main Translation-en [513 kB]
+2026-09-24T18:02:14.0744543Z Get:9 https://archive.ubuntu.com/ubuntu noble/main amd64 Components [464 kB]
+2026-09-24T18:02:14.0948411Z Get:10 https://archive.ubuntu.com/ubuntu noble/main amd64 c-n-f Metadata [30.5 kB]
+2026-09-24T18:02:14.1088445Z Get:11 https://archive.ubuntu.com/ubuntu noble/restricted amd64 Packages [93.9 kB]
+2026-09-24T18:02:14.1234781Z Get:12 https://archive.ubuntu.com/ubuntu noble/restricted Translation-en [18.7 kB]
+2026-09-24T18:02:14.1372851Z Get:13 https://archive.ubuntu.com/ubuntu noble/restricted amd64 c-n-f Metadata [416 B]
+2026-09-24T18:02:14.1511106Z Get:14 https://archive.ubuntu.com/ubuntu noble/universe amd64 Packages [15.0 MB]
+2026-09-24T18:02:14.2672749Z Get:15 https://archive.ubuntu.com/ubuntu noble/universe Translation-en [5982 kB]
+2026-09-24T18:02:14.3142438Z Get:16 https://archive.ubuntu.com/ubuntu noble/universe amd64 Components [3871 kB]
+2026-09-24T18:02:14.3300925Z Get:17 https://security.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+2026-09-24T18:02:14.3474169Z Get:18 https://archive.ubuntu.com/ubuntu noble/universe amd64 c-n-f Metadata [301 kB]
+2026-09-24T18:02:14.3631112Z Get:19 https://archive.ubuntu.com/ubuntu noble/multiverse amd64 Packages [269 kB]
+2026-09-24T18:02:14.4328907Z Get:20 https://archive.ubuntu.com/ubuntu noble/multiverse Translation-en [118 kB]
+2026-09-24T18:02:14.4473636Z Get:21 https://archive.ubuntu.com/ubuntu noble/multiverse amd64 Components [35.0 kB]
+2026-09-24T18:02:14.4613801Z Get:22 https://archive.ubuntu.com/ubuntu noble/multiverse amd64 c-n-f Metadata [8328 B]
+2026-09-24T18:02:14.4752573Z Get:23 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1309 kB]
+2026-09-24T18:02:14.4959598Z Get:24 https://archive.ubuntu.com/ubuntu noble-updates/main Translation-en [298 kB]
+2026-09-24T18:02:14.5114556Z Get:25 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 Components [181 kB]
+2026-09-24T18:02:14.5263503Z Get:26 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 c-n-f Metadata [17.7 kB]
+2026-09-24T18:02:14.5405593Z Get:27 https://archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1635 kB]
+2026-09-24T18:02:14.5619698Z Get:28 https://archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [372 kB]
+2026-09-24T18:02:14.5773940Z Get:29 https://archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Components [212 B]
+2026-09-24T18:02:14.5912188Z Get:30 https://archive.ubuntu.com/ubuntu noble-updates/restricted amd64 c-n-f Metadata [456 B]
+2026-09-24T18:02:14.6051871Z Get:31 https://archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1698 kB]
+2026-09-24T18:02:14.6272325Z Get:32 https://archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [340 kB]
+2026-09-24T18:02:14.6427208Z Get:33 https://archive.ubuntu.com/ubuntu noble-updates/universe amd64 Components [388 kB]
+2026-09-24T18:02:14.6585990Z Get:34 https://archive.ubuntu.com/ubuntu noble-updates/universe amd64 c-n-f Metadata [34.9 kB]
+2026-09-24T18:02:14.7279697Z Get:35 https://archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [45.7 kB]
+2026-09-24T18:02:14.7424398Z Get:36 https://archive.ubuntu.com/ubuntu noble-updates/multiverse Translation-en [13.1 kB]
+2026-09-24T18:02:14.7565756Z Get:37 https://archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Components [940 B]
+2026-09-24T18:02:14.7702341Z Get:38 https://archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 c-n-f Metadata [656 B]
+2026-09-24T18:02:14.7843369Z Get:39 https://archive.ubuntu.com/ubuntu noble-backports/main amd64 Packages [40.6 kB]
+2026-09-24T18:02:14.7985288Z Get:40 https://archive.ubuntu.com/ubuntu noble-backports/main Translation-en [9172 B]
+2026-09-24T18:02:14.8123643Z Get:41 https://archive.ubuntu.com/ubuntu noble-backports/main amd64 Components [5764 B]
+2026-09-24T18:02:14.8261785Z Get:42 https://archive.ubuntu.com/ubuntu noble-backports/main amd64 c-n-f Metadata [368 B]
+2026-09-24T18:02:14.8399110Z Get:43 https://archive.ubuntu.com/ubuntu noble-backports/restricted amd64 Components [212 B]
+2026-09-24T18:02:14.8459538Z Get:44 https://security.ubuntu.com/ubuntu noble-security/main amd64 Packages [1053 kB]
+2026-09-24T18:02:14.8536542Z Get:45 https://archive.ubuntu.com/ubuntu noble-backports/restricted amd64 c-n-f Metadata [116 B]
+2026-09-24T18:02:14.8677618Z Get:46 https://archive.ubuntu.com/ubuntu noble-backports/universe amd64 Packages [31.0 kB]
+2026-09-24T18:02:14.8819210Z Get:47 https://archive.ubuntu.com/ubuntu noble-backports/universe Translation-en [18.6 kB]
+2026-09-24T18:02:14.8959885Z Get:48 https://archive.ubuntu.com/ubuntu noble-backports/universe amd64 Components [12.6 kB]
+2026-09-24T18:02:14.9099476Z Get:49 https://archive.ubuntu.com/ubuntu noble-backports/universe amd64 c-n-f Metadata [1588 B]
+2026-09-24T18:02:14.9776154Z Get:50 https://archive.ubuntu.com/ubuntu noble-backports/multiverse amd64 Packages [748 B]
+2026-09-24T18:02:14.9912399Z Get:51 https://archive.ubuntu.com/ubuntu noble-backports/multiverse Translation-en [340 B]
+2026-09-24T18:02:15.0050885Z Get:52 https://archive.ubuntu.com/ubuntu noble-backports/multiverse amd64 Components [212 B]
+2026-09-24T18:02:15.0188340Z Get:53 https://archive.ubuntu.com/ubuntu noble-backports/multiverse amd64 c-n-f Metadata [116 B]
+2026-09-24T18:02:15.5416908Z Get:54 https://security.ubuntu.com/ubuntu noble-security/main Translation-en [219 kB]
+2026-09-24T18:02:15.6776993Z Get:55 https://security.ubuntu.com/ubuntu noble-security/main amd64 Components [46.4 kB]
+2026-09-24T18:02:15.7966390Z Get:56 https://security.ubuntu.com/ubuntu noble-security/main amd64 c-n-f Metadata [11.9 kB]
+2026-09-24T18:02:15.9119790Z Get:57 https://security.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1535 kB]
+2026-09-24T18:02:16.2572400Z Get:58 https://security.ubuntu.com/ubuntu noble-security/restricted Translation-en [353 kB]
+2026-09-24T18:02:16.3905450Z Get:59 https://security.ubuntu.com/ubuntu noble-security/restricted amd64 Components [212 B]
+2026-09-24T18:02:16.5057969Z Get:60 https://security.ubuntu.com/ubuntu noble-security/restricted amd64 c-n-f Metadata [444 B]
+2026-09-24T18:02:16.6209842Z Get:61 https://security.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1220 kB]
+2026-09-24T18:02:16.7997607Z Get:62 https://security.ubuntu.com/ubuntu noble-security/universe Translation-en [245 kB]
+2026-09-24T18:02:16.9272876Z Get:63 https://security.ubuntu.com/ubuntu noble-security/universe amd64 Components [76.3 kB]
+2026-09-24T18:02:17.0448548Z Get:64 https://security.ubuntu.com/ubuntu noble-security/universe amd64 c-n-f Metadata [24.2 kB]
+2026-09-24T18:02:17.1606307Z Get:65 https://security.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [40.3 kB]
+2026-09-24T18:02:17.4536717Z Get:66 https://security.ubuntu.com/ubuntu noble-security/multiverse Translation-en [11.3 kB]
+2026-09-24T18:02:17.5701763Z Get:67 https://security.ubuntu.com/ubuntu noble-security/multiverse amd64 Components [208 B]
+2026-09-24T18:02:17.6854081Z Get:68 https://security.ubuntu.com/ubuntu noble-security/multiverse amd64 c-n-f Metadata [468 B]
+2026-09-24T18:02:23.2187725Z Fetched 41.0 MB in 4s (9543 kB/s)
+2026-09-24T18:02:24.0033166Z Reading package lists...
+2026-09-24T18:02:24.0263645Z Reading package lists...
+2026-09-24T18:02:24.2180988Z Building dependency tree...
+2026-09-24T18:02:24.2188316Z Reading state information...
+2026-09-24T18:02:24.3665171Z libasound2t64 is already the newest version (1.2.11-1ubuntu0.3).
+2026-09-24T18:02:24.3666198Z libasound2t64 set to manually installed.
+2026-09-24T18:02:24.3667277Z libatk-bridge2.0-0t64 is already the newest version (2.52.0-1build1).
+2026-09-24T18:02:24.3668412Z libatk-bridge2.0-0t64 set to manually installed.
+2026-09-24T18:02:24.3669545Z libatk1.0-0t64 is already the newest version (2.52.0-1build1).
+2026-09-24T18:02:24.3670818Z libatk1.0-0t64 set to manually installed.
+2026-09-24T18:02:24.3671923Z libatspi2.0-0t64 is already the newest version (2.52.0-1build1).
+2026-09-24T18:02:24.3673077Z libatspi2.0-0t64 set to manually installed.
+2026-09-24T18:02:24.3673749Z libcairo2 is already the newest version (1.18.0-3build1).
+2026-09-24T18:02:24.3674362Z libcairo2 set to manually installed.
+2026-09-24T18:02:24.3675023Z libcups2t64 is already the newest version (2.4.7-1.2ubuntu7.14).
+2026-09-24T18:02:24.3675636Z libcups2t64 set to manually installed.
+2026-09-24T18:02:24.3676121Z libdbus-1-3 is already the newest version (1.14.10-4ubuntu4.1).
+2026-09-24T18:02:24.3676594Z libdbus-1-3 set to manually installed.
+2026-09-24T18:02:24.3677085Z libdrm2 is already the newest version (2.4.125-1ubuntu0.1~24.04.2).
+2026-09-24T18:02:24.3677548Z libdrm2 set to manually installed.
+2026-09-24T18:02:24.3678203Z libgbm1 is already the newest version (25.2.8-0ubuntu0.24.04.2).
+2026-09-24T18:02:24.3678668Z libgbm1 set to manually installed.
+2026-09-24T18:02:24.3679123Z libnspr4 is already the newest version (2:4.35-1.1build1).
+2026-09-24T18:02:24.3679573Z libnspr4 set to manually installed.
+2026-09-24T18:02:24.3680238Z libnss3 is already the newest version (2:3.98-1ubuntu0.2).
+2026-09-24T18:02:24.3681024Z libnss3 set to manually installed.
+2026-09-24T18:02:24.3681518Z libpango-1.0-0 is already the newest version (1.52.1+ds-1build1).
+2026-09-24T18:02:24.3681999Z libpango-1.0-0 set to manually installed.
+2026-09-24T18:02:24.3682466Z libx11-6 is already the newest version (2:1.8.7-1build1).
+2026-09-24T18:02:24.3682996Z libx11-6 set to manually installed.
+2026-09-24T18:02:24.3683412Z libxcb1 is already the newest version (1.15-1ubuntu2).
+2026-09-24T18:02:24.3683831Z libxcb1 set to manually installed.
+2026-09-24T18:02:24.3684301Z libxcomposite1 is already the newest version (1:0.4.5-1build3).
+2026-09-24T18:02:24.3684772Z libxcomposite1 set to manually installed.
+2026-09-24T18:02:24.3685259Z libxdamage1 is already the newest version (1:1.1.6-1build1).
+2026-09-24T18:02:24.3685789Z libxdamage1 set to manually installed.
+2026-09-24T18:02:24.3686230Z libxext6 is already the newest version (2:1.3.4-1build2).
+2026-09-24T18:02:24.3686862Z libxext6 set to manually installed.
+2026-09-24T18:02:24.3687291Z libxfixes3 is already the newest version (1:6.0.0-2build1).
+2026-09-24T18:02:24.3687712Z libxfixes3 set to manually installed.
+2026-09-24T18:02:24.3688143Z libxkbcommon0 is already the newest version (1.6.0-1build1).
+2026-09-24T18:02:24.3688561Z libxkbcommon0 set to manually installed.
+2026-09-24T18:02:24.3688993Z libxrandr2 is already the newest version (2:1.5.2-2build1).
+2026-09-24T18:02:24.3689396Z libxrandr2 set to manually installed.
+2026-09-24T18:02:24.3690004Z fonts-noto-color-emoji is already the newest version (2.047-0ubuntu0.24.04.1).
+2026-09-24T18:02:24.3690850Z libfontconfig1 is already the newest version (2.15.0-1.1ubuntu2).
+2026-09-24T18:02:24.3691301Z libfontconfig1 set to manually installed.
+2026-09-24T18:02:24.3691776Z libfreetype6 is already the newest version (2.13.2+dfsg-1ubuntu0.1).
+2026-09-24T18:02:24.3692231Z libfreetype6 set to manually installed.
+2026-09-24T18:02:24.3692681Z fonts-liberation is already the newest version (1:2.1.5-3).
+2026-09-24T18:02:24.3693119Z fonts-liberation set to manually installed.
+2026-09-24T18:02:24.3693554Z The following additional packages will be installed:
+2026-09-24T18:02:24.3694195Z   gir1.2-glib-2.0 libglib2.0-bin libglib2.0-data xfonts-encodings xfonts-utils
+2026-09-24T18:02:24.3694636Z   xserver-common
+2026-09-24T18:02:24.3694896Z Suggested packages:
+2026-09-24T18:02:24.3695146Z   low-memory-monitor
+2026-09-24T18:02:24.3695411Z Recommended packages:
+2026-09-24T18:02:24.3695737Z   fonts-ipafont-mincho fonts-tlwg-loma xfonts-base
+2026-09-24T18:02:24.3911655Z The following NEW packages will be installed:
+2026-09-24T18:02:24.3912536Z   fonts-freefont-ttf fonts-ipafont-gothic fonts-tlwg-loma-otf fonts-unifont
+2026-09-24T18:02:24.3919039Z   fonts-wqy-zenhei xfonts-cyrillic xfonts-encodings xfonts-scalable
+2026-09-24T18:02:24.3919773Z   xfonts-utils
+2026-09-24T18:02:24.3923305Z The following packages will be upgraded:
+2026-09-24T18:02:24.3929242Z   gir1.2-glib-2.0 libglib2.0-0t64 libglib2.0-bin libglib2.0-data
+2026-09-24T18:02:24.3929935Z   xserver-common xvfb
+2026-09-24T18:02:24.8622732Z 6 upgraded, 9 newly installed, 0 to remove and 25 not upgraded.
+2026-09-24T18:02:24.8625627Z Need to get 23.9 MB of archives.
+2026-09-24T18:02:24.8626272Z After this operation, 79.6 MB of additional disk space will be used.
+2026-09-24T18:02:24.8627313Z Get:1 https://archive.ubuntu.com/ubuntu noble/universe amd64 fonts-ipafont-gothic all 00303-21ubuntu1 [3513 kB]
+2026-09-24T18:02:25.8437455Z Get:2 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libglib2.0-data all 2.80.0-6ubuntu3.9 [50.1 kB]
+2026-09-24T18:02:25.9263368Z Get:3 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libglib2.0-bin amd64 2.80.0-6ubuntu3.9 [97.9 kB]
+2026-09-24T18:02:26.0097040Z Get:4 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 gir1.2-glib-2.0 amd64 2.80.0-6ubuntu3.9 [183 kB]
+2026-09-24T18:02:26.0948680Z Get:5 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libglib2.0-0t64 amd64 2.80.0-6ubuntu3.9 [1547 kB]
+2026-09-24T18:02:26.2161750Z Get:6 https://archive.ubuntu.com/ubuntu noble/main amd64 fonts-freefont-ttf all 20211204+svn4273-2 [5641 kB]
+2026-09-24T18:02:26.4672280Z Get:7 https://archive.ubuntu.com/ubuntu noble/universe amd64 fonts-tlwg-loma-otf all 1:0.7.3-1 [107 kB]
+2026-09-24T18:02:26.5493354Z Get:8 https://archive.ubuntu.com/ubuntu noble/universe amd64 fonts-unifont all 1:15.1.01-1build1 [2993 kB]
+2026-09-24T18:02:26.6552971Z Get:9 https://archive.ubuntu.com/ubuntu noble/universe amd64 fonts-wqy-zenhei all 0.9.45-8 [7472 kB]
+2026-09-24T18:02:26.8298636Z Get:10 https://archive.ubuntu.com/ubuntu noble/main amd64 xfonts-encodings all 1:1.0.5-0ubuntu2 [578 kB]
+2026-09-24T18:02:26.9149666Z Get:11 https://archive.ubuntu.com/ubuntu noble/main amd64 xfonts-utils amd64 1:7.7+6build3 [94.4 kB]
+2026-09-24T18:02:26.9969664Z Get:12 https://archive.ubuntu.com/ubuntu noble/universe amd64 xfonts-cyrillic all 1:1.0.5+nmu1 [384 kB]
+2026-09-24T18:02:27.0814484Z Get:13 https://archive.ubuntu.com/ubuntu noble/main amd64 xfonts-scalable all 1:1.0.3-1.3 [304 kB]
+2026-09-24T18:02:27.1646158Z Get:14 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 xserver-common all 2:21.1.12-1ubuntu1.8 [34.8 kB]
+2026-09-24T18:02:27.2461442Z Get:15 https://archive.ubuntu.com/ubuntu noble-updates/universe amd64 xvfb amd64 2:21.1.12-1ubuntu1.8 [877 kB]
+2026-09-24T18:02:27.5063060Z Fetched 23.9 MB in 3s (8371 kB/s)
+2026-09-24T18:02:27.5292777Z Selecting previously unselected package fonts-ipafont-gothic.
+2026-09-24T18:02:27.5563454Z (Reading database ... 
+2026-09-24T18:02:27.5564329Z (Reading database ... 5%
+2026-09-24T18:02:27.5564985Z (Reading database ... 10%
+2026-09-24T18:02:27.5565610Z (Reading database ... 15%
+2026-09-24T18:02:27.5566018Z (Reading database ... 20%
+2026-09-24T18:02:27.5566444Z (Reading database ... 25%
+2026-09-24T18:02:27.5566856Z (Reading database ... 30%
+2026-09-24T18:02:27.5567248Z (Reading database ... 35%
+2026-09-24T18:02:27.5567668Z (Reading database ... 40%
+2026-09-24T18:02:27.5568271Z (Reading database ... 45%
+2026-09-24T18:02:27.5568727Z (Reading database ... 50%
+2026-09-24T18:02:27.5615669Z (Reading database ... 55%
+2026-09-24T18:02:27.6317209Z (Reading database ... 60%
+2026-09-24T18:02:27.8332157Z (Reading database ... 65%
+2026-09-24T18:02:28.0414837Z (Reading database ... 70%
+2026-09-24T18:02:28.2286223Z (Reading database ... 75%
+2026-09-24T18:02:28.3861644Z (Reading database ... 80%
+2026-09-24T18:02:28.6341618Z (Reading database ... 85%
+2026-09-24T18:02:28.7916569Z (Reading database ... 90%
+2026-09-24T18:02:28.9932320Z (Reading database ... 95%
+2026-09-24T18:02:28.9932928Z (Reading database ... 100%
+2026-09-24T18:02:28.9933751Z (Reading database ... 202190 files and directories currently installed.)
+2026-09-24T18:02:28.9974350Z Preparing to unpack .../00-fonts-ipafont-gothic_00303-21ubuntu1_all.deb ...
+2026-09-24T18:02:29.0065050Z Unpacking fonts-ipafont-gothic (00303-21ubuntu1) ...
+2026-09-24T18:02:29.2420371Z Preparing to unpack .../01-libglib2.0-data_2.80.0-6ubuntu3.9_all.deb ...
+2026-09-24T18:02:29.2438073Z Unpacking libglib2.0-data (2.80.0-6ubuntu3.9) over (2.80.0-6ubuntu3.8) ...
+2026-09-24T18:02:29.2773584Z Preparing to unpack .../02-libglib2.0-bin_2.80.0-6ubuntu3.9_amd64.deb ...
+2026-09-24T18:02:29.2791884Z Unpacking libglib2.0-bin (2.80.0-6ubuntu3.9) over (2.80.0-6ubuntu3.8) ...
+2026-09-24T18:02:29.3275435Z Preparing to unpack .../03-gir1.2-glib-2.0_2.80.0-6ubuntu3.9_amd64.deb ...
+2026-09-24T18:02:29.3298816Z Unpacking gir1.2-glib-2.0:amd64 (2.80.0-6ubuntu3.9) over (2.80.0-6ubuntu3.8) ...
+2026-09-24T18:02:29.3688606Z Preparing to unpack .../04-libglib2.0-0t64_2.80.0-6ubuntu3.9_amd64.deb ...
+2026-09-24T18:02:29.3754808Z Unpacking libglib2.0-0t64:amd64 (2.80.0-6ubuntu3.9) over (2.80.0-6ubuntu3.8) ...
+2026-09-24T18:02:29.4164110Z Selecting previously unselected package fonts-freefont-ttf.
+2026-09-24T18:02:29.4291272Z Preparing to unpack .../05-fonts-freefont-ttf_20211204+svn4273-2_all.deb ...
+2026-09-24T18:02:29.4299972Z Unpacking fonts-freefont-ttf (20211204+svn4273-2) ...
+2026-09-24T18:02:29.5126543Z Selecting previously unselected package fonts-tlwg-loma-otf.
+2026-09-24T18:02:29.5249748Z Preparing to unpack .../06-fonts-tlwg-loma-otf_1%3a0.7.3-1_all.deb ...
+2026-09-24T18:02:29.5256878Z Unpacking fonts-tlwg-loma-otf (1:0.7.3-1) ...
+2026-09-24T18:02:29.5454058Z Selecting previously unselected package fonts-unifont.
+2026-09-24T18:02:29.5578321Z Preparing to unpack .../07-fonts-unifont_1%3a15.1.01-1build1_all.deb ...
+2026-09-24T18:02:29.5586526Z Unpacking fonts-unifont (1:15.1.01-1build1) ...
+2026-09-24T18:02:29.6601481Z Selecting previously unselected package fonts-wqy-zenhei.
+2026-09-24T18:02:29.6724170Z Preparing to unpack .../08-fonts-wqy-zenhei_0.9.45-8_all.deb ...
+2026-09-24T18:02:29.6823313Z Unpacking fonts-wqy-zenhei (0.9.45-8) ...
+2026-09-24T18:02:30.1481730Z Selecting previously unselected package xfonts-encodings.
+2026-09-24T18:02:30.1606293Z Preparing to unpack .../09-xfonts-encodings_1%3a1.0.5-0ubuntu2_all.deb ...
+2026-09-24T18:02:30.1639829Z Unpacking xfonts-encodings (1:1.0.5-0ubuntu2) ...
+2026-09-24T18:02:30.1915843Z Selecting previously unselected package xfonts-utils.
+2026-09-24T18:02:30.2038585Z Preparing to unpack .../10-xfonts-utils_1%3a7.7+6build3_amd64.deb ...
+2026-09-24T18:02:30.2046110Z Unpacking xfonts-utils (1:7.7+6build3) ...
+2026-09-24T18:02:30.2363994Z Selecting previously unselected package xfonts-cyrillic.
+2026-09-24T18:02:30.2489726Z Preparing to unpack .../11-xfonts-cyrillic_1%3a1.0.5+nmu1_all.deb ...
+2026-09-24T18:02:30.2496942Z Unpacking xfonts-cyrillic (1:1.0.5+nmu1) ...
+2026-09-24T18:02:30.2891416Z Selecting previously unselected package xfonts-scalable.
+2026-09-24T18:02:30.3015126Z Preparing to unpack .../12-xfonts-scalable_1%3a1.0.3-1.3_all.deb ...
+2026-09-24T18:02:30.3023859Z Unpacking xfonts-scalable (1:1.0.3-1.3) ...
+2026-09-24T18:02:30.3369501Z Preparing to unpack .../13-xserver-common_2%3a21.1.12-1ubuntu1.8_all.deb ...
+2026-09-24T18:02:30.3389346Z Unpacking xserver-common (2:21.1.12-1ubuntu1.8) over (2:21.1.12-1ubuntu1.6) ...
+2026-09-24T18:02:30.3721307Z Preparing to unpack .../14-xvfb_2%3a21.1.12-1ubuntu1.8_amd64.deb ...
+2026-09-24T18:02:30.3740083Z Unpacking xvfb (2:21.1.12-1ubuntu1.8) over (2:21.1.12-1ubuntu1.6) ...
+2026-09-24T18:02:30.4244905Z Setting up fonts-wqy-zenhei (0.9.45-8) ...
+2026-09-24T18:02:30.4355013Z Setting up fonts-freefont-ttf (20211204+svn4273-2) ...
+2026-09-24T18:02:30.4372762Z Setting up libglib2.0-0t64:amd64 (2.80.0-6ubuntu3.9) ...
+2026-09-24T18:02:30.4470052Z Setting up libglib2.0-data (2.80.0-6ubuntu3.9) ...
+2026-09-24T18:02:30.4487393Z Setting up fonts-tlwg-loma-otf (1:0.7.3-1) ...
+2026-09-24T18:02:30.4503511Z Setting up xfonts-encodings (1:1.0.5-0ubuntu2) ...
+2026-09-24T18:02:30.4520238Z Setting up gir1.2-glib-2.0:amd64 (2.80.0-6ubuntu3.9) ...
+2026-09-24T18:02:30.4538696Z Setting up fonts-ipafont-gothic (00303-21ubuntu1) ...
+2026-09-24T18:02:30.4601118Z update-alternatives: using /usr/share/fonts/opentype/ipafont-gothic/ipag.ttf to provide /usr/share/fonts/truetype/fonts-japanese-gothic.ttf (fonts-japanese-gothic.ttf) in auto mode
+2026-09-24T18:02:30.4615274Z Setting up xserver-common (2:21.1.12-1ubuntu1.8) ...
+2026-09-24T18:02:30.4632361Z Setting up fonts-unifont (1:15.1.01-1build1) ...
+2026-09-24T18:02:30.4649099Z Setting up xvfb (2:21.1.12-1ubuntu1.8) ...
+2026-09-24T18:02:30.4666282Z Setting up libglib2.0-bin (2.80.0-6ubuntu3.9) ...
+2026-09-24T18:02:30.4684467Z Setting up xfonts-utils (1:7.7+6build3) ...
+2026-09-24T18:02:30.4723105Z Setting up xfonts-cyrillic (1:1.0.5+nmu1) ...
+2026-09-24T18:02:30.5003899Z Setting up xfonts-scalable (1:1.0.3-1.3) ...
+2026-09-24T18:02:30.5266758Z Processing triggers for libc-bin (2.39-0ubuntu8.9) ...
+2026-09-24T18:02:30.5563979Z Processing triggers for man-db (2.12.0-4build2) ...
+2026-09-24T18:02:30.5584048Z Not building database; man-db/auto-update is not 'true'.
+2026-09-24T18:02:30.5595080Z Processing triggers for fontconfig (2.15.0-1.1ubuntu2) ...
+2026-09-24T18:02:31.1827303Z 
+2026-09-24T18:02:31.1828008Z Running kernel seems to be up-to-date.
+2026-09-24T18:02:31.1828475Z 
+2026-09-24T18:02:31.1828722Z Restarting services...
+2026-09-24T18:02:31.2283991Z  systemctl restart packagekit.service php8.3-fpm.service polkit.service udisks2.service
+2026-09-24T18:02:31.3533265Z 
+2026-09-24T18:02:31.3534187Z Service restarts being deferred:
+2026-09-24T18:02:31.3534751Z  systemctl restart ModemManager.service
+2026-09-24T18:02:31.3541889Z  systemctl restart networkd-dispatcher.service
+2026-09-24T18:02:31.3542439Z 
+2026-09-24T18:02:31.3542901Z No containers need to be restarted.
+2026-09-24T18:02:31.3543276Z 
+2026-09-24T18:02:31.3543730Z No user sessions are running outdated binaries.
+2026-09-24T18:02:31.3544154Z 
+2026-09-24T18:02:31.3544852Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+2026-09-24T18:02:32.2263808Z ##[end-action id=__self.__run_6;outcome=success;conclusion=success;duration_ms=19423]
+2026-09-24T18:02:32.2266353Z ##[start-action display=Install Chromium and system dependencies;id=__self.__run_7]
+2026-09-24T18:02:32.2272350Z ##[end-action id=__self.__run_7;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-09-24T18:02:32.2303576Z ##[group]Run python3 projects/chirality-piping/tools/ci/e2e_plan.py run --plan piping-e2e-plan.json --stage remainder --shard "$SHARD" --evidence-dir "piping-e2e-collection/shard-$SHARD"
+2026-09-24T18:02:32.2304953Z [36;1mpython3 projects/chirality-piping/tools/ci/e2e_plan.py run --plan piping-e2e-plan.json --stage remainder --shard "$SHARD" --evidence-dir "piping-e2e-collection/shard-$SHARD"[0m
+2026-09-24T18:02:32.2367057Z shell: /usr/bin/bash -e {0}
+2026-09-24T18:02:32.2367343Z env:
+2026-09-24T18:02:32.2367553Z   CI: true
+2026-09-24T18:02:32.2367784Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T18:02:32.2368081Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T18:02:32.2368343Z   CARGO_HOME: /home/runner/.cargo
+2026-09-24T18:02:32.2368629Z   CARGO_INCREMENTAL: 0
+2026-09-24T18:02:32.2368885Z   CARGO_TERM_COLOR: always
+2026-09-24T18:02:32.2369132Z   SHARD: 1
+2026-09-24T18:02:32.2369345Z ##[endgroup]
+2026-09-24T18:02:41.5881947Z 
+2026-09-24T18:02:41.5951664Z Running 96 tests using 1 worker
+2026-09-24T18:02:41.5991131Z 
+2026-09-24T18:02:48.2590086Z   ✓   1 [chromium-desktop] › e2e/b3b-project-persistence.spec.ts:16:1 › B3B blank/create/save/open snapshot evidence (5.7s)
+2026-09-24T18:02:55.1409564Z   ✓   2 [chromium-desktop] › e2e/r2-smoke.spec.ts:148:1 › guided workbench shell keeps journey steps, details, and compact status reachable (6.8s)
+2026-09-24T18:02:58.8464099Z   ✓   3 [chromium-desktop] › e2e/r2-smoke.spec.ts:226:1 › DEC-077 solve temperature queues an explicit unit-bearing operation (3.7s)
+2026-09-24T18:03:48.4712291Z   ✓   4 [chromium-desktop] › e2e/r2-smoke.spec.ts:251:1 › R2 desktop preview smoke covers solve, results, report, and viewport overlay (49.6s)
+2026-09-24T18:03:53.4165293Z   ✓   5 [chromium-desktop] › e2e/r2-smoke.spec.ts:829:1 › viewport gesture placeholders record unit validation (4.9s)
+2026-09-24T18:04:15.4362567Z   ✓   6 [chromium-desktop] › e2e/r2-smoke.spec.ts:866:1 › R2 from-blank GUI journey authors the A12 rehearsal script (22.0s)
+2026-09-24T18:04:18.7135751Z   ✓   7 [chromium-desktop] › e2e/r2-smoke.spec.ts:1086:1 › diagnostic detail exposes linked result unit context (3.3s)
+2026-09-24T18:04:24.1336889Z   ✓   8 [chromium-desktop] › e2e/r2-smoke.spec.ts:1109:1 › rule-pack manager drafts privately and reports the desktop-only backend seam (5.4s)
+2026-09-24T18:04:28.3659269Z   ✓   9 [chromium-desktop] › e2e/r2-smoke.spec.ts:1332:1 › library manager loads an invented private sample and reports the desktop-only backend seam (4.2s)
+2026-09-24T18:04:31.4718758Z   ✓  10 [chromium-desktop] › e2e/r2-smoke.spec.ts:1496:1 › run-rule-checks panel loads the demo pack, derives bindings, and reports the desktop-only run seam (3.1s)
+2026-09-24T18:04:37.6063706Z   ✓  11 [chromium-desktop] › e2e/r2-smoke.spec.ts:1624:1 › R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps (6.1s)
+2026-09-24T18:04:43.5212752Z   ✓  12 [chromium-desktop] › e2e/ui-foundation.spec.ts:38:1 › [preflight] maintained fixture supports typed selection and a keyboard-authored measurement (5.8s)
+2026-09-24T18:04:45.7574896Z   ✓  13 [chromium-desktop] › e2e/ui-foundation.spec.ts:82:1 › a first late diagnostics pull is RAF-neutral and projection refreshes after a real camera change (2.2s)
+2026-09-24T18:04:48.7534568Z   ✓  14 [chromium-desktop] › e2e/ui-foundation.spec.ts:270:3 › Project pointer click followed by Shift-node preserves the displayed entity range and excludes Project on the 1k fixture (3.0s)
+2026-09-24T18:05:03.2127621Z   ✓  15 [chromium-desktop] › e2e/ui-foundation.spec.ts:676:7 › task and analysis dock preserve usable canvas light comfortable 1024x768 @explicit-viewport (14.4s)
+2026-09-24T18:05:16.6957737Z   ✓  16 [chromium-desktop] › e2e/ui-foundation.spec.ts:676:7 › task and analysis dock preserve usable canvas light comfortable 1280x800 @explicit-viewport (13.5s)
+2026-09-24T18:05:30.4615312Z   ✓  17 [chromium-desktop] › e2e/ui-foundation.spec.ts:676:7 › task and analysis dock preserve usable canvas light compact 1024x768 @explicit-viewport (13.8s)
+2026-09-24T18:05:43.7344069Z   ✓  18 [chromium-desktop] › e2e/ui-foundation.spec.ts:676:7 › task and analysis dock preserve usable canvas dark comfortable 1440x920 @explicit-viewport (13.3s)
+2026-09-24T18:05:49.8225572Z   ✓  19 [chromium-desktop] › e2e/ui-foundation.spec.ts:1388:1 › ordinary typed edit preserves view state and same-ID project replacement clears it (6.1s)
+2026-09-24T18:05:54.8842004Z   ✓  20 [chromium-desktop] › e2e/ui-foundation.spec.ts:1424:1 › keyboard splitters stay named and bounded; narrow drawers restore opener focus and hide inactive controls (5.1s)
+2026-09-24T18:06:02.3892410Z   ✓  21 [chromium-desktop] › e2e/ui-foundation.spec.ts:1768:3 › standard 10000 camera recipe compares legacy and corrected fit without changing targets (7.5s)
+2026-09-24T18:06:08.3869458Z   ✓  22 [chromium-desktop] › e2e/ui-foundation.spec.ts:1788:1 › filtered tree collapse controls retain typed selection and frozen draft across search changes (6.0s)
+2026-09-24T18:06:13.3624508Z   ✓  23 [chromium-desktop] › e2e/workspace-layout.spec.ts:27:1 › workspace preserves the visible model during discovery, routing, property editing and analysis navigation (4.9s)
+2026-09-24T18:06:35.6163357Z   ✓  24 [chromium-desktop] › e2e/workspace-layout.spec.ts:403:5 › the split and the drawer resize actual panes, persist, and keep the inspector's controls contained dark 1280 @explicit-viewport (22.2s)
+2026-09-24T18:06:36.3739388Z   ✓  25 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:117:1 › nonzero canvas origin and prescribed orbit start retain client coordinates (8ms)
+2026-09-24T18:06:36.3924102Z   ✓  26 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:127:1 › overlay target and observer overflow fail closed (7ms)
+2026-09-24T18:06:36.4157288Z   ✓  27 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:136:1 › RAF callback percentile cannot be diluted by cheap registrations (8ms)
+2026-09-24T18:06:36.4299577Z   ✓  28 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:154:1 › invalid samples fail and crossing samples are charged in full (4ms)
+2026-09-24T18:06:36.4573214Z   ✓  29 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:169:1 › forced derivation failure preserves immutable earlier journals and a terminal failure (18ms)
+2026-09-24T18:06:37.0778561Z   ✓  30 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:186:1 › observer setup failure still invokes the original RAF callback exactly once and restore removes listeners (550ms)
+2026-09-24T18:06:37.2374732Z   ✓  31 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:378:1 › actual elementFromPoint rejects an intercepting overlay (147ms)
+2026-09-24T18:06:37.3373997Z   ✓  32 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:386:1 › candidate diagnostics without same-callback DOM and positive submission cannot emit qualifying feedback (85ms)
+2026-09-24T18:06:37.4628847Z   ✓  33 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:416:1 › clear sentinel retains original WebGL clear work separately from observer cost (113ms)
+2026-09-24T18:06:37.4733807Z   ✓  34 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:448:1 › source-bound page-edge uncertainty retains possibly intersecting observer work (2ms)
+2026-09-24T18:06:37.5767675Z   ✓  35 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:462:3 › candidate point feedback requires product-shaped compact heading: valid (92ms)
+2026-09-24T18:06:37.6925245Z   ✓  36 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:462:3 › candidate point feedback requires product-shaped compact heading: wrong-label (105ms)
+2026-09-24T18:06:37.7935912Z   ✓  37 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:462:3 › candidate point feedback requires product-shaped compact heading: wrong-typed-identity (91ms)
+2026-09-24T18:06:37.8036990Z   ✓  38 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:529:1 › raw zero costs remain uncertain rather than a true-overhead pass (2ms)
+2026-09-24T18:06:37.8240153Z   ✓  39 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:539:1 › missing, malformed, negative and nonfinite observer readings fail structurally (9ms)
+2026-09-24T18:06:37.8527985Z   ✓  40 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:551:1 › expected RAF and action operation populations cannot disappear (3ms)
+2026-09-24T18:06:37.8620374Z   ✓  41 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:567:1 › bad or missing observer windows cannot receive structural validity (2ms)
+2026-09-24T18:06:37.8706020Z   ✓  42 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:576:1 › extra or unknown observer RAF, product observation RAF, and incomplete restore fail closed (2ms)
+2026-09-24T18:06:37.8803193Z   ✓  43 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:588:1 › instrumented preflight still requires complete causal and pixel evidence above raw overhead references (3ms)
+2026-09-24T18:06:37.8885057Z   ✓  44 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:627:1 › exact observation coverage accepts extra unrelated callbacks and shared pointer action listener (1ms)
+2026-09-24T18:06:37.9034871Z   ✓  45 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:637:1 › unrelated RAF cost cannot substitute for missing saved feedback cost (1ms)
+2026-09-24T18:06:37.9130709Z   ✓  46 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:649:1 › missing or non-enclosing pointer and action cost records fail (3ms)
+2026-09-24T18:06:37.9262574Z   ✓  47 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:665:1 › malformed or duplicate expected observation identities and boundaries fail (6ms)
+2026-09-24T18:06:37.9350462Z   ✓  48 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:685:1 › duplicate ambiguous enclosures and illegal reuse across distinct callbacks fail (2ms)
+2026-09-24T18:06:37.9445681Z   ✓  49 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:701:1 › zero RAF DOM class requires exact input and mutation records without fabricated callbacks (3ms)
+2026-09-24T18:06:38.0930291Z   ✓  50 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:721:3 › real input DOM observer binds stopped publication and pending mutation: complete (138ms)
+2026-09-24T18:06:38.2358045Z   ✓  51 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:721:3 › real input DOM observer binds stopped publication and pending mutation: pending-mutation (133ms)
+2026-09-24T18:06:38.3334205Z   ✓  52 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:776:3 › box feedback checks full membership even when primary is unchanged: complete (89ms)
+2026-09-24T18:06:38.4255213Z   ✓  53 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:776:3 › box feedback checks full membership even when primary is unchanged: same-primary-missing-member (84ms)
+2026-09-24T18:06:38.5253001Z   ✓  54 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:810:3 › assignment retains original product start and reconciles stopped identity: complete (89ms)
+2026-09-24T18:06:38.6248773Z   ✓  55 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:810:3 › assignment retains original product start and reconciles stopped identity: stopped-model-drift (91ms)
+2026-09-24T18:06:38.6337486Z   ✓  56 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:847:1 › baseline null outside hit records limitation and continues before label lookup (2ms)
+2026-09-24T18:06:39.3821952Z   ✓  57 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:868:1 › secondary inspector capture uses phase-specific exact independently supplied typed heading (738ms)
+2026-09-24T18:06:39.4956703Z   ✓  58 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:889:3 › assignment epoch history requires genuine eligible advancing frames: two-epochs (104ms)
+2026-09-24T18:06:39.6125970Z   ✓  59 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:889:3 › assignment epoch history requires genuine eligible advancing frames: same-epoch (107ms)
+2026-09-24T18:06:39.7496098Z   ✓  60 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:889:3 › assignment epoch history requires genuine eligible advancing frames: no-clear (129ms)
+2026-09-24T18:06:39.8957154Z   ✓  61 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:889:3 › assignment epoch history requires genuine eligible advancing frames: stale-submission (136ms)
+2026-09-24T18:06:40.0313370Z   ✓  62 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:889:3 › assignment epoch history requires genuine eligible advancing frames: wrong-model (126ms)
+2026-09-24T18:06:40.1631619Z   ✓  63 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:889:3 › assignment epoch history requires genuine eligible advancing frames: unready-tree (122ms)
+2026-09-24T18:06:40.2786530Z   ✓  64 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:889:3 › assignment epoch history requires genuine eligible advancing frames: final-without-frame (106ms)
+2026-09-24T18:06:40.3752871Z   ✓  65 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:889:3 › assignment epoch history requires genuine eligible advancing frames: pending-at-stop (87ms)
+2026-09-24T18:06:40.5317003Z   ✓  66 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:889:3 › assignment epoch history requires genuine eligible advancing frames: capacity (147ms)
+2026-09-24T18:06:41.0012745Z   ✓  67 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:1005:1 › box callback consumes actual unavailable or active union and rejects numerical and ordered-state faults (459ms)
+2026-09-24T18:06:42.2385697Z   ✓  68 [chromium-desktop] › e2e/ui-foundation/causal-method-contract.spec.ts:1058:1 › Box producer phases are reevaluated only on a fresh genuine callback and retain bounded failed facts (1.2s)
+2026-09-24T18:06:50.7635054Z   ✓  69 [chromium-compact] › e2e/b4-table-editing.spec.ts:6:1 › B4 node coordinates apply through one operation with keyboard, history and saved-state ownership (7.8s)
+2026-09-24T18:06:57.0429364Z   ✓  70 [chromium-compact] › e2e/b4-table-editing.spec.ts:50:1 › B4 virtualized invalid editor survives scrolling and a filter threshold without changing the model (6.3s)
+2026-09-24T18:07:00.2940027Z   ✓  71 [chromium-compact] › e2e/b4-table-editing.spec.ts:80:1 › B4 Both with Inspector keeps pointer horizontal scrolling inside the coordinate table (3.2s)
+2026-09-24T18:07:05.4972404Z   ✓  72 [chromium-compact] › e2e/b4-table-editing.spec.ts:175:1 › B4 short Grid keeps vertical chrome fixed and retains alternate review drafts (5.2s)
+2026-09-24T18:07:15.4072067Z   ✓  73 [chromium-compact] › e2e/b4-table-editing.spec.ts:208:1 › B4 virtual Grid confines body scrolling and boundary wheel without moving chrome (9.9s)
+2026-09-24T18:07:23.9362318Z   ✓  74 [chromium-compact] › e2e/b4-table-editing.spec.ts:260:1 › B4 text fields apply, recover filtered focus, preserve text Undo and retain review drafts through pointer Queue and Clear (8.5s)
+2026-09-24T18:07:28.1327531Z   ✓  75 [chromium-compact] › e2e/b4-table-editing.spec.ts:323:5 › B4 character-start direct label appends ordinary keys and preserves intentional selection (4.2s)
+2026-09-24T18:07:32.2839165Z   ✓  76 [chromium-compact] › e2e/b4-table-editing.spec.ts:323:5 › B4 character-start direct x appends ordinary keys and preserves intentional selection (4.1s)
+2026-09-24T18:07:35.6374794Z   ✓  77 [chromium-compact] › e2e/b4-table-editing.spec.ts:323:5 › B4 character-start review label appends ordinary keys and preserves intentional selection (3.3s)
+2026-09-24T18:07:38.8385934Z   ✓  78 [chromium-compact] › e2e/b4-table-editing.spec.ts:323:5 › B4 character-start review x appends ordinary keys and preserves intentional selection (3.2s)
+2026-09-24T18:07:49.3127468Z   ✓  79 [chromium-compact] › e2e/b4-table-editing.spec.ts:362:1 › B4 Materials preserve mixed-unit editing, delayed review sort, history and saved ownership (10.5s)
+2026-09-24T18:07:54.8053624Z   ✓  80 [chromium-compact] › e2e/b4-table-editing.spec.ts:453:1 › B4 Materials stable editor owns character starts, virtual scrolling, filtering and resize (5.5s)
+2026-09-24T18:07:58.5519095Z   ✓  81 [chromium-compact] › e2e/b4-table-editing.spec.ts:506:1 › B4 Materials Apply Tab keeps the first Shear character while another quantity reconverts (3.7s)
+2026-09-24T18:08:03.2877093Z   ✓  82 [chromium-compact] › e2e/b4-table-editing.spec.ts:553:1 › B4 diagnostic Node sorted review preserves text Undo after an active row crosses downward (4.7s)
+2026-09-24T18:08:09.0458698Z   ✓  83 [chromium-compact] › e2e/b4-table-editing.spec.ts:617:1 › B4 Node review retained editor stays contained through hidden families and page resize (5.7s)
+2026-09-24T18:08:17.8198335Z   ✓  84 [chromium-compact] › e2e/c3-viewport-visibility.spec.ts:78:1 › C3 snapshot, Hide precedence, persistent hidden count, theme and Show All preserve model/history (8.7s)
+2026-09-24T18:08:21.7316074Z   ✓  85 [chromium-compact] › e2e/c3-viewport-visibility.spec.ts:153:1 › C3 dimmed geometry remains available to hover, click and box selection (3.9s)
+2026-09-24T18:08:26.6732021Z   ✓  86 [chromium-compact] › e2e/c3-viewport-visibility.spec.ts:188:1 › C3 nearer dimmed pipe wins unchanged point ordering and viewport keyboard focus is visible (4.9s)
+2026-09-24T18:08:28.9716986Z   ✓  87 [chromium-compact] › e2e/c3-viewport-visibility.spec.ts:227:1 › C3 isolation remains clearable when every drawable entity belongs to the snapshot (2.3s)
+2026-09-24T18:08:34.2334804Z   ✓  88 [chromium-compact] › e2e/c3-viewport-visibility.spec.ts:244:1 › C3 deletion retains active empty snapshot; new geometry dims; project replacement clears it (5.3s)
+2026-09-24T18:08:41.7843753Z   ✓  89 [chromium-compact] › e2e/c3-viewport-visibility.spec.ts:279:1 › C3 visibility leaves Current results current and never revives Historical overlays (7.5s)
+2026-09-24T18:09:16.8944247Z   ✓  90 [chromium-compact] › e2e/linear-authoring.spec.ts:60:1 › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review (35.1s)
+2026-09-24T18:09:19.1944434Z   ✓  91 [chromium-compact] › e2e/ui-foundation.spec.ts:82:1 › a first late diagnostics pull is RAF-neutral and projection refreshes after a real camera change (2.2s)
+2026-09-24T18:09:23.1383234Z   ✓  92 [chromium-compact] › e2e/ui-foundation.spec.ts:1166:1 › an unqueued rich Properties draft survives aggregate inspection with mutation controls disabled (3.9s)
+2026-09-24T18:09:27.6306103Z   ✓  93 [chromium-compact] › e2e/ui-foundation.spec.ts:1271:1 › filtered multi-target picker preserves Space text and scrolls a 99-row subset to End before Enter toggles (4.5s)
+2026-09-24T18:09:33.6998859Z   ✓  94 [chromium-compact] › e2e/ui-foundation.spec.ts:1388:1 › ordinary typed edit preserves view state and same-ID project replacement clears it (6.1s)
+2026-09-24T18:09:37.8096330Z   ✓  95 [chromium-compact] › e2e/ui-foundation.spec.ts:1732:1 › narrow canvas fits visible and selected envelopes in every view preset (4.1s)
+2026-09-24T18:09:48.2624914Z   ✓  96 [chromium-compact] › e2e/ui-foundation.spec.ts:1836:1 › empty ordered selection publishes independently from project inspector (10.4s)
+2026-09-24T18:09:48.4417794Z 
+2026-09-24T18:09:48.4424098Z   96 passed (7.1m)
+2026-09-24T18:09:48.9245153Z ##[group]Run actions/upload-artifact@v4
+2026-09-24T18:09:48.9245519Z with:
+2026-09-24T18:09:48.9245823Z   name: piping-e2e-collection-shard-1-36037700066-1
+2026-09-24T18:09:48.9246217Z   path: piping-e2e-collection/shard-1
+2026-09-24T18:09:48.9246553Z   if-no-files-found: error
+2026-09-24T18:09:48.9246838Z   retention-days: 14
+2026-09-24T18:09:48.9247106Z   compression-level: 6
+2026-09-24T18:09:48.9247371Z   overwrite: false
+2026-09-24T18:09:48.9247632Z   include-hidden-files: false
+2026-09-24T18:09:48.9247933Z env:
+2026-09-24T18:09:48.9248153Z   CI: true
+2026-09-24T18:09:48.9248391Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T18:09:48.9248692Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T18:09:48.9248968Z   CARGO_HOME: /home/runner/.cargo
+2026-09-24T18:09:48.9249261Z   CARGO_INCREMENTAL: 0
+2026-09-24T18:09:48.9249523Z   CARGO_TERM_COLOR: always
+2026-09-24T18:09:48.9249782Z ##[endgroup]
+2026-09-24T18:09:49.0883674Z (node:5724) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-24T18:09:49.0884622Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-24T18:09:49.0962059Z With the provided path, there will be 19 files uploaded
+2026-09-24T18:09:49.0966722Z Artifact name is valid!
+2026-09-24T18:09:49.0967654Z Root directory input is valid!
+2026-09-24T18:09:49.2994425Z Beginning upload of artifact content to blob storage
+2026-09-24T18:09:49.3529704Z (node:5724) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-09-24T18:09:49.3865250Z Uploaded bytes 129021
+2026-09-24T18:09:49.4016759Z Finished uploading artifact content to blob storage!
+2026-09-24T18:09:49.4018178Z SHA256 digest of uploaded artifact zip is 030a65c337f46d8e83739e44adb03d16a6bfea74d873057abb8dcd99604ef395
+2026-09-24T18:09:49.4019481Z Finalizing artifact upload
+2026-09-24T18:09:49.5993309Z Artifact piping-e2e-collection-shard-1-36037700066-1.zip successfully finalized. Artifact ID 10826420964
+2026-09-24T18:09:49.5995279Z Artifact piping-e2e-collection-shard-1-36037700066-1 has been successfully uploaded! Final size is 129021 bytes. Artifact ID is 10826420964
+2026-09-24T18:09:49.6002028Z Artifact download URL: https://github.com/sgttomas/chirality/actions/runs/36037700066/artifacts/10826420964
+2026-09-24T18:09:49.6240879Z Post job cleanup.
+2026-09-24T18:09:49.6245973Z ##[start-action display=Cache Playwright Chromium;id=__bacfdee9-87d4-44d3-8d71-006a6c65f9de.playwright-cache]
+2026-09-24T18:09:49.6281883Z Post job cleanup.
+2026-09-24T18:09:49.7381236Z Cache hit occurred on the primary key Linux-playwright-1.60.0, not saving cache.
+2026-09-24T18:09:49.7383032Z (node:5736) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-24T18:09:49.7384552Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-24T18:09:49.7441764Z ##[end-action id=__bacfdee9-87d4-44d3-8d71-006a6c65f9de.playwright-cache;outcome=success;conclusion=success;duration_ms=119]
+2026-09-24T18:09:49.7444484Z ##[start-action display=Cache Cargo registry and WASM target;id=__bacfdee9-87d4-44d3-8d71-006a6c65f9de.__actions_cache]
+2026-09-24T18:09:49.8053872Z Post job cleanup.
+2026-09-24T18:09:49.9197106Z Cache hit occurred on the primary key Linux-rust-1.97.1-32f6d9d299e4a9e31ee8c644478f7cec98c94f355b5451c0d7fffc5eff01eaae, not saving cache.
+2026-09-24T18:09:49.9201727Z (node:5756) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-24T18:09:49.9202632Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-24T18:09:49.9257912Z ##[end-action id=__bacfdee9-87d4-44d3-8d71-006a6c65f9de.__actions_cache;outcome=success;conclusion=success;duration_ms=181]
+2026-09-24T18:09:49.9260985Z ##[start-action display=Cache pinned wasm-bindgen CLI;id=__bacfdee9-87d4-44d3-8d71-006a6c65f9de.wasm-bindgen-cache]
+2026-09-24T18:09:49.9315795Z Post job cleanup.
+2026-09-24T18:09:50.0447385Z Cache hit occurred on the primary key Linux-wasm-bindgen-cli-0.2.123, not saving cache.
+2026-09-24T18:09:50.0449226Z (node:5764) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-24T18:09:50.0450791Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-24T18:09:50.0506572Z ##[end-action id=__bacfdee9-87d4-44d3-8d71-006a6c65f9de.wasm-bindgen-cache;outcome=success;conclusion=success;duration_ms=124]
+2026-09-24T18:09:50.0510202Z ##[start-action display=Setup Node.js;id=__bacfdee9-87d4-44d3-8d71-006a6c65f9de.__actions_setup-node]
+2026-09-24T18:09:50.0554335Z Post job cleanup.
+2026-09-24T18:09:50.1800919Z (node:5772) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-24T18:09:50.1802561Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-24T18:09:50.1805516Z Cache hit occurred on the primary key node-cache-Linux-x64-npm-3f079e5b9c1656dd33060e3e260efb947b678574d15ac514783aee67ea23a336, not saving cache.
+2026-09-24T18:09:50.1867588Z ##[end-action id=__bacfdee9-87d4-44d3-8d71-006a6c65f9de.__actions_setup-node;outcome=success;conclusion=success;duration_ms=135]
+2026-09-24T18:09:50.1977945Z Post job cleanup.
+2026-09-24T18:09:50.2818700Z [command]/usr/bin/git version
+2026-09-24T18:09:50.2854528Z git version 2.55.0
+2026-09-24T18:09:50.2891438Z Temporarily overriding HOME='/home/runner/work/_temp/46a1235c-b591-4440-b801-9a01a9dd0c01' before making global git config changes
+2026-09-24T18:09:50.2892443Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-24T18:09:50.2896615Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/chirality/chirality
+2026-09-24T18:09:50.2933112Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-24T18:09:50.2968080Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-24T18:09:50.3296390Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-24T18:09:50.3326787Z http.https://github.com/.extraheader
+2026-09-24T18:09:50.3340750Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-09-24T18:09:50.3380375Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-24T18:09:50.3706848Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-24T18:09:50.3741526Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-24T18:09:50.4183640Z Cleaning up orphan processes
+2026-09-24T18:09:50.4496207Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/download-artifact@v4, actions/setup-node@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
