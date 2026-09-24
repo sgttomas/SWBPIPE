@@ -1,0 +1,818 @@
+{
+  "task": "bounded GEN8 portability custody",
+  "parent": "/root/solver_manager",
+  "child": "/root/solver_manager/input_repair",
+  "mechanism": "delegated-harness-native continuation; no delegation, shared filesystem, no OS isolation claim",
+  "role": "TASK Type 2",
+  "model_configuration": "parent-supplied gpt-6-astra low; not independently introspected",
+  "candidate_head": "beaf4869bee2ae8c866e7e62eaa6a8f369610d7e",
+  "scope": "SOLVER_MANAGER and imported AUTHORING_MANAGER records, plus specifically authorized NUMERICAL_REFERENCE_PREP/PREPARATION.json; other numerical preparation files and M24_INTEGRATION excluded. Recognized evidence, logs and patches unchanged.",
+  "instruction_hashes": {
+    "AGENTS.md": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+    "agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "projects/chirality-piping/AGENTS.md": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+    "projects/chirality-piping/loop/LOOP_INIT.md": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+  },
+  "classifier_sha256": "7786998c8eb047e770c98b3e846353d40a307f5cfa9862c95681c3405866949e",
+  "self_check_logic_sha256": "ba1e6f4a14ebddb8bd0c88c069a913b8729997d656d55988b330df56546b8a96",
+  "scan_method": "Bounded structural classify_surface plus iter_machine_path_lines on owned .md/.json/.yaml/.yml. No policy overrides applied, no broad self-check or product tests run. Evidence classification exempts originals, not current views. New PORTABILITY records checked separately for zero machine path matches.",
+  "before": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_CONTRACTS/BASELINE_RUN.json",
+      "role": "UNCLASSIFIED",
+      "active": true,
+      "hit_lines": [
+        4
+      ],
+      "actionable": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_CONTRACTS/CANDIDATE_RUN.json",
+      "role": "UNCLASSIFIED",
+      "active": true,
+      "hit_lines": [
+        8,
+        9
+      ],
+      "actionable": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_CONTRACTS/ORIGINS.json",
+      "role": "UNCLASSIFIED",
+      "active": true,
+      "hit_lines": [
+        9,
+        13,
+        17,
+        21,
+        25,
+        29,
+        33,
+        37
+      ],
+      "actionable": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/BASELINE_RUN.json",
+      "role": "UNCLASSIFIED",
+      "active": true,
+      "hit_lines": [
+        8
+      ],
+      "actionable": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/CANDIDATE_RUN.json",
+      "role": "UNCLASSIFIED",
+      "active": true,
+      "hit_lines": [
+        12,
+        13,
+        14
+      ],
+      "actionable": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/RETURN.md",
+      "role": "EVIDENCE",
+      "active": true,
+      "hit_lines": [
+        9
+      ],
+      "actionable": false
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REVIEW/BACKCHECK.md",
+      "role": "UNCLASSIFIED",
+      "active": true,
+      "hit_lines": [
+        14
+      ],
+      "actionable": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REVIEW/BACKCHECK_ORIGINS.json",
+      "role": "UNCLASSIFIED",
+      "active": true,
+      "hit_lines": [
+        11,
+        17,
+        26,
+        30,
+        37,
+        41,
+        45,
+        49,
+        53,
+        57
+      ],
+      "actionable": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REVIEW/ORIGINS.json",
+      "role": "UNCLASSIFIED",
+      "active": true,
+      "hit_lines": [
+        8,
+        12,
+        15,
+        19,
+        23,
+        27,
+        31,
+        35,
+        39,
+        43,
+        47,
+        51,
+        55,
+        59,
+        63,
+        67,
+        71,
+        75,
+        79,
+        83,
+        87,
+        91,
+        95
+      ],
+      "actionable": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/PROVENANCE.json",
+      "role": "UNCLASSIFIED",
+      "active": true,
+      "hit_lines": [
+        12,
+        16,
+        20,
+        24,
+        28,
+        32,
+        36,
+        40,
+        44,
+        48,
+        52,
+        56,
+        60,
+        64,
+        68,
+        72
+      ],
+      "actionable": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/DEPENDENCY_BASIS.json",
+      "role": "UNCLASSIFIED",
+      "active": true,
+      "hit_lines": [
+        4,
+        8,
+        12,
+        14
+      ],
+      "actionable": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/INDEPENDENT_PRECHECK/MANIFEST.json",
+      "role": "UNCLASSIFIED",
+      "active": true,
+      "hit_lines": [
+        13,
+        17,
+        100,
+        105,
+        110,
+        115,
+        120,
+        125,
+        132,
+        136,
+        142,
+        147,
+        152,
+        193,
+        196
+      ],
+      "actionable": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/INDEPENDENT_PRECHECK/RETURN.md",
+      "role": "EVIDENCE",
+      "active": true,
+      "hit_lines": [
+        5
+      ],
+      "actionable": false
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/PROVENANCE.json",
+      "role": "UNCLASSIFIED",
+      "active": true,
+      "hit_lines": [
+        7,
+        12,
+        16,
+        20,
+        24,
+        28,
+        32,
+        36,
+        40,
+        44,
+        48,
+        52
+      ],
+      "actionable": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/operation_applier.result.json",
+      "role": "UNCLASSIFIED",
+      "active": true,
+      "hit_lines": [
+        9,
+        13
+      ],
+      "actionable": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/tsc_expanded.result.json",
+      "role": "UNCLASSIFIED",
+      "active": true,
+      "hit_lines": [
+        6
+      ],
+      "actionable": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/tsc_initial.result.json",
+      "role": "UNCLASSIFIED",
+      "active": true,
+      "hit_lines": [
+        6
+      ],
+      "actionable": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/tsc_repair.result.json",
+      "role": "UNCLASSIFIED",
+      "active": true,
+      "hit_lines": [
+        6
+      ],
+      "actionable": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/units.result.json",
+      "role": "UNCLASSIFIED",
+      "active": true,
+      "hit_lines": [
+        9,
+        13
+      ],
+      "actionable": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/vitest.result.json",
+      "role": "UNCLASSIFIED",
+      "active": true,
+      "hit_lines": [
+        10,
+        11
+      ],
+      "actionable": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/vitest_expanded.result.json",
+      "role": "UNCLASSIFIED",
+      "active": true,
+      "hit_lines": [
+        11,
+        12
+      ],
+      "actionable": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/vitest_repair.result.json",
+      "role": "UNCLASSIFIED",
+      "active": true,
+      "hit_lines": [
+        10,
+        11
+      ],
+      "actionable": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/wasm_build.result.json",
+      "role": "UNCLASSIFIED",
+      "active": true,
+      "hit_lines": [
+        6,
+        10
+      ],
+      "actionable": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/units_implementation/CONTEXT.json",
+      "role": "UNCLASSIFIED",
+      "active": true,
+      "hit_lines": [
+        6
+      ],
+      "actionable": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/units_review/PROVENANCE.json",
+      "role": "UNCLASSIFIED",
+      "active": true,
+      "hit_lines": [
+        13,
+        20,
+        25,
+        30,
+        35,
+        40,
+        47,
+        52,
+        57,
+        62,
+        67,
+        72,
+        77,
+        82,
+        87,
+        92,
+        97,
+        102,
+        107,
+        112,
+        117,
+        122,
+        127,
+        132,
+        137,
+        142,
+        147,
+        152,
+        157,
+        162,
+        167,
+        172,
+        177,
+        182,
+        187,
+        192,
+        197,
+        204,
+        209,
+        214,
+        219,
+        224,
+        229
+      ],
+      "actionable": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_REFERENCE_PREP/PREPARATION.json",
+      "role": "UNCLASSIFIED",
+      "active": true,
+      "hit_lines": [
+        4
+      ],
+      "actionable": true
+    }
+  ],
+  "after": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/RETURN.md",
+      "role": "EVIDENCE",
+      "active": true,
+      "hit_lines": [
+        9
+      ],
+      "actionable": false
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/INDEPENDENT_PRECHECK/RETURN.md",
+      "role": "EVIDENCE",
+      "active": true,
+      "hit_lines": [
+        5
+      ],
+      "actionable": false
+    }
+  ],
+  "records": [
+    {
+      "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_CONTRACTS/BASELINE_RUN.json",
+      "original_raw": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/_run_records/portability/INPUT_CONTRACTS/BASELINE_RUN.json",
+        "sha256": "7cbe91a078c67cd3af13ac83187cb43daeced444a0eaf3405dd0fff231f5af1a",
+        "path_basis": "repository-relative"
+      },
+      "view_sha256": "737ad6f752e4dee7d8226b6a55a607191684bdbe652d2e230eecafa6be9862af",
+      "source_commit": "beaf4869bee2ae8c866e7e62eaa6a8f369610d7e",
+      "classification_before": "UNCLASSIFIED",
+      "classification_after": "UNCLASSIFIED",
+      "path_bases": {
+        "{SOLVER_CARGO_TARGET}": "Historical external solver Cargo target directory; exact value is retained at the indicated raw record locations."
+      },
+      "archive_bytes_match": true
+    },
+    {
+      "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_CONTRACTS/CANDIDATE_RUN.json",
+      "original_raw": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/_run_records/portability/INPUT_CONTRACTS/CANDIDATE_RUN.json",
+        "sha256": "987b1db1177890d1226238a1d99e070751b38ef9fa48e5fd6de016a416fdf329",
+        "path_basis": "repository-relative"
+      },
+      "view_sha256": "0d122f3178eba310603c4fe783742b602106a74fee96856622cd7ad5b26b5005",
+      "source_commit": "beaf4869bee2ae8c866e7e62eaa6a8f369610d7e",
+      "classification_before": "UNCLASSIFIED",
+      "classification_after": "UNCLASSIFIED",
+      "path_bases": {
+        "{SOLVER_CARGO_TARGET}": "Historical external solver Cargo target directory; exact value is retained at the indicated raw record locations."
+      },
+      "archive_bytes_match": true
+    },
+    {
+      "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_CONTRACTS/ORIGINS.json",
+      "original_raw": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/_run_records/portability/INPUT_CONTRACTS/ORIGINS.json",
+        "sha256": "21641b2f688e8191ee40dea1e11cc30ec7a2b87d2f70b5a70304a47932eb7683",
+        "path_basis": "repository-relative"
+      },
+      "view_sha256": "3eaa66498b9aa39230601406c2a557ac493985e28263c319deae18c8fa3795ef",
+      "source_commit": "beaf4869bee2ae8c866e7e62eaa6a8f369610d7e",
+      "classification_before": "UNCLASSIFIED",
+      "classification_after": "UNCLASSIFIED",
+      "path_bases": {
+        "{SOLVER_CHECKOUT}": "Historical solver repository checkout; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations.",
+        "{PRIMARY_CHECKOUT}": "Historical primary repository checkout used for supplied context or shared dependencies; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations."
+      },
+      "archive_bytes_match": true
+    },
+    {
+      "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/BASELINE_RUN.json",
+      "original_raw": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/_run_records/portability/INPUT_REPAIR/BASELINE_RUN.json",
+        "sha256": "f9d7541474b77411f8c1613b13706316d22c8ab019d82d4559c8d8b025a6bf56",
+        "path_basis": "repository-relative"
+      },
+      "view_sha256": "779fe0340c6081117001c353d828a2bc8778ddda7b397d5291dc1c6357447b53",
+      "source_commit": "beaf4869bee2ae8c866e7e62eaa6a8f369610d7e",
+      "classification_before": "UNCLASSIFIED",
+      "classification_after": "UNCLASSIFIED",
+      "path_bases": {
+        "{SOLVER_CARGO_TARGET}": "Historical external solver Cargo target directory; exact value is retained at the indicated raw record locations."
+      },
+      "archive_bytes_match": true
+    },
+    {
+      "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/CANDIDATE_RUN.json",
+      "original_raw": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/_run_records/portability/INPUT_REPAIR/CANDIDATE_RUN.json",
+        "sha256": "f6e97c3af160fc9b19968c6185e20f0225a126a258c9253d120e8857cce2752a",
+        "path_basis": "repository-relative"
+      },
+      "view_sha256": "c8ce0ee59c65682b602c41d8869cf7099080819a803d6a28f759fa0ba432fb19",
+      "source_commit": "beaf4869bee2ae8c866e7e62eaa6a8f369610d7e",
+      "classification_before": "UNCLASSIFIED",
+      "classification_after": "UNCLASSIFIED",
+      "path_bases": {
+        "{SOLVER_CARGO_TARGET}": "Historical external solver Cargo target directory; exact value is retained at the indicated raw record locations."
+      },
+      "archive_bytes_match": true
+    },
+    {
+      "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REVIEW/BACKCHECK.md",
+      "original_raw": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/_run_records/portability/INPUT_REVIEW/BACKCHECK.md",
+        "sha256": "d6190dd4f7a1337b75dd3531db57a679636f228c675d32a1c07ed6a72a056843",
+        "path_basis": "repository-relative"
+      },
+      "view_sha256": "dfa40053cb2f0d4d66ad3279001f5f8651728fb05ea147d4d4728d55dc084ec8",
+      "source_commit": "beaf4869bee2ae8c866e7e62eaa6a8f369610d7e",
+      "classification_before": "UNCLASSIFIED",
+      "classification_after": "UNCLASSIFIED",
+      "path_bases": {
+        "{REPAIR_LIB_SNAPSHOT}": "Historical external immutable lib.rs review snapshot; exact filename is retained at the indicated raw record locations. Existing source hash identifies its bytes.",
+        "{REPAIR_VALIDATION_SNAPSHOT}": "Historical external immutable validation.rs review snapshot; exact filename is retained at the indicated raw record locations. Existing source hash identifies its bytes."
+      },
+      "archive_bytes_match": true
+    },
+    {
+      "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REVIEW/BACKCHECK_ORIGINS.json",
+      "original_raw": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/_run_records/portability/INPUT_REVIEW/BACKCHECK_ORIGINS.json",
+        "sha256": "1e0d18a381cf5abaa4fb9372e8c1ae8d7f5b66036f712c37fc75ca2603044701",
+        "path_basis": "repository-relative"
+      },
+      "view_sha256": "6f8c6c8d1edde811a885064dd15cd559ffa5ff030528d776af8dac2ac453aa27",
+      "source_commit": "beaf4869bee2ae8c866e7e62eaa6a8f369610d7e",
+      "classification_before": "UNCLASSIFIED",
+      "classification_after": "UNCLASSIFIED",
+      "path_bases": {
+        "{REPAIR_LIB_SNAPSHOT}": "Historical external immutable lib.rs review snapshot; exact filename is retained at the indicated raw record locations. Existing source hash identifies its bytes.",
+        "{REPAIR_VALIDATION_SNAPSHOT}": "Historical external immutable validation.rs review snapshot; exact filename is retained at the indicated raw record locations. Existing source hash identifies its bytes.",
+        "{SOLVER_CHECKOUT}": "Historical solver repository checkout; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations."
+      },
+      "archive_bytes_match": true
+    },
+    {
+      "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REVIEW/ORIGINS.json",
+      "original_raw": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/_run_records/portability/INPUT_REVIEW/ORIGINS.json",
+        "sha256": "497251dd05682a5eabd4bb397e08b9dadfcf3d096d2b9c6ac2eb941e3ef96b91",
+        "path_basis": "repository-relative"
+      },
+      "view_sha256": "7180e1255e23bcf215e30466d33798417721aae98b42f58bb2946e0b13957ec0",
+      "source_commit": "beaf4869bee2ae8c866e7e62eaa6a8f369610d7e",
+      "classification_before": "UNCLASSIFIED",
+      "classification_after": "UNCLASSIFIED",
+      "path_bases": {
+        "{SOLVER_CHECKOUT}": "Historical solver repository checkout; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations.",
+        "{PRIMARY_CHECKOUT}": "Historical primary repository checkout used for supplied context or shared dependencies; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations."
+      },
+      "archive_bytes_match": true
+    },
+    {
+      "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/PROVENANCE.json",
+      "original_raw": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/_run_records/portability/PROVENANCE.json",
+        "sha256": "b1f08dc0f45445b9ac3e73d5913c6c0d9f3b3b72567e190aa7d4a875d86f24ec",
+        "path_basis": "repository-relative"
+      },
+      "view_sha256": "8a6f7ff428b20fb35048cce99464145936092c2727603b8dbc01521916538ab7",
+      "source_commit": "beaf4869bee2ae8c866e7e62eaa6a8f369610d7e",
+      "classification_before": "UNCLASSIFIED",
+      "classification_after": "UNCLASSIFIED",
+      "path_bases": {
+        "{SOLVER_CHECKOUT}": "Historical solver repository checkout; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations.",
+        "{PRIMARY_CHECKOUT}": "Historical primary repository checkout used for supplied context or shared dependencies; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations."
+      },
+      "archive_bytes_match": true
+    },
+    {
+      "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/DEPENDENCY_BASIS.json",
+      "original_raw": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/DEPENDENCY_BASIS.json",
+        "sha256": "2c365b1b88930530a85e90f8cf495132930b5f1e9deeab09707f0fdc08251cda",
+        "path_basis": "repository-relative"
+      },
+      "view_sha256": "1ff3e5e4f58c5e96658df25f8abd1508240557358a7df785cb313ba300cd0196",
+      "source_commit": "ff2cb76ddfda43f6bcb4202b80b7fd199eb3c44e",
+      "classification_before": "UNCLASSIFIED",
+      "classification_after": "UNCLASSIFIED",
+      "path_bases": {
+        "{PRIMARY_CHECKOUT}": "Historical primary repository checkout used for supplied context or shared dependencies; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations."
+      },
+      "archive_bytes_match": true
+    },
+    {
+      "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/INDEPENDENT_PRECHECK/MANIFEST.json",
+      "original_raw": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/INDEPENDENT_PRECHECK/MANIFEST.json",
+        "sha256": "ddd696cd31fb747ed6e2a0751f93e857b5631417c462209b484d40fa5083c1af",
+        "path_basis": "repository-relative"
+      },
+      "view_sha256": "96d0212adce46ef54491b80a2df396b9b34c1f169d1d1df6bf1d44074930eee1",
+      "source_commit": "ff2cb76ddfda43f6bcb4202b80b7fd199eb3c44e",
+      "classification_before": "UNCLASSIFIED",
+      "classification_after": "UNCLASSIFIED",
+      "path_bases": {
+        "{AUTHORING_CHECKOUT}": "Historical authoring repository checkout; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations.",
+        "{PRIMARY_CHECKOUT}": "Historical primary repository checkout used for supplied context or shared dependencies; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations."
+      },
+      "archive_bytes_match": true
+    },
+    {
+      "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/PROVENANCE.json",
+      "original_raw": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/PROVENANCE.json",
+        "sha256": "0c063bd443e5adf65a34bc141e7085d73abdf1877ebbddee8dfc08b2e5f1cf78",
+        "path_basis": "repository-relative"
+      },
+      "view_sha256": "fc37c93422bfe73e1d3057bb5322e29363112599860df36ac8f0217fdf05646d",
+      "source_commit": "ff2cb76ddfda43f6bcb4202b80b7fd199eb3c44e",
+      "classification_before": "UNCLASSIFIED",
+      "classification_after": "UNCLASSIFIED",
+      "path_bases": {
+        "{AUTHORING_CHECKOUT}": "Historical authoring repository checkout; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations.",
+        "{PRIMARY_CHECKOUT}": "Historical primary repository checkout used for supplied context or shared dependencies; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations."
+      },
+      "archive_bytes_match": true
+    },
+    {
+      "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/operation_applier.result.json",
+      "original_raw": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/checks/operation_applier.result.json",
+        "sha256": "6f17dbc8ff6c18ee0ecb8fd39a7e89cb0c3625314f6de5d45c184eeee3d8e762",
+        "path_basis": "repository-relative"
+      },
+      "view_sha256": "9d04c278c358a4dbc6683783349de6167e0316567193a9243be009aa0684adc0",
+      "source_commit": "ff2cb76ddfda43f6bcb4202b80b7fd199eb3c44e",
+      "classification_before": "UNCLASSIFIED",
+      "classification_after": "UNCLASSIFIED",
+      "path_bases": {
+        "{AUTHORING_CHECKOUT}": "Historical authoring repository checkout; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations.",
+        "{AUTHORING_CARGO_TARGET}": "Historical external authoring Cargo target directory; exact value is retained at the indicated raw record locations."
+      },
+      "archive_bytes_match": true
+    },
+    {
+      "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/tsc_expanded.result.json",
+      "original_raw": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/checks/tsc_expanded.result.json",
+        "sha256": "c18c5dac148b852b24e5ca83550594c0c9d1ecbcdc6765279ca0b827dcc85e27",
+        "path_basis": "repository-relative"
+      },
+      "view_sha256": "7b5e8708e612da1f6020750ed8489d10a4ccd25ea101db92dfa91f62af4d79ba",
+      "source_commit": "ff2cb76ddfda43f6bcb4202b80b7fd199eb3c44e",
+      "classification_before": "UNCLASSIFIED",
+      "classification_after": "UNCLASSIFIED",
+      "path_bases": {
+        "{AUTHORING_CHECKOUT}": "Historical authoring repository checkout; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations."
+      },
+      "archive_bytes_match": true
+    },
+    {
+      "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/tsc_initial.result.json",
+      "original_raw": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/checks/tsc_initial.result.json",
+        "sha256": "0031bfa11af59bea8fbc292e51a07fa95922843b0ffe76ff38f29d1951072eea",
+        "path_basis": "repository-relative"
+      },
+      "view_sha256": "530debf6bc14ed03a092c07803aeb62355ab9a167cee32c943ae973ee51451a6",
+      "source_commit": "ff2cb76ddfda43f6bcb4202b80b7fd199eb3c44e",
+      "classification_before": "UNCLASSIFIED",
+      "classification_after": "UNCLASSIFIED",
+      "path_bases": {
+        "{AUTHORING_CHECKOUT}": "Historical authoring repository checkout; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations."
+      },
+      "archive_bytes_match": true
+    },
+    {
+      "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/tsc_repair.result.json",
+      "original_raw": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/checks/tsc_repair.result.json",
+        "sha256": "c18c5dac148b852b24e5ca83550594c0c9d1ecbcdc6765279ca0b827dcc85e27",
+        "path_basis": "repository-relative"
+      },
+      "view_sha256": "f75cc4d8a4b2fae2bf89809e8af29b960366eef08f500c2e6378f080907ec57b",
+      "source_commit": "ff2cb76ddfda43f6bcb4202b80b7fd199eb3c44e",
+      "classification_before": "UNCLASSIFIED",
+      "classification_after": "UNCLASSIFIED",
+      "path_bases": {
+        "{AUTHORING_CHECKOUT}": "Historical authoring repository checkout; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations."
+      },
+      "archive_bytes_match": true
+    },
+    {
+      "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/units.result.json",
+      "original_raw": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/checks/units.result.json",
+        "sha256": "5edf3ca7f92d01ca0b380e8395cda9f890defc98c145e9cbff342a6e6acbfef1",
+        "path_basis": "repository-relative"
+      },
+      "view_sha256": "f4a9c503979eb2782a1cb44ad38021864358d9151a01efea462750e53c1e9fe1",
+      "source_commit": "ff2cb76ddfda43f6bcb4202b80b7fd199eb3c44e",
+      "classification_before": "UNCLASSIFIED",
+      "classification_after": "UNCLASSIFIED",
+      "path_bases": {
+        "{AUTHORING_CHECKOUT}": "Historical authoring repository checkout; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations.",
+        "{AUTHORING_CARGO_TARGET}": "Historical external authoring Cargo target directory; exact value is retained at the indicated raw record locations."
+      },
+      "archive_bytes_match": true
+    },
+    {
+      "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/vitest.result.json",
+      "original_raw": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/checks/vitest.result.json",
+        "sha256": "85b71c6bb0ec5f34f8b782771993a2faa847f5bd188fb0ef40afc7dac9fdc8e3",
+        "path_basis": "repository-relative"
+      },
+      "view_sha256": "aeb47c7464755e478a2817c1298ae31fda45d53456d24713799de8c1cdf3a831",
+      "source_commit": "ff2cb76ddfda43f6bcb4202b80b7fd199eb3c44e",
+      "classification_before": "UNCLASSIFIED",
+      "classification_after": "UNCLASSIFIED",
+      "path_bases": {
+        "{AUTHORING_CHECKOUT}": "Historical authoring repository checkout; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations.",
+        "{AUTHORING_VITE_CACHE}": "Historical external Vite cache directory; exact value is retained at the indicated raw record locations."
+      },
+      "archive_bytes_match": true
+    },
+    {
+      "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/vitest_expanded.result.json",
+      "original_raw": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/checks/vitest_expanded.result.json",
+        "sha256": "acc518adaf081e8c165716df3b04f994c471e76d2ad826516eb4da807d7152f1",
+        "path_basis": "repository-relative"
+      },
+      "view_sha256": "a843cacc8bbdff586c0ebfebcb34db0112cea7c1c3a4f84106fb7ba4cb97f412",
+      "source_commit": "ff2cb76ddfda43f6bcb4202b80b7fd199eb3c44e",
+      "classification_before": "UNCLASSIFIED",
+      "classification_after": "UNCLASSIFIED",
+      "path_bases": {
+        "{AUTHORING_CHECKOUT}": "Historical authoring repository checkout; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations.",
+        "{AUTHORING_VITE_CACHE}": "Historical external Vite cache directory; exact value is retained at the indicated raw record locations."
+      },
+      "archive_bytes_match": true
+    },
+    {
+      "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/vitest_repair.result.json",
+      "original_raw": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/checks/vitest_repair.result.json",
+        "sha256": "85b71c6bb0ec5f34f8b782771993a2faa847f5bd188fb0ef40afc7dac9fdc8e3",
+        "path_basis": "repository-relative"
+      },
+      "view_sha256": "692186b60de58bfa55f2d99a85d1bb802609f5ee9487e21fa4e8044e671ee1b4",
+      "source_commit": "ff2cb76ddfda43f6bcb4202b80b7fd199eb3c44e",
+      "classification_before": "UNCLASSIFIED",
+      "classification_after": "UNCLASSIFIED",
+      "path_bases": {
+        "{AUTHORING_CHECKOUT}": "Historical authoring repository checkout; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations.",
+        "{AUTHORING_VITE_CACHE}": "Historical external Vite cache directory; exact value is retained at the indicated raw record locations."
+      },
+      "archive_bytes_match": true
+    },
+    {
+      "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/wasm_build.result.json",
+      "original_raw": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/checks/wasm_build.result.json",
+        "sha256": "7f2bdf810ff9af82e9801dba28c8b218919e50b675f7942a5ae166b1e7628de8",
+        "path_basis": "repository-relative"
+      },
+      "view_sha256": "e9887e5f37a749aed98218d69e2b3f30161672fa715dd33cfc82c335066741be",
+      "source_commit": "ff2cb76ddfda43f6bcb4202b80b7fd199eb3c44e",
+      "classification_before": "UNCLASSIFIED",
+      "classification_after": "UNCLASSIFIED",
+      "path_bases": {
+        "{AUTHORING_CHECKOUT}": "Historical authoring repository checkout; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations.",
+        "{AUTHORING_CARGO_TARGET}": "Historical external authoring Cargo target directory; exact value is retained at the indicated raw record locations."
+      },
+      "archive_bytes_match": true
+    },
+    {
+      "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/units_implementation/CONTEXT.json",
+      "original_raw": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/units_implementation/CONTEXT.json",
+        "sha256": "5fe50179ea6c2df4034b046267ed44be2e68e7cbf8f057abc0a6f8189d1502ba",
+        "path_basis": "repository-relative"
+      },
+      "view_sha256": "661bdd5364f350a2ef702dd0c0f143ddb0d9f4cfa66dd754c4d8da1f9978c57a",
+      "source_commit": "ff2cb76ddfda43f6bcb4202b80b7fd199eb3c44e",
+      "classification_before": "UNCLASSIFIED",
+      "classification_after": "UNCLASSIFIED",
+      "path_bases": {
+        "{AUTHORING_CHECKOUT}": "Historical authoring repository checkout; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations."
+      },
+      "archive_bytes_match": true
+    },
+    {
+      "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/units_review/PROVENANCE.json",
+      "original_raw": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/units_review/PROVENANCE.json",
+        "sha256": "3b185e5b236d840a4853a93c871eaef650951e4975e0904afcae5fe301326a0f",
+        "path_basis": "repository-relative"
+      },
+      "view_sha256": "0cb2e8745e481e82c95e067ebfa91cb23c721d3020381b22178c9f5361cb14ed",
+      "source_commit": "ff2cb76ddfda43f6bcb4202b80b7fd199eb3c44e",
+      "classification_before": "UNCLASSIFIED",
+      "classification_after": "UNCLASSIFIED",
+      "path_bases": {
+        "{AUTHORING_CHECKOUT}": "Historical authoring repository checkout; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations."
+      },
+      "archive_bytes_match": true
+    },
+    {
+      "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_REFERENCE_PREP/PREPARATION.json",
+      "original_raw": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/_run_records/portability/NUMERICAL_REFERENCE_PREP/PREPARATION.json",
+        "sha256": "d979448ecc20179f11ac55945ab6e8d0ad482029a4e8409fcf2414d3f7bbf892",
+        "path_basis": "repository-relative"
+      },
+      "view_sha256": "82e3072a08248fd12bedc4d9f7e44e1c0c591f7c74a2a1543e8bc811a7692f95",
+      "source_commit": null,
+      "source_state": "untracked parent preparation record at custody time",
+      "classification_before": "UNCLASSIFIED",
+      "classification_after": "UNCLASSIFIED",
+      "path_bases": {
+        "{PRIMARY_CHECKOUT}": "Source-qualified primary repository checkout; suffix is repository-relative, original source_reference and machine checkout are retained in the raw JSON /source_reference."
+      },
+      "archive_bytes_match": true
+    }
+  ],
+  "checks": {
+    "original_archive_hashes": "all matched",
+    "actionable_before": 24,
+    "actionable_after": 0,
+    "records_rewritten": 24,
+    "json_semantics": "23 JSON views exactly equal original values after declared path substitutions and removal of added _portability metadata; no pre-existing non-path values changed",
+    "source_commit_archive_bytes": "all 23 committed originals match git show source_commit:source_path; one explicitly untracked original hash-custodied",
+    "archive_classification": "24 raw archives structurally EVIDENCE",
+    "owned_scan": "zero machine paths outside recognized EVIDENCE, including new PORTABILITY and PREPARATION metadata"
+  }
+}

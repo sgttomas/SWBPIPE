@@ -1,0 +1,32 @@
+{
+  "status": "suitable_for_manager_fan_in_no_unresolved_actionable_findings",
+  "path_basis": "review-directory-relative",
+  "source_head": "beaf4869bee2ae8c866e7e62eaa6a8f369610d7e",
+  "files": [
+    {
+      "path": "ORIGINS.json",
+      "sha256": "bc7ced0e0659847c96bd462ff509d1915d31a97634970bc30d2caf1bca1c4d5a"
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "14c6965d8aa8ddfa76deeb881c976da65c1cf8c3a9367718ab9481ecce509c4f"
+    },
+    {
+      "path": "SCOPE_CHECK.json",
+      "sha256": "14efca47f6f73e8cfd120d85ef172feedbfbd9fa6b08bc8ae695f75f31e2d4aa"
+    },
+    {
+      "path": "STATIC_AUDIT.json",
+      "sha256": "140ea9ed9458b91b1b845a927f9bf7256ed1ffdc19e26e92f13db56d9ceb2f1e"
+    },
+    {
+      "path": "_run_records/EXECUTION.json",
+      "sha256": "58ac81a8e2f64a1012f7d8d44a3d7205234a491ea965324fd62951daec3b539e"
+    },
+    {
+      "path": "audit.py",
+      "sha256": "2eb41b79e9732bcb8d727ae78011e238b74a1cf76d4664b54a527c319c01ba64"
+    }
+  ],
+  "limits": "Manager fan-in only; native, DEC-025, actual-head CI and numerical-policy acceptance remain separate."
+}

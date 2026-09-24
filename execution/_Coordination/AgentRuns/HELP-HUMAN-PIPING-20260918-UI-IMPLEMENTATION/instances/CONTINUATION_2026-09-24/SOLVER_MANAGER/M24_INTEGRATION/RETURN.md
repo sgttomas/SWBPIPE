@@ -1,0 +1,13 @@
+# Selected authoring/product union return
+
+ROOT selected original authoring `ff2cb76ddfda43f6bcb4202b80b7fd199eb3c44e` for exact local cherry-pick onto solver input `c90089c3279ee1213501835eaef08938ed800897`; resulting local union is `beaf4869b`. No overlapping paths, conflicts or source edits occurred during fan-in. `FAN_IN.json` retains the complete identities.
+
+The maintained actual operation-applier → product solver target passed 5/5 tests on this union. Positive cases run dense and sparse modes and independently check 7.2 mm free thermal growth, zero anchor force, preserved source model and entered quantities/provenance. Canonical degC, legacy C and 180 degF with GPa reach the actual product adapter. Unknown units matching project metadata and incompatible length units are rejected before an applied model exists. This is a model JSON carrier roundtrip and live core-entrypoint check, not a native UI, native file/history or whole M24 completion witness. `RUN_BEFORE.json`, `RUN_AFTER.json` and `_run_records/` retain commands, exact input/source/lock identities and raw observations.
+
+The new dev-dependency requires a benchmark Cargo.lock update; Cargo added packages/dependency edges without replacing existing locked entries. The target used offline resolution, two build jobs and an isolated Cargo target. CPU ownership was returned to ROOT immediately after this target completed; no broader build/test was launched.
+
+Evidence portability custody covers 24 newly owned active records, including the imported authoring records with owning-manager coordination. Exact original bytes/hashes remain under the owning `_run_records/portability` paths. Current authored views declare path bases, raw mappings and historical hash semantics; source claims, empirical hashes, raw logs, returns and patch bytes are unchanged. `../PORTABILITY/CUSTODY.json` is the exact mapping. The bounded manager classifier check in `PORTABILITY_SCAN.json` found no actionable active paths; it is not a substitute for the full repository gate.
+
+`../NUMERICAL_REFERENCE_PREP` remains independent analytical preparation only. No product code imports it, no operational threshold has been activated, and no formal IEEE certificate, forward-accuracy guarantee or broader numerical qualification follows from its existence. The independent numerical-policy return belongs to its own ROOT-managed source and next implementation slice.
+
+Fresh independent integrated-source/seam/custody review is retained in `../M24_REVIEW`. Main integration, clean-candidate DEC-025, actual-head CI, native workflows and the remaining correctness programme are ROOT's subsequent gates. No external Git, release or engineering acceptance is claimed here.

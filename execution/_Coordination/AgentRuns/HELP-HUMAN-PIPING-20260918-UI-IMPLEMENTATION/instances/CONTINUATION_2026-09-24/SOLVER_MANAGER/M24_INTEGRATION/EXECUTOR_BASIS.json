@@ -1,0 +1,35 @@
+{
+  "actor": "/root/solver_manager",
+  "role": "WORKING_ITEMS",
+  "parent": "/root",
+  "mechanism": "delegated-harness-native",
+  "instruction_paths_base": "repository root of selected solver checkout; hashes preserve actual supplied bytes",
+  "instruction_sha256": {
+    "AGENTS.md": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+    "agents/AGENT_WORKING_ITEMS.md": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665",
+    "agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "projects/chirality-piping/AGENTS.md": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+    "projects/chirality-piping/loop/LOOP_INIT.md": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+    ".agents/skills/chirality-change/SKILL.md": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba",
+    ".agents/skills/software-code-review/SKILL.md": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+  },
+  "consultation": "Full TASK role deliberately read before implementation/review dispatch. No OS isolation claim.",
+  "children": [
+    {
+      "agent": "/root/solver_manager/input_repair",
+      "assignment": "continued existing TASK with explicit new evidence-only scope",
+      "model_dispatch": "gpt-6-astra",
+      "effort_dispatch": "low",
+      "return": "../PORTABILITY/CUSTODY.md"
+    },
+    {
+      "agent": "/root/solver_manager/m24_review",
+      "assignment": "fresh independent union/seam/evidence review",
+      "model_dispatch": "gpt-6-astra",
+      "effort_dispatch": "xhigh",
+      "return": "../M24_REVIEW/RETURN.md"
+    }
+  ],
+  "model_note": "Dispatch configuration recorded by parent, not independent supplier attestation; same-model review is not model diversity.",
+  "source_boundaries": "No source overlap; temporary raw path custody views preserve original executed records rather than rebinding instructions."
+}

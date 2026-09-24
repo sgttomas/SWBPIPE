@@ -11,7 +11,7 @@ Reviewed repaired source identities:
 | `projects/chirality-piping/core/product_physics/src/lib.rs` | `904f72876024943778788e56fd4fe7dac03387350282cec215d1be0cf3f129b5` |
 | `projects/chirality-piping/core/product_physics/src/validation.rs` | `4573e181828d84f7fa385796162bb3bd2c9908ad32d29a7f193673125d4d67c1` |
 
-The manager temporarily swapped working source for the baseline. Review used immutable `/private/tmp/input-repair-fixed-lib.rs` and `/private/tmp/input-repair-fixed-validation.rs`, whose hashes match this table; working files were not assumed to represent the candidate during that interval. REPAIR_DIFF.patch preserves the entire reviewed repair delta. BACKCHECK_ORIGINS.json records origins, parentage and limits.
+The manager temporarily swapped working source for the baseline. Review used immutable `{REPAIR_LIB_SNAPSHOT}` and `{REPAIR_VALIDATION_SNAPSHOT}`, whose hashes match this table; working files were not assumed to represent the candidate during that interval. REPAIR_DIFF.patch preserves the entire reviewed repair delta. BACKCHECK_ORIGINS.json records origins, parentage and limits.
 
 ## Finding dispositions
 
@@ -42,3 +42,11 @@ The baseline raw log was reviewed: exactly three new defect regressions fail on 
 Repaired execution evidence has now been reviewed: focused `input_contract_` run passes 9/9; complete product crate passes 184/184 unit tests with zero doc tests, both exit 0. The full log contains 184 named passing test rows. All three raw log SHA-256 values match CANDIDATE_RUN.json. Restored working lib.rs and validation.rs hashes match the immutable candidate above. The baseline source witness in BASELINE_RUN.json retains its prepared-state wording; completed outcomes and execution authority are recorded in CANDIDATE_RUN.json and its hashed logs.
 
 No Cargo/build/native/browser/npm workload was run by this reviewer. Tests are explicitly manager-run evidence, now checked against the reviewed candidate hashes; no broader sweep, native, engineering or release gate is implied. No OS isolation, model diversity, human acceptance, release or native witness is claimed. Source review is complete and the freeze is handed back to the manager; subsequent source changes require affected backcheck coverage.
+
+## Portable view custody
+
+This record is a portable view; the original observed bytes remain at `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/_run_records/portability/INPUT_REVIEW/BACKCHECK.md` (repository-relative), SHA-256 `d6190dd4f7a1337b75dd3531db57a679636f228c675d32a1c07ed6a72a056843`. Pre-existing hashes identify original observations, not this rewritten view; no rerun is implied.
+
+- `{REPAIR_LIB_SNAPSHOT}`: Historical external immutable lib.rs review snapshot; exact filename is retained at the indicated raw record locations. Existing source hash identifies its bytes. Raw locations: line:14.
+
+- `{REPAIR_VALIDATION_SNAPSHOT}`: Historical external immutable validation.rs review snapshot; exact filename is retained at the indicated raw record locations. Existing source hash identifies its bytes. Raw locations: line:14.

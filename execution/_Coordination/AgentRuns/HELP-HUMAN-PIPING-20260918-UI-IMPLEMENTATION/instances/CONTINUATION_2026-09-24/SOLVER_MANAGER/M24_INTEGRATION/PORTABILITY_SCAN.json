@@ -1,0 +1,13 @@
+{
+  "scope": [
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER"
+  ],
+  "scan": "Bounded use of existing surface_roles classifier and machine-path expression, including pending untracked ownedrecords; no policy/classifier mutation",
+  "classifier_sha256": "7786998c8eb047e770c98b3e846353d40a307f5cfa9862c95681c3405866949e",
+  "inspected_files": 80,
+  "recognized_evidence_files_with_machine_paths": 27,
+  "actionable": [],
+  "result": "pass",
+  "limit": "This is not the full practitioner self-check/GEN8 gate; raw evidence paths are retained by structural classification."
+}

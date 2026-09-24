@@ -1,0 +1,9 @@
+{
+  "state": "prepared, not yet executed; awaits ROOT resource lane",
+  "candidate_base": "f7e8b467cb2db244f11fe49cede636140031b387",
+  "source_sha256": {
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "904f72876024943778788e56fd4fe7dac03387350282cec215d1be0cf3f129b5",
+    "projects/chirality-piping/core/product_physics/src/validation.rs": "d74e1d453ac902b6fd2a40edb5a69d1924672185194cdbaffedbef0024fdf611"
+  },
+  "command": "CARGO_BUILD_JOBS=2 CARGO_TARGET_DIR=/private/tmp/piping-solver-correctness-target cargo test --offline --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml input_contract_repair_ -- --nocapture"
+}

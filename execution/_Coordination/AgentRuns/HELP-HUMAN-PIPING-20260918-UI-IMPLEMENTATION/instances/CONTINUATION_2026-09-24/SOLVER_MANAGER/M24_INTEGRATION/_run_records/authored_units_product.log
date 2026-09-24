@@ -1,0 +1,51 @@
+     Locking 13 packages to latest compatible versions
+      Adding block-buffer v0.10.4
+      Adding cfg-if v1.0.5
+      Adding cpufeatures v0.2.17
+      Adding crypto-common v0.1.7
+      Adding digest v0.10.7
+      Adding generic-array v0.14.7
+      Adding libc v0.2.189
+      Adding open_pipe_stress_canonical_json v0.1.0 (/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/core/serialization/canonical_json)
+      Adding open_pipe_stress_operation_applier v0.1.0 (/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/core/model_operations/operation_applier)
+      Adding ryu v1.0.23
+      Adding sha2 v0.10.9
+      Adding typenum v1.20.1
+      Adding version_check v0.9.5
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling serde_core v1.0.229
+   Compiling version_check v0.9.5
+   Compiling generic-array v0.14.7
+   Compiling zmij v1.0.23
+   Compiling syn v3.0.3
+   Compiling serde v1.0.229
+   Compiling serde_json v1.0.151
+   Compiling typenum v1.20.1
+   Compiling serde_derive v1.0.229
+   Compiling memchr v2.8.3
+   Compiling libc v0.2.189
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling open_pipe_stress_units v0.1.0 (/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/core/units)
+   Compiling digest v0.10.7
+   Compiling cpufeatures v0.2.17
+   Compiling cfg-if v1.0.5
+   Compiling ryu v1.0.23
+   Compiling sha2 v0.10.9
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/core/serialization/canonical_json)
+   Compiling open_pipe_stress_product_physics v0.1.0 (/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/core/product_physics)
+   Compiling open_pipe_stress_operation_applier v0.1.0 (/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/core/model_operations/operation_applier)
+   Compiling open_pipe_stress_physics_audit_regression v0.1.0 (/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/validation/benchmarks/physics_audit_regression)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.17s
+     Running tests/authored_units_product.rs (/private/tmp/piping-solver-correctness-target/debug/deps/authored_units_product-2a8f4525cd0e266c)
+
+running 5 tests
+test incompatible_length_unit_cannot_create_thermal_load ... ok
+test unknown_matching_project_unit_is_blocked_by_operation ... ok
+test authored_legacy_temperature_reaches_product_solver_without_rewriting_storage ... ok
+test authored_fahrenheit_interval_and_gpa_reach_product_solver ... ok
+test authored_canonical_temperature_reaches_product_solver ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

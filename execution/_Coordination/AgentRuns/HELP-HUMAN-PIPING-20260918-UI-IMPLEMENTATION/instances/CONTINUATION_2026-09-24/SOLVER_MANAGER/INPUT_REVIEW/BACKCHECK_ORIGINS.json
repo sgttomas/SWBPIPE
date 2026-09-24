@@ -8,13 +8,13 @@
   "source_basis": [
     {
       "logical_source": "projects/chirality-piping/core/product_physics/src/lib.rs",
-      "reviewed_origin": "/private/tmp/input-repair-fixed-lib.rs",
+      "reviewed_origin": "{REPAIR_LIB_SNAPSHOT}",
       "prior_sha256": "1477faebbad58c5437382c835d25c2e7cb2feeaf24e2b2a165a5ecdd77af47b0",
       "repaired_sha256": "904f72876024943778788e56fd4fe7dac03387350282cec215d1be0cf3f129b5"
     },
     {
       "logical_source": "projects/chirality-piping/core/product_physics/src/validation.rs",
-      "reviewed_origin": "/private/tmp/input-repair-fixed-validation.rs",
+      "reviewed_origin": "{REPAIR_VALIDATION_SNAPSHOT}",
       "prior_sha256": "d74e1d453ac902b6fd2a40edb5a69d1924672185194cdbaffedbef0024fdf611",
       "repaired_sha256": "4573e181828d84f7fa385796162bb3bd2c9908ad32d29a7f193673125d4d67c1"
     }
@@ -23,38 +23,38 @@
   "limits": "No Cargo/build/native/browser/npm execution by reviewer; no OS isolation, model-diversity, engineering acceptance, release or native evidence claim.",
   "reference_evidence": [
     {
-      "origin": "/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/REFERENCE_QUALIFICATION.md",
+      "origin": "{SOLVER_CHECKOUT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/REFERENCE_QUALIFICATION.md",
       "sha256": "43722c226754a392527a53161ecf9b71da1b7aa20f4cd994aa9038dedb1b7f8e"
     },
     {
-      "origin": "/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/ORIGINS.json",
+      "origin": "{SOLVER_CHECKOUT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/ORIGINS.json",
       "sha256": "7daa0535819ac2ff007843bd78667f2a53db1183907083928c573a93b3c5673a"
     }
   ],
   "execution_evidence_status": "Reviewed actual manager baseline/focused/full logs; all recorded hashes match. Restored working source hashes match immutable reviewed candidate.",
   "execution_evidence": [
     {
-      "origin": "/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/CANDIDATE_RUN.json",
+      "origin": "{SOLVER_CHECKOUT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/CANDIDATE_RUN.json",
       "sha256": "f6e97c3af160fc9b19968c6185e20f0225a126a258c9253d120e8857cce2752a"
     },
     {
-      "origin": "/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/BASELINE_RUN.json",
+      "origin": "{SOLVER_CHECKOUT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/BASELINE_RUN.json",
       "sha256": "f9d7541474b77411f8c1613b13706316d22c8ab019d82d4559c8d8b025a6bf56"
     },
     {
-      "origin": "/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/PRE_REPAIR_TESTS.patch",
+      "origin": "{SOLVER_CHECKOUT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/PRE_REPAIR_TESTS.patch",
       "sha256": "60369a1f3d769a7ac0bab4cf943e1314e4aea60ec0d5e438b27e744b191e4266"
     },
     {
-      "origin": "/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/baseline.log",
+      "origin": "{SOLVER_CHECKOUT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/baseline.log",
       "sha256": "cfb336842fc6f8deebaa25ae1a83476481c96fa3dc368aa52613cb52046f109a"
     },
     {
-      "origin": "/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/focused.log",
+      "origin": "{SOLVER_CHECKOUT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/focused.log",
       "sha256": "155267854b0928671fd6a4af84a8a12297c50789bebf42d067142b588246f34f"
     },
     {
-      "origin": "/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/full.log",
+      "origin": "{SOLVER_CHECKOUT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/full.log",
       "sha256": "3f0aaf79eb7542174028d7b6c780297418832d800ad4a6acca52007ca0f5be94"
     }
   ],
@@ -67,5 +67,42 @@
     "restored_source_hashes": "both match reviewed immutable candidate",
     "diff_check": "passed",
     "reviewer_build_execution": false
+  },
+  "_portability": {
+    "portable_view": true,
+    "raw_record": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/_run_records/portability/INPUT_REVIEW/BACKCHECK_ORIGINS.json",
+      "sha256": "1e0d18a381cf5abaa4fb9372e8c1ae8d7f5b66036f712c37fc75ca2603044701",
+      "path_basis": "repository-relative"
+    },
+    "source_commit": "beaf4869bee2ae8c866e7e62eaa6a8f369610d7e",
+    "path_bases": {
+      "{REPAIR_LIB_SNAPSHOT}": {
+        "meaning": "Historical external immutable lib.rs review snapshot; exact filename is retained at the indicated raw record locations. Existing source hash identifies its bytes.",
+        "raw_locations": [
+          "/source_basis/0/reviewed_origin"
+        ]
+      },
+      "{REPAIR_VALIDATION_SNAPSHOT}": {
+        "meaning": "Historical external immutable validation.rs review snapshot; exact filename is retained at the indicated raw record locations. Existing source hash identifies its bytes.",
+        "raw_locations": [
+          "/source_basis/1/reviewed_origin"
+        ]
+      },
+      "{SOLVER_CHECKOUT}": {
+        "meaning": "Historical solver repository checkout; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations.",
+        "raw_locations": [
+          "/execution_evidence/0/origin",
+          "/execution_evidence/1/origin",
+          "/execution_evidence/2/origin",
+          "/execution_evidence/3/origin",
+          "/execution_evidence/4/origin",
+          "/execution_evidence/5/origin",
+          "/reference_evidence/0/origin",
+          "/reference_evidence/1/origin"
+        ]
+      }
+    },
+    "hash_semantics": "All pre-existing hashes and empirical values are unchanged and refer to original captured bytes/candidates, never this portable view. For rewritten referenced records use CUSTODY.json original-to-raw mapping; no rerun or re-observation is implied. JSON pointer locations address original raw values; key: denotes a dictionary key."
   }
 }

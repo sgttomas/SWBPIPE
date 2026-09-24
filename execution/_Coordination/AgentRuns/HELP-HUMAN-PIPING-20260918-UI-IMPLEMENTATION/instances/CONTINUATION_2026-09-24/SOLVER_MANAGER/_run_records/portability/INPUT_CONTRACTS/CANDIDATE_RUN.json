@@ -1,0 +1,17 @@
+{
+  "candidate_base": "f7e8b467cb2db244f11fe49cede636140031b387",
+  "source_sha256": {
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "1477faebbad58c5437382c835d25c2e7cb2feeaf24e2b2a165a5ecdd77af47b0",
+    "projects/chirality-piping/core/product_physics/src/validation.rs": "d74e1d453ac902b6fd2a40edb5a69d1924672185194cdbaffedbef0024fdf611"
+  },
+  "commands": [
+    "CARGO_BUILD_JOBS=2 CARGO_TARGET_DIR=/private/tmp/piping-solver-correctness-target cargo test --offline --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml input_contract_ -- --nocapture",
+    "CARGO_BUILD_JOBS=2 CARGO_TARGET_DIR=/private/tmp/piping-solver-correctness-target cargo test --offline --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml"
+  ],
+  "focused": "5 passed",
+  "full_initial": "179 passed; 1 stale mixed-hydro ignored-input expectation failed",
+  "full_final": "180 passed; 0 failed; 0 doc tests",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+  "execution_lane": "Parent relayed ROOT CPU lane authorization; jobs2 serial product_physics runs only."
+}

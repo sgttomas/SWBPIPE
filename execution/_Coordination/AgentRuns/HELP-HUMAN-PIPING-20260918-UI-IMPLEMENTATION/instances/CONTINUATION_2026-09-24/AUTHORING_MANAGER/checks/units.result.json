@@ -6,11 +6,35 @@
     "--manifest-path",
     "projects/chirality-piping/core/units/Cargo.toml"
   ],
-  "cwd": "/private/tmp/piping-authoring-correctness-20260924",
+  "cwd": "{AUTHORING_CHECKOUT}",
   "environment": {
     "CARGO_BUILD_JOBS": "2",
     "CARGO_NET_OFFLINE": "true",
-    "CARGO_TARGET_DIR": "/private/tmp/piping-authoring-correctness-20260924-target"
+    "CARGO_TARGET_DIR": "{AUTHORING_CARGO_TARGET}"
   },
-  "exit_code": 0
+  "exit_code": 0,
+  "_portability": {
+    "portable_view": true,
+    "raw_record": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/checks/units.result.json",
+      "sha256": "5edf3ca7f92d01ca0b380e8395cda9f890defc98c145e9cbff342a6e6acbfef1",
+      "path_basis": "repository-relative"
+    },
+    "source_commit": "ff2cb76ddfda43f6bcb4202b80b7fd199eb3c44e",
+    "path_bases": {
+      "{AUTHORING_CHECKOUT}": {
+        "meaning": "Historical authoring repository checkout; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations.",
+        "raw_locations": [
+          "/cwd"
+        ]
+      },
+      "{AUTHORING_CARGO_TARGET}": {
+        "meaning": "Historical external authoring Cargo target directory; exact value is retained at the indicated raw record locations.",
+        "raw_locations": [
+          "/environment/CARGO_TARGET_DIR"
+        ]
+      }
+    },
+    "hash_semantics": "All pre-existing hashes and empirical values are unchanged and refer to original captured bytes/candidates, never this portable view. For rewritten referenced records use CUSTODY.json original-to-raw mapping; no rerun or re-observation is implied. JSON pointer locations address original raw values; key: denotes a dictionary key."
+  }
 }

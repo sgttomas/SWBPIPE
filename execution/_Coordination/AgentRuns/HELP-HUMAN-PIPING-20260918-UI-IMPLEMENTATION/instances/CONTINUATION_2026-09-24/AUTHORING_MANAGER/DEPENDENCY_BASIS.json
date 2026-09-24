@@ -1,17 +1,17 @@
 {
   "package.json": {
     "sha256": "7e719791e3ffdc7b57eddb2bb32d682705bf945af5b7207ffc699a2a45648656",
-    "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/package.json"
+    "origin": "{PRIMARY_CHECKOUT}/projects/chirality-piping/package.json"
   },
   "package-lock.json": {
     "sha256": "0dd1616e1ef3c596d5cdaa8e56994f26127c20943bfde066f26c9f924c65d732",
-    "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/package-lock.json"
+    "origin": "{PRIMARY_CHECKOUT}/projects/chirality-piping/package-lock.json"
   },
   "apps/desktop/package.json": {
     "sha256": "c0e3ddd045e0ea7576a4cd01af86c4921bab7314e7b3d927b5eab11822e959fa",
-    "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/package.json"
+    "origin": "{PRIMARY_CHECKOUT}/projects/chirality-piping/apps/desktop/package.json"
   },
-  "shared_read_only_dependency_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules",
+  "shared_read_only_dependency_origin": "{PRIMARY_CHECKOUT}/projects/chirality-piping/node_modules",
   "versions": {
     "typescript": "5.9.3",
     "vitest": "4.1.10",
@@ -19,5 +19,26 @@
     "vite": "7.3.3",
     "@testing-library/react": "16.3.2"
   },
-  "warning": "npm workspace package link can point at primary; run binaries against explicit isolated desktop cwd, verify actual root and direct writable caches to isolated path."
+  "warning": "npm workspace package link can point at primary; run binaries against explicit isolated desktop cwd, verify actual root and direct writable caches to isolated path.",
+  "_portability": {
+    "portable_view": true,
+    "raw_record": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/DEPENDENCY_BASIS.json",
+      "sha256": "2c365b1b88930530a85e90f8cf495132930b5f1e9deeab09707f0fdc08251cda",
+      "path_basis": "repository-relative"
+    },
+    "source_commit": "ff2cb76ddfda43f6bcb4202b80b7fd199eb3c44e",
+    "path_bases": {
+      "{PRIMARY_CHECKOUT}": {
+        "meaning": "Historical primary repository checkout used for supplied context or shared dependencies; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations.",
+        "raw_locations": [
+          "/apps~1desktop~1package.json/origin",
+          "/package-lock.json/origin",
+          "/package.json/origin",
+          "/shared_read_only_dependency_origin"
+        ]
+      }
+    },
+    "hash_semantics": "All pre-existing hashes and empirical values are unchanged and refer to original captured bytes/candidates, never this portable view. For rewritten referenced records use CUSTODY.json original-to-raw mapping; no rerun or re-observation is implied. JSON pointer locations address original raw values; key: denotes a dictionary key."
+  }
 }

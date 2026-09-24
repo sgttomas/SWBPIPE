@@ -1,0 +1,12 @@
+{
+  "state": "Prepared analytical constants only; independent executable reference review remains required before production use.",
+  "author": "/root/solver_manager",
+  "source_reference": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_REFERENCE.md",
+  "source_sha256": "67c8aac5798e9663528bea94b58d6d8f2eb8308f94b7ebb78aa22dca4b8f94ca",
+  "artifacts": {
+    "independent_oracle.py": "5b47991cfbaee479f966a3ab0758e69848c4c052dc4cf4f9dd2517fd12b5fc14",
+    "prepared_expectations.json": "f6bf9fd56524b60692a8328d34118f0b4f5d119491b9f71d71301639ae167436"
+  },
+  "execution": "python3 independent_oracle.py, exit 0; standard-library Decimal only; no product import or build.",
+  "policy_activation": false
+}

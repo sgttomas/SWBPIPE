@@ -1,0 +1,14 @@
+{
+  "selected_authoring_commit": "ff2cb76ddfda43f6bcb4202b80b7fd199eb3c44e",
+  "solver_input_commit": "c90089c3279ee1213501835eaef08938ed800897",
+  "union_commit": "beaf4869bee2ae8c866e7e62eaa6a8f369610d7e",
+  "incoming_paths": 43,
+  "preserved_pending_paths": 6,
+  "path_overlap": [],
+  "cherry_pick_conflicts": false,
+  "actor": "/root/solver_manager",
+  "authority": "ROOT explicit exact-commit local cherry-pick selection",
+  "model": "gpt-6-astra",
+  "role": "WORKING_ITEMS",
+  "seam_author": "/root/solver_manager"
+}

@@ -5,13 +5,32 @@
     "projects/chirality-piping/core/product_physics/src/validation.rs": "d74e1d453ac902b6fd2a40edb5a69d1924672185194cdbaffedbef0024fdf611"
   },
   "commands": [
-    "CARGO_BUILD_JOBS=2 CARGO_TARGET_DIR=/private/tmp/piping-solver-correctness-target cargo test --offline --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml input_contract_ -- --nocapture",
-    "CARGO_BUILD_JOBS=2 CARGO_TARGET_DIR=/private/tmp/piping-solver-correctness-target cargo test --offline --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml"
+    "CARGO_BUILD_JOBS=2 CARGO_TARGET_DIR={SOLVER_CARGO_TARGET} cargo test --offline --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml input_contract_ -- --nocapture",
+    "CARGO_BUILD_JOBS=2 CARGO_TARGET_DIR={SOLVER_CARGO_TARGET} cargo test --offline --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml"
   ],
   "focused": "5 passed",
   "full_initial": "179 passed; 1 stale mixed-hydro ignored-input expectation failed",
   "full_final": "180 passed; 0 failed; 0 doc tests",
   "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
   "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
-  "execution_lane": "Parent relayed ROOT CPU lane authorization; jobs2 serial product_physics runs only."
+  "execution_lane": "Parent relayed ROOT CPU lane authorization; jobs2 serial product_physics runs only.",
+  "_portability": {
+    "portable_view": true,
+    "raw_record": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/_run_records/portability/INPUT_CONTRACTS/CANDIDATE_RUN.json",
+      "sha256": "987b1db1177890d1226238a1d99e070751b38ef9fa48e5fd6de016a416fdf329",
+      "path_basis": "repository-relative"
+    },
+    "source_commit": "beaf4869bee2ae8c866e7e62eaa6a8f369610d7e",
+    "path_bases": {
+      "{SOLVER_CARGO_TARGET}": {
+        "meaning": "Historical external solver Cargo target directory; exact value is retained at the indicated raw record locations.",
+        "raw_locations": [
+          "/commands/0",
+          "/commands/1"
+        ]
+      }
+    },
+    "hash_semantics": "All pre-existing hashes and empirical values are unchanged and refer to original captured bytes/candidates, never this portable view. For rewritten referenced records use CUSTODY.json original-to-raw mapping; no rerun or re-observation is implied. JSON pointer locations address original raw values; key: denotes a dictionary key."
+  }
 }

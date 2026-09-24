@@ -3,6 +3,24 @@
     "../../node_modules/.bin/tsc",
     "--noEmit"
   ],
-  "cwd": "/private/tmp/piping-authoring-correctness-20260924/projects/chirality-piping/apps/desktop",
-  "exit_code": 0
+  "cwd": "{AUTHORING_CHECKOUT}/projects/chirality-piping/apps/desktop",
+  "exit_code": 0,
+  "_portability": {
+    "portable_view": true,
+    "raw_record": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/checks/tsc_expanded.result.json",
+      "sha256": "c18c5dac148b852b24e5ca83550594c0c9d1ecbcdc6765279ca0b827dcc85e27",
+      "path_basis": "repository-relative"
+    },
+    "source_commit": "ff2cb76ddfda43f6bcb4202b80b7fd199eb3c44e",
+    "path_bases": {
+      "{AUTHORING_CHECKOUT}": {
+        "meaning": "Historical authoring repository checkout; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations.",
+        "raw_locations": [
+          "/cwd"
+        ]
+      }
+    },
+    "hash_semantics": "All pre-existing hashes and empirical values are unchanged and refer to original captured bytes/candidates, never this portable view. For rewritten referenced records use CUSTODY.json original-to-raw mapping; no rerun or re-observation is implied. JSON pointer locations address original raw values; key: denotes a dictionary key."
+  }
 }

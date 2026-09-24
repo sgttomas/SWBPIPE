@@ -1,0 +1,18 @@
+{
+  "base": "f7e8b467cb2db244f11fe49cede636140031b387",
+  "source_state": "HEAD production + PRE_FIX_TESTS.patch",
+  "command": "CARGO_BUILD_JOBS=2 CARGO_TARGET_DIR=/private/tmp/piping-solver-correctness-target cargo test --offline --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml input_contract_ -- --nocapture",
+  "sources": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "6502f2d8b4f369bf2f6456928b7e4a127a6070b0f730189970adca219edf813d"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/validation.rs",
+      "sha256": "cc98b205467c9a965adc03179e91c43f174ba4b9bafb0f7aff47ed5ad6e936a7"
+    }
+  ],
+  "exit_code": 101,
+  "result": "0 passed; 4 failed; 175 filtered out",
+  "log": "baseline.log"
+}

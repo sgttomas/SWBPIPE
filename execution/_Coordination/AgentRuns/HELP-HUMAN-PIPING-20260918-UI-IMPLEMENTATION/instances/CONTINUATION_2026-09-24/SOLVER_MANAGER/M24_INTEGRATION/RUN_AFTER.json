@@ -1,0 +1,26 @@
+{
+  "union_commit": "beaf4869bee2ae8c866e7e62eaa6a8f369610d7e",
+  "status": "passed",
+  "recorded_utc": "2026-09-24T14:34:51.925905+00:00",
+  "exit_code": 0,
+  "test_result": "5 passed;0 failed;both solver modes within positive cases",
+  "source_sha256": {
+    "projects/chirality-piping/core/units/src/lib.rs": "b133ae071a28d0ba0e897ad3c50694cc108f956cd9ce32e1288d5a027bdc970c",
+    "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs": "ba0bffc40456311b4de2915eb287b046de9b2ff273c2261600254f2001c86853",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "904f72876024943778788e56fd4fe7dac03387350282cec215d1be0cf3f129b5",
+    "projects/chirality-piping/core/product_physics/src/validation.rs": "4573e181828d84f7fa385796162bb3bd2c9908ad32d29a7f193673125d4d67c1",
+    "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.toml": "07cd2bff347cf20796eebab20e587b6b2d829dfda7e6319e3394613ee07e840c",
+    "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.lock": "9e05f6cc80383de85adf3c430c430ad7fde424791d7120d6f9e31d344a3b31d7",
+    "projects/chirality-piping/validation/benchmarks/physics_audit_regression/tests/authored_units_product.rs": "75432c6b52ee1993a4fea088aa9ebe5747d1d9494cf42396ee549ccf77dd81da"
+  },
+  "changed_during_execution": [
+    "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.lock"
+  ],
+  "log_ref": "_run_records/authored_units_product.log",
+  "log_sha256": "85f3d75cfbd302d0ea9415196655f0a409d717dbc38fca0d71695a2fa4e1540c",
+  "command_ref": "RUN_BEFORE.json",
+  "exact_execution_ref": "_run_records/EXECUTION.json",
+  "lock_change": "Only new packages/dependency edges required by operation_applier dev-dependency; existing lockfile bytes retained in _run_records/Cargo.lock.before",
+  "runtime_boundary": "Actual operation-applier to product DTO/solver; no browser mock backend; JSON carrier roundtrip only, not native project persistence",
+  "resource_return": "CPU lane returned to ROOT after target completed; no further builds executed"
+}

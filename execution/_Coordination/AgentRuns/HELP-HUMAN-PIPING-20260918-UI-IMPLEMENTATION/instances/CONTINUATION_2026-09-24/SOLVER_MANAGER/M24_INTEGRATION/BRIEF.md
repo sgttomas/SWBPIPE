@@ -1,0 +1,7 @@
+# M24 authoring/product integration
+
+ROOT selected original reviewed authoring commit `ff2cb76ddfda43f6bcb4202b80b7fd199eb3c44e` for exact local cherry-pick onto solver input commit `c90089c3279ee1213501835eaef08938ed800897`. All 43 incoming paths were disjoint from the six pending seam/preparation paths; no conflict or source repair occurred. This is implementation fan-in, not a main merge.
+
+The maintained `validation/benchmarks/physics_audit_regression/tests/authored_units_product.rs` composes the actual operation-applier with the native product DTO/solver entrypoint. Independent thermal reference qualification is in `../AUTHORED_UNIT_REFERENCE.md`. Cases cover canonical and saved legacy Celsius, Fahrenheit interval/GPa, unknown project token bypass rejection and dimensionally incompatible temperature input. Model JSON roundtrip checks the carrier only; native file/history/results persistence remains a programme witness.
+
+Run only in the ROOT-allocated serial CPU lane, using offline Cargo, two build jobs and an isolated target. Existing source unit/applier/product/frontend results are preserved; this stage runs the new cross-crate seam and only additional affected checks warranted by observed failures. Fresh independent review covers the selected union, seam and evidence portability custody before a scoped local test/evidence commit. ROOT retains push/PR/main integration, clean-candidate DEC-025 and actual-head CI/native ownership.

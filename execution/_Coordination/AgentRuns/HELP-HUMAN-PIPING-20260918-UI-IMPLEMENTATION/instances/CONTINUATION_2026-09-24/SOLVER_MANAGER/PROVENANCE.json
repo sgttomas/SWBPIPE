@@ -9,67 +9,67 @@
   "isolation": "Separate Git worktree; shared host/filesystem and tool permissions. No OS isolation claim.",
   "origins": [
     {
-      "path": "/private/tmp/piping-solver-correctness-20260924/AGENTS.md",
+      "path": "{SOLVER_CHECKOUT}/AGENTS.md",
       "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
     },
     {
-      "path": "/private/tmp/piping-solver-correctness-20260924/agents/AGENT_WORKING_ITEMS.md",
+      "path": "{SOLVER_CHECKOUT}/agents/AGENT_WORKING_ITEMS.md",
       "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665"
     },
     {
-      "path": "/private/tmp/piping-solver-correctness-20260924/agents/AGENT_TASK.md",
+      "path": "{SOLVER_CHECKOUT}/agents/AGENT_TASK.md",
       "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
     },
     {
-      "path": "/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/AGENTS.md",
+      "path": "{SOLVER_CHECKOUT}/projects/chirality-piping/AGENTS.md",
       "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
     },
     {
-      "path": "/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/loop/LOOP_INIT.md",
+      "path": "{SOLVER_CHECKOUT}/projects/chirality-piping/loop/LOOP_INIT.md",
       "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
     },
     {
-      "path": "/private/tmp/piping-solver-correctness-20260924/.agents/skills/chirality-change/SKILL.md",
+      "path": "{SOLVER_CHECKOUT}/.agents/skills/chirality-change/SKILL.md",
       "sha256": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba"
     },
     {
-      "path": "/private/tmp/piping-solver-correctness-20260924/.agents/skills/software-code-review/SKILL.md",
+      "path": "{SOLVER_CHECKOUT}/.agents/skills/software-code-review/SKILL.md",
       "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
     },
     {
-      "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_ACTIVATION.md",
+      "path": "{PRIMARY_CHECKOUT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_ACTIVATION.md",
       "sha256": "a3a22c0af6250fafb611c776e605d2f36989c919948904047f373ce5c139c170"
     },
     {
-      "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/ASSESSMENT.md",
+      "path": "{PRIMARY_CHECKOUT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/ASSESSMENT.md",
       "sha256": "c948cb13ac5d825b0d201074cad50e9b8f4d9de916bc246f574e8304121b72e6"
     },
     {
-      "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/PRESSURE_THRUST_CLARIFICATION.md",
+      "path": "{PRIMARY_CHECKOUT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/PRESSURE_THRUST_CLARIFICATION.md",
       "sha256": "362e1d539898c2ae40949a5115a0f5e78975b69fe602be0677cf1d4b9e75945d"
     },
     {
-      "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/elements/RETURN.md",
+      "path": "{PRIMARY_CHECKOUT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/elements/RETURN.md",
       "sha256": "0ceda9205238f58d8435effba5f1d39979b1d7d6058962dfbc0582e864f85921"
     },
     {
-      "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/loads/RETURN.md",
+      "path": "{PRIMARY_CHECKOUT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/loads/RETURN.md",
       "sha256": "187c67f1267d036bf1f19bab60c271f2ba78234fa1b14c76875b0fb514afc07b"
     },
     {
-      "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/supports/RETURN.md",
+      "path": "{PRIMARY_CHECKOUT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/supports/RETURN.md",
       "sha256": "563bc348d7b56dca4b8e14e4eb42d2c0bb0d3f666afb4907cd76cc7a846824d3"
     },
     {
-      "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/stress/RETURN.md",
+      "path": "{PRIMARY_CHECKOUT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/stress/RETURN.md",
       "sha256": "3d6f40f5b9e2d0f5addc522922a3a59f53ff8862117e7c300c201231ada9c9fe"
     },
     {
-      "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/verification/RETURN.md",
+      "path": "{PRIMARY_CHECKOUT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/verification/RETURN.md",
       "sha256": "e52dd616ca361d1c6c1aca65b7a23f6aab18f09c6091a4fb6121144518b17c8c"
     },
     {
-      "path": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/app/RETURN.md",
+      "path": "{PRIMARY_CHECKOUT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/app/RETURN.md",
       "sha256": "061aa7acc2aca25f600022b9283e69959bcfb7f24aeb1663e4df0cd959ab63be"
     }
   ],
@@ -118,5 +118,43 @@
       ],
       "purpose": "Repair R1/R2/R3 from fresh independent input review; add independently derived skew moment and axial contact equilibrium cases."
     }
-  ]
+  ],
+  "_portability": {
+    "portable_view": true,
+    "raw_record": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/_run_records/portability/PROVENANCE.json",
+      "sha256": "b1f08dc0f45445b9ac3e73d5913c6c0d9f3b3b72567e190aa7d4a875d86f24ec",
+      "path_basis": "repository-relative"
+    },
+    "source_commit": "beaf4869bee2ae8c866e7e62eaa6a8f369610d7e",
+    "path_bases": {
+      "{SOLVER_CHECKOUT}": {
+        "meaning": "Historical solver repository checkout; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations.",
+        "raw_locations": [
+          "/origins/0/path",
+          "/origins/1/path",
+          "/origins/2/path",
+          "/origins/3/path",
+          "/origins/4/path",
+          "/origins/5/path",
+          "/origins/6/path"
+        ]
+      },
+      "{PRIMARY_CHECKOUT}": {
+        "meaning": "Historical primary repository checkout used for supplied context or shared dependencies; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations.",
+        "raw_locations": [
+          "/origins/10/path",
+          "/origins/11/path",
+          "/origins/12/path",
+          "/origins/13/path",
+          "/origins/14/path",
+          "/origins/15/path",
+          "/origins/7/path",
+          "/origins/8/path",
+          "/origins/9/path"
+        ]
+      }
+    },
+    "hash_semantics": "All pre-existing hashes and empirical values are unchanged and refer to original captured bytes/candidates, never this portable view. For rewritten referenced records use CUSTODY.json original-to-raw mapping; no rerun or re-observation is implied. JSON pointer locations address original raw values; key: denotes a dictionary key."
+  }
 }

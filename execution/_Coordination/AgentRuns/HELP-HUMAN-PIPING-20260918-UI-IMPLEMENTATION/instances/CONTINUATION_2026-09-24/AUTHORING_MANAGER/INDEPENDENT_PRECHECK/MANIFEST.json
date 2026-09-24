@@ -10,11 +10,11 @@
   "role": "TASK Type 2",
   "mechanism": "delegated-harness-native reused agent",
   "context_limit": "Prior read-only stress-assessment context retained; not fresh-context merge review; no implementation by this assessor",
-  "repository_origin": "/private/tmp/piping-authoring-correctness-20260924",
+  "repository_origin": "{AUTHORING_CHECKOUT}",
   "base": "f7e8b467cb2db244f11fe49cede636140031b387",
   "head_observed": "f7e8b467cb2db244f11fe49cede636140031b387",
   "initial_frozen_manifest": {
-    "origin": "/private/tmp/piping-authoring-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/FROZEN_CANDIDATE.json",
+    "origin": "{AUTHORING_CHECKOUT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/FROZEN_CANDIDATE.json",
     "sha256": "869a9cbd926f54740989f6843c2d1cc23ab7223c34a7f29825b432afa39f4053",
     "data": {
       "base": "f7e8b467cb2db244f11fe49cede636140031b387",
@@ -97,59 +97,59 @@
   ],
   "instruction_inputs": [
     {
-      "origin": "/private/tmp/piping-authoring-correctness-20260924/AGENTS.md",
+      "origin": "{AUTHORING_CHECKOUT}/AGENTS.md",
       "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
       "read_scope": "full"
     },
     {
-      "origin": "/private/tmp/piping-authoring-correctness-20260924/agents/AGENT_TASK.md",
+      "origin": "{AUTHORING_CHECKOUT}/agents/AGENT_TASK.md",
       "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
       "read_scope": "full"
     },
     {
-      "origin": "/private/tmp/piping-authoring-correctness-20260924/projects/chirality-piping/AGENTS.md",
+      "origin": "{AUTHORING_CHECKOUT}/projects/chirality-piping/AGENTS.md",
       "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
       "read_scope": "full"
     },
     {
-      "origin": "/private/tmp/piping-authoring-correctness-20260924/projects/chirality-piping/loop/LOOP_INIT.md",
+      "origin": "{AUTHORING_CHECKOUT}/projects/chirality-piping/loop/LOOP_INIT.md",
       "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
       "read_scope": "full"
     },
     {
-      "origin": "/private/tmp/piping-authoring-correctness-20260924/.agents/skills/software-code-review/SKILL.md",
+      "origin": "{AUTHORING_CHECKOUT}/.agents/skills/software-code-review/SKILL.md",
       "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
       "read_scope": "full"
     },
     {
-      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_ACTIVATION.md",
+      "origin": "{PRIMARY_CHECKOUT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_ACTIVATION.md",
       "sha256": "dd98701526a31248f36a5e6e03490975af682f748dd349aa52faa1bfafc912a0",
       "read_scope": "full including subsequent reference-quality steering"
     }
   ],
   "scope_inputs": [
     {
-      "origin": "/private/tmp/piping-authoring-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/PLAN.md",
+      "origin": "{AUTHORING_CHECKOUT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/PLAN.md",
       "sha256": "89bcfe026c5c80bf1665334fc59ad3b6b51e99a58d223f09078e564b767e9cc2"
     },
     {
-      "origin": "/private/tmp/piping-authoring-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/REFERENCE_BASIS.md",
+      "origin": "{AUTHORING_CHECKOUT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/REFERENCE_BASIS.md",
       "sha256": "f6059aba0c5628ad63c783e01806ee87f60a9fff103633620eaf7ee2a18d2fb8"
     }
   ],
   "additional_consulted_sources": [
     {
-      "origin": "/private/tmp/piping-authoring-correctness-20260924/projects/chirality-piping/core/model_operations/operation_applier/src/display_units.rs",
+      "origin": "{AUTHORING_CHECKOUT}/projects/chirality-piping/core/model_operations/operation_applier/src/display_units.rs",
       "sha256": "0c9a8902174b115da5a375f46debd84ee79b740816410096d9eb5a28e0e8d5c1",
       "read_scope": "targeted"
     },
     {
-      "origin": "/private/tmp/piping-authoring-correctness-20260924/projects/chirality-piping/apps/desktop/src/services/displayQuantityService.ts",
+      "origin": "{AUTHORING_CHECKOUT}/projects/chirality-piping/apps/desktop/src/services/displayQuantityService.ts",
       "sha256": "65a9557c32a628e3481242ac2cb26a51438ee91b39e492f892d15fefed172cef",
       "read_scope": "targeted"
     },
     {
-      "origin": "/private/tmp/piping-authoring-correctness-20260924/projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadWasmEngine.ts",
+      "origin": "{AUTHORING_CHECKOUT}/projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadWasmEngine.ts",
       "sha256": "fbd8f9b474484086395b6b7fd09de0ef3bc265736f58c2b1104781785a6e5073",
       "read_scope": "targeted"
     }
@@ -190,10 +190,47 @@
     }
   ],
   "execution": "Read-only source/Git and primary web; local Python used only for hashing and assigned evidence output. No tests/build/npm/Cargo/browser/native/solver/endpoints/Git mutation/product writes/delegation.",
-  "write_scope": "/private/tmp/piping-authoring-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/INDEPENDENT_PRECHECK",
+  "write_scope": "{AUTHORING_CHECKOUT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/INDEPENDENT_PRECHECK",
   "enforcement_limit": "Host filesystem scope is broader; disjoint instructional write scope, not OS-enforced agent isolation.",
   "return": {
-    "path": "/private/tmp/piping-authoring-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/INDEPENDENT_PRECHECK/RETURN.md",
+    "path": "{AUTHORING_CHECKOUT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/INDEPENDENT_PRECHECK/RETURN.md",
     "sha256": "9dce1a51a76bd09151a51320dd21c7df2b9dc47eb02b4e4e47d30135c857fc56"
+  },
+  "_portability": {
+    "portable_view": true,
+    "raw_record": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/INDEPENDENT_PRECHECK/MANIFEST.json",
+      "sha256": "ddd696cd31fb747ed6e2a0751f93e857b5631417c462209b484d40fa5083c1af",
+      "path_basis": "repository-relative"
+    },
+    "source_commit": "ff2cb76ddfda43f6bcb4202b80b7fd199eb3c44e",
+    "path_bases": {
+      "{AUTHORING_CHECKOUT}": {
+        "meaning": "Historical authoring repository checkout; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations.",
+        "raw_locations": [
+          "/additional_consulted_sources/0/origin",
+          "/additional_consulted_sources/1/origin",
+          "/additional_consulted_sources/2/origin",
+          "/initial_frozen_manifest/origin",
+          "/instruction_inputs/0/origin",
+          "/instruction_inputs/1/origin",
+          "/instruction_inputs/2/origin",
+          "/instruction_inputs/3/origin",
+          "/instruction_inputs/4/origin",
+          "/repository_origin",
+          "/return/path",
+          "/scope_inputs/0/origin",
+          "/scope_inputs/1/origin",
+          "/write_scope"
+        ]
+      },
+      "{PRIMARY_CHECKOUT}": {
+        "meaning": "Historical primary repository checkout used for supplied context or shared dependencies; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations.",
+        "raw_locations": [
+          "/instruction_inputs/5/origin"
+        ]
+      }
+    },
+    "hash_semantics": "All pre-existing hashes and empirical values are unchanged and refer to original captured bytes/candidates, never this portable view. For rewritten referenced records use CUSTODY.json original-to-raw mapping; no rerun or re-observation is implied. JSON pointer locations address original raw values; key: denotes a dictionary key."
   }
 }

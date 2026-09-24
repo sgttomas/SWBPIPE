@@ -1,7 +1,7 @@
 {
   "base": "f7e8b467cb2db244f11fe49cede636140031b387",
   "source_state": "HEAD production + PRE_FIX_TESTS.patch",
-  "command": "CARGO_BUILD_JOBS=2 CARGO_TARGET_DIR=/private/tmp/piping-solver-correctness-target cargo test --offline --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml input_contract_ -- --nocapture",
+  "command": "CARGO_BUILD_JOBS=2 CARGO_TARGET_DIR={SOLVER_CARGO_TARGET} cargo test --offline --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml input_contract_ -- --nocapture",
   "sources": [
     {
       "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
@@ -14,5 +14,23 @@
   ],
   "exit_code": 101,
   "result": "0 passed; 4 failed; 175 filtered out",
-  "log": "baseline.log"
+  "log": "baseline.log",
+  "_portability": {
+    "portable_view": true,
+    "raw_record": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/_run_records/portability/INPUT_CONTRACTS/BASELINE_RUN.json",
+      "sha256": "7cbe91a078c67cd3af13ac83187cb43daeced444a0eaf3405dd0fff231f5af1a",
+      "path_basis": "repository-relative"
+    },
+    "source_commit": "beaf4869bee2ae8c866e7e62eaa6a8f369610d7e",
+    "path_bases": {
+      "{SOLVER_CARGO_TARGET}": {
+        "meaning": "Historical external solver Cargo target directory; exact value is retained at the indicated raw record locations.",
+        "raw_locations": [
+          "/command"
+        ]
+      }
+    },
+    "hash_semantics": "All pre-existing hashes and empirical values are unchanged and refer to original captured bytes/candidates, never this portable view. For rewritten referenced records use CUSTODY.json original-to-raw mapping; no rerun or re-observation is implied. JSON pointer locations address original raw values; key: denotes a dictionary key."
+  }
 }

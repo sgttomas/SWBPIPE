@@ -7,7 +7,31 @@
     "src/services/projectService.test.ts",
     "src/features/load-cases/LoadCaseManagerPanel.units.test.tsx"
   ],
-  "cwd": "/private/tmp/piping-authoring-correctness-20260924/projects/chirality-piping/apps/desktop",
-  "cache_config": "import base from \"./vite.config\";\nexport default { ...base, cacheDir: \"/private/tmp/piping-authoring-correctness-20260924-vite-cache\", test: { ...(base as any).test, cache: false } };\n",
-  "exit_code": 0
+  "cwd": "{AUTHORING_CHECKOUT}/projects/chirality-piping/apps/desktop",
+  "cache_config": "import base from \"./vite.config\";\nexport default { ...base, cacheDir: \"{AUTHORING_VITE_CACHE}\", test: { ...(base as any).test, cache: false } };\n",
+  "exit_code": 0,
+  "_portability": {
+    "portable_view": true,
+    "raw_record": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/checks/vitest_repair.result.json",
+      "sha256": "85b71c6bb0ec5f34f8b782771993a2faa847f5bd188fb0ef40afc7dac9fdc8e3",
+      "path_basis": "repository-relative"
+    },
+    "source_commit": "ff2cb76ddfda43f6bcb4202b80b7fd199eb3c44e",
+    "path_bases": {
+      "{AUTHORING_CHECKOUT}": {
+        "meaning": "Historical authoring repository checkout; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations.",
+        "raw_locations": [
+          "/cwd"
+        ]
+      },
+      "{AUTHORING_VITE_CACHE}": {
+        "meaning": "Historical external Vite cache directory; exact value is retained at the indicated raw record locations.",
+        "raw_locations": [
+          "/cache_config"
+        ]
+      }
+    },
+    "hash_semantics": "All pre-existing hashes and empirical values are unchanged and refer to original captured bytes/candidates, never this portable view. For rewritten referenced records use CUSTODY.json original-to-raw mapping; no rerun or re-observation is implied. JSON pointer locations address original raw values; key: denotes a dictionary key."
+  }
 }

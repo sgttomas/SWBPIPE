@@ -1,0 +1,19 @@
+{
+  "union_commit": "beaf4869bee2ae8c866e7e62eaa6a8f369610d7e",
+  "path_base": "All source keys are relative to repository root",
+  "source_sha256": {
+    "projects/chirality-piping/core/units/src/lib.rs": "b133ae071a28d0ba0e897ad3c50694cc108f956cd9ce32e1288d5a027bdc970c",
+    "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs": "ba0bffc40456311b4de2915eb287b046de9b2ff273c2261600254f2001c86853",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "904f72876024943778788e56fd4fe7dac03387350282cec215d1be0cf3f129b5",
+    "projects/chirality-piping/core/product_physics/src/validation.rs": "4573e181828d84f7fa385796162bb3bd2c9908ad32d29a7f193673125d4d67c1",
+    "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.toml": "07cd2bff347cf20796eebab20e587b6b2d829dfda7e6319e3394613ee07e840c",
+    "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.lock": "f713f5d43afe63b41332bfd21e8268feb20f6c09a57d484465129e88989cb577",
+    "projects/chirality-piping/validation/benchmarks/physics_audit_regression/tests/authored_units_product.rs": "75432c6b52ee1993a4fea088aa9ebe5747d1d9494cf42396ee549ccf77dd81da"
+  },
+  "command": "CARGO_BUILD_JOBS=2 CARGO_TARGET_DIR={ISOLATED_CARGO_TARGET} cargo test --offline --manifest-path projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.toml --test authored_units_product -- --nocapture",
+  "path_bases": {
+    "ISOLATED_CARGO_TARGET": "Run-local isolated Cargo target; exact execution path is retained in _run_records/EXECUTION.json"
+  },
+  "authority": "ROOT explicitly released C4 bounded25 CPU lane for this target only",
+  "scope": "Actual operation-applier to product; no native witness claim"
+}

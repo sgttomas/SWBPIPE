@@ -6,36 +6,66 @@
   "isolation": "Shared filesystem; disjoint write ownership by coordination, no OS isolation claimed.",
   "basis": [
     {
-      "origin": "/private/tmp/piping-solver-correctness-20260924/AGENTS.md",
+      "origin": "{SOLVER_CHECKOUT}/AGENTS.md",
       "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
     },
     {
-      "origin": "/private/tmp/piping-solver-correctness-20260924/agents/AGENT_TASK.md",
+      "origin": "{SOLVER_CHECKOUT}/agents/AGENT_TASK.md",
       "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
     },
     {
-      "origin": "/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/AGENTS.md",
+      "origin": "{SOLVER_CHECKOUT}/projects/chirality-piping/AGENTS.md",
       "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
     },
     {
-      "origin": "/private/tmp/piping-solver-correctness-20260924/projects/chirality-piping/loop/LOOP_INIT.md",
+      "origin": "{SOLVER_CHECKOUT}/projects/chirality-piping/loop/LOOP_INIT.md",
       "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
     },
     {
-      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_ACTIVATION.md",
+      "origin": "{PRIMARY_CHECKOUT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_ACTIVATION.md",
       "sha256": "a3a22c0af6250fafb611c776e605d2f36989c919948904047f373ce5c139c170"
     },
     {
-      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/loads/RETURN.md",
+      "origin": "{PRIMARY_CHECKOUT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/loads/RETURN.md",
       "sha256": "187c67f1267d036bf1f19bab60c271f2ba78234fa1b14c76875b0fb514afc07b"
     },
     {
-      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/supports/RETURN.md",
+      "origin": "{PRIMARY_CHECKOUT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/supports/RETURN.md",
       "sha256": "563bc348d7b56dca4b8e14e4eb42d2c0bb0d3f666afb4907cd76cc7a846824d3"
     },
     {
-      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/app/RETURN.md",
+      "origin": "{PRIMARY_CHECKOUT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/app/RETURN.md",
       "sha256": "061aa7acc2aca25f600022b9283e69959bcfb7f24aeb1663e4df0cd959ab63be"
     }
-  ]
+  ],
+  "_portability": {
+    "portable_view": true,
+    "raw_record": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/_run_records/portability/INPUT_CONTRACTS/ORIGINS.json",
+      "sha256": "21641b2f688e8191ee40dea1e11cc30ec7a2b87d2f70b5a70304a47932eb7683",
+      "path_basis": "repository-relative"
+    },
+    "source_commit": "beaf4869bee2ae8c866e7e62eaa6a8f369610d7e",
+    "path_bases": {
+      "{SOLVER_CHECKOUT}": {
+        "meaning": "Historical solver repository checkout; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations.",
+        "raw_locations": [
+          "/basis/0/origin",
+          "/basis/1/origin",
+          "/basis/2/origin",
+          "/basis/3/origin"
+        ]
+      },
+      "{PRIMARY_CHECKOUT}": {
+        "meaning": "Historical primary repository checkout used for supplied context or shared dependencies; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations.",
+        "raw_locations": [
+          "/basis/4/origin",
+          "/basis/5/origin",
+          "/basis/6/origin",
+          "/basis/7/origin"
+        ]
+      }
+    },
+    "hash_semantics": "All pre-existing hashes and empirical values are unchanged and refer to original captured bytes/candidates, never this portable view. For rewritten referenced records use CUSTODY.json original-to-raw mapping; no rerun or re-observation is implied. JSON pointer locations address original raw values; key: denotes a dictionary key."
+  }
 }

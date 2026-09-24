@@ -3,7 +3,7 @@
   "parent": "/root/authoring_manager",
   "mechanism": "delegated-harness-native descendant",
   "base": "f7e8b467cb2db244f11fe49cede636140031b387",
-  "checkout": "/private/tmp/piping-authoring-correctness-20260924",
+  "checkout": "{AUTHORING_CHECKOUT}",
   "isolation": "shared isolated checkout, disjoint instructed writes; not an OS access guarantee",
   "origins": [
     {
@@ -22,5 +22,23 @@
       "path": "projects/chirality-piping/loop/LOOP_INIT.md",
       "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
     }
-  ]
+  ],
+  "_portability": {
+    "portable_view": true,
+    "raw_record": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/units_implementation/CONTEXT.json",
+      "sha256": "5fe50179ea6c2df4034b046267ed44be2e68e7cbf8f057abc0a6f8189d1502ba",
+      "path_basis": "repository-relative"
+    },
+    "source_commit": "ff2cb76ddfda43f6bcb4202b80b7fd199eb3c44e",
+    "path_bases": {
+      "{AUTHORING_CHECKOUT}": {
+        "meaning": "Historical authoring repository checkout; suffixes are repository-relative. Exact machine root is retained in the raw record at the indicated locations.",
+        "raw_locations": [
+          "/checkout"
+        ]
+      }
+    },
+    "hash_semantics": "All pre-existing hashes and empirical values are unchanged and refer to original captured bytes/candidates, never this portable view. For rewritten referenced records use CUSTODY.json original-to-raw mapping; no rerun or re-observation is implied. JSON pointer locations address original raw values; key: denotes a dictionary key."
+  }
 }

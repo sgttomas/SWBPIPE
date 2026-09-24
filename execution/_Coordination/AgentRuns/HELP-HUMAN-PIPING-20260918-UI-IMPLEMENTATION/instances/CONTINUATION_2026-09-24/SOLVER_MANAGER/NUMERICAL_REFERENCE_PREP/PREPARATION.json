@@ -1,0 +1,31 @@
+{
+  "state": "Prepared analytical constants only; independent executable reference review remains required before production use.",
+  "author": "/root/solver_manager",
+  "source_reference": "{PRIMARY_CHECKOUT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_REFERENCE.md",
+  "source_sha256": "67c8aac5798e9663528bea94b58d6d8f2eb8308f94b7ebb78aa22dca4b8f94ca",
+  "artifacts": {
+    "independent_oracle.py": "5b47991cfbaee479f966a3ab0758e69848c4c052dc4cf4f9dd2517fd12b5fc14",
+    "prepared_expectations.json": "f6bf9fd56524b60692a8328d34118f0b4f5d119491b9f71d71301639ae167436"
+  },
+  "execution": "python3 independent_oracle.py, exit 0; standard-library Decimal only; no product import or build.",
+  "policy_activation": false,
+  "_portability": {
+    "portable_view": true,
+    "raw_record": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/_run_records/portability/NUMERICAL_REFERENCE_PREP/PREPARATION.json",
+      "sha256": "d979448ecc20179f11ac55945ab6e8d0ad482029a4e8409fcf2414d3f7bbf892",
+      "path_basis": "repository-relative"
+    },
+    "source_commit": null,
+    "source_state": "untracked parent preparation record at custody time",
+    "path_bases": {
+      "{PRIMARY_CHECKOUT}": {
+        "meaning": "Source-qualified primary repository checkout; suffix is repository-relative, original source_reference and machine checkout are retained in the raw JSON /source_reference.",
+        "raw_locations": [
+          "/source_reference"
+        ]
+      }
+    },
+    "hash_semantics": "All pre-existing hashes remain the original observed source/artifact hashes; no numerical artifacts or observations were changed."
+  }
+}

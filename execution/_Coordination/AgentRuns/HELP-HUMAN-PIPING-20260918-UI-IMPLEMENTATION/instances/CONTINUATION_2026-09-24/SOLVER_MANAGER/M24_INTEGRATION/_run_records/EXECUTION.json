@@ -1,0 +1,6 @@
+{
+  "cwd": "/private/tmp/piping-solver-correctness-20260924",
+  "cargo_target_dir": "/private/tmp/piping-solver-correctness-target",
+  "jobs": 2,
+  "command": "CARGO_BUILD_JOBS=2 CARGO_TARGET_DIR=/private/tmp/piping-solver-correctness-target cargo test --offline --manifest-path projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.toml --test authored_units_product -- --nocapture"
+}

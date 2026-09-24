@@ -1,0 +1,293 @@
+{
+  "candidate": {
+    "head": "beaf4869bee2ae8c866e7e62eaa6a8f369610d7e",
+    "authoring_source_hashes_matched": 9,
+    "solver_source_hashes_matched": 2,
+    "execution_sources_matched": 7,
+    "manager_test_rows": 5,
+    "manager_log_hash_match": true,
+    "reviewer_product_execution": false
+  },
+  "lock": {
+    "old_packages_unchanged_except_declared_edge": true,
+    "added_packages": [
+      "block-buffer",
+      "cfg-if",
+      "cpufeatures",
+      "crypto-common",
+      "digest",
+      "generic-array",
+      "libc",
+      "open_pipe_stress_canonical_json",
+      "open_pipe_stress_operation_applier",
+      "ryu",
+      "sha2",
+      "typenum",
+      "version_check"
+    ],
+    "all_added_reachable_from_dev_dependency": true,
+    "new_package_count": 13
+  },
+  "custody": {
+    "manifest_sha256": "caad74e0b1f9eb0958210a61ef1965042b7aa073be6f8fb837116381c8e038e0",
+    "records": [
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_CONTRACTS/BASELINE_RUN.json",
+        "archive_hash_match": true,
+        "git_original_match": true,
+        "semantic_preservation": true,
+        "tokens": [
+          "{SOLVER_CARGO_TARGET}"
+        ]
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_CONTRACTS/CANDIDATE_RUN.json",
+        "archive_hash_match": true,
+        "git_original_match": true,
+        "semantic_preservation": true,
+        "tokens": [
+          "{SOLVER_CARGO_TARGET}"
+        ]
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_CONTRACTS/ORIGINS.json",
+        "archive_hash_match": true,
+        "git_original_match": true,
+        "semantic_preservation": true,
+        "tokens": [
+          "{PRIMARY_CHECKOUT}",
+          "{SOLVER_CHECKOUT}"
+        ]
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/BASELINE_RUN.json",
+        "archive_hash_match": true,
+        "git_original_match": true,
+        "semantic_preservation": true,
+        "tokens": [
+          "{SOLVER_CARGO_TARGET}"
+        ]
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/CANDIDATE_RUN.json",
+        "archive_hash_match": true,
+        "git_original_match": true,
+        "semantic_preservation": true,
+        "tokens": [
+          "{SOLVER_CARGO_TARGET}"
+        ]
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REVIEW/BACKCHECK.md",
+        "archive_hash_match": true,
+        "git_original_match": true,
+        "semantic_preservation": true,
+        "tokens": [
+          "{REPAIR_LIB_SNAPSHOT}",
+          "{REPAIR_VALIDATION_SNAPSHOT}"
+        ]
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REVIEW/BACKCHECK_ORIGINS.json",
+        "archive_hash_match": true,
+        "git_original_match": true,
+        "semantic_preservation": true,
+        "tokens": [
+          "{REPAIR_LIB_SNAPSHOT}",
+          "{REPAIR_VALIDATION_SNAPSHOT}",
+          "{SOLVER_CHECKOUT}"
+        ]
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REVIEW/ORIGINS.json",
+        "archive_hash_match": true,
+        "git_original_match": true,
+        "semantic_preservation": true,
+        "tokens": [
+          "{PRIMARY_CHECKOUT}",
+          "{SOLVER_CHECKOUT}"
+        ]
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/PROVENANCE.json",
+        "archive_hash_match": true,
+        "git_original_match": true,
+        "semantic_preservation": true,
+        "tokens": [
+          "{PRIMARY_CHECKOUT}",
+          "{SOLVER_CHECKOUT}"
+        ]
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/DEPENDENCY_BASIS.json",
+        "archive_hash_match": true,
+        "git_original_match": true,
+        "semantic_preservation": true,
+        "tokens": [
+          "{PRIMARY_CHECKOUT}"
+        ]
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/INDEPENDENT_PRECHECK/MANIFEST.json",
+        "archive_hash_match": true,
+        "git_original_match": true,
+        "semantic_preservation": true,
+        "tokens": [
+          "{AUTHORING_CHECKOUT}",
+          "{PRIMARY_CHECKOUT}"
+        ]
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/PROVENANCE.json",
+        "archive_hash_match": true,
+        "git_original_match": true,
+        "semantic_preservation": true,
+        "tokens": [
+          "{AUTHORING_CHECKOUT}",
+          "{PRIMARY_CHECKOUT}"
+        ]
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/operation_applier.result.json",
+        "archive_hash_match": true,
+        "git_original_match": true,
+        "semantic_preservation": true,
+        "tokens": [
+          "{AUTHORING_CARGO_TARGET}",
+          "{AUTHORING_CHECKOUT}"
+        ]
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/tsc_expanded.result.json",
+        "archive_hash_match": true,
+        "git_original_match": true,
+        "semantic_preservation": true,
+        "tokens": [
+          "{AUTHORING_CHECKOUT}"
+        ]
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/tsc_initial.result.json",
+        "archive_hash_match": true,
+        "git_original_match": true,
+        "semantic_preservation": true,
+        "tokens": [
+          "{AUTHORING_CHECKOUT}"
+        ]
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/tsc_repair.result.json",
+        "archive_hash_match": true,
+        "git_original_match": true,
+        "semantic_preservation": true,
+        "tokens": [
+          "{AUTHORING_CHECKOUT}"
+        ]
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/units.result.json",
+        "archive_hash_match": true,
+        "git_original_match": true,
+        "semantic_preservation": true,
+        "tokens": [
+          "{AUTHORING_CARGO_TARGET}",
+          "{AUTHORING_CHECKOUT}"
+        ]
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/vitest.result.json",
+        "archive_hash_match": true,
+        "git_original_match": true,
+        "semantic_preservation": true,
+        "tokens": [
+          "{AUTHORING_CHECKOUT}",
+          "{AUTHORING_VITE_CACHE}"
+        ]
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/vitest_expanded.result.json",
+        "archive_hash_match": true,
+        "git_original_match": true,
+        "semantic_preservation": true,
+        "tokens": [
+          "{AUTHORING_CHECKOUT}",
+          "{AUTHORING_VITE_CACHE}"
+        ]
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/vitest_repair.result.json",
+        "archive_hash_match": true,
+        "git_original_match": true,
+        "semantic_preservation": true,
+        "tokens": [
+          "{AUTHORING_CHECKOUT}",
+          "{AUTHORING_VITE_CACHE}"
+        ]
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/wasm_build.result.json",
+        "archive_hash_match": true,
+        "git_original_match": true,
+        "semantic_preservation": true,
+        "tokens": [
+          "{AUTHORING_CARGO_TARGET}",
+          "{AUTHORING_CHECKOUT}"
+        ]
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/units_implementation/CONTEXT.json",
+        "archive_hash_match": true,
+        "git_original_match": true,
+        "semantic_preservation": true,
+        "tokens": [
+          "{AUTHORING_CHECKOUT}"
+        ]
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/units_review/PROVENANCE.json",
+        "archive_hash_match": true,
+        "git_original_match": true,
+        "semantic_preservation": true,
+        "tokens": [
+          "{AUTHORING_CHECKOUT}"
+        ]
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_REFERENCE_PREP/PREPARATION.json",
+        "archive_hash_match": true,
+        "git_original_match": false,
+        "semantic_preservation": true,
+        "tokens": [
+          "{PRIMARY_CHECKOUT}"
+        ]
+      }
+    ],
+    "all_24_archives_match": true,
+    "all_23_committed_originals_match": true,
+    "all_23_json_views_preserve_semantics": true,
+    "markdown_body_preserves_semantics": true,
+    "unchanged_historical_logs_patches_returns_reviews": 28,
+    "scanned_records": 88,
+    "active_machine_path_hits": [],
+    "recognized_evidence_records_with_machine_paths": 28
+  },
+  "preparation": {
+    "artifacts_match": true,
+    "regenerated_bytes_match": true,
+    "source_reference_hash_matches": true,
+    "independent_scalar_count": 22,
+    "maximum_relative_decimal_difference": "2.949958140579180133140002694472575016649324886265354666662439964769869608947811549134E-60",
+    "classification_review": "N02 null torsion, N03 intersection, N04 disconnected rigid modes, N07 +/- eigenvalues checked analytically",
+    "policy_activation": false
+  },
+  "thermal_reference": {
+    "delta_celsius_or_kelvin": 100,
+    "delta_fahrenheit": 180,
+    "alpha_per_kelvin": "0.000012",
+    "length_m": 6,
+    "strain": "0.0012",
+    "free_tip_displacement_mm": "7.2",
+    "anchor_force_N": 0,
+    "modulus_scale_sensitivity": "Free axial extension is independent of E; catalog arithmetic covered separately."
+  }
+}
