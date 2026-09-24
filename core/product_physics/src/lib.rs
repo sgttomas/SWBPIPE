@@ -1,9 +1,10 @@
 //! Product-preview physics adapter.
 //!
-//! This crate maps invented public preview-model data into the code-neutral
-//! mechanics crates. It emits mechanics quantities and diagnostics only; it
-//! does not encode standards criteria, allowables, SIF tables, private data, or
-//! professional acceptance.
+//! This crate maps locally supplied model data into the code-neutral mechanics
+//! crates. It emits mechanics quantities and diagnostics only. Nonblank source
+//! provenance does not establish redistribution clearance or engineering approval;
+//! bundled examples remain invented. No standards criteria, allowables, SIF tables,
+//! private datasets, or professional acceptance are bundled by this crate.
 
 pub mod self_weight;
 

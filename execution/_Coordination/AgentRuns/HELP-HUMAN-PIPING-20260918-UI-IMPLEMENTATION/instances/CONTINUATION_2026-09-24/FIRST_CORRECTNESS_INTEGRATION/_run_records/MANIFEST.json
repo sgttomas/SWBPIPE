@@ -1,0 +1,1019 @@
+{
+  "schema": "piping-complete-frozen-review/v1",
+  "disposition": "PASS; source and evidence fan-in only",
+  "reviewer": "/root/first_correctness_review",
+  "parent": "/root",
+  "role": "TASK Type 2",
+  "mechanism": "delegated-harness-native fresh child; no implementation-context fork; no descendants",
+  "model_identity": "Inherited host configuration; no independent model attestation",
+  "observed_checkout": "/private/tmp/piping-first-correctness-20260924",
+  "write_boundary": [
+    "/private/tmp/piping-first-correctness-review-20260924/RETURN.md",
+    "/private/tmp/piping-first-correctness-review-20260924/MANIFEST.json"
+  ],
+  "prohibited_workloads_executed": false,
+  "recorded_utc": "2026-09-24T15:25:49.818030+00:00",
+  "base": "b54983d9a59481e6db241a4baaaaffff77be5142",
+  "head": "4e31603a47ad0abec07664764c31f1d99d39c1ae",
+  "freeze": {
+    "origin": "/private/tmp/piping-first-correctness-freeze-20260924.json",
+    "sha256": "5271ba712b16e96f882adb76c61870ab098f4f7ed2996c9515b19c2def40574f",
+    "paths": 129,
+    "all_hashes_and_sizes_match": true,
+    "extra_or_missing_paths": []
+  },
+  "instructions": [
+    {
+      "logical_origin": "AGENTS.md",
+      "actual_read_origin": "/private/tmp/piping-first-correctness-20260924/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "read_scope": "full; activation includes subsequent reference-quality steering"
+    },
+    {
+      "logical_origin": "agents/AGENT_TASK.md",
+      "actual_read_origin": "/private/tmp/piping-first-correctness-20260924/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "read_scope": "full; activation includes subsequent reference-quality steering"
+    },
+    {
+      "logical_origin": "projects/chirality-piping/AGENTS.md",
+      "actual_read_origin": "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "read_scope": "full; activation includes subsequent reference-quality steering"
+    },
+    {
+      "logical_origin": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "actual_read_origin": "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "read_scope": "full; activation includes subsequent reference-quality steering"
+    },
+    {
+      "logical_origin": ".agents/skills/software-code-review/SKILL.md",
+      "actual_read_origin": "/Users/ryan/.codex/worktrees/6614/chirality/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
+      "read_scope": "full; activation includes subsequent reference-quality steering"
+    },
+    {
+      "logical_origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_ACTIVATION.md",
+      "actual_read_origin": "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_ACTIVATION.md",
+      "sha256": "dd98701526a31248f36a5e6e03490975af682f748dd349aa52faa1bfafc912a0",
+      "read_scope": "full; activation includes subsequent reference-quality steering"
+    }
+  ],
+  "supporting_review_records": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REVIEW/REVIEW.md",
+      "sha256": "f523abcb098087bf7a4b559338c741b2ae2f799e7e5c4c4139336334c5632286",
+      "use": "retained independent assessment/source custody; not a rerun"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REVIEW/BACKCHECK.md",
+      "sha256": "dfa40053cb2f0d4d66ad3279001f5f8651728fb05ea147d4d4728d55dc084ec8",
+      "use": "retained independent assessment/source custody; not a rerun"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/REFERENCE_QUALIFICATION.md",
+      "sha256": "43722c226754a392527a53161ecf9b71da1b7aa20f4cd994aa9038dedb1b7f8e",
+      "use": "retained independent assessment/source custody; not a rerun"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/INDEPENDENT_PRECHECK/RETURN.md",
+      "sha256": "9dce1a51a76bd09151a51320dd21c7df2b9dc47eb02b4e4e47d30135c857fc56",
+      "use": "retained independent assessment/source custody; not a rerun"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/units_review/RETURN.md",
+      "sha256": "71f49fb2a8a8d9c28bcba163980def1dd7f1aa52130b82f2a34a2141a7fd173e",
+      "use": "retained independent assessment/source custody; not a rerun"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/M24_REVIEW/RETURN.md",
+      "sha256": "14c6965d8aa8ddfa76deeb881c976da65c1cf8c3a9367718ab9481ecce509c4f",
+      "use": "retained independent assessment/source custody; not a rerun"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/M24_REVIEW/STATIC_AUDIT.json",
+      "sha256": "140ea9ed9458b91b1b845a927f9bf7256ed1ffdc19e26e92f13db56d9ceb2f1e",
+      "use": "retained independent assessment/source custody; not a rerun"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/M24_REVIEW/FINAL_MANIFEST.json",
+      "sha256": "e7a29545a7b9f6e130a3875069f23fe66c13e37c0769b540ec4ce08f0e14f740",
+      "use": "retained independent assessment/source custody; not a rerun"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/PORTABILITY/CUSTODY.md",
+      "sha256": "c817a5bd1552154498236cafff14781f74f076a81c6b7eeee2077c227934df63",
+      "use": "retained independent assessment/source custody; not a rerun"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/PORTABILITY/CUSTODY.json",
+      "sha256": "caad74e0b1f9eb0958210a61ef1965042b7aa073be6f8fb837116381c8e038e0",
+      "use": "retained independent assessment/source custody; not a rerun"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/EVIDENCE_CHECKPOINT_REVIEW.md",
+      "sha256": "7ec2eae17ad8f681f5036a6bfcd27e93b96d7f1b77189a0fee84e9702bd37d04",
+      "use": "retained independent assessment/source custody; not a rerun"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/FOCUS_REVIEW/_run_records/UPSTREAM_BACKCHECK.md",
+      "sha256": "7cf8bd1602fb35de86d38b39afd5f02a3c24fedba8af685ae943fb9df2565279",
+      "use": "retained independent assessment/source custody; not a rerun"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/CORRECTNESS_ROUTE_REVIEW/FINAL_CHECKPOINT.md",
+      "sha256": "8863941d2c81761a7646cf1e7361a392acca65d5f1e79f85cd380c1f0d10d72c",
+      "use": "retained independent assessment/source custody; not a rerun"
+    }
+  ],
+  "candidate_paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
+      "sha256": "397184b478e189e8f76195068c1906c511784e5d91f992c21902501aca616b50",
+      "bytes": 108730,
+      "coverage": "direct maintained diff and interface inspection"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.units.test.tsx",
+      "sha256": "b1eb3a4b3894184717f2b1fb44f0b442a3ff9eace28b35326c29ce8b3a7eea1e",
+      "bytes": 5456,
+      "coverage": "direct maintained diff and interface inspection"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/projectService.test.ts",
+      "sha256": "b018a1f40247a8b219ac5af403514f1509b44256c386e13e64f0a0d94b8e63b1",
+      "bytes": 12714,
+      "coverage": "direct maintained diff and interface inspection"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/projectService.ts",
+      "sha256": "32c0d7ef90392c4674cbc675f20ec3210ad8fa35a84e5591b385d8d4e13fcb4c",
+      "bytes": 23592,
+      "coverage": "direct maintained diff and interface inspection"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/unitCatalogService.test.ts",
+      "sha256": "45a3bb0c6d8a4b2e8f86e006b9c34cd8718d7ee24526da6be920ea863fb7ebd5",
+      "bytes": 9520,
+      "coverage": "direct maintained diff and interface inspection"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/unitCatalogService.ts",
+      "sha256": "ca4c1168e7e1af12313fe8254b1f4367e6f9557d66600416945e0b077cad8db2",
+      "bytes": 7687,
+      "coverage": "direct maintained diff and interface inspection"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "sha256": "ba0bffc40456311b4de2915eb287b046de9b2ff273c2261600254f2001c86853",
+      "bytes": 533025,
+      "coverage": "direct maintained diff and interface inspection"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/README.md",
+      "sha256": "531a31d2c35fabb3587aa4e6ea34350f604f0535f64c14cbdddda0874c5bfbbb",
+      "bytes": 2775,
+      "coverage": "direct maintained diff and interface inspection"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "534d93aec126d6102ae6a4649e52764d4bd32af3a41b528298ff1bdee3c7e215",
+      "bytes": 732191,
+      "coverage": "direct maintained diff and interface inspection"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/validation.rs",
+      "sha256": "4573e181828d84f7fa385796162bb3bd2c9908ad32d29a7f193673125d4d67c1",
+      "bytes": 81068,
+      "coverage": "direct maintained diff and interface inspection"
+    },
+    {
+      "path": "projects/chirality-piping/core/units/README.md",
+      "sha256": "22e5da56f1f2004c9d2453543131e698ad0dff08bbc887c50ea0e624d6be0041",
+      "bytes": 11670,
+      "coverage": "direct maintained diff and interface inspection"
+    },
+    {
+      "path": "projects/chirality-piping/core/units/src/lib.rs",
+      "sha256": "b133ae071a28d0ba0e897ad3c50694cc108f956cd9ce32e1288d5a027bdc970c",
+      "bytes": 62607,
+      "coverage": "direct maintained diff and interface inspection"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/CHECKED_CANDIDATE.json",
+      "sha256": "1f54ad98173ec9bba20e25f77bd3bdcde19da996bc8f7da9f7efab81fd8cc575",
+      "bytes": 1527,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/DEPENDENCY_BASIS.json",
+      "sha256": "1ff3e5e4f58c5e96658df25f8abd1508240557358a7df785cb313ba300cd0196",
+      "bytes": 2359,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/EXPANDED_CANDIDATE.json",
+      "sha256": "4ff981cfe18e6bcec8c1236c36bc8ab4a4164a39fb088c40172ad8045c2ad818",
+      "bytes": 1923,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/FROZEN_CANDIDATE.json",
+      "sha256": "869a9cbd926f54740989f6843c2d1cc23ab7223c34a7f29825b432afa39f4053",
+      "bytes": 1481,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/INDEPENDENT_PRECHECK/MANIFEST.json",
+      "sha256": "96d0212adce46ef54491b80a2df396b9b34c1f169d1d1df6bf1d44074930eee1",
+      "bytes": 11820,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/INDEPENDENT_PRECHECK/RETURN.md",
+      "sha256": "9dce1a51a76bd09151a51320dd21c7df2b9dc47eb02b4e4e47d30135c857fc56",
+      "bytes": 10493,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/PLAN.md",
+      "sha256": "fe142b335d24033cb797828a13cd5b61f50aaa0c3a35cbefb15b8fa0b2d894ba",
+      "bytes": 2985,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/PROVENANCE.json",
+      "sha256": "fc37c93422bfe73e1d3057bb5322e29363112599860df36ac8f0217fdf05646d",
+      "bytes": 5925,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/REFERENCE_BASIS.md",
+      "sha256": "f6059aba0c5628ad63c783e01806ee87f60a9fff103633620eaf7ee2a18d2fb8",
+      "bytes": 1932,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/RETURN.md",
+      "sha256": "9c436b9d6f5b091d53a69917cf13b977af1e214599e14644f7af0b78373df9c4",
+      "bytes": 2891,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/DEPENDENCY_BASIS.json",
+      "sha256": "2c365b1b88930530a85e90f8cf495132930b5f1e9deeab09707f0fdc08251cda",
+      "bytes": 1119,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/INDEPENDENT_PRECHECK/MANIFEST.json",
+      "sha256": "ddd696cd31fb747ed6e2a0751f93e857b5631417c462209b484d40fa5083c1af",
+      "bytes": 10222,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/PROVENANCE.json",
+      "sha256": "0c063bd443e5adf65a34bc141e7085d73abdf1877ebbddee8dfc08b2e5f1cf78",
+      "bytes": 4485,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/checks/operation_applier.result.json",
+      "sha256": "6f17dbc8ff6c18ee0ecb8fd39a7e89cb0c3625314f6de5d45c184eeee3d8e762",
+      "bytes": 422,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/checks/tsc_expanded.result.json",
+      "sha256": "c18c5dac148b852b24e5ca83550594c0c9d1ecbcdc6765279ca0b827dcc85e27",
+      "bytes": 193,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/checks/tsc_initial.result.json",
+      "sha256": "0031bfa11af59bea8fbc292e51a07fa95922843b0ffe76ff38f29d1951072eea",
+      "bytes": 193,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/checks/tsc_repair.result.json",
+      "sha256": "c18c5dac148b852b24e5ca83550594c0c9d1ecbcdc6765279ca0b827dcc85e27",
+      "bytes": 193,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/checks/units.result.json",
+      "sha256": "5edf3ca7f92d01ca0b380e8395cda9f890defc98c145e9cbff342a6e6acbfef1",
+      "bytes": 393,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/checks/vitest.result.json",
+      "sha256": "85b71c6bb0ec5f34f8b782771993a2faa847f5bd188fb0ef40afc7dac9fdc8e3",
+      "bytes": 557,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/checks/vitest_expanded.result.json",
+      "sha256": "acc518adaf081e8c165716df3b04f994c471e76d2ad826516eb4da807d7152f1",
+      "bytes": 604,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/checks/vitest_repair.result.json",
+      "sha256": "85b71c6bb0ec5f34f8b782771993a2faa847f5bd188fb0ef40afc7dac9fdc8e3",
+      "bytes": 557,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/checks/wasm_build.result.json",
+      "sha256": "7f2bdf810ff9af82e9801dba28c8b218919e50b675f7942a5ae166b1e7628de8",
+      "bytes": 361,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/units_implementation/CONTEXT.json",
+      "sha256": "5fe50179ea6c2df4034b046267ed44be2e68e7cbf8f057abc0a6f8189d1502ba",
+      "bytes": 924,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/_run_records/portability/units_review/PROVENANCE.json",
+      "sha256": "3b185e5b236d840a4853a93c871eaef650951e4975e0904afcae5fe301326a0f",
+      "bytes": 31942,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/BUILD_BASIS.json",
+      "sha256": "bbbbbc257ecd6102f4e1eec7125f4412700b4b025bff2e1151957e2553e0f693",
+      "bytes": 2036,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/operation_applier.log",
+      "sha256": "77e580d594ad01db103e4cad586748a738a16e861d0d9f31e959fb49c30d2a17",
+      "bytes": 15351,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/operation_applier.result.json",
+      "sha256": "9d04c278c358a4dbc6683783349de6167e0316567193a9243be009aa0684adc0",
+      "bytes": 1779,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/tsc_expanded.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/tsc_expanded.result.json",
+      "sha256": "7b5e8708e612da1f6020750ed8489d10a4ccd25ea101db92dfa91f62af4d79ba",
+      "bytes": 1315,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/tsc_initial.log",
+      "sha256": "009d2968837e9f244f2f630fba5746e89d59eb41ad2341129d05d8f3dd1a8e55",
+      "bytes": 702,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/tsc_initial.result.json",
+      "sha256": "530debf6bc14ed03a092c07803aeb62355ab9a167cee32c943ae973ee51451a6",
+      "bytes": 1314,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/tsc_repair.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/tsc_repair.result.json",
+      "sha256": "f75cc4d8a4b2fae2bf89809e8af29b960366eef08f500c2e6378f080907ec57b",
+      "bytes": 1313,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/units.log",
+      "sha256": "fe9a6198af114d46c776ebf335c51cbb4be81baa8ca63cae02966dad5e40db18",
+      "bytes": 1874,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/units.result.json",
+      "sha256": "f4a9c503979eb2782a1cb44ad38021864358d9151a01efea462750e53c1e9fe1",
+      "bytes": 1738,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/vitest.log",
+      "sha256": "776a19393d1086896c08eae2e02469e2308e5d786ca0570f2ba4ba753b67efbb",
+      "bytes": 279,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/vitest.result.json",
+      "sha256": "aeb47c7464755e478a2817c1298ae31fda45d53456d24713799de8c1cdf3a831",
+      "bytes": 1867,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/vitest_expanded.log",
+      "sha256": "d6181bb7b2d039c3beff708defb98bd33a1fd1e92bba5f0ccf3fa816f5fd97da",
+      "bytes": 280,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/vitest_expanded.result.json",
+      "sha256": "a843cacc8bbdff586c0ebfebcb34db0112cea7c1c3a4f84106fb7ba4cb97f412",
+      "bytes": 1923,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/vitest_repair.log",
+      "sha256": "020fdc53043cc2364d0773f703f40a614032eca9ee532a02c8a9d68c74067b5a",
+      "bytes": 280,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/vitest_repair.result.json",
+      "sha256": "692186b60de58bfa55f2d99a85d1bb802609f5ee9487e21fa4e8044e671ee1b4",
+      "bytes": 1874,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/wasm_build.log",
+      "sha256": "e86fafa03720261b0e9d037757f8c1397b8348ccaf1a58275d991be928967840",
+      "bytes": 678,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/checks/wasm_build.result.json",
+      "sha256": "e9887e5f37a749aed98218d69e2b3f30161672fa715dd33cfc82c335066741be",
+      "bytes": 1711,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/units_implementation/CANDIDATE_FILES.json",
+      "sha256": "f6acd40dcb05ff7e9dc7e81e60e0de7c007386c74de3dc27885233f66f67b2d3",
+      "bytes": 1242,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/units_implementation/CONTEXT.json",
+      "sha256": "661bdd5364f350a2ef702dd0c0f143ddb0d9f4cfa66dd754c4d8da1f9978c57a",
+      "bytes": 2053,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/units_implementation/RETURN.md",
+      "sha256": "7b166c18cb93026949002932b07e29efa69d982b1901d14cf66bec214de88528",
+      "bytes": 2507,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/units_review/PROVENANCE.json",
+      "sha256": "0cb2e8745e481e82c95e067ebfa91cb23c721d3020381b22178c9f5361cb14ed",
+      "bytes": 33382,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/AUTHORING_MANAGER/units_review/RETURN.md",
+      "sha256": "71f49fb2a8a8d9c28bcba163980def1dd7f1aa52130b82f2a34a2141a7fd173e",
+      "bytes": 9394,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/AUTHORED_UNIT_REFERENCE.md",
+      "sha256": "9cd240ac8c1a19221aeddf4ad88aa640bb52a886a08d3aaf9bb6fffcb54239f4",
+      "bytes": 3018,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/BRIEF.md",
+      "sha256": "76a56cbb3c3e2543d6bc39edc76b0dc38c6ab3cbe7b9262c6864d875d557b05e",
+      "bytes": 2266,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_CONTRACTS/BASELINE_RUN.json",
+      "sha256": "737ad6f752e4dee7d8226b6a55a607191684bdbe652d2e230eecafa6be9862af",
+      "bytes": 1898,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_CONTRACTS/CANDIDATE_RUN.json",
+      "sha256": "0d122f3178eba310603c4fe783742b602106a74fee96856622cd7ad5b26b5005",
+      "bytes": 2253,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_CONTRACTS/ORIGINS.json",
+      "sha256": "3eaa66498b9aa39230601406c2a557ac493985e28263c319deae18c8fa3795ef",
+      "bytes": 3860,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_CONTRACTS/PRE_FIX_TESTS.patch",
+      "sha256": "f2334ce02e17d85397f8d56a52bf5d46ed29867e82ca03cd309a6fb3aa96759e",
+      "bytes": 6015,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_CONTRACTS/REFERENCE_QUALIFICATION.md",
+      "sha256": "68ee07c60b9ac193d117009ffc8da1e7a892ea45b9752bf3e553a50596ea9084",
+      "bytes": 3228,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_CONTRACTS/RETURN.md",
+      "sha256": "ffc8cab1f0aa2306a89fa3080a4add98e4c3e3fe6f45e2dcd265dad63675ca5b",
+      "bytes": 3484,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_CONTRACTS/baseline.log",
+      "sha256": "4182db64d9cec8420293c96d2949bdc0c46fc4e6eac16ff18ef96368d80035e6",
+      "bytes": 8253,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_CONTRACTS/focused.log",
+      "sha256": "a8c06dc9d5d3315b1d2798b697893513d8e4d9e4cc83d3e8b62ba2d84501b5fe",
+      "bytes": 883,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_CONTRACTS/full-final.log",
+      "sha256": "3aa9c64a7f833170a92435ef093e25f593f7f4ee43204dcc5d84c123eb1f4d33",
+      "bytes": 15440,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_CONTRACTS/full-initial.log",
+      "sha256": "18ec3e95f180f6ac90580e24a5320ec0e59a560dc2b6c4cfe015092f561f92fa",
+      "bytes": 15809,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/BASELINE_RUN.json",
+      "sha256": "779fe0340c6081117001c353d828a2bc8778ddda7b397d5291dc1c6357447b53",
+      "bytes": 1754,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/CANDIDATE_RUN.json",
+      "sha256": "c8ce0ee59c65682b602c41d8869cf7099080819a803d6a28f759fa0ba432fb19",
+      "bytes": 3224,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/ORIGINS.json",
+      "sha256": "7daa0535819ac2ff007843bd78667f2a53db1183907083928c573a93b3c5673a",
+      "bytes": 1472,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/PRE_REPAIR_TESTS.patch",
+      "sha256": "60369a1f3d769a7ac0bab4cf943e1314e4aea60ec0d5e438b27e744b191e4266",
+      "bytes": 12402,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/REFERENCE_QUALIFICATION.md",
+      "sha256": "43722c226754a392527a53161ecf9b71da1b7aa20f4cd994aa9038dedb1b7f8e",
+      "bytes": 3608,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/REPAIR_DIFF.patch",
+      "sha256": "bbda898438a17dc82eece4e36ff51bcdcde50bd6af47fe9e2e674b5221faf3ee",
+      "bytes": 16427,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/RETURN.md",
+      "sha256": "6db3295dbd460254d679ce827a9526a130dfb4307e01eedd17569038767dd25e",
+      "bytes": 3651,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/baseline.log",
+      "sha256": "cfb336842fc6f8deebaa25ae1a83476481c96fa3dc368aa52613cb52046f109a",
+      "bytes": 3398,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/focused.log",
+      "sha256": "155267854b0928671fd6a4af84a8a12297c50789bebf42d067142b588246f34f",
+      "bytes": 1251,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REPAIR/full.log",
+      "sha256": "3f0aaf79eb7542174028d7b6c780297418832d800ad4a6acca52007ca0f5be94",
+      "bytes": 15808,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REVIEW/BACKCHECK.md",
+      "sha256": "dfa40053cb2f0d4d66ad3279001f5f8651728fb05ea147d4d4728d55dc084ec8",
+      "bytes": 7418,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REVIEW/BACKCHECK_ORIGINS.json",
+      "sha256": "6f8c6c8d1edde811a885064dd15cd559ffa5ff030528d776af8dac2ac453aa27",
+      "bytes": 6700,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REVIEW/BACKCHECK_REFERENCE_CALCULATIONS.json",
+      "sha256": "1d52d46ad316dd60110479158ae384bbfb4d9bf037e07330109a6ae00aaf45b9",
+      "bytes": 1879,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REVIEW/ORIGINS.json",
+      "sha256": "7180e1255e23bcf215e30466d33798417721aae98b42f58bb2946e0b13957ec0",
+      "bytes": 8486,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REVIEW/REFERENCE_CALCULATIONS.json",
+      "sha256": "711063973b409062cafc854b5245020a4dc01511a8bcc392c5099242db9f26ac",
+      "bytes": 1176,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REVIEW/REPAIR_DIFF.patch",
+      "sha256": "8adb66cf3bb232d9d168c30c88b089146d85758dd0335f58cba04b6f96c7e463",
+      "bytes": 16449,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REVIEW/REVIEW.md",
+      "sha256": "f523abcb098087bf7a4b559338c741b2ae2f799e7e5c4c4139336334c5632286",
+      "bytes": 13174,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REVIEW/SCOPE_CHECK.json",
+      "sha256": "2fe831ea973c659f1630974bd4d1426c6366b30031cc2f95fc9f31e50bfd61dd",
+      "bytes": 394,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REVIEW/SOURCE_DIFF.patch",
+      "sha256": "72f81cba22bb9245f0a50cf088cc1ca526861f3b1871a9ec0b4be471d009e9d8",
+      "bytes": 23775,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INPUT_REVIEW/STATIC_CHECKS.json",
+      "sha256": "bb4acd6f896ba6ad6616d8dc87e2a07f94f3ee3540cbf142c2af835b8d8e1ee3",
+      "bytes": 725,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/INTEGRATION_RETURN.md",
+      "sha256": "b910aa243e35f3d029692b6036afb52701e51a19eb5b837cef0738b0a5d921bb",
+      "bytes": 3198,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/M24_INTEGRATION/BRIEF.md",
+      "sha256": "17b2951a5c6da22b18bd57d28cd866fc30e41fade1e4c44fdda26fa5599c71dc",
+      "bytes": 1458,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/M24_INTEGRATION/EXECUTOR_BASIS.json",
+      "sha256": "7070aec2ee34995a74905897a123d5b491d481305da8252bb3bae2d018b70958",
+      "bytes": 1963,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/M24_INTEGRATION/FAN_IN.json",
+      "sha256": "a887a58ee7583c37552a993594f0a1372ae798bd43d2d091b1dc907254970e50",
+      "bytes": 523,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/M24_INTEGRATION/PORTABILITY_SCAN.json",
+      "sha256": "fbcd554332b46089e026c8bfceb1cc4016dfba80f009cf94a93e7ef53436811b",
+      "bytes": 850,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/M24_INTEGRATION/RETURN.md",
+      "sha256": "1b383c20999618fbe79f7885dc0264a57481f73904de006cb888bdec7c3eddd0",
+      "bytes": 2729,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/M24_INTEGRATION/RUN_AFTER.json",
+      "sha256": "9b1db3ff8bfda5240ad019d066f5749b57c34335bd102400432e2109a3dcd59b",
+      "bytes": 2094,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/M24_INTEGRATION/RUN_BEFORE.json",
+      "sha256": "c2079d109df51a40b634d5014d94e38d2ec50378931adb0ecffba9bd34521560",
+      "bytes": 1756,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/M24_INTEGRATION/_run_records/Cargo.lock.before",
+      "sha256": "f713f5d43afe63b41332bfd21e8268feb20f6c09a57d484465129e88989cb577",
+      "bytes": 5003,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/M24_INTEGRATION/_run_records/EXECUTION.json",
+      "sha256": "42213d7c2a4cb16cdffde52ec8608f951b892de5cf6cb00360feb8d19457f24f",
+      "bytes": 411,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/M24_INTEGRATION/_run_records/authored_units_product.log",
+      "sha256": "85f3d75cfbd302d0ea9415196655f0a409d717dbc38fca0d71695a2fa4e1540c",
+      "bytes": 2802,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/M24_REVIEW/FINAL_MANIFEST.json",
+      "sha256": "e7a29545a7b9f6e130a3875069f23fe66c13e37c0769b540ec4ce08f0e14f740",
+      "bytes": 1093,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/M24_REVIEW/ORIGINS.json",
+      "sha256": "bc7ced0e0659847c96bd462ff509d1915d31a97634970bc30d2caf1bca1c4d5a",
+      "bytes": 9492,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/M24_REVIEW/RETURN.md",
+      "sha256": "14c6965d8aa8ddfa76deeb881c976da65c1cf8c3a9367718ab9481ecce509c4f",
+      "bytes": 10141,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/M24_REVIEW/SCOPE_CHECK.json",
+      "sha256": "14efca47f6f73e8cfd120d85ef172feedbfbd9fa6b08bc8ae695f75f31e2d4aa",
+      "bytes": 24045,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/M24_REVIEW/STATIC_AUDIT.json",
+      "sha256": "140ea9ed9458b91b1b845a927f9bf7256ed1ffdc19e26e92f13db56d9ceb2f1e",
+      "bytes": 12088,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/M24_REVIEW/_run_records/EXECUTION.json",
+      "sha256": "58ac81a8e2f64a1012f7d8d44a3d7205234a491ea965324fd62951daec3b539e",
+      "bytes": 28165,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/M24_REVIEW/audit.py",
+      "sha256": "2eb41b79e9732bcb8d727ae78011e238b74a1cf76d4664b54a527c319c01ba64",
+      "bytes": 12041,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_REFERENCE_PREP/PREPARATION.json",
+      "sha256": "82e3072a08248fd12bedc4d9f7e44e1c0c591f7c74a2a1543e8bc811a7692f95",
+      "bytes": 1872,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_REFERENCE_PREP/independent_oracle.py",
+      "sha256": "5b47991cfbaee479f966a3ab0758e69848c4c052dc4cf4f9dd2517fd12b5fc14",
+      "bytes": 2702,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_REFERENCE_PREP/prepared_expectations.json",
+      "sha256": "f6bf9fd56524b60692a8328d34118f0b4f5d119491b9f71d71301639ae167436",
+      "bytes": 2402,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/PORTABILITY/CUSTODY.json",
+      "sha256": "caad74e0b1f9eb0958210a61ef1965042b7aa073be6f8fb837116381c8e038e0",
+      "bytes": 42714,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/PORTABILITY/CUSTODY.md",
+      "sha256": "c817a5bd1552154498236cafff14781f74f076a81c6b7eeee2077c227934df63",
+      "bytes": 3788,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/PROVENANCE.json",
+      "sha256": "8a6f7ff428b20fb35048cce99464145936092c2727603b8dbc01521916538ab7",
+      "bytes": 7998,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/_run_records/portability/INPUT_CONTRACTS/BASELINE_RUN.json",
+      "sha256": "7cbe91a078c67cd3af13ac83187cb43daeced444a0eaf3405dd0fff231f5af1a",
+      "bytes": 805,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/_run_records/portability/INPUT_CONTRACTS/CANDIDATE_RUN.json",
+      "sha256": "987b1db1177890d1226238a1d99e070751b38ef9fa48e5fd6de016a416fdf329",
+      "bytes": 1155,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/_run_records/portability/INPUT_CONTRACTS/ORIGINS.json",
+      "sha256": "21641b2f688e8191ee40dea1e11cc30ec7a2b87d2f70b5a70304a47932eb7683",
+      "bytes": 2429,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/_run_records/portability/INPUT_REPAIR/BASELINE_RUN.json",
+      "sha256": "f9d7541474b77411f8c1613b13706316d22c8ab019d82d4559c8d8b025a6bf56",
+      "bytes": 664,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/_run_records/portability/INPUT_REPAIR/CANDIDATE_RUN.json",
+      "sha256": "f6e97c3af160fc9b19968c6185e20f0225a126a258c9253d120e8857cce2752a",
+      "bytes": 2128,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/_run_records/portability/INPUT_REVIEW/BACKCHECK.md",
+      "sha256": "d6190dd4f7a1337b75dd3531db57a679636f228c675d32a1c07ed6a72a056843",
+      "bytes": 6507,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/_run_records/portability/INPUT_REVIEW/BACKCHECK_ORIGINS.json",
+      "sha256": "1e0d18a381cf5abaa4fb9372e8c1ae8d7f5b66036f712c37fc75ca2603044701",
+      "bytes": 4879,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/_run_records/portability/INPUT_REVIEW/ORIGINS.json",
+      "sha256": "497251dd05682a5eabd4bb397e08b9dadfcf3d096d2b9c6ac2eb941e3ef96b91",
+      "bytes": 7051,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/_run_records/portability/NUMERICAL_REFERENCE_PREP/PREPARATION.json",
+      "sha256": "d979448ecc20179f11ac55945ab6e8d0ad482029a4e8409fcf2414d3f7bbf892",
+      "bytes": 872,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/_run_records/portability/PROVENANCE.json",
+      "sha256": "b1f08dc0f45445b9ac3e73d5913c6c0d9f3b3b72567e190aa7d4a875d86f24ec",
+      "bytes": 6557,
+      "coverage": "exact retained reviewed evidence; source/custody/claims inspection and identity checks"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.lock",
+      "sha256": "9e05f6cc80383de85adf3c430c430ad7fde424791d7120d6f9e31d344a3b31d7",
+      "bytes": 7756,
+      "coverage": "direct maintained diff and interface inspection"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.toml",
+      "sha256": "07cd2bff347cf20796eebab20e587b6b2d829dfda7e6319e3394613ee07e840c",
+      "bytes": 342,
+      "coverage": "direct maintained diff and interface inspection"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/physics_audit_regression/tests/authored_units_product.rs",
+      "sha256": "75432c6b52ee1993a4fea088aa9ebe5747d1d9494cf42396ee549ccf77dd81da",
+      "bytes": 7289,
+      "coverage": "direct maintained diff and interface inspection"
+    }
+  ],
+  "merge_preservation": {
+    "common_ancestor": "f7e8b467cb2db244f11fe49cede636140031b387",
+    "parents": [
+      "63b9a56cbcc40fd2ba7e1a3c2f2555214aa6d8d9",
+      "b54983d9a59481e6db241a4baaaaffff77be5142"
+    ],
+    "incoming_owned_paths": 128,
+    "primary_owned_paths": 418,
+    "overlap": [],
+    "tree_entry_preservation_failures": [],
+    "extra_merge_resolution_paths": []
+  },
+  "source_identity": {
+    "authoring_ff2_files_matched": 9,
+    "solver_validation_c900_matched": true,
+    "solver_lib_c900_only_opening_documentation_changed": true,
+    "solver_lib_from_pub_mod_self_weight_exact": true,
+    "new_product_readme_sha256": "531a31d2c35fabb3587aa4e6ea34350f604f0535f64c14cbdddda0874c5bfbbb"
+  },
+  "custody": {
+    "manifest_sha256": "caad74e0b1f9eb0958210a61ef1965042b7aa073be6f8fb837116381c8e038e0",
+    "original_and_view_hash_matches": 24,
+    "git_archive_matches": 23,
+    "git_archive_commits": [
+      "beaf4869bee2ae8c866e7e62eaa6a8f369610d7e",
+      "ff2cb76ddfda43f6bcb4202b80b7fd199eb3c44e"
+    ],
+    "committed_solver_originals_also_match_c900": true,
+    "json_semantic_preservation_records": 23,
+    "markdown_semantic_preservation_records": 1,
+    "untracked_capture_distinguished": true,
+    "classifier_or_policy_changes": false
+  },
+  "lockfile": {
+    "all_existing_blocks_preserved_except_declared_benchmark_edge": true,
+    "added_packages": 13,
+    "all_added_packages_reachable_from_operation_applier": true
+  },
+  "scope_validation": {
+    "command": [
+      "python3",
+      "tools/software_workflow/validate_change_scope.py",
+      ".",
+      "--base",
+      "b54983d9a59481e6db241a4baaaaffff77be5142",
+      "--allowed",
+      "projects/chirality-piping"
+    ],
+    "status": "PASS",
+    "paths": 129,
+    "violations": []
+  },
+  "whitespace": {
+    "maintained_source_test_document_diff_exit": 0,
+    "new_readme_trailing_whitespace": [],
+    "whole_diff_exit": 2,
+    "whole_diff_qualification": "Only preserved raw .log EOF blanks and .patch captured context whitespace; unchanged evidence must retain exact hashes."
+  },
+  "retained_execution_evidence": {
+    "reviewer_reran": false,
+    "solver_focused_passes": 9,
+    "solver_full_passes": 184,
+    "unit_passes": 15,
+    "applier_unit_passes": 139,
+    "applier_integration_passes": 9,
+    "expanded_frontend_passes": 19,
+    "tsc_expanded_exit": 0,
+    "wasm_build_exit": 0,
+    "real_cross_crate_seam_passes": 5,
+    "all_attributed_to_original_candidates": true,
+    "actual_merge_head_runtime_pass_claimed": false
+  },
+  "findings": [],
+  "remaining": [
+    "Integrated native workflows and recovery/persistence/history/hash witnesses",
+    "Clean candidate DEC-025 and applicable practitioner/self-check/historical receipt validation",
+    "Actual-head required hosted CI",
+    "Any later changed-candidate review",
+    "Open UI/live and M01-M38 programme requirements"
+  ],
+  "return_sha256": "99b46aadfa28adbf9f924cb153f788ca8a132418120940f3cdf49f67e43b7e6b",
+  "unchanged_interface_reads": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/displayQuantityService.ts",
+      "sha256": "65a9557c32a628e3481242ac2cb26a51438ee91b39e492f892d15fefed172cef",
+      "read_scope": "relevant entrypoints and affected contracts"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/display_units.rs",
+      "sha256": "0c9a8902174b115da5a375f46debd84ee79b740816410096d9eb5a28e0e8d5c1",
+      "read_scope": "relevant entrypoints and affected contracts"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "6ea1c8f46a32edc2c5d69cb6f9a94ea64d53e18e3ede324ef5d4e8e9fd56c880",
+      "read_scope": "relevant entrypoints and affected contracts"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "sha256": "9047e26a578d92f5dc986e1018b7945649b1d9cda662b131e53c4ca633ae10d7",
+      "read_scope": "relevant entrypoints and affected contracts"
+    },
+    {
+      "path": "projects/chirality-piping/software-workflow.json",
+      "sha256": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7",
+      "read_scope": "relevant entrypoints and affected contracts"
+    },
+    {
+      "path": "tools/software_workflow/validate_change_scope.py",
+      "sha256": "6275277dcb214f78dfad6c159333decda95f9aa3e086d12e39c7f2f73a70cb0d",
+      "read_scope": "relevant entrypoints and affected contracts"
+    }
+  ]
+}
