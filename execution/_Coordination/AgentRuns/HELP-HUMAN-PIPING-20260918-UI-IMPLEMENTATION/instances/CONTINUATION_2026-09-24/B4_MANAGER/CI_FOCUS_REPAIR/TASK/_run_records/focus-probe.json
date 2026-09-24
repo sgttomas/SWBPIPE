@@ -1,0 +1,1060 @@
+[
+  {
+    "engine": "installed-chrome",
+    "version": "153.0.8010.54",
+    "platform": "darwin",
+    "product": {
+      "events": [
+        {
+          "time": 2084.0999999046326,
+          "event": "before-earlier",
+          "target": {
+            "tag": "BUTTON",
+            "label": "Earlier table status",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "active": {
+            "tag": "BUTTON",
+            "label": "Earlier table status",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          }
+        },
+        {
+          "time": 2115.4000000953674,
+          "event": "pointerdown",
+          "target": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "active": {
+            "tag": "BUTTON",
+            "label": "Earlier table status",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "related": null,
+          "trusted": true
+        },
+        {
+          "time": 2115.4000000953674,
+          "event": "mousedown",
+          "target": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "active": {
+            "tag": "BUTTON",
+            "label": "Earlier table status",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "related": null,
+          "trusted": true
+        },
+        {
+          "time": 2115.5,
+          "event": "blur",
+          "target": {
+            "tag": "BUTTON",
+            "label": "Earlier table status",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "active": {
+            "tag": "BODY",
+            "label": null,
+            "id": "",
+            "connected": true
+          },
+          "related": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "trusted": true
+        },
+        {
+          "time": 2115.5,
+          "event": "focusout",
+          "target": {
+            "tag": "BUTTON",
+            "label": "Earlier table status",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "active": {
+            "tag": "BODY",
+            "label": null,
+            "id": "",
+            "connected": true
+          },
+          "related": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "trusted": true
+        },
+        {
+          "time": 2115.5999999046326,
+          "event": "focus",
+          "target": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "active": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "related": {
+            "tag": "BUTTON",
+            "label": "Earlier table status",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "trusted": true
+        },
+        {
+          "time": 2115.5999999046326,
+          "event": "focusin",
+          "target": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "active": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "related": {
+            "tag": "BUTTON",
+            "label": "Earlier table status",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "trusted": true
+        },
+        {
+          "time": 2115.5999999046326,
+          "event": "mouseup",
+          "target": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "active": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "related": null,
+          "trusted": true
+        },
+        {
+          "time": 2115.699999809265,
+          "event": "click",
+          "target": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "active": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "related": null,
+          "trusted": true
+        },
+        {
+          "time": 2116.4000000953674,
+          "event": "disabled-before",
+          "target": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "active": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          }
+        },
+        {
+          "time": 2116.4000000953674,
+          "event": "disabled-after",
+          "target": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": true,
+            "connected": true
+          },
+          "active": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": true,
+            "connected": true
+          }
+        },
+        {
+          "time": 2116.9000000953674,
+          "event": "blur",
+          "target": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": true,
+            "connected": true
+          },
+          "active": {
+            "tag": "BODY",
+            "label": null,
+            "id": "",
+            "connected": true
+          },
+          "related": {
+            "tag": "BUTTON",
+            "label": "Later columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "trusted": true
+        },
+        {
+          "time": 2116.9000000953674,
+          "event": "focusout",
+          "target": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": true,
+            "connected": true
+          },
+          "active": {
+            "tag": "BODY",
+            "label": null,
+            "id": "",
+            "connected": true
+          },
+          "related": {
+            "tag": "BUTTON",
+            "label": "Later columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "trusted": true
+        },
+        {
+          "time": 2116.9000000953674,
+          "event": "focus",
+          "target": {
+            "tag": "BUTTON",
+            "label": "Later columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "active": {
+            "tag": "BUTTON",
+            "label": "Later columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "related": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": true,
+            "connected": true
+          },
+          "trusted": true
+        },
+        {
+          "time": 2116.9000000953674,
+          "event": "focusin",
+          "target": {
+            "tag": "BUTTON",
+            "label": "Later columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "active": {
+            "tag": "BUTTON",
+            "label": "Later columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "related": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": true,
+            "connected": true
+          },
+          "trusted": true
+        },
+        {
+          "time": 2119.0999999046326,
+          "event": "after-earlier",
+          "target": {
+            "tag": "BUTTON",
+            "label": "Later columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "active": {
+            "tag": "BUTTON",
+            "label": "Later columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          }
+        }
+      ],
+      "offset": "translateX(0px)",
+      "draft": "Retained valid draft while navigating chrome",
+      "undoDisabled": true
+    },
+    "minimal": [
+      {
+        "time": 2165.199999809265,
+        "event": "pointerdown",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BODY",
+          "label": null,
+          "id": "",
+          "connected": true
+        },
+        "related": null,
+        "trusted": true
+      },
+      {
+        "time": 2165.199999809265,
+        "event": "mousedown",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BODY",
+          "label": null,
+          "id": "",
+          "connected": true
+        },
+        "related": null,
+        "trusted": true
+      },
+      {
+        "time": 2165.199999809265,
+        "event": "focus",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        },
+        "related": null,
+        "trusted": true
+      },
+      {
+        "time": 2165.199999809265,
+        "event": "focusin",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        },
+        "related": null,
+        "trusted": true
+      },
+      {
+        "time": 2165.4000000953674,
+        "event": "mouseup",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        },
+        "related": null,
+        "trusted": true
+      },
+      {
+        "time": 2165.4000000953674,
+        "event": "click",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        },
+        "related": null,
+        "trusted": true
+      },
+      {
+        "time": 2165.4000000953674,
+        "event": "disabled-before",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        }
+      },
+      {
+        "time": 2165.4000000953674,
+        "event": "disabled-before",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        }
+      },
+      {
+        "time": 2165.4000000953674,
+        "event": "disabled-after",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": true,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": true,
+          "connected": true
+        }
+      },
+      {
+        "time": 2165.4000000953674,
+        "event": "disabled-after",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": true,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": true,
+          "connected": true
+        }
+      },
+      {
+        "time": 2165.4000000953674,
+        "event": "after-handler",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": true,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": true,
+          "connected": true
+        }
+      }
+    ]
+  },
+  {
+    "engine": "bundled-chromium",
+    "version": "148.0.7778.96",
+    "platform": "darwin",
+    "product": {
+      "events": [
+        {
+          "time": 1440.1999998092651,
+          "event": "before-earlier",
+          "target": {
+            "tag": "BODY",
+            "label": null,
+            "id": "",
+            "connected": true
+          },
+          "active": {
+            "tag": "BODY",
+            "label": null,
+            "id": "",
+            "connected": true
+          }
+        },
+        {
+          "time": 1463.8000001907349,
+          "event": "pointerdown",
+          "target": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "active": {
+            "tag": "BODY",
+            "label": null,
+            "id": "",
+            "connected": true
+          },
+          "related": null,
+          "trusted": true
+        },
+        {
+          "time": 1463.8000001907349,
+          "event": "mousedown",
+          "target": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "active": {
+            "tag": "BODY",
+            "label": null,
+            "id": "",
+            "connected": true
+          },
+          "related": null,
+          "trusted": true
+        },
+        {
+          "time": 1463.9000000953674,
+          "event": "focus",
+          "target": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "active": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "related": null,
+          "trusted": true
+        },
+        {
+          "time": 1463.9000000953674,
+          "event": "focusin",
+          "target": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "active": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "related": null,
+          "trusted": true
+        },
+        {
+          "time": 1464,
+          "event": "mouseup",
+          "target": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "active": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "related": null,
+          "trusted": true
+        },
+        {
+          "time": 1464,
+          "event": "click",
+          "target": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "active": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "related": null,
+          "trusted": true
+        },
+        {
+          "time": 1464.5999999046326,
+          "event": "disabled-before",
+          "target": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          },
+          "active": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": false,
+            "connected": true
+          }
+        },
+        {
+          "time": 1464.5999999046326,
+          "event": "blur",
+          "target": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": true,
+            "connected": true
+          },
+          "active": {
+            "tag": "BODY",
+            "label": null,
+            "id": "",
+            "connected": true
+          },
+          "related": null,
+          "trusted": true
+        },
+        {
+          "time": 1464.5999999046326,
+          "event": "focusout",
+          "target": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": true,
+            "connected": true
+          },
+          "active": {
+            "tag": "BODY",
+            "label": null,
+            "id": "",
+            "connected": true
+          },
+          "related": null,
+          "trusted": true
+        },
+        {
+          "time": 1464.5999999046326,
+          "event": "disabled-after",
+          "target": {
+            "tag": "BUTTON",
+            "label": "Earlier columns",
+            "id": "",
+            "disabled": true,
+            "connected": true
+          },
+          "active": {
+            "tag": "BODY",
+            "label": null,
+            "id": "",
+            "connected": true
+          }
+        },
+        {
+          "time": 1467.3000001907349,
+          "event": "after-earlier",
+          "target": {
+            "tag": "BODY",
+            "label": null,
+            "id": "",
+            "connected": true
+          },
+          "active": {
+            "tag": "BODY",
+            "label": null,
+            "id": "",
+            "connected": true
+          }
+        }
+      ],
+      "offset": "translateX(0px)",
+      "draft": "Retained valid draft while navigating chrome",
+      "undoDisabled": true
+    },
+    "minimal": [
+      {
+        "time": 1496.9000000953674,
+        "event": "pointerdown",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BODY",
+          "label": null,
+          "id": "",
+          "connected": true
+        },
+        "related": null,
+        "trusted": true
+      },
+      {
+        "time": 1496.9000000953674,
+        "event": "mousedown",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BODY",
+          "label": null,
+          "id": "",
+          "connected": true
+        },
+        "related": null,
+        "trusted": true
+      },
+      {
+        "time": 1497,
+        "event": "focus",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        },
+        "related": null,
+        "trusted": true
+      },
+      {
+        "time": 1497,
+        "event": "focusin",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        },
+        "related": null,
+        "trusted": true
+      },
+      {
+        "time": 1497,
+        "event": "mouseup",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        },
+        "related": null,
+        "trusted": true
+      },
+      {
+        "time": 1497,
+        "event": "click",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        },
+        "related": null,
+        "trusted": true
+      },
+      {
+        "time": 1497.0999999046326,
+        "event": "disabled-before",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        }
+      },
+      {
+        "time": 1497.0999999046326,
+        "event": "disabled-before",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        }
+      },
+      {
+        "time": 1497.0999999046326,
+        "event": "blur",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": true,
+          "connected": true
+        },
+        "active": {
+          "tag": "BODY",
+          "label": null,
+          "id": "",
+          "connected": true
+        },
+        "related": null,
+        "trusted": true
+      },
+      {
+        "time": 1497.0999999046326,
+        "event": "focusout",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": true,
+          "connected": true
+        },
+        "active": {
+          "tag": "BODY",
+          "label": null,
+          "id": "",
+          "connected": true
+        },
+        "related": null,
+        "trusted": true
+      },
+      {
+        "time": 1497.0999999046326,
+        "event": "disabled-after",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": true,
+          "connected": true
+        },
+        "active": {
+          "tag": "BODY",
+          "label": null,
+          "id": "",
+          "connected": true
+        }
+      },
+      {
+        "time": 1497.0999999046326,
+        "event": "disabled-after",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": true,
+          "connected": true
+        },
+        "active": {
+          "tag": "BODY",
+          "label": null,
+          "id": "",
+          "connected": true
+        }
+      },
+      {
+        "time": 1497.0999999046326,
+        "event": "after-handler",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": true,
+          "connected": true
+        },
+        "active": {
+          "tag": "BODY",
+          "label": null,
+          "id": "",
+          "connected": true
+        }
+      }
+    ]
+  }
+]

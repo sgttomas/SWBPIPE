@@ -1,0 +1,178 @@
+{
+  "source": "ci-representative-trace.zip/0-trace.trace",
+  "events": [
+    {
+      "type": "before",
+      "callId": "call@80",
+      "startTime": 244211.34,
+      "class": "Frame",
+      "method": "click",
+      "params": {
+        "selector": "internal:role=button[name=\"Earlier columns\"s]",
+        "strict": true,
+        "timeout": 0
+      },
+      "stepId": "pw:api@126",
+      "pageId": "page@90ce4c91f6ea9a11d231fadd5df599f3",
+      "beforeSnapshot": "before@call@80"
+    },
+    {
+      "type": "log",
+      "callId": "call@80",
+      "time": 244225.068,
+      "message": "waiting for getByRole('button', { name: 'Earlier columns', exact: true })"
+    },
+    {
+      "type": "log",
+      "callId": "call@80",
+      "time": 244240.809,
+      "message": "  locator resolved to <button type=\"button\" aria-label=\"Earlier columns\" data-table-chrome-owner=\"_r_1f_\">\u2039</button>"
+    },
+    {
+      "type": "log",
+      "callId": "call@80",
+      "time": 244241.767,
+      "message": "attempting click action"
+    },
+    {
+      "type": "log",
+      "callId": "call@80",
+      "time": 244241.835,
+      "message": "  waiting for element to be visible, enabled and stable"
+    },
+    {
+      "type": "log",
+      "callId": "call@80",
+      "time": 244259.827,
+      "message": "  element is visible, enabled and stable"
+    },
+    {
+      "type": "log",
+      "callId": "call@80",
+      "time": 244259.856,
+      "message": "  scrolling into view if needed"
+    },
+    {
+      "type": "log",
+      "callId": "call@80",
+      "time": 244260.268,
+      "message": "  done scrolling"
+    },
+    {
+      "type": "input",
+      "callId": "call@80",
+      "point": {
+        "x": 854,
+        "y": 664
+      },
+      "inputSnapshot": "input@call@80"
+    },
+    {
+      "type": "log",
+      "callId": "call@80",
+      "time": 244276.396,
+      "message": "  performing click action"
+    },
+    {
+      "type": "log",
+      "callId": "call@80",
+      "time": 244294.241,
+      "message": "  click action done"
+    },
+    {
+      "type": "log",
+      "callId": "call@80",
+      "time": 244294.266,
+      "message": "  waiting for scheduled navigations to finish"
+    },
+    {
+      "type": "log",
+      "callId": "call@80",
+      "time": 244295.797,
+      "message": "  navigations have finished"
+    },
+    {
+      "type": "after",
+      "callId": "call@80",
+      "endTime": 244295.918,
+      "point": {
+        "x": 854,
+        "y": 664
+      },
+      "afterSnapshot": "after@call@80"
+    },
+    {
+      "type": "before",
+      "callId": "call@82",
+      "startTime": 244318.488,
+      "class": "Frame",
+      "method": "evaluateExpression",
+      "params": {
+        "expression": "() => {\n        var _document$activeEleme5;\n        return (_document$activeEleme5 = document.activeElement) === null || _document$activeEleme5 === void 0 ? void 0 : _document$activeEleme5.getAttribute(\"aria-label\");\n      }",
+        "isFunction": true,
+        "arg": {
+          "value": {
+            "v": "undefined"
+          },
+          "handles": []
+        }
+      },
+      "stepId": "pw:api@127",
+      "pageId": "page@90ce4c91f6ea9a11d231fadd5df599f3",
+      "beforeSnapshot": "before@call@82"
+    },
+    {
+      "type": "after",
+      "callId": "call@82",
+      "endTime": 244341.261,
+      "result": {
+        "value": {
+          "v": "null"
+        }
+      },
+      "afterSnapshot": "after@call@82"
+    }
+  ],
+  "after_click_states": [
+    [
+      "BUTTON",
+      {
+        "__playwright_target__": "call@80",
+        "type": "button",
+        "aria-label": "Earlier columns",
+        "data-table-chrome-owner": "_r_1f_",
+        "disabled": ""
+      }
+    ],
+    [
+      "BUTTON",
+      {
+        "__playwright_target__": "call@60",
+        "type": "button",
+        "aria-label": "Later columns",
+        "data-table-chrome-owner": "_r_1f_"
+      }
+    ],
+    [
+      "DIV",
+      {
+        "class": "engineering-table-header-clip"
+      }
+    ],
+    [
+      "DIV",
+      {
+        "class": "engineering-table-header-window"
+      }
+    ],
+    [
+      "DIV",
+      {
+        "role": "row",
+        "class": "engineering-table-row engineering-table-header",
+        "style": "grid-template-columns: 130px 150px 180px 180px 180px 150px; width: 970px; transform: translateX(0px);"
+      }
+    ]
+  ],
+  "limit": "Trace has no focus/blur event instrumentation; active-element evaluation returns aria-label null without tag identity."
+}

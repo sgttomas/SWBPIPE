@@ -824,8 +824,10 @@ for (const density of ["comfortable", "compact"] as const) for (const count of [
     const last = table.getByTestId(`table-cell-${firstId}-provenance`); await last.click(); await last.press("Enter"); const editor = table.getByRole("textbox");
     await editor.fill("Retained valid draft while navigating chrome"); const retained = await editor.elementHandle();
     const statusLater = table.getByRole("button", { name: "Later table status", exact: true }); await expect(statusLater).toBeVisible(); await statusLater.click();
+    expect(await page.evaluate(() => document.activeElement?.getAttribute("aria-label"))).toMatch(/^(Earlier|Later) table status$/);
     await expect(page.getByTestId("workspace-undo")).toBeDisabled();
     await earlier.click(); expect(await page.evaluate(() => document.activeElement?.getAttribute("aria-label"))).toMatch(/^(Earlier|Later) columns$/); await expect(editor).toHaveValue("Retained valid draft while navigating chrome"); await expect(page.getByTestId("workspace-undo")).toBeDisabled();
+    await later.press("Enter"); await expect(earlier).toBeFocused(); await earlier.press("Space"); await expect(later).toBeFocused();
     while (await later.isEnabled()) await later.click(); await measure(); await expect(editor).toHaveValue("Retained valid draft while navigating chrome");
     const editorBounds = await editor.boundingBox(), rowBounds = await rows.boundingBox(); expect(editorBounds!.x).toBeGreaterThanOrEqual(rowBounds!.x - 1); expect(editorBounds!.x + editorBounds!.width).toBeLessThanOrEqual(rowBounds!.x + geometry.clientWidth + 1);
     const infoButton = table.getByRole("button", { name: "Material fields Info", exact: true }); await infoButton.click(); const dialog = table.getByRole("dialog", { name: "Material fields Info", exact: true }); await expect(dialog).toBeVisible();

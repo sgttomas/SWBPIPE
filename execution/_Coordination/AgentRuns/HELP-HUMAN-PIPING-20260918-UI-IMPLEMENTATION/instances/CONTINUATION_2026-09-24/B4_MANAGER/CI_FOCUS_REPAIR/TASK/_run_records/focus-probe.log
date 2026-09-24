@@ -1,0 +1,30 @@
+[
+  {
+    engine: 'installed-chrome',
+    version: '153.0.8010.54',
+    events: [
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object]
+    ],
+    offset: 'translateX(0px)'
+  },
+  {
+    engine: 'bundled-chromium',
+    version: '148.0.7778.96',
+    events: [
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object]
+    ],
+    offset: 'translateX(0px)'
+  }
+]

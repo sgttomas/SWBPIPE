@@ -1,0 +1,118 @@
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop
+
+ × src/features/workspace/table/OverflowRail.test.tsx > overflow rail endpoint focus > recovers Earlier table controls after synchronous native disable blur 52ms
+   → expected false to be true // Object.is equality
+ × src/features/workspace/table/OverflowRail.test.tsx > overflow rail endpoint focus > recovers Later table controls after synchronous native disable blur 7ms
+   → expected false to be true // Object.is equality
+ × src/features/workspace/table/OverflowRail.test.tsx > overflow rail endpoint focus > recovers Earlier table status after synchronous native disable blur 5ms
+   → expected false to be true // Object.is equality
+ × src/features/workspace/table/OverflowRail.test.tsx > overflow rail endpoint focus > recovers Later table status after synchronous native disable blur 7ms
+   → expected false to be true // Object.is equality
+ ✓ src/features/workspace/table/OverflowRail.test.tsx > overflow rail endpoint focus > does not steal focus from an outside control or retain a stale request 6ms
+ × src/features/workspace/table/OverflowRail.test.tsx > overflow rail endpoint focus > declines a hidden-changed pair before focus recovery 4ms
+   → expected false to be true // Object.is equality
+ × src/features/workspace/table/OverflowRail.test.tsx > overflow rail endpoint focus > declines a owner-changed pair before focus recovery 4ms
+   → expected false to be true // Object.is equality
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > focuses on first click, edits on second, applies one captured cell and cancels without an operation 107ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > keeps invalid text but reverts actual engine rejection with its diagnostic 41ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > uses file order for Enter under view sort, view order for Tab/arrows, and leaves caret/text undo keys alone 39ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > applies a valid edit on blur without stealing external focus 22ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > pins invalid drafts through virtual scrolling and filtering across the threshold 52ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > ignores an old completion after a same-ID project replacement and a newer edit 29ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > deduplicates blur and Apply while preserving the original target on a next-cell click 48ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > refuses a before-value change without silently rebasing a draft 27ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > lets Tab leave either table boundary and keeps pending edits read-only 18ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > marks a removed target as a retained draft and Cancel focuses a live row 30ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > publishes keyboard focus entry without turning the first pointer click into editing 7ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > keeps invalid A when B receives a click then Enter or a printable character 12ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > does not publish deferred navigation selection after external focus and selection win 19ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > clears completed-operation feedback when a new project generation replaces the model 27ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > exits the editing forward boundary after no-op Apply to a persistent visible footer 11ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > exits the editing forward boundary after accepted Apply to a persistent visible footer 13ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > exits a no-op backward editing boundary to the row header 16ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > retains invalid and engine-rejected boundary edits instead of exiting 16ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > does not steal external focus when a pending boundary Apply completes 18ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > preserves newer selection without DOM focus movement, including ABA=false 12ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > preserves newer selection without DOM focus movement, including ABA=true 14ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > restores a live roving entry after filter without stealing external focus 8ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > restores a live roving entry after deletion without stealing external focus 8ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > owns valid pointer Cancel before a browser default blur with null relatedTarget 16ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > does not activate Apply on pointer-down and applies exactly once on the eventual click 18ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > abandons 'Apply' via 'drag-away' without leaving a guard against ordinary blur Apply 22ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > abandons 'Apply' via 'pointercancel' without leaving a guard against ordinary blur Apply 19ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > abandons 'Cancel' via 'drag-away' without leaving a guard against ordinary blur Apply 24ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > abandons 'Cancel' via 'pointercancel' without leaving a guard against ordinary blur Apply 20ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > preserves keyboard footer Apply activation 19ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > preserves keyboard footer Cancel activation 16ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > measures only a finite visible body slot and retains its last positive height while hidden 2ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > rebinds allocation observation when a retained review swaps small and virtual body elements 2ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > records positive size changes under an inert page and reveals with the current height 1ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > reports a visible zero-height allocation instead of hiding a stale viewport behind overflow 5ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > recovers focus after a later canonical label publication filters the owned row out without selecting a fallback 14ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > keeps text rejection local and ignores a late text completion after same-ID generation replacement 20ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > initializes direct numeric/text selection once per edit without resetting later caret placement 31ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > initializes review numeric/text selection once per edit without resetting later caret placement 28ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > does not advertise cached projected sort keys from a removed pinned editor row 9ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > opt-in typed enum on the common input > completes a nonempty prefix on Enter exactly once 11ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > opt-in typed enum on the common input > completes a nonempty prefix on Tab exactly once 10ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > opt-in typed enum on the common input > preserves unsupported source through navigation and first Escape, then cancels on second Escape 7ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > opt-in typed enum on the common input > does not silently complete a prefix-shaped unsupported source on Enter 6ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > opt-in typed enum on the common input > pointer choice only changes buffer; pointer cancellation/drag-away never chooses 12ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > opt-in typed enum on the common input > does not complete empty input or a prefix on blur; direct invalid text stays while raw review text is kept 19ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > opt-in typed enum on the common input > closes the body popup on hidden/inert/detached ancestry and external focus without stealing focus 30ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > opt-in typed enum on the common input > closes options on source/catalog/active change without replacing input or changing draft 14ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > keeps complete compact feedback in Info and exempts only this table's chrome from blur Apply 9ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > uses native closed/open Info state when the dismissal API is present 8ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > does not swallow a genuine supported-popover state-query failure 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/workspace/table/OverflowRail.test.tsx > overflow rail endpoint focus > recovers Earlier table controls after synchronous native disable blur
+ FAIL  src/features/workspace/table/OverflowRail.test.tsx > overflow rail endpoint focus > recovers Later table controls after synchronous native disable blur
+ FAIL  src/features/workspace/table/OverflowRail.test.tsx > overflow rail endpoint focus > recovers Earlier table status after synchronous native disable blur
+ FAIL  src/features/workspace/table/OverflowRail.test.tsx > overflow rail endpoint focus > recovers Later table status after synchronous native disable blur
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/features/workspace/table/OverflowRail.test.tsx:34:32
+     32|       try {
+     33|         act(() => button.focus()); fireEvent.click(button);
+     34|         expect(blur.sawBody()).toBe(true); expect(button).toBeDisabled…
+       |                                ^
+     35|         expect(screen.getByRole("textbox", { name: "Retained field" })…
+     36|       } finally { blur.setter.mockRestore(); vi.restoreAllMocks(); }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  src/features/workspace/table/OverflowRail.test.tsx > overflow rail endpoint focus > declines a hidden-changed pair before focus recovery
+ FAIL  src/features/workspace/table/OverflowRail.test.tsx > overflow rail endpoint focus > declines a owner-changed pair before focus recovery
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/features/workspace/table/OverflowRail.test.tsx:53:84
+     51|       const blur = synchronousDisableBlur(button, () => { if (invalida…
+     52|       try {
+     53|         act(() => button.focus()); fireEvent.click(button); expect(blu…
+       |                                                                                    ^
+     54|       } finally { blur.setter.mockRestore(); vi.restoreAllMocks(); }
+     55|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  6 failed | 52 passed (58)
+   Start at  23:45:49
+   Duration  1.65s (transform 170ms, setup 204ms, import 217ms, tests 1.08s, environment 679ms)
+

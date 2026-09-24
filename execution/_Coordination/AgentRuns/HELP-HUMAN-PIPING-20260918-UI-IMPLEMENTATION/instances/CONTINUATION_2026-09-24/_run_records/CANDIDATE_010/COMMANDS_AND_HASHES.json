@@ -1,0 +1,76 @@
+{
+  "candidate": "01063c7f1cfb7a651261401f62a5a72a5daa94dc",
+  "sweep_command": "python3 tools/release/run_evidence_sweep.py --execute --require-capability host",
+  "cwd": "WORKING_ROOT",
+  "env": {
+    "PATH": "/Users/ryan/.local/share/mise/installs/python/3.13/bin:/Users/ryan/.local/share/mise/installs/node/24/bin:/Users/ryan/.cargo/bin:/Users/ryan/.local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "CARGO_BUILD_JOBS": "2"
+  },
+  "result": "pass",
+  "summary": "validation/evidence/sweeps/SWEEP_20260924T051011Z_01063c7f1cfb.json",
+  "desktop_tests": 1626,
+  "source_browser": {
+    "passed": 475,
+    "skipped": 20
+  },
+  "dist_browser": {
+    "passed": 53
+  },
+  "python": {
+    "passed": 1143,
+    "subtests_passed": 7,
+    "warnings": 304
+  },
+  "native_witness": false,
+  "known_hosted_failure": "run35958768464: six classic scrollbar focus cases fail in hosted engine; current B4 CI_FOCUS_REPAIR owns canonical diagnosis/witness; local pass does not close it",
+  "concurrency": "C4 isolated one-worker lifecycle unit/TS window overlapped an earlier functional phase; all C4/LIVE heavy processes released before primary source-browser phase. No shared files, ports, WASM or build targets. No calibrated performance claim.",
+  "files": [
+    {
+      "name": "exit.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "name": "focus-precommit-portability-exit.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "name": "focus-precommit-portability.log",
+      "sha256": "13033ac688d21de1a8b53b1f252f7da608419ccc063212a50266c0849b3607ba"
+    },
+    {
+      "name": "historical-receipts-exit.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "name": "historical-receipts.log",
+      "sha256": "4fc0eafdf93e056a1d03d6cc047175121eae052cb0dde83fe59fe0bb2ef59ac8"
+    },
+    {
+      "name": "pr883-checks-inflight.json",
+      "sha256": "1cacd4137deac686f2c275b89fa90af4345a586c72f3828ebe465cf0da8663f0"
+    },
+    {
+      "name": "preflight.json",
+      "sha256": "0e8a2ecacd895ff32faa40d33cca3cce798bd7a6cee0d1eace9389357f21ab66"
+    },
+    {
+      "name": "self-check-exit.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "name": "self-check.log",
+      "sha256": "e5f9ff706de84cc84e85961a9c4deb11691b4cac8cd8390bfef0412a0680d110"
+    },
+    {
+      "name": "sweep.log",
+      "sha256": "a1fe4974c84bc4b1ae8e9faeb86ef13f3b4a945747fc2883b603c88f46b386b6"
+    }
+  ],
+  "focus_precommit_portability": {
+    "command": "python3 -m pytest -q tools/practitioner_harness/test_live_baseline.py::test_live_gen8_semantic_portability_invariants",
+    "cwd": "REPO_ROOT",
+    "basis": "01063c7f1 plus unstaged focus repair digest712c9871 and owned continuation records",
+    "result": "1 passed in34.84s",
+    "clean_run": false
+  }
+}

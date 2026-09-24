@@ -1,0 +1,18 @@
+{
+  "relevant_processes": [
+    " 9925     1 /Users/ryan/.cod /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop"
+  ],
+  "ports": [
+    {
+      "port": 5174,
+      "exit": 1,
+      "listeners": ""
+    },
+    {
+      "port": 5175,
+      "exit": 1,
+      "listeners": ""
+    }
+  ],
+  "scope": "task-related process projection; not full host inventory"
+}

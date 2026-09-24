@@ -54,6 +54,7 @@ export function EngineeringTable(props: Props) {
   const infoId = useId();
   const infoButton = useRef<HTMLButtonElement>(null);
   const columnPans = useRef<HTMLDivElement>(null);
+  const pendingPanFocus = useRef<{ button: HTMLButtonElement; pair: HTMLDivElement; owner: string | undefined } | null>(null);
   const [infoOpen, setInfoOpen] = useState(false);
   const chrome = useContext(TableChromeContext);
   const [columnOffset, setColumnOffset] = useState(0);
@@ -139,8 +140,22 @@ export function EngineeringTable(props: Props) {
     return () => chrome.setOwner((current) => current === ownerId ? null : current);
   }, [props.compact, surfaceActive, geometry.visible, chrome.target, chrome.setOwner, ownerId]);
   useLayoutEffect(() => {
-    if (columnPans.current?.contains(document.activeElement) && (document.activeElement as HTMLButtonElement).disabled) columnPans.current.querySelector<HTMLButtonElement>("button:not(:disabled)")?.focus();
-  }, [offset, maximumOffset]);
+    const request = pendingPanFocus.current; pendingPanFocus.current = null;
+    const pair = columnPans.current, active = document.activeElement;
+    if (!props.compact || !surfaceActive || !geometry.visible || !pair?.isConnected || !pair.getClientRects().length || pair.closest("[hidden], [inert]")) return;
+    const current = pair.contains(active) && (active as HTMLButtonElement).disabled ? active as HTMLButtonElement : null;
+    const captured = request?.pair === pair && request.button.isConnected && pair.contains(request.button) && request.button.dataset.tableChromeOwner === request.owner && request.button.disabled && (active === document.body || active === request.button) ? request.button : null;
+    if (current || captured) pair.querySelector<HTMLButtonElement>("button:not(:disabled)")?.focus();
+  }, [offset, maximumOffset, props.compact, surfaceActive, geometry.visible]);
+  function panColumns(direction: number, button: HTMLButtonElement) {
+    pendingPanFocus.current = null;
+    const pair = columnPans.current;
+    const next = Math.max(0, Math.min(maximumOffset, offset + direction * Math.max(28, geometry.clientWidth * .75)));
+    if (!pair || next === offset) return;
+    // Capture before the disabled attribute can synchronously release focus.
+    if (document.activeElement === button) pendingPanFocus.current = { button, pair, owner: button.dataset.tableChromeOwner };
+    setColumnOffset(next);
+  }
   useLayoutEffect(() => { if (infoOpen && (!props.compact || !surfaceActive || !geometry.visible)) closeInfo(); }, [infoOpen, props.compact, surfaceActive, geometry.visible]);
   function ownedChrome(destination: HTMLElement | null) { return destination?.closest<HTMLElement>("[data-table-chrome-owner]")?.dataset.tableChromeOwner === ownerId; }
   function closeInfo(restore = false) {
@@ -347,9 +362,9 @@ export function EngineeringTable(props: Props) {
     style={{ "--table-min-width": `${geometry.minimums.reduce((sum, value) => sum + value, 0) + geometry.gutter}px`, "--table-gutter": `${geometry.gutter}px` } as React.CSSProperties} tabIndex={-1} data-testid={`${props.testIdPrefix ?? ""}${review ? "engineering-table-review" : "engineering-table"}`}>
     {props.compact && surfaceActive && geometry.visible && chrome.target && maximumOffset > .5 ? createPortal(<div ref={columnPans} className="table-pan-pair" role="group" aria-label="Pan columns">
       <button type="button" aria-label="Earlier columns" data-table-chrome-owner={ownerId} disabled={offset <= 0}
-        onClick={() => setColumnOffset(Math.max(0, offset - Math.max(28, geometry.clientWidth * .75)))}>‹</button>
+        onClick={(event) => panColumns(-1, event.currentTarget)}>‹</button>
       <button type="button" aria-label="Later columns" data-table-chrome-owner={ownerId} disabled={offset >= maximumOffset - .5}
-        onClick={() => setColumnOffset(Math.min(maximumOffset, offset + Math.max(28, geometry.clientWidth * .75)))}>›</button>
+        onClick={(event) => panColumns(1, event.currentTarget)}>›</button>
     </div>, chrome.target) : null}
     <div role="grid" aria-label={label} aria-rowcount={viewRows.length + 1} aria-colcount={columns.length + 1}>
       <div className="engineering-table-header-clip">

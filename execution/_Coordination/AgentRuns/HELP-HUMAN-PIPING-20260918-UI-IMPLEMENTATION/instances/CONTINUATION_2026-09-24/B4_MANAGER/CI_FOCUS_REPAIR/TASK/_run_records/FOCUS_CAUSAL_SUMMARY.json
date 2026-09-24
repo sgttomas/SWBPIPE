@@ -1,0 +1,584 @@
+[
+  {
+    "engine": "installed-chrome",
+    "version": "153.0.8010.54",
+    "platform": "darwin",
+    "product": [
+      {
+        "event": "before-earlier",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Earlier table status",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Earlier table status",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        }
+      },
+      {
+        "event": "pointerdown",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Earlier table status",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        }
+      },
+      {
+        "event": "mousedown",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Earlier table status",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        }
+      },
+      {
+        "event": "blur",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Earlier table status",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BODY",
+          "label": null,
+          "id": "",
+          "connected": true
+        }
+      },
+      {
+        "event": "focusout",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Earlier table status",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BODY",
+          "label": null,
+          "id": "",
+          "connected": true
+        }
+      },
+      {
+        "event": "focus",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        }
+      },
+      {
+        "event": "focusin",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        }
+      },
+      {
+        "event": "mouseup",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        }
+      },
+      {
+        "event": "click",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        }
+      },
+      {
+        "event": "disabled-before",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        }
+      },
+      {
+        "event": "disabled-after",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": true,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": true,
+          "connected": true
+        }
+      },
+      {
+        "event": "blur",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": true,
+          "connected": true
+        },
+        "active": {
+          "tag": "BODY",
+          "label": null,
+          "id": "",
+          "connected": true
+        }
+      },
+      {
+        "event": "focusout",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": true,
+          "connected": true
+        },
+        "active": {
+          "tag": "BODY",
+          "label": null,
+          "id": "",
+          "connected": true
+        }
+      },
+      {
+        "event": "focus",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Later columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Later columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        }
+      },
+      {
+        "event": "focusin",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Later columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Later columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        }
+      },
+      {
+        "event": "after-earlier",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Later columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Later columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        }
+      }
+    ],
+    "draft": "Retained valid draft while navigating chrome",
+    "undoDisabled": true,
+    "minimal": [
+      {
+        "event": "disabled-before",
+        "active": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        }
+      },
+      {
+        "event": "disabled-before",
+        "active": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        }
+      },
+      {
+        "event": "disabled-after",
+        "active": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": true,
+          "connected": true
+        }
+      },
+      {
+        "event": "disabled-after",
+        "active": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": true,
+          "connected": true
+        }
+      },
+      {
+        "event": "after-handler",
+        "active": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": true,
+          "connected": true
+        }
+      }
+    ]
+  },
+  {
+    "engine": "bundled-chromium",
+    "version": "148.0.7778.96",
+    "platform": "darwin",
+    "product": [
+      {
+        "event": "before-earlier",
+        "target": {
+          "tag": "BODY",
+          "label": null,
+          "id": "",
+          "connected": true
+        },
+        "active": {
+          "tag": "BODY",
+          "label": null,
+          "id": "",
+          "connected": true
+        }
+      },
+      {
+        "event": "pointerdown",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BODY",
+          "label": null,
+          "id": "",
+          "connected": true
+        }
+      },
+      {
+        "event": "mousedown",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BODY",
+          "label": null,
+          "id": "",
+          "connected": true
+        }
+      },
+      {
+        "event": "focus",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        }
+      },
+      {
+        "event": "focusin",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        }
+      },
+      {
+        "event": "mouseup",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        }
+      },
+      {
+        "event": "click",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        }
+      },
+      {
+        "event": "disabled-before",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        },
+        "active": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": false,
+          "connected": true
+        }
+      },
+      {
+        "event": "blur",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": true,
+          "connected": true
+        },
+        "active": {
+          "tag": "BODY",
+          "label": null,
+          "id": "",
+          "connected": true
+        }
+      },
+      {
+        "event": "focusout",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": true,
+          "connected": true
+        },
+        "active": {
+          "tag": "BODY",
+          "label": null,
+          "id": "",
+          "connected": true
+        }
+      },
+      {
+        "event": "disabled-after",
+        "target": {
+          "tag": "BUTTON",
+          "label": "Earlier columns",
+          "id": "",
+          "disabled": true,
+          "connected": true
+        },
+        "active": {
+          "tag": "BODY",
+          "label": null,
+          "id": "",
+          "connected": true
+        }
+      },
+      {
+        "event": "after-earlier",
+        "target": {
+          "tag": "BODY",
+          "label": null,
+          "id": "",
+          "connected": true
+        },
+        "active": {
+          "tag": "BODY",
+          "label": null,
+          "id": "",
+          "connected": true
+        }
+      }
+    ],
+    "draft": "Retained valid draft while navigating chrome",
+    "undoDisabled": true,
+    "minimal": [
+      {
+        "event": "disabled-before",
+        "active": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        }
+      },
+      {
+        "event": "disabled-before",
+        "active": {
+          "tag": "BUTTON",
+          "label": "Disable self",
+          "id": "disable",
+          "disabled": false,
+          "connected": true
+        }
+      },
+      {
+        "event": "disabled-after",
+        "active": {
+          "tag": "BODY",
+          "label": null,
+          "id": "",
+          "connected": true
+        }
+      },
+      {
+        "event": "disabled-after",
+        "active": {
+          "tag": "BODY",
+          "label": null,
+          "id": "",
+          "connected": true
+        }
+      },
+      {
+        "event": "after-handler",
+        "active": {
+          "tag": "BODY",
+          "label": null,
+          "id": "",
+          "connected": true
+        }
+      }
+    ]
+  }
+]
