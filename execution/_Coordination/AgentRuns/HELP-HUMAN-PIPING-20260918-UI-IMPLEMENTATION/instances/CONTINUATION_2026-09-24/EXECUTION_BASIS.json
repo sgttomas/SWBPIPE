@@ -97,7 +97,7 @@
       "brief_sha256": "fd3a24e13e6be0839907719d537aa4590cad5d1296ddeca51e0d34b1d39a0d3b",
       "fork_turns": "none",
       "writes": "named native/frontend scopes and own evidence only in isolated branch codex/piping-live-control-20260924; primary remains ROOT-owned",
-      "state": "both exact-wire TASK acknowledgements recorded in isolated LIVE_MANAGER/IMPLEMENTATION/WIRE_ACKS.json before writes; six handback hashes match; source authoring plus bounded isolated component/Cargo jobs2 resources released; actual native/human gates open",
+      "state": "isolated source1811d70a:33frontend/TS,native8,transport6,CLIunit3/integration3,explicitCLIbuild pass; fresh own independent review active; all heavy resources released; actual native/H1H2 open",
       "activation": "LIVE_IMPLEMENTATION_ACTIVATION.md",
       "activation_sha256": "9fda39962acb516469ddcfa7898119e16a9104316b57ebb0d2a5e6b9356c6628"
     },
@@ -135,7 +135,7 @@
       "fork_turns": "none",
       "branch": "codex/piping-c4-policy-20260924",
       "basis": "5cfd2257cafca0fb141fc7dd5085c627d8caae9e",
-      "state": "prior pure policy15tests/TS and independent review retained; merged primary basis4555f6c1; canvas/diagnostics/label-only CSS authoring and bounded hover core extension, isolated focusedunits/TS released; App/table/controller excluded",
+      "state": "isolated canvas a7cc3277:133focused tests/TS pass; fresh reviewer found context-loss P2; bounded repair/unit/backcheck active, no App/table/controller/native writes",
       "writes": "six new viewport policy/index/placement source/tests plus C4_MANAGER evidence, isolated checkout only",
       "activation": "C4_CANVAS_ACTIVATION.md",
       "activation_sha256": "cf47440ab4f198f7160e05576112b6a597f00c2efb65b57d69f93b2f6ca767ba"
@@ -160,7 +160,7 @@
       "brief_sha256": "5a32cabf7d4c2155c24f791b9388aafb8be77555104d36c22ff54e8365421685",
       "fork_turns": "none",
       "writes": "NATIVE_FIT_REVIEW/RETURN.md only",
-      "state": "PASS no actionable findings at e1d7cc48; complete188paths covered; native and broad gates open",
+      "state": "PASS complete e1 source, c57 integration and adc3file sweep repair; original detailed records byte-preserved under raw records, native/newbroadgates open",
       "return_sha256": "471f7e83586231cfd0ad4f5a0d461ae878cc41374f9e44a9d3cee45d05e8831d"
     }
   ],
