@@ -1,0 +1,22 @@
+{
+  "base": "b54983d9a59481e6db241a4baaaaffff77be5142",
+  "kind": "frozen four-file reservation and graph checkpoint",
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/VERSION_RESERVATION_V2.md",
+      "sha256": "864f912fc2e32c415ae3f1040d2701561619cd1be0a2479b9ff2f215f319b9b0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/VERSION_COMPATIBILITY_REVIEW.md",
+      "sha256": "8b997ed353a776a75a5f1253e4ad83ebdf3ff99a2d8dd79745dc9dfd7f1ba2d8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/_run_records/VERSION_COMPATIBILITY_REVIEW/origins.json",
+      "sha256": "c4e9b1fc1990974779fa5c81cd661a03bc6aebc16af89c1aa6a6611a4ba89e33"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md",
+      "sha256": "e92913fa510fc2c144c1fccd929dd63a694cdc906bf18ea47a9ca73a89155fe6"
+    }
+  ]
+}

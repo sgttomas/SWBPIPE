@@ -1,0 +1,145 @@
+{
+  "task": "bounded VERSION_COMPATIBILITY_REVIEW",
+  "agent": "/root/correctness_design",
+  "role": "HELPS_HUMANS",
+  "parent": "/root",
+  "mechanism": "delegated-harness-native",
+  "date": "2026-09-24",
+  "primary_head": "b54983d9a59481e6db241a4baaaaffff77be5142",
+  "numerical_worktree_head": "63b9a56cbcc40fd2ba7e1a3c2f2555214aa6d8d9",
+  "limits": "Read-only current product source/working consumer proposals; no source writes, tests, builds, Git mutations, native/browser or endpoint. Exact hashes identify whole files; only relevant portions read. Earlier full doctrine/role/D67 reads carried from active session; no new workflow/skill/delegation. Working proposal may change after observation.",
+  "sources": [
+    {
+      "checkout": "primary",
+      "path": "AGENTS.md",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "checkout": "primary",
+      "path": "agents/AGENT_HELPS_HUMANS.md",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/agents/AGENT_HELPS_HUMANS.md",
+      "sha256": "a0c9fb9443d8671d694c1f7b24ff3c402ffd626c781a2739342c938f2f3c3d1e"
+    },
+    {
+      "checkout": "primary",
+      "path": "projects/chirality-piping/AGENTS.md",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "checkout": "primary",
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "checkout": "primary",
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-67_RULING_2026-09-14.md",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/_DECISIONS/D-67_RULING_2026-09-14.md",
+      "sha256": "0c605e5548acf6c9b36b4dbe4de82674960d5b2fc3f9f5bc2f968dc9d53be19a"
+    },
+    {
+      "checkout": "primary",
+      "path": "projects/chirality-piping/schemas/analysis_run.schema.json",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/schemas/analysis_run.schema.json",
+      "sha256": "b787444e0a421c995fac4d393c16c28e4e3e84496196d5c2914a7bb082e43e86"
+    },
+    {
+      "checkout": "primary",
+      "path": "projects/chirality-piping/schemas/analysis_run.v0.2.schema.json",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/schemas/analysis_run.v0.2.schema.json",
+      "sha256": "e313d11f46499f36a57accf25c6d6ffbb8efb8da65bd12f024e59f7ac7030de4"
+    },
+    {
+      "checkout": "primary",
+      "path": "projects/chirality-piping/schemas/stress_neutral_export.v0.2.schema.json",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/schemas/stress_neutral_export.v0.2.schema.json",
+      "sha256": "7b8fbe4831fcf14415c8d7d103cca0996112854bfde2ae12ef8de80b0dd302a4"
+    },
+    {
+      "checkout": "primary",
+      "path": "projects/chirality-piping/schemas/results.v0.2.schema.yaml",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/schemas/results.v0.2.schema.yaml",
+      "sha256": "5fb3fc2ec6a94f748781f525087956d22daa6b1bd15bd21a470d0bf6c42ed485"
+    },
+    {
+      "checkout": "primary",
+      "path": "projects/chirality-piping/core/analysis_runs/records.py",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/analysis_runs/records.py",
+      "sha256": "709f3a16f01b617084dd8d522081138826cae5d390fa0fc56dec23cb6c1a6bb0"
+    },
+    {
+      "checkout": "primary",
+      "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "sha256": "5b191695c32495c633d21ec74a2ec95aede27b56f6521069a328f0e386575dd7"
+    },
+    {
+      "checkout": "primary",
+      "path": "projects/chirality-piping/core/analysis_runs/__init__.py",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/analysis_runs/__init__.py",
+      "sha256": "3cbf541cd2e84e719dab8411482424c9e04300d0f4ffdb8d01994e86d886aa8e"
+    },
+    {
+      "checkout": "primary",
+      "path": "projects/chirality-piping/core/handoff/stress_neutral/package.py",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/handoff/stress_neutral/package.py",
+      "sha256": "cb25f09a26922ead575b914dc9d8b054e8d3988b6c14f64bf36a830009739415"
+    },
+    {
+      "checkout": "primary",
+      "path": "projects/chirality-piping/core/handoff/stress_neutral/package_v0_2.py",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/handoff/stress_neutral/package_v0_2.py",
+      "sha256": "f0c335e59dc9d12624ff1c7b400c160652db266e431ce024b98ec650bac05a1f"
+    },
+    {
+      "checkout": "primary",
+      "path": "projects/chirality-piping/core/reporting/result_export/src/derivative.rs",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/reporting/result_export/src/derivative.rs",
+      "sha256": "b261a0e68bf0a938287dad029b9daf2c63fd2e8d69276b0b52aef0e9c290ff57"
+    },
+    {
+      "checkout": "primary",
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "sha256": "8acfdd9844480a0f895a7c4d893b4ec8aeb56ecd8eacd8f11c829423047615f3"
+    },
+    {
+      "checkout": "primary",
+      "path": "projects/chirality-piping/tests/test_analysis_run_compatibility.py",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/tests/test_analysis_run_compatibility.py",
+      "sha256": "d8e7aade831b38671926d189bbd9c0db24a96fe3e70e6454123ddecf3bc96a5a"
+    },
+    {
+      "checkout": "primary",
+      "path": "projects/chirality-piping/fixtures/analysis_runs/invented/analysis_run_v0_2.json",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/fixtures/analysis_runs/invented/analysis_run_v0_2.json",
+      "sha256": "2a62a971d9f74833470bd8ed0cabb7467d5ae844a7c57cba777758c4761c3fe7"
+    },
+    {
+      "checkout": "numerical_worktree",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/PRECISION_CONSUMER_CONTRACT.md",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/PRECISION_CONSUMER_CONTRACT.md",
+      "sha256": "f57aac951ff65d304df8f1f2d4ac123bfd5279af48fe737926a68109b507e9ea"
+    },
+    {
+      "checkout": "numerical_worktree",
+      "path": "projects/chirality-piping/schemas/analysis_run.schema.json",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/schemas/analysis_run.schema.json",
+      "sha256": "847ef58dec157b749fe9adb7c3dbb65bba957b3bde9d6b1f64476c7e853f8e5f"
+    },
+    {
+      "checkout": "numerical_worktree",
+      "path": "projects/chirality-piping/schemas/analysis_run.v0.2.precision-1.schema.json",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/schemas/analysis_run.v0.2.precision-1.schema.json",
+      "sha256": "2ba393bf45e18492b786001b3ea463caa8dbc4c8f7bf66c5636bb26513836f69"
+    },
+    {
+      "checkout": "numerical_worktree",
+      "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "sha256": "75b1b3909f2118dbf5c1aac6a0a489926b765ebf635755d9db77e5fc7e170fcd"
+    }
+  ]
+}
