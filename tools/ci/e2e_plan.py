@@ -63,9 +63,12 @@ def irrelevant(path):
     if path.startswith('projects/') and not path.startswith(PROJECT):
         return True  # Runtime is not adopted as a Piping product dependency.
     if path.startswith(PROJECT):
+        if path[len(PROJECT):] in {'AGENTS.md', 'CLAUDE.md', 'README.md'}:
+            return True
         return any(path.startswith(PROJECT + p) for p in
                    ('execution/', 'docs/', 'plans/', 'governance/', 'provenance/', 'loop/', 'validation/evidence/'))
-    return path.startswith(('docs/', 'agents/')) or path in {'README.md', 'AGENTS.md', 'CLAUDE.md'}
+    # Root agent/workflow packages are not Piping desktop runtime inputs.
+    return path.startswith(('docs/', 'agents/', 'workflows/', '.agents/', 'skills/', 'plans/', 'init/')) or path in {'README.md', 'AGENTS.md', 'CLAUDE.md'}
 
 
 def instrument_consumers(root, path, specs):

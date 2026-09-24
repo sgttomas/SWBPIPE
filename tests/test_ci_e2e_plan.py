@@ -77,6 +77,23 @@ class PolicyTests(unittest.TestCase):
             self.commit()
             self.assertEqual(self.plan(base=previous)['mode'], 'full', path)
 
+    def test_root_instruction_packages_and_project_agent_guidance_are_not_product_inputs(self):
+        for path in ['AGENTS.md', 'docs/SPEC.md', 'workflows/construct-local-work-graph/WORKFLOW.md',
+                     'workflows/construct-local-work-graph/resources/work-graph-template.md',
+                     '.agents/skills/preparation/SKILL.md', ci.PROJECT + 'AGENTS.md',
+                     ci.PROJECT + 'loop/LOOP_INIT.md']:
+            self.write(path)
+        self.commit()
+        plan = self.plan()
+        self.assertEqual(plan['mode'], 'not-applicable')
+        ci.validate(self.root, plan)
+
+    def test_instruction_edits_cannot_mask_a_product_edit(self):
+        self.write('workflows/construct-local-work-graph/WORKFLOW.md')
+        self.write(ci.DESKTOP + 'src/App.tsx')
+        self.commit()
+        self.assertEqual(self.plan()['mode'], 'full')
+
     def test_complete_pr_diff_prevents_last_commit_underselection(self):
         self.write(ci.DESKTOP + 'src/App.tsx')
         self.commit()

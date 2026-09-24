@@ -1,5 +1,11 @@
 # Desktop CI selection and integration cadence
 
+Repository-wide selection and full-run commands are documented in
+[`docs/CI_SELECTION.md`](../../../docs/CI_SELECTION.md). Root agent/workflow
+packages and project AGENTS prose are not desktop runtime inputs; changes
+limited to those surfaces receive an explicit not-applicable source result.
+Mixed changes still select the coverage required by their product paths.
+
 The Piping desktop workflow runs a cheap selector when a pull request opens,
 receives a new head, or reopens. Its
 stable check remains **Desktop E2E (source mode)**. An unrelated App/Runtime PR or
