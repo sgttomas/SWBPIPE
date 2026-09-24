@@ -1,0 +1,45 @@
+{
+  "candidate": "b9dda2addcccb2adb45f618140425aec533314c0",
+  "role": "TASK Type 2",
+  "parent": "/root/authoring_manager",
+  "mechanism": "delegated-harness-native",
+  "scope": "App.test.tsx and this implementation evidence only; no product changes, Git mutation, or independent test execution",
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": ".agents/skills/software-defect-diagnosis/SKILL.md",
+      "sha256": "f281558734732ab0a97cf1407ba80a53c25e8c2b9dd96069bec589fd521a7a23"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "sha256": "d44d00f1946679e50b7deedd292870ed18aaa74405931183df463c6400250a14"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
+      "sha256": "397184b478e189e8f76195068c1906c511784e5d91f992c21902501aca616b50"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.units.test.tsx",
+      "sha256": "b1eb3a4b3894184717f2b1fb44f0b442a3ff9eace28b35326c29ce8b3a7eea1e"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/displayQuantityService.ts",
+      "sha256": "65a9557c32a628e3481242ac2cb26a51438ee91b39e492f892d15fefed172cef"
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "recorded_utc": "2026-09-24T16:38:38.161135+00:00",
+  "checkout": "/private/tmp/piping-first-correctness-20260924",
+  "parent": "/root/authoring_manager",
+  "agent": "/root/authoring_manager/async_unit_review",
+  "source_origins": [
+    {
+      "portable_path": "AGENTS.md",
+      "actual_path": "/private/tmp/piping-first-correctness-20260924/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "portable_path": "agents/AGENT_TASK.md",
+      "actual_path": "/private/tmp/piping-first-correctness-20260924/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "portable_path": "projects/chirality-piping/AGENTS.md",
+      "actual_path": "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "portable_path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "actual_path": "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "portable_path": ".agents/skills/software-code-review/SKILL.md",
+      "actual_path": "/private/tmp/piping-first-correctness-20260924/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+    },
+    {
+      "portable_path": "projects/chirality-piping/software-workflow.json",
+      "actual_path": "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/software-workflow.json",
+      "sha256": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7"
+    },
+    {
+      "portable_path": "tools/software_workflow/validate_change_scope.py",
+      "actual_path": "/private/tmp/piping-first-correctness-20260924/tools/software_workflow/validate_change_scope.py",
+      "sha256": "6275277dcb214f78dfad6c159333decda95f9aa3e086d12e39c7f2f73a70cb0d"
+    },
+    {
+      "portable_path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "actual_path": "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "sha256": "686687e5b124c393254abd08699183203fbcd417b361368334d46dd478b33028"
+    },
+    {
+      "portable_path": "projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
+      "actual_path": "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
+      "sha256": "397184b478e189e8f76195068c1906c511784e5d91f992c21902501aca616b50"
+    },
+    {
+      "portable_path": "projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.units.test.tsx",
+      "actual_path": "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.units.test.tsx",
+      "sha256": "b1eb3a4b3894184717f2b1fb44f0b442a3ff9eace28b35326c29ce8b3a7eea1e"
+    },
+    {
+      "portable_path": "projects/chirality-piping/apps/desktop/src/services/displayQuantityService.ts",
+      "actual_path": "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/apps/desktop/src/services/displayQuantityService.ts",
+      "sha256": "65a9557c32a628e3481242ac2cb26a51438ee91b39e492f892d15fefed172cef"
+    },
+    {
+      "portable_path": "projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadWasmEngine.ts",
+      "actual_path": "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadWasmEngine.ts",
+      "sha256": "fbd8f9b474484086395b6b7fd09de0ef3bc265736f58c2b1104781785a6e5073"
+    },
+    {
+      "portable_path": "projects/chirality-piping/apps/desktop/src/test/setup.ts",
+      "actual_path": "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/apps/desktop/src/test/setup.ts",
+      "sha256": "65c02a3ba648174d681c4389b61707c58e8ee02cc7228b9446074a2ac1772e38"
+    },
+    {
+      "portable_path": "projects/chirality-piping/apps/desktop/vite.config.ts",
+      "actual_path": "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/apps/desktop/vite.config.ts",
+      "sha256": "9e59361cfb4e89b53d2ce1acfe7a9b000b6d87c38fd7cae283019efc13d04bf9"
+    },
+    {
+      "portable_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/FIRST_CORRECTNESS_INTEGRATION/ASYNC_UNIT_READINESS/implementation/DIAGNOSIS.md",
+      "actual_path": "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/FIRST_CORRECTNESS_INTEGRATION/ASYNC_UNIT_READINESS/implementation/DIAGNOSIS.md",
+      "sha256": "378d70c876ca7b7e01a04a7fb1408a1a06cd11355f222b22deb9f20c62e6ea1b"
+    },
+    {
+      "portable_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/FIRST_CORRECTNESS_INTEGRATION/ASYNC_UNIT_READINESS/implementation/source_basis.json",
+      "actual_path": "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/FIRST_CORRECTNESS_INTEGRATION/ASYNC_UNIT_READINESS/implementation/source_basis.json",
+      "sha256": "0aa31c2aca769b1698ed2944051385277edb5254c342f104d55f1bd2bdec9197"
+    },
+    {
+      "portable_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/FIRST_CORRECTNESS_INTEGRATION/ASYNC_UNIT_READINESS/implementation/repaired_source.json",
+      "actual_path": "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/FIRST_CORRECTNESS_INTEGRATION/ASYNC_UNIT_READINESS/implementation/repaired_source.json",
+      "sha256": "90972bb047b8d6ca25c70d71b1e30181e742a9aaceed6f53cb7a2f5af87d54f1"
+    },
+    {
+      "portable_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/FIRST_CORRECTNESS_INTEGRATION/ASYNC_UNIT_READINESS/_run_records/baseline.log",
+      "actual_path": "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/FIRST_CORRECTNESS_INTEGRATION/ASYNC_UNIT_READINESS/_run_records/baseline.log",
+      "sha256": "5fcee3bfad5227a7205f8359bd2c882029ac7ab609065c4ea7ff85f987e067ef"
+    },
+    {
+      "portable_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/FIRST_CORRECTNESS_INTEGRATION/ASYNC_UNIT_READINESS/_run_records/baseline.result.json",
+      "actual_path": "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/FIRST_CORRECTNESS_INTEGRATION/ASYNC_UNIT_READINESS/_run_records/baseline.result.json",
+      "sha256": "e0bffc10d0388abe4aa1343fb2ad05bb2c96d21487d5b9adb49c60116a5b6150"
+    },
+    {
+      "portable_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/FIRST_CORRECTNESS_INTEGRATION/ASYNC_UNIT_READINESS/_run_records/focused_repair.log",
+      "actual_path": "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/FIRST_CORRECTNESS_INTEGRATION/ASYNC_UNIT_READINESS/_run_records/focused_repair.log",
+      "sha256": "82a5f07c1fa88d02a858b3a06f6a73f881de6a5cf7e118b9fcce8504edece075"
+    },
+    {
+      "portable_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/FIRST_CORRECTNESS_INTEGRATION/ASYNC_UNIT_READINESS/_run_records/focused_repair.result.json",
+      "actual_path": "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/FIRST_CORRECTNESS_INTEGRATION/ASYNC_UNIT_READINESS/_run_records/focused_repair.result.json",
+      "sha256": "e2bdb41a22e5d6731760cda1c2c05adefe97443997fc42ac3209248470bf31c2"
+    },
+    {
+      "portable_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/FIRST_CORRECTNESS_INTEGRATION/ASYNC_UNIT_READINESS/_run_records/tsc.log",
+      "actual_path": "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/FIRST_CORRECTNESS_INTEGRATION/ASYNC_UNIT_READINESS/_run_records/tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "portable_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/FIRST_CORRECTNESS_INTEGRATION/ASYNC_UNIT_READINESS/_run_records/tsc.result.json",
+      "actual_path": "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/FIRST_CORRECTNESS_INTEGRATION/ASYNC_UNIT_READINESS/_run_records/tsc.result.json",
+      "sha256": "8f51f1809c88af0dd189695fb5424c9a80fc424e98ac093244951bb0f451af15"
+    },
+    {
+      "portable_path": "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260924T162044Z_b9dda2addccc.json",
+      "actual_path": "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260924T162044Z_b9dda2addccc.json",
+      "sha256": "16c73602bf878f4341a14aa6c2e99a95a0c20bb666bbbb8e0d8855d5643eb6a5"
+    }
+  ],
+  "tools": "functions.exec with exec_command; read-only Git, rg, sed, cat, Python for inspection and review-record writes; no runtime test invocation.",
+  "scope_check": {
+    "command": [
+      "python3",
+      "tools/software_workflow/validate_change_scope.py",
+      ".",
+      "--allowed",
+      "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "--path",
+      "projects/chirality-piping/apps/desktop/src/App.test.tsx"
+    ],
+    "exit_code": 0,
+    "status": "PASS"
+  },
+  "diff_check": {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit_code": 0
+  },
+  "review_output_paths": [
+    "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/FIRST_CORRECTNESS_INTEGRATION/ASYNC_UNIT_READINESS/review/RETURN.md",
+    "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/FIRST_CORRECTNESS_INTEGRATION/ASYNC_UNIT_READINESS/review/source_basis.json",
+    "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/FIRST_CORRECTNESS_INTEGRATION/ASYNC_UNIT_READINESS/review/_run_records/runtime_origins.json"
+  ]
+}

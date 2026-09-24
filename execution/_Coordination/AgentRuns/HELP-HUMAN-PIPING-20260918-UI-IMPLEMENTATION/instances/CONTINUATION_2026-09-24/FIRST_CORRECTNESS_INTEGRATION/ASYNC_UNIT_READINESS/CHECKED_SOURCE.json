@@ -1,0 +1,7 @@
+{
+  "base_commit": "b9dda2addcccb2adb45f618140425aec533314c0",
+  "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+  "sha256": "686687e5b124c393254abd08699183203fbcd417b361368334d46dd478b33028",
+  "checks": "baseline9fail2pass; repaired11App+4existingdeferredcontrols15pass; tscpass",
+  "limits": "Full clean DEC025/CI and cross-branch integration remain ROOT-owned"
+}

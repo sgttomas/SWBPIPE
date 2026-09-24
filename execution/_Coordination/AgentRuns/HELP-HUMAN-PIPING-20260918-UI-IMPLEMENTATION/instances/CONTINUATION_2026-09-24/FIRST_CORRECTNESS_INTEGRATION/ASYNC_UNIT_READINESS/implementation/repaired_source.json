@@ -1,0 +1,6 @@
+{
+  "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+  "sha256": "686687e5b124c393254abd08699183203fbcd417b361368334d46dd478b33028",
+  "scope": "seven readiness assertion sites; product unchanged",
+  "verification": "git diff --check passed; runtime tests manager-owned"
+}

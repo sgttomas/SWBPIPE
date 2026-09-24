@@ -5499,10 +5499,12 @@ describe("SWBPIPE desktop preview", () => {
     ).toHaveValue("load:L-100-F300");
     expectVirtualTargetValue(manager, "load-manager-create-primitive-load-case", "load:L-100");
     expectVirtualTargetValue(manager, "load-manager-create-primitive-node", "node:N-100");
-    expect(
-      within(manager).getByTestId("load-manager-create-primitive-preview")
-        .textContent,
-    ).toContain("op:load-manager-load:L-100-load:L-100-F300-primitive");
+    await waitFor(() =>
+      expect(
+        within(manager).getByTestId("load-manager-create-primitive-preview")
+          .textContent,
+      ).toContain("op:load-manager-load:L-100-load:L-100-F300-primitive"),
+    );
     expect(
       within(manager).getByTestId("load-manager-create-primitive-preview")
         .textContent,
@@ -5587,10 +5589,12 @@ describe("SWBPIPE desktop preview", () => {
     ).toHaveValue("load:L-100-D300");
     expectVirtualTargetValue(manager, "load-manager-create-primitive-load-case", "load:L-100");
     expectVirtualTargetValue(manager, "load-manager-create-primitive-pipe", "pipe:P-100");
-    expect(
-      within(manager).getByTestId("load-manager-create-primitive-preview")
-        .textContent,
-    ).toContain("op:load-manager-load:L-100-load:L-100-D300-primitive");
+    await waitFor(() =>
+      expect(
+        within(manager).getByTestId("load-manager-create-primitive-preview")
+          .textContent,
+      ).toContain("op:load-manager-load:L-100-load:L-100-D300-primitive"),
+    );
     expect(
       within(manager).getByTestId("load-manager-create-primitive-preview")
         .textContent,
@@ -5674,10 +5678,12 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(manager).getByTestId("load-manager-create-primitive-direction"),
     ).toHaveValue("rotation_z");
-    expect(
-      within(manager).getByTestId("load-manager-create-primitive-preview")
-        .textContent,
-    ).toContain("op:load-manager-load:L-100-load:L-100-M300-primitive");
+    await waitFor(() =>
+      expect(
+        within(manager).getByTestId("load-manager-create-primitive-preview")
+          .textContent,
+      ).toContain("op:load-manager-load:L-100-load:L-100-M300-primitive"),
+    );
     expect(
       within(manager).getByTestId("load-manager-create-primitive-preview")
         .textContent,
@@ -5943,10 +5949,12 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(manager).getByTestId("load-manager-create-primitive-direction"),
     ).toHaveValue("UZ");
-    expect(
-      within(manager).getByTestId("load-manager-create-primitive-preview")
-        .textContent,
-    ).toContain("op:load-manager-load:L-100-load:L-100-I300-primitive");
+    await waitFor(() =>
+      expect(
+        within(manager).getByTestId("load-manager-create-primitive-preview")
+          .textContent,
+      ).toContain("op:load-manager-load:L-100-load:L-100-I300-primitive"),
+    );
     expect(
       within(manager).getByTestId("load-manager-create-primitive-preview")
         .textContent,
@@ -14631,6 +14639,11 @@ describe("SWBPIPE desktop preview", () => {
         target: { value: "-0.006" },
       },
     );
+    await waitFor(() =>
+      expect(
+        within(manager).getByTestId("queue-create-primitive-intent"),
+      ).toBeEnabled(),
+    );
     fireEvent.click(
       within(manager).getByTestId("queue-create-primitive-intent"),
     );
@@ -17484,7 +17497,7 @@ describe("primitive case selection display", () => {
     fireEvent.click(caseOption);
     expectVirtualTargetValue(manager, "load-manager-create-primitive-load-case", soleCase.id);
     expect(caseOption).toHaveAttribute("aria-selected", "true");
-    expect(queue).toBeEnabled();
+    await waitFor(() => expect(queue).toBeEnabled());
     fireEvent.click(queue);
     expect(onQueueIntent).toHaveBeenCalledTimes(1);
     const intent = onQueueIntent.mock.calls[0][0] as EditorOperationIntent;
@@ -17536,7 +17549,7 @@ describe("primitive case selection display", () => {
     expectVirtualTargetValue(manager, targetTestId, soleEntity.id);
     expect(targetOption).toHaveAttribute("aria-selected", "true");
     expectVirtualTargetValue(manager, "load-manager-create-primitive-load-case", soleCase.id);
-    expect(queue).toBeEnabled();
+    await waitFor(() => expect(queue).toBeEnabled());
     fireEvent.click(queue);
     expect(onQueueIntent).toHaveBeenCalledTimes(1);
     const intent = onQueueIntent.mock.calls[0][0] as EditorOperationIntent;

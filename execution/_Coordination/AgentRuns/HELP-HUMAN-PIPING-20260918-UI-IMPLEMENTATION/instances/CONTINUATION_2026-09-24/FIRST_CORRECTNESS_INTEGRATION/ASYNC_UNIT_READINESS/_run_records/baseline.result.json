@@ -1,0 +1,16 @@
+{
+  "command": [
+    "../../node_modules/.bin/vitest",
+    "run",
+    "src/App.test.tsx",
+    "-t",
+    "queues and applies an? .* primitive load through the manager panel|blocks support deletion while an imposed-displacement load still references it|primitive case selection display",
+    "--maxWorkers=2",
+    "--no-cache"
+  ],
+  "cwd": "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/apps/desktop",
+  "head": "b9dda2addcccb2adb45f618140425aec533314c0",
+  "source_sha256_before": "d44d00f1946679e50b7deedd292870ed18aaa74405931183df463c6400250a14",
+  "source_sha256_after": "d44d00f1946679e50b7deedd292870ed18aaa74405931183df463c6400250a14",
+  "exit_code": 1
+}
