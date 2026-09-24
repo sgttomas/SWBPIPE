@@ -1,0 +1,47 @@
+{
+  "kind": "M07 design/reference delivery identity; not product verification",
+  "date": "2026-09-24",
+  "manager": "/root/correctness_design",
+  "parent": "/root",
+  "independent_reviewer": "/root/correctness_design/joint_refutation",
+  "disposition": "qualified analytical PASS for constant-reference infinitesimal joint and explicit coaxial pressure composition; no blocking returned findings",
+  "limits": "No product implementation/tests/build/native/browser/endpoint/Git mutation. Independent exact reference arithmetic executed and captured by reviewer; raw subprocess exit unavailable, normal completion inferred. Shared numerical/version contracts unchanged.",
+  "artifacts": [
+    {
+      "path": "CONTRACT.md",
+      "sha256": "4f3fd302229f7889a9469056e516a772596e3f129fa653bc1bd4d9fba596c39d"
+    },
+    {
+      "path": "INDEPENDENT_REFUTATION.md",
+      "sha256": "0f8cc31620672a629661cce2affe562e792759f84b7fd5d38c09790ca2d5723f"
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "2257fde162bc3c7a44a7dcb5eb6ef228eaf5fc40d49a6c1fbb89d70cfc8ea474"
+    },
+    {
+      "path": "SOURCE_QUALIFICATION.md",
+      "sha256": "79a05778a6a9fac82a67dbe3ab18c59d3a92addaefd322b53d45323c0b87e3a4"
+    },
+    {
+      "path": "_run_records/ARITHMETIC_COMMAND.sh",
+      "sha256": "c552ba9dc26b01d8d91d2e8b6aa510b29fed81f006e9094460577dd6dbf8ca97"
+    },
+    {
+      "path": "_run_records/ARITHMETIC_EXECUTION.json",
+      "sha256": "2fc2a8650424d9fb68e507e9214485086b7b17feb0c684b3c561e7fb8755c37a"
+    },
+    {
+      "path": "_run_records/ARITHMETIC_STDOUT.txt",
+      "sha256": "9c4918eef50ba0af6b24119cc5ea2c3d338e8fedf509f5eed287b65d82fff89b"
+    },
+    {
+      "path": "_run_records/JOINT_REFUTATION_ORIGINS.json",
+      "sha256": "bd823bb4b9e18c55bfce65ca2f8e5d4e1c9d3b6824f8dc2cdfa51dcf1f54bc57"
+    },
+    {
+      "path": "_run_records/origins.json",
+      "sha256": "585675b26b0660c93c72fb5991ceb105431188f725dd01eea18600b4e32ed6ab"
+    }
+  ]
+}

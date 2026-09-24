@@ -1,0 +1,10 @@
+EXACT rational checks: six rigid modes, arbitrary-origin force/moment balance, virtual work PASS
+offset nodal internal force blocks: [Fraction(-2, 1), Fraction(3, 1), Fraction(-5, 1), Fraction(-42, 5), Fraction(87, 5), Fraction(-43, 5), Fraction(2, 1), Fraction(-3, 1), Fraction(5, 1), Fraction(10, 1), Fraction(-9, 2), Fraction(157, 10)]
+reference q: [Fraction(73, 170), Fraction(-26, 85), Fraction(29, 34), Fraction(6, 17), Fraction(6, 17), Fraction(6, 17)] virtual work: 1567/170
+anchored untied: q_m, T_N, Nw_N, S_N, Rleft_N: 1.4814891900805705e-05 2.962978380161141 -404.3379399211147 -797.0370216198388 797.0370216198388
+anchored exact tie: Ttie_N, Nw_N, S_N: 642.9203673205104 235.61944901923448 -157.07963267948963
+free untied: q_m, each_stub_extension_m, total_extension_m: 0.004 1.818181818181818e-06 0.004003636363636364
+free tied: tie_N, total_extension_m: 800 3.636363636363636e-06
+free finite tie kt=2e7: q_m, Tbellows_N, Ttie_N: 3.9603960396039605e-05 7.920792079207921 792.0792079207921
+doublecount: anchored untied q_m, free untied q_m, anchored tied wrongtie_N: 2.386390440784293e-05 0.00596349540849362 1035.6194490192345
+finite rotation L=2 phi=.1rad residual q: -0.009991669443948359 -0.0003331667063437016

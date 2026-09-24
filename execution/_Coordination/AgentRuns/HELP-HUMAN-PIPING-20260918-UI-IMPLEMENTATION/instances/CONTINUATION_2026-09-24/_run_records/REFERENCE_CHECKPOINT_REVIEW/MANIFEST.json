@@ -1,0 +1,570 @@
+{
+  "kind": "independent_complete_frozen_reference_graph_checkpoint_review",
+  "recorded_utc": "2026-09-24T16:50:42.300080+00:00",
+  "reviewer": "/root/reference_checkpoint_review",
+  "parent": "/root",
+  "role": "TASK Type 2",
+  "mechanism": "delegated-harness-native",
+  "independence": "reviewer did not implement candidate; no further delegation; no model-diversity or backend-attestation claim",
+  "allocation": "parent launch/runtime owns model allocation; reviewer does not infer a model from prose",
+  "host_boundary": "shared workspace-write host; narrower two-file output boundary is instructional, not OS-enforced isolation",
+  "brief": "Independent review of exact 13-file joint/reference residual-scope graph checkpoint for truthfulness, authority, status, provenance and qualification boundaries. No production effects, Git mutations, tests/builds/numerical reruns, GUI/network/endpoints or delegation. SHEAR_REFERENCE excluded. Earlier thread-limit failed launch was not executor review.",
+  "output_write_scope": [
+    "/private/tmp/piping-reference-checkpoint-review-20260924/RETURN.md",
+    "/private/tmp/piping-reference-checkpoint-review-20260924/MANIFEST.json"
+  ],
+  "base": "d46139f0e240837637e1fe30649048681e7b2ae3",
+  "head_at_final_check": "d46139f0e240837637e1fe30649048681e7b2ae3",
+  "freeze": {
+    "actual_origin": "/private/tmp/piping-reference-checkpoint-freeze-20260924.json",
+    "sha256": "ff98e8a6423fc81a90ea17ecce5a6c86aeaeecbc6f05a45d212e14c2ea32bf10",
+    "read_scope": "complete"
+  },
+  "candidate_files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/JOINT_REFERENCE/CONTRACT.md",
+      "sha256": "4f3fd302229f7889a9469056e516a772596e3f129fa653bc1bd4d9fba596c39d",
+      "observed_sha256": "4f3fd302229f7889a9469056e516a772596e3f129fa653bc1bd4d9fba596c39d",
+      "matches_freeze": true,
+      "read_scope": "complete contents; graph additionally compared against base"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/JOINT_REFERENCE/INDEPENDENT_REFUTATION.md",
+      "sha256": "0f8cc31620672a629661cce2affe562e792759f84b7fd5d38c09790ca2d5723f",
+      "observed_sha256": "0f8cc31620672a629661cce2affe562e792759f84b7fd5d38c09790ca2d5723f",
+      "matches_freeze": true,
+      "read_scope": "complete contents; graph additionally compared against base"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/JOINT_REFERENCE/RETURN.md",
+      "sha256": "2257fde162bc3c7a44a7dcb5eb6ef228eaf5fc40d49a6c1fbb89d70cfc8ea474",
+      "observed_sha256": "2257fde162bc3c7a44a7dcb5eb6ef228eaf5fc40d49a6c1fbb89d70cfc8ea474",
+      "matches_freeze": true,
+      "read_scope": "complete contents; graph additionally compared against base"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/JOINT_REFERENCE/SOURCE_QUALIFICATION.md",
+      "sha256": "79a05778a6a9fac82a67dbe3ab18c59d3a92addaefd322b53d45323c0b87e3a4",
+      "observed_sha256": "79a05778a6a9fac82a67dbe3ab18c59d3a92addaefd322b53d45323c0b87e3a4",
+      "matches_freeze": true,
+      "read_scope": "complete contents; graph additionally compared against base"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/JOINT_REFERENCE/_run_records/ARITHMETIC_COMMAND.sh",
+      "sha256": "c552ba9dc26b01d8d91d2e8b6aa510b29fed81f006e9094460577dd6dbf8ca97",
+      "observed_sha256": "c552ba9dc26b01d8d91d2e8b6aa510b29fed81f006e9094460577dd6dbf8ca97",
+      "matches_freeze": true,
+      "read_scope": "complete contents; graph additionally compared against base"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/JOINT_REFERENCE/_run_records/ARITHMETIC_EXECUTION.json",
+      "sha256": "2fc2a8650424d9fb68e507e9214485086b7b17feb0c684b3c561e7fb8755c37a",
+      "observed_sha256": "2fc2a8650424d9fb68e507e9214485086b7b17feb0c684b3c561e7fb8755c37a",
+      "matches_freeze": true,
+      "read_scope": "complete contents; graph additionally compared against base"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/JOINT_REFERENCE/_run_records/ARITHMETIC_STDOUT.txt",
+      "sha256": "9c4918eef50ba0af6b24119cc5ea2c3d338e8fedf509f5eed287b65d82fff89b",
+      "observed_sha256": "9c4918eef50ba0af6b24119cc5ea2c3d338e8fedf509f5eed287b65d82fff89b",
+      "matches_freeze": true,
+      "read_scope": "complete contents; graph additionally compared against base"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/JOINT_REFERENCE/_run_records/DELIVERY.json",
+      "sha256": "585f067dd393b7562a25273acb8be7b1762e640b9cb1ab908637b52be805e4ea",
+      "observed_sha256": "585f067dd393b7562a25273acb8be7b1762e640b9cb1ab908637b52be805e4ea",
+      "matches_freeze": true,
+      "read_scope": "complete contents; graph additionally compared against base"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/JOINT_REFERENCE/_run_records/JOINT_REFUTATION_ORIGINS.json",
+      "sha256": "bd823bb4b9e18c55bfce65ca2f8e5d4e1c9d3b6824f8dc2cdfa51dcf1f54bc57",
+      "observed_sha256": "bd823bb4b9e18c55bfce65ca2f8e5d4e1c9d3b6824f8dc2cdfa51dcf1f54bc57",
+      "matches_freeze": true,
+      "read_scope": "complete contents; graph additionally compared against base"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/JOINT_REFERENCE/_run_records/origins.json",
+      "sha256": "585675b26b0660c93c72fb5991ceb105431188f725dd01eea18600b4e32ed6ab",
+      "observed_sha256": "585675b26b0660c93c72fb5991ceb105431188f725dd01eea18600b4e32ed6ab",
+      "matches_freeze": true,
+      "read_scope": "complete contents; graph additionally compared against base"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/PRODUCT_RESIDUAL_SCOPE.md",
+      "sha256": "e719b96953ef7fe566b0113b2c89d1cfff2e7aca12db0f17bc480ce49c39b853",
+      "observed_sha256": "e719b96953ef7fe566b0113b2c89d1cfff2e7aca12db0f17bc480ce49c39b853",
+      "matches_freeze": true,
+      "read_scope": "complete contents; graph additionally compared against base"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/_run_records/PRODUCT_RESIDUAL_SCOPE_BASIS.md",
+      "sha256": "a37637f28805db9f704fea6d7a04103e762e3a79b6617b5f74088d74417fdaac",
+      "observed_sha256": "a37637f28805db9f704fea6d7a04103e762e3a79b6617b5f74088d74417fdaac",
+      "matches_freeze": true,
+      "read_scope": "complete contents; graph additionally compared against base"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md",
+      "sha256": "1b17dfe046552c1b2767d2b78301d29231ea3530dc55bd498f2add9dc40d2202",
+      "observed_sha256": "1b17dfe046552c1b2767d2b78301d29231ea3530dc55bd498f2add9dc40d2202",
+      "matches_freeze": true,
+      "read_scope": "complete contents; graph additionally compared against base"
+    }
+  ],
+  "graph_diff_sha256": "72664fa47f88c9da371aeaf77f16e0626ce4aaffb70e6a00dc9008e970640647",
+  "active_instruction_origins": [
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "read_scope": "complete"
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "read_scope": "complete"
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "read_scope": "complete"
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "read_scope": "complete"
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/.agents/skills/chirality-change/SKILL.md",
+      "sha256": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba",
+      "read_scope": "complete"
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
+      "read_scope": "complete"
+    }
+  ],
+  "additional_full_roles_or_workflows_loaded": [],
+  "supplementary_reads": [
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_ACTIVATION.md",
+      "sha256": "dd98701526a31248f36a5e6e03490975af682f748dd349aa52faa1bfafc912a0",
+      "read_scope": "complete"
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/_DECISIONS/D-19_release_convergence_tolerance_policy.md",
+      "sha256": "82dc283c740dc1d3cc83399bbce3b7a45b40d2f2c57c28a7f9417d47aa1c01c7",
+      "read_scope": "selected policy/ruling/override lines"
+    },
+    {
+      "actual_origin": "/private/tmp/piping-product-residual-history-20260924/01-source.txt",
+      "sha256": "f69cef69c1d5ab99b30eb83ac16e4eeb5859b00451ba7262bd2a257d824048b1",
+      "read_scope": "lines 48-60, 1438-1451, 1525-1558, 5526-5538, 6196-6211"
+    },
+    {
+      "actual_origin": "/private/tmp/piping-product-residual-history-20260924/origins.json",
+      "sha256": "3d0c5b91ca3edd00a95e831ddfbacc3af17f470ab6c137aef8aab9ee0b4a4649",
+      "read_scope": "complete"
+    },
+    {
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/KERNEL_REVIEW/RETURN.md",
+      "sha256": "c2c7145757af74281c281e2ae14cca75c2b1a45fa054211518179dccffcd9f8f",
+      "read_scope": "findings KREV-01 through KREV-05 and candidate/evidence; remaining observations selective"
+    },
+    {
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/PRECISION_PRODUCER/RETURN.md",
+      "sha256": "13eee838f0b19fde8fbed1188310cbd02f105f651e04f36d0e18c2e667d1c01d",
+      "read_scope": "selective; combined read truncated"
+    },
+    {
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/PRECISION_CONSUMERS/RETURN.md",
+      "sha256": "c2c75cbc90fcff0ed3e0fce41bd6712a9d1ba0b305423e24d3f614d62c93e8e1",
+      "read_scope": "complete"
+    },
+    {
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/RETURN.md",
+      "sha256": "7336d9a32869c278d59451d8cd09a9ef66ed1f15a19fd96298039915d20b4e72",
+      "read_scope": "complete"
+    },
+    {
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/AUTHORING_CONSUMERS/precision_review/RUNTIME_BACKCHECK.md",
+      "sha256": "1e9e1ef7be024602676b0df8b2fb318df421a197be6a5a693f90199682d9b8b4",
+      "read_scope": "complete"
+    },
+    {
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/CONSUMER_CHECKS/RESULTS.json",
+      "sha256": "473b9e125eb30dbc3892f380339a908175b819180a3705f1cef5d5dc1e8f6c72",
+      "read_scope": "complete"
+    },
+    {
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/INTEGRATION/RETURN.md",
+      "sha256": "503eafb8b0974851307a3226e1cbd54513e2ce00c9d9a2e5c3ea1869437153e2",
+      "read_scope": "complete"
+    },
+    {
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/POLICY_ROW_PROBE/PREPARATION.md",
+      "sha256": "274db68e834dac16f98d0656ed689c5bdb66c310ebbe3388e7cca20aad25ad3d",
+      "read_scope": "complete"
+    },
+    {
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/POLICY_ROW_PROBE/ANALYSIS.json",
+      "sha256": "4cb3b3edb8f9991d86e7d37c4db66f5e47f424f2c271b45981a3ebe9c95dec41",
+      "read_scope": "selected header, initial rows, negative-control tail and limits; full analysis not reviewed"
+    },
+    {
+      "actual_origin": "/private/tmp/piping-numerical-integrity-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_INTEGRITY/POLICY_ROW_PROBE/_run_records/run.log",
+      "sha256": "23d08d8c2d836c982b8c972c2c412d29b8a1c2fac51b8ae10f9c8fec8a9d2376",
+      "read_scope": "last 30 lines"
+    },
+    {
+      "actual_origin": "/private/tmp/piping-hosted-binding-20260924/887/RETURN.md",
+      "sha256": "5c4aa32f60a58460fefe35ad0c1fa4401adbd9bcbf092fc9bd53ad879c567073",
+      "read_scope": "complete at read; includes subsequent attempt2 update"
+    },
+    {
+      "actual_origin": "/private/tmp/piping-hosted-binding-20260924/887/SOURCE_FAILURE.json",
+      "sha256": "a316a05a1dd1e36e589a41a6c1656fa6e64433e39176cb886175ced3ba92ff1f",
+      "read_scope": "complete"
+    },
+    {
+      "actual_origin": "/private/tmp/piping-hosted-binding-20260924/887/ROOT_RERUN_REQUEST.json",
+      "sha256": "289d65ae08951accb6b7268c5d66430df4d8ef31572c59b32e44f11bd09e4bc7",
+      "read_scope": "complete"
+    },
+    {
+      "actual_origin": "/private/tmp/piping-hosted-binding-20260924/887/NUMERICAL_EXECUTION_CHECK.json",
+      "sha256": "5d69b211109867e0ed1626405357c30c5b5f4ab698ab1e26e003c89bf16245f5",
+      "read_scope": "complete"
+    },
+    {
+      "actual_origin": "/private/tmp/piping-hosted-binding-20260924/887/extracted/piping-numerical-36027410067-1/numerical.json",
+      "sha256": "76bf0485257186c9a429519362e732c4a6ba023ca4435f181ee9ea29a97149a4",
+      "read_scope": "selected metadata; not full raw command/log audit"
+    },
+    {
+      "actual_origin": "/private/tmp/piping-hosted-binding-20260924/887/jobs.json",
+      "sha256": "bc9fa436cb7ca7b58a974b7879941577f58f7c95e67b5ba7bdb2c8a55d340857",
+      "read_scope": "selected metadata"
+    },
+    {
+      "actual_origin": "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/FIRST_CORRECTNESS_INTEGRATION/ASYNC_UNIT_READINESS/RETURN.md",
+      "sha256": "5c1b3b3b83c660889d7bc2fe52fe486252b03aa050fa070df475f8cede14c30b",
+      "read_scope": "complete"
+    },
+    {
+      "actual_origin": "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/FIRST_CORRECTNESS_INTEGRATION/ASYNC_UNIT_READINESS/review/RETURN.md",
+      "sha256": "f533985e8e0abba59c021ed071f2e9f475f036eb6f5ce3187af82348512eb29a",
+      "read_scope": "complete"
+    },
+    {
+      "actual_origin": "/private/tmp/piping-first-correctness-20260924/projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260924T162044Z_b9dda2addccc.json",
+      "sha256": "16c73602bf878f4341a14aa6c2e99a95a0c20bb666bbbb8e0d8855d5643eb6a5",
+      "read_scope": "complete"
+    }
+  ],
+  "origin_hash_checks": [
+    {
+      "record": "JOINT_REFUTATION_ORIGINS.json",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/AGENTS.md",
+      "recorded_sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "observed_sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "matches": true,
+      "scope": "origin identity verification only; body not read unless listed elsewhere"
+    },
+    {
+      "record": "JOINT_REFUTATION_ORIGINS.json",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/agents/AGENT_TASK.md",
+      "recorded_sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "observed_sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "matches": true,
+      "scope": "origin identity verification only; body not read unless listed elsewhere"
+    },
+    {
+      "record": "JOINT_REFUTATION_ORIGINS.json",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/AGENTS.md",
+      "recorded_sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "observed_sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "matches": true,
+      "scope": "origin identity verification only; body not read unless listed elsewhere"
+    },
+    {
+      "record": "JOINT_REFUTATION_ORIGINS.json",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/loop/LOOP_INIT.md",
+      "recorded_sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "observed_sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "matches": true,
+      "scope": "origin identity verification only; body not read unless listed elsewhere"
+    },
+    {
+      "record": "JOINT_REFUTATION_ORIGINS.json",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_ACTIVATION.md",
+      "recorded_sha256": "dd98701526a31248f36a5e6e03490975af682f748dd349aa52faa1bfafc912a0",
+      "observed_sha256": "dd98701526a31248f36a5e6e03490975af682f748dd349aa52faa1bfafc912a0",
+      "matches": true,
+      "scope": "origin identity verification only; body not read unless listed elsewhere"
+    },
+    {
+      "record": "JOINT_REFUTATION_ORIGINS.json",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/contracts/CONNECTOR_CONTRACT_V1.md",
+      "recorded_sha256": "2f7939eb1f11eeb42e537d2edb7dd4b98e71fb232eeaebfd2db77152212fc4c4",
+      "observed_sha256": "2f7939eb1f11eeb42e537d2edb7dd4b98e71fb232eeaebfd2db77152212fc4c4",
+      "matches": true,
+      "scope": "origin identity verification only; body not read unless listed elsewhere"
+    },
+    {
+      "record": "JOINT_REFUTATION_ORIGINS.json",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/verification/ANALYTICAL_ORACLES_V1.json",
+      "recorded_sha256": "6549d544accae7131127e8a87c748ea514c21b4f4c0381b5cec7c135d9c0d76c",
+      "observed_sha256": "6549d544accae7131127e8a87c748ea514c21b4f4c0381b5cec7c135d9c0d76c",
+      "matches": true,
+      "scope": "origin identity verification only; body not read unless listed elsewhere"
+    },
+    {
+      "record": "JOINT_REFUTATION_ORIGINS.json",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/JOINT_REFERENCE/CONTRACT.md",
+      "recorded_sha256": "4f3fd302229f7889a9469056e516a772596e3f129fa653bc1bd4d9fba596c39d",
+      "observed_sha256": "4f3fd302229f7889a9469056e516a772596e3f129fa653bc1bd4d9fba596c39d",
+      "matches": true,
+      "scope": "origin identity verification only; body not read unless listed elsewhere"
+    },
+    {
+      "record": "origins.json",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/AGENTS.md",
+      "recorded_sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "observed_sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "matches": true,
+      "scope": "origin identity verification only; body not read unless listed elsewhere"
+    },
+    {
+      "record": "origins.json",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/agents/AGENT_HELPS_HUMANS.md",
+      "recorded_sha256": "a0c9fb9443d8671d694c1f7b24ff3c402ffd626c781a2739342c938f2f3c3d1e",
+      "observed_sha256": "a0c9fb9443d8671d694c1f7b24ff3c402ffd626c781a2739342c938f2f3c3d1e",
+      "matches": true,
+      "scope": "origin identity verification only; body not read unless listed elsewhere"
+    },
+    {
+      "record": "origins.json",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/agents/AGENT_TASK.md",
+      "recorded_sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "observed_sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "matches": true,
+      "scope": "origin identity verification only; body not read unless listed elsewhere"
+    },
+    {
+      "record": "origins.json",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/AGENTS.md",
+      "recorded_sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "observed_sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "matches": true,
+      "scope": "origin identity verification only; body not read unless listed elsewhere"
+    },
+    {
+      "record": "origins.json",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/loop/LOOP_INIT.md",
+      "recorded_sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "observed_sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "matches": true,
+      "scope": "origin identity verification only; body not read unless listed elsewhere"
+    },
+    {
+      "record": "origins.json",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_ACTIVATION.md",
+      "recorded_sha256": "dd98701526a31248f36a5e6e03490975af682f748dd349aa52faa1bfafc912a0",
+      "observed_sha256": "dd98701526a31248f36a5e6e03490975af682f748dd349aa52faa1bfafc912a0",
+      "matches": true,
+      "scope": "origin identity verification only; body not read unless listed elsewhere"
+    },
+    {
+      "record": "origins.json",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/elements/RETURN.md",
+      "recorded_sha256": "0ceda9205238f58d8435effba5f1d39979b1d7d6058962dfbc0582e864f85921",
+      "observed_sha256": "0ceda9205238f58d8435effba5f1d39979b1d7d6058962dfbc0582e864f85921",
+      "matches": true,
+      "scope": "origin identity verification only; body not read unless listed elsewhere"
+    },
+    {
+      "record": "origins.json",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/PRESSURE_THRUST_CLARIFICATION.md",
+      "recorded_sha256": "362e1d539898c2ae40949a5115a0f5e78975b69fe602be0677cf1d4b9e75945d",
+      "observed_sha256": "362e1d539898c2ae40949a5115a0f5e78975b69fe602be0677cf1d4b9e75945d",
+      "matches": true,
+      "scope": "origin identity verification only; body not read unless listed elsewhere"
+    },
+    {
+      "record": "origins.json",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/contracts/CONNECTOR_CONTRACT_V1.md",
+      "recorded_sha256": "2f7939eb1f11eeb42e537d2edb7dd4b98e71fb232eeaebfd2db77152212fc4c4",
+      "observed_sha256": "2f7939eb1f11eeb42e537d2edb7dd4b98e71fb232eeaebfd2db77152212fc4c4",
+      "matches": true,
+      "scope": "origin identity verification only; body not read unless listed elsewhere"
+    },
+    {
+      "record": "origins.json",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/verification/ANALYTICAL_ORACLES_V1.json",
+      "recorded_sha256": "6549d544accae7131127e8a87c748ea514c21b4f4c0381b5cec7c135d9c0d76c",
+      "observed_sha256": "6549d544accae7131127e8a87c748ea514c21b4f4c0381b5cec7c135d9c0d76c",
+      "matches": true,
+      "scope": "origin identity verification only; body not read unless listed elsewhere"
+    },
+    {
+      "record": "origins.json",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/PROVISIONAL_OBJECTIVE_CONNECTOR_RECOMMENDATION_V1.md",
+      "recorded_sha256": "ef335820dec9f920778698f4a533315fcc939aa6138367ccd8110f71f84bc379",
+      "observed_sha256": "ef335820dec9f920778698f4a533315fcc939aa6138367ccd8110f71f84bc379",
+      "matches": true,
+      "scope": "origin identity verification only; body not read unless listed elsewhere"
+    },
+    {
+      "record": "origins.json",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/CREFUTE/design/CONNECTOR_DESIGN_REFUTATION_RETURN_V1.md",
+      "recorded_sha256": "c9179a30caacd0877cbc8ac4cca75c06c252eef8e74744109c2f19f12f4a054e",
+      "observed_sha256": "c9179a30caacd0877cbc8ac4cca75c06c252eef8e74744109c2f19f12f4a054e",
+      "matches": true,
+      "scope": "origin identity verification only; body not read unless listed elsewhere"
+    },
+    {
+      "record": "origins.json",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "recorded_sha256": "d657e6507aa5d4ef80124e3f6d10bd5a8af8eae54fe21af787c92814c8b73fde",
+      "observed_sha256": "d657e6507aa5d4ef80124e3f6d10bd5a8af8eae54fe21af787c92814c8b73fde",
+      "matches": true,
+      "scope": "origin identity verification only; body not read unless listed elsewhere"
+    },
+    {
+      "record": "origins.json",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/product_physics/src/lib.rs",
+      "recorded_sha256": "aa91613c48346654dc7e8b110f22fc74cf9578fb16f21ae9c40cec863b910f15",
+      "observed_sha256": "aa91613c48346654dc7e8b110f22fc74cf9578fb16f21ae9c40cec863b910f15",
+      "matches": true,
+      "scope": "origin identity verification only; body not read unless listed elsewhere"
+    }
+  ],
+  "local_markdown_link_checks": [
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/JOINT_REFERENCE/INDEPENDENT_REFUTATION.md",
+      "target": "_run_records/ARITHMETIC_COMMAND.sh",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/JOINT_REFERENCE/INDEPENDENT_REFUTATION.md",
+      "target": "_run_records/ARITHMETIC_STDOUT.txt",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/JOINT_REFERENCE/INDEPENDENT_REFUTATION.md",
+      "target": "_run_records/ARITHMETIC_EXECUTION.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/JOINT_REFERENCE/RETURN.md",
+      "target": "CONTRACT.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/JOINT_REFERENCE/RETURN.md",
+      "target": "SOURCE_QUALIFICATION.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/JOINT_REFERENCE/RETURN.md",
+      "target": "INDEPENDENT_REFUTATION.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/PRODUCT_RESIDUAL_SCOPE.md",
+      "target": "../../../../../../_DECISIONS/D-19_release_convergence_tolerance_policy.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/PRODUCT_RESIDUAL_SCOPE.md",
+      "target": "_run_records/PRODUCT_RESIDUAL_SCOPE_BASIS.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md",
+      "target": "../../AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_ACTIVATION.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md",
+      "target": "../../AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/RECOVERY.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md",
+      "target": "../../../_DAG/DAG-011/APPROVAL_RECORD.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md",
+      "target": "../../../_DAG/_LATEST.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md",
+      "target": "../../AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/DESIGN_MANAGER/RETURN.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md",
+      "target": "../../AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/ASSESSMENT.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md",
+      "target": "../../AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/DESIGN_MANAGER/RETURN.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md",
+      "target": "../../AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/EXECUTION_BASIS.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md",
+      "target": "../../AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CHECKS.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md",
+      "target": "../../AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/COORDINATION.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md",
+      "target": "../../AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/OWNER_DECISIONS.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md",
+      "target": "../../AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/VERSION_RESERVATION_V2.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md",
+      "target": "../../AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_POLICY_REVIEW/PRODUCT_RESIDUAL_SCOPE.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md",
+      "target": "../../AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/JOINT_REFERENCE/RETURN.md",
+      "exists": true
+    }
+  ],
+  "delivery_artifact_hashes_match": true,
+  "actionable_findings": [],
+  "fan_in": "suitable for bounded documentary/reference checkpoint only",
+  "limits": [
+    "No runtime implementation qualification",
+    "No new residual successor adoption/pass",
+    "No new literature survey or remote-byte verification",
+    "No engineering acceptance, owner personal review or release",
+    "Later candidate changes require affected review",
+    "Supplementary evidence selective; not a new complete review of underlying implementation branches"
+  ],
+  "return_sha256": "fb81a6d4484a0d4a990278e9fadb1248c74076df57821f8750678369bac01c5f",
+  "manifest_self_hash": "omitted to avoid self-reference"
+}

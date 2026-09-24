@@ -1,0 +1,106 @@
+{
+  "agent": "/root/correctness_design",
+  "role": "HELPS_HUMANS",
+  "parent": "/root",
+  "mechanism": "delegated-harness-native",
+  "source_head": "b54983d9a59481e6db241a4baaaaffff77be5142",
+  "date": "2026-09-24",
+  "scope": "JOINT_REFERENCE design/reference only; no shared contract/product/old packet edits; no product tests/build/native/browser/endpoint/Git mutation",
+  "read_limit": "Full intended role/TASK/project/loop/current connector contract; selective source/reference excerpts. Root supplied AGENTS and owner activation carried in active context, provenance hashes identify underlying files. Historical oracle bytes referenced, no claim all connector fixtures executed by manager. Source hashes identify whole files, not whole-file review.",
+  "child": {
+    "agent": "/root/correctness_design/joint_refutation",
+    "role": "TASK",
+    "model": "gpt-6-astra",
+    "effort": "xhigh",
+    "history": "none; explicit brief with intended full role read before dispatch",
+    "mechanism": "delegated-harness-native",
+    "write_scope": "JOINT_REFERENCE/INDEPENDENT_REFUTATION.md and _run_records",
+    "limits": "Instructional scope only; actual host same filesystem permissions. No delegation/product/build/native/browserUI/endpoint/Git write; primary web/reference arithmetic permitted; actual arithmetic/limits recorded by child."
+  },
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_HELPS_HUMANS.md",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/agents/AGENT_HELPS_HUMANS.md",
+      "sha256": "a0c9fb9443d8671d694c1f7b24ff3c402ffd626c781a2739342c938f2f3c3d1e"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_ACTIVATION.md",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_ACTIVATION.md",
+      "sha256": "dd98701526a31248f36a5e6e03490975af682f748dd349aa52faa1bfafc912a0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/elements/RETURN.md",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/elements/RETURN.md",
+      "sha256": "0ceda9205238f58d8435effba5f1d39979b1d7d6058962dfbc0582e864f85921"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/PRESSURE_THRUST_CLARIFICATION.md",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/PRESSURE_THRUST_CLARIFICATION.md",
+      "sha256": "362e1d539898c2ae40949a5115a0f5e78975b69fe602be0677cf1d4b9e75945d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/contracts/CONNECTOR_CONTRACT_V1.md",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/contracts/CONNECTOR_CONTRACT_V1.md",
+      "sha256": "2f7939eb1f11eeb42e537d2edb7dd4b98e71fb232eeaebfd2db77152212fc4c4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/verification/ANALYTICAL_ORACLES_V1.json",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/verification/ANALYTICAL_ORACLES_V1.json",
+      "sha256": "6549d544accae7131127e8a87c748ea514c21b4f4c0381b5cec7c135d9c0d76c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/PROVISIONAL_OBJECTIVE_CONNECTOR_RECOMMENDATION_V1.md",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/PROVISIONAL_OBJECTIVE_CONNECTOR_RECOMMENDATION_V1.md",
+      "sha256": "ef335820dec9f920778698f4a533315fcc939aa6138367ccd8110f71f84bc379"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/CREFUTE/design/CONNECTOR_DESIGN_REFUTATION_RETURN_V1.md",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/CREFUTE/design/CONNECTOR_DESIGN_REFUTATION_RETURN_V1.md",
+      "sha256": "c9179a30caacd0877cbc8ac4cca75c06c252eef8e74744109c2f19f12f4a054e"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "sha256": "d657e6507aa5d4ef80124e3f6d10bd5a8af8eae54fe21af787c92814c8b73fde"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "actual_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "aa91613c48346654dc7e8b110f22fc74cf9578fb16f21ae9c40cec863b910f15"
+    }
+  ],
+  "web": {
+    "access_date": "2026-09-24",
+    "urls": [
+      "https://docs.software.vt.edu/abaqusv2025/English/SIMACAEELMRefMap/simaelm-c-connelastbehav.htm",
+      "https://docs.software.vt.edu/abaqusv2025/English/SIMACAEELMRefMap/simaelm-c-connectorbehavior.htm",
+      "https://docs.software.vt.edu/abaqusv2025/English/SIMACAEELMRefMap/simaelm-c-connectiontypeuse.htm",
+      "https://docs.software.vt.edu/abaqusv2025/English/SIMACAEELMRefMap/simaelm-c-connectiontypedesc-rotation.htm",
+      "https://ansyshelp.ansys.com/public/Views/Secured/corp/v261/en/ans_elem/Hlp_E_MPC184tran.html",
+      "https://link.springer.com/article/10.1007/s11044-024-09998-w",
+      "https://media.witzenmann.com/mediapool/documents/brochures/expansion-joint-manual.pdf",
+      "https://www.belman.com/lateral-expansion-joints/"
+    ],
+    "record": "Primary web search/open/find; no remote bytes downloaded or remote-byte hashes claimed. Initial metal-bellows PDF and guessed Abaqus theory URL inaccessible; actual consulted sources listed. Witzenmann screenshots returned references without image payload; no visual-equation reliance. See SOURCE_QUALIFICATION for exact pages/scopes."
+  }
+}
