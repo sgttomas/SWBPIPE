@@ -269,6 +269,15 @@ impl DimensionVector {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum UnitId {
+    KilonewtonPerMeter,
+    Kilonewton,
+    KilonewtonMeter,
+    Gigapascal,
+    Bar,
+    NewtonPerMillimeter,
+    KilonewtonPerMillimeter,
+    PerDegreeFahrenheit,
+
     One,
     Meter,
     Millimeter,
@@ -329,6 +338,14 @@ pub enum UnitId {
 impl UnitId {
     pub fn catalog_id(self) -> &'static str {
         match self {
+            Self::KilonewtonPerMeter => "unit:kilonewton_per_meter",
+            Self::Kilonewton => "unit:kilonewton",
+            Self::KilonewtonMeter => "unit:kilonewton_meter",
+            Self::Gigapascal => "unit:gigapascal",
+            Self::Bar => "unit:bar",
+            Self::NewtonPerMillimeter => "unit:newton_per_millimeter",
+            Self::KilonewtonPerMillimeter => "unit:kilonewton_per_millimeter",
+            Self::PerDegreeFahrenheit => "unit:per_degree_fahrenheit",
             Self::One => "unit:one",
             Self::Meter => "unit:meter",
             Self::Millimeter => "unit:millimeter",
@@ -389,6 +406,14 @@ impl UnitId {
 
     pub fn definition(self) -> UnitDefinition {
         match self {
+            Self::KilonewtonPerMeter => def(self, "kN/m", Dimension::ForcePerLength, Transform::linear(1_000.0)),
+            Self::Kilonewton => def(self, "kN", Dimension::Force, Transform::linear(1_000.0)),
+            Self::KilonewtonMeter => def(self, "kN*m", Dimension::Moment, Transform::linear(1_000.0)),
+            Self::Gigapascal => def(self, "GPa", Dimension::Pressure, Transform::linear(1_000_000_000.0)),
+            Self::Bar => def(self, "bar", Dimension::Pressure, Transform::linear(100_000.0)),
+            Self::NewtonPerMillimeter => def(self, "N/mm", Dimension::ForcePerLength, Transform::linear(1_000.0)),
+            Self::KilonewtonPerMillimeter => def(self, "kN/mm", Dimension::ForcePerLength, Transform::linear(1_000_000.0)),
+            Self::PerDegreeFahrenheit => def(self, "1/degF", Dimension::ThermalExpansionCoefficient, Transform::linear(9.0 / 5.0)),
             Self::One => def(self, "1", Dimension::Dimensionless, Transform::linear(1.0)),
             Self::Meter => def(self, "m", Dimension::Length, Transform::linear(1.0)),
             Self::Millimeter => def(self, "mm", Dimension::Length, Transform::linear(0.001)),
@@ -843,6 +868,12 @@ pub fn canonical_unit(dimension: Dimension) -> Option<UnitId> {
 }
 
 pub fn unit_by_symbol(symbol: &str, dimension: Dimension) -> Result<UnitId, UnitError> {
+    // Legacy project documents used C. Resolve only within explicit temperature
+    // semantics, without rewriting persisted representation or catalog symbols.
+    let symbol = match (symbol, dimension) {
+        ("C", Dimension::Temperature | Dimension::TemperatureInterval) => "degC",
+        _ => symbol,
+    };
     if let Some(unit) = catalog_definitions()
         .find(|unit| unit.symbol == symbol && unit.dimension == dimension)
         .map(|unit| unit.id)
@@ -1082,6 +1113,14 @@ impl fmt::Display for UnitError {
 impl Error for UnitError {}
 
 const CATALOG: &[UnitId] = &[
+    UnitId::KilonewtonPerMeter,
+    UnitId::Kilonewton,
+    UnitId::KilonewtonMeter,
+    UnitId::Gigapascal,
+    UnitId::Bar,
+    UnitId::NewtonPerMillimeter,
+    UnitId::KilonewtonPerMillimeter,
+    UnitId::PerDegreeFahrenheit,
     UnitId::One,
     UnitId::Meter,
     UnitId::Millimeter,
@@ -1186,6 +1225,14 @@ fn offset_representation(id: UnitId) -> Option<&'static str> {
 
 fn factor_representation(id: UnitId) -> &'static str {
     match id {
+        UnitId::KilonewtonPerMeter => "1000 (N/m)/(kN/m), exact SI prefix definition",
+        UnitId::Kilonewton => "1000 N/kN, exact SI prefix definition",
+        UnitId::KilonewtonMeter => "1000 (N*m)/(kN*m), exact SI prefix definition",
+        UnitId::Gigapascal => "1000000000 Pa/GPa, exact SI prefix definition",
+        UnitId::Bar => "100000 Pa/bar, exact public definition",
+        UnitId::NewtonPerMillimeter => "1000 (N/m)/(N/mm), exact SI prefix definition",
+        UnitId::KilonewtonPerMillimeter => "1000000 (N/m)/(kN/mm), exact SI prefix definitions",
+        UnitId::PerDegreeFahrenheit => "9/5 (1/K)/(1/degF), reciprocal Fahrenheit interval definition",
         UnitId::One => "1, dimensionless identity",
         UnitId::Meter => "1 m/m, SI canonical identity",
         UnitId::Millimeter => "0.001 m/mm, exact SI prefix definition",
@@ -1634,6 +1681,47 @@ mod tests {
                 quantity_kind: QuantityKind::UnitBearing
             }
         );
+    }
+
+    #[test]
+    fn practical_units_have_independent_numeric_conversion_witnesses() {
+        for (symbol, dimension, canonical, expected) in [
+            ("kN/m", Dimension::ForcePerLength, UnitId::NewtonPerMeter, 1000.0),
+            ("kN", Dimension::Force, UnitId::Newton, 1000.0),
+            ("kN*m", Dimension::Moment, UnitId::NewtonMeter, 1000.0),
+            ("GPa", Dimension::Stress, UnitId::Pascal, 1_000_000_000.0),
+            ("bar", Dimension::Pressure, UnitId::Pascal, 100_000.0),
+            ("N/mm", Dimension::LinearStiffness, UnitId::NewtonPerMeterLinear, 1000.0),
+            ("kN/mm", Dimension::LinearStiffness, UnitId::NewtonPerMeterLinear, 1_000_000.0),
+            ("1/degF", Dimension::ThermalExpansionCoefficient, UnitId::PerKelvin, 1.8),
+        ] {
+            let unit = unit_by_symbol(symbol, dimension).unwrap();
+            assert_close(convert_for_dimension(1.0, dimension, unit, canonical).unwrap(), expected);
+            assert_close(convert_for_dimension(expected, dimension, canonical, unit).unwrap(), 1.0);
+        }
+        assert!(unit_by_symbol("kN", Dimension::Moment).is_err());
+        assert!(unit_by_symbol("1/degF", Dimension::TemperatureInterval).is_err());
+        assert!(unit_by_symbol("barg", Dimension::Pressure).is_err());
+        assert!(unit_by_symbol("bara", Dimension::Pressure).is_err());
+        assert_eq!(convert_pressure_kind(1.0, UnitId::Bar, PressureKind::Gauge,
+            UnitId::Pascal, PressureKind::Absolute, None).unwrap_err(), UnitError::MissingPressureReference);
+    }
+
+    #[test]
+    fn legacy_c_is_dimension_scoped_and_keeps_absolute_interval_semantics() {
+        let absolute = unit_by_symbol("C", Dimension::Temperature).unwrap();
+        let interval = unit_by_symbol("C", Dimension::TemperatureInterval).unwrap();
+        assert_eq!(absolute.definition().symbol, "degC");
+        assert_eq!(interval.definition().symbol, "degC");
+        assert_close(convert(0.0, absolute, UnitId::Kelvin).unwrap(), 273.15);
+        assert_close(convert(10.0, interval, UnitId::KelvinInterval).unwrap(), 10.0);
+        assert!(convert(10.0, absolute, UnitId::KelvinInterval).is_err());
+        assert!(convert(10.0, interval, UnitId::Kelvin).is_err());
+        for dimension in DIMENSIONS {
+            if !matches!(dimension, Dimension::Temperature | Dimension::TemperatureInterval) {
+                assert!(unit_by_symbol("C", *dimension).is_err());
+            }
+        }
     }
 
     #[test]

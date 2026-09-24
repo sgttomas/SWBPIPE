@@ -138,6 +138,7 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
     expect(blank.schema_version).toBe(SUPPORTED_MODEL_SCHEMA_VERSION);
     expect(blank.project.id).toBe("project:blank-local-20260612t000000z");
     expect(blank.project.name).toBe("Blank Local Model");
+    expect(blank.project.units.temperature).toBe("degC");
     expect(blank.analysis_status.mechanics).toBe("MODEL_INCOMPLETE");
     expect(blank.analysis_status.rule_check).toBe("RULE_INPUTS_INCOMPLETE");
     expect(blank.nodes).toEqual([]);
@@ -167,6 +168,24 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
     expect(opened?.model.nodes).toEqual([]);
     expect(opened?.summary.storage_mode).toBe("browser_memory_preview");
     expect(opened?.summary.unit_round_trip_signature).toBe(created.summary.unit_round_trip_signature);
+  });
+
+  it("preserves legacy C metadata and thermal quantities through save and reopen", async () => {
+    const model = sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION);
+    model.project.units.temperature = "C";
+    model.load_cases = [{ id: "load:legacy", label: "Legacy thermal", kind: "thermal", status: "draft", provenance: "legacy test", primitive_loads: [{
+      id: "load:legacy-thermal", category: "thermal", target: { type: "element", pipe: "pipe:legacy" },
+      direction: "global_x", magnitude: { value: 10, unit: "C" }, dimension: "temperature_interval",
+      provenance: "legacy compatibility test"
+    }] }];
+    const before = JSON.stringify(model);
+    await createLocalProject(model);
+    const saved = await saveLocalProject(model);
+    const opened = await openLocalProject(model.project.id);
+    expect(JSON.stringify(saved.model)).toBe(before);
+    expect(JSON.stringify(opened?.model)).toBe(before);
+    expect(opened?.summary.unit_round_trip_signature).toContain("project.units.temperature=C");
+    expect(opened?.summary.unit_round_trip_signature).toBe(saved.summary.unit_round_trip_signature);
   });
 
   it("refuses to persist documents with refused schema versions", async () => {

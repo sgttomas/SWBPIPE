@@ -1,0 +1,16 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--manifest-path",
+    "projects/chirality-piping/core/units/Cargo.toml"
+  ],
+  "cwd": "/private/tmp/piping-authoring-correctness-20260924",
+  "environment": {
+    "CARGO_BUILD_JOBS": "2",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_TARGET_DIR": "/private/tmp/piping-authoring-correctness-20260924-target"
+  },
+  "exit_code": 0
+}

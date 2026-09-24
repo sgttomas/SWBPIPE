@@ -1,0 +1,13 @@
+{
+  "command": [
+    "../../node_modules/.bin/vitest",
+    "run",
+    "--config",
+    "vitest.m24.config.ts",
+    "src/services/projectService.test.ts",
+    "src/features/load-cases/LoadCaseManagerPanel.units.test.tsx"
+  ],
+  "cwd": "/private/tmp/piping-authoring-correctness-20260924/projects/chirality-piping/apps/desktop",
+  "cache_config": "import base from \"./vite.config\";\nexport default { ...base, cacheDir: \"/private/tmp/piping-authoring-correctness-20260924-vite-cache\", test: { ...(base as any).test, cache: false } };\n",
+  "exit_code": 0
+}

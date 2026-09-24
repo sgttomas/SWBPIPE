@@ -1,0 +1,84 @@
+{
+  "role": "WORKING_ITEMS",
+  "agent": "/root/authoring_manager",
+  "parent": "/root",
+  "mechanism": "delegated-harness-native descendant",
+  "candidate_base": "f7e8b467cb2db244f11fe49cede636140031b387",
+  "checkout": "/private/tmp/piping-authoring-correctness-20260924",
+  "branch": "codex/piping-authoring-correctness-20260924",
+  "isolation": "Separate checkout and assigned write ownership; not an OS sandbox guarantee. Host permissions remain effective.",
+  "context": [
+    {
+      "origin": "/private/tmp/piping-authoring-correctness-20260924/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "origin": "/private/tmp/piping-authoring-correctness-20260924/agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665"
+    },
+    {
+      "origin": "/private/tmp/piping-authoring-correctness-20260924/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "/private/tmp/piping-authoring-correctness-20260924/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "origin": "/private/tmp/piping-authoring-correctness-20260924/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "origin": "/private/tmp/piping-authoring-correctness-20260924/.agents/skills/chirality-change/SKILL.md",
+      "sha256": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_ACTIVATION.md",
+      "sha256": "a3a22c0af6250fafb611c776e605d2f36989c919948904047f373ce5c139c170"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/ASSESSMENT.md",
+      "sha256": "c948cb13ac5d825b0d201074cad50e9b8f4d9de916bc246f574e8304121b72e6"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/app/RETURN.md",
+      "sha256": "061aa7acc2aca25f600022b9283e69959bcfb7f24aeb1663e4df0cd959ab63be"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/_run_records/loads/RETURN.md",
+      "sha256": "187c67f1267d036bf1f19bab60c271f2ba78234fa1b14c76875b0fb514afc07b"
+    },
+    {
+      "origin": "/private/tmp/piping-authoring-correctness-20260924/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+    }
+  ],
+  "children": [
+    {
+      "agent": "/root/authoring_manager/units_implementation",
+      "role": "TASK",
+      "model": "gpt-6-astra",
+      "reasoning_effort": "low",
+      "mechanism": "collaboration.spawn_agent",
+      "full_role_loaded_by_parent_before_dispatch": true,
+      "scope": "M24 core units, project defaults, thermal unit authoring, operation-applier unit validation, maintained tests"
+    },
+    {
+      "agent": "/root/authoring_manager/units_review",
+      "role": "TASK",
+      "model": "gpt-6-astra",
+      "reasoning_effort": "xhigh",
+      "mechanism": "collaboration.spawn_agent",
+      "fresh_context": true,
+      "full_role_loaded_by_parent_before_dispatch": true,
+      "scope": "Independent complete frozen source diff review and repair backcheck, read-only source, own evidence only"
+    }
+  ],
+  "wider_role_consultation": "Full TASK role deliberately read before TASK launch for role-correct assignment; WORKING_ITEMS remains active manager role.",
+  "additional_review": {
+    "agent": "/root/solver_stress",
+    "parent": "/root",
+    "scope": "Nonimplementer independent static precheck; reused prior assessment context; not fresh review qualification",
+    "evidence": "INDEPENDENT_PRECHECK/RETURN.md"
+  }
+}

@@ -1,0 +1,34 @@
+   Compiling serde_core v1.0.228
+   Compiling zmij v1.0.21
+   Compiling serde_json v1.0.150
+   Compiling memchr v2.8.2
+   Compiling itoa v1.0.18
+   Compiling open_pipe_stress_units v0.1.0 (/private/tmp/piping-authoring-correctness-20260924/projects/chirality-piping/core/units)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.15s
+     Running unittests src/lib.rs (/private/tmp/piping-authoring-correctness-20260924-target/debug/deps/open_pipe_stress_units-54ad2436ab8ad22c)
+
+running 15 tests
+test tests::absolute_temperature_uses_affine_conversion ... ok
+test tests::accepted_dimension_vocabulary_includes_force_per_length_and_rejects_retired_aliases ... ok
+test tests::conversion_can_be_bound_to_semantic_dimensions_with_shared_units ... ok
+test tests::multiplicative_conversions_use_reviewed_public_definitions ... ok
+test tests::gauge_absolute_pressure_conversion_requires_explicit_reference ... ok
+test tests::nonfinite_values_are_rejected ... ok
+test tests::catalog_uses_si_canonical_units_with_dual_display_entries ... ok
+test tests::incompatible_dimensions_are_rejected ... ok
+test tests::catalog_definitions_carry_schema_facing_conversion_metadata ... ok
+test tests::pressure_unit_conversion_does_not_change_gauge_absolute_kind ... ok
+test tests::quantity_kind_blocks_temperature_scale_interval_mixups ... ok
+test tests::practical_units_have_independent_numeric_conversion_witnesses ... ok
+test tests::temperature_intervals_are_not_offset ... ok
+test tests::legacy_c_is_dimension_scoped_and_keeps_absolute_interval_semantics ... ok
+test tests::schema_dimension_enum_matches_crate_vocabulary ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests open_pipe_stress_units
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

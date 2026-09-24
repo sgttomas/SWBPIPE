@@ -1,0 +1,9 @@
+
+ RUN  v4.1.10 /private/tmp/piping-authoring-correctness-20260924/projects/chirality-piping/apps/desktop
+
+
+ Test Files  2 passed (2)
+      Tests  14 passed (14)
+   Start at  08:13:18
+   Duration  1.20s (transform 843ms, setup 862ms, import 228ms, tests 148ms, environment 687ms)
+

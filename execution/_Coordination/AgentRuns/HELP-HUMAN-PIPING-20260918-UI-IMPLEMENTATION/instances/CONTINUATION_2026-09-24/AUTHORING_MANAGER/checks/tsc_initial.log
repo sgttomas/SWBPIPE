@@ -1,0 +1,8 @@
+src/features/load-cases/LoadCaseManagerPanel.tsx(133,52): error TS2349: This expression is not callable.
+  Type 'String' has no call signatures.
+src/features/load-cases/LoadCaseManagerPanel.tsx(133,52): error TS2448: Block-scoped variable 'primitiveUnit' used before its declaration.
+src/features/load-cases/LoadCaseManagerPanel.tsx(133,52): error TS2454: Variable 'primitiveUnit' is used before being assigned.
+src/features/load-cases/LoadCaseManagerPanel.tsx(916,97): error TS2349: This expression is not callable.
+  Type 'String' has no call signatures.
+src/features/load-cases/LoadCaseManagerPanel.tsx(983,48): error TS2349: This expression is not callable.
+  Type 'String' has no call signatures.

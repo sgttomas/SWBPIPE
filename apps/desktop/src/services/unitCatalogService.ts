@@ -84,15 +84,21 @@ export function unitCatalogEntryForSymbol(
 ): UnitCatalogEntry | null {
   const normalizedSymbol = normalizeSymbol(symbol);
   const normalizedDimension = normalizeDimension(dimensionId);
+  // Preserve the entered spelling outside lookup. This mirrors the core's
+  // legacy alias only when the caller has supplied explicit thermal semantics.
+  const lookupSymbol = normalizedSymbol === "C" &&
+    (normalizedDimension === "temperature" || normalizedDimension === "temperature_interval")
+    ? "degC"
+    : normalizedSymbol;
   return (
     catalog.entries.find(
       (entry) =>
-        entry.symbol === normalizedSymbol &&
+        entry.symbol === lookupSymbol &&
         entry.review_status === "accepted" &&
         dimensionMatches(entry.dimension_id, normalizedDimension)
     ) ??
     catalog.entries.find(
-      (entry) => entry.symbol === normalizedSymbol && dimensionMatches(entry.dimension_id, normalizedDimension)
+      (entry) => entry.symbol === lookupSymbol && dimensionMatches(entry.dimension_id, normalizedDimension)
     ) ??
     null
   );
@@ -150,10 +156,11 @@ export function describeUnitBasis(
 
   const accepted = entry.review_status === "accepted";
   const basis = entry.canonical ? "DEC-018 canonical" : "DEC-018 display";
+  const displaySymbol = normalizedSymbol === entry.symbol ? entry.symbol : `${normalizedSymbol} (alias of ${entry.symbol})`;
   return {
     symbol: normalizedSymbol,
     dimension_id: normalizedDimension,
-    label: `${entry.symbol}, ${accepted ? basis : `DEC-018 ${entry.review_status}`}`,
+    label: `${displaySymbol}, ${accepted ? basis : `DEC-018 ${entry.review_status}`}`,
     detail: `${entry.unit_id}; dimension=${entry.dimension_id}; provenance=${entry.provenance}; ${entry.factor_representation}`,
     source: accepted ? "dec018_catalog_accepted" : "dec018_catalog_unreviewed",
     unit_id: entry.unit_id,

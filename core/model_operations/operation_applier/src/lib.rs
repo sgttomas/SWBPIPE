@@ -5023,7 +5023,7 @@ fn resolve_create_primitive_load(
     } else {
         stored_force_unit.unwrap_or("").to_string()
     };
-    if unit != expected_unit && !unit_symbol_matches_dimension(unit, expected_dimension_enum) {
+    if !unit_symbol_matches_dimension(unit, expected_dimension_enum) {
         checker.unit_state = "blocked";
         checker.push(
             "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
@@ -10775,6 +10775,34 @@ mod tests {
         let blocked = apply_operation(&model, &missing_node, None);
         assert!(codes(&blocked).contains(&"OP-PRIMITIVE-LOAD-TARGET-NOT-FOUND"));
         assert!(blocked.applied_model.is_none());
+    }
+
+    #[test]
+    fn primitive_creation_validates_project_tokens_and_preserves_legacy_c() {
+        for unit in ["C", "degC", "unknown-temperature"] {
+            let mut model = sample_model();
+            model["project"]["units"]["temperature"] = json!(unit);
+            let before = model.clone();
+            let payload = json!({
+                "id": "load:L-1-T-compat", "category": "thermal",
+                "target": { "type": "element", "pipe": "pipe:P-1" },
+                "direction": "global_x", "magnitude": { "value": 10.0, "unit": unit },
+                "dimension": "temperature_interval", "provenance": "unit compatibility regression"
+            });
+            let mut intent = modify_intent("Load", "load:L-1", "create_primitive_load",
+                "primitive_loads", "not_present", &payload.to_string(), unit, "temperature_interval");
+            intent["operation_kind"] = json!("create");
+            let outcome = apply_operation(&model, &intent, None);
+            assert_eq!(model, before);
+            if unit == "unknown-temperature" {
+                assert!(outcome.applied_model.is_none());
+                assert!(codes(&outcome).contains(&"OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE"));
+            } else {
+                let applied = outcome.applied_model.expect("known temperature must apply");
+                assert_eq!(applied["project"]["units"]["temperature"], unit);
+                assert_eq!(applied["load_cases"][0]["primitive_loads"][1], payload);
+            }
+        }
     }
 
     #[test]

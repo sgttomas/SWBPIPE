@@ -1,0 +1,202 @@
+   Compiling proc-macro2 v1.0.106
+   Compiling version_check v0.9.5
+   Compiling generic-array v0.14.7
+   Compiling quote v1.0.45
+   Compiling unicode-ident v1.0.24
+   Compiling serde_core v1.0.228
+   Compiling typenum v1.20.1
+   Compiling libc v0.2.186
+   Compiling syn v2.0.117
+   Compiling serde v1.0.228
+   Compiling serde_derive v1.0.228
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling memchr v2.8.1
+   Compiling serde_json v1.0.150
+   Compiling digest v0.10.7
+   Compiling cpufeatures v0.2.17
+   Compiling cfg-if v1.0.4
+   Compiling ryu v1.0.23
+   Compiling sha2 v0.10.9
+   Compiling open_pipe_stress_units v0.1.0 (/private/tmp/piping-authoring-correctness-20260924/projects/chirality-piping/core/units)
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/private/tmp/piping-authoring-correctness-20260924/projects/chirality-piping/core/serialization/canonical_json)
+   Compiling open_pipe_stress_operation_applier v0.1.0 (/private/tmp/piping-authoring-correctness-20260924/projects/chirality-piping/core/model_operations/operation_applier)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.19s
+     Running unittests src/lib.rs (/private/tmp/piping-authoring-correctness-20260924-target/debug/deps/open_pipe_stress_operation_applier-91fe75721d1fc6cf)
+
+running 139 tests
+test boundary_association::tests::hash_guard_covers_creation_configuration_scalar_delete_and_null_association ... ok
+test boundary_association::tests::batch_member_intent_requires_exact_target_and_shape ... ok
+test boundary_association::tests::batch_rejects_duplicate_metadata_node_order_and_member_identity ... ok
+test boundary_association::tests::exact_token_replay_accepts_second_member_and_preserves_inputs ... ok
+test boundary_association::tests::association_exact_shapes_and_source_preservation ... ok
+test boundary_association::tests::independent_groups_and_legacy_supports_remain_valid ... ok
+test atomic_batch::tests::late_stale_before_discards_earlier_success ... ok
+test atomic_batch::tests::validation_simulates_dependencies_without_any_application_or_acceptance ... ok
+test boundary_association::tests::single_new_passes_append_and_payload_bypass_reject ... ok
+test boundary_association::tests::original_base_collisions_reject_even_after_delete_intent ... ok
+test atomic_batch::tests::duplicate_ids_and_empty_batches_are_preflight_failures ... ok
+test display_units::tests::display_conversion_is_pure_and_distinguishes_absolute_and_interval_temperature ... ok
+test display_units::tests::display_conversion_rejects_pressure_reference_payload_and_overflow ... ok
+test atomic_batch::tests::submitted_validation_claims_are_untrusted_and_cannot_override_engine_failure ... ok
+test atomic_batch::tests::late_reference_failure_rolls_back_and_stops_replay ... ok
+test geometry_operations::tests::split_conserves_lengths_preserves_endpoints_metadata_and_nodal_attachments ... ok
+test boundary_association::integration_tests::actual_single_hash_guard_preservation_and_append_rejection ... ok
+test boundary_association::tests::members_require_canonical_mechanics_and_positive_dimensioned_quantities ... ok
+test atomic_batch::tests::author_metadata_is_preserved_and_user_agent_have_same_semantics ... ok
+test boundary_association::tests::token_rejects_payload_drift_wrong_context_missing_and_injected_prefix ... ok
+test rich_authoring::tests::constant_hanger_and_spring_have_no_inferred_inputs ... ok
+test rich_authoring::tests::material_partial_rows_warn_and_exact_selection_cannot_be_broken ... ok
+test geometry_operations::tests::split_rejects_rounding_overflow_zero_and_collisions ... ok
+test rich_authoring::tests::interpolation_requires_strict_bracket_and_all_endpoint_properties ... ok
+test rich_authoring::tests::stale_before_and_bad_envelope_fail_without_mutating_input ... ok
+test rich_authoring::tests::nonlinear_aliases_and_explicit_normal_sources_match_consumers ... ok
+test geometry_operations::tests::transform_rejects_incident_unselected_pipe_and_realized_overflow ... ok
+test rich_authoring::tests::support_projection_preserves_identity_and_rejects_dependent_reaction_breakage ... ok
+test rich_authoring::tests::variable_hanger_requires_explicit_loads_travel_and_correct_stiffness_units ... ok
+test atomic_batch::tests::section_geometry_batch_validates_each_intermediate_state_and_never_publishes_failure ... ok
+test atomic_batch::tests::dependent_create_case_and_load_apply_atomically_and_deterministically ... ok
+test rich_authoring::tests::table_rejects_duplicate_ids_normalized_temperatures_and_unknown_fields ... ok
+test rich_authoring::tests::wind_atomic_switch_allows_adjacent_spans_and_preserves_authored_order ... ok
+test tests::apply_blocks_missing_targets_and_dangling_references ... ok
+test rich_authoring::tests::wind_rejects_overlap_collision_missing_refs_units_and_fraction_bounds ... ok
+test tests::apply_blocks_a_stale_before_value_without_application ... ok
+test tests::apply_blocks_non_numeric_and_non_positive_quantities ... ok
+test tests::apply_blocks_unknown_dimension_tokens ... ok
+test geometry_operations::tests::transforms_explicit_geometry_and_directions_without_mutating_source ... ok
+test tests::center_of_gravity_stays_unsupported_pending_payload_ruling ... ok
+test tests::combination_term_creation_requires_a_mechanics_basis_target ... ok
+test tests::bend_radius_value_edit_applies_to_existing_component_geometry ... ok
+test tests::apply_blocks_unit_mismatch_without_conversion ... ok
+test tests::bend_pipe_ref_requires_an_existing_pipe_segment ... ok
+test tests::bend_creation_blocks_missing_and_inconsistent_explicit_connectivity ... ok
+test tests::create_section_blocks_duplicate_id_and_invalid_geometry_payloads ... ok
+test tests::deferred_inspector_fields_block_with_explicit_scope_finding ... ok
+test tests::delete_node_blocks_model_references ... ok
+test tests::apply_returns_a_new_model_with_only_the_requested_field_changed ... ok
+test tests::combination_term_factor_applies_without_whole_term_editing ... ok
+test tests::create_support_blocks_duplicate_id_and_missing_node_reference ... ok
+test geometry_operations::tests::transform_requires_complete_maps_valid_frames_and_known_shapes ... ok
+test tests::bend_geometry_authoring_creates_absent_optional_slots_from_explicit_entry ... ok
+test tests::delete_pipe_run_blocks_primitive_load_reference ... ok
+test tests::delete_support_blocks_imposed_displacement_reference ... ok
+test tests::combination_basis_edits_validate_the_closed_set_and_payload_shape ... ok
+test tests::create_material_blocks_duplicate_id_and_invalid_quantity_payloads ... ok
+test tests::direct_mutation_requests_are_blocked ... ok
+test atomic_batch::tests::mandatory_complete_initial_hash_rejects_null_malformed_mismatch_before_replay ... ok
+test tests::claimed_model_hash_gate_accepts_only_the_current_supported_model_basis ... ok
+test tests::expansion_joint_creation_blocks_missing_geometry_or_stiffness_data ... ok
+test tests::expansion_joint_creation_blocks_unknown_or_nonincident_selected_pipe ... ok
+test boundary_association::integration_tests::actual_associated_configuration_scalar_delete_require_hash_and_preserve_metadata ... ok
+test tests::explicit_connect_pipe_payload_preserves_compatible_entered_length_units ... ok
+test tests::explicit_connect_pipe_payload_applies_without_mutating_input ... ok
+test tests::dimensionless_modifier_values_accept_the_stored_none_unit_marker ... ok
+test tests::expansion_joint_creation_blocks_invalid_dimensions_and_nonpositive_values ... ok
+test tests::explicit_create_combination_term_payload_appends_one_term_only ... ok
+test tests::explicit_create_node_payload_applies_without_mutating_input ... ok
+test tests::explicit_bend_creation_applies_with_geometry_connectivity_and_claimed_hash_gate ... ok
+test tests::explicit_create_material_payload_applies_without_mutating_input ... ok
+test tests::explicit_create_material_payload_preserves_compatible_entered_units ... ok
+test tests::explicit_create_load_case_payload_applies_empty_shell_only ... ok
+test tests::explicit_create_combination_payload_creates_mechanics_record_with_initial_term ... ok
+test tests::explicit_create_node_payload_normalizes_compatible_entered_length_units ... ok
+test tests::expansion_joint_stiffness_edits_apply_and_preserve_entered_units ... ok
+test tests::derived_normal_source_survives_delete_and_scalar_restraint_routes ... ok
+test tests::explicit_create_section_payload_applies_without_mutating_input ... ok
+test geometry_operations::tests::common_operation_route_geometry_preview_apply_and_hash_guards ... ok
+test tests::equivalent_static_generation_inputs_author_nested_user_entered_slots ... ok
+test tests::explicit_create_primitive_load_payload_applies_concentrated_moment_only ... ok
+test tests::explicit_create_section_payload_preserves_compatible_entered_length_unit ... ok
+test tests::explicit_create_primitive_load_payload_applies_distributed_force_only ... ok
+test tests::explicit_create_support_payload_applies_without_mutating_input ... ok
+test tests::explicit_create_support_preserves_entered_linear_stiffness_unit ... ok
+test tests::explicit_create_primitive_load_preserves_compatible_entered_units ... ok
+test tests::explicit_create_primitive_load_payload_applies_concentrated_force_only ... ok
+test tests::explicit_create_primitive_load_payload_applies_imposed_displacement_only ... ok
+test tests::explicit_create_primitive_load_payload_applies_pressure_and_thermal_only ... ok
+test tests::explicit_delete_combination_removes_one_combination_only ... ok
+test tests::explicit_delete_combination_term_removes_one_indexed_term_only ... ok
+test tests::explicit_create_range_envelope_combination_creates_operand_mode_record ... ok
+test tests::load_case_delete_stays_blocked_for_subtraction_and_range_references ... ok
+test tests::explicit_delete_load_case_removes_unreferenced_case_only ... ok
+test tests::explicit_expansion_joint_creation_applies_and_preserves_entered_refs_and_units ... ok
+test tests::explicit_delete_pipe_run_removes_unreferenced_pipe_only ... ok
+test tests::explicit_delete_support_removes_unreferenced_support_only ... ok
+test tests::explicit_create_subtraction_combination_creates_minuend_subtrahend_record ... ok
+test tests::explicit_delete_node_removes_unreferenced_node_only ... ok
+test tests::missing_intent_fields_are_reported_per_field ... ok
+test tests::explicit_tee_creation_applies_with_two_incident_pipes_and_explicit_geometry ... ok
+test tests::modulus_basis_temperature_blocks_when_exact_basis_is_present ... ok
+test tests::explicit_delete_primitive_load_removes_one_indexed_load_only ... ok
+test tests::negative_load_magnitudes_remain_editable ... ok
+test boundary_association::integration_tests::actual_batch_replay_agent_parity_atomic_failure_and_roundtrip ... ok
+test tests::load_case_status_and_kind_metadata_apply_without_mutating_input ... ok
+test tests::modulus_basis_temperature_authors_an_explicit_temperature_quantity ... ok
+test tests::mill_tolerance_accepts_explicit_zero_and_rejects_negative_entries ... ok
+test tests::material_temperature_point_shear_modulus_edit_targets_stable_point_id ... ok
+test geometry_operations::tests::reference_guard_matrix_blocks_attached_engineering_data ... ok
+test atomic_batch::tests::preflight_rejects_each_boundary_flag_missing_agent_attribution_and_bad_source_shape ... ok
+test tests::modulus_basis_ref_enforces_the_schema_id_shape ... ok
+test tests::explicit_reducer_valve_and_flange_creation_apply_through_rigid_geometry_contract ... ok
+test tests::primitive_magnitude_edit_preserves_compatible_entered_unit ... ok
+test tests::professional_boundary_never_claims_compliance_or_approval ... ok
+test tests::optional_slot_authoring_is_deterministic_and_never_mutates_input ... ok
+test tests::optional_quantity_rules_enforce_dimension_unit_and_positivity ... ok
+test tests::material_temperature_point_shear_modulus_edit_blocks_missing_stale_and_invalid ... ok
+test tests::tee_creation_blocks_equal_header_and_branch_pipe_refs_without_applied_model ... ok
+test tests::outcomes_are_deterministic_for_identical_inputs ... ok
+test tests::thermal_expansion_authoring_requires_existing_quantity ... ok
+test tests::underspecified_connect_pipe_gesture_remains_blocked ... ok
+test tests::primitive_creation_validates_project_tokens_and_preserves_legacy_c ... ok
+test tests::support_restraints_apply_with_vocabulary_enforcement ... ok
+test tests::tee_and_rigid_component_creation_block_incomplete_or_disconnected_geometry ... ok
+test tests::underspecified_viewport_node_gestures_block_instead_of_invention ... ok
+test tests::rich_support_create_rejects_raw_data_that_legacy_projection_would_drop ... ok
+test tests::node_position_edits_resolve_units_from_the_project_unit_system ... ok
+test tests::sibling_quantity_edit_preserves_compatible_entered_units ... ok
+test tests::validate_passes_and_never_mutates_for_a_current_quantity_edit ... ok
+test tests::unsupported_field_paths_and_object_types_are_blocked ... ok
+test tests::rich_authoring_uses_common_preview_apply_and_stale_guards ... ok
+test tests::shared_wall_update_fails_atomically_on_one_local_mill_tolerance ... ok
+test tests::wind_no_op_preserves_optional_array_presence_and_hash ... ok
+test tests::shared_section_propagates_atomic_geometry_and_full_diffs_then_detaches ... ok
+test tests::optional_mass_quantities_preserve_explicit_units_and_warn_on_incomplete_insulation ... ok
+test tests::section_grid_edits_validate_and_apply_same_geometry ... ok
+test tests::section_binding_rejects_stale_missing_duplicate_unsupported_and_invalid_sources ... ok
+test tests::entity_deletes_guard_record_staleness_missing_ids_and_all_reference_forms ... ok
+
+test result: ok. 139 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/canonical_hash_parity.rs (/private/tmp/piping-authoring-correctness-20260924-target/debug/deps/canonical_hash_parity-ddff67d160f1d97d)
+
+running 2 tests
+test checked_ijson_corpus_matches_native_engine ... ok
+test canonical_hash_corpus_matches_native_engine ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/contract_corpus.rs (/private/tmp/piping-authoring-correctness-20260924-target/debug/deps/contract_corpus-c88d3e7b30abaf20)
+
+running 2 tests
+test contract_corpus_covers_the_required_kinds_and_block_classes ... ok
+test contract_corpus_cases_match_the_rust_contract_reference ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests/support_authoring_conflicts.rs (/private/tmp/piping-authoring-correctness-20260924-target/debug/deps/support_authoring_conflicts-99045453155e2282)
+
+running 5 tests
+test public_create_and_replace_reject_conflicting_stiffness_dof_or_exact_normalized_value ... ok
+test late_invalid_configuration_rolls_back_earlier_valid_support_creation ... ok
+test equal_duplicates_and_single_source_us_stiffness_preserve_entered_json ... ok
+test explicit_family_tokens_are_exact_while_absence_and_null_are_preserved ... ok
+test invalid_families_reject_without_valid_payload_precedence_bypass ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+   Doc-tests open_pipe_stress_operation_applier
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -8,6 +8,7 @@ import {
   unitEntryMatchesDimension,
   type UnitCatalogRoute
 } from "../../services/unitCatalogService";
+import { convertDisplayQuantities } from "../../services/displayQuantityService";
 import { VirtualMultiTargetPicker, VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 import { VirtualList } from "../workspace/VirtualList";
 
@@ -161,6 +162,28 @@ export function LoadCaseManagerPanel({
   const [primitiveLoadDraft, setPrimitiveLoadDraft] = useState<PrimitiveLoadDraft>(() =>
     defaultPrimitiveLoadDraft(model, model.load_cases[0]?.id ?? "")
   );
+  const primitiveUnitSymbol = primitiveLoadDraft.unit.trim();
+  const primitiveDimensionId = primitiveLoadDraftDimension(primitiveLoadDraft.category, primitiveLoadDraft.direction);
+  // Request identity also changes for A → B → A, so an earlier success for A
+  // cannot enable queuing while its new validation request is pending.
+  const primitiveUnitKey = useMemo(() => ({ unit: primitiveUnitSymbol, dimension: primitiveDimensionId }), [primitiveUnitSymbol, primitiveDimensionId]);
+  const [primitiveUnitCheck, setPrimitiveUnitCheck] = useState<{ key: typeof primitiveUnitKey; valid: boolean; message: string } | null>(null);
+  useEffect(() => {
+    let active = true;
+    convertDisplayQuantities([{ id: "primitive-unit", value: 1, from_unit: primitiveUnitSymbol, to_unit: primitiveUnitSymbol, dimension_id: primitiveDimensionId }])
+      .then((results) => {
+        if (!active) return;
+        const result = results.find((item) => item.id === "primitive-unit");
+        setPrimitiveUnitCheck({ key: primitiveUnitKey, valid: result?.status === "converted",
+          message: result?.status === "unavailable" ? result.message : result?.status === "converted" ? "Unit dimension validated" : "Unit validation unavailable" });
+      })
+      .catch((error: unknown) => {
+        if (active) setPrimitiveUnitCheck({ key: primitiveUnitKey, valid: false, message: `Unit validation unavailable: ${String(error)}` });
+      });
+    return () => { active = false; };
+  }, [primitiveUnitSymbol, primitiveDimensionId, primitiveUnitKey]);
+  const primitiveUnitReady = primitiveUnitCheck?.key === primitiveUnitKey && primitiveUnitCheck.valid;
+  const primitiveUnitDiagnostic = primitiveUnitCheck?.key === primitiveUnitKey ? primitiveUnitCheck.message : "Validating unit dimension…";
   const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
   const changed = selectedPrimitive
     ? proposedMagnitude.trim() !== currentMagnitude || proposedMagnitudeUnit.trim() !== currentMagnitudeUnit
@@ -265,7 +288,7 @@ export function LoadCaseManagerPanel({
         draft: loadCaseDraft
       })
     : null;
-  const createPrimitiveLoadIntent = isPrimitiveLoadDraftReady(model, primitiveLoadDraft)
+  const createPrimitiveLoadIntent = primitiveUnitReady && isPrimitiveLoadDraftReady(model, primitiveLoadDraft)
     ? buildCreatePrimitiveLoadIntent({
         model,
         draft: primitiveLoadDraft,
@@ -642,6 +665,7 @@ export function LoadCaseManagerPanel({
             ? `${createPrimitiveLoadIntent.operation_id}; before=${createPrimitiveLoadIntent.change.before}; after=${primitiveLoadDraft.id}; target=${primitiveDraftTarget}; direction=${primitiveLoadDraft.direction}; unit=${createPrimitiveLoadIntent.change.unit}; ${createPrimitiveLoadIntent.change.dimension}; unit_validation=${createPrimitiveLoadIntent.validation.unit_validation}; direct_model_mutation_allowed=false; professional_approval=false`
             : primitiveLoadDraft.id.trim() && primitiveLoadExists(model, primitiveLoadDraft.id.trim())
               ? `id=${primitiveLoadDraft.id.trim()} already exists; no primitive load queued`
+              : !primitiveUnitReady ? primitiveUnitDiagnostic
               : "complete case/id/target/direction/nonzero magnitude/provenance to queue a primitive load"}
           </p>
       </section>
@@ -2472,7 +2496,8 @@ function projectPressureUnit(model: PreviewModel): string {
 }
 
 function projectTemperatureUnit(model: PreviewModel): string {
-  return optionalString(model.project.units.temperature) ?? "TBD";
+  const unit = optionalString(model.project.units.temperature) ?? "TBD";
+  return unit === "C" ? "degC" : unit;
 }
 
 function projectRotationUnit(model: PreviewModel): string {

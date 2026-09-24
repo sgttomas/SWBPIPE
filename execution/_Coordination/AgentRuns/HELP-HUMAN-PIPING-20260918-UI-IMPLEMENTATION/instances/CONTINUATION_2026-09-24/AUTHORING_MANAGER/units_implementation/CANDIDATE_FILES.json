@@ -1,0 +1,30 @@
+[
+  {
+    "path": "projects/chirality-piping/core/units/src/lib.rs",
+    "sha256": "b133ae071a28d0ba0e897ad3c50694cc108f956cd9ce32e1288d5a027bdc970c"
+  },
+  {
+    "path": "projects/chirality-piping/core/units/README.md",
+    "sha256": "27ae8d3339804c462564c2614a2584382ff0ab14f290ce1f080e2538acb1c910"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/services/projectService.ts",
+    "sha256": "32c0d7ef90392c4674cbc675f20ec3210ad8fa35a84e5591b385d8d4e13fcb4c"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/services/projectService.test.ts",
+    "sha256": "b018a1f40247a8b219ac5af403514f1509b44256c386e13e64f0a0d94b8e63b1"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
+    "sha256": "37950a102f3de8d809c6d8e3c346a9605637e0ab8c3d1d2496be1a8b55afd93e"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.units.test.tsx",
+    "sha256": "8ac4cc53f66d7a777d37e5a89d3e7088e7fc29554c4322f80440228b04d9df9d"
+  },
+  {
+    "path": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+    "sha256": "ba0bffc40456311b4de2915eb287b046de9b2ff273c2261600254f2001c86853"
+  }
+]

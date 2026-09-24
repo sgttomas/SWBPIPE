@@ -164,6 +164,37 @@ describe("unitCatalogService", () => {
     });
   });
 
+  it("resolves legacy C only for explicit thermal dimensions while preserving the entered token", () => {
+    const thermalEntries: UnitCatalog["entries"] = [
+      { unit_id: "unit:degree_celsius", symbol: "degC", dimension_id: "temperature", canonical: false,
+        transform_kind: "affine", factor_representation: "1 K/degC", offset_representation: "273.15 K",
+        provenance: "exact_public_definition", review_status: "accepted" },
+      { unit_id: "unit:degree_celsius_interval", symbol: "degC", dimension_id: "temperature_interval", canonical: false,
+        transform_kind: "multiplicative", factor_representation: "1 K/degC interval", offset_representation: null,
+        provenance: "exact_public_definition", review_status: "accepted" },
+      { unit_id: "unit:kelvin", symbol: "K", dimension_id: "temperature", canonical: true,
+        transform_kind: "identity", factor_representation: "1 K/K", offset_representation: null,
+        provenance: "si_canonical", review_status: "accepted" }
+    ];
+    const catalog = { ...catalogFixture, entries: [...catalogFixture.entries, ...thermalEntries], entry_count: 8 };
+    const before = JSON.stringify(catalog);
+    const route = { route: "tauri_unit_catalog" as const, catalog };
+    expect(unitCatalogEntryForSymbol(catalog, "C", "temperature")?.unit_id).toBe("unit:degree_celsius");
+    expect(unitCatalogEntryForSymbol(catalog, "C", "temperature_interval")?.unit_id).toBe("unit:degree_celsius_interval");
+    expect(describeUnitBasis(route, "C", "temperature_interval")).toMatchObject({
+      symbol: "C", label: "C (alias of degC), DEC-018 display", source: "dec018_catalog_accepted",
+      unit_id: "unit:degree_celsius_interval"
+    });
+    expect(unitDimensionValidationStatus(route, "C", "temperature")).toBe("dec018_catalog_dimension_match");
+    expect(unitDimensionValidationStatus(route, "C", "temperature_interval")).toBe("dec018_catalog_dimension_match");
+    for (const dimension of ["length", "force", "pressure", "stress", "linear_stiffness", "thermal_expansion_coefficient", "rotation", "dimensionless"]) {
+      expect(unitCatalogEntryForSymbol(catalog, "C", dimension)).toBeNull();
+    }
+    expect(unitCatalogEntryForSymbol(catalog, "degF", "temperature")?.unit_id).toBe("unit:degree_fahrenheit");
+    expect(unitCatalogEntryForSymbol(catalog, "K", "temperature")?.unit_id).toBe("unit:kelvin");
+    expect(JSON.stringify(catalog)).toBe(before);
+  });
+
   it("summarizes unit-dimension validation status for catalog and browser routes", () => {
     const tauriRoute = { route: "tauri_unit_catalog" as const, catalog: catalogFixture };
     const browserRoute = {

@@ -131,3 +131,33 @@ Solver, load, stress, rule-pack, report, GUI, API, and adapter implementations m
 - tests must cover schema parsing, required dimensions, required quantity fields, operation rules, incompatible dimensions, dimensionless classification, missing-unit diagnostics, alias ambiguity rejection once a namespace is approved, deterministic conversion behavior once constants are approved, and absence of silent defaults.
 
 Remaining TBDs and handoffs are not waived by the B1 crate. Downstream work must continue to surface missing units, unsupported units, incompatible dimensions, unresolved schema bindings, missing provenance, and any professional or code-compliance claims as findings rather than defaults.
+
+## Authoring compatibility and practical display units
+
+New blank projects use `degC`. New thermal primitives use `degC` when the
+project's temperature preference is legacy `C`; other supported preferences
+remain unchanged. Historical persisted `C` is a compatibility alias only when the caller explicitly requests
+`temperature` or `temperature_interval`. Storage preserves the received token;
+lookup returns the corresponding `degC` catalog identity. Absolute `C` uses the
+273.15 K offset, while interval `C` has no offset. Neither path guesses semantics.
+
+The additional exact conversion factors to canonical SI are:
+
+| Token | Canonical factor | Dimension |
+|---|---:|---|
+| kN | 1000 N | force |
+| kN*m | 1000 N*m | moment |
+| kN/m | 1000 N/m | force per length (also linear stiffness) |
+| GPa | 1000000000 Pa | pressure/stress |
+| bar | 100000 Pa | pressure/stress |
+| N/mm | 1000 N/m | force per length (also linear stiffness) |
+| kN/mm | 1000000 N/m | force per length (also linear stiffness) |
+| 1/degF | 1.8 /K | thermal expansion coefficient |
+
+Sources: [BIPM current SI prefixes](https://www.bipm.org/en/measurement-units/si-prefixes),
+[NIST bar conversion](https://www.nist.gov/pml/special-publication-811/nist-guide-si-appendix-b-conversion-factors/nist-guide-si-appendix-b8),
+and [NIST temperature intervals](https://www.nist.gov/pml/owm/si-units-temperature).
+Compound factors follow by multiplication/division of those definitions;
+inverse Fahrenheit follows by taking the reciprocal of 5/9 K per Fahrenheit interval.
+`bar` carries no pressure reference. `barg` and `bara` are not aliases; changing
+between gauge and absolute pressure still requires an explicit reference.

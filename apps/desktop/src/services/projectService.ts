@@ -471,7 +471,7 @@ export function buildBlankLocalModelDocument(createdAt: Date = new Date()): Prev
         moment: "N*m",
         pressure: "Pa",
         stress: "Pa",
-        temperature: "C"
+        temperature: "degC"
       }
     },
     analysis_status: {
