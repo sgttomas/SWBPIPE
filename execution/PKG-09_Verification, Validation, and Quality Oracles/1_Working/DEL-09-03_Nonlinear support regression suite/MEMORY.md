@@ -802,3 +802,9 @@ HELP_HUMAN accepted the bounded implementation after fresh cumulative review, qu
 - Owner ruling `D-75` / `DEC-113`: translation deltas are reported and limited in true millimetres. Removed the ×1000 in the observation code; seed limits `0.1` / `0.05` mm and multi-support `0.1` mm (same envelope); friction-slide ledger row corrected to `0.04` mm / `4.0` N.
 - Evidence: `_run_records/RUN_2026-09-23_DEL0903_DEC046_TRANSLATION_DELTA_UNIT.md`; PR on branch `claude/dec046-translation-delta-unit-20260923`.
 - Boundary preserved: no other limit, release-scope or product-preview record, lifecycle, release, professional or code-compliance change.
+
+## 2026-09-23 — Nonlinear-suite moment unit relabel (D-76)
+
+- Owner ruling `D-76` / `DEC-114`: moments, moment reactions and work/energy residuals in the millimetre nonlinear fixtures are labelled `N-mm` (was `N-m`); no value or limit changed.
+- Evidence: `_run_records/RUN_2026-09-23_DEL0903_NONLINEAR_MOMENT_UNIT.md`; PR on branch `claude/nonlinear-moment-unit-20260923`.
+- Boundary preserved: solver, desktop app, product preview, mechanics/stress suites and all limits unchanged.

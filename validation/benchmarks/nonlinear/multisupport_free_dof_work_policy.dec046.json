@@ -7,7 +7,7 @@
   "scope": "public_original_multi_dof_multi_support_validation_fixture_set_only",
   "work_residual_basis": {
     "name": "free_dof_work_residual",
-    "unit": "N-m",
+    "unit": "N-mm",
     "dimension": "moment",
     "note": "zero means no free-DOF residual work product remains in the final linearized solve"
   },

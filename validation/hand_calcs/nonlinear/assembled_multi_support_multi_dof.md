@@ -36,7 +36,7 @@ validation seed.
 | First-iteration changed support count | 2 | count | dimensionless |
 | Final changed support count | 0 | count | dimensionless |
 | Expected iteration count | 2 | count | dimensionless |
-| Final free-DOF work residual | 0.0 | N-m | moment |
+| Final free-DOF work residual | 0.0 | N-mm | moment |
 | Final one-way state | inactive | label | dimensionless |
 | Final gap state | active | label | dimensionless |
 | Expected convergence flag | true | label | dimensionless |

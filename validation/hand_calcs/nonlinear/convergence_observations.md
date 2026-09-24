@@ -42,12 +42,12 @@ inventory in `validation/benchmarks/nonlinear/src/lib.rs`.
 | Max iteration cap | 4 | count | dimensionless |
 | Policy status | accepted for current assembled validation seed | label | dimensionless |
 | Free-DOF force residual threshold | 0.0 | N | force |
-| Free-DOF moment residual threshold | 0.0 | N-m | moment |
+| Free-DOF moment residual threshold | 0.0 | N-mm | moment |
 | Free-DOF force/moment residual policy reference | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 | label | dimensionless |
-| Free-DOF work residual threshold | 0.0 | N-m | moment |
+| Free-DOF work residual threshold | 0.0 | N-mm | moment |
 | Free-DOF work residual policy reference | DEC-046-CV-B-free-dof-work-residual-validation-v1 | label | dimensionless |
-| Free-DOF work residual unit | N-m | moment |
-| General energy residual threshold | 0.0 | N-m | moment |
+| Free-DOF work residual unit | N-mm | moment |
+| General energy residual threshold | 0.0 | N-mm | moment |
 | General energy residual policy reference | DEC-046-CV-B-general-energy-residual-validation-v1 | label | dimensionless |
 | General energy residual basis | general_energy_residual_envelope from max_abs_free_dof_work_residual | label | dimensionless |
 | Displacement/reaction delta policy reference | DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1 | label | dimensionless |
@@ -56,7 +56,7 @@ inventory in `validation/benchmarks/nonlinear/src/lib.rs`.
 | Seed rotation delta threshold | 0.0 | rad | rotation |
 | Seed force-reaction delta threshold, one_way/lift_off/friction | 10.0 | N | force |
 | Seed force-reaction delta threshold, gap | 5.0 | N | force |
-| Seed moment-reaction delta threshold | 0.0 | N-m | moment |
+| Seed moment-reaction delta threshold | 0.0 | N-mm | moment |
 
 ## Active-Set Expected Values
 
@@ -84,12 +84,12 @@ fixture set.
 
 | Fixture | Max translation delta from previous | Max force-reaction delta from previous | Free-DOF force residual | Free-DOF moment residual | Free-DOF work residual | Force/work threshold policy | Displacement/reaction threshold policy |
 |---|---:|---:|---:|---:|---:|---|---|
-| `NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL` | 0.1 mm | 10.0 N | 0.0 N | 0.0 N-m | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 | DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1 |
-| `NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL` | 0.05 mm | 5.0 N | 0.0 N | 0.0 N-m | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 | DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1 |
-| `NL-ASSEMBLED-LIFT-OFF-ORIGINAL` | 0.1 mm | 10.0 N | 0.0 N | 0.0 N-m | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 | DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1 |
-| `NL-ASSEMBLED-FRICTION-STICK-ORIGINAL` | none | none | 0.0 N | 0.0 N-m | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 | DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1 |
-| `NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL` | 0.04 mm | 4.0 N | 0.0 N | 0.0 N-m | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 | DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1 |
-| `NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL` | none | none | 0.0 N | 0.0 N-m | 0.0 N-m | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 | DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1 |
+| `NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL` | 0.1 mm | 10.0 N | 0.0 N | 0.0 N-mm | 0.0 N-mm | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 | DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1 |
+| `NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL` | 0.05 mm | 5.0 N | 0.0 N | 0.0 N-mm | 0.0 N-mm | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 | DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1 |
+| `NL-ASSEMBLED-LIFT-OFF-ORIGINAL` | 0.1 mm | 10.0 N | 0.0 N | 0.0 N-mm | 0.0 N-mm | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 | DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1 |
+| `NL-ASSEMBLED-FRICTION-STICK-ORIGINAL` | none | none | 0.0 N | 0.0 N-mm | 0.0 N-mm | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 | DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1 |
+| `NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL` | 0.04 mm | 4.0 N | 0.0 N | 0.0 N-mm | 0.0 N-mm | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 | DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1 |
+| `NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL` | none | none | 0.0 N | 0.0 N-mm | 0.0 N-mm | DEC-046-CV-B-free-dof-force-moment-residual-validation-v1 | DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1 |
 
 The free-DOF force/moment residual threshold policy applies only to the current
 public-original assembled validation seed. The free-DOF work residual threshold

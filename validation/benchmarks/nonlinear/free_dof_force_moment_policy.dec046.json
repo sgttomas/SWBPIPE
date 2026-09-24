@@ -13,7 +13,7 @@
   },
   "moment_residual_basis": {
     "name": "free_dof_moment_residual",
-    "unit": "N-m",
+    "unit": "N-mm",
     "dimension": "moment",
     "note": "zero means no rotational free-DOF equilibrium residual remains in the final linearized solve"
   },

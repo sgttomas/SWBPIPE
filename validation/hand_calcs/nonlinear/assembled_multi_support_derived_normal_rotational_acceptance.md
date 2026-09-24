@@ -23,7 +23,7 @@ validation fixture set.
 |---|---:|---|---|
 | Tip axial force | 10.0 | N | force |
 | Normal-source force | -100.0 | N | force |
-| Tip rotational moment | 2.0 | N-m | moment |
+| Tip rotational moment | 2.0 | N-mm | moment |
 | Friction support DOF | Ux | label | dimensionless |
 | Lift-off support DOF | Rz | label | dimensionless |
 | Normal source support DOF | Uy | label | dimensionless |
@@ -45,12 +45,12 @@ validation fixture set.
 | Final changed support count | 0 | count | dimensionless |
 | Expected iteration count | 2 | count | dimensionless |
 | Free-DOF force residual | 0.0 | N | force |
-| Free-DOF moment residual | 0.0 | N-m | moment |
-| Final free-DOF work residual | 0.0 | N-m | moment |
+| Free-DOF moment residual | 0.0 | N-mm | moment |
+| Final free-DOF work residual | 0.0 | N-mm | moment |
 | Multi-support translation delta threshold | 0.1 | mm | displacement |
 | Multi-support rotation delta threshold | 0.005 | rad | rotation |
 | Multi-support force-reaction delta threshold | 10.0 | N | force |
-| Multi-support moment-reaction delta threshold | 3.0 | N-m | moment |
+| Multi-support moment-reaction delta threshold | 3.0 | N-mm | moment |
 | Final friction state | sliding | label | dimensionless |
 | Final lift-off state | inactive | label | dimensionless |
 | Expected convergence flag | true | label | dimensionless |

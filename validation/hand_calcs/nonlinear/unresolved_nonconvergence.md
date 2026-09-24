@@ -21,7 +21,7 @@ configured iteration limit.
 | Maximum iterations | 4 | count | dimensionless |
 | Active-set residual tolerance | 0.0 | count | dimensionless |
 | Trial rotation | 0.002 | rad | rotation |
-| Trial rotational reaction | 0.0 | N-m | moment |
+| Trial rotational reaction | 0.0 | N-mm | moment |
 | Prior state | inactive | state label | dimensionless |
 
 ## Expected Values

@@ -76,7 +76,7 @@ const DEC_046_FREE_DOF_FORCE_RESIDUAL_UNIT: &str = "N";
 const DEC_046_FREE_DOF_FORCE_RESIDUAL_DIMENSION: &str = "force";
 const DEC_046_FREE_DOF_FORCE_ABSOLUTE_LIMIT: f64 = 0.0;
 const DEC_046_FREE_DOF_MOMENT_RESIDUAL_BASIS: &str = "free_dof_moment_residual";
-const DEC_046_FREE_DOF_MOMENT_RESIDUAL_UNIT: &str = "N-m";
+const DEC_046_FREE_DOF_MOMENT_RESIDUAL_UNIT: &str = "N-mm";
 const DEC_046_FREE_DOF_MOMENT_RESIDUAL_DIMENSION: &str = "moment";
 const DEC_046_FREE_DOF_MOMENT_ABSOLUTE_LIMIT: f64 = 0.0;
 const DEC_046_FREE_DOF_FORCE_MOMENT_LIMITATIONS: &[&str] = &[
@@ -86,7 +86,7 @@ const DEC_046_FREE_DOF_FORCE_MOMENT_LIMITATIONS: &[&str] = &[
 pub const DEC_046_FREE_DOF_WORK_POLICY_REF: &str =
     "DEC-046-CV-B-free-dof-work-residual-validation-v1";
 const DEC_046_FREE_DOF_WORK_RESIDUAL_BASIS: &str = "free_dof_work_residual";
-const DEC_046_FREE_DOF_WORK_RESIDUAL_UNIT: &str = "N-m";
+const DEC_046_FREE_DOF_WORK_RESIDUAL_UNIT: &str = "N-mm";
 const DEC_046_FREE_DOF_WORK_RESIDUAL_DIMENSION: &str = "moment";
 const DEC_046_FREE_DOF_WORK_ABSOLUTE_LIMIT: f64 = 0.0;
 const DEC_046_FREE_DOF_WORK_LIMITATIONS: &[&str] = &[
@@ -96,7 +96,7 @@ const DEC_046_FREE_DOF_WORK_LIMITATIONS: &[&str] = &[
 pub const DEC_046_GENERAL_ENERGY_POLICY_REF: &str =
     "DEC-046-CV-B-general-energy-residual-validation-v1";
 const DEC_046_GENERAL_ENERGY_RESIDUAL_BASIS: &str = "general_energy_residual_envelope";
-const DEC_046_GENERAL_ENERGY_RESIDUAL_UNIT: &str = "N-m";
+const DEC_046_GENERAL_ENERGY_RESIDUAL_UNIT: &str = "N-mm";
 const DEC_046_GENERAL_ENERGY_RESIDUAL_DIMENSION: &str = "moment";
 const DEC_046_GENERAL_ENERGY_ABSOLUTE_LIMIT: f64 = 0.0;
 const DEC_046_GENERAL_ENERGY_LIMITATIONS: &[&str] = &[
@@ -117,7 +117,7 @@ const DEC_046_FORCE_REACTION_DELTA_BASIS: &str = "max_abs_force_reaction_delta_f
 const DEC_046_FORCE_REACTION_DELTA_UNIT: &str = "N";
 const DEC_046_FORCE_REACTION_DELTA_DIMENSION: &str = "force";
 const DEC_046_MOMENT_REACTION_DELTA_BASIS: &str = "max_abs_moment_reaction_delta_from_previous";
-const DEC_046_MOMENT_REACTION_DELTA_UNIT: &str = "N-m";
+const DEC_046_MOMENT_REACTION_DELTA_UNIT: &str = "N-mm";
 const DEC_046_MOMENT_REACTION_DELTA_DIMENSION: &str = "moment";
 const DEC_046_SEED_TRANSLATION_DELTA_ABSOLUTE_LIMIT: f64 = 0.1;
 const DEC_046_SEED_GAP_TRANSLATION_DELTA_ABSOLUTE_LIMIT: f64 = 0.05;
@@ -289,7 +289,7 @@ pub const NONLINEAR_FIXTURE_UNIT_BASIS: FixtureUnitBasis = FixtureUnitBasis {
     unit_system_status: "fixture-local-explicit-units-no-conversions",
     support_displacement_unit: "mm",
     translational_reaction_unit: "N",
-    rotational_reaction_unit: "N-m",
+    rotational_reaction_unit: "N-mm",
     friction_coefficient_unit: "ratio",
     residual_tolerance_unit: "count",
     residual_tolerance_dimension: "dimensionless",
@@ -404,7 +404,7 @@ impl ForceDisplacementResidualObservation {
             && self.translation_delta_unit == "mm"
             && self.rotation_delta_unit == "rad"
             && self.force_reaction_delta_unit == "N"
-            && self.moment_reaction_delta_unit == "N-m"
+            && self.moment_reaction_delta_unit == "N-mm"
             && self.free_dof_force_residual_unit == DEC_046_FREE_DOF_FORCE_RESIDUAL_UNIT
             && self.free_dof_moment_residual_unit == DEC_046_FREE_DOF_MOMENT_RESIDUAL_UNIT
             && self.free_dof_work_residual_unit == DEC_046_FREE_DOF_WORK_RESIDUAL_UNIT
@@ -464,7 +464,7 @@ impl ForceDisplacementResidualObservation {
             && self.translation_delta_unit == "mm"
             && self.rotation_delta_unit == "rad"
             && self.force_reaction_delta_unit == "N"
-            && self.moment_reaction_delta_unit == "N-m"
+            && self.moment_reaction_delta_unit == "N-mm"
             && self.free_dof_force_residual_unit == DEC_046_FREE_DOF_FORCE_RESIDUAL_UNIT
             && self.free_dof_moment_residual_unit == DEC_046_FREE_DOF_MOMENT_RESIDUAL_UNIT
             && self.free_dof_work_residual_unit == DEC_046_FREE_DOF_WORK_RESIDUAL_UNIT
@@ -1099,13 +1099,13 @@ impl AssembledNonlinearRegressionCase {
             force_reaction_delta_unit: "N",
             max_abs_moment_reaction_delta_from_previous: final_residuals
                 .max_abs_moment_reaction_delta_from_previous,
-            moment_reaction_delta_unit: "N-m",
+            moment_reaction_delta_unit: "N-mm",
             max_abs_free_dof_force_residual: final_residuals.max_abs_free_dof_force_residual,
             free_dof_force_residual_unit: "N",
             max_abs_free_dof_moment_residual: final_residuals.max_abs_free_dof_moment_residual,
-            free_dof_moment_residual_unit: "N-m",
+            free_dof_moment_residual_unit: "N-mm",
             max_abs_free_dof_work_residual: final_residuals.max_abs_free_dof_work_residual,
-            free_dof_work_residual_unit: "N-m",
+            free_dof_work_residual_unit: "N-mm",
             displacement_reaction_delta_observation_ref,
             displacement_reaction_delta_threshold_policy,
             free_dof_force_moment_threshold_policy: force_moment_threshold_policy,
@@ -3376,7 +3376,7 @@ pub fn assembled_multi_dof_rotational_acceptance_fixture() -> AssembledNonlinear
             DimensionedObservation {
                 name: "applied_rz_moment",
                 value: 2.0,
-                unit: "N-m",
+                unit: "N-mm",
                 dimension: "moment",
                 tolerance_policy: None,
             },
@@ -3605,7 +3605,7 @@ pub fn assembled_multi_dof_derived_normal_rotational_acceptance_fixture(
             DimensionedObservation {
                 name: "applied_rz_moment",
                 value: 2.0,
-                unit: "N-m",
+                unit: "N-mm",
                 dimension: "moment",
                 tolerance_policy: None,
             },
@@ -3956,7 +3956,7 @@ pub fn assembled_multi_dof_four_class_acceptance_fixture() -> AssembledNonlinear
             DimensionedObservation {
                 name: "applied_rz_moment",
                 value: 1.8,
-                unit: "N-m",
+                unit: "N-mm",
                 dimension: "moment",
                 tolerance_policy: None,
             },

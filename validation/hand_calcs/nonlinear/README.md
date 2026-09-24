@@ -19,11 +19,11 @@ The nonlinear fixtures use explicit fixture-local unit identifiers only:
 | Translational displacement-delta observations | `mm` | length |
 | Translational support reaction | `N` | force |
 | Translational reaction-delta / free-DOF force-residual observations | `N` | force |
-| Rotational support reaction | `N-m` | moment |
+| Rotational support reaction | `N-mm` | moment |
 | Rotational displacement-delta observations | `rad` | rotation |
-| Rotational reaction-delta / free-DOF moment-residual observations | `N-m` | moment |
-| Free-DOF work residual observations | `N-m` | moment |
-| General energy residual envelope observations | `N-m` | moment |
+| Rotational reaction-delta / free-DOF moment-residual observations | `N-mm` | moment |
+| Free-DOF work residual observations | `N-mm` | moment |
+| General energy residual envelope observations | `N-mm` | moment |
 | Friction coefficient | `ratio` | dimensionless |
 | Active-set residual and iteration counts | `count` | dimensionless |
 

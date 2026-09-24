@@ -24,7 +24,7 @@
   },
   "moment_reaction_delta_basis": {
     "name": "max_abs_moment_reaction_delta_from_previous",
-    "unit": "N-m",
+    "unit": "N-mm",
     "dimension": "moment"
   },
   "change_provenance": {
