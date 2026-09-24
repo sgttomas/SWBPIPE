@@ -1,0 +1,18 @@
+{
+  "command": "python3 -m unittest discover -s projects/chirality-piping/tests -p test_ci_apt_sources.py -v",
+  "python": "3.9.6",
+  "result": "3 tests passed",
+  "sources": [
+    {
+      "path": ".github/actions/setup-piping-e2e/action.yml",
+      "sha256": "3ec712ebcaf3b03405367bf8295ca1720651af0fe6fd260b2ceed2c746195a14"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_ci_apt_sources.py",
+      "sha256": "205eb1505be6752ae237c0964e555bd1bf0aa6afbdebdbf8a0ac9d1e704bbaf0"
+    }
+  ],
+  "raw_log": "apt-tests.log",
+  "raw_log_sha256": "a7976d9f991b6ea6cee6cfa50b2e58829dd2393f43e8222d629665f073bc020d",
+  "limits": "Tests render actual heredoc with fixture codename and check shell syntax/configuration; no local APT or hosted execution. By-Hash force does not disable stable URL fallback and effective change on runner remains unproven."
+}

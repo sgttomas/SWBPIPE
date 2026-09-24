@@ -1,0 +1,48 @@
+{
+  "base": "a957e0a23e27807bd6ade21c723675bd5e9d7cec",
+  "parent": "/root",
+  "manager": "/root/numerical_ci_manager",
+  "role": "WORKING_ITEMS",
+  "mechanism": "delegated-harness-native",
+  "model_allocation": {
+    "manager": "gpt-6-astra/high",
+    "implementation": "gpt-6-astra/low",
+    "independent_review": "gpt-6-astra/xhigh"
+  },
+  "implementation_task": "/root/numerical_ci_manager/apt_implementation",
+  "integration_note": "Fresh TASK implemented By-Hash and three tests. Followup was refused by global thread limit; manager integrated rendered-source and per-target config diagnostics within authorized scope. No delegation-limit bypass.",
+  "instructions": [
+    {
+      "origin": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "origin": "agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665"
+    },
+    {
+      "origin": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "origin": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "origin": ".agents/skills/chirality-change/SKILL.md",
+      "sha256": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba"
+    },
+    {
+      "origin": ".agents/skills/software-defect-diagnosis/SKILL.md",
+      "sha256": "f281558734732ab0a97cf1407ba80a53c25e8c2b9dd96069bec589fd521a7a23"
+    },
+    {
+      "origin": ".agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+    }
+  ]
+}

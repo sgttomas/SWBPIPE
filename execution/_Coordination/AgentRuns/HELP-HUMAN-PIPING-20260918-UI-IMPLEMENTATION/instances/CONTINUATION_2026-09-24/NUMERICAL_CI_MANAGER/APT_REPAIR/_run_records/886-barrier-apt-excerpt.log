@@ -1,0 +1,164 @@
+2026-09-24T16:46:33.0751036Z ##[start-action display=Configure canonical Ubuntu package sources;id=__self.__run_5]
+2026-09-24T16:46:33.0772101Z ##[group]Run set -euo pipefail
+2026-09-24T16:46:33.0772486Z [36;1mset -euo pipefail[0m
+2026-09-24T16:46:33.0772830Z [36;1msource /etc/os-release[0m
+2026-09-24T16:46:33.0773191Z [36;1mtest -n "${VERSION_CODENAME}"[0m
+2026-09-24T16:46:33.0773654Z [36;1mtest -f /usr/share/keyrings/ubuntu-archive-keyring.gpg[0m
+2026-09-24T16:46:33.0774248Z [36;1msudo tee /etc/apt/sources.list.d/ubuntu.sources >/dev/null <<EOF[0m
+2026-09-24T16:46:33.0774736Z [36;1mTypes: deb[0m
+2026-09-24T16:46:33.0775098Z [36;1mURIs: https://archive.ubuntu.com/ubuntu/[0m
+2026-09-24T16:46:33.0775729Z [36;1mSuites: ${VERSION_CODENAME} ${VERSION_CODENAME}-updates ${VERSION_CODENAME}-backports[0m
+2026-09-24T16:46:33.0776387Z [36;1mComponents: main restricted universe multiverse[0m
+2026-09-24T16:46:33.0777209Z [36;1mSigned-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg[0m
+2026-09-24T16:46:33.0777681Z [36;1m[0m
+2026-09-24T16:46:33.0777930Z [36;1mTypes: deb[0m
+2026-09-24T16:46:33.0778272Z [36;1mURIs: https://security.ubuntu.com/ubuntu/[0m
+2026-09-24T16:46:33.0778707Z [36;1mSuites: ${VERSION_CODENAME}-security[0m
+2026-09-24T16:46:33.0779339Z [36;1mComponents: main restricted universe multiverse[0m
+2026-09-24T16:46:33.0779876Z [36;1mSigned-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg[0m
+2026-09-24T16:46:33.0780341Z [36;1mEOF[0m
+2026-09-24T16:46:33.0841325Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-24T16:46:33.0841769Z env:
+2026-09-24T16:46:33.0842016Z   CI: true
+2026-09-24T16:46:33.0842279Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T16:46:33.0842608Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T16:46:33.0842917Z   CARGO_HOME: /home/runner/.cargo
+2026-09-24T16:46:33.0843247Z   CARGO_INCREMENTAL: 0
+2026-09-24T16:46:33.0843541Z   CARGO_TERM_COLOR: always
+2026-09-24T16:46:33.0843835Z ##[endgroup]
+2026-09-24T16:46:33.1009974Z ##[end-action id=__self.__run_5;outcome=success;conclusion=success;duration_ms=25]
+2026-09-24T16:46:33.1012366Z ##[start-action display=Install Chromium system dependencies;id=__self.__run_6]
+2026-09-24T16:46:33.1033472Z ##[group]Run npx playwright install-deps chromium
+2026-09-24T16:46:33.1033909Z [36;1mnpx playwright install-deps chromium[0m
+2026-09-24T16:46:33.1088382Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-24T16:46:33.1088788Z env:
+2026-09-24T16:46:33.1089019Z   CI: true
+2026-09-24T16:46:33.1089272Z   PLAYWRIGHT_HTML_OPEN: never
+2026-09-24T16:46:33.1089586Z   PLAYWRIGHT_WORKERS: 1
+2026-09-24T16:46:33.1089917Z   CARGO_HOME: /home/runner/.cargo
+2026-09-24T16:46:33.1090231Z   CARGO_INCREMENTAL: 0
+2026-09-24T16:46:33.1090503Z   CARGO_TERM_COLOR: always
+2026-09-24T16:46:33.1090782Z ##[endgroup]
+2026-09-24T16:46:33.8767538Z Installing dependencies...
+2026-09-24T16:46:33.8848698Z Switching to root user to install dependencies...
+2026-09-24T16:46:34.0131178Z Get:1 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+2026-09-24T16:46:34.0883656Z Get:2 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [489 kB]
+2026-09-24T16:46:34.1022519Z Get:3 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [439 kB]
+2026-09-24T16:46:34.8625438Z Get:4 https://security.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+2026-09-24T16:46:34.9791809Z Get:5 https://archive.ubuntu.com/ubuntu noble InRelease [256 kB]
+2026-09-24T16:46:35.4531828Z Get:6 https://security.ubuntu.com/ubuntu noble-security/main amd64 Packages [1053 kB]
+2026-09-24T16:46:35.8637272Z Get:7 https://archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+2026-09-24T16:46:36.0980685Z Get:8 https://archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+2026-09-24T16:46:36.2733121Z Get:9 https://security.ubuntu.com/ubuntu noble-security/main Translation-en [219 kB]
+2026-09-24T16:46:36.3327230Z Get:10 https://archive.ubuntu.com/ubuntu noble/main amd64 Packages [1401 kB]
+2026-09-24T16:46:36.4350100Z Get:11 https://security.ubuntu.com/ubuntu noble-security/main amd64 Components [46.4 kB]
+2026-09-24T16:46:36.5755709Z Get:12 https://security.ubuntu.com/ubuntu noble-security/main amd64 c-n-f Metadata [11.9 kB]
+2026-09-24T16:46:36.7118415Z Get:13 https://security.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1535 kB]
+2026-09-24T16:46:37.0987835Z Get:14 https://archive.ubuntu.com/ubuntu noble/main Translation-en [513 kB]
+2026-09-24T16:46:37.1235465Z Get:15 https://security.ubuntu.com/ubuntu noble-security/restricted Translation-en [353 kB]
+2026-09-24T16:46:37.2805289Z Get:16 https://security.ubuntu.com/ubuntu noble-security/restricted amd64 Components [212 B]
+2026-09-24T16:46:37.3251592Z Get:17 https://archive.ubuntu.com/ubuntu noble/main amd64 Components [464 kB]
+2026-09-24T16:46:37.4161770Z Get:18 https://security.ubuntu.com/ubuntu noble-security/restricted amd64 c-n-f Metadata [444 B]
+2026-09-24T16:46:37.5465444Z Get:19 https://archive.ubuntu.com/ubuntu noble/main amd64 c-n-f Metadata [30.5 kB]
+2026-09-24T16:46:37.5595602Z Get:20 https://security.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1220 kB]
+2026-09-24T16:46:37.7185897Z Get:21 https://archive.ubuntu.com/ubuntu noble/restricted amd64 Packages [93.9 kB]
+2026-09-24T16:46:37.7617683Z Get:22 https://security.ubuntu.com/ubuntu noble-security/universe Translation-en [245 kB]
+2026-09-24T16:46:37.8968783Z Get:23 https://archive.ubuntu.com/ubuntu noble/restricted Translation-en [18.7 kB]
+2026-09-24T16:46:37.9114476Z Get:24 https://security.ubuntu.com/ubuntu noble-security/universe amd64 Components [76.3 kB]
+2026-09-24T16:46:38.0510645Z Get:25 https://security.ubuntu.com/ubuntu noble-security/universe amd64 c-n-f Metadata [24.2 kB]
+2026-09-24T16:46:38.0654758Z Get:26 https://archive.ubuntu.com/ubuntu noble/restricted amd64 c-n-f Metadata [416 B]
+2026-09-24T16:46:38.1875326Z Get:27 https://security.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [40.3 kB]
+2026-09-24T16:46:38.5001643Z Get:28 https://security.ubuntu.com/ubuntu noble-security/multiverse Translation-en [11.3 kB]
+2026-09-24T16:46:38.5330688Z Get:29 https://archive.ubuntu.com/ubuntu noble/universe amd64 Packages [15.0 MB]
+2026-09-24T16:46:38.6359485Z Get:30 https://security.ubuntu.com/ubuntu noble-security/multiverse amd64 Components [208 B]
+2026-09-24T16:46:38.7717847Z Get:31 https://security.ubuntu.com/ubuntu noble-security/multiverse amd64 c-n-f Metadata [468 B]
+2026-09-24T16:46:40.0829296Z Get:32 https://archive.ubuntu.com/ubuntu noble/universe Translation-en [5982 kB]
+2026-09-24T16:46:40.8724076Z Get:33 https://archive.ubuntu.com/ubuntu noble/universe amd64 Components [3871 kB]
+2026-09-24T16:46:41.5977759Z Get:34 https://archive.ubuntu.com/ubuntu noble/universe amd64 c-n-f Metadata [301 kB]
+2026-09-24T16:46:41.6924602Z Get:35 https://archive.ubuntu.com/ubuntu noble/multiverse amd64 Packages [269 kB]
+2026-09-24T16:46:42.0914169Z Get:36 https://archive.ubuntu.com/ubuntu noble/multiverse Translation-en [118 kB]
+2026-09-24T16:46:44.8221690Z Get:37 https://archive.ubuntu.com/ubuntu noble/multiverse amd64 Components [35.0 kB]
+2026-09-24T16:46:45.2199670Z Get:38 https://archive.ubuntu.com/ubuntu noble/multiverse amd64 c-n-f Metadata [8328 B]
+2026-09-24T16:46:45.4053162Z Get:39 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1309 kB]
+2026-09-24T16:46:47.4086988Z Get:40 https://archive.ubuntu.com/ubuntu noble-updates/main Translation-en [298 kB]
+2026-09-24T16:46:47.8414067Z Ign:41 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 Components
+2026-09-24T16:46:47.9205546Z Get:42 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 c-n-f Metadata [17.7 kB]
+2026-09-24T16:46:48.0030085Z Get:43 https://archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1635 kB]
+2026-09-24T16:46:48.4348725Z Get:44 https://archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [372 kB]
+2026-09-24T16:46:48.5295822Z Get:45 https://archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Components [212 B]
+2026-09-24T16:46:48.6075106Z Get:46 https://archive.ubuntu.com/ubuntu noble-updates/restricted amd64 c-n-f Metadata [456 B]
+2026-09-24T16:46:48.6844868Z Ign:47 https://archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages
+2026-09-24T16:46:49.0492708Z Get:48 https://archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [340 kB]
+2026-09-24T16:46:49.1393942Z Ign:49 https://archive.ubuntu.com/ubuntu noble-updates/universe amd64 Components
+2026-09-24T16:46:49.2176221Z Get:50 https://archive.ubuntu.com/ubuntu noble-updates/universe amd64 c-n-f Metadata [34.9 kB]
+2026-09-24T16:46:49.2949940Z Get:51 https://archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [45.7 kB]
+2026-09-24T16:46:49.3725983Z Get:52 https://archive.ubuntu.com/ubuntu noble-updates/multiverse Translation-en [13.1 kB]
+2026-09-24T16:46:49.4509706Z Ign:53 https://archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Components
+2026-09-24T16:46:49.6475192Z Get:54 https://archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 c-n-f Metadata [656 B]
+2026-09-24T16:46:49.7257125Z Get:55 https://archive.ubuntu.com/ubuntu noble-backports/main amd64 Packages [40.6 kB]
+2026-09-24T16:46:50.0877050Z Get:56 https://archive.ubuntu.com/ubuntu noble-backports/main Translation-en [9172 B]
+2026-09-24T16:46:50.1658375Z Ign:57 https://archive.ubuntu.com/ubuntu noble-backports/main amd64 Components
+2026-09-24T16:46:50.2425076Z Get:58 https://archive.ubuntu.com/ubuntu noble-backports/main amd64 c-n-f Metadata [368 B]
+2026-09-24T16:46:50.3199943Z Get:59 https://archive.ubuntu.com/ubuntu noble-backports/restricted amd64 Components [212 B]
+2026-09-24T16:46:50.3974247Z Get:60 https://archive.ubuntu.com/ubuntu noble-backports/restricted amd64 c-n-f Metadata [116 B]
+2026-09-24T16:46:50.4738677Z Get:61 https://archive.ubuntu.com/ubuntu noble-backports/universe amd64 Packages [31.0 kB]
+2026-09-24T16:46:50.8466331Z Get:62 https://archive.ubuntu.com/ubuntu noble-backports/universe Translation-en [18.6 kB]
+2026-09-24T16:46:50.9602637Z Ign:63 https://archive.ubuntu.com/ubuntu noble-backports/universe amd64 Components
+2026-09-24T16:46:51.0387271Z Get:64 https://archive.ubuntu.com/ubuntu noble-backports/universe amd64 c-n-f Metadata [1588 B]
+2026-09-24T16:46:51.1173890Z Get:65 https://archive.ubuntu.com/ubuntu noble-backports/multiverse amd64 Packages [748 B]
+2026-09-24T16:46:51.1949992Z Get:66 https://archive.ubuntu.com/ubuntu noble-backports/multiverse Translation-en [340 B]
+2026-09-24T16:46:51.2716485Z Get:67 https://archive.ubuntu.com/ubuntu noble-backports/multiverse amd64 Components [212 B]
+2026-09-24T16:46:51.7526996Z Get:68 https://archive.ubuntu.com/ubuntu noble-backports/multiverse amd64 c-n-f Metadata [116 B]
+2026-09-24T16:46:52.1275161Z Get:41 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 Components [181 kB]
+2026-09-24T16:46:52.1296910Z Err:41 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 Components
+2026-09-24T16:46:52.1297963Z   File has unexpected size (180700 != 180592). Mirror sync in progress? [IP: 91.189.91.81 443]
+2026-09-24T16:46:52.1298514Z   Hashes of expected file:
+2026-09-24T16:46:52.1298818Z    - Filesize:180592 [weak]
+2026-09-24T16:46:52.1299328Z    - SHA256:9fb3d0f58c4e80aa9bb312ecd5e89d14a2f81934e7c4d5f9d5dceb07a2d0a1c5
+2026-09-24T16:46:52.1299955Z    - SHA1:7181b4525cb8feace32921fa0fd4a63448d26cfe [weak]
+2026-09-24T16:46:52.1300690Z    - MD5Sum:aa089c21bcc9a489178c1d7436ebc83c [weak]
+2026-09-24T16:46:52.1301174Z   Release file created at: Thu, 24 Sep 2026 15:13:28 +0000
+2026-09-24T16:46:52.5055984Z Get:47 https://archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1698 kB]
+2026-09-24T16:46:52.5057584Z Err:47 https://archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages
+2026-09-24T16:46:52.5058302Z   
+2026-09-24T16:46:53.3308461Z Get:49 https://archive.ubuntu.com/ubuntu noble-updates/universe amd64 Components [388 kB]
+2026-09-24T16:46:53.3309853Z Err:49 https://archive.ubuntu.com/ubuntu noble-updates/universe amd64 Components
+2026-09-24T16:46:53.3310750Z   
+2026-09-24T16:46:53.6898457Z Get:53 https://archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Components [940 B]
+2026-09-24T16:46:53.6899690Z Err:53 https://archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Components
+2026-09-24T16:46:53.6900289Z   
+2026-09-24T16:46:54.0668227Z Get:57 https://archive.ubuntu.com/ubuntu noble-backports/main amd64 Components [5764 B]
+2026-09-24T16:46:54.0673783Z Err:57 https://archive.ubuntu.com/ubuntu noble-backports/main amd64 Components
+2026-09-24T16:46:54.0675193Z   File has unexpected size (5740 != 5764). Mirror sync in progress? [IP: 91.189.91.81 443]
+2026-09-24T16:46:54.0676436Z   Hashes of expected file:
+2026-09-24T16:46:54.0677322Z    - Filesize:5764 [weak]
+2026-09-24T16:46:54.0678040Z    - SHA256:c5640a6d2c81a9d043c0efc9180403c0b991afc211a349d96f84cc37b5a80b60
+2026-09-24T16:46:54.0678889Z    - SHA1:f1627f32b04af18402f8c7bc734422c7a87e9d7f [weak]
+2026-09-24T16:46:54.0679555Z    - MD5Sum:c472ca849c49e5f4eea6331745298bc2 [weak]
+2026-09-24T16:46:54.0680218Z   Release file created at: Thu, 24 Sep 2026 15:14:45 +0000
+2026-09-24T16:46:54.4453709Z Get:63 https://archive.ubuntu.com/ubuntu noble-backports/universe amd64 Components [12.6 kB]
+2026-09-24T16:46:54.4455295Z Err:63 https://archive.ubuntu.com/ubuntu noble-backports/universe amd64 Components
+2026-09-24T16:46:54.4456517Z   
+2026-09-24T16:47:01.2652188Z Fetched 38.7 MB in 20s (1890 kB/s)
+2026-09-24T16:47:01.9885832Z Reading package lists...
+2026-09-24T16:47:01.9970619Z E: Failed to fetch https://archive.ubuntu.com/ubuntu/dists/noble-updates/main/dep11/Components-amd64.yml.xz  File has unexpected size (180700 != 180592). Mirror sync in progress? [IP: 91.189.91.81 443]
+2026-09-24T16:47:01.9971842Z    Hashes of expected file:
+2026-09-24T16:47:01.9972217Z     - Filesize:180592 [weak]
+2026-09-24T16:47:01.9972831Z     - SHA256:9fb3d0f58c4e80aa9bb312ecd5e89d14a2f81934e7c4d5f9d5dceb07a2d0a1c5
+2026-09-24T16:47:01.9973538Z     - SHA1:7181b4525cb8feace32921fa0fd4a63448d26cfe [weak]
+2026-09-24T16:47:01.9974114Z     - MD5Sum:aa089c21bcc9a489178c1d7436ebc83c [weak]
+2026-09-24T16:47:01.9974671Z    Release file created at: Thu, 24 Sep 2026 15:13:28 +0000
+2026-09-24T16:47:01.9975629Z E: Failed to fetch https://archive.ubuntu.com/ubuntu/dists/noble-updates/universe/binary-amd64/Packages.xz  
+2026-09-24T16:47:01.9977081Z E: Failed to fetch https://archive.ubuntu.com/ubuntu/dists/noble-updates/universe/dep11/Components-amd64.yml.xz  
+2026-09-24T16:47:01.9978366Z E: Failed to fetch https://archive.ubuntu.com/ubuntu/dists/noble-updates/multiverse/dep11/Components-amd64.yml.xz  
+2026-09-24T16:47:01.9980154Z E: Failed to fetch https://archive.ubuntu.com/ubuntu/dists/noble-backports/main/dep11/Components-amd64.yml.xz  File has unexpected size (5740 != 5764). Mirror sync in progress? [IP: 91.189.91.81 443]
+2026-09-24T16:47:01.9981304Z    Hashes of expected file:
+2026-09-24T16:47:01.9981679Z     - Filesize:5764 [weak]
+2026-09-24T16:47:01.9982253Z     - SHA256:c5640a6d2c81a9d043c0efc9180403c0b991afc211a349d96f84cc37b5a80b60
+2026-09-24T16:47:01.9982843Z     - SHA1:f1627f32b04af18402f8c7bc734422c7a87e9d7f [weak]
+2026-09-24T16:47:01.9983534Z     - MD5Sum:c472ca849c49e5f4eea6331745298bc2 [weak]
+2026-09-24T16:47:01.9984163Z    Release file created at: Thu, 24 Sep 2026 15:14:45 +0000
+2026-09-24T16:47:01.9985150Z E: Failed to fetch https://archive.ubuntu.com/ubuntu/dists/noble-backports/universe/dep11/Components-amd64.yml.xz  
+2026-09-24T16:47:01.9986010Z E: Some index files failed to download. They have been ignored, or old ones used instead.
+2026-09-24T16:47:01.9994330Z Failed to install browser dependencies
+2026-09-24T16:47:01.9995071Z Error: Installation process exited with code: 100
