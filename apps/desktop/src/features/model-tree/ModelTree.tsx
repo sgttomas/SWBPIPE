@@ -2,11 +2,12 @@ import { QuantityReadout } from "../display-units";
 import { Anchor, Box, CircleDot, GitBranch, ListTree, Search, SquareStack, Table2, Waypoints, X, Zap } from "lucide-react";
 import type React from "react";
 import { createPortal } from "react-dom";
-import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useContext, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import type { EditorOperationIntent, EditorOperationObjectType, EntityRef, PreviewModel } from "../../types";
 import { entityKey, type EntityKey, type OrderedSelectionState, type SelectionModifiers } from "../workspace/selectionState";
 import { modelIndexFor, type ModelIndex } from "../workspace/modelIndex";
 import { VirtualList } from "../workspace/VirtualList";
+import { OverflowRail, TableChromeContext } from "../workspace/table/OverflowRail";
 import { EngineeringTable, useTableBodyHeight, type TableApplyResult } from "../workspace/table/EngineeringTable";
 import { buildGridOperationIntent, materialTableColumns, sectionTableColumns, nodeTableColumns, type GridColumn, type GridRow } from "../workspace/table/modelTableAdapter";
 import { quantityCellKey, useQuantitySortProjection } from "../workspace/table/quantitySortProjection";
@@ -57,6 +58,8 @@ const GRID_ENTITY_TYPES: ReadonlyArray<{ id: GridEntityType; label: string }> = 
 ];
 
 export function ModelTree({ boundedGrid = false, compactGrid = false, model, modelIndex, selection, selectionState, density = "comfortable", hiddenKeys = new Set(), projectSessionGeneration = 0, onSelect, onFocusChange = () => {}, onFilterPublication = () => {}, onQueueIntent, onApplyCellIntent, operationBusy }: Props) {
+  const [columnTarget, setColumnTarget] = useState<HTMLDivElement | null>(null);
+  const [chromeOwner, setChromeOwner] = useState<string | null>(null);
   const [toolbarTarget, setToolbarTarget] = useState<HTMLDivElement | null>(null);
   const [filterText, setFilterText] = useState("");
   const [layoutMode, setLayoutMode] = useState<LayoutMode>("tree");
@@ -139,6 +142,7 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
   }
 
   return (
+    <TableChromeContext.Provider value={{ target: columnTarget, owner: chromeOwner, setOwner: setChromeOwner }}>
     <div className="panel model-tree" data-bounded-grid={boundedGrid && layoutMode === "grid"} data-compact-grid={compactGrid && layoutMode === "grid"} aria-label="Model tree"
       onKeyDown={(event) => {
         if (event.key === "Escape" && !event.defaultPrevented && closeCompactDetails(true)) { event.preventDefault(); event.stopPropagation(); }
@@ -146,6 +150,7 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
       onBlur={(event) => { if (!(event.relatedTarget instanceof Node) || !event.currentTarget.contains(event.relatedTarget)) closeCompactDetails(); }}>
       <div className="panel-title">Model</div>
       <div className="model-grid-toolbar">
+      <OverflowRail enabled={compactGrid && layoutMode === "grid"} name="table controls" owner={chromeOwner}>
       <section className="layout-mode-toggle" aria-label="Layout grid mode" data-testid="layout-grid-mode-toggle">
         <button
           aria-pressed={layoutMode === "tree"}
@@ -178,6 +183,8 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
         }}
       />
       <div className="model-grid-toolbar-target" ref={setToolbarTarget} />
+      </OverflowRail>
+      <div className="table-column-pan-target" ref={setColumnTarget} />
       </div>
       {gridOpened ? <div className="model-grid-frame" hidden={layoutMode !== "grid"} inert={layoutMode !== "grid"}>
         <EntityGrid
@@ -287,6 +294,7 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
         )
       ) : null}
     </div>
+    </TableChromeContext.Provider>
   );
 
   function toggleExpandedGroup(groupKey: string) {
@@ -844,6 +852,7 @@ function EntityGrid({
   }
 
   const compactInfoId = useId();
+  const { owner: chromeOwner } = useContext(TableChromeContext);
   const gridActions = <div className="entity-grid-actions">
         <button
           data-testid="queue-entity-grid-intents"
@@ -864,9 +873,10 @@ function EntityGrid({
           {compact ? "Clear" : "Clear grid edits"}
         </button>
       </div>;
+  const retainedReviewCount = entityType === "sections" ? retainedSectionDrafts : entityType === "materials" ? retainedMaterialDrafts : retainedNodeDrafts;
   const reviewToggle = <button className="entity-grid-review-toggle" hidden={!commonFamily} data-testid={`${entityType === "sections" ? "section" : entityType === "materials" ? "material" : "node"}-grid-review-disclosure`}
-        type="button" aria-expanded={reviewVisible} aria-controls={reviewRegionId} onClick={() => entityType === "sections" ? setSectionReviewOpen((value) => !value) : entityType === "materials" ? setMaterialReviewOpen((value) => !value) : setReviewOpen((value) => !value)}>
-        {currentReviewOpen ? `Return to ${entityType === "sections" ? "section" : entityType === "materials" ? "material" : "node"} fields` : (compact ? "Review changes" : "Review multiple changes")}{!currentReviewOpen && (entityType === "sections" ? retainedSectionDrafts : entityType === "materials" ? retainedMaterialDrafts : retainedNodeDrafts) > 0 ? ` · ${entityType === "sections" ? retainedSectionDrafts : entityType === "materials" ? retainedMaterialDrafts : retainedNodeDrafts} retained draft${(entityType === "sections" ? retainedSectionDrafts : entityType === "materials" ? retainedMaterialDrafts : retainedNodeDrafts) === 1 ? "" : "s"}` : ""}
+        type="button" aria-label={compact && currentReviewOpen ? `Return to ${entityType === "sections" ? "section" : entityType === "materials" ? "material" : "node"} fields` : undefined} aria-expanded={reviewVisible} aria-controls={reviewRegionId} onClick={() => entityType === "sections" ? setSectionReviewOpen((value) => !value) : entityType === "materials" ? setMaterialReviewOpen((value) => !value) : setReviewOpen((value) => !value)}>
+        {compact ? currentReviewOpen ? "Fields" : "Review changes" : currentReviewOpen ? `Return to ${entityType === "sections" ? "section" : entityType === "materials" ? "material" : "node"} fields` : "Review multiple changes"}{!compact && !currentReviewOpen && (entityType === "sections" ? retainedSectionDrafts : entityType === "materials" ? retainedMaterialDrafts : retainedNodeDrafts) > 0 ? ` · ${entityType === "sections" ? retainedSectionDrafts : entityType === "materials" ? retainedMaterialDrafts : retainedNodeDrafts} retained draft${(entityType === "sections" ? retainedSectionDrafts : entityType === "materials" ? retainedMaterialDrafts : retainedNodeDrafts) === 1 ? "" : "s"}` : ""}
       </button>;
   const compactControls = <>
     <label className="compact-family-label">Family
@@ -875,11 +885,13 @@ function EntityGrid({
       </select>
     </label>
     {reviewToggle}
+    {retainedReviewCount > 0 ? <span role="status">{retainedReviewCount} retained drafts</span> : null}
     {reviewVisible ? gridActions : null}
     {queuedMessage ? <span role="status" className="compact-queued-message">{queuedMessage}</span> : null}
-    <button type="button" popoverTarget={compactInfoId} aria-label="Table details" className="compact-table-info">Details</button>
-    <div id={compactInfoId} popover="auto" className="compact-table-details" role="dialog" aria-label="Table details" tabIndex={-1}
+    <button type="button" data-table-chrome-owner={chromeOwner ?? undefined} onPointerDown={(event) => event.preventDefault()} popoverTarget={compactInfoId} aria-label="Table details" className="compact-table-info">Details</button>
+    <div id={compactInfoId} data-table-chrome-owner={chromeOwner ?? undefined} popover="auto" className="compact-table-details" role="dialog" aria-label="Table details" tabIndex={-1}
       onToggle={(event) => { if (event.currentTarget.matches(":popover-open")) event.currentTarget.focus(); }}>
+      {queuedMessage ? <p>{queuedMessage}</p> : null}
       <p>{visibleRows.length} of {rows.length} {GRID_ENTITY_TYPES.find((item) => item.id === entityType)?.label}; {changedCells.length} changed cells.</p>
       <p>Grid mode fans each changed cell into a structured review intent; storage remains local. {commonFamily ? "Blank or whitespace text becomes TBD when queued; keeping a draft does not change the model." : ""}</p>
       {directDraftRetained ? <p>Direct node edit retained. Return to node fields to correct or cancel it.</p> : null}

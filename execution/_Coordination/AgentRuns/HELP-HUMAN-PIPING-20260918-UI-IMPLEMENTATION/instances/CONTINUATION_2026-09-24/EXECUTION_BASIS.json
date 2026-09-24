@@ -62,7 +62,7 @@
       "brief": "IMPLEMENTATION_MANAGER_BRIEF.md",
       "fork_turns": "none",
       "writes": "apps/desktop and additive tools/ci under project; B4_MANAGER evidence; ROOT owns Git/graph",
-      "state": "initial source freeze5b833 returned; SR-1/SR-2 repair e31a1920 returned; hashes checked; source/browser/build released; native unexecuted",
+      "state": "native-fit repair470dac01 returned:68units/TS,40affectedbrowser pass; source/browser/build released, fresh review required; ROOT native cleanup pending Mac unlock",
       "brief_sha256": "190383d57b9788904ba6c9dbb066daa8abe7b114852c398302949c254091e5e3"
     },
     {
@@ -120,8 +120,32 @@
       "fork_turns": "none",
       "candidate": "1c8f04039b5f41812ebd879fc80d810392123072",
       "writes": "SOURCE_REVIEW/RETURN.md only",
-      "state": "returned SR-1/SR-2 P2; all59 changed paths covered; repaired candidate backcheck next",
+      "state": "SR-1/SR-2 CLOSED on5cfd2257c; independent source backcheckPASS; later native-fit source will need fresh delta review",
       "clarification": "Read-only Git permitted; no Git mutation. Parent clarified ambiguous launch shorthand before review."
+    },
+    {
+      "id": "/root/c4_manager",
+      "role": "WORKING_ITEMS isolated pure-policy manager",
+      "model": "gpt-6-astra",
+      "reasoning": "high",
+      "brief": "C4_MANAGER_BRIEF.md",
+      "brief_sha256": "fd8a7b6ea94221e0741baa33eeac146fd34c803aff48433d4f9cfc4d239ff531",
+      "fork_turns": "none",
+      "branch": "codex/piping-c4-policy-20260924",
+      "basis": "5cfd2257cafca0fb141fc7dd5085c627d8caae9e",
+      "state": "source0ec48a4f; verified9dff4249; independent21-file reviewPASS; checkpoint8e342b1f retains review/UI plan; no live renderer",
+      "writes": "six new viewport policy/index/placement source/tests plus C4_MANAGER evidence, isolated checkout only"
+    },
+    {
+      "id": "/root/c4_review",
+      "role": "TASK independent C4 source/evidence reviewer",
+      "model": "gpt-6-astra",
+      "reasoning": "xhigh",
+      "brief": "C4_REVIEW_BRIEF.md",
+      "brief_sha256": "98b5b3a7a3dd53d4d551922d2f438d52b2b96341e48da6739efaf05bef51615e",
+      "fork_turns": "none",
+      "state": "PASS21files through9dff,58hashbindings; no UI/renderer/native/performance claim",
+      "writes": "isolated C4_MANAGER/INDEPENDENT_REVIEW/RETURN.md only"
     }
   ],
   "enforcement": "Logical role and write scopes; actual host workspace-write permissions apply. Children share checkout; no independent OS sandbox guarantee claimed. No historical worker was resumed."

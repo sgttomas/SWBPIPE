@@ -1,0 +1,38 @@
+{
+  "method": "Exact selected lines from full process/port inventories; original bytes preserved privately outside Git. These projections are not full command stdout. Only known Piping process ancestry/executable paths and test ports5174/5175 are included. No credential-pattern matches were detected, but unrelated host inventory is unnecessary to repository evidence.",
+  "private_supplement": "/tmp/piping-native-private-preflight-20260924",
+  "files": [
+    {
+      "original": "processes.txt",
+      "original_sha256": "f0698a0c8d21f31468e4454fda16c6a89575691f9febc1f5a41d42dcc4af284c",
+      "original_lines": 802,
+      "projection": "processes-piping-scope.txt",
+      "project_lines": 5,
+      "projection_sha256": "d0cdf22220b5a01eb09a1ebad6c61f817b1196f2b759899bfe9ab97a050cfa81"
+    },
+    {
+      "original": "resume-processes.txt",
+      "original_sha256": "2db5f08bdc64edd5e4bfda208bf51a9f4d49d2440aeb1d35575b4f405ee0f7b4",
+      "original_lines": 783,
+      "projection": "resume-processes-piping-scope.txt",
+      "project_lines": 0,
+      "projection_sha256": "68f8a9871fda60473554fd7d7f27af667770f9708ca0a5b893e53d45886f4c3d"
+    },
+    {
+      "original": "ports.txt",
+      "original_sha256": "9bfbf54ba1e995ab1abbd3e96fbf3840d50a8a86b9ab0d081c102e3d295a687f",
+      "original_lines": 20,
+      "projection": "ports-piping-scope.txt",
+      "project_lines": 1,
+      "projection_sha256": "851d2e3113bbb954bdff5dcfe44fe0629b7ab1086a5c41f72c8355e981159203"
+    },
+    {
+      "original": "resume-ports.txt",
+      "original_sha256": "75a15ba926f69611a47367c5d53751c4e5f3d8c56f3d002a6866bb5a5731b364",
+      "original_lines": 19,
+      "projection": "resume-ports-piping-scope.txt",
+      "project_lines": 0,
+      "projection_sha256": "f3884ce8fd4a1c74c36568f470678d06dba408d2566e4004a6d079152c2d5900"
+    }
+  ]
+}

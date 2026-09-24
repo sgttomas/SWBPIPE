@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-09-24T03:01:05.298722+00:00",
+  "process_exit": 0,
+  "process": "  PID  PPID STARTED                      COMMAND\n 9925     1 Wed Sep 23 20:59:18 2026     /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/src-tauri/target/debug/bundle/macos/SWBPIPE.app/Contents/MacOS/openpipestress-desktop\n",
+  "binary_sha256": "9dd718236fb8d9eb94dba221d0ee2dab0d5cd58ca37a0fc1430ef1b89088d07d",
+  "matches_built": true,
+  "parent_report": "ROOT resolved its own elicitation and launched exact bundle; ROOT initial AX synthetic baseline; ROOT made no inputs. Child retry explicitly authorized.",
+  "child_retry": "getApp exact same bundle immediately failed again: root-only MCP elicitation; no binding/AX/input. No further retry pending resolution."
+}

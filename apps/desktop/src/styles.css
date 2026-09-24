@@ -4114,3 +4114,36 @@ body { min-width: 760px; min-height: 540px; }
 .model-tree[data-compact-grid="true"] .engineering-table-message { padding: 0; }
 .compact-table-details { max-width: min(560px, 90vw); border: 1px solid var(--ui-divider); padding: 12px; background: var(--ui-surface); color: var(--ui-text); }
 .compact-table-details p { margin: 0 0 8px; }
+
+/* Resolve header and body against one measured content width and real gutter. */
+.engineering-table-row { min-width: 0; }
+.engineering-table [role="rowgroup"] { min-width: 0; width: 100%; }
+.engineering-table-header-clip { flex: 0 0 auto; min-width: var(--table-min-width); padding-right: var(--table-gutter); background: var(--ui-raised); }
+.engineering-table.compact-table > [role="grid"] { overflow: hidden; }
+.engineering-table.compact-table .engineering-table-header-clip { min-width: 0; height: 29px; overflow: clip; }
+.engineering-table.compact-table .engineering-table-body-slot { min-width: 0; }
+.engineering-table.compact-table [role="rowgroup"] { overflow-x: hidden; }
+.engineering-table.compact-table [data-virtual-index] { overflow: clip !important; }
+.engineering-table.compact-table .engineering-table-header { box-sizing: border-box; height: 29px; min-height: 29px; white-space: nowrap; }
+.engineering-table.compact-table .engineering-table-header > div { overflow: hidden; }
+.engineering-table.compact-table .engineering-table-header button { box-sizing: border-box; height: 28px; min-height: 28px; line-height: 20px; white-space: nowrap; padding: 2px 6px; }
+.engineering-table.compact-table .engineering-table-header > div:first-child { padding: 4px 8px; line-height: 20px; }
+.table-overflow-rail:not(.enabled), .table-overflow-rail:not(.enabled) > .table-overflow-viewport,
+.table-overflow-rail:not(.enabled) > .table-overflow-viewport > .table-overflow-content { display: contents; }
+.table-overflow-rail.enabled { display: flex; align-items: center; flex: 1 1 0; min-width: 0; height: 28px; gap: 2px; }
+.table-overflow-rail.enabled > .table-overflow-viewport { min-width: 0; flex: 1 1 0; height: 28px; overflow: hidden; }
+.table-overflow-rail.enabled .table-overflow-content { display: flex; width: max-content; min-width: 100%; height: 28px; align-items: center; gap: 4px; flex-wrap: nowrap; white-space: nowrap; }
+.table-overflow-rail.enabled .table-overflow-content > * { flex: 0 0 auto; }
+.table-pan-pair { display: flex; flex: 0 0 auto; height: 28px; align-items: center; gap: 0; }
+.app-shell .table-pan-pair button { width: 28px; height: 28px; min-height: 28px; box-sizing: border-box; padding: 0; font-size: 18px; }
+.table-column-pan-target { flex: 0 0 auto; }
+.table-column-pan-target:empty { display: none; }
+.model-tree[data-compact-grid="true"] > .model-grid-toolbar { overflow: hidden; }
+.model-tree[data-compact-grid="true"] .engineering-table-footer { overflow: visible; }
+.model-tree[data-compact-grid="true"] .engineering-table-footer > .table-overflow-rail { flex: 1 1 0; }
+.model-tree[data-compact-grid="true"] .engineering-table-footer .engineering-table-message { max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.engineering-table-info { max-width: min(560px, 90vw); max-height: 70vh; overflow: auto; white-space: normal; border: 1px solid var(--ui-divider); padding: 12px; background: var(--ui-surface); color: var(--ui-text); }
+.engineering-table-info p { margin: 0 0 8px; }
+.engineering-table-info, .compact-table-details { white-space: normal; overflow-wrap: anywhere; max-height: 70vh; overflow: auto; }
+
+.engineering-table-header-window { overflow: clip; }

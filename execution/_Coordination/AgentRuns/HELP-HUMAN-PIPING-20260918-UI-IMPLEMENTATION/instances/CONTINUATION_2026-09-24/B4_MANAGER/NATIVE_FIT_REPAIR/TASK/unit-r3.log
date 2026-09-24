@@ -1,0 +1,79 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run --run src/features/workspace/table/tableGeometry.test.ts src/features/workspace/table/EngineeringTable.test.tsx
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 2 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+SyntaxError: unknown pseudo-class selector ':popover-open'
+ ❯ emit ../../node_modules/nwsapi/src/nwsapi.js:670:17
+ ❯ compileSelector ../../node_modules/nwsapi/src/nwsapi.js:1487:17
+ ❯ compile ../../node_modules/nwsapi/src/nwsapi.js:880:16
+ ❯ match_collect ../../node_modules/nwsapi/src/nwsapi.js:1563:16
+ ❯ Object._matches [as match] ../../node_modules/nwsapi/src/nwsapi.js:1629:35
+ ❯ HTMLDivElementImpl.ElementImpl.matches ../../node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js:592:18
+ ❯ HTMLDivElement.matches ../../node_modules/jsdom/lib/jsdom/living/generated/Element.js:655:34
+ ❯ closeInfo src/features/workspace/table/EngineeringTable.tsx:142:16
+    140|   function closeInfo(restore = false) {
+    141|     const info = root.current?.querySelector<HTMLElement>(".engineerin…
+    142|     if (!info?.matches(":popover-open")) return false;
+       |                ^
+    143|     info.hidePopover(); if (restore) infoButton.current?.focus(); retu…
+    144|   }
+ ❯ onBlur src/features/workspace/table/EngineeringTable.tsx:340:91
+ ❯ executeDispatch ../../node_modules/react-dom/cjs/react-dom-client.development.js:19116:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 12, INDEX_SIZE_ERR: 1, DOMSTRING_SIZE_ERR: 2, HIERARCHY_REQUEST_ERR: 3, WRONG_DOCUMENT_ERR: 4, INVALID_CHARACTER_ERR: 5, NO_DATA_ALLOWED_ERR: 6, NO_MODIFICATION_ALLOWED_ERR: 7, NOT_FOUND_ERR: 8, NOT_SUPPORTED_ERR: 9, INUSE_ATTRIBUTE_ERR: 10, INVALID_STATE_ERR: 11, SYNTAX_ERR: 12, INVALID_MODIFICATION_ERR: 13, NAMESPACE_ERR: 14, INVALID_ACCESS_ERR: 15, VALIDATION_ERR: 16, TYPE_MISMATCH_ERR: 17, SECURITY_ERR: 18, NETWORK_ERR: 19, ABORT_ERR: 20, URL_MISMATCH_ERR: 21, QUOTA_EXCEEDED_ERR: 22, TIMEOUT_ERR: 23, INVALID_NODE_TYPE_ERR: 24, DATA_CLONE_ERR: 25 }
+This error originated in "src/features/workspace/table/EngineeringTable.test.tsx" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "keeps complete compact feedback in Info and exempts only this table's chrome from blur Apply". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+SyntaxError: unknown pseudo-class selector ':popover-open'
+ ❯ emit ../../node_modules/nwsapi/src/nwsapi.js:670:17
+ ❯ compileSelector ../../node_modules/nwsapi/src/nwsapi.js:1487:17
+ ❯ compile ../../node_modules/nwsapi/src/nwsapi.js:880:16
+ ❯ match_collect ../../node_modules/nwsapi/src/nwsapi.js:1563:16
+ ❯ Object._matches [as match] ../../node_modules/nwsapi/src/nwsapi.js:1629:35
+ ❯ HTMLDivElementImpl.ElementImpl.matches ../../node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js:592:18
+ ❯ HTMLDivElement.matches ../../node_modules/jsdom/lib/jsdom/living/generated/Element.js:655:34
+ ❯ closeInfo src/features/workspace/table/EngineeringTable.tsx:142:16
+    140|   function closeInfo(restore = false) {
+    141|     const info = root.current?.querySelector<HTMLElement>(".engineerin…
+    142|     if (!info?.matches(":popover-open")) return false;
+       |                ^
+    143|     info.hidePopover(); if (restore) infoButton.current?.focus(); retu…
+    144|   }
+ ❯ onBlur src/features/workspace/table/EngineeringTable.tsx:340:91
+ ❯ executeDispatch ../../node_modules/react-dom/cjs/react-dom-client.development.js:19116:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 12, INDEX_SIZE_ERR: 1, DOMSTRING_SIZE_ERR: 2, HIERARCHY_REQUEST_ERR: 3, WRONG_DOCUMENT_ERR: 4, INVALID_CHARACTER_ERR: 5, NO_DATA_ALLOWED_ERR: 6, NO_MODIFICATION_ALLOWED_ERR: 7, NOT_FOUND_ERR: 8, NOT_SUPPORTED_ERR: 9, INUSE_ATTRIBUTE_ERR: 10, INVALID_STATE_ERR: 11, SYNTAX_ERR: 12, INVALID_MODIFICATION_ERR: 13, NAMESPACE_ERR: 14, INVALID_ACCESS_ERR: 15, VALIDATION_ERR: 16, TYPE_MISMATCH_ERR: 17, SECURITY_ERR: 18, NETWORK_ERR: 19, ABORT_ERR: 20, URL_MISMATCH_ERR: 21, QUOTA_EXCEEDED_ERR: 22, TIMEOUT_ERR: 23, INVALID_NODE_TYPE_ERR: 24, DATA_CLONE_ERR: 25 }
+This error originated in "src/features/workspace/table/EngineeringTable.test.tsx" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "keeps complete compact feedback in Info and exempts only this table's chrome from blur Apply". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  2 passed (2)
+      Tests  51 passed (51)
+     Errors  2 errors
+   Start at  21:46:36
+   Duration  1.57s (transform 168ms, setup 150ms, import 151ms, tests 1.05s, environment 403ms)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run --run src/features/workspace/table/tableGeometry.test.ts src/features/workspace/table/EngineeringTable.test.tsx

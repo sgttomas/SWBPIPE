@@ -1,0 +1,73 @@
+Cannot use({ launchOptions }) in a describe group, because it forces a new worker.
+Make it top-level in the test file or put in the configuration file.
+
+   at b4-table-editing.spec.ts:778
+
+  776 | test.describe("classic scrollbar allocation", () => {
+  777 |   const chrome = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+> 778 |   test.use({ launchOptions: { ignoreDefaultArgs: ["--hide-scrollbars"], executablePath: existsSync(chrome) ? chrome : undefined } });
+      |        ^
+  779 | for (const density of ["comfortable", "compact"] as const) for (const count of [1, 5, 160]) {
+  780 |   test(`B4 classic scrollbar compact ${density} ${count} preserves tracks and nonmutating pans @explicit-viewport`, async ({ page, browser }, info) => {
+  781 |     await attachBrowserIdentity(browser, info); await page.setViewportSize({ width: 1280, height: 800 });
+Cannot use({ launchOptions }) in a describe group, because it forces a new worker.
+Make it top-level in the test file or put in the configuration file.
+
+   at b4-table-editing.spec.ts:778
+
+  776 | test.describe("classic scrollbar allocation", () => {
+  777 |   const chrome = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+> 778 |   test.use({ launchOptions: { ignoreDefaultArgs: ["--hide-scrollbars"], executablePath: existsSync(chrome) ? chrome : undefined } });
+      |        ^
+  779 | for (const density of ["comfortable", "compact"] as const) for (const count of [1, 5, 160]) {
+  780 |   test(`B4 classic scrollbar compact ${density} ${count} preserves tracks and nonmutating pans @explicit-viewport`, async ({ page, browser }, info) => {
+  781 |     await attachBrowserIdentity(browser, info); await page.setViewportSize({ width: 1280, height: 800 });
+Cannot use({ launchOptions }) in a describe group, because it forces a new worker.
+Make it top-level in the test file or put in the configuration file.
+
+   at b4-table-editing.spec.ts:778
+
+  776 | test.describe("classic scrollbar allocation", () => {
+  777 |   const chrome = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+> 778 |   test.use({ launchOptions: { ignoreDefaultArgs: ["--hide-scrollbars"], executablePath: existsSync(chrome) ? chrome : undefined } });
+      |        ^
+  779 | for (const density of ["comfortable", "compact"] as const) for (const count of [1, 5, 160]) {
+  780 |   test(`B4 classic scrollbar compact ${density} ${count} preserves tracks and nonmutating pans @explicit-viewport`, async ({ page, browser }, info) => {
+  781 |     await attachBrowserIdentity(browser, info); await page.setViewportSize({ width: 1280, height: 800 });
+Cannot use({ launchOptions }) in a describe group, because it forces a new worker.
+Make it top-level in the test file or put in the configuration file.
+
+   at b4-table-editing.spec.ts:778
+
+  776 | test.describe("classic scrollbar allocation", () => {
+  777 |   const chrome = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+> 778 |   test.use({ launchOptions: { ignoreDefaultArgs: ["--hide-scrollbars"], executablePath: existsSync(chrome) ? chrome : undefined } });
+      |        ^
+  779 | for (const density of ["comfortable", "compact"] as const) for (const count of [1, 5, 160]) {
+  780 |   test(`B4 classic scrollbar compact ${density} ${count} preserves tracks and nonmutating pans @explicit-viewport`, async ({ page, browser }, info) => {
+  781 |     await attachBrowserIdentity(browser, info); await page.setViewportSize({ width: 1280, height: 800 });
+Cannot use({ launchOptions }) in a describe group, because it forces a new worker.
+Make it top-level in the test file or put in the configuration file.
+
+   at b4-table-editing.spec.ts:778
+
+  776 | test.describe("classic scrollbar allocation", () => {
+  777 |   const chrome = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+> 778 |   test.use({ launchOptions: { ignoreDefaultArgs: ["--hide-scrollbars"], executablePath: existsSync(chrome) ? chrome : undefined } });
+      |        ^
+  779 | for (const density of ["comfortable", "compact"] as const) for (const count of [1, 5, 160]) {
+  780 |   test(`B4 classic scrollbar compact ${density} ${count} preserves tracks and nonmutating pans @explicit-viewport`, async ({ page, browser }, info) => {
+  781 |     await attachBrowserIdentity(browser, info); await page.setViewportSize({ width: 1280, height: 800 });
+Cannot use({ launchOptions }) in a describe group, because it forces a new worker.
+Make it top-level in the test file or put in the configuration file.
+
+   at b4-table-editing.spec.ts:778
+
+  776 | test.describe("classic scrollbar allocation", () => {
+  777 |   const chrome = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+> 778 |   test.use({ launchOptions: { ignoreDefaultArgs: ["--hide-scrollbars"], executablePath: existsSync(chrome) ? chrome : undefined } });
+      |        ^
+  779 | for (const density of ["comfortable", "compact"] as const) for (const count of [1, 5, 160]) {
+  780 |   test(`B4 classic scrollbar compact ${density} ${count} preserves tracks and nonmutating pans @explicit-viewport`, async ({ page, browser }, info) => {
+  781 |     await attachBrowserIdentity(browser, info); await page.setViewportSize({ width: 1280, height: 800 });
+

@@ -1,0 +1,71 @@
+The following is a diff from the previous accessibility tree for Window: "Invented Utility Loop Preview — SWBPIPE" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 42-89
++						194 container Layout grid mode
++							195 toggle button Tree, Value: off
++							196 toggle button Grid, Value: on
++						197 container Model tree filtering
++							198 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
++								199 text Name, ID, type, or group
++							200 button (disabled) Clear model tree filter
++						201 container
++							202 text Family
++							203 pop up button Grid family, Value: Nodes (5)
++						204 button (collapsed) Review changes, Secondary Actions: Expand
++						205 button (collapsed) Table details, Secondary Actions: Expand
++						206 container Bulk entity grid
++							207 container
++								208 table (settable) Node fields
++									209 row (selectable)
++										210 cell (settable)
++											211 text Node
++										212 cell (settable)
++											213 button Sort Label
++										214 cell (settable)
++											215 button Sort X
++										216 cell (settable)
++											217 button Sort Y
++										218 cell (settable)
++											219 button Sort Z
++										220 cell (settable)
++											221 button Sort Provenance
++									222 row (selectable)
++										223 cell (selectable, settable) node:N-100
++										224 cell (selectable, settable) node:N-100 Label: Pump nozzle
++										225 cell (selectable, settable) node:N-100 X: 0 m
++										226 cell (selectable, settable) node:N-100 Y: 0 m
++										227 cell (selectable, settable) node:N-100 Z: 0 m
++										228 cell (selectable, settable) node:N-100 Provenance: invented_example
++									229 row (selectable)
++										230 cell (selectable, settable) node:N-110
++										231 cell (selectable, settable) node:N-110 Label: Low point elbow
++										232 cell (selectable, settable) node:N-110 X: 3.2 m
++										233 cell (selectable, settable) node:N-110 Y: 0 m
++										234 cell (selectable, settable) node:N-110 Z: 0 m
++										235 cell (selectable, settable) node:N-110 Provenance: invented_example
++									236 row (selectable)
++										237 cell (selectable, settable) node:N-120
++										238 cell (selectable, settable) node:N-120 Label: Riser elbow
++										239 cell (selectable, settable) node:N-120 X: 3.2 m
++										240 cell (selectable, settable) node:N-120 Y: 2.4 m
++										241 cell (selectable, settable) node:N-120 Z: 0 m
++										242 cell (selectable, settable) node:N-120 Provenance: invented_example
++									243 row (selectable)
++										244 cell (selectable, settable) node:N-130
++										245 cell (selectable, settable) node:N-130 Label: Rack turn
++										246 cell (selectable, settable) node:N-130 X: 7.6 m
++										247 cell (selectable, settable) node:N-130 Y: 2.4 m
++										248 cell (selectable, settable) node:N-130 Z: 0 m
++										249 cell (selectable, settable) node:N-130 Provenance: invented_example
++									250 row (selectable)
++										251 cell (selectable, settable) node:N-140
++										252 cell (selectable, settable) node:N-140 Label: Terminal tie-in
++										253 cell (selectable, settable) node:N-140 X: 7.6 m
++										254 cell (selectable, settable) node:N-140 Y: 2.4 m
++										255 cell (selectable, settable) node:N-140 Z: 2.2 m
++										256 cell (selectable, settable) node:N-140 Provenance: invented_example
++								257 container Node fields footer
++									258 text 5
++									259 text  of 
++									260 text 5
++									261 text  rows
+The focused UI element is 2 HTML content Description: SWBPIPE, URL: tauri://localhost

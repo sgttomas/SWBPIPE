@@ -1,0 +1,42 @@
+{
+  "role": "TASK Type 2",
+  "parent": "/root/b4_manager",
+  "child": "/root/b4_manager/compact_impl",
+  "mechanism": "delegated-harness-native",
+  "head": "5cfd2257cafca0fb141fc7dd5085c627d8caae9e",
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NATIVE_FIT_REPAIR_DISPOSITION.md",
+      "sha256": "0c54ec97086c95c8b1af8fbbf58e7036813d89d7a67f403945b81108c356c323"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/DESIGN_MANAGER/NATIVE_COMPACT_DESIGN.md",
+      "sha256": "aa3d9be6bfa5a3024f80bc5dfc0c5cda479cbbe4759f905e8de774c9a6db7189"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_SCROLLBAR_DIAGNOSIS/RETURN.md",
+      "sha256": "82eb5300c6ba88666d80fda1b1e53d630ea76814cf06c0f8b92071d8bc9bfd02"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_SCROLLBAR_DIAGNOSIS/TASK/DIAGNOSIS_RETURN.md",
+      "sha256": "5968d4556d67f4bfa4b00bda86b572d488baa47ffce76506937a567d673936d2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE/PRELIMINARY_RETURN.md",
+      "sha256": "3b0b5fa49cc3ddedfe68e34d6d7978ac2dacdc1ce0f1585aa5389bb01f34d2c0"
+    }
+  ],
+  "resources": "Port5174 free before launch; no native build/launch/CUA; old native under ROOT ownership"
+}

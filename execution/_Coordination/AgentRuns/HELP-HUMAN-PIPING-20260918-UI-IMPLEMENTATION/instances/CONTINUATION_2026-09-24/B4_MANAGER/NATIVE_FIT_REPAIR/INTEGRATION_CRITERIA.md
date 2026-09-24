@@ -1,0 +1,12 @@
+# Native-fit integration criteria
+
+Basis is ROOT-accepted NATIVE_FIT_REPAIR_DISPOSITION and DESIGN_MANAGER/NATIVE_COMPACT_DESIGN. This derivative checklist introduces no new acceptance boundary or test tolerance.
+
+- Shared actual rowgroup client width resolves one track vector used by every header/body row; no fixed17px assumption. Native vertical scrollbar remains at visible viewport edge, not at the far edge of wide content. Empty/fitting/overflow and virtual/nonvirtual transitions update measurement without feedback loops.
+- Compact horizontal controls occupy existing30px tool and32px footer rows, preserving29px header and full36px Comfortable/30px Compact rows within127px host. Grid/tool/footer gain no classic horizontal height, with explicit named pointer+keyboard earlier/later affordances and focus reveal replacing that access. Noncompact native horizontal behavior retains space and shared alignment correction.
+- Tool/status pan controls are outside their own clipped strips. Active table column controls are outside tool rail; hidden or inactive direct/review instances cannot overwrite active controls. Offset clamps through family/filter/resize transitions.
+- Long header unit semantics remain truthful, one-line readable, with complete accessible/keyboard disclosure. Full errors/status/retained-draft/sort context is available in Info and existing live/error associations remain meaningful.
+- Pan/disclosure/focus reveal performs no Apply, Keep, Queue or durable/history mutation. Toolbar destinations outside the table root need active-owner-aware blur protection; no broad exemption that hides intended Apply/Queue behavior. Editor input identity/text Undo remains stable, and translated anchors/persistent editor clipping update together. Popup Escape ownership respects editor/enum/local details before shell.
+- Geometry tests explicitly report actual nonzero scrollbar footprint when claiming classic behavior. Requested flags/CSS are not proof. Bounded mocked measurement is labelled synthetic. Native proof and repaired-candidate independent review remain required, with old failing native5cf evidence preserved.
+
+Source and focused checks are TASK-owned. ROOT retains old native PID9925 and native cleanup; neither manager nor TASK may rebuild/launch/CUA before explicit handback. Freeze exact source/test hashes and canonical raw check outputs under _run_records; stop focused servers before return.

@@ -1,0 +1,13 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run --run src/features/model-tree/ModelTree.test.tsx src/features/workspace/table/EngineeringTable.test.tsx src/features/workspace/table/tableGeometry.test.ts
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop
+
+
+ Test Files  3 passed (3)
+      Tests  68 passed (68)
+   Start at  21:56:31
+   Duration  3.51s (transform 726ms, setup 504ms, import 913ms, tests 3.83s, environment 1.88s)
+

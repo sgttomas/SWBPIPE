@@ -1,0 +1,37 @@
+{
+  "status": "native resource returned to ROOT; child session still blocked after authorized retry",
+  "candidate": "5cfd2257cafca0fb141fc7dd5085c627d8caae9e",
+  "activated_utc": "2026-09-24T02:15:43.706441+00:00",
+  "manager": "/root/b4_manager",
+  "actual_child": "/root/b4_manager/native_compact",
+  "mechanism": "collaboration.spawn_agent delegated-harness-native, fresh TASK Type2",
+  "model": "gpt-6-astra",
+  "reasoning": "low",
+  "resources": "exclusive Piping build/native/CUA; parent read-only/evidence; no concurrent desktop peers",
+  "source_and_product_writes": "held; no repairs or rebuild after defect without ROOT coordination",
+  "return": "TASK/RETURN.md; live app handoff for ROOT light/dark own-look, no Quit",
+  "brief_sha256": "66896c501fbe172cd19a0143e10fa70037da85c088daf675fbc0c03803dcb5b0",
+  "backcheck_sha256": "c9edec1470e068d4d09cf8ecbadc47a56b62cb2f89fd3571edfbf85c4ce5ccfe",
+  "events": [
+    {
+      "utc": "2026-09-24T02:17:10.542889+00:00",
+      "event": "TASK reported active other-worktree Piping Playwright/Vite/evidence-sweep; raw actual paths/processes preserved in TASK/_run_records. ROOT notified. No peer process terminated and no native build/launch/CUA started; await explicit coordinated clear."
+    },
+    {
+      "utc": "2026-09-24T02:32:18.462285+00:00",
+      "event": "ROOT reports other Claude sweep completed and process/ports absent; no peer terminated. Resumed retained TASK via collaboration.followup_task on same5cf source, exclusive build/native/CUA, fresh preflight before build. Other sweep outcome is not candidate evidence; isolated C4 remains source-only."
+    },
+    {
+      "utc": "2026-09-24T02:34:46.096639+00:00",
+      "event": "Child reports exact5cf debugbundle buildexit0 and21 distassets; binarySHA2569dd718236fb8d9eb94dba221d0ee2dab0d5cd58ca37a0fc1430ef1b89088d07d. CUA getApp exactbundle blocked by root-only MCP elicitation; ROOT notified. No retry or shell launch until resolved."
+    },
+    {
+      "utc": "2026-09-24T03:00:34.567752+00:00",
+      "event": "ROOT reports successful exact-bundle getApp after access wait; launched PID9925. Initial synthetic27entity/5Node baseline Both/Tree/Inspectorcollapsed/UndoRedo disabled, no ROOT input or preference/model action. Explicit retry/native handback granted to child, fresh identity/state check, no rebuild."
+    },
+    {
+      "utc": "2026-09-24T03:01:25.374851+00:00",
+      "event": "Child authorized exact getApp retry returned same root-only elicitation immediately; no child native observation/input. No further retry. Manager handed resource back to ROOT working CUA session for direct accepted-plan execution. Build evidence remains child; native evidence must be attributed actual ROOT executor."
+    }
+  ]
+}

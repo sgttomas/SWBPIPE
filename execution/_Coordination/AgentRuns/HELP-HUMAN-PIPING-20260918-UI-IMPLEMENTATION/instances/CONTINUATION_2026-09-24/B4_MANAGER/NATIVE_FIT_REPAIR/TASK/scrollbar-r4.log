@@ -1,0 +1,47 @@
+
+Running 1 test using 1 worker
+
+(node:15753) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15753) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium-desktop] › e2e/b4-table-editing.spec.ts:783:3 › classic scrollbar allocation › B4 classic scrollbar compact comfortable 5 preserves tracks and nonmutating pans @explicit-viewport (12.6s)
+
+
+  1) [chromium-desktop] › e2e/b4-table-editing.spec.ts:783:3 › classic scrollbar allocation › B4 classic scrollbar compact comfortable 5 preserves tracks and nonmutating pans @explicit-viewport 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeFocused[2m([22m[2m)[22m failed
+
+    Locator:  getByTestId('material-engineering-table').getByRole('button', { name: 'Material fields Info', exact: true })
+    Expected: focused
+    Received: inactive
+    Timeout:  10000ms
+
+    Call log:
+    [2m  - Expect "toBeFocused" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('material-engineering-table').getByRole('button', { name: 'Material fields Info', exact: true })[22m
+    [2m    24 × locator resolved to <button type="button" popovertarget="_r_1g_" data-table-chrome-owner="_r_1f_" aria-label="Material fields Info">Info</button>[22m
+    [2m       - unexpected value "inactive"[22m
+
+
+      832 |     await page.keyboard.press("Tab"); await expect(dialog.getByRole("button", { name: "Close Info", exact: true })).toBeFocused();
+      833 |     await page.keyboard.press("Tab"); await expect(dialog).toBeHidden(); await expect(infoButton).not.toBeFocused();
+    > 834 |     await infoButton.click(); await page.keyboard.press("Escape"); await expect(infoButton).toBeFocused();
+          |                                                                                             ^
+      835 |     const toolsLater = page.getByRole("button", { name: "Later table controls", exact: true }); if (await toolsLater.count()) { await toolsLater.click(); await expect(editor).toHaveValue("Retained valid draft while navigating chrome"); }
+      836 |     await page.getByRole("button", { name: "Table details", exact: true }).focus(); await page.keyboard.press("Enter"); await expect(page.getByRole("dialog", { name: "Table details", exact: true })).toBeVisible(); await expect(page.getByTestId("workspace-undo")).toBeDisabled(); await page.keyboard.press("Escape");
+      837 |     await table.getByRole("button", { name: "Cancel", exact: true }).focus(); await page.keyboard.press("Enter"); expect(await retained!.evaluate((e) => e.isConnected)).toBe(false); await expect(page.getByTestId("workspace-undo")).toBeDisabled();
+        at /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts:834:93
+
+    Error Context: ../../../../../../../../../../tmp/piping-native-fit-scrollbar-r4/b4-table-editing-classic-s-646b0-ting-pans-explicit-viewport-chromium-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../../../../../tmp/piping-native-fit-scrollbar-r4/b4-table-editing-classic-s-646b0-ting-pans-explicit-viewport-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../../../../../../../tmp/piping-native-fit-scrollbar-r4/b4-table-editing-classic-s-646b0-ting-pans-explicit-viewport-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium-desktop] › e2e/b4-table-editing.spec.ts:783:3 › classic scrollbar allocation › B4 classic scrollbar compact comfortable 5 preserves tracks and nonmutating pans @explicit-viewport 

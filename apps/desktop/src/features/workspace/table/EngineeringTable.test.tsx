@@ -409,3 +409,25 @@ describe("opt-in typed enum on the common input", () => {
     view.rerender(<EngineeringTable {...base} onApply={apply} />); fireEvent.click(input); view.rerender(<EngineeringTable {...base} active={false} onApply={apply} />); expect(screen.queryByRole("listbox")).toBeNull(); expect(apply).not.toHaveBeenCalled();
   });
 });
+
+it("keeps complete compact feedback in Info and exempts only this table's chrome from blur Apply", async () => {
+  const longError = "The requested field could not be applied because its captured source and engineering basis no longer match. Review the complete retained evidence before retrying; all draft text remains available.";
+  const apply = vi.fn(async () => ({ applied: false, messages: [longError] }));
+  render(<EngineeringTable label="Compact feedback" compact bounded rows={rows()} columns={columns} generation="p:1" density="comfortable" filter="" selectedKey={rows()[0].key} onSelect={() => {}} onApply={apply} />);
+  const input = edit(); fireEvent.change(input, { target: { value: "2" } });
+  const table = screen.getByTestId("engineering-table"); const owned = document.createElement("button"), foreign = document.createElement("button");
+  // jsdom has no native popover selector; these unit assertions cover closed
+  // disclosure content/blur ownership, while browser cases exercise real opening.
+  const info = table.querySelector<HTMLElement>(".engineering-table-info")!;
+  const matches = info.matches.bind(info);
+  const closedPopover = vi.spyOn(info, "matches").mockImplementation((selector) => selector === ":popover-open" ? false : matches(selector));
+  owned.dataset.tableChromeOwner = table.dataset.tableOwner; foreign.dataset.tableChromeOwner = "another-table";
+  document.body.append(owned, foreign);
+  try {
+    fireEvent.blur(input, { relatedTarget: owned }); expect(apply).not.toHaveBeenCalled(); expect(input).toHaveValue("2");
+    fireEvent.blur(input, { relatedTarget: foreign }); await waitFor(() => expect(apply).toHaveBeenCalledTimes(1));
+    expect(screen.getByRole("alert")).toHaveTextContent(longError);
+    expect(table.querySelector(".engineering-table-info")).toHaveTextContent(longError);
+    expect(document.getElementById(input.getAttribute("aria-describedby")!)).toHaveTextContent(longError);
+  } finally { closedPopover.mockRestore(); owned.remove(); foreign.remove(); }
+});
