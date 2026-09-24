@@ -1,0 +1,10 @@
+{
+  "environment": "jsdom",
+  "popoverAttribute": "auto",
+  "showPopover": "undefined",
+  "hidePopover": "undefined",
+  "selector": {
+    "name": "SyntaxError",
+    "message": "unknown pseudo-class selector ':popover-open'"
+  }
+}

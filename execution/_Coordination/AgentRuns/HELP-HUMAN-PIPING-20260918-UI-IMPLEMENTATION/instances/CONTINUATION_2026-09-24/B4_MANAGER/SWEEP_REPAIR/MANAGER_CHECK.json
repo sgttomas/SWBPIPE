@@ -1,0 +1,24 @@
+{
+  "source_digest": "244767aeb8a29cb924aa0d5b085987cadd7a2149296baf83c3f07ccf7f2d8b11",
+  "all_hashes_match": true,
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.test.tsx",
+      "matches": true
+    }
+  ],
+  "diff_check": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "assessment": "manager integration check, not independent review"
+}

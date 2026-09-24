@@ -1,0 +1,100 @@
+{
+  "candidate": "c57cd17b1ff05ab9bb35d2eaac6725aaffa953e2",
+  "host": "macOS arm64",
+  "clean_sweep": {
+    "initial_preflight": {
+      "command": "CARGO_BUILD_JOBS=2 python3 tools/release/run_evidence_sweep.py --execute --require-capability host",
+      "cwd": "WORKING_ROOT",
+      "exit": 1,
+      "reason": "Escalated shell Python3.9.6 failed >=3.11 preflight before any surface"
+    },
+    "execution": {
+      "command": "python3 tools/release/run_evidence_sweep.py --execute --require-capability host",
+      "cwd": "WORKING_ROOT",
+      "env": {
+        "CARGO_BUILD_JOBS": "2",
+        "PATH": "/Users/ryan/.local/share/mise/installs/python/3.13/bin:/Users/ryan/.local/share/mise/installs/node/24/bin:/Users/ryan/.cargo/bin:/Users/ryan/.local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+      },
+      "exit": 1,
+      "summary": "validation/evidence/sweeps/SWEEP_20260924T043624Z_c57cd17b1ff0.json"
+    }
+  },
+  "other_commands": [
+    {
+      "command": "python3 -m pytest -q tools/practitioner_harness",
+      "cwd": "REPO_ROOT",
+      "exit": 0,
+      "result": "379passed"
+    },
+    {
+      "command": "python3 tools/practitioner_harness/harness.py self-check",
+      "cwd": "REPO_ROOT",
+      "exit": 0,
+      "result": "4 REVIEW / 124 WARN / 14 INFO / 1 NOT_APPLICABLE; matches earlier counts, not a warning-free result"
+    },
+    {
+      "command": "python3 tools/validation/validate_piping_loop_receipts.py --validation-commit c57cd17b1ff05ab9bb35d2eaac6725aaffa953e2",
+      "cwd": "REPO_ROOT",
+      "exit": 0,
+      "result": "frozen Receipt44 contract valid"
+    }
+  ],
+  "files": [
+    {
+      "path": "ci-source-failure.log",
+      "sha256": "22c260ef1c17a5fad231d899de40422508d0c15bfb258d32ff1c0ca10b7c52cd"
+    },
+    {
+      "path": "exit-python313.txt",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "path": "exit.txt",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "path": "harness-exit.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "harness.log",
+      "sha256": "09aa2d84b6781916a468bf88091ad04b1b1045f7cd4d4818aacaf4efca1a6012"
+    },
+    {
+      "path": "historical-receipts-exit.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "historical-receipts.log",
+      "sha256": "4fc0eafdf93e056a1d03d6cc047175121eae052cb0dde83fe59fe0bb2ef59ac8"
+    },
+    {
+      "path": "pr883-c57-checks.json",
+      "sha256": "2572e8849ab1b8ab508a52a01b211346222dcfe283aaceaee408fb98c59eca77"
+    },
+    {
+      "path": "self-check-exit.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "self-check.log",
+      "sha256": "e5f9ff706de84cc84e85961a9c4deb11691b4cac8cd8390bfef0412a0680d110"
+    },
+    {
+      "path": "sweep-python313.log",
+      "sha256": "ed2368fea55fc671d25ea002894ba2e32ba213721a10e4e76c274f760ca0b1e9"
+    },
+    {
+      "path": "sweep.log",
+      "sha256": "32ba329c32bba86504459f72f79f65fd854bcdb8bbfa9553f05f0737df32cfd5"
+    }
+  ],
+  "hosted_ci": {
+    "pr": 883,
+    "head": "c57cd17b1ff05ab9bb35d2eaac6725aaffa953e2",
+    "source_run": 35956678918,
+    "required_target": "bc6d3459be778c7b2b4f8770cb830eb96b18a751",
+    "result": "source coverage selection failed because event target base was not ancestor of head; source jobs skipped, aggregate failed",
+    "resolution": "PR882 upstream PEC-only documents integrated at c564f9a615970a623ab2a18b63736b7e831cdbb9; no CI policy changes; actual new-head checks pending"
+  }
+}

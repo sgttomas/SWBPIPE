@@ -1,0 +1,189 @@
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop
+
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > focuses on first click, edits on second, applies one captured cell and cancels without an operation 207ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > keeps invalid text but reverts actual engine rejection with its diagnostic 87ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > uses file order for Enter under view sort, view order for Tab/arrows, and leaves caret/text undo keys alone 79ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > applies a valid edit on blur without stealing external focus 40ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > pins invalid drafts through virtual scrolling and filtering across the threshold 126ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > ignores an old completion after a same-ID project replacement and a newer edit 52ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > deduplicates blur and Apply while preserving the original target on a next-cell click 42ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > refuses a before-value change without silently rebasing a draft 52ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > lets Tab leave either table boundary and keeps pending edits read-only 44ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > marks a removed target as a retained draft and Cancel focuses a live row 61ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > publishes keyboard focus entry without turning the first pointer click into editing 17ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > keeps invalid A when B receives a click then Enter or a printable character 32ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > does not publish deferred navigation selection after external focus and selection win 46ms
+ ✓ src/features/model-tree/ModelTree.test.tsx > ModelTree virtual typed selection > publishes the exact current filter input timing pair 101ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > clears completed-operation feedback when a new project generation replaces the model 51ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > exits the editing forward boundary after no-op Apply to a persistent visible footer 19ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > exits the editing forward boundary after accepted Apply to a persistent visible footer 30ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > exits a no-op backward editing boundary to the row header 33ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > retains invalid and engine-rejected boundary edits instead of exiting 36ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > does not steal external focus when a pending boundary Apply completes 45ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > preserves newer selection without DOM focus movement, including ABA=false 26ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > preserves newer selection without DOM focus movement, including ABA=true 30ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > restores a live roving entry after filter without stealing external focus 16ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > restores a live roving entry after deletion without stealing external focus 15ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > owns valid pointer Cancel before a browser default blur with null relatedTarget 29ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > does not activate Apply on pointer-down and applies exactly once on the eventual click 38ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > abandons 'Apply' via 'drag-away' without leaving a guard against ordinary blur Apply 53ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > abandons 'Apply' via 'pointercancel' without leaving a guard against ordinary blur Apply 44ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > abandons 'Cancel' via 'drag-away' without leaving a guard against ordinary blur Apply 54ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > abandons 'Cancel' via 'pointercancel' without leaving a guard against ordinary blur Apply 40ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > preserves keyboard footer Apply activation 35ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > preserves keyboard footer Cancel activation 31ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > measures only a finite visible body slot and retains its last positive height while hidden 4ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > rebinds allocation observation when a retained review swaps small and virtual body elements 5ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > records positive size changes under an inert page and reveals with the current height 2ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > EngineeringTable interaction ownership > reports a visible zero-height allocation instead of hiding a stale viewport behind overflow 11ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > recovers focus after a later canonical label publication filters the owned row out without selecting a fallback 32ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > keeps text rejection local and ignores a late text completion after same-ID generation replacement 49ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > initializes direct numeric/text selection once per edit without resetting later caret placement 66ms
+ ✓ src/features/model-tree/ModelTree.test.tsx > ModelTree virtual typed selection > retains collision-safe grid drafts across type/filter changes and resets them on a same-ID new session 630ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > initializes review numeric/text selection once per edit without resetting later caret placement 74ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > does not advertise cached projected sort keys from a removed pinned editor row 30ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > opt-in typed enum on the common input > completes a nonempty prefix on Enter exactly once 45ms
+ ✓ src/features/model-tree/ModelTree.test.tsx > ModelTree virtual typed selection > uses collision-safe IDs, publishes range metadata, and scrolls off-window keyboard focus 763ms
+ ✓ src/features/model-tree/ModelTree.test.tsx > ModelTree virtual typed selection > restores stored typed focus and publishes a visible fallback when filtering removes it 45ms
+ ✓ src/features/model-tree/ModelTree.test.tsx > ModelTree virtual typed selection > implements Right expand/first-child and Left parent/collapse keyboard behavior 47ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > opt-in typed enum on the common input > completes a nonempty prefix on Tab exactly once 33ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > opt-in typed enum on the common input > preserves unsupported source through navigation and first Escape, then cancels on second Escape 22ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > opt-in typed enum on the common input > does not silently complete a prefix-shaped unsupported source on Enter 18ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > opt-in typed enum on the common input > pointer choice only changes buffer; pointer cancellation/drag-away never chooses 30ms
+ ✓ src/features/model-tree/ModelTree.test.tsx > ModelTree virtual typed selection > lets filtered groups collapse independently and restores pre-search expansion without selecting 60ms
+ ✓ src/features/model-tree/ModelTree.test.tsx > ModelTree virtual typed selection > renders typed node inspector identity for a four-way raw-ID collision 57ms
+ ✓ src/features/model-tree/ModelTree.test.tsx > ModelTree virtual typed selection > renders typed pipe inspector identity for a four-way raw-ID collision 27ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > opt-in typed enum on the common input > does not complete empty input or a prefix on blur; direct invalid text stays while raw review text is kept 65ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > opt-in typed enum on the common input > closes the body popup on hidden/inert/detached ancestry and external focus without stealing focus 80ms
+stderr | src/features/model-tree/ModelTree.test.tsx > ModelTree virtual typed selection > retains a frozen property task across a later multi-selection and disables its mutation routes
+An update to PropertyInspector inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/features/model-tree/ModelTree.test.tsx > ModelTree virtual typed selection > retains a frozen property task across a later multi-selection and disables its mutation routes
+An update to QuantityReadout inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to QuantityReadout inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to QuantityReadout inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ src/features/model-tree/ModelTree.test.tsx > ModelTree virtual typed selection > renders typed support inspector identity for a four-way raw-ID collision 35ms
+ ✓ src/features/model-tree/ModelTree.test.tsx > ModelTree virtual typed selection > renders typed component inspector identity for a four-way raw-ID collision 21ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > opt-in typed enum on the common input > closes options on source/catalog/active change without replacing input or changing draft 50ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > keeps complete compact feedback in Info and exempts only this table's chrome from blur Apply 30ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > uses native closed/open Info state when the dismissal API is present 18ms
+ ✓ src/features/workspace/table/EngineeringTable.test.tsx > does not swallow a genuine supported-popover state-query failure 9ms
+stderr | src/features/model-tree/ModelTree.test.tsx > ModelTree virtual typed selection > keeps a rich Properties draft mounted and target-frozen during aggregate inspection
+An update to PropertyInspector inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ src/features/model-tree/ModelTree.test.tsx > ModelTree virtual typed selection > retains a frozen property task across a later multi-selection and disables its mutation routes 86ms
+ ✓ src/features/model-tree/ModelTree.test.tsx > ModelTree virtual typed selection > keeps a rich Properties draft mounted and target-frozen during aggregate inspection 178ms
+ ✓ src/features/model-tree/ModelTree.test.tsx > ModelTree virtual typed selection > rejects a pending rich support queue across same-primary membership ABA and permits a fresh retry 214ms
+stderr | src/features/model-tree/ModelTree.test.tsx > ModelTree virtual typed selection > focuses the requested inspector field after applying the frozen target and view, including repeat routes
+An update to PropertyInspector inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/features/model-tree/ModelTree.test.tsx > ModelTree virtual typed selection > focuses the requested inspector field after applying the frozen target and view, including repeat routes
+An update to QuantityReadout inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to QuantityReadout inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to QuantityReadout inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ src/features/model-tree/ModelTree.test.tsx > ModelTree virtual typed selection > closes a frozen Task only after its apply route confirms acceptance 206ms
+stderr | src/features/model-tree/ModelTree.test.tsx > ModelTree virtual typed selection > targets rich Properties commands independently while retaining the frozen Task
+An update to QuantityReadout inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ src/features/model-tree/ModelTree.test.tsx > ModelTree virtual typed selection > focuses the requested inspector field after applying the frozen target and view, including repeat routes 70ms
+ ✓ src/features/model-tree/ModelTree.test.tsx > ModelTree virtual typed selection > targets rich Properties commands independently while retaining the frozen Task 246ms
+ ✓ src/features/model-tree/ModelTree.test.tsx > legacy indexed tree search vocabulary > retains provenance, references and restraints without changing selection 55ms
+
+ Test Files  2 passed (2)
+      Tests  68 passed (68)
+   Start at  22:53:11
+   Duration  4.52s (transform 812ms, setup 388ms, import 1.08s, tests 5.03s, environment 1.31s)
+

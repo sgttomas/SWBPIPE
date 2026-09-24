@@ -1,0 +1,865 @@
+Select source coverage	Plan complete PR diff	﻿2026-09-24T04:41:42.8738607Z ##[group]Run python3 projects/chirality-piping/tools/ci/e2e_plan.py plan --event "$EVENT" --base "$BASE" --head "$HEAD" --pr "$PR" --output piping-e2e-plan.json
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.8739755Z ^[[36;1mpython3 projects/chirality-piping/tools/ci/e2e_plan.py plan --event "$EVENT" --base "$BASE" --head "$HEAD" --pr "$PR" --output piping-e2e-plan.json^[[0m
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.8802652Z shell: /usr/bin/bash -e {0}
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.8802901Z env:
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.8803210Z   CI: true
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.8803409Z   PLAYWRIGHT_HTML_OPEN: never
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.8803665Z   PLAYWRIGHT_WORKERS: 1
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.8803890Z   EVENT: pull_request
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.8804132Z   BASE: bc6d3459be778c7b2b4f8770cb830eb96b18a751
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.8804455Z   HEAD: c57cd17b1ff05ab9bb35d2eaac6725aaffa953e2
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.8804730Z   PR: 883
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.8804910Z ##[endgroup]
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9370684Z ## Piping source selection
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9371128Z 
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9371628Z Full deduplicated source coverage requires barrier and four exact partitions to succeed.
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9372373Z 
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9372515Z ```json
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9372828Z {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9373374Z   "version": 3,
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9373734Z   "mode": "full",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9374108Z   "coverage_full": true,
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9374536Z   "event": "pull_request",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9374951Z   "pr": "883",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9375404Z   "base": "d61981ee2b9e36c82c6cdd28d4f3c12d3d32a69b",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9376090Z   "target_base": "bc6d3459be778c7b2b4f8770cb830eb96b18a751",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9376790Z   "head": "c57cd17b1ff05ab9bb35d2eaac6725aaffa953e2",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9377360Z   "changed_paths": [
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9377728Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9378051Z       "status": "M",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9378710Z       "path": "projects/chirality-piping/apps/desktop/e2e/b4-table-editing.spec.ts"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9379770Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9380081Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9380399Z       "status": "M",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9381085Z       "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9381846Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9382147Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9382456Z       "status": "M",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9383272Z       "path": "projects/chirality-piping/apps/desktop/src/App.tsx"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9383916Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9384217Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9384527Z       "status": "M",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9385247Z       "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9386053Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9386354Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9386663Z       "status": "M",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9387538Z       "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.test.tsx"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9388477Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9388779Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9389074Z       "status": "M",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9389862Z       "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9390753Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9391052Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9391356Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9392101Z       "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/OverflowRail.tsx"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9393181Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9393511Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9393815Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9394632Z       "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/tableGeometry.test.ts"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9395530Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9395829Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9396137Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9396898Z       "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/tableGeometry.ts"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9397760Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9398068Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9398374Z       "status": "M",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9398910Z       "path": "projects/chirality-piping/apps/desktop/src/styles.css"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9399869Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9400172Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9400482Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9401881Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/INTEGRATION_NOTES.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9403590Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9403906Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9404215Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9405610Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/MANAGER_CHECK.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9406662Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9406836Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9406999Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9408105Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE/ACTIVATION.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9408955Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9409119Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9409284Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9410072Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE/MANAGER_BUILD_CHECK.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9410885Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9411061Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9411228Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9411993Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE/PREPARATION_BASIS.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9412799Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9413190Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9413433Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9414143Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE/RETURN.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9415084Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9415242Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9415403Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9416138Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE/TASK/BUILD_RETURN.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9416935Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9417099Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9417262Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9418191Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE/TASK/PROVENANCE.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9419001Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9419168Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9419347Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9420803Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE/TASK/RETURN.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9421936Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9422110Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9422276Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9423673Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE/TASK/_run_records/PREFLIGHT_SCOPE.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9424585Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9424785Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9424956Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9425754Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE/TASK/_run_records/architecture.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9426587Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9426748Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9426918Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9427721Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE/TASK/_run_records/build-command.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9428760Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9428919Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9429084Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9429881Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE/TASK/_run_records/build-identity.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9430728Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9430886Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9431049Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9431816Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE/TASK/_run_records/build.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9432621Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9432780Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9433171Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9434051Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE/TASK/_run_records/cargo.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9434866Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9435026Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9435188Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9436160Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE/TASK/_run_records/cua-launch-blocker.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9437026Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9437281Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9437590Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9439098Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE/TASK/_run_records/node.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9439955Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9440458Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9459805Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9461405Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE/TASK/_run_records/npm.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9463324Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9463631Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9463935Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9465464Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE/TASK/_run_records/os.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9466710Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9466894Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9467073Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9468293Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE/TASK/_run_records/ports-piping-scope.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9469208Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9469388Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9469564Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9470394Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE/TASK/_run_records/preflight-notes.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9471263Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9471433Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9471602Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9472442Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE/TASK/_run_records/processes-piping-scope.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9473657Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9473831Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9473999Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9474839Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE/TASK/_run_records/resume-ports-piping-scope.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9475742Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9475906Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9476346Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9477174Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE/TASK/_run_records/resume-preflight.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9478223Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9478396Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9478564Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9479512Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE/TASK/_run_records/resume-processes-piping-scope.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9481318Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9481532Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9481711Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9482594Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE/TASK/_run_records/root-launch-child-retry.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9484091Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9484264Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9484433Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9485210Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE/TASK/_run_records/rust.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9486017Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9486195Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9486364Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9487129Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE/TASK/_run_records/status.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9487950Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9488112Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9488277Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9489029Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE/TASK_LAUNCH_BRIEF.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9490000Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9490161Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9490338Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9491130Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/INTEGRATION_CRITERIA.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9491961Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9492132Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9492302Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9493346Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/MANAGER_CHECK.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9494173Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9494343Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9494513Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9495296Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/PROVENANCE.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9496123Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9496286Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9496452Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9497633Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/RETURN.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9499158Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9499348Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9499530Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9500338Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/TASK/CANDIDATE.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9501177Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9501337Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9501502Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9502275Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/TASK/COMMANDS.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9504413Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9504726Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9505055Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9506574Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/TASK/INPUTS.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9508128Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9508418Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9508733Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9510285Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/TASK/PROVENANCE.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9511923Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9512219Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9512518Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9514268Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/TASK/RETURN.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9515893Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9516199Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9516520Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9518133Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/TASK/_run_records/CHECK_RESULTS.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9519883Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9520194Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9520503Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9522158Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/TASK/_run_records/CLASSIC_GEOMETRY.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9524409Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9524726Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9525118Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9526860Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/TASK/_run_records/browser-final-report.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9528710Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9529010Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9529321Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9530927Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/TASK/_run_records/commands.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9532627Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9532932Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9533579Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9535317Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/TASK/_run_records/compatibility-report.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9537152Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9537463Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9537777Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9539470Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/TASK/_run_records/scrollbar-r1-report.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9540446Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9540619Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9540791Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9542043Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/TASK/_run_records/scrollbar-r2-report.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9543752Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9543936Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9544107Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9545391Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/TASK/_run_records/scrollbar-r3-report.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9546520Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9546683Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9546875Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9548126Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/TASK/_run_records/scrollbar-r4-report.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9549938Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9550263Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9550482Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9551375Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/TASK/_run_records/scrollbar-r5-report.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9552299Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9552467Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9552648Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9554526Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/TASK/_run_records/scrollbar-r6-report.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9556332Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9556632Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9556931Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9558442Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/TASK/browser-final.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9560042Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9560350Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9560645Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9562118Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/TASK/browser-r1.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9564159Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9564466Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9564787Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9566310Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/TASK/compatibility.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9567936Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9568226Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9568525Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9570031Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/TASK/scrollbar-r1.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9571683Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9571990Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9572298Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9574086Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/TASK/scrollbar-r2.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9575747Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9576056Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9576373Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9577953Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/TASK/scrollbar-r3.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9579591Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9579909Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9580231Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9581772Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/TASK/scrollbar-r4.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9583665Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9583984Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9584308Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9585879Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/TASK/scrollbar-r5.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9586868Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9587046Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9587393Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9588978Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/TASK/scrollbar-r6.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9589957Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9590131Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9590305Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9591530Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/TASK/typecheck-final.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9592396Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9592563Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9592730Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9593852Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/TASK/unit-final.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9595620Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9595962Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9596280Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9597752Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_FIT_REPAIR/TASK/unit-r3.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9599340Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9599650Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9599967Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9601389Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_PLAN_DRAFT.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9603191Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9603412Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9603599Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9604453Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_SCROLLBAR_DIAGNOSIS/PROVENANCE.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9605508Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9605685Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9605853Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9606638Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_SCROLLBAR_DIAGNOSIS/RETURN.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9608220Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9608529Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9608845Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9610486Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/NATIVE_SCROLLBAR_DIAGNOSIS/TASK/DIAGNOSIS_RETURN.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9612217Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9612535Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9612852Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9614595Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/PIPES_PREPARATION/PREPARATION_RETURN.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9615510Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9615681Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9615851Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9616567Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/PROVENANCE.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9617328Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9617494Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9617924Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9619365Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/MANAGER_CHECK.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9620868Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9621161Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9621458Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9622864Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/PROVENANCE.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9624970Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9625291Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9625607Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9627009Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/RETURN.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9628497Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9628823Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9629138Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9630609Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/CANDIDATE.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9632193Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9632504Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9632819Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9634523Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/COMMANDS.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9636065Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9636379Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9636710Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9638189Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/PROVENANCE.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9639731Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9640044Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9640360Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9641763Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/RETURN.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9643477Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9643771Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9644075Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9645625Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/_run_records/browser-r1-report.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9647549Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9647860Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9648170Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9649733Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/_run_records/browser-r2-report.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9651393Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9651711Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9652027Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9653871Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/_run_records/browser-r3-report.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9655620Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9655924Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9656245Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9657920Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/_run_records/check-exits.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9659580Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9659885Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9660194Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9661734Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/_run_records/commands.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9663610Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9663923Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9664233Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9665909Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/_run_records/geometry-backcheck-report.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9667653Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9667965Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9668273Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9669811Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/_run_records/reproduction.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9671610Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9671891Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9672180Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9673942Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/_run_records/select-diagnosis-r2.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9675625Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9675924Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9676224Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9677788Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/_run_records/select-diagnosis.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9679297Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9679594Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9679918Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9681397Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/browser-r1.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9683213Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9683529Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9683831Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9685262Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/browser-r2.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9686790Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9687099Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9687417Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9688862Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/browser-r3.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9690663Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9690966Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9691264Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9692778Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/geometry-backcheck.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9694605Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9694899Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9695193Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9696628Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/reproduce.mjs"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9698201Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9698502Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9698803Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9700290Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/select-diagnosis-r2.mjs"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9701919Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9702227Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9702527Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9703935Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/select-diagnosis.mjs"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9704803Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9704978Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9705149Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9705950Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/typecheck-final.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9706774Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9706938Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9707104Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9707855Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/typecheck.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9708665Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9708830Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9709191Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9709916Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/REPAIR/TASK/unit.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9710683Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9710846Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9711015Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9711693Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/RETURN.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9712418Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9712583Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9712751Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9713841Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/CANDIDATE.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9714662Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9714835Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9715000Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9715766Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/CHECK_EXITS.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9716573Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9716737Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9716903Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9717636Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/COMMANDS.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9718414Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9718580Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9718764Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9719526Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/GEOMETRY_FINAL.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9720484Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9720647Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9720819Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9721545Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/INPUTS.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9722327Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9722487Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9722651Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9723625Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/PROVENANCE.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9724425Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9724594Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9724772Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9725536Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/RETURN.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9726336Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9726502Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9726675Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9727495Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/_run_records/browser-r4-report.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9728362Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9728524Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9728694Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9729477Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/baseline-geometry.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9730295Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9730456Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9730621Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9731401Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/baseline-measurement.mjs"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9732234Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9732535Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9732700Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9733660Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/browser-r2.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9734468Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9734631Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9734808Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9735581Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/browser-r3.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9736390Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9736551Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9736716Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9737458Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/browser-r4.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9738257Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9738425Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9738594Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9739755Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/browser-r4/b4-table-editing-B4-compac-38279-mpact-180-explicit-viewport-chromium-desktop/compact-drawer.png"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9740964Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9741128Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9741294Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9742460Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/browser-r4/b4-table-editing-B4-compac-3abeb-table-180-explicit-viewport-chromium-desktop/compact-drawer.png"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9743866Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9744212Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9744380Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9745130Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/browser.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9745930Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9746099Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9746271Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9747057Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/candidate-geometry.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9747888Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9748061Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9748227Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9749016Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/candidate-measurement.mjs"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9749862Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9750026Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9750193Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9750966Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/typecheck-final.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9751818Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9751986Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9752155Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9753140Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/unit-after-wasm.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9754010Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9754176Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9754343Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9755089Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/unit-final.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9755901Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9756062Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9756227Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9757089Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/unit.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9757870Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9758037Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9758203Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9758930Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/B4_MANAGER/TASK_COMPACT/wasm.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9759697Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9759864Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9760033Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9760714Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/C4_MANAGER_BRIEF.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9761448Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9761610Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9761775Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9762444Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/C4_REVIEW_BRIEF.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9763413Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9763583Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9763752Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9764481Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/COMPACT_REPAIR_DISPOSITION.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9765250Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9765414Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9765584Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9766280Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/COORDINATION.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9766999Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9767295Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9767463Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9768215Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/DESIGN_MANAGER/C4_CHECK_ADMISSION.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9769011Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9769173Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9769341Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9770093Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/DESIGN_MANAGER/NATIVE_COMPACT_DESIGN.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9770904Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9771066Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9771233Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9771988Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/DESIGN_MANAGER/OWNER_RULING_APPLICATION.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9772795Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9773170Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9773345Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9774096Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/DESIGN_MANAGER/OWNER_RULING_SOURCES.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9774912Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9775073Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9775237Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9775931Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/DESIGN_MANAGER/RETURN.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9776678Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9776840Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9777011Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9777712Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/DESIGN_MANAGER/SOURCES.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9778473Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9778643Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9778820Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9779551Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/DESIGN_MANAGER/SOURCE_DELTA.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9780456Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9780631Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9780802Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9781497Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/DESIGN_MANAGER_BRIEF.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9782238Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9782398Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9782565Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9783446Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/EXECUTION_BASIS.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9784178Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9784338Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9784506Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9785202Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GRAPH_REVIEW/BACKCHECK.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9785957Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9786122Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9786291Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9786981Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GRAPH_REVIEW/RETURN.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9787720Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9787881Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9788049Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9788724Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GRAPH_REVIEW_BRIEF.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9789452Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9789618Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9789784Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9790633Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/IMPLEMENTATION_MANAGER_BRIEF.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9791405Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9791576Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9791744Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9792475Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LIVE_IMPLEMENTATION_ACTIVATION.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9793535Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9793707Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9793880Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9794636Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LIVE_MANAGER/IMPLEMENTATION_BRIEFS.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9795433Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9795594Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9795760Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9796522Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LIVE_MANAGER/PREPARATION_RETURN.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9797316Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9797485Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9797653Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9798350Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LIVE_MANAGER/SOURCES.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9799095Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9799257Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9799426Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9800123Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LIVE_MANAGER/TEST_PLAN.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9800873Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9801035Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9801199Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9801909Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LIVE_MANAGER/WIRE_PROPOSAL.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9802817Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9803201Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9803375Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9804066Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/LIVE_MANAGER_BRIEF.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9804794Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9804961Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9805128Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9805859Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NATIVE_FIT_REPAIR_DISPOSITION.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9806641Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9806808Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9806978Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9807684Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NATIVE_FIT_REVIEW/RETURN.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9808451Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9808615Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9808784Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9809488Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NATIVE_FIT_REVIEW_BRIEF.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9810232Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9810395Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9810564Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9811240Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/OWNER_DECISIONS.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9811961Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9812124Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9812295Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9813150Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/OWNER_STEER.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9814027Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9814197Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9814364Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9815029Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/RECOVERY.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9815732Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9815897Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9816065Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9816772Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOURCE_REVIEW/BACKCHECK.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9817520Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9817692Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9817863Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9818555Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOURCE_REVIEW/RETURN.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9819298Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9819463Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9819638Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9820313Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOURCE_REVIEW_BRIEF.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9821041Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9821203Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9821373Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9822059Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/WIRE_REVIEW/RETURN.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9822781Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9823128Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9823317Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9823992Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/WIRE_REVIEW_BRIEF.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9824726Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9824917Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9825088Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9825962Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/PORTABILITY/DIAGNOSIS.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9826762Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9826923Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9827087Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9827814Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/PORTABILITY/MOVE.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9828592Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9828754Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9828922Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9829687Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/PORTABILITY/harness-before.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9830513Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9830676Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9830851Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9831641Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/PORTABILITY/harness-target-after.log"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9832475Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9832639Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9832806Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9833846Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/PORTABILITY/path-anchors-after.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9834684Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9834850Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9835030Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9835813Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/PORTABILITY/path-anchors-before.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9836785Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9836948Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9837124Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9837887Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE/01-baseline.ax.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9838695Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9838862Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9839044Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9839801Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE/01-baseline.jpg"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9840596Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9840761Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9840927Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9841697Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE/02-baseline-full.ax.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9842527Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9842694Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9842862Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9843904Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE/03-model-default-comfortable.ax.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9844793Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9844955Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9845124Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9845942Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE/03-model-default-comfortable.jpg"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9846804Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9846969Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9847138Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9847901Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE/03-model-view.ax.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9848848Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9849013Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9849181Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9849973Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE/04-model-grid-default.ax.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9850815Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9850982Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9851150Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9851958Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE/04-window-minimum-attempt.ax.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9852811Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9853250Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9853431Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9854232Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE/04-window-minimum-attempt.jpg"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9855089Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9855252Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9855424Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9856224Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE/05-appearance-start.ax.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9857056Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9857223Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9857401Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9858176Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE/08-minimum-clamp.ax.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9859012Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9859179Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9859345Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9860250Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE/08-minimum-clamp.jpg"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9861067Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9861230Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9861398Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9862200Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE/09-drawer-resize-focus.ax.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9863260Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9863429Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9863594Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9864423Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE/10-model-comfortable-minimum.ax.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9865299Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9865471Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9865639Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9866454Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE/10-model-comfortable-minimum.jpg"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9867326Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9867492Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9867660Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9868965Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE/11-minimum-row-wheel.ax.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9870445Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9870626Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9870848Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9871659Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE/11-minimum-row-wheel.jpg"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9872516Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9872686Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9872860Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9873937Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE/12-family-menu-native.ax.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9874961Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9875135Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9875309Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9876142Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE/13-material-minimum-native.ax.txt"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9877012Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9877192Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9877491Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9878440Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE/13-material-minimum-native.jpg"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9879469Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9879786Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9880047Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9880992Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE/LOCK_OBSERVATION.json"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9881956Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9882243Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9882528Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9883658Z       "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/ROOT_NATIVE/PRELIMINARY_RETURN.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9884654Z     },
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9884990Z     {
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9885284Z       "status": "A",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9937893Z       "path": "projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9938766Z     }
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9938954Z   ],
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9939130Z   "projects": [
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9939357Z     "chromium-desktop",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9939590Z     "chromium-compact"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9939793Z   ],
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9939965Z   "inventory": [
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9940182Z     "e2e/b3-accessibility.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9940465Z     "e2e/b3a-session-status.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9940761Z     "e2e/b3b-project-persistence.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9941047Z     "e2e/b4-sections.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9941305Z     "e2e/b4-table-editing.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9941584Z     "e2e/c3-viewport-visibility.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9941881Z     "e2e/gui-workflow-validation.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9942167Z     "e2e/linear-authoring.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9942422Z     "e2e/r2-smoke.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9942669Z     "e2e/result-compatibility.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9943195Z     "e2e/ui-foundation.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9943625Z     "e2e/ui-foundation/causal-method-contract.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9943987Z     "e2e/ui-foundation/fresh-demo-policy.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9944339Z     "e2e/ui-foundation/full-cohort-controller.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9944696Z     "e2e/ui-foundation/performance-targets.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9945016Z     "e2e/workspace-layout.spec.ts"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9945267Z   ],
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9945450Z   "selected_specs": [
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9945679Z     "e2e/b3-accessibility.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9945952Z     "e2e/b3a-session-status.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9946237Z     "e2e/b3b-project-persistence.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9946532Z     "e2e/b4-sections.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9946778Z     "e2e/b4-table-editing.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9947049Z     "e2e/c3-viewport-visibility.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9947349Z     "e2e/gui-workflow-validation.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9947624Z     "e2e/linear-authoring.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9947880Z     "e2e/r2-smoke.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9948124Z     "e2e/result-compatibility.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9948539Z     "e2e/ui-foundation.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9948830Z     "e2e/ui-foundation/causal-method-contract.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9949177Z     "e2e/ui-foundation/fresh-demo-policy.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9949524Z     "e2e/ui-foundation/full-cohort-controller.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9949859Z     "e2e/ui-foundation/performance-targets.spec.ts",
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9950160Z     "e2e/workspace-layout.spec.ts"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9950393Z   ],
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9950567Z   "selected_titles": {},
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9950786Z   "appearance": false,
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9950989Z   "ownership": {},
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9951184Z   "reasons": [
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9951377Z     "Full source coverage"
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9951590Z   ],
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9952004Z   "coverage_note": "Full deduplicated source coverage requires barrier and four exact partitions to succeed."
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9952499Z }
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9952660Z ```
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:42.9952754Z 
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:43.1303217Z Traceback (most recent call last):
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:43.1304199Z   File "/home/runner/work/chirality/chirality/projects/chirality-piping/tools/ci/e2e_plan.py", line 483, in <module>
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:43.1305012Z     main()
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:43.1305584Z   File "/home/runner/work/chirality/chirality/projects/chirality-piping/tools/ci/e2e_plan.py", line 470, in main
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:43.1306776Z     validate(root, plan)
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:43.1307400Z   File "/home/runner/work/chirality/chirality/projects/chirality-piping/tools/ci/e2e_plan.py", line 215, in validate
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:43.1308512Z     raise ValueError('Update the PR base: event target base is missing, unavailable or not integrated into head') from None
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:43.1309357Z ValueError: Update the PR base: event target base is missing, unavailable or not integrated into head
+Select source coverage	Plan complete PR diff	2026-09-24T04:41:43.1464553Z ##[error]Process completed with exit code 1.
+Desktop E2E (source mode)	Require all planned coverage	﻿2026-09-24T04:42:28.6764004Z ##[group]Run python3 projects/chirality-piping/tools/ci/e2e_plan.py aggregate --mode "$MODE" --selection "$SELECTION" --barrier "$BARRIER" --remainder "$REMAINDER"
+Desktop E2E (source mode)	Require all planned coverage	2026-09-24T04:42:28.6765205Z ^[[36;1mpython3 projects/chirality-piping/tools/ci/e2e_plan.py aggregate --mode "$MODE" --selection "$SELECTION" --barrier "$BARRIER" --remainder "$REMAINDER"^[[0m
+Desktop E2E (source mode)	Require all planned coverage	2026-09-24T04:42:28.6793838Z shell: /usr/bin/bash -e {0}
+Desktop E2E (source mode)	Require all planned coverage	2026-09-24T04:42:28.6794204Z env:
+Desktop E2E (source mode)	Require all planned coverage	2026-09-24T04:42:28.6794610Z   CI: true
+Desktop E2E (source mode)	Require all planned coverage	2026-09-24T04:42:28.6794936Z   PLAYWRIGHT_HTML_OPEN: never
+Desktop E2E (source mode)	Require all planned coverage	2026-09-24T04:42:28.6795291Z   PLAYWRIGHT_WORKERS: 1
+Desktop E2E (source mode)	Require all planned coverage	2026-09-24T04:42:28.6795649Z   MODE: 
+Desktop E2E (source mode)	Require all planned coverage	2026-09-24T04:42:28.6795936Z   SELECTION: failure
+Desktop E2E (source mode)	Require all planned coverage	2026-09-24T04:42:28.6796281Z   BARRIER: skipped
+Desktop E2E (source mode)	Require all planned coverage	2026-09-24T04:42:28.6796695Z   REMAINDER: skipped
+Desktop E2E (source mode)	Require all planned coverage	2026-09-24T04:42:28.6797040Z ##[endgroup]
+Desktop E2E (source mode)	Require all planned coverage	2026-09-24T04:42:28.7391792Z Required CI failed, cancelled, missing or invalid
+Desktop E2E (source mode)	Require all planned coverage	2026-09-24T04:42:28.7454783Z ##[error]Process completed with exit code 1.

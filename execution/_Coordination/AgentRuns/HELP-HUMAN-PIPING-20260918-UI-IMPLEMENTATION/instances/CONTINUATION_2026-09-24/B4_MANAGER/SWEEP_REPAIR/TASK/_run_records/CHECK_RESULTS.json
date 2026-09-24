@@ -1,0 +1,23 @@
+{
+  "digest": "244767aeb8a29cb924aa0d5b085987cadd7a2149296baf83c3f07ccf7f2d8b11",
+  "queue_reproduction_exit": 1,
+  "queue_full_dom_exit": 1,
+  "popover_reproduction_exit": 1,
+  "local_shim_control_exit": 0,
+  "queue_repair_exit": 0,
+  "queue_repair_tests": 1,
+  "handlers_repair_exit": 0,
+  "handlers_repair_tests": 5,
+  "components_repair_exit": 0,
+  "components_repair_tests": 68,
+  "typecheck_initial_exit": 1,
+  "typecheck_final_exit": 0,
+  "final_new_unit_tests": 3,
+  "final_new_unit_exit": 0,
+  "browser_backcheck_exit": 0,
+  "browser_backcheck_tests": 4,
+  "vite_cleanup_exit": 130,
+  "ports_5174_5175_listening_after_cleanup": false,
+  "whitespace_exit": 0,
+  "native_actions": false
+}

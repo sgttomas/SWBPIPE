@@ -1,0 +1,19 @@
+{
+  "product_basis": "c57cd17b1ff05ab9bb35d2eaac6725aaffa953e2",
+  "head": "c564f9a615970a623ab2a18b63736b7e831cdbb9",
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+      "sha256": "e3c0e0363dfe81892de475e3b056c02018f1b7d20bbc4e3c203f68d50633b522"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx",
+      "sha256": "aadd9d2e086c09e1d38a0f7192b5d69ee044e2f0b78bde6f2399f7e4622c41f7"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.test.tsx",
+      "sha256": "81a81dc4e62494d15d6c4c98416c7df99222ad672bae5fe6b94328749978770a"
+    }
+  ],
+  "digest": "244767aeb8a29cb924aa0d5b085987cadd7a2149296baf83c3f07ccf7f2d8b11"
+}

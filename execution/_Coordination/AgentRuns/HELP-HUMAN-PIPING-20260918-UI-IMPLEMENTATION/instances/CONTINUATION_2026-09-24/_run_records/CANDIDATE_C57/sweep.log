@@ -1,0 +1,3 @@
+evidence-sweep Python runtime preflight failed before prerequisite probing or surface 1:
+  - current Python is 3.9.6; required Python is >=3.11
+no prerequisite probe or evidence surface ran

@@ -1,0 +1,30 @@
+{
+  "head_now": "c564f9a615970a623ab2a18b63736b7e831cdbb9",
+  "product_basis": "c57cd17b1ff05ab9bb35d2eaac6725aaffa953e2",
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+      "sha256": "5d47cada05fba6e3f331f35cff6a92d1a002346301cc4b11a8f26cfeb9302f75"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.tsx",
+      "sha256": "3e632f492a9069ec194bb0e716290c08db5081ce449e1468b8f0f34b514fdbc8"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/table/EngineeringTable.test.tsx",
+      "sha256": "24ec1768f81d5837d2afcfeddc3b285a98968ccbd406d2ff2eb93f32573e4b46"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "sha256": "d44d00f1946679e50b7deedd292870ed18aaa74405931183df463c6400250a14"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.projectHandlers.test.tsx",
+      "sha256": "cdd85764dada5f5fb4d29d146efefb930c211b9d75429be8f57e8ceab9e729a8"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/test/setup.ts",
+      "sha256": "65c02a3ba648174d681c4389b61707c58e8ee02cc7228b9446074a2ac1772e38"
+    }
+  ]
+}

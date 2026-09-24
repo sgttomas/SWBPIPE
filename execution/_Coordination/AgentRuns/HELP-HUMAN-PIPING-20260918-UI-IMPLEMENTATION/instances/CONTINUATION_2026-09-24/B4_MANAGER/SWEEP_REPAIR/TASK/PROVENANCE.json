@@ -1,0 +1,30 @@
+{
+  "parent": "/root/b4_manager",
+  "child": "/root/b4_manager/compact_impl",
+  "role": "TASK Type 2",
+  "mechanism": "delegated-harness-native",
+  "phase": "read-only diagnosis; product repair not activated",
+  "head": "c57cd17b1ff05ab9bb35d2eaac6725aaffa953e2",
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": ".agents/skills/software-defect-diagnosis/SKILL.md",
+      "sha256": "f281558734732ab0a97cf1407ba80a53c25e8c2b9dd96069bec589fd521a7a23"
+    },
+    {
+      "path": "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260924T043624Z_c57cd17b1ff0.json",
+      "sha256": "443a855ce58413494564cd98451d3989ef202a0b3610d333875609c38878fe35"
+    }
+  ]
+}

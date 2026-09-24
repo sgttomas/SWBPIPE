@@ -145,7 +145,7 @@ export function EngineeringTable(props: Props) {
   function ownedChrome(destination: HTMLElement | null) { return destination?.closest<HTMLElement>("[data-table-chrome-owner]")?.dataset.tableChromeOwner === ownerId; }
   function closeInfo(restore = false) {
     const info = root.current?.querySelector<HTMLElement>(".engineering-table-info");
-    if (!info?.matches(":popover-open")) return false;
+    if (!info || typeof info.hidePopover !== "function" || !info.matches(":popover-open")) return false;
     info.hidePopover(); if (restore) infoButton.current?.focus(); return true;
   }
 

@@ -1,0 +1,51 @@
+{
+  "manager": "/root/b4_manager",
+  "actual_child": "/root/b4_manager/compact_impl",
+  "mechanism": "collaboration.followup_task retained TASK Type2, no descendants",
+  "model": "gpt-6-astra/low",
+  "head_at_start": "c57cd17b1ff05ab9bb35d2eaac6725aaffa953e2",
+  "stage": "manager-activated minimal repair after independent reproductions",
+  "allowed_after_diagnosis": [
+    "ModelTree.tsx",
+    "EngineeringTable.tsx",
+    "EngineeringTable.test.tsx",
+    "src/App.test.tsx",
+    "src/App.projectHandlers.test.tsx",
+    "src/test/setup.ts"
+  ],
+  "resources": "focused Vitest/TS/relevant browser after port check; no native/CUA/bundle; ROOT owns nativePID9925 and primaryGit/evidence-copy",
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": ".agents/skills/software-defect-diagnosis/SKILL.md",
+      "sha256": "f281558734732ab0a97cf1407ba80a53c25e8c2b9dd96069bec589fd521a7a23"
+    },
+    {
+      "path": "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260924T043624Z_c57cd17b1ff0.json",
+      "sha256": "443a855ce58413494564cd98451d3989ef202a0b3610d333875609c38878fe35"
+    }
+  ],
+  "actual_repair_scope": [
+    "ModelTree.tsx existing compact queue marker and per-target hidePopover guard",
+    "EngineeringTable.tsx per-target hidePopover guard",
+    "EngineeringTable.test.tsx API-absent and supported-branch regressions, remove old closed-selector spy"
+  ],
+  "decision": "Return false when no callable native hidePopover before querying unsupported selector. Preserve real native branch without catch/fallback/global shim; unchanged App assertions and real browser backchecks required.",
+  "status": "returned and manager-verified three-file freeze; resources released to ROOT",
+  "task_return_sha256": "fe0dec1a6cbeca526e3261a313edeb11e6f23f0e6a80c6586ce1475d7e1f04c8"
+}

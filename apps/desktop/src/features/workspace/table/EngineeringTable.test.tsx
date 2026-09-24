@@ -416,18 +416,56 @@ it("keeps complete compact feedback in Info and exempts only this table's chrome
   render(<EngineeringTable label="Compact feedback" compact bounded rows={rows()} columns={columns} generation="p:1" density="comfortable" filter="" selectedKey={rows()[0].key} onSelect={() => {}} onApply={apply} />);
   const input = edit(); fireEvent.change(input, { target: { value: "2" } });
   const table = screen.getByTestId("engineering-table"); const owned = document.createElement("button"), foreign = document.createElement("button");
-  // jsdom has no native popover selector; these unit assertions cover closed
-  // disclosure content/blur ownership, while browser cases exercise real opening.
+  // No replacement selector or API: jsdom's absent native feature must not be
+  // queried during ordinary blur cleanup. Browser cases verify actual opening.
   const info = table.querySelector<HTMLElement>(".engineering-table-info")!;
-  const matches = info.matches.bind(info);
-  const closedPopover = vi.spyOn(info, "matches").mockImplementation((selector) => selector === ":popover-open" ? false : matches(selector));
+  expect(info.hidePopover).toBeUndefined();
+  const stateQuery = vi.spyOn(info, "matches");
   owned.dataset.tableChromeOwner = table.dataset.tableOwner; foreign.dataset.tableChromeOwner = "another-table";
   document.body.append(owned, foreign);
   try {
     fireEvent.blur(input, { relatedTarget: owned }); expect(apply).not.toHaveBeenCalled(); expect(input).toHaveValue("2");
     fireEvent.blur(input, { relatedTarget: foreign }); await waitFor(() => expect(apply).toHaveBeenCalledTimes(1));
+    expect(stateQuery).not.toHaveBeenCalled();
     expect(screen.getByRole("alert")).toHaveTextContent(longError);
     expect(table.querySelector(".engineering-table-info")).toHaveTextContent(longError);
     expect(document.getElementById(input.getAttribute("aria-describedby")!)).toHaveTextContent(longError);
-  } finally { closedPopover.mockRestore(); owned.remove(); foreign.remove(); }
+  } finally { stateQuery.mockRestore(); owned.remove(); foreign.remove(); }
+});
+
+
+it("uses native closed/open Info state when the dismissal API is present", () => {
+  const apply = vi.fn();
+  render(<EngineeringTable label="Supported Info" compact bounded rows={rows()} columns={columns} generation="p:1" density="comfortable" filter="" selectedKey={rows()[0].key} onSelect={() => {}} onApply={apply} />);
+  const table = screen.getByTestId("engineering-table"), info = table.querySelector<HTMLElement>(".engineering-table-info")!;
+  let open = false;
+  const hide = vi.fn(() => { open = false; });
+  Object.defineProperty(info, "hidePopover", { configurable: true, value: hide });
+  const originalMatches = info.matches.bind(info);
+  const stateQuery = vi.spyOn(info, "matches").mockImplementation((selector) => selector === ":popover-open" ? open : originalMatches(selector));
+  try {
+    expect(fireEvent.keyDown(table, { key: "Escape" })).toBe(true);
+    expect(stateQuery).toHaveBeenCalledWith(":popover-open"); expect(hide).not.toHaveBeenCalled();
+    open = true; act(() => info.focus());
+    expect(fireEvent.keyDown(info, { key: "Escape" })).toBe(false);
+    expect(hide).toHaveBeenCalledTimes(1); expect(screen.getByRole("button", { name: "Supported Info Info" })).toHaveFocus();
+    expect(apply).not.toHaveBeenCalled();
+  } finally { stateQuery.mockRestore(); Reflect.deleteProperty(info, "hidePopover"); }
+});
+
+it("does not swallow a genuine supported-popover state-query failure", () => {
+  render(<EngineeringTable label="Native state error" compact bounded rows={rows()} columns={columns} generation="p:1" density="comfortable" filter="" selectedKey={rows()[0].key} onSelect={() => {}} onApply={vi.fn()} />);
+  const table = screen.getByTestId("engineering-table"), info = table.querySelector<HTMLElement>(".engineering-table-info")!;
+  const failure = new Error("intentional native popover state-query failure"), hide = vi.fn();
+  Object.defineProperty(info, "hidePopover", { configurable: true, value: hide });
+  const stateQuery = vi.spyOn(info, "matches").mockImplementation(() => { throw failure; });
+  let observed: unknown;
+  // Capture only this deliberately injected exception after it escapes the
+  // product handler; unrelated errors retain the runner's normal handling.
+  const captureExpected = (event: ErrorEvent) => { if (event.error === failure) { observed = event.error; event.preventDefault(); event.stopImmediatePropagation(); } };
+  window.addEventListener("error", captureExpected, true);
+  try {
+    fireEvent.keyDown(table, { key: "Escape" });
+    expect(observed).toBe(failure); expect(hide).not.toHaveBeenCalled();
+  } finally { window.removeEventListener("error", captureExpected, true); stateQuery.mockRestore(); Reflect.deleteProperty(info, "hidePopover"); }
 });

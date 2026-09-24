@@ -62,7 +62,7 @@
       "brief": "IMPLEMENTATION_MANAGER_BRIEF.md",
       "fork_turns": "none",
       "writes": "apps/desktop and additive tools/ci under project; B4_MANAGER evidence; ROOT owns Git/graph",
-      "state": "native-fit repair470dac01 and independent review passed; primary frozen under ROOT; no B4 source/test resources outstanding; controller/native/Cargo handback to isolated live manager acknowledged; native pending manual unlock",
+      "state": "SWEEP_REPAIR digest244767ae returned; both failures independently reproduced, minimal3file repair focusedchecks/4browser pass; source/ports released; ROOT fresh review/sweep/native pending",
       "brief_sha256": "190383d57b9788904ba6c9dbb066daa8abe7b114852c398302949c254091e5e3"
     },
     {
@@ -97,7 +97,7 @@
       "brief_sha256": "fd3a24e13e6be0839907719d537aa4590cad5d1296ddeca51e0d34b1d39a0d3b",
       "fork_turns": "none",
       "writes": "named native/frontend scopes and own evidence only in isolated branch codex/piping-live-control-20260924; primary remains ROOT-owned",
-      "state": "isolated source-only assignment acknowledged; writer wire ACKs pending before product writes; no execution resources yet",
+      "state": "both exact-wire TASK acknowledgements recorded in isolated LIVE_MANAGER/IMPLEMENTATION/WIRE_ACKS.json before writes; six handback hashes match; source authoring plus bounded isolated component/Cargo jobs2 resources released; actual native/human gates open",
       "activation": "LIVE_IMPLEMENTATION_ACTIVATION.md",
       "activation_sha256": "9fda39962acb516469ddcfa7898119e16a9104316b57ebb0d2a5e6b9356c6628"
     },
@@ -135,8 +135,10 @@
       "fork_turns": "none",
       "branch": "codex/piping-c4-policy-20260924",
       "basis": "5cfd2257cafca0fb141fc7dd5085c627d8caae9e",
-      "state": "source0ec48a4f; verified9dff4249; independent21-file reviewPASS; checkpoint8e342b1f retains review/UI plan; no live renderer",
-      "writes": "six new viewport policy/index/placement source/tests plus C4_MANAGER evidence, isolated checkout only"
+      "state": "prior pure policy15tests/TS and independent review retained; merged primary basis4555f6c1; canvas/diagnostics/label-only CSS authoring and bounded hover core extension, isolated focusedunits/TS released; App/table/controller excluded",
+      "writes": "six new viewport policy/index/placement source/tests plus C4_MANAGER evidence, isolated checkout only",
+      "activation": "C4_CANVAS_ACTIVATION.md",
+      "activation_sha256": "cf47440ab4f198f7160e05576112b6a597f00c2efb65b57d69f93b2f6ca767ba"
     },
     {
       "id": "/root/c4_review",

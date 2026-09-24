@@ -1,0 +1,7 @@
+Package cwd: /Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/apps/desktop
+npx vitest run src/App.test.tsx -t 'queues layout-grid cell edits as structured review intents' --reporter=verbose
+DEBUG_PRINT_LIMIT=120000 npx vitest run src/App.test.tsx -t 'queues layout-grid cell edits as structured review intents' --reporter=verbose
+npx vitest run src/App.projectHandlers.test.tsx -t 'records both snapshot observations while retaining the newer edit after Save' --reporter=verbose
+npx vitest run src/features/workspace/table/EngineeringTable.test.tsx -t 'keeps complete compact feedback in Info' --reporter=verbose
+Outputs retained under SWEEP_REPAIR/TASK/_run_records with separate filenames. A Node JSDOM probe constructed one div[popover=auto], inspected showPopover/hidePopover, and attempted matches(':popover-open'), recording the thrown SyntaxError without altering product behavior.
+Source raw sweep inspected selectively: /tmp/piping-compact-sweep-20260924/sweep-python313.log

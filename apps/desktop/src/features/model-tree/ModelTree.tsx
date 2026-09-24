@@ -135,7 +135,7 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
   function closeCompactDetails(restoreFocus = false) {
     if (!compactGrid || layoutMode !== "grid") return false;
     const details = toolbarTarget?.querySelector<HTMLElement>(".compact-table-details");
-    if (!details?.matches(":popover-open")) return false;
+    if (!details || typeof details.hidePopover !== "function" || !details.matches(":popover-open")) return false;
     details.hidePopover();
     if (restoreFocus) toolbarTarget?.querySelector<HTMLButtonElement>(".compact-table-info")?.focus();
     return true;
@@ -887,7 +887,7 @@ function EntityGrid({
     {reviewToggle}
     {retainedReviewCount > 0 ? <span role="status">{retainedReviewCount} retained drafts</span> : null}
     {reviewVisible ? gridActions : null}
-    {queuedMessage ? <span role="status" className="compact-queued-message">{queuedMessage}</span> : null}
+    {queuedMessage ? <span role="status" className="compact-queued-message" data-testid="entity-grid-queued-message">{queuedMessage}</span> : null}
     <button type="button" data-table-chrome-owner={chromeOwner ?? undefined} onPointerDown={(event) => event.preventDefault()} popoverTarget={compactInfoId} aria-label="Table details" className="compact-table-info">Details</button>
     <div id={compactInfoId} data-table-chrome-owner={chromeOwner ?? undefined} popover="auto" className="compact-table-details" role="dialog" aria-label="Table details" tabIndex={-1}
       onToggle={(event) => { if (event.currentTarget.matches(":popover-open")) event.currentTarget.focus(); }}>

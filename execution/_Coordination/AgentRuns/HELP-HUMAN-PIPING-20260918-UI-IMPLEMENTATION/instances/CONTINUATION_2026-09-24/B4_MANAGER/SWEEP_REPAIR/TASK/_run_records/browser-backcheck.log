@@ -1,0 +1,17 @@
+
+Running 4 tests using 1 worker
+
+(node:41215) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:41215) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium-desktop] › e2e/b4-table-editing.spec.ts:717:3 › B4 Details owns traversed Escape and preserves editor ownership in model @explicit-viewport (6.0s)
+  ✓  2 [chromium-desktop] › e2e/b4-table-editing.spec.ts:717:3 › B4 Details owns traversed Escape and preserves editor ownership in both @explicit-viewport (6.1s)
+(node:41504) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:41504) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 [chromium-desktop] › e2e/b4-table-editing.spec.ts:783:3 › classic scrollbar allocation › B4 classic scrollbar compact comfortable 5 preserves tracks and nonmutating pans @explicit-viewport (6.8s)
+  ✓  4 [chromium-desktop] › e2e/b4-table-editing.spec.ts:783:3 › classic scrollbar allocation › B4 classic scrollbar compact compact 5 preserves tracks and nonmutating pans @explicit-viewport (7.1s)
+
+  4 passed (34.3s)
