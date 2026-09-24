@@ -1,0 +1,29 @@
+{
+  "note": "Comparison against existing crate-local locks; no normalization or manifest edits performed. Novel cached resolutions are disclosed, not judged a dependency upgrade to another graph.",
+  "novel_versions_in_generated_locks": {
+    "cfg-if": [
+      "1.0.5"
+    ],
+    "syn": [
+      "3.0.6"
+    ],
+    "unicode-ident": [
+      "1.0.26"
+    ]
+  },
+  "existing_versions_for_those_packages": {
+    "cfg-if": [
+      "1.0.4"
+    ],
+    "syn": [
+      "1.0.109",
+      "2.0.117",
+      "2.0.118",
+      "3.0.3",
+      "3.0.5"
+    ],
+    "unicode-ident": [
+      "1.0.24"
+    ]
+  }
+}

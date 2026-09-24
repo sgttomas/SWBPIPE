@@ -1,0 +1,134 @@
+{
+  "parent": "/root/numerical_ci_manager",
+  "child": "/root/numerical_ci_manager/review_numerical_ci",
+  "role": "TASK",
+  "model": "gpt-6-astra",
+  "reasoning_effort": "xhigh",
+  "mechanism": "delegated-harness-native",
+  "assignment": "Bounded documentary custody and portable negative-control rerun-entry backcheck",
+  "basis": "f7e8b467cb2db244f11fe49cede636140031b387",
+  "checkout": "/private/tmp/piping-numerical-ci-20260924",
+  "instruction_origins": [
+    {
+      "origin": "AGENTS.md",
+      "path": "/private/tmp/piping-numerical-ci-20260924/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "origin": "agents/AGENT_TASK.md",
+      "path": "/private/tmp/piping-numerical-ci-20260924/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "projects/chirality-piping/AGENTS.md",
+      "path": "/private/tmp/piping-numerical-ci-20260924/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "origin": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "path": "/private/tmp/piping-numerical-ci-20260924/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "origin": ".agents/skills/software-code-review/SKILL.md",
+      "path": "/private/tmp/piping-numerical-ci-20260924/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+    },
+    {
+      "origin": ".agents/skills/chirality-change/SKILL.md",
+      "path": "/private/tmp/piping-numerical-ci-20260924/.agents/skills/chirality-change/SKILL.md",
+      "sha256": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba"
+    }
+  ],
+  "limits": "Read-only candidate; no Cargo/npm/browser/hosted/full-test execution or Git mutation; metadata-only CLI/read-only Git permitted by manager; outputs confined to external custody-review.md and custody-review-basis.json",
+  "original_whitelist_sha256": "98ed9d50d7be343e25d3f2501a03bc235179b462f08adfaedc3f27f52ec51aec",
+  "original_failing_path_report_sha256": "b6c031f32bdc6d4cbcd6fe8f3c8d3a7957538af54fd7c787454e23e364abc047",
+  "checks": {
+    "nineteen_prior_records_byte_preserved": true,
+    "two_historical_external_records_hash_verified": true,
+    "original_path_report_findings": 31,
+    "validator_classifier_portability_policy_unchanged_from_base": true,
+    "portable_entry_help": "PASS",
+    "portable_entry_metadata_only": "PASS; actual helper identities returned; selected output directory remained nonexistent",
+    "portable_entry_negative_paths": "PASS; rejects initial custody, nested raw directories, Git metadata, repository escape, and unclassified output",
+    "independent_path_validator": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 /private/tmp/chirality-piping-dec025-venv/bin/python tools/validation/validate_path_anchors.py . --json",
+      "exit_code": 0,
+      "checked_file_count": 11728,
+      "finding_count": 0,
+      "active_unclassified": 0
+    },
+    "full_portable_rerun": "Not executed; no new Cargo or hosted proof claimed",
+    "maintained_five_locks_sixteen_unchanged": true,
+    "authorized_M6_notice_delta": {
+      "status": "PASS",
+      "scope": "Canonical manifest m6_notice only, NOTICE.md and custody/projection records",
+      "original_manifest_sha256": "83891ac7babe76d32f2d53d5fcccab24b98aea3567121ca379495b5adb694bb9",
+      "current_manifest_sha256": "76c85fe25513040f5752ebe75e49522ec7905f72dfd38b34edba60b95b77f52c",
+      "original_bytes_preserved": "_run_records/initial/tranche-pending.yaml",
+      "authorization_basis": "Manager relayed ROOT explicit direction before final freeze",
+      "limitation": "Notice reports ROOT routing; reviewer did not independently contact companion task or claim receiving-loop adoption"
+    }
+  },
+  "consulted_sources_sha256": {
+    "tools/validation/validate_path_anchors.py": "9981b426b6d9c8bb760ab35ee66b1bb0c91bc6427fde282b33506ec99879e07d",
+    "tools/practitioner_harness/surface_roles.py": "7786998c8eb047e770c98b3e846353d40a307f5cfa9862c95681c3405866949e",
+    "projects/chirality-piping/validation/portability_policy.json": "113684aaed4e12facb6d2968c2ee3ed4264dc45933555ee92789f6a95fc3a837"
+  },
+  "candidate_sha256": {
+    ".github/workflows/piping-desktop-e2e.yml": "9cb061969f12c6890aa5b20e37ff9dab67430d91a788d706b05aa3dddd571183",
+    "docs/governance_harness/tranche_manifests/PIPING-NUMERICAL-CI-20260924.yaml": "76c85fe25513040f5752ebe75e49522ec7905f72dfd38b34edba60b95b77f52c",
+    "projects/chirality-piping/core/loads/load_case_algebra/Cargo.lock": "abad8a64f1329cd12f3f89d2a99a3f720c570597f38860f1be28b3cbd126880e",
+    "projects/chirality-piping/core/loads/primitive_loads/Cargo.lock": "4cc8edcfe1a36df477b0fcb9852ad63926bf75795e60615f1f820d5a7581a854",
+    "projects/chirality-piping/core/reporting/audit_manifest/Cargo.lock": "cf614e760a1b93f35ed11498048c9669205204468d6a5115b6f7ecdc3475c6f2",
+    "projects/chirality-piping/core/reporting/report_generator/Cargo.lock": "ad699ba4553e8a13a6240b8e9916f9d5266372a0448699b15c42f294d6b74e0f",
+    "projects/chirality-piping/core/reporting/result_export/Cargo.lock": "963573b91a229f41472bbd3100e2cf48e5dad8a2b2009dc85017c41ef3bdb4f1",
+    "projects/chirality-piping/core/rules/completeness_checker/Cargo.lock": "dff3336149333fa815d35e8f6b28b9b628c8eb5114504ccdd1787672133a2c34",
+    "projects/chirality-piping/core/rules/rule_pack_lifecycle/Cargo.lock": "6f2dc15a4f90c373ae1d642364af4c6b8fe34cf03f870e206b363c921533425e",
+    "projects/chirality-piping/core/runner/headless/Cargo.lock": "661095df4a112a8884d8b39709eac134d8b95cdb5cb8d346f835c1851debe544",
+    "projects/chirality-piping/core/solver/curved_bend/Cargo.lock": "673aed6ccd24ed82f89b9f5fd949880eb800641f1975879685712af827620f9c",
+    "projects/chirality-piping/core/solver/diagnostics/Cargo.lock": "e80edc2f981aa904e2146072db14d31eed2680cf5975eea0ea3b8b5a4175ee64",
+    "projects/chirality-piping/core/solver/frame_kernel/Cargo.lock": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+    "projects/chirality-piping/core/solver/linear_supports/Cargo.lock": "5792a728c5b0687e3306a96ace1bc79eac4d0b5be8294e40de34849921c64537",
+    "projects/chirality-piping/core/solver/nonlinear_supports/Cargo.lock": "8bf2ad74a9b4d415e825c60fbc45bdb2b62b673fc2914e561ffa85c992bc2657",
+    "projects/chirality-piping/core/solver/performance_harness/Cargo.lock": "c191d3f5d2ca8cdc6c6237effbc18d5e477cf1362d79bf45c62821486f94ab8b",
+    "projects/chirality-piping/core/solver/sparse_direct/Cargo.lock": "86a316b6f076f21b01531b16c1336abeccfb484d8425ad44fc560831d1c34b36",
+    "projects/chirality-piping/core/solver/straight_pipe/Cargo.lock": "53c41652cf335be092d3eb651d25263a1e2bea87457e4206e0decc00e56e1d7c",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/CUSTODY.json": "7ff81c44f9d3e61f1d83161e28dc9a78bd945a0d19ebd79e020baec83d2cee29",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/NOTICE.md": "fe19e1350b68fd5581fb07bbba633c50a0eaf1fdbc0f84ae9a606e8aba1981ac",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/RERUN_NEGATIVE_CONTROL.py": "d80db4919e6d0dcd9d6f03cff27dbdb4ca20f4462dc98fd214a2ee7eb6d6307d",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/REVIEW_RECORD.md": "131b4a757df0cde3a8109ae166e8fe1b3ae974fe3d54fdb27c86188349fbcbb4",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/_run_records/initial/BASELINE_MISSING_LOCKS.json": "fc3aeda415185821acfddb6c3b130abc446963946a492284ee9a26d8e8518390",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/_run_records/initial/EXECUTION.json": "7d8376f56f2aaab65f7fa94a2e70b9913b68a0accc16d7561b15819802823d7a",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/_run_records/initial/LOCK_GENERATION.json": "2236676529ab02675d097a26dcf08178edbd143fce20b69a151767378f6068d8",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/_run_records/initial/LOCK_VERSION_COMPARISON.json": "24dd398d31d2eb85f8775a4de9b9ac954554e26e6c95749fdf9b99bcb30523b3",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/_run_records/initial/REVIEW_RECORD.md": "0abd017124c433c80a9c6ffd9448f94924628f7f1e385ad9a87b7bebde30c27f",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/_run_records/initial/candidate-files-before.json": "98ed9d50d7be343e25d3f2501a03bc235179b462f08adfaedc3f27f52ec51aec",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/_run_records/initial/implementation-basis.json": "e259db40273559645f46293eba5847462eac62dd3aedeb55f57845795b203a6c",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/_run_records/initial/implementation-hashes.json": "bad3beffb96161040cc8af3db726ff71c048ff356a7747f6dae1435b521b7e81",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/_run_records/initial/negative-control/aggregate.stdout.log": "07c1346ac1b282815cdff4d5c1b428bda64267c72e267cc424265ada10dd2b84",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/_run_records/initial/negative-control/control.json": "30077e9cbc357aa0851da8301f5b0dd16b8c8d7be6f3f0b99b7b20da34605c0f",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/_run_records/initial/negative-control/evidence/cargo-logs/command-000.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/_run_records/initial/negative-control/evidence/cargo-logs/command-001.log": "1b246728e7f195839368631421d4c815d4cd44b1040e174843a75d61ad86436b",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/_run_records/initial/negative-control/evidence/command-000.log": "4ad84f16acc2f3bdcfbc7b0788f1e74a4e649b962154a585b8f8d0b28eb0dd06",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/_run_records/initial/negative-control/evidence/command-001.log": "1aedaa9cce116919d39b1eb303a58865771582bc24fc259aa8e26cb212e0f59e",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/_run_records/initial/negative-control/evidence/numerical.json": "8aa1af4f863ddf2698e3e51cc2c793433fbcddd57b1bfb88d574479b9a2d2bb8",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/_run_records/initial/negative-control/rerun.py": "c111ff984f914ba512b67898b05fdd66d42f0039198d7dc711d01952da62a461",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/_run_records/initial/negative-control/runner.stdout.log": "eb4d9caf41dc8f23b9c739cc355cbe657c3cf7c42172e2aacf065c177a7ddf61",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/_run_records/initial/path-anchors-before.json": "b6c031f32bdc6d4cbcd6fe8f3c8d3a7957538af54fd7c787454e23e364abc047",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/_run_records/initial/python-tests.log": "8fd41c8eb7ef9837ba908226323f70ba54d91d3de0bd8b9fb5fa9edd985a05a8",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/_run_records/initial/review-basis.json": "fcb90ca5038af5ca081405d29988fa120d59a56d535e42cf1e53ad085c45ccb2",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/_run_records/initial/review.md": "d1ee81cb12208cc6808153ce1fad2891c1de6151450b0ef5fb157195740e4619",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/_run_records/initial/tranche-pending.yaml": "83891ac7babe76d32f2d53d5fcccab24b98aea3567121ca379495b5adb694bb9",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/_run_records/path-anchors-after.json": "3c052b5e844fa779284431c703785e436f4f6cdbf6b18677a1a9f8c5db60f064",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/_run_records/path-anchors-final.json": "93ddab57f4ff85c6280c5f794111cb0f00459faf04c931ee132bc7d8cd5b5f38",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/_run_records/portable-path-check.json": "fbc49a4dc04daf7dec63e49338c44f5cab8f62cc30a863de0772fd32288a839b",
+    "projects/chirality-piping/tests/test_ci_e2e_plan.py": "6aadbd41535936b6d01feffda1b5ba635ac82d666ef0dd94611e13a8a421341e",
+    "projects/chirality-piping/tests/test_ci_numerical.py": "ed5c5a5c67e70904663d6654fb4968214bdfbe4a418744e1bb8d393273709d2d",
+    "projects/chirality-piping/tools/ci/e2e_plan.py": "cc57406835c8413caeb224ee6cac250385b308e46849ed37fcddac6604dfaf56",
+    "projects/chirality-piping/tools/ci/numerical_ci.py": "c1763b3be06836dc44a9f1a4c456207f102cf6feac12cf85c5a0ef19fab1ae37"
+  },
+  "result": "No unresolved actionable findings; suitable for ROOT custody and authorized M6 notice integration with original product/hosted gates unchanged",
+  "later_copy_boundary": "The two reviewer outputs will be copied verbatim under _run_records after this 51-file snapshot. Final external whitelist will require bounded hash backcheck over those 53 files.",
+  "candidate_content_digest_sha256": "7ae96c8e26d898bb9e56e088b4b64ca6ab25fe49fb18513d2d72190995942193"
+}

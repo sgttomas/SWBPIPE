@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/private/tmp/chirality-piping-dec025-venv/bin/python",
+    "/private/tmp/piping-numerical-ci-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/RERUN_NEGATIVE_CONTROL.py",
+    "--repo-root",
+    "/private/tmp/piping-numerical-ci-20260924",
+    "--output-dir",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/_run_records/reruns/path-check-only",
+    "--check-paths"
+  ],
+  "exit_code": 0,
+  "output": "{\n  \"repo_root\": \"/private/tmp/piping-numerical-ci-20260924\",\n  \"output_dir\": \"/private/tmp/piping-numerical-ci-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/NUMERICAL_CI_MANAGER/_run_records/reruns/path-check-only\",\n  \"candidate_head\": \"f7e8b467cb2db244f11fe49cede636140031b387\",\n  \"helper_sha256\": {\n    \"tools/ci/e2e_plan.py\": \"cc57406835c8413caeb224ee6cac250385b308e46849ed37fcddac6604dfaf56\",\n    \"tools/ci/numerical_ci.py\": \"c1763b3be06836dc44a9f1a4c456207f102cf6feac12cf85c5a0ef19fab1ae37\",\n    \"tools/release/check_release_readiness.py\": \"c386cdef9fe16ae0239dc509cb29dbadf0f6ce138cf7c0b7ab40867cb34e930f\"\n  }\n}\n",
+  "output_directory_created": false,
+  "no_cargo_or_fixture_execution": true,
+  "script_sha256": "d80db4919e6d0dcd9d6f03cff27dbdb4ca20f4462dc98fd214a2ee7eb6d6307d"
+}
