@@ -1,0 +1,204 @@
+{
+  "status": "Exact independently reviewed and Root-selected finite case preparation; actual runs zero",
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/BASIS.json",
+      "sha256": "82d051431302c6c5965f1143e43407a319aec8ffae4184899a610a650d9d18fa",
+      "bytes": 8679
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/CHECKS.json",
+      "sha256": "4995726695d55ce8fb4d4f036932fee60200bc47022b3c2e83ae8756d60daa14",
+      "bytes": 2524
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/CHECK_RUN.stdout.json",
+      "sha256": "4995726695d55ce8fb4d4f036932fee60200bc47022b3c2e83ae8756d60daa14",
+      "bytes": 2524
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/FINAL_CHECKED_HASHES.json",
+      "sha256": "c363cb5000edb2c433d5789c69df270032a19069ba6f3d18a07f444c8391ffba",
+      "bytes": 14226
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/PROVENANCE.json",
+      "sha256": "71919787ee328d4e8a442d871fca0bfa9a3b66fc7c56378a70a4f84cb3c058b9",
+      "bytes": 6332
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/RETURN.md",
+      "sha256": "565dc99ae70ba34bb4d913c0bb19b3934c92e704d75e10ab0e22931cbf73de96",
+      "bytes": 7213
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/SCALAR_BACKCHECK.json",
+      "sha256": "dceb0b5de964748191d32ad9a520a2df585d09df2a9c6f178d473ef1b1cdcd4c",
+      "bytes": 28859
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/SELECTION_BACKCHECK.json",
+      "sha256": "e4c69717ab52683d3cbfad6555cf05a057463a4defe2ce72933c1de10adb4ff3",
+      "bytes": 2306
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/SELECTION_BACKCHECK.md",
+      "sha256": "ae487d4b9568be0b50c3dcfa95a24e54aa30a209907d0904bfdca3f92ec564a2",
+      "bytes": 1756
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/STRUCTURAL_BACKCHECK.json",
+      "sha256": "c6748c2611a2b167aad5f29b4cfcbd411166cabca9919853a70bf5c3aa97f780",
+      "bytes": 2788
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/check_candidates.py",
+      "sha256": "ef253e8f9b7ca0fd93b2fa3795090a962a349108c4149c49e1d50ad6c94da04e",
+      "bytes": 15452
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/INPUT_REFERENCE_BINDINGS.json",
+      "sha256": "be6e332513634f747a1f44c6f38bb94bd2ad0d7ce8e3caa75ccfcdfc9124bdf9",
+      "bytes": 2317
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/OUTPUT_OBLIGATIONS.json",
+      "sha256": "1e9559d53a3219396b19ac17aa5e0198580e9a572df92d4bfe4c378110a86737",
+      "bytes": 1883
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/PACKET_MANIFEST.json",
+      "sha256": "0603a990838166c1da43b26f8b657dae3051289097700a76859d1afaa45db02b",
+      "bytes": 4231
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/REFERENCE_DOMAIN.md",
+      "sha256": "5a5f69295748a640c55cbd3d115705e1309ad5977d0cb75881f26beb0bcb8a5c",
+      "bytes": 8690
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/RETURN.md",
+      "sha256": "b7af8eee3e5972be9c286b84ed410c3dff98ae78b768dd6ffbfe150db172c81c",
+      "bytes": 4080
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/ROOT_SELECTION.md",
+      "sha256": "c7899527ad9c63c46e1c016f178a37331eb0ae1bf7d93f1ba20fbc1482caac11",
+      "bytes": 3046
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/ROOT_SELECTION_BASIS.json",
+      "sha256": "2a83319cd16c95eb736f4cc846ca5a5a71dea3d39550848d9f7f55dbaa05abc5",
+      "bytes": 933
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/STRUCTURAL_EXPECTATIONS.json",
+      "sha256": "b5f6a9446d5485d707ca86a2df554e4ce9d266246ef6f373f4de7f8d564095fa",
+      "bytes": 4343
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/WIRE_BASIS.json",
+      "sha256": "b622b78b0c97e69f71854ec1eafc3e720a45a1e67ef2dba88ad966ee9fa825c9",
+      "bytes": 2714
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/_run_records/DIRECTION_DRAFT_REPAIR.json",
+      "sha256": "784f681efc8f2c588916f4e86740a92a860b6aef4750a911cb5abe49b09e682f",
+      "bytes": 1195
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/_run_records/PREPARATION_CHECKS.json",
+      "sha256": "158df5013692966757752ecdf37d26e3d5e1b74f860d6a9b2cb7e0df343cf351",
+      "bytes": 2068
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/_run_records/REFERENCE_ARITHMETIC.json",
+      "sha256": "6324fd631084bc3f93e434ed11926a8c21fe23eaeeda80221dd698109c511aea",
+      "bytes": 536
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/axial.criteria.candidate.json",
+      "sha256": "6dab93d22367d638ac9e519bd98ff72323aa44f5002d5a3c91f9612f567add76",
+      "bytes": 9865
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/axial.expectations.json",
+      "sha256": "a3abc2d10edcabf279e7cbbf4bb124e742734acf3c934b8e297ebb02359a116a",
+      "bytes": 32009
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/axial.preview_request.json",
+      "sha256": "dfca10a0b76f08d903261a0fbb885b0f9f223b6a0d8ee6696b1cd62c18ebcd71",
+      "bytes": 4015
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/axial.reference.candidate.json",
+      "sha256": "5c58111b4395796416969e303c377ae27dabf2e0839f6565b0fdc4942dc878b6",
+      "bytes": 7601
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/axial.runner_input.candidate.json",
+      "sha256": "ee8fe54222fa5bf6aaa39219b7353a95ff77b91177cccd9c665575229023ff74",
+      "bytes": 6939
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/axial.selectors.candidate.json",
+      "sha256": "23379801596b2a1d9a99da5ff30ca1241da14cc5bc92b6618070b0d28380f482",
+      "bytes": 81504
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/bending_torsion.criteria.candidate.json",
+      "sha256": "7dc37745f5111decdfffa430b1b334fb3a08def50fbfdfcc9d73648feadea36d",
+      "bytes": 10561
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/bending_torsion.expectations.json",
+      "sha256": "cfe8d16ceb0d7505a30f19d1f2ed03a2306f9c71101be1e7643fb1f6dbf6bde3",
+      "bytes": 33982
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/bending_torsion.preview_request.json",
+      "sha256": "d2cd8c15910fd6f98ccf1cb267f56dbeecec8226dab9129f989aa37716204dc3",
+      "bytes": 5018
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/bending_torsion.reference.candidate.json",
+      "sha256": "b5cb4dd6cd03c22d4c05232241ba6a81301e0420a17376e9c1018f197208f339",
+      "bytes": 7842
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/bending_torsion.runner_input.candidate.json",
+      "sha256": "1f2b6e4876d352818a9f0c94bbfc285ca245df5ac27f63317b164e7ddf9d4ff2",
+      "bytes": 8112
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/bending_torsion.selectors.candidate.json",
+      "sha256": "2bd1ffaccdfa2dae33fd8b27d6f15a46b5057049122a9f6c13f410844e42584e",
+      "bytes": 81619
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/build_bindings.py",
+      "sha256": "2a5c5b8894ae9b58525abec5c7539f1b6df57a86ddf2fc5ddf604d6c23c1276f",
+      "bytes": 12999
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/independent_reference.py",
+      "sha256": "18552e3a511d9582aec423183c14e3ea3a67f21755567dbdace600c50f7c3c17",
+      "bytes": 8895
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/section.reference.json",
+      "sha256": "df00cc0827ebce33e8af8bf4ea00e0bd80f98ffef41bdf2e9780cc266002b96a",
+      "bytes": 818
+    }
+  ],
+  "manifest_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_CHECKPOINT_SELECTION.json",
+  "limits": [
+    "No target or input values changed from reviewed original package",
+    "Original preparation/scoring-readiness metadata preserved",
+    "Root selection authorizes development comparisons only after adapter/build/dependency admission",
+    "292 scalar and40 structured obligations across4 future executions retained",
+    "Future structural numeric addendum and adapter work excluded"
+  ],
+  "source_packet_sha256": "0603a990838166c1da43b26f8b657dae3051289097700a76859d1afaa45db02b"
+}

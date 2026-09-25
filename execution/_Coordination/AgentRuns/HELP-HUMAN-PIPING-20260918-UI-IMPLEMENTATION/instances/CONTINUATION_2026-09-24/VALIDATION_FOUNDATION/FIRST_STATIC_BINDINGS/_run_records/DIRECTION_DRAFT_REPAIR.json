@@ -1,0 +1,28 @@
+{
+  "finding": "Draft concentrated-force direction tokens force_x/y/z do not match the actual parse_direction/fields input; actual tokens are global_x/y/z. No draft was executed.",
+  "repair": "Correct authored candidate direction and load identity tokens to global_x/y/z; moment rotation_x unchanged. Reference physics/values and row selectors unchanged.",
+  "old_input_bindings": [
+    {
+      "case_id": "original_static_axial_v1",
+      "input": {
+        "path": "axial.runner_input.candidate.json",
+        "sha256": "f9c62c3ce318c65be399a63e8367176a4ef8be808592b3e3d03b5be808cce2b7"
+      },
+      "product_request": {
+        "path": "axial.preview_request.json",
+        "sha256": "e996bb47a663ed41820edc7b045ff31df0e95a682cc3ea09e37e50a69975b254"
+      }
+    },
+    {
+      "case_id": "original_static_bending_torsion_v1",
+      "input": {
+        "path": "bending_torsion.runner_input.candidate.json",
+        "sha256": "f333465beb0667280ee9a9cef1fe2b5e83080c8c9dc2399d597dc9b793eec803"
+      },
+      "product_request": {
+        "path": "bending_torsion.preview_request.json",
+        "sha256": "f380789f19bc151d5882e92a6f78ee88b6dc2f2a96b8e66ad4848113c048bf25"
+      }
+    }
+  ]
+}

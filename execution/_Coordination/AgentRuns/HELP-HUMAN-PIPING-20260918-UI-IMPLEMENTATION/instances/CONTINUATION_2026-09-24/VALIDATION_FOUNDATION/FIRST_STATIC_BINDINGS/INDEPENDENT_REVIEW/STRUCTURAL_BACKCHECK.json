@@ -1,0 +1,53 @@
+{
+  "status": "All ten obligations per case reviewed as prospective required checks; none claimed executed on new outputs",
+  "case_ids": [
+    "original_static_axial_v1",
+    "original_static_bending_torsion_v1"
+  ],
+  "checks": [
+    {
+      "id": "transport_identity_and_mode",
+      "review": "Correct actual CLI ControlledExport payload1.0 vocabulary; runner request_id/run_id/mode/diagnostics remain runtime obligations. No canonical document inferred."
+    },
+    {
+      "id": "actual_input_binding",
+      "review": "Exact candidate RunnerRequest contains the checked preview request, authored project and one case; actual stdin/executable/mode capture and accepted_model_state_mutated=false must be observed later."
+    },
+    {
+      "id": "ordinary_physics_contract",
+      "review": "Explicit raw0.2/component0.2/physics-1/exact_straight_pressure_v2; source-blocks or composite cannot inherit these selectors."
+    },
+    {
+      "id": "complete_case_material_section",
+      "review": "One annulus/member/material/case, E200e9/nu.25/derivedG80e9 and empty pressure regions agree. Source geometry/physical properties require actual evidence comparison, no exact ideal-decimal equality."
+    },
+    {
+      "id": "finite_numerical_standing",
+      "review": "Actual checks_passed/passive_model_basis/represented_equations_retained/not_claimed vocabulary matches ordinary carrier. Sensitive/unresolved remains unmet, not dropped."
+    },
+    {
+      "id": "complete_unique_scalar_rows",
+      "review": "All73 IDs and kind/unit/entity/case/metadata/dimension requirements validated per case; two displacement magnitude metadata values mean required absence, not manufactured metadata."
+    },
+    {
+      "id": "normal_maximum_evidence",
+      "review": "Ordinary coefficient basis and enclosure scope match retained physics-1 evidence. Supplied coefficient interval is not a total solver-error bound. Future result must be finite/in-order/covered and internally bound."
+    },
+    {
+      "id": "governing_location",
+      "review": "Combined normal amplitude strictly decreases along span, unique root station and two opposite fiber tie. Axial every station/fiber ties; any in-domain witness valid."
+    },
+    {
+      "id": "stress_summary_binding",
+      "review": "Pa value/reference must exactly match the normal maximum raw row, pipe location and result:elastic-maximum:4:case:4:pipe. Torque excluded from normal maximum."
+    },
+    {
+      "id": "displacement_summary_binding",
+      "review": "Tip is strict translation-magnitude maximum for both cases. Summary must exactly match result:disp:tip in mm and counts2/1/1/1; runtime remains unobserved."
+    }
+  ],
+  "per_case": 10,
+  "total_per_mode": 20,
+  "both_modes_total": 40,
+  "execution_status": "unobserved"
+}
