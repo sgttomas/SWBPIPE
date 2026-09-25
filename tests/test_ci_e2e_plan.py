@@ -310,14 +310,16 @@ class CollectionTests(unittest.TestCase):
                     add('e2e/ui-foundation.spec.ts', f'task and analysis dock preserve usable canvas {theme} {density} {width}x{height}', ['chromium-desktop'], ['@explicit-viewport'])
         return rows
 
-    def plan(self, mode='full'):
+    def plan(self, mode='full', event='pull_request'):
         source = self.source()
-        return dict(mode=mode, selected_specs=sorted({t['file'] for t in source}) if mode == 'full' else [ci.FAST],
+        return dict(mode=mode, event=event, selected_specs=sorted({t['file'] for t in source}) if mode == 'full' else [ci.FAST],
                     selected_titles={} if mode == 'full' else ci.LEAN_TITLES, appearance=False)
 
     def test_full_and_lean_preserve_explicit_selection(self):
         source = self.source()
-        self.assertEqual(ci.select_tests(self.plan(), source), [t for t in source if ci.hosted_profile(t)])
+        self.assertEqual(ci.select_tests(self.plan(), source), [t for t in source if ci.hosted_profile(self.plan(), t)])
+        # Manual full dispatch (DEC-093 surface-4 CI binding) keeps both profiles in full.
+        self.assertEqual(ci.select_tests(self.plan(event='workflow_dispatch'), source), source)
         lean = ci.select_tests(self.plan('lean'), source)
         self.assertEqual(len(lean), 13)
         self.assertLess(len(lean), len(source))

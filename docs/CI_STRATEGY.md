@@ -49,15 +49,16 @@ timeout or permanent skip was changed to obtain a reduced run.
 
 ## Exact coverage and duration assignment
 
-Hosted CI runs the compact (1280x800) profile only where the window size is the
-subject: B3 accessibility, workspace layout, C3 viewport visibility, B4 table
+Pull-request runs use the compact (1280x800) profile only where the window size
+is the subject: B3 accessibility, workspace layout, C3 viewport visibility, B4 table
 editing and Sections, compact linear authoring, the R2 journey both lanes must
 complete, and the named UI-foundation layout cases. Other compact identities
 repeat their desktop counterpart's code path at a second window size; they are
-omitted from hosted selection with an explicit reason in the collection
-artifact, and every desktop-profile identity still runs. The Playwright
-configuration and local DEC-025 evidence sweeps keep both profiles in full, so
-hosted full source coverage is not DEC093 full surface4 evidence.
+omitted from pull-request selection with an explicit reason in the collection
+artifact, and every desktop-profile identity still runs. Pull-request full
+coverage is therefore not a DEC093 surface-4 CI binding. Manual full dispatch,
+the Playwright configuration and local DEC-025 evidence sweeps keep both
+profiles in full, so the dual-viewport CI binding path is unchanged.
 
 The explicit appearance matrix sets its viewport before navigation and retains
 all twelve theme/density/window combinations once. Explicit-start workspace cases
