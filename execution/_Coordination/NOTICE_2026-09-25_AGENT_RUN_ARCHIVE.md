@@ -25,5 +25,10 @@ What this means for the Piping loop:
   acceptance evidence obligations are unchanged. A run that needs an archived
   record reads it from the tag and restores it only to reopen that run.
 
+CI note: the Piping selector's step summary now lists the first 200 changed
+paths and a count. The archive diff produced a 10.8 MB summary, over GitHub's
+1 MiB limit. The uploaded `piping-e2e-selection` artifact keeps the complete
+plan, and selection is unchanged.
+
 The loop decides how to record adoption. Future archives run with
 `tools/archive_agent_runs.py` under the same policy.

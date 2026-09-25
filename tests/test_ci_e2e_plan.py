@@ -130,6 +130,15 @@ class PolicyTests(unittest.TestCase):
         ci.validate(self.root, pr)
         ci.validate(self.root, dispatch)
 
+    def test_large_diff_summary_stays_under_step_summary_limit(self):
+        plan = {**self.plan(), 'changed_paths': [{'status': 'D', 'path': 'execution/_Coordination/AgentRuns/R/%05d.md' % n}
+                                                 for n in range(60000)]}
+        summary = ci.plan_summary(plan)
+        self.assertLess(len(summary.encode()), 1024 * 1024)
+        self.assertIn('59800 more', summary)
+        small = self.plan()
+        self.assertIn(json.dumps(small, indent=2), ci.plan_summary(small))
+
     def test_root_instruction_packages_and_project_agent_guidance_are_not_product_inputs(self):
         for path in ['AGENTS.md', 'docs/SPEC.md', 'workflows/construct-local-work-graph/WORKFLOW.md',
                      'workflows/construct-local-work-graph/resources/work-graph-template.md',
