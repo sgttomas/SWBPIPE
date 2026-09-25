@@ -1,0 +1,207 @@
+M06_pressure_ignores_resolved_pairs extension_killed= True ['pressure_two_case_per_member_pairs_drive_wall_action_and_evidence'] committed_killed= True 1
+M14_material_points_not_canonicalized extension_killed= True ['duplicate_class_material_points_are_refused'] committed_killed= True 1
+M15_order_check_disabled extension_killed= True ['temperature_identity_binary64_order_inversion_blocks'] committed_killed= True 1
+M16_secant_datum_coverage_restored extension_killed= True ['verification_two_point_secant_table_needs_only_install_to_operating_coverage'] committed_killed= True 2
+M17_dilation_datum_sample_counted_consumed extension_killed= True ['dilation_datum_zero_is_consulted_not_consumed'] committed_killed= True 1
+M22_operating_temperature_not_canonicalized extension_killed= True ['temperature_identity_groups_select_same_point_across_units'] committed_killed= True 1
+M23_pressure_member_E_from_base_in_evidence_only extension_killed= True ['pressure_two_case_per_member_pairs_drive_wall_action_and_evidence'] committed_killed= True 1
+M24_exact_endpoint_tolerance_snapping extension_killed= True ['temperature_identity_non_equal_control_is_not_snapped'] committed_killed= True 1
+M04_eigenload_doubled_reanchored extension_killed= True ['joined_eigen_motion_closed_form_and_source_publication', 'joined_eigen_motion_with_pressure_stays_ordinary_not_joined', 'dilation_datum_zero_is_consulted_not_consumed', 'pressure_two_case_per_member_pairs_drive_wall_action_and_evidence', 'verification_two_point_secant_table_needs_only_install_to_operating_coverage'] committed_killed= True 7
+M19_evidence_pipe_materials_from_base_reanchored extension_killed= True ['joined_eigen_motion_closed_form_and_source_publication', 'pressure_two_case_per_member_pairs_drive_wall_action_and_evidence'] committed_killed= True 3
+{
+ "M06_pressure_ignores_resolved_pairs": {
+  "extension_only": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "pressure_two_case_per_member_pairs_drive_wall_action_and_evidence"
+   ]
+  },
+  "committed": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "case_state::tests::pressure_recovery_uses_each_cases_resolved_pair_and_eigenstrain_once"
+   ]
+  }
+ },
+ "M14_material_points_not_canonicalized": {
+  "extension_only": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "duplicate_class_material_points_are_refused"
+   ]
+  },
+  "committed": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "duplicate_class_material_points_are_refused"
+   ]
+  }
+ },
+ "M15_order_check_disabled": {
+  "extension_only": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "temperature_identity_binary64_order_inversion_blocks"
+   ]
+  },
+  "committed": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "case_state::temperature::tests::exactly_equal_temperatures_share_a_representative_and_order_is_checked"
+   ]
+  }
+ },
+ "M16_secant_datum_coverage_restored": {
+  "extension_only": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "verification_two_point_secant_table_needs_only_install_to_operating_coverage"
+   ]
+  },
+  "committed": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "case_state::thermal::tests::secant_table_covers_only_the_evaluated_interval_and_refuses_uncovered_evaluation",
+    "case_state::thermal::tests::secant_datum_conversion_matches_43_over_25009_from_verification_two_point_table"
+   ]
+  }
+ },
+ "M17_dilation_datum_sample_counted_consumed": {
+  "extension_only": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "dilation_datum_zero_is_consulted_not_consumed"
+   ]
+  },
+  "committed": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "dilation_datum_zero_is_consulted_not_consumed"
+   ]
+  }
+ },
+ "M22_operating_temperature_not_canonicalized": {
+  "extension_only": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "temperature_identity_groups_select_same_point_across_units"
+   ]
+  },
+  "committed": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "case_state::tests::temperature_identity_is_exact_across_authored_units"
+   ]
+  }
+ },
+ "M23_pressure_member_E_from_base_in_evidence_only": {
+  "extension_only": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "pressure_two_case_per_member_pairs_drive_wall_action_and_evidence"
+   ]
+  },
+  "committed": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "case_state::tests::pressure_recovery_uses_each_cases_resolved_pair_and_eigenstrain_once"
+   ]
+  }
+ },
+ "M24_exact_endpoint_tolerance_snapping": {
+  "extension_only": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "temperature_identity_non_equal_control_is_not_snapped"
+   ]
+  },
+  "committed": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "temperature_identity_non_equal_control_is_not_snapped"
+   ]
+  }
+ },
+ "M04_eigenload_doubled_reanchored": {
+  "extension_only": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "joined_eigen_motion_closed_form_and_source_publication",
+    "joined_eigen_motion_with_pressure_stays_ordinary_not_joined",
+    "dilation_datum_zero_is_consulted_not_consumed",
+    "pressure_two_case_per_member_pairs_drive_wall_action_and_evidence",
+    "verification_two_point_secant_table_needs_only_install_to_operating_coverage"
+   ]
+  },
+  "committed": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "case_state::tests::pressure_recovery_uses_each_cases_resolved_pair_and_eigenstrain_once",
+    "case_state::tests::product_route_reproduces_single_and_multi_segment_free_length_references",
+    "source_receipt::load_state_tests::a_resolved_operand_perturbed_after_capture_is_refused_by_receipt_replay",
+    "source_receipt::load_state_tests::joined_publication_uses_its_own_semantics_profile_policy_and_case_record",
+    "source_receipt::load_state_tests::source_closure_refuses_live_resolved_operands_that_did_not_reach_formation",
+    "source_receipt::load_state_tests::physical_binding_refuses_a_changed_published_load_reference_record_or_member_material",
+    "source_receipt::load_state_tests::unperturbed_capture_replays_and_binds_the_selected_joined_response"
+   ]
+  }
+ },
+ "M19_evidence_pipe_materials_from_base_reanchored": {
+  "extension_only": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "joined_eigen_motion_closed_form_and_source_publication",
+    "pressure_two_case_per_member_pairs_drive_wall_action_and_evidence"
+   ]
+  },
+  "committed": {
+   "exit": 101,
+   "compile_error": false,
+   "killed": true,
+   "failed": [
+    "case_state::tests::pressure_recovery_uses_each_cases_resolved_pair_and_eigenstrain_once",
+    "source_receipt::load_state_tests::joined_publication_uses_its_own_semantics_profile_policy_and_case_record",
+    "source_receipt::load_state_tests::physical_binding_refuses_a_changed_published_load_reference_record_or_member_material"
+   ]
+  }
+ }
+}
+exit 0

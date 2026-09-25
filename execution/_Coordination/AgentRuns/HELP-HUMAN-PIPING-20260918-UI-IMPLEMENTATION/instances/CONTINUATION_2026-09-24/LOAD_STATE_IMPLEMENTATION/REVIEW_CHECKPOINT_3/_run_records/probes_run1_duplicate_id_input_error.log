@@ -1,0 +1,196 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (/tmp/claude-0/-home-user-chirality/8c226ff9-66ac-5cc5-8a58-64f5dba4d118/scratchpad/rv3cp3/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.106
+   Compiling generic-array v0.14.7
+   Compiling open_pipe_stress_linear_supports v0.1.0 (/tmp/claude-0/-home-user-chirality/8c226ff9-66ac-5cc5-8a58-64f5dba4d118/scratchpad/rv3cp3/projects/chirality-piping/core/solver/linear_supports)
+   Compiling quote v1.0.45
+   Compiling unicode-ident v1.0.24
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (/tmp/claude-0/-home-user-chirality/8c226ff9-66ac-5cc5-8a58-64f5dba4d118/scratchpad/rv3cp3/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling typenum v1.20.1
+   Compiling serde_core v1.0.228
+   Compiling zmij v1.0.21
+   Compiling syn v2.0.117
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (/tmp/claude-0/-home-user-chirality/8c226ff9-66ac-5cc5-8a58-64f5dba4d118/scratchpad/rv3cp3/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling serde v1.0.228
+   Compiling serde_json v1.0.149
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (/tmp/claude-0/-home-user-chirality/8c226ff9-66ac-5cc5-8a58-64f5dba4d118/scratchpad/rv3cp3/projects/chirality-piping/core/solver/diagnostics)
+   Compiling serde_derive v1.0.228
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling itoa v1.0.18
+   Compiling memchr v2.8.0
+   Compiling digest v0.10.7
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (/tmp/claude-0/-home-user-chirality/8c226ff9-66ac-5cc5-8a58-64f5dba4d118/scratchpad/rv3cp3/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (/tmp/claude-0/-home-user-chirality/8c226ff9-66ac-5cc5-8a58-64f5dba4d118/scratchpad/rv3cp3/projects/chirality-piping/core/solver/curved_bend)
+   Compiling open_pipe_stress_straight_pipe v0.1.0 (/tmp/claude-0/-home-user-chirality/8c226ff9-66ac-5cc5-8a58-64f5dba4d118/scratchpad/rv3cp3/projects/chirality-piping/core/solver/straight_pipe)
+   Compiling ryu v1.0.23
+   Compiling cpufeatures v0.2.17
+   Compiling cfg-if v1.0.5
+   Compiling sha2 v0.10.9
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/tmp/claude-0/-home-user-chirality/8c226ff9-66ac-5cc5-8a58-64f5dba4d118/scratchpad/rv3cp3/projects/chirality-piping/core/serialization/canonical_json)
+   Compiling open_pipe_stress_stress_recovery v0.1.0 (/tmp/claude-0/-home-user-chirality/8c226ff9-66ac-5cc5-8a58-64f5dba4d118/scratchpad/rv3cp3/projects/chirality-piping/core/loads/stress_recovery)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (/tmp/claude-0/-home-user-chirality/8c226ff9-66ac-5cc5-8a58-64f5dba4d118/scratchpad/rv3cp3/projects/chirality-piping/core/solver/nonlinear_integration)
+   Compiling open_pipe_stress_load_case_algebra v0.1.0 (/tmp/claude-0/-home-user-chirality/8c226ff9-66ac-5cc5-8a58-64f5dba4d118/scratchpad/rv3cp3/projects/chirality-piping/core/loads/load_case_algebra)
+   Compiling open_pipe_stress_units v0.1.0 (/tmp/claude-0/-home-user-chirality/8c226ff9-66ac-5cc5-8a58-64f5dba4d118/scratchpad/rv3cp3/projects/chirality-piping/core/units)
+   Compiling open_pipe_stress_product_physics v0.2.0 (/tmp/claude-0/-home-user-chirality/8c226ff9-66ac-5cc5-8a58-64f5dba4d118/scratchpad/rv3cp3/projects/chirality-piping/core/product_physics)
+warning: unused import: `ELEMENT_DOF`
+  --> src/source_recovery.rs:12:39
+   |
+12 |     ThermalElementLoad, DOF_PER_NODE, ELEMENT_DOF,
+   |                                       ^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `is_exact_pressure_result_kind` is never used
+    --> src/lib.rs:8050:4
+     |
+8050 | fn is_exact_pressure_result_kind(kind: &str) -> bool {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: fields `support_id`, `global_dof`, `value`, and `functional_index` are never read
+  --> src/source_recovery.rs:69:9
+   |
+68 | pub(super) struct SpringAction {
+   |                   ------------ fields in this struct
+69 |     pub support_id: String,
+   |         ^^^^^^^^^^
+70 |     pub global_dof: usize,
+   |         ^^^^^^^^^^
+71 |     pub value: f64,
+   |         ^^^^^
+72 |     pub functional_index: usize,
+   |         ^^^^^^^^^^^^^^^^
+   |
+   = note: `SpringAction` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: multiple fields are never read
+   --> src/source_recovery.rs:94:9
+    |
+ 93 | pub(super) struct RecoverySummary {
+    |                   --------------- fields in this struct
+ 94 |     pub dofs: usize,
+    |         ^^^^
+ 95 |     pub stiffness_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^
+ 96 |     pub identified_load_contributions: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 97 |     pub blocks: usize,
+    |         ^^^^^^
+ 98 |     pub largest_block: usize,
+    |         ^^^^^^^^^^^^^
+ 99 |     pub member_end_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^
+100 |     pub section_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+101 |     pub spring_actions: usize,
+    |         ^^^^^^^^^^^^^^
+102 |     pub support_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^
+103 |     pub published_nodal_components: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+104 |     pub functional_count: usize,
+    |         ^^^^^^^^^^^^^^^^
+105 |     pub dof_projection_count: usize,
+    |         ^^^^^^^^^^^^^^^^^^^^
+106 |     pub max_absolute_projection_error: f64,
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+107 |     pub max_relative_projection_error: f64,
+108 |     pub relative_limit: f64,
+    |         ^^^^^^^^^^^^^^
+    |
+    = note: `RecoverySummary` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+
+warning: field `springs` is never read
+   --> src/source_recovery.rs:121:5
+    |
+115 | pub(super) struct SelectedSourceRecovery {
+    |                   ---------------------- field in this struct
+...
+121 |     springs: Vec<SpringAction>,
+    |     ^^^^^^^
+    |
+    = note: `SelectedSourceRecovery` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: method `spring_actions` is never used
+   --> src/source_recovery.rs:147:12
+    |
+130 | impl SelectedSourceRecovery {
+    | --------------------------- method in this implementation
+...
+147 |     pub fn spring_actions(&self) -> &[SpringAction] {
+    |            ^^^^^^^^^^^^^^
+
+warning: method `mode` is never used
+   --> src/source_receipt.rs:130:19
+    |
+108 | impl CapturedInvocation {
+    | ----------------------- method in this implementation
+...
+130 |     pub(super) fn mode(&self) -> PreviewSolverMode {
+    |                   ^^^^
+
+warning: associated function `not_attempted` is never used
+   --> src/source_receipt.rs:512:19
+    |
+447 | impl OrdinaryAttempt {
+    | -------------------- associated function in this implementation
+...
+512 |     pub(super) fn not_attempted(mode: PreviewSolverMode) -> Self {
+    |                   ^^^^^^^^^^^^^
+
+warning: `open_pipe_stress_product_physics` (lib test) generated 8 warnings (run `cargo fix --lib -p open_pipe_stress_product_physics --tests` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 45.99s
+     Running unittests src/lib.rs (/home/user/cargo-targets/lsreview3/scratch_pp/debug/deps/open_pipe_stress_product_physics-9d74f5da76ce3333)
+
+running 5 tests
+test source_receipt::review3_probes::review3_p1_selected_case_with_member_pair_other_than_base_qualifies ... P1 SparseInteractive semantic=openpipestress.result_semantics/0.3.0/load-reference-source-1 profile=resolved_straight_load_state_source_v1 receipt_policy=Some(String("LOAD-REFERENCE-SOURCE-1")) receipt_status=Some(String("qualified")) cases=Some([(Null, String("retained_source_blocks_exact_v1"))]) blocking=[]
+P1 SparseInteractive expected N=-6.71536918198261e4 first axial row=Some(("element_local_axial_force", 67153.6918198569))
+P1 DenseScrutiny semantic=openpipestress.result_semantics/0.3.0/load-reference-source-1 profile=resolved_straight_load_state_source_v1 receipt_policy=Some(String("LOAD-REFERENCE-SOURCE-1")) receipt_status=Some(String("qualified")) cases=Some([(Null, String("retained_source_blocks_exact_v1"))]) blocking=[]
+P1 DenseScrutiny expected N=-6.71536918198261e4 first axial row=Some(("element_local_axial_force", 67153.6918198569))
+ok
+test source_receipt::review3_probes::review3_p2_two_selected_cases_with_distinct_state_each_bind ... P2 SparseInteractive semantic=openpipestress.result_semantics/0.3.0/load-reference-1 profile=resolved_straight_load_state_v1 receipt_policy=None receipt_status=None cases=None blocking=["DUPLICATE_ID"]
+
+thread 'source_receipt::review3_probes::review3_p2_two_selected_cases_with_distinct_state_each_bind' (17932) panicked at src/source_receipt/review3_probes.rs:100:63:
+called `Option::unwrap()` on a `None` value
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/std/src/panicking.rs:689:5
+   1: core::panicking::panic_fmt
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:80:14
+   2: core::panicking::panic
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/panicking.rs:150:5
+   3: core::option::unwrap_failed
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/option.rs:2248:5
+   4: <core::option::Option<&serde_json::value::Value>>::unwrap
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/option.rs:1013:21
+   5: open_pipe_stress_product_physics::source_receipt::review3_probes::review3_p2_two_selected_cases_with_distinct_state_each_bind
+             at ./src/source_receipt/review3_probes.rs:100:63
+   6: open_pipe_stress_product_physics::source_receipt::review3_probes::review3_p2_two_selected_cases_with_distinct_state_each_bind::{closure#0}
+             at ./src/source_receipt/review3_probes.rs:89:65
+   7: <open_pipe_stress_product_physics::source_receipt::review3_probes::review3_p2_two_selected_cases_with_distinct_state_each_bind::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+   8: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/8bab26f4f68e0e26f0bb7960be334d5b520ea452/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+FAILED
+test source_receipt::review3_probes::review3_p3_selected_case_beside_unavailable_sensitive_case ... P3 Ok semantic=openpipestress.result_semantics/0.3.0/load-reference-1 profile=resolved_straight_load_state_v1 receipt_policy=None receipt_status=None cases=None blocking=["DUPLICATE_ID"]
+ok
+test source_receipt::review3_probes::review3_p4_zero_valued_pressure_region_is_not_joined ... P4 Ok semantic=openpipestress.result_semantics/0.3.0/load-reference-1 profile=resolved_straight_load_state_v1 receipt_policy=None receipt_status=None cases=None blocking=[]
+ok
+test source_receipt::review3_probes::review3_p5_additional_post_capture_perturbations_are_refused ... P5 strain_split_same_total: captured replay -> Err(ReceiptError("captured source replay: RecoveryFailure { stage: \"expected invocation replay\", helper_stage: Replay, error: Exact(Invalid(\"functional expected source binding\")), work: WorkReport { charged: 3534567, rejected: 0, limit: 8000000 } }", None))
+P5 evidence_only: captured replay -> Err(ReceiptError("captured source replay: RecoveryFailure { stage: \"expected invocation replay\", helper_stage: Replay, error: Exact(Invalid(\"functional expected source binding\")), work: WorkReport { charged: 3534082, rejected: 0, limit: 8000000 } }", None))
+P5 explicit_zero_motion: captured replay -> Err(ReceiptError("captured source replay: RecoveryFailure { stage: \"expected invocation replay\", helper_stage: Replay, error: Exact(Invalid(\"functional expected source binding\")), work: WorkReport { charged: 3534745, rejected: 0, limit: 8000000 } }", None))
+P5 effective_primitive_magnitude: captured replay -> Err(ReceiptError("captured source replay: RecoveryFailure { stage: \"expected invocation replay\", helper_stage: Replay, error: Exact(Invalid(\"functional expected source binding\")), work: WorkReport { charged: 3534621, rejected: 0, limit: 8000000 } }", None))
+P5 nu_only: captured replay -> Err(ReceiptError("captured source replay: RecoveryFailure { stage: \"expected invocation replay\", helper_stage: Replay, error: Exact(Invalid(\"functional expected plan binding\")), work: WorkReport { charged: 3466884, rejected: 0, limit: 8000000 } }", None))
+ok
+
+failures:
+
+failures:
+    source_receipt::review3_probes::review3_p2_two_selected_cases_with_distinct_state_each_bind
+
+test result: FAILED. 4 passed; 1 failed; 0 ignored; 0 measured; 312 filtered out; finished in 0.38s
+
+error: test failed, to rerun pass `--lib`

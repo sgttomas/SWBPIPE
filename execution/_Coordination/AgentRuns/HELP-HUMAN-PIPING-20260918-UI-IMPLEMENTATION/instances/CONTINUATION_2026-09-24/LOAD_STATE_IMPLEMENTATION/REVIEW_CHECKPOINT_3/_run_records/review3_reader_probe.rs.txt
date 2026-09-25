@@ -1,0 +1,13 @@
+//! CP3 review probe (scratch only): the Rust readers on real producer outputs.
+use open_pipe_stress_result_export::semantic_contract::{for_source, validate_load_reference_evidence};
+use serde_json::Value;
+#[test]
+fn review3_reader_probe() {
+    let paths = std::env::var("REVIEW3_ENVELOPES").unwrap();
+    for path in paths.split(':') {
+        let raw: Value = serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
+        let dispatch = for_source(&raw).map(|(_, id)| id.to_string());
+        let direct = validate_load_reference_evidence(&raw);
+        eprintln!("RUST {} dispatch={:?} validator={:?}", path.rsplit('/').next().unwrap(), dispatch, direct);
+    }
+}

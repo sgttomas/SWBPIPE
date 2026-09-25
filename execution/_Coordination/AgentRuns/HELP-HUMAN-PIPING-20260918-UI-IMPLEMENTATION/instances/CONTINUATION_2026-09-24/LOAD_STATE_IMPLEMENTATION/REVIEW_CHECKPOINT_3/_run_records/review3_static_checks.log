@@ -1,0 +1,52 @@
+== 1 carrier schema pointer diffs
+schemas/results.v0.3.schema.yaml 5
+   ('LIST_APPEND', '/$defs/ResultEnvelope/properties/producer/properties/semantic_contract_id/enum', 4, 5)
+   ('LIST_APPEND', '/$defs/ResultEnvelope/properties/semantic_contract_ref/properties/ref_id/enum', 4, 5)
+   ('LIST_APPEND', '/$defs/ResultEnvelope/properties/formulation_basis/properties/profile_id/enum', 2, 3)
+   ('LIST_APPEND', '/$defs/ResultEnvelope/properties/contract_evidence/anyOf', 2, 3)
+   ('LIST_APPEND', '/$defs/ResultEnvelope/oneOf', 4, 5)
+schemas/analysis_run.v0.3.schema.json 4
+   ('LIST_APPEND', '/$defs/SemanticContract/properties/id/enum', 4, 5)
+   ('LIST_APPEND', '/$defs/SemanticContract/properties/sha256/enum', 4, 5)
+   ('LIST_APPEND', '/$defs/SemanticContract/oneOf', 4, 5)
+   ('LIST_APPEND', '/$defs/AnalysisRun/oneOf', 4, 5)
+schemas/stress_neutral_export.v0.3.schema.json 5
+   ('LIST_APPEND', '/properties/producer/properties/semantic_contract_id/enum', 4, 5)
+   ('LIST_APPEND', '/properties/formulation_basis/properties/profile_id/enum', 2, 3)
+   ('LIST_APPEND', '/properties/semantic_contract_ref/properties/ref_id/enum', 4, 5)
+   ('LIST_APPEND', '/properties/semantic_contract/properties/id/enum', 4, 5)
+   ('LIST_APPEND', '/oneOf', 4, 5)
+== 2 results.v0.3 ResultEnvelope branches
+required producer/formulation_basis: True True
+   0 {'const': 'openpipestress.result_semantics/0.3.0/precision-1'} {'const': 'product_preview_mechanics_v1'} contract_evidence None
+   1 {'const': 'openpipestress.result_semantics/0.3.0/physics-1'} {'const': 'exact_straight_pressure_v2'} contract_evidence {'$ref': '#/$defs/PhysicsContractEvidence'}
+   2 {'const': 'openpipestress.result_semantics/0.3.0/source-blocks-1'} {'const': 'product_preview_mechanics_v1'} contract_evidence None
+   3 {'const': 'openpipestress.result_semantics/0.3.0/physics-source-1'} {'const': 'exact_straight_pressure_v2'} contract_evidence {'$ref': 'physics_source_recovery.schema.json#/$defs/physical_evidence'}
+   4 {'const': 'openpipestress.result_semantics/0.3.0/load-reference-1'} {'const': 'resolved_straight_load_state_v1'} contract_evidence {'$ref': 'load_reference_state.schema.json#/$defs/LoadReferenceContractEvidence'}
+== 3 semantic tables
+physics_1 unchanged
+physics_source_1 unchanged
+precision_1 unchanged
+source_blocks_1 unchanged
+physics-source-1 -> load-reference-source-1: ['/semantic_contract_id', '/formulation_profile_id', '/contract_evidence_policy', '/supported_profile_limitations/0', '/supported_profile_limitations/1', '/supported_profile_limitations/2', '/supported_profile_limitations/3', '/supported_profile_limitations/4', '/supported_profile_limitations/5', '/inherited_semantic_contracts/0/id', '/inherited_semantic_contracts/0/sha256', '/inherited_semantic_contracts/1/id', '/inherited_semantic_contracts/1/sha256', '/source_block_policy']
+==4 record hashes
+81a7adbaa212517c518a61c5ab54cd7d9444adaee6b7f0dbec8b7b6efd168996 CP2_WIRE.md
+c389f5e3878c6a32d8c72b80d1374ea6f30c4350c2870ab7ac653972df3dc760 CP2_WIRE_ADDENDUM_1.md
+ec66628ef8db1ac70500b80abbcc754b82133fb8d97d4cf0f41ecd4a32ab9133 CP2_WIRE_ADDENDUM_2.md
+f69043b682d027cc7f15e2173b932f016cd76f3a64d76b76d974cd0f0105f7d4 CP3_WIRE_ADDENDUM.md
+57f12bcb48048cb634ffab6d9f7df450bcb9106cae1aa1a0fb0f72030e5dea2a CP3_READERS/RETURN.md
+d9ab20b4b87e6c6e09887dac4260a321c5fede42ebbeff896e64f7b425174883 CP3_READERS/BRIEF.md
+c1eede81b5b40dc62115ff47f367d9ba3aed7ffdd1744538ffd2c742523fa274 CP3_SCHEMAS/BRIEF.md
+f453bcec39a5535acccabfc52833741da6f7868939b976da6dcd18a4af6c6a1d CP2_RUNTIME_TESTS/EXTENSION_1/BRIEF.md
+4fe967100c264a24f6195ce35775baa946fba9c041530a41b870a3bd57c2915b CP2_RUNTIME_TESTS/EXTENSION_1/RETURN.md
+9b91c1ff665b0211853b10b7b276b68f531500193b9b9608f8dc126773ca7a7a REVIEW_CHECKPOINT_2/RETURN.md
+767f0e99e615e1e5cfc5b54cec642f17d0517f640b82266c4cb2c66115162090 _run_records/session2/CP3_ROOT_SELECTIONS.json
+640fd4477ac2c84f3c02268cfccc3958f51ee6508b3a67e5538b52d84899af65 schemas/load_reference_state.schema.json
+c303219b89c63f41bdda71b49af1ed15175c106b035ff4f5b50e2eaf2cdc57ed schemas/results.v0.3.schema.yaml
+2045d3651709ec32c53b17a16f504c4818c9f14d7898bdfacf7dbc4068477410 schemas/analysis_run.v0.3.schema.json
+80acc90bcf7170c7f07da2f1569a258fc56c4de455c8e936bf8da476e6478e60 schemas/stress_neutral_export.v0.3.schema.json
+44bc41c06f589fab6ce931ac0eaa5344765ff64fd5f880cc2dd69ecb839c4f4d fixtures/results/semantic_contract_v0_3_load_reference_1.json
+d1628194a7730f427843b00228dd233cf92b8e7d26f3bc31c660a3ea59e28337 fixtures/results/semantic_contract_v0_3_load_reference_source_1.json
+1ef2d85985169b8b02d8e3da26ea3597600b67538df9f830536ca867e8a1fd7f core/handoff/stress_neutral/package_v0_3.py
+5febacba957bc9aed01c8010ea3496616d05021290c2b15d0e08cbabf4558a58 core/product_physics/tests/load_reference_state_runtime_extension.rs
+d5be0bd812a2af51c1a32fc5c237a42b76b460ae75d0a610837f01b676f6960b core/product_physics/tests/load_reference_state_runtime.rs

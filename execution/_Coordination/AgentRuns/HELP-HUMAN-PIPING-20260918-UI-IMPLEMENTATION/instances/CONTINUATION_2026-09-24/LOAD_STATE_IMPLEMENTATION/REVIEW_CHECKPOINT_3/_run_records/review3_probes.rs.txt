@@ -1,0 +1,544 @@
+//! CP3 independent-review probes (scratch copy only; never in the snapshot).
+//! All inputs are invented.
+use super::*;
+use crate::case_state::resolve::ResolvedCase;
+
+fn witness() -> Value {
+    serde_json::from_str(include_str!(
+        "../../../../fixtures/product_preview/load_reference_source/eigen_motion.request.json"
+    ))
+    .unwrap()
+}
+
+/// A second material point with a member pair that differs from the base.
+fn with_exact_point(mut request: Value, e: f64, nu: f64) -> Value {
+    request["model"]["materials"][0]["temperature_points"] = json!([{
+        "id": "point:hot", "temperature": {"value": 20, "unit": "degC"},
+        "elastic_modulus": {"value": e, "unit": "Pa"}, "poisson_ratio": {"value": nu, "unit": "1"},
+        "provenance": "invented_review3_probe"}]);
+    request["model"]["load_cases"][0]["analysis_state"]["element_states"][0]["material_selection"] =
+        json!({"kind": "exact_point", "material_ref": "material", "point_ref": "point:hot"});
+    request
+}
+
+fn pressure_case(request: &mut Value, index: usize, p: f64) {
+    let prov = json!("invented_review3_probe");
+    request["model"]["load_cases"][index]["pressure_regions"] = json!([{"id": "region:probe", "member_pipe_ids": ["member"],
+        "pressure_basis": "internal_differential_zero_external_v1", "pressure": {"value": p, "unit": "Pa"},
+        "terminals": [{"node_ref": "root", "closure_transfer": "transfers_to_wall", "provenance": prov},
+            {"node_ref": "tip", "closure_transfer": "transfers_to_wall", "provenance": prov}], "provenance": prov}]);
+}
+
+fn second_case(request: &mut Value, id: &str, uy_mm: f64, strain: f64) {
+    let mut case = request["model"]["load_cases"][0].clone();
+    case["id"] = json!(id);
+    let load = format!("torque:{id}");
+    case["primitive_loads"][0]["id"] = json!(load);
+    case["analysis_state"]["load_sources"][0]["source_ref"] = json!(load);
+    case["analysis_state"]["support_states"][0]["boundary_motion"][0]["value"]["value"] = json!(uy_mm);
+    case["analysis_state"]["element_states"][0]["thermal_state"]["strain"]["value"] = json!(strain);
+    request["model"]["load_cases"].as_array_mut().unwrap().push(case);
+}
+
+fn summary(envelope: &MechanicsEnvelope) -> String {
+    let receipt = envelope.source_block_recovery.as_ref();
+    format!(
+        "semantic={} profile={} receipt_policy={:?} receipt_status={:?} cases={:?} blocking={:?}",
+        envelope.producer.semantic_contract_id,
+        envelope.formulation_basis.profile_id,
+        receipt.map(|r| r["body"]["policy"].clone()),
+        receipt.map(|r| r["body"]["status"].clone()),
+        receipt.map(|r| r["body"]["cases"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|c| (c["case_id"].clone(), c["selected_method"].clone()))
+            .collect::<Vec<_>>()),
+        envelope
+            .diagnostics
+            .iter()
+            .filter(|d| d.severity == "blocking")
+            .map(|d| d.code.clone())
+            .collect::<Vec<_>>()
+    )
+}
+
+#[test]
+fn review3_p1_selected_case_with_member_pair_other_than_base_qualifies() {
+    for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+        let request = with_exact_point(witness(), 1.5e11, 0.3);
+        let envelope = run_linear_static_preview_value_with_mode(request, mode)
+            .unwrap_or_else(|e| panic!("{mode:?}: {e}"));
+        eprintln!("P1 {mode:?} {}", summary(&envelope));
+        assert_eq!(envelope.producer.semantic_contract_id, case_state::LOAD_REFERENCE_SOURCE_SEMANTIC_CONTRACT_ID);
+        let receipt = envelope.source_block_recovery.as_ref().unwrap();
+        assert_eq!(receipt["body"]["status"], "qualified");
+        let evidence = envelope.contract_evidence.as_ref().unwrap();
+        assert_eq!(evidence["exact_cases"][0]["pipe_materials"][0]["E_pa"], json!(1.5e11));
+        // Closed form: N = E*A*(tip/L - eps) with the selected pair's E.
+        let area = std::f64::consts::PI * (0.1_f64 * 0.1 - 0.09 * 0.09);
+        let eps = (1.0 + 6.0e-5) * (1.0 + 4.0e-5) - 1.0;
+        let n = 1.5e11 * area * (5.0e-5 / 2.0 - eps);
+        let axial = envelope
+            .results
+            .iter()
+            .find(|r| r.kind.contains("axial") && r.entity_ref == "member")
+            .map(|r| (r.kind.clone(), r.value));
+        eprintln!("P1 {mode:?} expected N={n:e} first axial row={axial:?}");
+    }
+}
+
+#[test]
+fn review3_p2_two_selected_cases_with_distinct_state_each_bind() {
+    for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+        let mut request = with_exact_point(witness(), 1.5e11, 0.3);
+        second_case(&mut request, "case:second", 2.0, -3.0e-5);
+        // The second case selects the base material (pair differs between cases).
+        request["model"]["load_cases"][1]["analysis_state"]["element_states"][0]["material_selection"] = json!({
+            "kind": "explicit_base_properties", "material_ref": "material",
+            "applicability_reference": "invented_review3_probe"});
+        let envelope = run_linear_static_preview_value_with_mode(request, mode)
+            .unwrap_or_else(|e| panic!("{mode:?}: {e}"));
+        eprintln!("P2 {mode:?} {}", summary(&envelope));
+        let receipt = envelope.source_block_recovery.as_ref().unwrap();
+        assert_eq!(receipt["body"]["status"], "qualified");
+        let cases = receipt["body"]["cases"].as_array().unwrap();
+        assert_eq!(cases.len(), 2);
+        for case in cases {
+            assert_eq!(case["selected_method"], "retained_source_blocks_exact_v1");
+        }
+        let tip_uy: Vec<_> = envelope
+            .results
+            .iter()
+            .filter(|r| r.kind == "global_nodal_displacement_y" && r.entity_ref == "tip")
+            .map(|r| r.value)
+            .collect();
+        eprintln!("P2 {mode:?} tip uy per case {tip_uy:?}");
+        assert_eq!(tip_uy.len(), 2);
+        assert!((tip_uy[0] - (1.0 + 1.0e-4 * 2.0 * 1000.0)).abs() < 1e-9);
+        assert!((tip_uy[1] - (2.0 + 1.0e-4 * 2.0 * 1000.0)).abs() < 1e-9);
+    }
+}
+
+#[test]
+fn review3_p3_selected_case_beside_unavailable_sensitive_case() {
+    let mut request = witness();
+    second_case(&mut request, "case:pressure", 1.0, 6.0e-5);
+    pressure_case(&mut request, 1, 1.0e-5);
+    let outcome = run_linear_static_preview_value_with_mode(request, PreviewSolverMode::DenseScrutiny);
+    match &outcome {
+        Ok(envelope) => { eprintln!("P3 Ok {}", summary(envelope)); for d in &envelope.diagnostics { if d.code.contains("SOURCE") { eprintln!("P3 diag {} {} {}", d.code, d.severity, d.message); } } }
+        Err(error) => eprintln!("P3 Err {error}"),
+    }
+}
+
+#[test]
+fn review3_p4_zero_valued_pressure_region_is_not_joined() {
+    let mut request = witness();
+    pressure_case(&mut request, 0, 0.0);
+    let outcome = run_linear_static_preview_value_with_mode(request, PreviewSolverMode::DenseScrutiny);
+    match &outcome {
+        Ok(envelope) => {
+            eprintln!("P4 Ok {}", summary(envelope));
+            for d in &envelope.diagnostics { if d.code.contains("SOURCE") { eprintln!("P4 diag {} {}", d.code, d.message); } }
+            assert_eq!(envelope.producer.semantic_contract_id, case_state::LOAD_REFERENCE_SEMANTIC_CONTRACT_ID);
+        }
+        Err(error) => eprintln!("P4 Err {error}"),
+    }
+}
+
+/// The product route's construction of one resolved case (mirrors the
+/// implementer's `Parts`, written independently from the lib.rs route).
+struct Built {
+    model: PreviewModel,
+    resolved: ResolvedCase,
+    built: BuiltModel,
+    k: Vec<Vec<f64>>,
+    f: Vec<f64>,
+    free: Vec<usize>,
+    prescribed: Vec<(usize, f64)>,
+    springs: Vec<SpringEntry>,
+    loads: open_pipe_stress_primitive_loads::LoadApplication,
+    eigen: Vec<ThermalElementLoad>,
+}
+fn build(raw: &Value, perturb: impl FnOnce(&mut ResolvedCase)) -> Built {
+    let request: LinearStaticPreviewRequest = serde_json::from_value(raw.clone()).unwrap();
+    let mut model = request.model;
+    let mut materials = model.materials.clone();
+    let mut d = vec![];
+    pressure_runtime::validate_profile(&model, &mut d);
+    case_state::resolve::validate_document(&model, false, &mut d);
+    resolve_shared_sections(&mut model, &mut d);
+    normalize_model_units(&mut model, &mut materials, &mut d);
+    let mut resolved =
+        case_state::resolve::resolve_case(&model, &materials, &model.load_cases[0], &mut d).unwrap();
+    assert!(!has_blocking(&d), "{d:?}");
+    perturb(&mut resolved);
+    let built = build_model_for_members(&model, &materials, Some(&resolved.pairs), &mut d).unwrap();
+    let boundary = prepare_boundary(built.nodes.len(), &built.supports);
+    let k = assemble_case_stiffness(&built, &boundary.springs).unwrap();
+    let primitive = build_load_case_primitive_loads(&model, &resolved.effective_case, &mut d);
+    let loads = prepare_loads(built.nodes.len(), built.pipes.len(), &primitive);
+    let eigen = load_state_eigen_loads(&resolved, &built).unwrap();
+    let mut f = loads.global_load_vector(built.nodes.len());
+    add_thermal_equivalent_loads(&mut f, &eigen, &built.pipes, &HashMap::new());
+    let prescribed = boundary
+        .restrained_dofs
+        .iter()
+        .map(|&dof| (dof, resolved.prescribed.get(&dof).copied().unwrap_or(0.0)))
+        .collect();
+    let free = (0..f.len()).filter(|dof| !boundary.restrained_dofs.contains(dof)).collect();
+    Built { model, resolved, built, k, f, free, prescribed, springs: boundary.springs, loads, eigen }
+}
+impl Built {
+    fn input(&self) -> source_recovery::Input<'_> {
+        source_recovery::Input {
+            model: &self.model,
+            built: &self.built,
+            stiffness: &self.k,
+            force: &self.f,
+            free: &self.free,
+            prescribed: &self.prescribed,
+            spring_entries: &self.springs,
+            load_case: &self.resolved.effective_case,
+            load_application: &self.loads,
+            thermal_loads: &self.eigen,
+            pressure_thrust_loads: &[],
+            load_state: Some(&self.resolved),
+        }
+    }
+}
+
+#[test]
+fn review3_p5_additional_post_capture_perturbations_are_refused() {
+    let raw = witness();
+    let (_, capture) = CapturedInvocation::parse(raw.clone(), PreviewSolverMode::DenseScrutiny).unwrap();
+    // Control: the genuine invocation replays.
+    let genuine = build(&raw, |_| {});
+    let mut selected = source_recovery::solve(genuine.input(), exact::Limits { operations: PHYSICS_SOURCE_WORK_LIMIT, ..Default::default() }).unwrap();
+    assert_eq!(capture.check_input(&genuine.input(), &mut selected), Ok(None));
+    let perturbations: Vec<(&str, Box<dyn Fn(&mut ResolvedCase)>)> = vec![
+        // Same total eigenstrain and operands, different thermal/fit split.
+        ("strain_split_same_total", Box::new(|s: &mut ResolvedCase| {
+            let m = &mut s.members[0].strain;
+            m.thermal_strain = m.total_eigenstrain;
+            m.thermal_stretch = 1.0 + m.total_eigenstrain;
+            m.fit_strain = 0.0;
+            m.fit_stretch = 1.0;
+        })),
+        // Resolver evidence only (no operand changes).
+        ("evidence_only", Box::new(|s: &mut ResolvedCase| {
+            s.evidence["provenance"] = json!("tampered");
+        })),
+        // An explicit zero motion on a rigid DOF that was an implicit zero.
+        ("explicit_zero_motion", Box::new(|s: &mut ResolvedCase| {
+            s.prescribed.insert(0, 0.0);
+        })),
+        // Declared ordinary source magnitude after the ledger.
+        ("effective_primitive_magnitude", Box::new(|s: &mut ResolvedCase| {
+            s.effective_case.primitive_loads[0].magnitude.value *= 2.0;
+        })),
+        // Poisson ratio only (G changes, E unchanged).
+        ("nu_only", Box::new(|s: &mut ResolvedCase| {
+            let member = &mut s.members[0];
+            let pair = member.material.pair;
+            let changed = crate::pressure_exact::IsotropicENu::new(pair.elastic_modulus_pa(), 0.3).unwrap();
+            member.material.pair = changed;
+            s.pairs.insert(member.pipe_id.clone(), changed);
+        })),
+    ];
+    for (name, perturb) in perturbations {
+        let changed = build(&raw, |s| perturb(s));
+        let mut selected = match source_recovery::solve(changed.input(), exact::Limits { operations: PHYSICS_SOURCE_WORK_LIMIT, ..Default::default() }) {
+            Ok(selected) => selected,
+            Err(e) => {
+                eprintln!("P5 {name}: live closure refused: {:?} {:?}", e.stage, e.error);
+                continue;
+            }
+        };
+        let refused = capture.check_input(&changed.input(), &mut selected);
+        eprintln!("P5 {name}: captured replay -> {refused:?}");
+        assert!(refused.is_err(), "{name} accepted by captured replay");
+    }
+}
+
+#[test]
+fn review3_p6_primitive_load_colliding_with_eigen_source_id_is_not_joined() {
+    let mut request = witness();
+    let id = format!("load_state_eigenstrain:{}:member", "member".len());
+    let case = &mut request["model"]["load_cases"][0];
+    let mut load = case["primitive_loads"][0].clone();
+    load["id"] = json!(id);
+    load["direction"] = json!("UZ");
+    load["category"] = json!("concentrated_force");
+    load["dimension"] = json!("force");
+    load["magnitude"] = json!({"value": 1.0e-6, "unit": "N"});
+    case["primitive_loads"].as_array_mut().unwrap().push(load);
+    case["analysis_state"]["load_sources"].as_array_mut().unwrap().push(json!({"source_ref": id, "factor": 1.0}));
+    let outcome = run_linear_static_preview_value_with_mode(request, PreviewSolverMode::DenseScrutiny);
+    match &outcome {
+        Ok(envelope) => {
+            eprintln!("P6 Ok {}", summary(envelope));
+            for d in &envelope.diagnostics { if d.code.contains("SOURCE") || d.severity == "blocking" { eprintln!("P6 diag {} {}", d.code, d.message); } }
+            assert_eq!(envelope.producer.semantic_contract_id, case_state::LOAD_REFERENCE_SEMANTIC_CONTRACT_ID);
+        }
+        Err(error) => eprintln!("P6 Err {error}"),
+    }
+}
+
+#[test]
+fn review3_p7_mixed_joined_witness_binds_its_ordinary_pressure_case() {
+    let request: Value = serde_json::from_str(include_str!(
+        "../../../../fixtures/product_preview/load_reference_source/mixed.request.json"
+    ))
+    .unwrap();
+    for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+        let envelope = run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap();
+        eprintln!("P7 {mode:?} {}", summary(&envelope));
+        let receipt = envelope.source_block_recovery.as_ref().unwrap();
+        assert_eq!(receipt["body"]["status"], "qualified");
+        let records = &envelope.contract_evidence.as_ref().unwrap()["load_reference_states"];
+        assert_eq!(records[0]["source_recovery"]["status"], "selected");
+        assert_eq!(records[1]["source_recovery"]["status"], "not_joined");
+    }
+}
+
+/// Split the witness member into `n` collinear members (each with the same
+/// explicit strain and fit), keeping the sensitive torsion spring and motions.
+fn split(n: usize) -> Value {
+    let mut request = witness();
+    let model = &mut request["model"];
+    let node = model["nodes"][0].clone();
+    let mut nodes = vec![];
+    for i in 0..=n {
+        let mut v = node.clone();
+        v["id"] = json!(if i == 0 { "root".to_string() } else if i == n { "tip".to_string() } else { format!("n{i}") });
+        v["position"]["x"] = json!(2.0 * i as f64 / n as f64);
+        nodes.push(v);
+    }
+    model["nodes"] = json!(nodes);
+    let pipe = model["pipe_segments"][0].clone();
+    let reference = model["reference_configurations"][0]["member_references"][0].clone();
+    let element = model["load_cases"][0]["analysis_state"]["element_states"][0].clone();
+    let (mut pipes, mut references, mut elements) = (vec![], vec![], vec![]);
+    for i in 0..n {
+        let id = if n == 1 { "member".to_string() } else { format!("member{i}") };
+        let mut p = pipe.clone();
+        p["id"] = json!(id);
+        p["from"] = nodes[i]["id"].clone();
+        p["to"] = nodes[i + 1]["id"].clone();
+        pipes.push(p);
+        let mut r = reference.clone();
+        r["pipe_ref"] = json!(id);
+        references.push(r);
+        let mut e = element.clone();
+        e["pipe_ref"] = json!(id);
+        elements.push(e);
+    }
+    model["pipe_segments"] = json!(pipes);
+    model["reference_configurations"][0]["member_references"] = json!(references);
+    model["load_cases"][0]["analysis_state"]["element_states"] = json!(elements);
+    request
+}
+
+#[test]
+fn review3_p8_join_scaling_with_member_count() {
+    for n in [1usize, 2, 3] {
+        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+            let outcome = run_linear_static_preview_value_with_mode(split(n), mode);
+            match &outcome {
+                Ok(envelope) => {
+                    eprintln!("P8 n={n} {mode:?} Ok {} mechanics={}", summary(envelope), envelope.status.mechanics);
+                    for d in &envelope.diagnostics {
+                        if d.code.starts_with("SOURCE") || d.severity == "blocking" {
+                            eprintln!("P8 n={n} {mode:?} diag {} {} {}", d.code, d.severity, &d.message[..d.message.len().min(400)]);
+                        }
+                    }
+                }
+                Err(error) => eprintln!("P8 n={n} {mode:?} Err {error}"),
+            }
+        }
+    }
+}
+
+#[test]
+fn review3_p9_join_budget_with_additional_nodal_loads() {
+    for extra in 1usize..=3 {
+        let mut request = witness();
+        let case = &mut request["model"]["load_cases"][0];
+        for (i, dir) in ["UZ", "UY", "RY"].iter().take(extra).enumerate() {
+            let mut load = case["primitive_loads"][0].clone();
+            let id = format!("extra:{i}");
+            load["id"] = json!(id);
+            load["direction"] = json!(dir);
+            if !dir.starts_with('R') {
+                load["category"] = json!("concentrated_force");
+                load["dimension"] = json!("force");
+                load["magnitude"] = json!({"value": 1.0e-6, "unit": "N"});
+            }
+            case["primitive_loads"].as_array_mut().unwrap().push(load);
+            case["analysis_state"]["load_sources"].as_array_mut().unwrap().push(json!({"source_ref": id, "factor": 1.0}));
+        }
+        for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+            match run_linear_static_preview_value_with_mode(request.clone(), mode) {
+                Ok(envelope) => {
+                    eprintln!("P9 extra={extra} {mode:?} Ok {} mechanics={}", summary(&envelope), envelope.status.mechanics);
+                    for d in &envelope.diagnostics {
+                        if d.code.starts_with("SOURCE") || d.severity == "blocking" {
+                            let m = &d.message;
+                            let work = m.find("work:").map(|i| &m[i..(i + 90).min(m.len())]).unwrap_or("");
+                            eprintln!("P9 extra={extra} {mode:?} diag {} {} {}", d.code, d.severity, work);
+                        }
+                    }
+                }
+                Err(error) => eprintln!("P9 extra={extra} {mode:?} Err {error}"),
+            }
+        }
+    }
+}
+
+fn add_extra_loads(request: &mut Value, node: &str, extra: usize, load_state: bool) {
+    let case = &mut request["model"]["load_cases"][0];
+    for (i, dir) in ["UZ", "UY", "RY"].iter().take(extra).enumerate() {
+        let mut load = case["primitive_loads"][0].clone();
+        let id = format!("extra:{i}");
+        load["id"] = json!(id);
+        load["direction"] = json!(dir);
+        load["target"] = json!({"type": "node", "node": node});
+        if !dir.starts_with('R') {
+            load["category"] = json!("concentrated_force");
+            load["dimension"] = json!("force");
+            load["magnitude"] = json!({"value": 1.0e-6, "unit": "N"});
+        }
+        case["primitive_loads"].as_array_mut().unwrap().push(load);
+        if load_state {
+            case["analysis_state"]["load_sources"].as_array_mut().unwrap().push(json!({"source_ref": id, "factor": 1.0}));
+        }
+    }
+}
+
+#[test]
+fn review3_p10_budget_inherited_or_new() {
+    let legacy: Value = serde_json::from_str(include_str!("../../../../fixtures/product_preview/physics_source/n05.request.json")).unwrap();
+    let companion: Value = serde_json::from_str(include_str!("../../../../fixtures/product_preview/load_reference_source/n05.request.json")).unwrap();
+    for (name, base, load_state) in [("physics-0.3.0-n05", legacy, false), ("load-state-0.4.0-n05", companion, true)] {
+        for extra in 0usize..=3 {
+            let mut request = base.clone();
+            add_extra_loads(&mut request, "independent-tip", extra, load_state);
+            match run_linear_static_preview_value_with_mode(request, PreviewSolverMode::DenseScrutiny) {
+                Ok(envelope) => {
+                    let sel = envelope.diagnostics.iter().find(|d| d.code == "SOURCE_BLOCK_RECOVERY_SELECTED").map(|d| { let m=&d.message; m.find("charged:").map(|i| m[i..(i+20).min(m.len())].to_string()).unwrap_or_default() });
+                    eprintln!("P10 {name} extra={extra} semantic={} mechanics={} selected_work={sel:?} blocking={:?}", envelope.producer.semantic_contract_id, envelope.status.mechanics,
+                        envelope.diagnostics.iter().filter(|d| d.severity == "blocking").map(|d| d.code.clone()).collect::<Vec<_>>());
+                }
+                Err(error) => eprintln!("P10 {name} extra={extra} Err {error}"),
+            }
+        }
+    }
+    // The eigen/motion witness without its eigenstrain or without its motions.
+    let mut no_eigen = witness();
+    no_eigen["model"]["load_cases"][0]["analysis_state"]["element_states"][0]["thermal_state"]["strain"]["value"] = json!(0.0);
+    no_eigen["model"]["reference_configurations"][0]["member_references"][0]["fit"] = json!({"kind": "none"});
+    let mut no_motion = witness();
+    for s in no_motion["model"]["load_cases"][0]["analysis_state"]["support_states"].as_array_mut().unwrap() {
+        s.as_object_mut().unwrap().remove("boundary_motion");
+    }
+    for (name, mut request) in [("eigen_motion-no-eigen", no_eigen), ("eigen_motion-no-motion", no_motion)] {
+        for extra in [0usize, 1] {
+            let mut r = request.clone();
+            add_extra_loads(&mut r, "tip", extra, true);
+            match run_linear_static_preview_value_with_mode(r, PreviewSolverMode::DenseScrutiny) {
+                Ok(envelope) => {
+                    let sel = envelope.diagnostics.iter().find(|d| d.code == "SOURCE_BLOCK_RECOVERY_SELECTED").map(|d| { let m=&d.message; m.find("charged:").map(|i| m[i..(i+20).min(m.len())].to_string()).unwrap_or_default() });
+                    eprintln!("P10 {name} extra={extra} semantic={} mechanics={} selected_work={sel:?} blocking={:?}", envelope.producer.semantic_contract_id, envelope.status.mechanics,
+                        envelope.diagnostics.iter().filter(|d| d.severity == "blocking").map(|d| d.code.clone()).collect::<Vec<_>>());
+                }
+                Err(error) => eprintln!("P10 {name} extra={extra} Err {error}"),
+            }
+        }
+        let _ = &mut request;
+    }
+}
+
+/// Joined (value route, captured) against ordinary (typed route, no capture):
+/// every shared row agrees to 1e-6 relative (scale floor 1e-9 of the row-kind
+/// magnitude); rows touched by the soft torsion block are reported separately.
+fn compare_joined_with_ordinary(name: &str, request: Value) {
+    for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+        let joined = run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap();
+        assert_eq!(joined.producer.semantic_contract_id, case_state::LOAD_REFERENCE_SOURCE_SEMANTIC_CONTRACT_ID, "{name}: {}", summary(&joined));
+        assert_eq!(joined.source_block_recovery.as_ref().unwrap()["body"]["status"], "qualified");
+        let typed: LinearStaticPreviewRequest = serde_json::from_value(request.clone()).unwrap();
+        let ordinary = run_linear_static_preview_with_mode(typed, mode);
+        assert_eq!(ordinary.producer.semantic_contract_id, case_state::LOAD_REFERENCE_SEMANTIC_CONTRACT_ID);
+        let rows: HashMap<_, _> = ordinary.results.iter().map(|r| (r.id.clone(), r.value)).collect();
+        let mut scale: HashMap<String, f64> = HashMap::new();
+        for r in &joined.results { let s = scale.entry(r.unit.clone()).or_insert(0.0); *s = s.max(r.value.abs()); }
+        let (mut worst, mut worst_id, mut compared, mut missing) = (0.0f64, String::new(), 0, 0);
+        for r in &joined.results {
+            let Some(&o) = rows.get(&r.id) else { missing += 1; continue };
+            if r.kind.contains("rotation_x") || r.kind.contains("torsion") || r.kind.contains("moment_x") { continue; }
+            compared += 1;
+            let unit_scale = if r.unit == "N*m" { scale[&r.unit].max(2.0 * scale.get("N").copied().unwrap_or(0.0)) } else { scale[&r.unit] }; let floor = 1e-9 * unit_scale;
+            let rel = if r.value.abs().max(o.abs()) <= floor { 0.0 } else { (r.value - o).abs() / r.value.abs().max(o.abs()).max(floor * 1e3) };
+            if rel > worst { worst = rel; worst_id = format!("{} {} joined={:e} ordinary={:e}", r.id, r.kind, r.value, o); }
+        }
+        eprintln!("CMP {name} {mode:?} compared={compared} missing_in_ordinary={missing} worst_rel={worst:e} at {worst_id}");
+        assert!(worst <= 1e-6, "{name}: {worst_id}");
+    }
+}
+
+#[test]
+fn review3_p11_joined_rows_agree_with_ordinary_route() {
+    compare_joined_with_ordinary("eigen_motion", witness());
+    compare_joined_with_ordinary("exact_point_pair", with_exact_point(witness(), 1.5e11, 0.3));
+    // Factor 2.5 on the torque plus an unreferenced (excluded) stored primitive.
+    let mut factored = witness();
+    let case = &mut factored["model"]["load_cases"][0];
+    case["analysis_state"]["load_sources"][0]["factor"] = json!(2.5);
+    let mut excluded = case["primitive_loads"][0].clone();
+    excluded["id"] = json!("excluded:force");
+    excluded["category"] = json!("concentrated_force");
+    excluded["dimension"] = json!("force");
+    excluded["direction"] = json!("UZ");
+    excluded["magnitude"] = json!({"value": 7.0e3, "unit": "N"});
+    case["primitive_loads"].as_array_mut().unwrap().push(excluded);
+    let envelope = run_linear_static_preview_value_with_mode(factored.clone(), PreviewSolverMode::DenseScrutiny).unwrap();
+    let rx = envelope.results.iter().find(|r| r.kind == "global_nodal_rotation_x" && r.entity_ref == "root").map(|r| r.value);
+    let uz = envelope.results.iter().find(|r| r.kind == "global_nodal_displacement_z" && r.entity_ref == "tip").map(|r| r.value);
+    eprintln!("P11 factored semantic={} root_rx={rx:?} (expected {:e}) tip_uz={uz:?} (expected 0)", envelope.producer.semantic_contract_id, 2.5 * 1.0e-8 / 1.0e-4);
+    compare_joined_with_ordinary("factored_with_excluded", factored);
+    // A parallel spring on a moving rigid DOF (root UY carries 1 mm).
+    let mut parallel = witness();
+    parallel["model"]["supports"].as_array_mut().unwrap().push(json!({"id": "spring:uy", "node": "root", "family": "spring",
+        "restraints": ["UY"], "stiffness": {"dof": "UY", "value": {"value": 1.0e3, "unit": "N/m"}}, "provenance": "invented_review3_probe"}));
+    parallel["model"]["load_cases"][0]["analysis_state"]["support_states"].as_array_mut().unwrap().push(json!({
+        "support_ref": "spring:uy", "participation": {"kind": "active_model_device"}}));
+    let envelope = run_linear_static_preview_value_with_mode(parallel.clone(), PreviewSolverMode::DenseScrutiny);
+    match &envelope {
+        Ok(e) => {
+            eprintln!("P11 parallel {}", summary(e));
+            for r in e.results.iter().filter(|r| r.entity_ref.contains("spring:uy") || (r.entity_ref.contains("anchor") && r.kind.contains("_y"))) {
+                eprintln!("P11 parallel row {} {} {:e}", r.entity_ref, r.kind, r.value);
+            }
+        }
+        Err(err) => eprintln!("P11 parallel Err {err}"),
+    }
+    if envelope.as_ref().is_ok_and(|e| e.producer.semantic_contract_id == case_state::LOAD_REFERENCE_SOURCE_SEMANTIC_CONTRACT_ID) {
+        compare_joined_with_ordinary("parallel_spring_on_moving_rigid_dof", parallel);
+    }
+}
+
+#[test]
+fn review3_p12_pre04_selected_beside_unavailable_sensitive_case() {
+    // Pre-0.4 physics-source-1 analogue of P3: the mixed witness with its
+    // second case made sensitive (base material, soft torsion) and pressurized.
+    let mut request: Value = serde_json::from_str(include_str!("../../../../fixtures/product_preview/physics_source/mixed.request.json")).unwrap();
+    let case = &mut request["model"]["load_cases"][1];
+    case.as_object_mut().unwrap().remove("modulus_basis_ref");
+    let outcome = run_linear_static_preview_value_with_mode(request, PreviewSolverMode::DenseScrutiny);
+    match &outcome {
+        Ok(envelope) => { eprintln!("P12 Ok {}", summary(envelope)); for d in &envelope.diagnostics { if d.code.contains("SOURCE") || d.code.contains("INTEGRITY") { eprintln!("P12 diag {} {}", d.code, d.severity); } } }
+        Err(error) => eprintln!("P12 Err {error}"),
+    }
+}

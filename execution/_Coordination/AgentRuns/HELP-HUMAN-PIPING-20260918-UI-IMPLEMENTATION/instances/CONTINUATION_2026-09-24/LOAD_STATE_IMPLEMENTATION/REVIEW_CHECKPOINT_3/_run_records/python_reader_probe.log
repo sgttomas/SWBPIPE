@@ -1,0 +1,20 @@
+PY unavailable-sparse dispatch ACCEPT openpipestress.result_semantics/0.3.0/load-reference-1
+PY unavailable-sparse validator ACCEPT 
+PY unavailable-dense dispatch ACCEPT openpipestress.result_semantics/0.3.0/load-reference-1
+PY unavailable-dense validator ACCEPT 
+PY load_reference/connected-sparse_interactive dispatch ACCEPT openpipestress.result_semantics/0.3.0/load-reference-1
+PY load_reference/connected-sparse_interactive validator ACCEPT 
+PY load_reference/connected-dense_scrutiny dispatch ACCEPT openpipestress.result_semantics/0.3.0/load-reference-1
+PY load_reference/connected-dense_scrutiny validator ACCEPT 
+PY load_reference/pressure-sparse_interactive dispatch ACCEPT openpipestress.result_semantics/0.3.0/load-reference-1
+PY load_reference/pressure-sparse_interactive validator ACCEPT 
+PY load_reference/pressure-dense_scrutiny dispatch ACCEPT openpipestress.result_semantics/0.3.0/load-reference-1
+PY load_reference/pressure-dense_scrutiny validator ACCEPT 
+PY load_reference_source/eigen_motion-sparse_interactive dispatch REJECT SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+PY load_reference_source/eigen_motion-sparse_interactive validator REJECT SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE
+PY load_reference_source/mixed-dense_scrutiny dispatch REJECT SOURCE_PRODUCER_CONTRACT_UNSUPPORTED
+PY load_reference_source/mixed-dense_scrutiny validator REJECT SOURCE_LOAD_REFERENCE_FOREIGN_METHOD_EVIDENCE
+PY bigint_temperature dispatch REJECT SOURCE_LOAD_REFERENCE_NUMBER_INVALID
+PY bigint_temperature validator REJECT SOURCE_LOAD_REFERENCE_NUMBER_INVALID
+PY bigfloat_temperature dispatch ACCEPT openpipestress.result_semantics/0.3.0/load-reference-1
+PY bigfloat_temperature validator ACCEPT 
