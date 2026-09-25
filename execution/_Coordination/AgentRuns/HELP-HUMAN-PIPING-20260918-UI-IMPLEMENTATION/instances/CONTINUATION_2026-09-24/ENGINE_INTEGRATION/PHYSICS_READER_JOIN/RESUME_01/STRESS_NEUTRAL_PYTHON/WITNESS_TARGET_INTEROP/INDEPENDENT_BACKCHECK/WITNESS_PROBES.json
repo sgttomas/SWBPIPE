@@ -1,0 +1,71 @@
+{
+  "scope": "Actual retained fields/dense source built by Python and reopened; coherent false-copy negatives, no TS14pair/new solve/native claim",
+  "signature": {
+    "signature_id": "supported-source-037",
+    "kind": "sparse_live_path_dense_parity_relative_delta",
+    "unit": "unitless",
+    "component": "sparse_live_path",
+    "source_physical_semantic_dimension": "dimensionless",
+    "derivative_target_dimension": "ratio",
+    "category": "diagnostic_relative_ratio",
+    "family": null,
+    "canonical_disposition": "disclosed",
+    "legacy_declared_dimension": null,
+    "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+    "governing_ratio_eligible": false
+  },
+  "generic_previous_disposition": [
+    "contradiction",
+    null
+  ],
+  "new_disposition": [
+    "eligible",
+    "ratio"
+  ],
+  "source_and_standalone_and_nine_member_readback": "pass",
+  "all_value_bits_retained": true,
+  "p1_packet_and_nine_member_goldens": "pass",
+  "coherent_negative_refusals": [
+    {
+      "case": "witness_dimension",
+      "standalone": "SN-UNIT-WITNESS-BINDING-MISMATCH",
+      "supplied_source": "SN-PRECISION-WITNESS-BINDING-MISMATCH"
+    },
+    {
+      "case": "source_row_unit",
+      "standalone": "SOURCE_UNIT_CONTRADICTION: sparse_live_path_dense_parity_relative_delta / Pa",
+      "supplied_source": "SOURCE_UNIT_CONTRADICTION: sparse_live_path_dense_parity_relative_delta / Pa"
+    },
+    {
+      "case": "source_row_kind",
+      "standalone": "SN-SOURCE-ANNOTATION-ROW-BINDING",
+      "supplied_source": "SN-SOURCE-ANNOTATION-ROW-BINDING"
+    },
+    {
+      "case": "source_bits",
+      "standalone": "SN-SOURCE-ANNOTATION-VALUE-BITS",
+      "supplied_source": "SN-SOURCE-ANNOTATION-VALUE-BITS"
+    },
+    {
+      "case": "semantic_hash",
+      "standalone": "SN-PRECISION-SEMANTIC-CONTRACT-MISMATCH",
+      "supplied_source": "SN-PRECISION-SEMANTIC-CONTRACT-MISMATCH"
+    },
+    {
+      "case": "false_diagnostic_work",
+      "standalone": "SN-WITNESS-CATEGORY-ACCOUNTING-MISMATCH",
+      "supplied_source": "SN-PRECISION-WITNESS-BINDING-MISMATCH"
+    }
+  ],
+  "member_hashes": {
+    "manifest.json": "60a866ae88fb4a73b13a60c90c71917a174532f297997fcc20dcc7e720b33574",
+    "stress_neutral_results.csv": "27b2fc4f47218cb4f1e652c4d60afb1233cd5b728962e98b3c718bec8c4be906",
+    "result_rows.json": "03654b083385507d91b86bdedd4356b7fc592a5acd1fdc259521576db9c2aadd",
+    "unit_system_disclosure.json": "76db41d999f9c8cae4415c76a58538d2ccb5cbd2d47f4fbcd4992ad0b4a9ff27",
+    "unit_preservation_witnesses.json": "4ebed1374354fef3294c2ab0a6bccaa203cfa3bb2e99b519db3d13ea3c0ba162",
+    "stable_id_map.json": "62b533e423e0282dd3a090ab1abfed7499532593483ec15220d50ad3bc41f3cc",
+    "loss_report.json": "19757109a44b55934ba44c6185f97611b51792cc618a5e018d834cbb268a77c2",
+    "validation_report.json": "65be20ef22800df89d862a810a2da45bd6fa2ab1be3d01b5a8e399219f805d13",
+    "diagnostics.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  }
+}

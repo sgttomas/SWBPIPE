@@ -1,0 +1,36 @@
+{
+  "status": "Four-file gate implemented;20focused tests pass; full independent gate review pending",
+  "base_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+  "files": [
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_gate.py",
+      "sha256": "87c8404d470fd10f1c17eda5016e121318024d485d4361a57f2c99e024556216",
+      "bytes": 26741
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_process.py",
+      "sha256": "11f9d3789d8ac10457a840e5ae642f5fb676bb159cef65da9a1b94e0e6f9ec6f",
+      "bytes": 6165
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_qualification_gate.py",
+      "sha256": "b8b696c0d90c5fb9c77ba84928e9e789cfa745944bf362988632a24cc4243c30",
+      "bytes": 19174
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/GATE_USAGE.md",
+      "sha256": "08468b37d46c7d48a883e65fb2f1c4cfb8decf0339598d0f2ed2fe469909b61f",
+      "bytes": 7065
+    }
+  ],
+  "patch_sha256": "aabf064eb7bc8a430914c9b15ff8e18f3a35cce8d34ed98cc02368e536c20bd4",
+  "check_record": "_run_records/gate_checks_03.json",
+  "check_record_sha256": "085b4ca9bf4701aa185800e8700e4cd8ef31a10d5de2a23b4ba06beb3e7c7321",
+  "limits": [
+    "Synthetic process/received legacy packet harness evidence only",
+    "No real solver or analytical campaign",
+    "Sparse mainCLI raw0.1 closed dispatch, no precise-producer/mode successor adoption",
+    "No new criterion/default or model/result schema",
+    "No Current/private producer proof or release qualification"
+  ]
+}

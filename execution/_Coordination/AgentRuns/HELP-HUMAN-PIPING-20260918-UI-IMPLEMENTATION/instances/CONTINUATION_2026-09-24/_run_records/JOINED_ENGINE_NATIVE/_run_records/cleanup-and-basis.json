@@ -1,0 +1,22 @@
+{
+  "app_stopped_observed": true,
+  "executable_unchanged": true,
+  "executable_sha256": "f68dc4de906eb5e8c96bb72c8736b7a5a9afec09ba533ada7ac676223fd36dcc",
+  "maintained_build_inputs_unchanged": 1092,
+  "actual_native_models": 5,
+  "primary_both_mode_invocations": 10,
+  "primary_numeric_comparisons": 348,
+  "recovery_and_restoration_numeric_comparisons": 129,
+  "expected_negative_controls": [
+    "missing_nu",
+    "missing_closure",
+    "late_invalid_atomic_batch",
+    "pressure_member_deletion",
+    "pressure_terminal_deletion",
+    "legacy_report_package",
+    "legacy_nonzero_pressure",
+    "exact_profile_combination"
+  ],
+  "live_controller_started": false,
+  "full_native_models_and_batches_private": true
+}

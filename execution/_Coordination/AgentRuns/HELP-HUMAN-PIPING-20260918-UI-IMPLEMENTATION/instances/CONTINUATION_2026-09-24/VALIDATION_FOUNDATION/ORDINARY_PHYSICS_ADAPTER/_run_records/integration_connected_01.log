@@ -1,0 +1,15 @@
+test_four_case_modes_keep_scalar_and_structural_denominators (test_qualification_physics_integration.PhysicsIntegrationTests.test_four_case_modes_keep_scalar_and_structural_denominators) ... ok
+test_future_composite_sensitive_duplicate_diagnostics_and_wrong_mode_refuse (test_qualification_physics_integration.PhysicsIntegrationTests.test_future_composite_sensitive_duplicate_diagnostics_and_wrong_mode_refuse) ... ok
+test_metadata_absence_is_not_null_or_invented_text (test_qualification_physics_integration.PhysicsIntegrationTests.test_metadata_absence_is_not_null_or_invented_text) ... ok
+test_missing_scalar_or_structural_binding_does_not_reduce_predeclared_ledger (test_qualification_physics_integration.PhysicsIntegrationTests.test_missing_scalar_or_structural_binding_does_not_reduce_predeclared_ledger) ... ok
+test_selected_targets_criteria_selectors_and_addendum_cannot_drift (test_qualification_physics_integration.PhysicsIntegrationTests.test_selected_targets_criteria_selectors_and_addendum_cannot_drift) ... ok
+test_actual_synthetic_process_and_isolated_reader_both_modes (test_qualification_physics_integration.PhysicsProcessCompositionTests.test_actual_synthetic_process_and_isolated_reader_both_modes) ... ok
+test_incomplete_structural_checker_return_cannot_shrink_denominator (test_qualification_physics_integration.PhysicsProcessCompositionTests.test_incomplete_structural_checker_return_cannot_shrink_denominator) ... ok
+test_missing_selected_case_is_blocked_before_any_dispatch (test_qualification_physics_integration.PhysicsProcessCompositionTests.test_missing_selected_case_is_blocked_before_any_dispatch) ... ok
+test_reader_refusal_retains_all_obligations (test_qualification_physics_integration.PhysicsProcessCompositionTests.test_reader_refusal_retains_all_obligations) ... ok
+test_retained_reader_or_original_target_tampering_cannot_pass (test_qualification_physics_integration.PhysicsProcessCompositionTests.test_retained_reader_or_original_target_tampering_cannot_pass) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 8.005s
+
+OK

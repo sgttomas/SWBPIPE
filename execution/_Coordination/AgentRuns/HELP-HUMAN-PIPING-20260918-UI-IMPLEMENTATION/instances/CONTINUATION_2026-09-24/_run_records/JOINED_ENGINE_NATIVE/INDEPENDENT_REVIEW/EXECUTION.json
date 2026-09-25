@@ -1,0 +1,45 @@
+{
+  "actor": "/root/physics_resume/joined_producer_review",
+  "actual_tree_parent": "/root/physics_resume",
+  "assignment_requester": "/root",
+  "role": "TASK Type2",
+  "mechanism": "delegated-harness-native",
+  "no_descendants": true,
+  "instruction_origins": {
+    "/private/tmp/piping-engine-integration-20260925/AGENTS.md": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/AGENTS.md": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/loop/LOOP_INIT.md": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+    "/private/tmp/piping-engine-integration-20260925/agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "/private/tmp/piping-engine-integration-20260925/.agents/skills/software-code-review/SKILL.md": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+  },
+  "reviewed_packet_origins": {
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/JOINED_ENGINE_NATIVE/RETURN.md": "f7649169ed49d01612c5e822586e1094891d0f62c16c291983ef5c623aa1472d",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/JOINED_ENGINE_NATIVE/CUSTODY.json": "bc5b0f5a4060e73de2b330872e1c0377ab1fc3ef65d8d9faaf7c61a4e169b136",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/JOINED_ENGINE_NATIVE/_run_records/build.py": "f59600b98ad4d0fce053f3a4291faa2040e9461a946a1053915710368504078b",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/JOINED_ENGINE_NATIVE/_run_records/build-command.json": "c54701b10f627ccb283a8f1ecf64e575041d409ca10657de76f7663353865909",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/JOINED_ENGINE_NATIVE/_run_records/basis.json": "4f04685f675732de806922763e4517e6602e36cfa0b17d38dc4a30b93fff988e",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/JOINED_ENGINE_NATIVE/_run_records/inputs-pre.json": "285f61416c8343c7b39d939f1742a844ee30db80bd4c799410917dfe390bec22",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/JOINED_ENGINE_NATIVE/_run_records/inputs-post.json": "285f61416c8343c7b39d939f1742a844ee30db80bd4c799410917dfe390bec22",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/JOINED_ENGINE_NATIVE/_run_records/artifact-identity.json": "dab1667084c49566c5e93582c1c31611fd0396319989688e2a9188338c66aa1e",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/JOINED_ENGINE_NATIVE/_run_records/post-check.json": "4c68769e91ed1406297e93322a46e619ea6d67df328fcd39f574dbdaf61a0483",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/JOINED_ENGINE_NATIVE/_run_records/cleanup-and-basis.json": "5f0b969f61bd1e851739a53c1bc19f14a65add60bfde2cf818c262a28f4c486a",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/JOINED_ENGINE_NATIVE/_run_records/capture_store.py": "07c583adfafa9afe96dc35572955fc693d3759bef6ff4a05c5ec31da56dbcb2a",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/JOINED_ENGINE_NATIVE/_run_records/check_ordinary_native.py": "5867cb88cd2869bd31334dc7db500d750c4660cb369da5aa793301fa2931f8dc",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/JOINED_ENGINE_NATIVE/_run_records/check_source_torsion.py": "bf72e067308ed616ccac6940874dda8c86a338f2acb09bff8bba19336dd65657",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/JOINED_ENGINE_NATIVE/_run_records/check_fields_native.py": "3cb747c3fa5dfcbd099e73880e5b50d5e3e19a723c3dccabc902bc52468dd488",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/JOINED_ENGINE_NATIVE/_run_records/check_mixed_native.py": "85398206ee6d124c6f0b08b13fd5258774eb6e7d8aa5e2e81e9bd347a4bf3396",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/JOINED_ENGINE_NATIVE/_run_records/prepare_connected_references.py": "9a99739df240b04be2155c39bc58fefa0181adf2311690fe26a7f499456665cf",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/JOINED_ENGINE_NATIVE/_run_records/connected-native-references.json": "f2e5ca626d5055157fce2bc3ff149f7c2823a429f3b7b37e1e1e82373b31595c",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/NATIVE_OBSERVATION_DIAGNOSIS/RETURN.md": "8e79eff30ac89aa3bd30478c18270292bc28a26b010c01348e6a87433ee3bc04"
+  },
+  "python": "3.13.14 (main, Jul 18 2026, 16:56:45) [Clang 22.1.3 ]",
+  "actual_probe_command": [
+    "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+    "verify_evidence.py"
+  ],
+  "probe_exit": 0,
+  "scope": "Named native evidence/checkers/custody only, not product implementation or independent UI witness",
+  "private_access": "Only CUSTODY-listed hash-bound owned artifacts under /private/tmp/piping-native-engine-records-20260925; no unrelated project queries or full payload copies",
+  "execution": "Stdlib arithmetic/hash/identity checks only; no native/browser/build/Cargo/pytest/network/Git mutation",
+  "completed_utc": "2026-09-25T12:33:11.685186+00:00"
+}

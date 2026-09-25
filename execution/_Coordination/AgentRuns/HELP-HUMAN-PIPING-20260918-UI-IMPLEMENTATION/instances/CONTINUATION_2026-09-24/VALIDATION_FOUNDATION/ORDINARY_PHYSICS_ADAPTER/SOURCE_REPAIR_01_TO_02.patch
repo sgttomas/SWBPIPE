@@ -1,0 +1,341 @@
+--- freeze01/tools/validation/qualification_gate.py
++++ freeze02/tools/validation/qualification_gate.py
+@@ -169,6 +169,22 @@
+     """Every intelligible required row exists before file/process admission."""
+     require(type(manifest) is dict, 'selection must be an object')
+     cases = manifest.get('cases')
++    submitted_inventory = None
++    if manifest.get('transport') == physics.TRANSPORT:
++        # This finite profile has an authoritative inventory independent of what
++        # an incomplete or malformed caller submitted. Never label its subset
++        # as the required programme. Raw submission remains in selection.json.
++        submitted_inventory = {'cases_type': type(cases).__name__, 'cases': []}
++        if type(cases) is list:
++            submitted_inventory['case_count'] = len(cases)
++            for case in cases[:MAX_CASES]:
++                assertions = case.get('assertions') if type(case) is dict else None
++                submitted_inventory['cases'].append({
++                    'id': case.get('id') if type(case) is dict else None,
++                    'assertion_count': len(assertions) if type(assertions) is list else None,
++                    'assertion_ids': [row.get('id') if type(row) is dict else None for row in assertions[:MAX_ASSERTIONS]] if type(assertions) is list else None})
++        cases = [{'id': cid, 'assertions': [{'id': aid} for aid in physics.REQUIRED_ASSERTION_IDS]}
++                 for cid in physics.REQUIRED_CASE_IDS]
+     require(type(cases) is list and 0 < len(cases) <= MAX_CASES, 'nonzero bounded case inventory required')
+     ledger, seen, assertion_total = [], set(), 0
+     for case in cases:
+@@ -190,10 +206,14 @@
+             rows.append({'id': aid, 'state': 'not_run', 'reason': 'not executed', 'observed': None})
+         structural = [{'id': key, 'state': 'not_run', 'reason': 'not executed', 'details': {}}
+                       for key in physics.REQUIRED_STRUCTURAL_CHECKS] if manifest.get('transport') == physics.TRANSPORT else []
++        for check in structural:
++            if check['id'] == 'complete_case_material_section':
++                check['details']['section_quantities'] = physics.section_obligations()
+         ledger.append({'id': cid, 'state': 'not_run', 'reason': 'not executed', 'assertions': rows, 'structural_checks': structural, 'process': None})
+     return {'artifact': 'openpipestress.qualification_development_ledger', 'version': '1.0.0',
+             'profile_id': manifest.get('profile_id'), 'selection_sha256': None,
+             'qualification': 'not_established_by_this_harness', 'outcome': 'not_run', 'publication_phase': 'in_progress',
++            'submitted_inventory': submitted_inventory,
+             'cases': ledger, 'summary': {}, 'diagnostics': [],
+             'created_at_utc': datetime.now(timezone.utc).isoformat()}
+ 
+@@ -205,10 +225,15 @@
+             counts[row['state']] += 1
+     structural_counts = {state: sum(row['state'] == state for case in ledger['cases'] for row in case.get('structural_checks', [])) for state in STATES}
+     structural_total = sum(len(case.get('structural_checks', [])) for case in ledger['cases'])
++    section_rows = [row for case in ledger['cases'] for check in case.get('structural_checks', [])
++                    for row in check.get('details', {}).get('section_quantities', [])]
++    section_counts = {state: sum(row['state'] == state for row in section_rows) for state in STATES}
+     total = sum(counts.values())
+     ledger['summary'] = {'required_cases': len(ledger['cases']), 'required_assertions': total,
+-                         'assertions': counts, 'required_structural_checks': structural_total, 'structural_checks': structural_counts, 'cases': {state: sum(c['state'] == state for c in ledger['cases']) for state in STATES}}
+-    if total and counts['matched'] == total and structural_counts['matched'] == structural_total and all(c['state'] == 'matched' for c in ledger['cases']):
++                         'assertions': counts, 'required_structural_checks': structural_total, 'structural_checks': structural_counts,
++                         'required_section_subchecks': len(section_rows), 'section_subchecks': section_counts,
++                         'cases': {state: sum(c['state'] == state for c in ledger['cases']) for state in STATES}}
++    if total and counts['matched'] == total and structural_counts['matched'] == structural_total and section_counts['matched'] == len(section_rows) and all(c['state'] == 'matched' for c in ledger['cases']):
+         ledger['outcome'] = 'all_required_assertions_matched' if ledger['publication_phase'] == 'complete' else 'in_progress'
+     else:
+         ledger['outcome'] = 'not_satisfied'
+@@ -220,6 +245,8 @@
+         row.update(state=state, reason=reason, observed=None)
+     for row in case.get('structural_checks', []):
+         row.update(state=state, reason=reason, details={})
++        if row['id'] == 'complete_case_material_section':
++            row['details']['section_quantities'] = physics.section_obligations(state, reason)
+ 
+ 
+ def atomic_record(path: Path, value: dict) -> None:
+@@ -265,6 +292,9 @@
+     require(type(mechanics) is dict and mechanics.get('document_kind') == 'openpipestress.product_preview.mechanics_result', 'unsupported raw mechanics document')
+     if transport == TRANSPORT:
+         require(mechanics.get('schema_version') == '0.1.0', 'unsupported raw mechanics version')
++        require(not any(key in mechanics for key in ('producer', 'numerical_quality', 'formulation_basis',
++                    'contract_evidence', 'source_block_recovery', 'carrier_evidence')),
++                'newer method identity/evidence is not legacy raw0.1')
+     elif transport == physics.TRANSPORT:
+         physics.ordinary_header_and_standing(mechanics, request, mode)
+     else:
+@@ -392,7 +422,9 @@
+ 
+ def evaluate_rows(case_ledger: dict, prepared: dict, rows: list[dict]) -> None:
+     indexed = {row['id']: row for row in rows}
+-    for item, target in zip(prepared['selected'], case_ledger['assertions']):
++    required = {row['id']: row for row in case_ledger['assertions']}
++    for item in prepared['selected']:
++        target = required[item['assertion']['id']]
+         selector = item['assertion']['selector']
+         try:
+             require(selector['id'] in indexed, 'required result missing')
+@@ -445,6 +477,7 @@
+         require(runner['solver_mode'] == 'sparse_interactive' or (transport == physics.TRANSPORT and runner['solver_mode'] == 'dense_scrutiny'), 'mode not available through selected CLI')
+         if transport == physics.TRANSPORT:
+             require(type(runner['explicit_local_private_intent']) is bool, 'explicit local private intent must be boolean')
++            physics.validate_submitted_inventory(manifest['cases'])
+         require(executable.is_absolute() and executable.is_file(), 'explicit executable required')
+         require(file_sha256(executable) == runner['executable_sha256'], 'executable digest mismatch')
+         actual_commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=source_root, text=True).strip()
+@@ -516,7 +549,9 @@
+         atomic_record(output_dir / 'ledger.json', ledger)
+         write_summary(output_dir / 'summary.md', ledger)
+         return ledger
+-    for index, (case, case_ledger) in enumerate(zip(manifest['cases'], ledger['cases'])):
++    ledger_cases = {case['id']: case for case in ledger['cases']}
++    for index, case in enumerate(manifest['cases']):
++        case_ledger = ledger_cases[case['id']]
+         try:
+             prepared = prepare_case(case, manifest_path.parent, manifest['purpose'], semantics, transport=transport)
+             selected_originals = []
+@@ -592,6 +627,11 @@
+                         scalar_coverage_ok=coverage, physical_consistency_ok=observation['response']['verdict'] == 'consistent')
+                     require(type(checked_structure) is list and [row['id'] for row in checked_structure] == list(physics.REQUIRED_STRUCTURAL_CHECKS), 'structural checker lost required denominator')
+                     require(all(row['state'] in STATES and type(row.get('reason')) is str for row in checked_structure), 'structural checker returned unknown outcome')
++                    section_check = next(row for row in checked_structure if row['id'] == 'complete_case_material_section')
++                    section_rows = section_check.get('details', {}).get('section_quantities')
++                    require(type(section_rows) is list and [row['id'] for row in section_rows] == list(physics.REQUIRED_SECTION_IDS), 'structural checker lost required section subchecks')
++                    require(all(row['state'] in STATES and type(row.get('reason')) is str for row in section_rows), 'section checker returned unknown outcome')
++                    require(section_check['state'] != 'matched' or all(row['state'] == 'matched' for row in section_rows), 'section parent contradicts subchecks')
+                     case_ledger['structural_checks'] = checked_structure
+                     if any(row['state'] != 'matched' for row in case_ledger['structural_checks']):
+                         case_ledger.update(state='failed', reason='required structural obligations not satisfied')
+--- freeze01/tools/validation/qualification_physics.py
++++ freeze02/tools/validation/qualification_physics.py
+@@ -47,6 +47,100 @@
+     'complete_case_material_section', 'finite_numerical_standing', 'complete_unique_scalar_rows',
+     'normal_maximum_evidence', 'governing_location', 'stress_summary_binding', 'displacement_summary_binding',
+ )
++
++
++# Authoritative IDs from the exact selected original selector files in
++# REFERENCE_BASIS_SHA256; both cases use these same 73 ordered IDs. No target values.
++REQUIRED_CASE_IDS = ('original_static_axial_v1', 'original_static_bending_torsion_v1')
++REQUIRED_ASSERTION_IDS = (
++    'node.root.ux',
++    'node.root.uy',
++    'node.root.uz',
++    'node.root.rx',
++    'node.root.ry',
++    'node.root.rz',
++    'node.root.magnitude',
++    'node.tip.ux',
++    'node.tip.uy',
++    'node.tip.uz',
++    'node.tip.rx',
++    'node.tip.ry',
++    'node.tip.rz',
++    'node.tip.magnitude',
++    'support.Fx',
++    'support.Fy',
++    'support.Fz',
++    'support.Mx',
++    'support.My',
++    'support.Mz',
++    'support.force_magnitude',
++    'support.moment_magnitude',
++    'section.end_i.N',
++    'section.end_i.Vy',
++    'section.end_i.Vz',
++    'section.end_i.T',
++    'section.end_i.My',
++    'section.end_i.Mz',
++    'stress.end_i.axial',
++    'stress.end_i.bending_y',
++    'stress.end_i.bending_z',
++    'stress.end_i.torsional_shear',
++    'section.quarter_1.N',
++    'section.quarter_1.Vy',
++    'section.quarter_1.Vz',
++    'section.quarter_1.T',
++    'section.quarter_1.My',
++    'section.quarter_1.Mz',
++    'stress.quarter_1.axial',
++    'stress.quarter_1.bending_y',
++    'stress.quarter_1.bending_z',
++    'stress.quarter_1.torsional_shear',
++    'section.midspan.N',
++    'section.midspan.Vy',
++    'section.midspan.Vz',
++    'section.midspan.T',
++    'section.midspan.My',
++    'section.midspan.Mz',
++    'stress.midspan.axial',
++    'stress.midspan.bending_y',
++    'stress.midspan.bending_z',
++    'stress.midspan.torsional_shear',
++    'section.quarter_3.N',
++    'section.quarter_3.Vy',
++    'section.quarter_3.Vz',
++    'section.quarter_3.T',
++    'section.quarter_3.My',
++    'section.quarter_3.Mz',
++    'stress.quarter_3.axial',
++    'stress.quarter_3.bending_y',
++    'stress.quarter_3.bending_z',
++    'stress.quarter_3.torsional_shear',
++    'section.end_j.N',
++    'section.end_j.Vy',
++    'section.end_j.Vz',
++    'section.end_j.T',
++    'section.end_j.My',
++    'section.end_j.Mz',
++    'stress.end_j.axial',
++    'stress.end_j.bending_y',
++    'stress.end_j.bending_z',
++    'stress.end_j.torsional_shear',
++    'stress.maximum_absolute_normal',
++)
++REQUIRED_SECTION_IDS = tuple('section.' + name for name in (
++    'outside_diameter_m', 'effective_wall_thickness_m', 'ro_m', 'ri_m',
++    'As_m2', 'Ai_m2', 'I_m4', 'J_m4', 'Z_m3'))
++
++def section_obligations(state='not_run', reason='not executed'):
++    return [{'id': key, 'state': state, 'reason': reason} for key in REQUIRED_SECTION_IDS]
++
++def validate_submitted_inventory(cases):
++    require(type(cases) is list and all(type(case) is dict for case in cases), 'finite submitted cases must be objects')
++    require([case.get('id') for case in cases] == list(REQUIRED_CASE_IDS), 'complete ordered first-static case inventory required')
++    for case in cases:
++        assertions = case.get('assertions')
++        require(type(assertions) is list and all(type(row) is dict for row in assertions), 'finite submitted assertions must be objects')
++        require([row.get('id') for row in assertions] == list(REQUIRED_ASSERTION_IDS), 'complete ordered first-static assertion inventory required')
+ 
+ 
+ def require(ok, reason):
+--- freeze01/tests/test_qualification_physics_integration.py
++++ freeze02/tests/test_qualification_physics_integration.py
+@@ -125,6 +125,34 @@
+         self.assertEqual(ledger['summary']['required_assertions'],146)
+         self.assertEqual(ledger['summary']['required_structural_checks'],20)
+         self.assertEqual(ledger['summary']['structural_checks']['blocked'],10)
++
++    def test_authoritative_inventory_matches_selected_original_ids(self):
++        self.assertEqual(tuple(case['id'] for case in self.manifest['cases']),physics.REQUIRED_CASE_IDS)
++        for case in self.manifest['cases']:
++            self.assertEqual(tuple(row['id'] for row in case['assertions']),physics.REQUIRED_ASSERTION_IDS)
++        for change in [lambda m:m['cases'].pop(),lambda m:m['cases'][0]['assertions'].pop(),
++                       lambda m:m.update(cases=None),lambda m:m['cases'].append(deepcopy(m['cases'][0]))]:
++            manifest=deepcopy(self.manifest);change(manifest)
++            ledger=gate.predeclare(manifest)
++            for case in ledger['cases']: gate.fail_case(case,'blocked','synthetic admission refusal')
++            gate.summarize(ledger)
++            self.assertEqual((ledger['summary']['required_cases'],ledger['summary']['required_assertions'],
++                              ledger['summary']['required_structural_checks'],ledger['summary']['required_section_subchecks']),(2,146,20,18))
++            self.assertEqual(ledger['summary']['section_subchecks']['blocked'],18)
++            self.assertNotEqual(ledger['outcome'],'all_required_assertions_matched')
++
++    def test_legacy_dispatch_refuses_all_newer_identity_or_evidence_presence(self):
++        observation=synthetic_case();value=wrapper(observation)
++        raw=value['payload']['mechanics_envelope'];raw['schema_version']='0.1.0'
++        namespaces=('producer','numerical_quality','formulation_basis','contract_evidence','source_block_recovery','carrier_evidence')
++        for key in namespaces: raw.pop(key,None)
++        # Genuine header-free shape remains the legacy positive control.
++        gate.unwrap(json.dumps(value).encode(),observation['request'],'sparse_interactive')
++        for key in namespaces:
++            for present_value in (None,{},False):
++                modified=deepcopy(value);modified['payload']['mechanics_envelope'][key]=present_value
++                with self.assertRaisesRegex(ValueError,'not legacy raw0.1'):
++                    gate.unwrap(json.dumps(modified).encode(),observation['request'],'sparse_interactive')
+ 
+ 
+ class PhysicsProcessCompositionTests(unittest.TestCase):
+@@ -186,6 +214,8 @@
+             result,out=self.run_composition(mode)
+             self.assertEqual(result['outcome'],'all_required_assertions_matched',result)
+             self.assertEqual((result['summary']['required_assertions'],result['summary']['required_structural_checks']),(146,20))
++            self.assertEqual(result['summary']['required_section_subchecks'],18)
++            self.assertEqual(result['summary']['section_subchecks']['matched'],18)
+             for case in result['cases']:
+                 self.assertEqual(case['process']['command'][1:],['solve','--input','-','--solver-mode',mode,'--explicit-local-private-intent'])
+                 self.assertTrue(case['physical_consistency']['response']['isolation']['isolated'])
+@@ -199,11 +229,19 @@
+         self.assertEqual(result['summary']['assertions']['error'],146)
+         self.assertEqual(result['summary']['structural_checks']['error'],20)
+ 
+-    def test_missing_selected_case_is_blocked_before_any_dispatch(self):
+-        result,_=self.run_composition(mutate_manifest=lambda manifest: manifest['cases'].pop())
+-        self.assertEqual(result['cases'][0]['state'],'blocked')
+-        self.assertIsNone(result['cases'][0]['process'])
+-        self.assertIn('complete ordered first-static',result['diagnostics'][0])
++    def test_malformed_submitted_inventory_keeps_all_required_obligations(self):
++        mutations=[lambda m:m['cases'].pop(),lambda m:m['cases'][0]['assertions'].pop(),
++                   lambda m:m['cases'].append(deepcopy(m['cases'][0])),
++                   lambda m:m['cases'][0]['assertions'].append(deepcopy(m['cases'][0]['assertions'][0])),
++                   lambda m:m['cases'][0]['assertions'][0].update(id='wrong'),
++                   lambda m:m['cases'].reverse(),lambda m:m.update(cases=None)]
++        for mutation in mutations:
++            result,_=self.run_composition(mutate_manifest=mutation)
++            self.assertTrue(all(case['state']=='blocked' and case['process'] is None for case in result['cases']))
++            self.assertEqual((result['summary']['required_cases'],result['summary']['required_assertions'],
++                              result['summary']['required_structural_checks'],result['summary']['required_section_subchecks']),(2,146,20,18))
++            self.assertEqual(result['summary']['section_subchecks']['blocked'],18)
++            self.assertIn('submitted_inventory',result)
+ 
+     def test_retained_reader_or_original_target_tampering_cannot_pass(self):
+         changes=["Path('../physics-reader-basis/core/analysis_runs/physics_evidence.py').write_text('changed')",
+@@ -222,6 +260,22 @@
+         self.assertNotEqual(result['outcome'],'all_required_assertions_matched')
+         self.assertEqual(result['summary']['required_structural_checks'],20)
+         self.assertEqual(result['summary']['structural_checks']['error'],20)
++        self.assertEqual(result['summary']['required_section_subchecks'],18)
++        self.assertEqual(result['summary']['section_subchecks']['error'],18)
++
++    def test_malformed_nested_section_return_cannot_remove_subchecks(self):
++        from tools.validation import qualification_physics_structure as structure
++        original=structure.check_first_static_structure
++        def truncated(*args,**kwargs):
++            checks=original(*args,**kwargs)
++            next(check for check in checks if check['id']=='complete_case_material_section')['details']['section_quantities'].pop()
++            return checks
++        with patch.object(structure,'check_first_static_structure',side_effect=truncated):
++            result,_=self.run_composition()
++        self.assertNotEqual(result['outcome'],'all_required_assertions_matched')
++        self.assertEqual(result['summary']['required_structural_checks'],20)
++        self.assertEqual(result['summary']['required_section_subchecks'],18)
++        self.assertEqual(result['summary']['section_subchecks']['error'],18)
+ 
+ 
+ if __name__ == '__main__': unittest.main()
+--- freeze01/validation/qualification/GATE_USAGE.md
++++ freeze02/validation/qualification/GATE_USAGE.md
+@@ -11,7 +11,8 @@
+ `openpipestress-runner solve` command, implicit sparse_interactive dispatch,
+ ControlledExport wrapper, CLI1.0 and raw mechanics0.1. The known semantic table
+ and existing comparison implementation are hash-pinned. This transport remains
+-sparse only.
++sparse only. The presence of newer producer, numerical, formulation, physical,
++recovery or foreign-carrier namespaces is refused even when their value is null.
+ Main's six-decimal output remains that producer; this adapter cannot upgrade it.
+ 
+ The explicit successor `ordinary_physics_1_cli_1.0_raw0.2` covers only the two
+@@ -43,7 +44,11 @@
+ The ordinary transport additionally binds `physics_binding`, `reference_basis`,
+ and boolean `runner.explicit_local_private_intent`. Each of its two cases retains
+ all 73 scalar selectors plus ten separately reported structural obligations. The
+-complete ordered case inventory is required. Displacement magnitudes genuinely
++complete ordered case inventory is required. The authoritative two-case/73-ID
++ledger is predeclared even when a malformed submission omits or duplicates a
++case/assertion; submitted inventory is recorded separately. Failures retain the
++nine section identities as unavailable/error details per case, and malformed
++checker returns cannot shrink those nested obligations. Displacement magnitudes genuinely
+ lack metadata: `metadata: null` in their selectors requires an absent raw field,
+ not a raw field containing null. Each case binds the structural obligations,
+ original section reference and independently checked numeric addendum. Nine

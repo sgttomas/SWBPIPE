@@ -1,0 +1,12 @@
+{
+  "selector": "/root",
+  "role": "HELP_HUMAN",
+  "supplied_by": "/root/physics_resume",
+  "source_branch": "codex/piping-engine-integration-20260925",
+  "source_head": "0a438a68672269e5750900792c9565ae9e5555b0",
+  "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_BLOCK_JOIN_PLAN.md",
+  "source_is_working_file": true,
+  "sha256": "8446a526b43f863bc5aab963ee3c292bbda98f59392596bb1591cff685b38c5b",
+  "authority": "Current owner engineering-method delegation; ROOT live interface selection on 2026-09-25 UTC",
+  "status": "selected_for_implementation_not_qualified"
+}

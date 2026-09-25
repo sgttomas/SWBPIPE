@@ -1,0 +1,13 @@
+{
+  "reviewed_records": {
+    "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/RESOURCE_POLICY.md": "03f182cdd0f6b6dc1c9738c6329e20212e59e25f54532a4b0e31f0043af89c38",
+    "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/_run_records/RESOURCE_POLICY_BASIS.json": "9f76aa17c599db9a06399f27608263bbbf6f16ad01a7cccc2266c9670c92f6f7",
+    "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/SELECTION.md": "869353a31e79c3944a8d22ed24bee4783ac29c02232a21e3f6da69dd3589fbd3"
+  },
+  "measurement_bindings_match": true,
+  "measurement_operation_counts_match": true,
+  "replay_charge_both_modes": 3161147,
+  "implementation_matches_selected_8M_case_64M_invocation": true,
+  "old_source_4M_generic_2M_and_relative_1e9_unchanged_by_delta": true,
+  "limits": "resource policy allocation; historical private16M measurement not public qualification; current public05 provides separate current8M witness"
+}

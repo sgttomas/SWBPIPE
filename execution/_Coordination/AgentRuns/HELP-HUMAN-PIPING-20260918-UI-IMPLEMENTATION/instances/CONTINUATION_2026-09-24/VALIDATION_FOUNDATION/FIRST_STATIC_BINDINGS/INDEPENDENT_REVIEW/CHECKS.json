@@ -1,0 +1,55 @@
+{
+  "status": "PASS bounded independent arithmetic and static binding checks; no target admission",
+  "method": "Exact Fraction polynomial equilibrium and virtual-work integrals, Decimal125 AGM pi and Cauchy-Schwarz circular extrema; no author/product imports",
+  "packet_files_hashed": 25,
+  "cases": {
+    "axial": {
+      "scalar_expectations": 73,
+      "prescribed_zero_count": 7,
+      "derived_zero_count": 51,
+      "nonzero_count": 15,
+      "all_scalar_math_and_wire_values_match": true,
+      "all_selector_metadata_signatures_match": true,
+      "all_rules_dimensionally_match": true,
+      "peak_normal_Pa": "167531.51904410035344093027723422564424679962709521731447122878321989136593076477377906716080658219574323457129132416635462410",
+      "tip_displacement_mm": "0.0016753151904410035344093027723422564424679962709521731447122878321989136593076477377906716080658219574323457129132416635462410",
+      "root_support_wrench": [
+        "-1000",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0"
+      ],
+      "draft_input_matches_physical_problem": true
+    },
+    "bending_torsion": {
+      "scalar_expectations": 73,
+      "prescribed_zero_count": 7,
+      "derived_zero_count": 16,
+      "nonzero_count": 50,
+      "all_scalar_math_and_wire_values_match": true,
+      "all_selector_metadata_signatures_match": true,
+      "all_rules_dimensionally_match": true,
+      "peak_normal_Pa": "370235.40120243172031144812648447656187138039137064599883144482479534003520610999730180588023554076407344656638966666597706984",
+      "tip_displacement_mm": "0.024682360080162114687429875098965104124758692758043066588762988319689335680407333153453725349036050938229771092644444398471323",
+      "root_support_wrench": [
+        "0",
+        "-30",
+        "40",
+        "-20",
+        "-80",
+        "-60"
+      ],
+      "draft_input_matches_physical_problem": true
+    }
+  },
+  "geometry_binary64_operand_relative_changes": {
+    "A": "7.8153857654534047131285918485851280931731067049343114515060363565062947313172595673485806113795230263157894735700252055267161E-17",
+    "I": "1.9262643885379916397431102280572514555004766372840333053111799960659021679423492858469932109848768694034446484824091713620358E-16",
+    "Z": "1.3711528762254132934170197206887792612387595314731027971993503743289033713789170107216454753335940637208801048534640183129120E-16"
+  },
+  "structural_obligations": 20,
+  "actual_execution": "none; no candidate output or solver/scoring pass",
+  "source_packets_unchanged": true
+}

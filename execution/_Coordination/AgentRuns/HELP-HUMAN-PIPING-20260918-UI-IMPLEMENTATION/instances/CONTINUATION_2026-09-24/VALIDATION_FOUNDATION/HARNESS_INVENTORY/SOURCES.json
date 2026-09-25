@@ -1,0 +1,312 @@
+{
+  "artifact": "read_only_harness_inventory_source_evidence",
+  "created_at_utc": "2026-09-25T08:16:38.885894+00:00",
+  "parent": "/root/scientific_transport_manager",
+  "child": "/root/scientific_transport_manager/harness_inventory",
+  "role": "TASK Type 2",
+  "delegation_mechanism": "delegated-harness-native descendant using collaboration.spawn_agent; no descendants created by this child",
+  "worktree_source_basis": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+  "primary_root": "/Users/ryan/.codex/worktrees/6614/chirality",
+  "write_boundary": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/HARNESS_INVENTORY",
+  "skills_or_workflows_loaded": [],
+  "execution_limits": [
+    "Source inspection and hashing only; no solver campaign, build, test execution, CI, native UI, external software, network, Git mutation, schema or product source changes.",
+    "Live owner VP-GO continuation supplied by parent supersedes README preparation hold; stored originals remain inert.",
+    "Static test expectations are not measurements from this assignment."
+  ],
+  "sources": [
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "bytes": 14200,
+      "lines": 242,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499,
+      "lines": 39,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "bytes": 9016,
+      "lines": 155,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "bytes": 8475,
+      "lines": 146,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "projects/chirality-piping/core/runner/headless/src/benchmark_binding.rs",
+      "sha256": "4a45a0889391046fe6ab887409c791a2148bc30205478138a142af07fd4f1e6f",
+      "bytes": 67848,
+      "lines": 1657,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "projects/chirality-piping/core/runner/headless/src/bin/openpipestress-runner.rs",
+      "sha256": "f873b5b9ac6518e1361049d101a323fbc8a1e54b67017810f48d97a1ba9f33ee",
+      "bytes": 41028,
+      "lines": 1180,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "projects/chirality-piping/core/runner/headless/src/lib.rs",
+      "sha256": "39e60b1fb6ce53aaea1e3572eca48705520d6299f7636d3b2a1899190ef344f2",
+      "bytes": 56866,
+      "lines": 1444,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "projects/chirality-piping/core/runner/headless/src/redaction_binding.rs",
+      "sha256": "16770911c5ea85c533163d45478fe1c4085cdf6c086cb79bc2b985155bad0703",
+      "bytes": 26434,
+      "lines": 749,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+      "sha256": "6d741832aabe729a40cc9e28aaa9ce8627d5bba4f9ca903c3059438dc0dd7042",
+      "bytes": 24116,
+      "lines": 461,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "projects/chirality-piping/core/comparison/analysis_run/engine.py",
+      "sha256": "14aada4049fde08c6f68a99a844f84e73b16fd8b6e4bb2a91cb7e4c8f63b7f2c",
+      "bytes": 26869,
+      "lines": 733,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "projects/chirality-piping/core/analysis_runs/records.py",
+      "sha256": "709f3a16f01b617084dd8d522081138826cae5d390fa0fc56dec23cb6c1a6bb0",
+      "bytes": 22818,
+      "lines": 559,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "sha256": "5b191695c32495c633d21ec74a2ec95aede27b56f6521069a328f0e386575dd7",
+      "bytes": 11449,
+      "lines": 162,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "ee3acd7fd1a630ea61e53b1e963dbe637a6f45b8e444b240735ae9f276e233c5",
+      "bytes": 732382,
+      "lines": 18347,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs",
+      "sha256": "865b82d0d465b3e33965d371e4fd0a8904fca01f10bc3953c3504dd4f8d901e7",
+      "bytes": 2075,
+      "lines": 34,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "projects/chirality-piping/core/reporting/report_package/src/wire.rs",
+      "sha256": "4a04fbde7b50515b00d55dde7438497fa7c5fe1d433bb7fc7d9ff5ee771489e1",
+      "bytes": 38170,
+      "lines": 926,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "projects/chirality-piping/core/reporting/audit_manifest/README.md",
+      "sha256": "e9ce2c2ac9d08304490c0b0b8e93193f25299a39c9182728bd602e6130df05c7",
+      "bytes": 1764,
+      "lines": 36,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "projects/chirality-piping/schemas/headless_runner.schema.yaml",
+      "sha256": "deaa474eebb07752c0e09878809fbd9a54e9d25052f9a6f0b8bb5f720ce7a182",
+      "bytes": 17156,
+      "lines": 710,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "projects/chirality-piping/schemas/comparison_tolerance.schema.json",
+      "sha256": "2c2cf4089849bb42a2d8eb83d559f2a60212ca525d2fa1e0bbb910609c10525a",
+      "bytes": 17620,
+      "lines": 738,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "projects/chirality-piping/schemas/report_sections.schema.yaml",
+      "sha256": "28316fc9b697d3fb6da5b7c581916762e7864fe1030ae0a43f9a240f40d5e094",
+      "bytes": 15926,
+      "lines": 680,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "projects/chirality-piping/schemas/results.schema.yaml",
+      "sha256": "8c0a520a21acb439abcbb3c1c033e49efceb113405efc69f3f802542b06f0f01",
+      "bytes": 102069,
+      "lines": 3530,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs",
+      "sha256": "095b6991199a845741b422eb1df35350936bb4601c08285be4a2a96f5351fa58",
+      "bytes": 331308,
+      "lines": 8209,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "projects/chirality-piping/validation/benchmarks/mechanics/README.md",
+      "sha256": "fc06210001c39e35e7b47bb41e3df6f8fba5028888e7e3a44ae3c8a8e7cfa334",
+      "bytes": 5251,
+      "lines": 92,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "projects/chirality-piping/validation/benchmarks/stress/src/lib.rs",
+      "sha256": "ad7239a073f5ca6c161ee3f63642d487414efed6e3176ae86a2af7979b73210c",
+      "bytes": 101073,
+      "lines": 2658,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "projects/chirality-piping/validation/benchmarks/stress/README.md",
+      "sha256": "dfc95b6c9d2884b061c31b28af0dc87f4394b2de01a579d8de39e20971638e7d",
+      "bytes": 3708,
+      "lines": 65,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "projects/chirality-piping/validation/benchmarks/nonlinear/src/lib.rs",
+      "sha256": "6ba0b6e278650afbde02a01a94d4423dca0170c824d14066b4f802064e616e69",
+      "bytes": 227317,
+      "lines": 5451,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "projects/chirality-piping/validation/benchmarks/nonlinear/README.md",
+      "sha256": "747f68786ff51d2e0f2130eb4470c7db10bc5bdc8b826ab590576c7048a686d2",
+      "bytes": 9495,
+      "lines": 169,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-04_tolerance_coverage_thresholds.md",
+      "sha256": "2f4b4cc44e7c74d60640f80b13cb1a46b91677903b56e6b1d45a4adfc5115b4a",
+      "bytes": 24653,
+      "lines": 167,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "projects/chirality-piping/docs/validation_manual/headless_runner_reproduction.md",
+      "sha256": "fdcced6e5ba91a6542776851183f2b234749fc8ae0d09eb4b279514b41e86aeb",
+      "bytes": 17019,
+      "lines": 254,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/private/tmp/piping-validation-foundation-20260925",
+      "repository_path": "projects/chirality-piping/apps/desktop/src/services/inputManifestService.ts",
+      "sha256": "7fee1a96e3fb66b6658d5562d9c50d2d26fe8a3eb5d0f0a2e4be459f30021cf3",
+      "bytes": 8520,
+      "lines": 276,
+      "basis_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "read_scope": "bounded relevant source sections; instructions read in full"
+    },
+    {
+      "origin_root": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "repository_path": "projects/chirality-piping/docs/references/validation-programme/README.md",
+      "sha256": "7732cdb45e4f6bb8b902def68803934ca2ecf67693fd4d5abbf3bf2bc8501689",
+      "bytes": 6647,
+      "lines": 27,
+      "read_scope": "inert design reference; relevant harness/comparison/denominator/reporting sections plus overview; not adopted instructions"
+    },
+    {
+      "origin_root": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "repository_path": "projects/chirality-piping/docs/references/validation-programme/REFERENCE_MANIFEST.json",
+      "sha256": "671add72377452ac3e3e6f0aab8d315bab96579af62f685d60e3ea0fbb763409",
+      "bytes": 1534,
+      "lines": 28,
+      "read_scope": "inert design reference; relevant harness/comparison/denominator/reporting sections plus overview; not adopted instructions"
+    },
+    {
+      "origin_root": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "repository_path": "projects/chirality-piping/docs/references/validation-programme/piping_stress_solver_research_and_agent_plan.md",
+      "sha256": "7c1944fa56b1350008d553e6873ed019ab30b0de1cc3bda74d87796ce5d09774",
+      "bytes": 103134,
+      "lines": 1492,
+      "read_scope": "inert design reference; relevant harness/comparison/denominator/reporting sections plus overview; not adopted instructions"
+    },
+    {
+      "origin_root": "/Users/ryan/.codex/worktrees/6614/chirality",
+      "repository_path": "projects/chirality-piping/docs/references/validation-programme/piping_solver_benchmark_research_and_agent_plan.md",
+      "sha256": "3c455c627dbbcd08717a1bfcff5d4951cbb0ea00e70e4e6e59daf2e519fa4d3e",
+      "bytes": 91697,
+      "lines": 1041,
+      "read_scope": "inert design reference; relevant harness/comparison/denominator/reporting sections plus overview; not adopted instructions"
+    }
+  ]
+}

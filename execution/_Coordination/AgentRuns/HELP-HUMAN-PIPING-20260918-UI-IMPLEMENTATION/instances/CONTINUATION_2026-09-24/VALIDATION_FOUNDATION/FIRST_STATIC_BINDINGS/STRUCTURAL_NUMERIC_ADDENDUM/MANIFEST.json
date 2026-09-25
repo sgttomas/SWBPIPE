@@ -1,0 +1,30 @@
+{
+  "status": "prepared for independent review; original25 files immutable",
+  "files": [
+    {
+      "path": "BASIS.json",
+      "sha256": "badfba21311f1b0f8308fb6e817b7be318fda66f8f434e552a5991548742f4d7",
+      "bytes": 2972
+    },
+    {
+      "path": "CHECKS.json",
+      "sha256": "d2b71481a80a47b88ac5690761741ef675b1ff99a8fdce824395a3bec456e431",
+      "bytes": 5730
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "227925b03d43e6206d52155617be8f7443ba04402057bfdcc4323b1e4b072f02",
+      "bytes": 3307
+    },
+    {
+      "path": "STRUCTURAL_NUMERIC_BINDING.json",
+      "sha256": "1ed8aac0910318902cd5f690aeee8cb74bfee036617e33eaa4e2c23ec98ff3c2",
+      "bytes": 10565
+    },
+    {
+      "path": "prepare_addendum.py",
+      "sha256": "666b60d64bc743dc8a1f9c86103a47866f7d8139d4e8d135073bb97b9aff16d1",
+      "bytes": 9733
+    }
+  ]
+}

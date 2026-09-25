@@ -1,0 +1,27 @@
+{
+  "files": [
+    {
+      "path": "core/handoff/stress_neutral/package_v0_3.py",
+      "before_sha256": "8b07faea35dacabfda35f4537d708a57ba585e918760c988b550f1d3f9414921",
+      "after_sha256": "db128dab312dbeced9b5ccab0a4e80f35994e9ebdde5034b77edc9dcf3a967ea"
+    },
+    {
+      "path": "tests/test_stress_neutral_physics_source.py",
+      "before_sha256": "82abba8a3fb720f4a78fed36bd45b23f0e78dc8981bd410220ebe6ede4fab3f5",
+      "after_sha256": "b486c3e4ab64600d907736a0ead512a92f4c6554b6d456181a8c6cdf51fe5447"
+    }
+  ],
+  "manifest_sha256": "eeb08d76ecc3531d5bceb9aa47894361ba7bac33482ace8d4c0faaf1d564b90f",
+  "patch_sha256": "d8a9050968789a2a1d6c62f7ffb88054afa7ee80452b9bed255220b5d3d9cbe5",
+  "all_preimages_current_and_focused_inputs_match": true,
+  "unchanged_ast": [
+    "_witness_disposition",
+    "UNIT_DIMENSIONS",
+    "_csv_policy",
+    "_utf8_csv_bytes",
+    "_render_utf8_csv",
+    "_source_annotations",
+    "_validate_source_annotations",
+    "_validate_source_value_bits"
+  ]
+}

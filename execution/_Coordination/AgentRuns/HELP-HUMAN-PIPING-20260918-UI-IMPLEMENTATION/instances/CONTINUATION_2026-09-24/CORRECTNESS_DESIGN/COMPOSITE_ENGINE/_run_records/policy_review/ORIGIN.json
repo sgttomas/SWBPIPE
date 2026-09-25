@@ -1,0 +1,22 @@
+{
+  "source_branch": "codex/piping-engine-integration-20260925",
+  "source_head_before_moving_work": "22452ecd148e86486fe36a36e34a184c9a5a5943",
+  "actual_review_scope": "New composite producer plus three Root resource policy records; current runtime/native/consumer limits remain in original return.",
+  "copies": [
+    {
+      "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_REVIEW/INDEPENDENT_REVIEW/POLICY_RECORD_REVIEW.json",
+      "copy_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/_run_records/policy_review/POLICY_RECORD_REVIEW.json",
+      "sha256": "b7c6e9a2cc3ecec03ca8b2edd2776ba75cbb455167847667b874d9b066a7c181"
+    },
+    {
+      "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_REVIEW/INDEPENDENT_REVIEW/RETURN.md",
+      "copy_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/_run_records/policy_review/RETURN.md",
+      "sha256": "a4da70f6097b3d8a62d807b3ea738aa4c975cfb2ad5d820441bbb857ed1ad923"
+    },
+    {
+      "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_REVIEW/INDEPENDENT_REVIEW/EXECUTION.json",
+      "copy_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/_run_records/policy_review/EXECUTION.json",
+      "sha256": "c502793b528499f6d9f682ee257358adbb3984381f9ab10c333c479bc3ac64be"
+    }
+  ]
+}

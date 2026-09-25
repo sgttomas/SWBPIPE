@@ -1,0 +1,2792 @@
+{
+  "format": "piping-validation-planning-inventory-v1",
+  "status": "bounded_vp_scope_and_harness_preparation",
+  "authority": {
+    "owner_resumed": true,
+    "basis": "ROOT explicit assignment relays live owner resumption; prior reference/graph hold is historical",
+    "instruction_sources_are_not_the_request": true,
+    "profile_names": "Q labels are organising aliases from supplied reference2, not certifications or accepted release profiles"
+  },
+  "basis": [
+    {
+      "id": "main",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "ancestor_of_pinned_main": true,
+      "state": "merged_basis",
+      "evidence_is_not": "No checkpoint presence substitutes for actual distributed-build/full-profile qualification"
+    },
+    {
+      "id": "graph",
+      "revision": "d90e4ee0e5abe7ace05dec4e856ca45051893915",
+      "ancestor_of_pinned_main": false,
+      "state": "instruction_execution_graph_snapshot",
+      "evidence_is_not": "No checkpoint presence substitutes for actual distributed-build/full-profile qualification"
+    },
+    {
+      "id": "numerical",
+      "revision": "ed688b13f633ce8aa6aeede784c3562511c20966",
+      "ancestor_of_pinned_main": false,
+      "state": "unmerged_checkpoint",
+      "evidence_is_not": "No checkpoint presence substitutes for actual distributed-build/full-profile qualification"
+    },
+    {
+      "id": "numerical_review",
+      "revision": "45d412e5d10e52e80d14a88d5cbea82e2bee005a",
+      "ancestor_of_pinned_main": false,
+      "state": "unmerged_checkpoint",
+      "evidence_is_not": "No checkpoint presence substitutes for actual distributed-build/full-profile qualification"
+    },
+    {
+      "id": "engine",
+      "revision": "22452ecd148e86486fe36a36e34a184c9a5a5943",
+      "ancestor_of_pinned_main": false,
+      "state": "unmerged_checkpoint",
+      "evidence_is_not": "No checkpoint presence substitutes for actual distributed-build/full-profile qualification"
+    },
+    {
+      "id": "scientific",
+      "revision": "05a9baa3342e8a322536ce2286f4189553d43eec",
+      "ancestor_of_pinned_main": false,
+      "state": "unmerged_checkpoint",
+      "evidence_is_not": "No checkpoint presence substitutes for actual distributed-build/full-profile qualification"
+    }
+  ],
+  "sources": [
+    {
+      "id": "root_graph",
+      "revision": "d90e4ee0e5abe7ace05dec4e856ca45051893915",
+      "path": "projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md",
+      "sha256": "7d2a5b909859df2dfe0de150f871c9d1c4a9a87ada9b478f13bc5a1286a73755",
+      "inspection": "Recovered historical hold graph; ROOT live resumption supersedes hold, completed gates remain retained"
+    },
+    {
+      "id": "references_readme",
+      "revision": "d90e4ee0e5abe7ace05dec4e856ca45051893915",
+      "path": "projects/chirality-piping/docs/references/validation-programme/README.md",
+      "sha256": "94c3001655b6cd48403999dcfd99baa23601a27d4ac3d05be5aecadf57652449",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "VAL-REF-01",
+      "revision": "d90e4ee0e5abe7ace05dec4e856ca45051893915",
+      "path": "projects/chirality-piping/docs/references/validation-programme/piping_stress_solver_research_and_agent_plan.md",
+      "sha256": "7c1944fa56b1350008d553e6873ed019ab30b0de1cc3bda74d87796ce5d09774",
+      "inspection": "Supplied proposal/reference, not authority or executed evidence; relevant methods/contracts/source catalogue inspected"
+    },
+    {
+      "id": "VAL-REF-02",
+      "revision": "d90e4ee0e5abe7ace05dec4e856ca45051893915",
+      "path": "projects/chirality-piping/docs/references/validation-programme/piping_solver_benchmark_research_and_agent_plan.md",
+      "sha256": "3c455c627dbbcd08717a1bfcff5d4951cbb0ea00e70e4e6e59daf2e519fa4d3e",
+      "inspection": "Supplied organising proposal/reference, not adopted thresholds/framework; profiles/contracts/comparison/source catalogue inspected"
+    },
+    {
+      "id": "dag",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/_DAG/_LATEST.md",
+      "sha256": "6335bc5cb1b0d1c13c41181b0fbd3e3ab4547fa355b6c9ddc49513307b721422",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "decomposition",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+      "sha256": "2ee818b8acda1d754960d4da964e76745e3142a87ea57dc0cbc6602e116389d7",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "assessment",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/ASSESSMENT.md",
+      "sha256": "c948cb13ac5d825b0d201074cad50e9b8f4d9de916bc246f574e8304121b72e6",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "product",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "ee3acd7fd1a630ea61e53b1e963dbe637a6f45b8e444b240735ae9f276e233c5",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "product_readme",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/product_physics/README.md",
+      "sha256": "531a31d2c35fabb3587aa4e6ea34350f604f0535f64c14cbdddda0874c5bfbbb",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "frame",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "sha256": "d657e6507aa5d4ef80124e3f6d10bd5a8af8eae54fe21af787c92814c8b73fde",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "straight",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/solver/straight_pipe/src/lib.rs",
+      "sha256": "22c7231bf3c53c67bfcb8de702dda318f8731d784d37b8373362089bbcc57c09",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "bend",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/solver/curved_bend/src/lib.rs",
+      "sha256": "6bfead4091998117612e0a4cebc9807280e2eef60f970acbd6e366e3f0c8dd4b",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "linear_supports",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/solver/linear_supports/src/lib.rs",
+      "sha256": "01ac02c48411813d57adf39b4dd97659f19941628002379890e792b2600e5934",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "nonlinear",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs",
+      "sha256": "3839f407d70d7e85c017bc65ddccbcc5312f3f479eb62587df8ce6e527129a3e",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "nonlinear_integration",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "sha256": "dcb9f8b9b1c09ba9b35627acce8af42383319ef95242088de45eb74a584e371c",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sparse",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs",
+      "sha256": "b480d2978c42517b156ec013a7c637b31db80a99953947e6788616d9cc8b5b71",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "primitive",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/loads/primitive_loads/src/lib.rs",
+      "sha256": "fea5e1839ba663b2df47c1b4b98c0cb98482e1d00806c7ac670af63b918a4252",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "user_loads",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/loads/user_loads/src/lib.rs",
+      "sha256": "688c84a2c26dac651ca1a40ac408f1805f5a505c17a3493491a855ecda606ddc",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "stress",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/loads/stress_recovery/src/lib.rs",
+      "sha256": "0c3a0b6278a1cce4a802fc6c2e4c81af1b6f393c5cde4bb28ff55b99d5d956f2",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "case_algebra",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/loads/load_case_algebra/src/lib.rs",
+      "sha256": "fd70056f81320e33fad4f7e05152a4c83f2a97fd20aaaad384f25eff0b66a050",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "weight",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/product_physics/src/self_weight.rs",
+      "sha256": "6caf38f71d5db7b1adafb7bf439d24f31df969cd3e41397c1a0a253d21279261",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "geometry",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/product_physics/src/annulus_geometry.rs",
+      "sha256": "98a781f126af9d8e6d94de96bbe0d9c3815f83760f7deca7a391e612acf979c9",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "units",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/units/src/lib.rs",
+      "sha256": "b133ae071a28d0ba0e897ad3c50694cc108f956cd9ce32e1288d5a027bdc970c",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "mechanics_suite",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs",
+      "sha256": "095b6991199a845741b422eb1df35350936bb4601c08285be4a2a96f5351fa58",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "stress_suite",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/validation/benchmarks/stress/src/lib.rs",
+      "sha256": "ad7239a073f5ca6c161ee3f63642d487414efed6e3176ae86a2af7979b73210c",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "nonlinear_suite",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/validation/benchmarks/nonlinear/src/lib.rs",
+      "sha256": "6ba0b6e278650afbde02a01a94d4423dca0170c824d14066b4f802064e616e69",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "mechanics_notes",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/validation/hand_calcs/mechanics/README.md",
+      "sha256": "68437a1356df8417cef726a1894b3535ba1e921390febbc6b8b3b4e6ba70d279",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "stress_notes",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/validation/hand_calcs/stress/README.md",
+      "sha256": "b9607ca24a92a145478ad391d3e555a5144d0ef8054bb24297f06bad17307b5b",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "nonlinear_policies",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/validation/benchmarks/nonlinear/README.md",
+      "sha256": "747f68786ff51d2e0f2130eb4470c7db10bc5bdc8b826ab590576c7048a686d2",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "runner",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/runner/headless/src/bin/openpipestress-runner.rs",
+      "sha256": "f873b5b9ac6518e1361049d101a323fbc8a1e54b67017810f48d97a1ba9f33ee",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "runner_core",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/runner/headless/src/lib.rs",
+      "sha256": "39e60b1fb6ce53aaea1e3572eca48705520d6299f7636d3b2a1899190ef344f2",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "benchmark_binding",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/runner/headless/src/benchmark_binding.rs",
+      "sha256": "4a45a0889391046fe6ab887409c791a2148bc30205478138a142af07fd4f1e6f",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "result_binding",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+      "sha256": "6d741832aabe729a40cc9e28aaa9ce8627d5bba4f9ca903c3059438dc0dd7042",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "compare",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/comparison/analysis_run/engine.py",
+      "sha256": "14aada4049fde08c6f68a99a844f84e73b16fd8b6e4bb2a91cb7e4c8f63b7f2c",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "analysis_records",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/analysis_runs/records.py",
+      "sha256": "709f3a16f01b617084dd8d522081138826cae5d390fa0fc56dec23cb6c1a6bb0",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "compatibility",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "sha256": "5b191695c32495c633d21ec74a2ec95aede27b56f6521069a328f0e386575dd7",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "runner_schema",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/schemas/headless_runner.schema.yaml",
+      "sha256": "deaa474eebb07752c0e09878809fbd9a54e9d25052f9a6f0b8bb5f720ce7a182",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "result_schema",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/schemas/results.schema.yaml",
+      "sha256": "8c0a520a21acb439abcbb3c1c033e49efceb113405efc69f3f802542b06f0f01",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "analysis_schema",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/schemas/analysis_run.schema.json",
+      "sha256": "b787444e0a421c995fac4d393c16c28e4e3e84496196d5c2914a7bb082e43e86",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "mapping_schema",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/schemas/comparison_mapping.schema.json",
+      "sha256": "3fdbb88e328b3bb1bce046bd0fa9342fb0e4efd9bb30d4d33ed4579cb249d759",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "tolerance_schema",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/schemas/comparison_tolerance.schema.json",
+      "sha256": "2c2cf4089849bb42a2d8eb83d559f2a60212ca525d2fa1e0bbb910609c10525a",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "semantic_main",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_2.json",
+      "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "claim_reporting",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/reporting/state_comparison_handoff_sections/engine.py",
+      "sha256": "53df207fbdb35ed22225bcddfc5a710bb2d3fa3cae975bb297a0be06aa8db2fd",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "validation_strategy",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/docs/VALIDATION_STRATEGY.md",
+      "sha256": "a9bce923d5ca9656191a4abddad8f9464c2fde6b37c94b3d787e98c00949acda",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "num_handoff",
+      "revision": "ed688b13f633ce8aa6aeede784c3562511c20966",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/SOURCE_RECOVERY_IMPLEMENTATION_01/INTEGRATION_HANDOFF.md",
+      "sha256": "15afd47530034b4a8163c5c2202e441c8415005da36f5b1874b4553a1cd68120",
+      "inspection": "Actual checkpoint source-method eligibility and carrier limitations; earlier mutable wording is historical; commit binds inspected bytes"
+    },
+    {
+      "id": "num_frontend_review",
+      "revision": "45d412e5d10e52e80d14a88d5cbea82e2bee005a",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/SOURCE_RECOVERY_IMPLEMENTATION_01/FRONTEND_READERS/INDEPENDENT_REVIEW/RETURN.md",
+      "sha256": "30b7c23bb2ca159d40c3d7b06c0f0e378cbe95fa91bd9185ac5ad53bb388faec",
+      "inspection": "Independent review retains FE-01/P1 and FE-02/P2 open at this revision"
+    },
+    {
+      "id": "engine_handoff",
+      "revision": "22452ecd148e86486fe36a36e34a184c9a5a5943",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/RETURN.md",
+      "sha256": "c1d382d724b880b22de979b6e3eafc6d1fe61cc7526db2256d0f8bc231e64370",
+      "inspection": "Held source fan-in/checkpoint report, not final joined qualification; hold now superseded by live authority"
+    },
+    {
+      "id": "scientific_return",
+      "revision": "05a9baa3342e8a322536ce2286f4189553d43eec",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/RETURN.md",
+      "sha256": "0c7c7420a9e7a1c1127b8fb0f8eeedb49b12cec2146598977cd86a505d871ae3",
+      "inspection": "Clear standalone24Rust/55Python/547token evidence, not adopted by product; no rerun"
+    },
+    {
+      "id": "scientific_api",
+      "revision": "05a9baa3342e8a322536ce2286f4189553d43eec",
+      "path": "projects/chirality-piping/core/serialization/canonical_json/README.md",
+      "sha256": "de4021717cd531cd8474217d4b4b31a25334cc3636615efc911f4c1cefcf6157",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "load_state_design",
+      "revision": "d90e4ee0e5abe7ace05dec4e856ca45051893915",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/LOAD_REFERENCE_STATES/RETURN.md",
+      "sha256": "49e8b8d12a1352c9d8ff182dce9c77f51bbea3dca03524ddcc489773e0b9f554",
+      "inspection": "Design and analytical preparation only; includes hydrostatic wrong-wall-force counterexample"
+    },
+    {
+      "id": "sow_DEL-04-01",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/ScopeOfWork.md",
+      "sha256": "9b4f15fada2ad8cd5157b815ab602f479090ec1428beba882d87b8fe7b3dd373",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-04-02",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/ScopeOfWork.md",
+      "sha256": "d923098dce39eb3fb7091f1eec7926fbe161228a8edf3a6167c977af1407b0b9",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-04-03",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/ScopeOfWork.md",
+      "sha256": "e7a732a0d9d47da268a5e9a775121b85fb4eb2e96ebe0ba718247be6a170cdc3",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-04-04",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/ScopeOfWork.md",
+      "sha256": "9a23f605d0a2c4aef087a080849ba88d4bca9ab734a7304e2fbe43deb6c472cc",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-04-05",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-05_Sparse solver performance harness/ScopeOfWork.md",
+      "sha256": "a56d0bed9383d3fed3873da45d562208e8baf36a42627be8f85aa8997b9a4a79",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-04-06",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/ScopeOfWork.md",
+      "sha256": "6c3f63d7496ee11791a6e997ecbf81f85e3a1381f51597564310832396caa48e",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-04-07",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+      "sha256": "e3f701345f6ce750a2ff4681443f788b8cbf80e498c781d158b74bff738c7f88",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-05-01",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/ScopeOfWork.md",
+      "sha256": "29f3163038611f19fde34c6fdc5602a7340f9219fef901c5e9ac998a1870ebf6",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-05-02",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-02_Load-case algebra engine/ScopeOfWork.md",
+      "sha256": "25b8d40065a9be2a33f07cbf50282ddd69a88c12866cf84683cb71cc56179d05",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-05-03",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/ScopeOfWork.md",
+      "sha256": "3f6e913a6ce916f7c1fd9a3cdb3a9ca89d78c60129fd84a15d2dae4a3469a08e",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-05-05",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-05_Concentrated and distributed user load application/ScopeOfWork.md",
+      "sha256": "1c3bbc9d3120240ebe04ead3215443e03dc40ffd3a8307a26519566190bb4a4e",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-07-12",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+      "sha256": "0371486975ac777300e54b5a3b7c43ce709108e80b78db430714e6a314bfad8c",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-09-01",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/ScopeOfWork.md",
+      "sha256": "181b1e37201d93916f03e38e9cdb8e1082d70da5d6297af429bbb8c47d15648e",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-09-02",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-02_Stress recovery benchmark suite/ScopeOfWork.md",
+      "sha256": "74bc07e54fcf39dd7596e213505ef1c60d17443fd6db16766e728469c2b70655",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-09-03",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/ScopeOfWork.md",
+      "sha256": "f97f949356782ecc0ac7156fdb6b68aed942e9c9939679df389b7f58d3ead662",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-09-04",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/ScopeOfWork.md",
+      "sha256": "bc55e58b40d5505e6913155faa4ac4934bbf845fd0eb7c9d9f39724853a03742",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-09-05",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-05_Release quality gate checklist/ScopeOfWork.md",
+      "sha256": "1ea1aee96fba5ab29996d274a4bdf041191252f96467a895c032235f6fb639b0",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-10-04",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-04_Build, packaging, and CI-CD pipeline/ScopeOfWork.md",
+      "sha256": "29a31514d6eb923a165a4590632edd6f29992114bf2d34b79c3ea878e3d50c01",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-10-05",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/ScopeOfWork.md",
+      "sha256": "a5ed8fb84017c02ccd1c72cd2be51b8011c24894646276a11ca4caa58ba0f2dd",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-14-02",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/ScopeOfWork.md",
+      "sha256": "606e86c1233c8bc66f0fdc89efc2e19855bdce24d6f4f862903f22939a527831",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-14-04",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/ScopeOfWork.md",
+      "sha256": "200f5c8afb8de77810cb303937303a7b418e097d4e71ced818f92ccad6e1df79",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-14-05",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/ScopeOfWork.md",
+      "sha256": "7677ad2ce7e9250a7036ff238aae1aba1cbb5c395db3f073d471a9beaf9c3b48",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-17-01",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-01_CAEPIPE and export-format source basis/ScopeOfWork.md",
+      "sha256": "0509342f1d9359a2e558a9e065a652660c4f207872cfccede1be4154c273c4df",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-17-02",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts/ScopeOfWork.md",
+      "sha256": "cd307b6c2240a0847e3fcb3e852e3f7f04700a1aef3194088b3a9b14a29919e6",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-17-03",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-03_Native open JSON export package/ScopeOfWork.md",
+      "sha256": "81d70f34bf10e3c5d6631717bab7a2236c22e5e5315e2736a9ce6b0f235d7e17",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-17-04",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-04_CAEPIPE MBF export profile and deterministic writer/ScopeOfWork.md",
+      "sha256": "e0fe2008e5512d8548d32bc9e7fddb47e5d3a2dde6db3bc1f71b1d21fc734dad",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-17-05",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-05_CAEPIPE external run harness and CSV parser/ScopeOfWork.md",
+      "sha256": "35b822e300dd89075adfea80195e2fb2dafcae3f0cd17adc07d84280f7a5bc0e",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-17-06",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/ScopeOfWork.md",
+      "sha256": "898e30e11049a717cc36ec9982ba5a0375f77085f1b1b7a18d8ae9b24ff99f25",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-17-07",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-07_Conservative PCF subset exporter/ScopeOfWork.md",
+      "sha256": "d8373306ff2c13b5a1686915c809f6335b05aff42b66fa1f4d259f8b23de8ed8",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-17-09",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-09_Export adapter SDK and additional targets/ScopeOfWork.md",
+      "sha256": "142a7a23d59752eb8e4f46ef8c5bc226322d0acff0f9d4e5931cb1a599302bf9",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "controlled_export",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/runner/headless/src/redaction_binding.rs",
+      "sha256": "16770911c5ea85c533163d45478fe1c4085cdf6c086cb79bc2b985155bad0703",
+      "inspection": "Independent TASK source inventory; manager integration read of exact bounded API/criterion findings"
+    },
+    {
+      "id": "semantic_helper",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs",
+      "sha256": "865b82d0d465b3e33965d371e4fd0a8904fca01f10bc3953c3504dd4f8d901e7",
+      "inspection": "Independent TASK source inventory; manager integration read of exact bounded API/criterion findings"
+    },
+    {
+      "id": "audit_manifest",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/reporting/audit_manifest/README.md",
+      "sha256": "e9ce2c2ac9d08304490c0b0b8e93193f25299a39c9182728bd602e6130df05c7",
+      "inspection": "Independent TASK source inventory; manager integration read of exact bounded API/criterion findings"
+    },
+    {
+      "id": "report_wire",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/reporting/report_package/src/wire.rs",
+      "sha256": "4a04fbde7b50515b00d55dde7438497fa7c5fe1d433bb7fc7d9ff5ee771489e1",
+      "inspection": "Independent TASK source inventory; manager integration read of exact bounded API/criterion findings"
+    },
+    {
+      "id": "criterion_owner",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-04_tolerance_coverage_thresholds.md",
+      "sha256": "2f4b4cc44e7c74d60640f80b13cb1a46b91677903b56e6b1d45a4adfc5115b4a",
+      "inspection": "Independent TASK source inventory; manager integration read of exact bounded API/criterion findings"
+    }
+  ],
+  "deliverables": [
+    {
+      "id": "DEL-04-01",
+      "name": "3D frame stiffness kernel",
+      "scope_source": "sow_DEL-04-01"
+    },
+    {
+      "id": "DEL-04-02",
+      "name": "Straight pipe element",
+      "scope_source": "sow_DEL-04-02"
+    },
+    {
+      "id": "DEL-04-03",
+      "name": "Linear support and restraint models",
+      "scope_source": "sow_DEL-04-03"
+    },
+    {
+      "id": "DEL-04-04",
+      "name": "Nonlinear support active-set solver",
+      "scope_source": "sow_DEL-04-04"
+    },
+    {
+      "id": "DEL-04-05",
+      "name": "Sparse solver performance harness",
+      "scope_source": "sow_DEL-04-05"
+    },
+    {
+      "id": "DEL-04-06",
+      "name": "Solver diagnostics and singularity detection",
+      "scope_source": "sow_DEL-04-06"
+    },
+    {
+      "id": "DEL-04-07",
+      "name": "Product solve integration and nonlinear orchestration",
+      "scope_source": "sow_DEL-04-07"
+    },
+    {
+      "id": "DEL-05-01",
+      "name": "Primitive load case engine",
+      "scope_source": "sow_DEL-05-01"
+    },
+    {
+      "id": "DEL-05-02",
+      "name": "Load-case algebra engine",
+      "scope_source": "sow_DEL-05-02"
+    },
+    {
+      "id": "DEL-05-03",
+      "name": "Fundamental stress recovery module",
+      "scope_source": "sow_DEL-05-03"
+    },
+    {
+      "id": "DEL-05-05",
+      "name": "Concentrated and distributed user load application",
+      "scope_source": "sow_DEL-05-05"
+    },
+    {
+      "id": "DEL-07-12",
+      "name": "Interoperability and evidence-review workspace",
+      "scope_source": "sow_DEL-07-12"
+    },
+    {
+      "id": "DEL-09-01",
+      "name": "Mechanics benchmark suite",
+      "scope_source": "sow_DEL-09-01"
+    },
+    {
+      "id": "DEL-09-02",
+      "name": "Stress recovery benchmark suite",
+      "scope_source": "sow_DEL-09-02"
+    },
+    {
+      "id": "DEL-09-03",
+      "name": "Nonlinear support regression suite",
+      "scope_source": "sow_DEL-09-03"
+    },
+    {
+      "id": "DEL-09-04",
+      "name": "Validation manual skeleton",
+      "scope_source": "sow_DEL-09-04"
+    },
+    {
+      "id": "DEL-09-05",
+      "name": "Release quality gate checklist",
+      "scope_source": "sow_DEL-09-05"
+    },
+    {
+      "id": "DEL-10-04",
+      "name": "Build, packaging, and CI-CD pipeline",
+      "scope_source": "sow_DEL-10-04"
+    },
+    {
+      "id": "DEL-10-05",
+      "name": "Headless CLI and structured I-O analysis runner",
+      "scope_source": "sow_DEL-10-05"
+    },
+    {
+      "id": "DEL-14-02",
+      "name": "Analysis run records",
+      "scope_source": "sow_DEL-14-02"
+    },
+    {
+      "id": "DEL-14-04",
+      "name": "Analysis-run comparison engine",
+      "scope_source": "sow_DEL-14-04"
+    },
+    {
+      "id": "DEL-14-05",
+      "name": "Comparison mapping, tolerance, and export contracts",
+      "scope_source": "sow_DEL-14-05"
+    },
+    {
+      "id": "DEL-17-01",
+      "name": "CAEPIPE and export-format source basis",
+      "scope_source": "sow_DEL-17-01"
+    },
+    {
+      "id": "DEL-17-02",
+      "name": "Export package, profile, and stable ID map contracts",
+      "scope_source": "sow_DEL-17-02"
+    },
+    {
+      "id": "DEL-17-03",
+      "name": "Native open JSON export package",
+      "scope_source": "sow_DEL-17-03"
+    },
+    {
+      "id": "DEL-17-04",
+      "name": "CAEPIPE MBF export profile and deterministic writer",
+      "scope_source": "sow_DEL-17-04"
+    },
+    {
+      "id": "DEL-17-05",
+      "name": "CAEPIPE external run harness and CSV parser",
+      "scope_source": "sow_DEL-17-05"
+    },
+    {
+      "id": "DEL-17-06",
+      "name": "Stress-neutral CSV JSON package",
+      "scope_source": "sow_DEL-17-06"
+    },
+    {
+      "id": "DEL-17-07",
+      "name": "Conservative PCF subset exporter",
+      "scope_source": "sow_DEL-17-07"
+    },
+    {
+      "id": "DEL-17-09",
+      "name": "Export adapter SDK and additional targets",
+      "scope_source": "sow_DEL-17-09"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "straight_static",
+      "title": "Straight Euler–Bernoulli frame/pipe response",
+      "implementation": "merged_partial",
+      "formulation": "Small-displacement linear isotropic frame with6DOFs/node; explicit E,G,A,I,J; circular pipe adapter. SparseInteractive/sparse_interactive and DenseScrutiny/dense_scrutiny library modes; current mainCLI solve selects sparse only.",
+      "source_refs": [
+        "product",
+        "frame",
+        "straight",
+        "mechanics_suite"
+      ],
+      "finding_refs": [
+        "M03",
+        "M31",
+        "M32",
+        "M34",
+        "M37"
+      ],
+      "q_refs": [
+        "Q1-STRAIGHT-STATIC"
+      ],
+      "required_output_sets": [
+        "kinematics",
+        "member_actions",
+        "support_actions",
+        "stress_fields",
+        "run_identity"
+      ],
+      "evidence_readiness": "recorded_evidence_not_profile_qualified",
+      "sampled_domain": "Existing fixture-specific points and recorded checkpoint cases only; no continuous multidimensional envelope claimed",
+      "limits": [
+        "No shear-deformable/Timoshenko production profile identified; EB applicability must be stated.",
+        "Direct sparse assembly and general conditioning/range closure remain open."
+      ],
+      "deliverables": [
+        "DEL-04-07",
+        "DEL-09-01"
+      ]
+    },
+    {
+      "id": "load_fields",
+      "title": "Nodal/moment/partial-distributed load recovery",
+      "implementation": "merged_partial",
+      "formulation": "Global typed forces/moments plus member distributed/subspan loads; local end and station recovery.",
+      "source_refs": [
+        "product",
+        "primitive",
+        "user_loads",
+        "mechanics_suite"
+      ],
+      "finding_refs": [
+        "M27",
+        "M34",
+        "M37"
+      ],
+      "q_refs": [
+        "Q1-STRAIGHT-STATIC",
+        "Q2-PIPING-STATIC"
+      ],
+      "required_output_sets": [
+        "kinematics",
+        "member_actions",
+        "support_actions",
+        "run_identity"
+      ],
+      "evidence_readiness": "recorded_evidence_not_profile_qualified",
+      "sampled_domain": "Existing fixture-specific points and recorded checkpoint cases only; no continuous multidimensional envelope claimed",
+      "limits": [
+        "Existing tests/station samples do not establish continuous governing-location coverage.",
+        "Preserve node-on-element versus section-cut sign conventions; zero components are required assertions."
+      ],
+      "deliverables": [
+        "DEL-04-07",
+        "DEL-09-01"
+      ]
+    },
+    {
+      "id": "pressure_thermal",
+      "title": "Pressure closure and thermal interaction",
+      "implementation": "checkpoint_partial",
+      "formulation": "Exact straight pressure profile uses explicit E/nu, regions and closure paths; wall/effective/membrane accounting separated in engine checkpoint.",
+      "source_refs": [
+        "product",
+        "engine_handoff",
+        "stress_suite",
+        "load_state_design"
+      ],
+      "finding_refs": [
+        "M01",
+        "M14",
+        "M16",
+        "M21",
+        "M29",
+        "M30",
+        "M33"
+      ],
+      "q_refs": [
+        "Q1-STRAIGHT-STATIC",
+        "Q2-PIPING-STATIC"
+      ],
+      "required_output_sets": [
+        "kinematics",
+        "member_actions",
+        "support_actions",
+        "stress_fields",
+        "pressure_state",
+        "run_identity"
+      ],
+      "evidence_readiness": "recorded_evidence_not_profile_qualified",
+      "sampled_domain": "Existing fixture-specific points and recorded checkpoint cases only; no continuous multidimensional envelope claimed",
+      "limits": [
+        "Main old pressure tests are historical and cannot qualify repaired physics automatically.",
+        "22452 existing pressure14/source4 groups pass but composite semantics/schema/headless/native work incomplete.",
+        "Hydrostatic column may match endpoint displacement/reaction/effectiveN yet have wrong wallN(x): all fields required.",
+        "Uniform/full-fluid claim bounded to zero axial gravity projection until head method implemented."
+      ],
+      "deliverables": [
+        "DEL-04-07",
+        "DEL-05-01",
+        "DEL-09-01",
+        "DEL-09-02"
+      ]
+    },
+    {
+      "id": "linear_restraints",
+      "title": "Rigid and spring restraints; imposed motion",
+      "implementation": "merged_partial",
+      "formulation": "Global DOF restraints and explicit ground springs; lower-level prescribed displacement reduction exists.",
+      "source_refs": [
+        "linear_supports",
+        "product",
+        "mechanics_suite",
+        "load_state_design"
+      ],
+      "finding_refs": [
+        "M05",
+        "M10",
+        "M12",
+        "M19"
+      ],
+      "q_refs": [
+        "Q1-STRAIGHT-STATIC",
+        "Q2-PIPING-STATIC"
+      ],
+      "required_output_sets": [
+        "kinematics",
+        "support_actions",
+        "run_identity"
+      ],
+      "evidence_readiness": "recorded_evidence_not_profile_qualified",
+      "sampled_domain": "Existing fixture-specific points and recorded checkpoint cases only; no continuous multidimensional envelope claimed",
+      "limits": [
+        "M10 schema/authoring/product case motion not completed by lower-level imposed displacement fixture.",
+        "Local/skew, coupled6x6, connected-node and two-sided gap laws require explicit adoption/implementation.",
+        "Preload/reference state not equivalent to a bare spring."
+      ],
+      "deliverables": [
+        "DEL-04-03",
+        "DEL-04-07",
+        "DEL-09-01"
+      ]
+    },
+    {
+      "id": "nonlinear_restraints",
+      "title": "Gap/one-way/lift-off/friction",
+      "implementation": "merged_partial",
+      "formulation": "Active-set support laws with current-normal per-DOF friction; assembled seed and13 multi-support acceptance families are recorded.",
+      "source_refs": [
+        "nonlinear",
+        "nonlinear_integration",
+        "nonlinear_suite",
+        "nonlinear_policies",
+        "product"
+      ],
+      "finding_refs": [
+        "M06",
+        "M15",
+        "M18",
+        "M19"
+      ],
+      "q_refs": [
+        "Q3-RESTRAINT-NONLINEAR"
+      ],
+      "required_output_sets": [
+        "kinematics",
+        "member_actions",
+        "support_actions",
+        "contact_history",
+        "run_identity"
+      ],
+      "evidence_readiness": "recorded_evidence_not_profile_qualified",
+      "sampled_domain": "Existing fixture-specific points and recorded checkpoint cases only; no continuous multidimensional envelope claimed",
+      "limits": [
+        "Four-iteration seed policy is not general nonlinear accuracy qualification.",
+        "Vector Coulomb, coupled lift-off/friction, reversal/continuation and larger rotated systems remain work.",
+        "State labels at ambiguous transitions are not unique physical targets."
+      ],
+      "deliverables": [
+        "DEL-04-04",
+        "DEL-04-07",
+        "DEL-09-03"
+      ]
+    },
+    {
+      "id": "bend",
+      "title": "Arc bend mechanics and product route",
+      "implementation": "merged_partial",
+      "formulation": "Arc-consistent flexibility macro element with user-supplied positive in/out-plane factors; EB/no shear/ovalization law.",
+      "source_refs": [
+        "bend",
+        "product",
+        "mechanics_suite"
+      ],
+      "finding_refs": [
+        "M02",
+        "M08",
+        "M37"
+      ],
+      "q_refs": [
+        "Q2-PIPING-STATIC"
+      ],
+      "required_output_sets": [
+        "kinematics",
+        "member_actions",
+        "support_actions",
+        "stress_fields",
+        "run_identity"
+      ],
+      "evidence_readiness": "recorded_evidence_not_profile_qualified",
+      "sampled_domain": "Existing fixture-specific points and recorded checkpoint cases only; no continuous multidimensional envelope claimed",
+      "limits": [
+        "Product code contains curved-bend assembly/recovery although crate README retains earlier no-integration wording.",
+        "Authoring selection and continuous arc load/stress/pressure behavior remain incomplete.",
+        "Shell/enriched-pipe published targets cannot be used as exact EB targets."
+      ],
+      "deliverables": [
+        "DEL-04-07",
+        "DEL-09-01"
+      ]
+    },
+    {
+      "id": "components",
+      "title": "Expansion joints, rigid offsets and branch/nozzle/reducer effects",
+      "implementation": "merged_partial",
+      "formulation": "Component fields/user stiffness/thrust/result scaffolding exists; complete invariant connector/topology and rigid offset/CG semantics require repair.",
+      "source_refs": [
+        "product",
+        "frame",
+        "assessment"
+      ],
+      "finding_refs": [
+        "M07",
+        "M17",
+        "M20"
+      ],
+      "q_refs": [
+        "Q2-PIPING-STATIC",
+        "Q9-ADVANCED"
+      ],
+      "required_output_sets": [
+        "kinematics",
+        "member_actions",
+        "support_actions",
+        "run_identity"
+      ],
+      "evidence_readiness": "recorded_evidence_not_profile_qualified",
+      "sampled_domain": "Existing fixture-specific points and recorded checkpoint cases only; no continuous multidimensional envelope claimed",
+      "limits": [
+        "Do not count a component DTO or imported matrix as integrated physical support.",
+        "Required basic static components must retain explicit obligations, not disappear into advanced exclusions."
+      ],
+      "deliverables": [
+        "DEL-04-07",
+        "DEL-09-01"
+      ]
+    },
+    {
+      "id": "self_weight",
+      "title": "Generated self-weight and explicit unit entry",
+      "implementation": "merged_with_bounded_evidence",
+      "formulation": "Source-OD/effective-wall mass area; managed dependency checks, explicit refresh/manual-preserve, typed moments and units.",
+      "source_refs": [
+        "weight",
+        "geometry",
+        "units",
+        "product_readme",
+        "root_graph"
+      ],
+      "finding_refs": [
+        "M04",
+        "M09",
+        "M24",
+        "M35"
+      ],
+      "q_refs": [
+        "Q1-STRAIGHT-STATIC",
+        "Q3-RESTRAINT-NONLINEAR"
+      ],
+      "required_output_sets": [
+        "kinematics",
+        "support_actions",
+        "load_inventory",
+        "run_identity"
+      ],
+      "evidence_readiness": "merged_bounded_evidence_retained",
+      "sampled_domain": "Existing fixture-specific points and recorded checkpoint cases only; no continuous multidimensional envelope claimed",
+      "limits": [
+        "PR886/892 completed merged gates retained; no replay for discovery.",
+        "General contents/CG/mass/dynamics and authored-density omission are separate work."
+      ],
+      "deliverables": [
+        "DEL-05-01",
+        "DEL-04-07",
+        "DEL-09-01"
+      ]
+    },
+    {
+      "id": "thermal_material_states",
+      "title": "Temperature functions and load/reference states",
+      "implementation": "merged_partial",
+      "formulation": "Existing E(T),G(T),alpha(T) resolution; new per-element operating/installation/coefficient/cold-spring semantics designed but not fully implemented.",
+      "source_refs": [
+        "product",
+        "mechanics_notes",
+        "stress_notes",
+        "load_state_design"
+      ],
+      "finding_refs": [
+        "M10",
+        "M11",
+        "M12",
+        "M15",
+        "M16",
+        "M21",
+        "M29"
+      ],
+      "q_refs": [
+        "Q1-STRAIGHT-STATIC",
+        "Q2-PIPING-STATIC",
+        "Q3-RESTRAINT-NONLINEAR"
+      ],
+      "required_output_sets": [
+        "kinematics",
+        "member_actions",
+        "support_actions",
+        "material_state",
+        "run_identity"
+      ],
+      "evidence_readiness": "recorded_evidence_not_profile_qualified",
+      "sampled_domain": "Existing fixture-specific points and recorded checkpoint cases only; no continuous multidimensional envelope claimed",
+      "limits": [
+        "Tangent versus secant alpha and reference state must be explicit.",
+        "Case superposition is not a substitute for solving contact/history states."
+      ],
+      "deliverables": [
+        "DEL-04-07",
+        "DEL-09-01"
+      ]
+    },
+    {
+      "id": "stress_results",
+      "title": "Stress, signed reactions and governing results",
+      "implementation": "checkpoint_partial",
+      "formulation": "Engine physics-1 publishes signed support components, wall/effective stress evidence and circular extrema; composite recipe not complete at22452.",
+      "source_refs": [
+        "product",
+        "stress",
+        "stress_suite",
+        "engine_handoff",
+        "num_frontend_review"
+      ],
+      "finding_refs": [
+        "M05",
+        "M08",
+        "M14",
+        "M26",
+        "M33",
+        "M34",
+        "M37"
+      ],
+      "q_refs": [
+        "Q1-STRAIGHT-STATIC",
+        "Q2-PIPING-STATIC",
+        "Q3-RESTRAINT-NONLINEAR"
+      ],
+      "required_output_sets": [
+        "support_actions",
+        "member_actions",
+        "stress_fields",
+        "run_identity"
+      ],
+      "evidence_readiness": "recorded_evidence_not_profile_qualified",
+      "sampled_domain": "Existing fixture-specific points and recorded checkpoint cases only; no continuous multidimensional envelope claimed",
+      "limits": [
+        "Preserve torsion separately and physical versus code/rule quantities.",
+        "FE-01 report evidence loss and mixed-case/current-method binding remain explicit.",
+        "No scalar norm-only reaction check; no first-case-only profile summary."
+      ],
+      "deliverables": [
+        "DEL-05-03",
+        "DEL-14-02",
+        "DEL-14-04",
+        "DEL-09-02"
+      ]
+    },
+    {
+      "id": "numerical_integrity",
+      "title": "Source recovery, numerical standing and transport",
+      "implementation": "checkpoint_partial",
+      "formulation": "ed688 exact retained-source free blocks<=2, signed-permutation transforms, simple straight unmodified members and strictly bounded source family; separate scientific profile05a9baa.",
+      "source_refs": [
+        "num_handoff",
+        "num_frontend_review",
+        "scientific_return",
+        "scientific_api"
+      ],
+      "finding_refs": [
+        "M03",
+        "M06",
+        "M32",
+        "M34"
+      ],
+      "q_refs": [
+        "Q0-HARNESS",
+        "Q1-STRAIGHT-STATIC"
+      ],
+      "required_output_sets": [
+        "run_identity",
+        "kinematics",
+        "member_actions",
+        "support_actions",
+        "stress_fields"
+      ],
+      "evidence_readiness": "recorded_evidence_not_profile_qualified",
+      "sampled_domain": "Existing fixture-specific points and recorded checkpoint cases only; no continuous multidimensional envelope claimed",
+      "limits": [
+        "General coupled>2DOF blocks/arbitrary rotations/contact/pressure/thermal/distributed loads are outside first source adapter.",
+        "Sensitive ordinary results remain inspectable/unqualified; source receipts require actual invocation and arithmetic standing.",
+        "Scientific transport is standalone; product adoption/SI carrier/display fixes remain open.",
+        "FE-02 signed-zero actual invocation mismatch remains open at45d412."
+      ],
+      "deliverables": [
+        "DEL-04-01",
+        "DEL-04-06",
+        "DEL-04-07",
+        "DEL-14-02",
+        "DEL-09-01"
+      ]
+    },
+    {
+      "id": "wind_seismic_static",
+      "title": "Equivalent-static wind/seismic inputs",
+      "implementation": "merged_partial",
+      "formulation": "Explicit user-input equivalent-static generators only; no embedded environmental/code factor default.",
+      "source_refs": [
+        "primitive",
+        "user_loads",
+        "product"
+      ],
+      "finding_refs": [
+        "M28"
+      ],
+      "q_refs": [
+        "Q2-PIPING-STATIC"
+      ],
+      "required_output_sets": [
+        "load_inventory",
+        "member_actions",
+        "support_actions",
+        "run_identity"
+      ],
+      "evidence_readiness": "recorded_evidence_not_profile_qualified",
+      "sampled_domain": "Existing fixture-specific points and recorded checkpoint cases only; no continuous multidimensional envelope claimed",
+      "limits": [
+        "Directional signed combination, mass/contents ownership and height/exposure treatment need selected cases.",
+        "Equivalent-static generation is not modal/spectral/time-history analysis."
+      ],
+      "deliverables": [
+        "DEL-04-07",
+        "DEL-09-01"
+      ]
+    },
+    {
+      "id": "rule_framework",
+      "title": "User-supplied rule results and stress categories",
+      "implementation": "merged_partial",
+      "formulation": "Existing rule-pack infrastructure retained; owner excludes bundled rules, not the user rule framework.",
+      "source_refs": [
+        "assessment",
+        "claim_reporting",
+        "engine_handoff"
+      ],
+      "finding_refs": [
+        "M13"
+      ],
+      "q_refs": [
+        "Q8-AUTOMATION"
+      ],
+      "required_output_sets": [
+        "run_identity",
+        "rule_context"
+      ],
+      "evidence_readiness": "recorded_evidence_not_profile_qualified",
+      "sampled_domain": "Existing fixture-specific points and recorded checkpoint cases only; no continuous multidimensional envelope claimed",
+      "limits": [
+        "Solver raw evidence and rule revisions must remain distinct; no library/allowables/code formulas populated."
+      ],
+      "deliverables": [
+        "DEL-05-03",
+        "DEL-14-02"
+      ]
+    },
+    {
+      "id": "interchange",
+      "title": "Target-specific export and external comparison",
+      "implementation": "merged_partial",
+      "formulation": "Existing export formats/package schemas, reviewed comparison machinery and external-run contracts; no licensed campaign in this cut.",
+      "source_refs": [
+        "assessment",
+        "mapping_schema",
+        "tolerance_schema",
+        "compare"
+      ],
+      "finding_refs": [
+        "M22",
+        "M23",
+        "M26",
+        "M36"
+      ],
+      "q_refs": [
+        "Q7-INTERCHANGE"
+      ],
+      "required_output_sets": [
+        "run_identity",
+        "transfer_semantics"
+      ],
+      "evidence_readiness": "recorded_evidence_not_profile_qualified",
+      "sampled_domain": "Existing fixture-specific points and recorded checkpoint cases only; no continuous multidimensional envelope claimed",
+      "limits": [
+        "Recorded fixtures/mock rows are not real external execution.",
+        "Source/version/settings/effective-model/loss/readback prerequisites remain target-specific."
+      ],
+      "deliverables": [
+        "DEL-17-01",
+        "DEL-17-02",
+        "DEL-17-05",
+        "DEL-17-06",
+        "DEL-17-09"
+      ]
+    },
+    {
+      "id": "workflow",
+      "title": "UI/headless/agent parity and history",
+      "implementation": "merged_partial",
+      "formulation": "Current operations/undo/persistence and bounded live-controller implementation; actual human Apply/live/native completion is separate.",
+      "source_refs": [
+        "root_graph",
+        "engine_handoff",
+        "analysis_records",
+        "runner"
+      ],
+      "finding_refs": [
+        "M22",
+        "M23",
+        "M25",
+        "M26",
+        "M36",
+        "M38"
+      ],
+      "q_refs": [
+        "Q8-AUTOMATION"
+      ],
+      "required_output_sets": [
+        "run_identity",
+        "transfer_semantics"
+      ],
+      "evidence_readiness": "recorded_evidence_not_profile_qualified",
+      "sampled_domain": "Existing fixture-specific points and recorded checkpoint cases only; no continuous multidimensional envelope claimed",
+      "limits": [
+        "No headless or fixture check substitutes for actual native or human Apply witness.",
+        "General UI refinements remain lower priority than solver needs."
+      ],
+      "deliverables": [
+        "DEL-10-05",
+        "DEL-14-02",
+        "DEL-07-12"
+      ]
+    },
+    {
+      "id": "dynamics",
+      "title": "Modal/spectral/harmonic/transient production",
+      "implementation": "not_identified_in_selected_solver",
+      "formulation": "Inspected product mode selector has sparse_interactive/dense_reference static solve modes; no implemented modal/spectral/time integrator identified in selected solver paths.",
+      "source_refs": [
+        "product",
+        "primitive",
+        "decomposition",
+        "VAL-REF-02"
+      ],
+      "finding_refs": [],
+      "q_refs": [
+        "Q4-MODAL",
+        "Q5A-RS-UNIFORM",
+        "Q5B-RS-MULTISUPPORT",
+        "Q5C-RS-CORRECTIONS",
+        "Q6-HARMONIC-TRANSIENT"
+      ],
+      "required_output_sets": [
+        "dynamic_state",
+        "run_identity"
+      ],
+      "evidence_readiness": "source_catalogue_only",
+      "sampled_domain": "Existing fixture-specific points and recorded checkpoint cases only; no continuous multidimensional envelope claimed",
+      "limits": [
+        "Production home, mass/damping/excitation contract and exact capability selection remain design questions.",
+        "NRC dynamic leads are not dependencies of a narrower static profile."
+      ],
+      "deliverables": [
+        "DEL-09-01",
+        "DEL-09-04"
+      ]
+    },
+    {
+      "id": "advanced_physics",
+      "title": "Plasticity/large deformation/soil and physical experiments",
+      "implementation": "not_qualified",
+      "formulation": "No production qualification for these formulations or measured-data uncertainty treatment is established by inspected static paths.",
+      "source_refs": [
+        "product",
+        "decomposition",
+        "VAL-REF-02"
+      ],
+      "finding_refs": [],
+      "q_refs": [
+        "Q9-ADVANCED"
+      ],
+      "required_output_sets": [
+        "dynamic_state",
+        "run_identity"
+      ],
+      "evidence_readiness": "source_catalogue_only",
+      "sampled_domain": "Existing fixture-specific points and recorded checkpoint cases only; no continuous multidimensional envelope claimed",
+      "limits": [
+        "Each needs a distinct selected production/data home and claim; experiment source assets/uncertainties are not acquired here.",
+        "Do not imply shell ovalization, collapse or physical validation from static numerical agreement."
+      ],
+      "deliverables": [
+        "DEL-09-04"
+      ]
+    }
+  ],
+  "output_sets": [
+    {
+      "id": "run_identity",
+      "required": [
+        "actual build/commit/artifact hash and dirty state",
+        "actual complete request/model and resolved solver mode identity",
+        "raw envelope/schema/producer/semantic profile and method receipt where applicable",
+        "case/state/step IDs, diagnostics and source/standing verdict",
+        "profile/case/reference/criterion/harness hashes and complete expected-vs-observed denominator",
+        "exit/interruption status and immutable raw outputs"
+      ],
+      "mapping": "headless schema+raw product envelope -> result envelope / AnalysisRun using exact version dispatch; no fabricated Current"
+    },
+    {
+      "id": "kinematics",
+      "required": [
+        "ux,uy,uz at every required node/location in explicit length unit",
+        "rx,ry,rz in rad including expected zeros",
+        "declared common global or local frame and physical station mapping"
+      ],
+      "mapping": "node_displacement_component rows; match exact semantic metadata and units; no displacement norm-only target"
+    },
+    {
+      "id": "member_actions",
+      "required": [
+        "N,Vy,Vz,T,My,Mz at both ends and declared interior physical stations",
+        "node-on-element versus section-cut sign convention",
+        "governing location or justified admissible location set"
+      ],
+      "mapping": "end-force/station result rows; use published source method functions for sensitive recovery rather than K*u from rounded displacement"
+    },
+    {
+      "id": "support_actions",
+      "required": [
+        "Fx,Fy,Fz in N and Mx,My,Mz in N*m per actual support ID",
+        "global frame and support-on-pipe sign convention",
+        "spring/device force separate from constrained residual",
+        "independent whole-system force/moment balance"
+      ],
+      "mapping": "engine/source checkpoint support_reaction_component_v2; main scalar legacy reaction cannot stand in for missing components"
+    },
+    {
+      "id": "stress_fields",
+      "required": [
+        "defined elastic axial/bending/torsional quantities at specified surface/stations",
+        "wall/effective axial force distinction where pressure applies",
+        "cross-case maxima with actual governing state and location/bounds",
+        "value/unit/dimension/recipe; no code-stress label for arbitrary scalar"
+      ],
+      "mapping": "main/physics/source/composite semantics mapped separately; SI successor not silently substituted under old MPa keys"
+    },
+    {
+      "id": "pressure_state",
+      "required": [
+        "pressure region/terminal closure path",
+        "local pressure versus axial location when head exists",
+        "wall axial force and effectiveN along member, hoop/membrane stress and strain",
+        "cap/eigen/mechanical contributions and no double counting"
+      ],
+      "mapping": "engine pressure/material/geometry evidence; hydrostatic wrong-wall-force test is mandatory interaction obligation"
+    },
+    {
+      "id": "material_state",
+      "required": [
+        "actual E,nu,derivedG or declared independentG basis",
+        "effective wall/OD and purpose-specific area/inertia",
+        "installation/operating/reference temperatures",
+        "alpha tangent/secant convention and expansion strain",
+        "preload/cold-spring reference state"
+      ],
+      "mapping": "actual input echo plus matching producer evidence; never invent absent material values"
+    },
+    {
+      "id": "load_inventory",
+      "required": [
+        "all contributing structural/contents/component masses and gravity basis",
+        "generated and manual loads/IDs and source ownership",
+        "pressure/cap load ownership",
+        "signed wind/seismic load directions and requested case membership"
+      ],
+      "mapping": "authored model/managed weight dependency and actual load application; density alone does not infer hydrostatic law"
+    },
+    {
+      "id": "contact_history",
+      "required": [
+        "per step gap/contact-normal/tangential force/displacement",
+        "contact admissibility and friction bound",
+        "actual load/unload/reversal/continuation state identity",
+        "force/moment equilibrium, dissipation where applicable and increment study"
+      ],
+      "mapping": "nonlinear state/iteration/residual rows; no generic unique state-label or linear superposition obligation"
+    },
+    {
+      "id": "transfer_semantics",
+      "required": [
+        "source intended model",
+        "independently authored target model or actual exported target effective model",
+        "frame/unit/function/reference-state/options mappings and explicit losses",
+        "actual target version/run provenance when execution occurs",
+        "edit/apply/undo/save/reopen actual association"
+      ],
+      "mapping": "existing export/AnalysisRun/comparison contracts; diagnostic comparisons are not automatic validation"
+    },
+    {
+      "id": "rule_context",
+      "required": [
+        "immutable raw solver results",
+        "user-rulepack revision and case/category selection",
+        "typed rule result/allowable/ratio provenance"
+      ],
+      "mapping": "existing user-rule facilities, never bundled code prescriptions"
+    },
+    {
+      "id": "dynamic_state",
+      "required": [
+        "declared mass/damping/excitation and normalization",
+        "mode/time/frequency and phase/combination definitions",
+        "reference matched quantities and numerical refinement"
+      ],
+      "mapping": "future selected contract only; no current static-row reinterpretation"
+    }
+  ],
+  "profiles": [
+    {
+      "id": "Q0-HARNESS",
+      "selection": "selected_preparation",
+      "vp_refs": [
+        "VP-HARNESS"
+      ],
+      "capabilities": [
+        "numerical_integrity"
+      ],
+      "required_output_sets": [
+        "kinematics",
+        "member_actions",
+        "run_identity",
+        "stress_fields",
+        "support_actions"
+      ],
+      "qualification": "not_run_under_programme",
+      "required_case_inventory": "not_frozen",
+      "criterion_policy": "Existing criterion owners retained; case-specific field/near-zero budgets must be justified before execution; no new threshold adopted here",
+      "output_obligation_meaning": "Synthetic/received packet checks cover these carrier/output fields as test-machinery behavior; no solver accuracy is established byQ0."
+    },
+    {
+      "id": "Q1-STRAIGHT-STATIC",
+      "selection": "selected_preparation",
+      "vp_refs": [
+        "VP-STATIC",
+        "VP-ORACLES",
+        "VP-ROBUST"
+      ],
+      "capabilities": [
+        "straight_static",
+        "load_fields",
+        "pressure_thermal",
+        "linear_restraints",
+        "self_weight",
+        "thermal_material_states",
+        "stress_results",
+        "numerical_integrity"
+      ],
+      "required_output_sets": [
+        "kinematics",
+        "load_inventory",
+        "material_state",
+        "member_actions",
+        "pressure_state",
+        "run_identity",
+        "stress_fields",
+        "support_actions"
+      ],
+      "qualification": "not_run_under_programme",
+      "required_case_inventory": "not_frozen",
+      "criterion_policy": "Existing criterion owners retained; case-specific field/near-zero budgets must be justified before execution; no new threshold adopted here"
+    },
+    {
+      "id": "Q2-PIPING-STATIC",
+      "selection": "dependent_preparation",
+      "vp_refs": [
+        "VP-STATIC",
+        "VP-PUBLISHED",
+        "VP-ORACLES"
+      ],
+      "capabilities": [
+        "load_fields",
+        "pressure_thermal",
+        "linear_restraints",
+        "bend",
+        "components",
+        "thermal_material_states",
+        "stress_results",
+        "wind_seismic_static"
+      ],
+      "required_output_sets": [
+        "kinematics",
+        "load_inventory",
+        "material_state",
+        "member_actions",
+        "pressure_state",
+        "run_identity",
+        "stress_fields",
+        "support_actions"
+      ],
+      "qualification": "not_run_under_programme",
+      "required_case_inventory": "not_frozen",
+      "criterion_policy": "Existing criterion owners retained; case-specific field/near-zero budgets must be justified before execution; no new threshold adopted here"
+    },
+    {
+      "id": "Q3-RESTRAINT-NONLINEAR",
+      "selection": "selected_interaction_preparation",
+      "vp_refs": [
+        "VP-RESTRAINT",
+        "VP-ORACLES"
+      ],
+      "capabilities": [
+        "nonlinear_restraints",
+        "self_weight",
+        "thermal_material_states",
+        "stress_results"
+      ],
+      "required_output_sets": [
+        "contact_history",
+        "kinematics",
+        "load_inventory",
+        "material_state",
+        "member_actions",
+        "run_identity",
+        "stress_fields",
+        "support_actions"
+      ],
+      "qualification": "not_run_under_programme",
+      "required_case_inventory": "not_frozen",
+      "criterion_policy": "Existing criterion owners retained; case-specific field/near-zero budgets must be justified before execution; no new threshold adopted here"
+    },
+    {
+      "id": "Q4-MODAL",
+      "selection": "future_selection",
+      "vp_refs": [
+        "VP-DYNAMICS"
+      ],
+      "capabilities": [
+        "dynamics"
+      ],
+      "required_output_sets": [
+        "dynamic_state",
+        "run_identity"
+      ],
+      "qualification": "not_run_under_programme",
+      "required_case_inventory": "not_frozen",
+      "criterion_policy": "Existing criterion owners retained; case-specific field/near-zero budgets must be justified before execution; no new threshold adopted here"
+    },
+    {
+      "id": "Q5A-RS-UNIFORM",
+      "selection": "future_selection",
+      "vp_refs": [
+        "VP-DYNAMICS"
+      ],
+      "capabilities": [
+        "dynamics"
+      ],
+      "required_output_sets": [
+        "dynamic_state",
+        "run_identity"
+      ],
+      "qualification": "not_run_under_programme",
+      "required_case_inventory": "not_frozen",
+      "criterion_policy": "Existing criterion owners retained; case-specific field/near-zero budgets must be justified before execution; no new threshold adopted here"
+    },
+    {
+      "id": "Q5B-RS-MULTISUPPORT",
+      "selection": "future_selection",
+      "vp_refs": [
+        "VP-DYNAMICS"
+      ],
+      "capabilities": [
+        "dynamics"
+      ],
+      "required_output_sets": [
+        "dynamic_state",
+        "run_identity"
+      ],
+      "qualification": "not_run_under_programme",
+      "required_case_inventory": "not_frozen",
+      "criterion_policy": "Existing criterion owners retained; case-specific field/near-zero budgets must be justified before execution; no new threshold adopted here"
+    },
+    {
+      "id": "Q5C-RS-CORRECTIONS",
+      "selection": "future_selection",
+      "vp_refs": [
+        "VP-DYNAMICS"
+      ],
+      "capabilities": [
+        "dynamics"
+      ],
+      "required_output_sets": [
+        "dynamic_state",
+        "run_identity"
+      ],
+      "qualification": "not_run_under_programme",
+      "required_case_inventory": "not_frozen",
+      "criterion_policy": "Existing criterion owners retained; case-specific field/near-zero budgets must be justified before execution; no new threshold adopted here"
+    },
+    {
+      "id": "Q6-HARMONIC-TRANSIENT",
+      "selection": "future_selection",
+      "vp_refs": [
+        "VP-DYNAMICS"
+      ],
+      "capabilities": [
+        "dynamics"
+      ],
+      "required_output_sets": [
+        "dynamic_state",
+        "run_identity"
+      ],
+      "qualification": "not_run_under_programme",
+      "required_case_inventory": "not_frozen",
+      "criterion_policy": "Existing criterion owners retained; case-specific field/near-zero budgets must be justified before execution; no new threshold adopted here"
+    },
+    {
+      "id": "Q7-INTERCHANGE",
+      "selection": "target_selection_pending",
+      "vp_refs": [
+        "VP-INTERCHANGE",
+        "VP-LICENSED"
+      ],
+      "capabilities": [
+        "interchange"
+      ],
+      "required_output_sets": [
+        "run_identity",
+        "transfer_semantics"
+      ],
+      "qualification": "not_run_under_programme",
+      "required_case_inventory": "not_frozen",
+      "criterion_policy": "Existing criterion owners retained; case-specific field/near-zero budgets must be justified before execution; no new threshold adopted here"
+    },
+    {
+      "id": "Q8-AUTOMATION",
+      "selection": "dependent_preparation",
+      "vp_refs": [
+        "VP-WORKFLOW",
+        "VP-SEARCH"
+      ],
+      "capabilities": [
+        "rule_framework",
+        "workflow"
+      ],
+      "required_output_sets": [
+        "rule_context",
+        "run_identity",
+        "transfer_semantics"
+      ],
+      "qualification": "not_run_under_programme",
+      "required_case_inventory": "not_frozen",
+      "criterion_policy": "Existing criterion owners retained; case-specific field/near-zero budgets must be justified before execution; no new threshold adopted here"
+    },
+    {
+      "id": "Q9-ADVANCED",
+      "selection": "future_selection",
+      "vp_refs": [
+        "VP-DYNAMICS",
+        "VP-PHYSICAL"
+      ],
+      "capabilities": [
+        "components",
+        "advanced_physics"
+      ],
+      "required_output_sets": [
+        "dynamic_state",
+        "kinematics",
+        "member_actions",
+        "run_identity",
+        "support_actions"
+      ],
+      "qualification": "not_run_under_programme",
+      "required_case_inventory": "not_frozen",
+      "criterion_policy": "Existing criterion owners retained; case-specific field/near-zero budgets must be justified before execution; no new threshold adopted here"
+    }
+  ],
+  "first_profile_cuts": [
+    {
+      "id": "STATIC-CORE-FIRST",
+      "q_refs": [
+        "Q0-HARNESS",
+        "Q1-STRAIGHT-STATIC"
+      ],
+      "purpose": "Production-route straight static development profile, not the full Q1 pass",
+      "source_refs": [
+        "mechanics_suite",
+        "stress_suite",
+        "mechanics_notes"
+      ],
+      "cases": [
+        "axial tip force",
+        "tip transverse force and pure moment",
+        "torsion",
+        "uniform and partial-span distributed loading",
+        "free/fixed thermal axial response using actually supported constant properties",
+        "linear spring device-force attribution"
+      ],
+      "required_output_sets": [
+        "run_identity",
+        "kinematics",
+        "member_actions",
+        "support_actions",
+        "stress_fields"
+      ],
+      "readiness": "inputs/oracles/output selectors not yet frozen as a profile",
+      "held_requirements": [
+        "case-associated prescribed translations/rotations stay mandatory for completeQ1; M10 not implemented by this subset",
+        "exact all-zero component budgets must be selected before qualification",
+        "mechanisms/coordinate rotations/unit transformations and both modes accompany base cases"
+      ]
+    },
+    {
+      "id": "STATIC-INTERACTIONS-FIRST",
+      "q_refs": [
+        "Q1-STRAIGHT-STATIC",
+        "Q2-PIPING-STATIC",
+        "Q3-RESTRAINT-NONLINEAR"
+      ],
+      "purpose": "Expose coupled failures early while core/profile infrastructure is built",
+      "source_refs": [
+        "engine_handoff",
+        "load_state_design",
+        "nonlinear_suite",
+        "num_handoff"
+      ],
+      "cases": [
+        "pressure free/restrained/separately supported closures plus thermal",
+        "pressure/head/contents column with wallN(x), not only endpoint/global checks",
+        "gravity+lift-off+friction with changing normal force and reversal",
+        "prescribed support motion+thermal reference state+preload/cold spring",
+        "rigid-offset force transfer and rotated directional supports"
+      ],
+      "required_output_sets": [
+        "run_identity",
+        "kinematics",
+        "member_actions",
+        "support_actions",
+        "stress_fields",
+        "pressure_state",
+        "material_state",
+        "load_inventory",
+        "contact_history"
+      ],
+      "readiness": "mixed: bounded pressure source exists unmerged; head/preload/motion/coupled contact cases expose known missing capabilities",
+      "held_requirements": [
+        "Do not remove unsupported required interactions to green the denominator",
+        "Do not admit source-block recovery for unsupported contact/pressure/distributed cases",
+        "No requirement to wait for every visual refinement or all other physics before scaffolding this profile"
+      ]
+    }
+  ],
+  "vp_mapping": [
+    {
+      "id": "VP-REF",
+      "local_mapping": "Preserved immutable supplied documents and reviewed historical graph",
+      "q_refs": [],
+      "state": "recorded_complete"
+    },
+    {
+      "id": "VP-GO",
+      "local_mapping": "Live owner resumption relayed by ROOT; earlier hold superseded",
+      "q_refs": [],
+      "state": "authority_satisfied"
+    },
+    {
+      "id": "VP-SCOPE",
+      "local_mapping": "This bounded planning inventory",
+      "q_refs": [],
+      "state": "current_preparation"
+    },
+    {
+      "id": "VP-HARNESS",
+      "local_mapping": "Next minimal required-output gate proposal; implementation not started",
+      "q_refs": [
+        "Q0-HARNESS"
+      ],
+      "state": "current_preparation"
+    },
+    {
+      "id": "VP-ORACLES",
+      "local_mapping": "Relevant profiles/output obligations retained; detailed execution remains owning graph",
+      "q_refs": [
+        "Q1-STRAIGHT-STATIC",
+        "Q2-PIPING-STATIC",
+        "Q3-RESTRAINT-NONLINEAR"
+      ],
+      "state": "mapped_successor"
+    },
+    {
+      "id": "VP-SOURCES",
+      "local_mapping": "Relevant profiles/output obligations retained; detailed execution remains owning graph",
+      "q_refs": [],
+      "state": "mapped_successor"
+    },
+    {
+      "id": "VP-STATIC",
+      "local_mapping": "Relevant profiles/output obligations retained; detailed execution remains owning graph",
+      "q_refs": [
+        "Q1-STRAIGHT-STATIC",
+        "Q2-PIPING-STATIC"
+      ],
+      "state": "mapped_successor"
+    },
+    {
+      "id": "VP-RESTRAINT",
+      "local_mapping": "Relevant profiles/output obligations retained; detailed execution remains owning graph",
+      "q_refs": [
+        "Q3-RESTRAINT-NONLINEAR"
+      ],
+      "state": "mapped_successor"
+    },
+    {
+      "id": "VP-PUBLISHED",
+      "local_mapping": "Relevant profiles/output obligations retained; detailed execution remains owning graph",
+      "q_refs": [
+        "Q2-PIPING-STATIC"
+      ],
+      "state": "mapped_successor"
+    },
+    {
+      "id": "VP-INTERCHANGE",
+      "local_mapping": "Relevant profiles/output obligations retained; detailed execution remains owning graph",
+      "q_refs": [
+        "Q7-INTERCHANGE"
+      ],
+      "state": "mapped_successor"
+    },
+    {
+      "id": "VP-LICENSED",
+      "local_mapping": "Relevant profiles/output obligations retained; detailed execution remains owning graph",
+      "q_refs": [
+        "Q7-INTERCHANGE"
+      ],
+      "state": "mapped_successor"
+    },
+    {
+      "id": "VP-WORKFLOW",
+      "local_mapping": "Relevant profiles/output obligations retained; detailed execution remains owning graph",
+      "q_refs": [
+        "Q8-AUTOMATION"
+      ],
+      "state": "mapped_successor"
+    },
+    {
+      "id": "VP-ROBUST",
+      "local_mapping": "Relevant profiles/output obligations retained; detailed execution remains owning graph",
+      "q_refs": [
+        "Q1-STRAIGHT-STATIC"
+      ],
+      "state": "mapped_successor"
+    },
+    {
+      "id": "VP-DYNAMICS",
+      "local_mapping": "Unresolved exact production home; conditional future capability",
+      "q_refs": [
+        "Q4-MODAL",
+        "Q5A-RS-UNIFORM",
+        "Q5B-RS-MULTISUPPORT",
+        "Q5C-RS-CORRECTIONS",
+        "Q6-HARMONIC-TRANSIENT",
+        "Q9-ADVANCED"
+      ],
+      "state": "mapped_successor"
+    },
+    {
+      "id": "VP-PHYSICAL",
+      "local_mapping": "Unresolved measured-data/production home and source assets; conditional future claim",
+      "q_refs": [
+        "Q9-ADVANCED"
+      ],
+      "state": "mapped_successor"
+    },
+    {
+      "id": "VP-SEARCH",
+      "local_mapping": "Relevant profiles/output obligations retained; detailed execution remains owning graph",
+      "q_refs": [
+        "Q8-AUTOMATION"
+      ],
+      "state": "mapped_successor"
+    },
+    {
+      "id": "VP-ASSESS",
+      "local_mapping": "Relevant profiles/output obligations retained; detailed execution remains owning graph",
+      "q_refs": [],
+      "state": "mapped_successor"
+    }
+  ],
+  "findings": [
+    {
+      "id": "M01",
+      "title": "Pressure",
+      "integration_state": "open",
+      "capability_refs": [
+        "pressure_thermal"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M02",
+      "title": "Bends",
+      "integration_state": "open",
+      "capability_refs": [
+        "bend"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M03",
+      "title": "Mechanisms",
+      "integration_state": "open",
+      "capability_refs": [
+        "straight_static",
+        "numerical_integrity"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M04",
+      "title": "Provenance",
+      "integration_state": "closed_merged",
+      "capability_refs": [
+        "self_weight"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M05",
+      "title": "Reactions",
+      "integration_state": "open",
+      "capability_refs": [
+        "linear_restraints",
+        "stress_results"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M06",
+      "title": "Nonlinear cap",
+      "integration_state": "open",
+      "capability_refs": [
+        "nonlinear_restraints",
+        "numerical_integrity"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M07",
+      "title": "Expansion joints",
+      "integration_state": "open",
+      "capability_refs": [
+        "components"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M08",
+      "title": "SIF",
+      "integration_state": "open",
+      "capability_refs": [
+        "bend",
+        "stress_results"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M09",
+      "title": "Linear + nonlinear restraints",
+      "integration_state": "closed_merged",
+      "capability_refs": [
+        "self_weight"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M10",
+      "title": "Imposed displacement",
+      "integration_state": "open",
+      "capability_refs": [
+        "linear_restraints",
+        "thermal_material_states"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M11",
+      "title": "Constant effort",
+      "integration_state": "open",
+      "capability_refs": [
+        "thermal_material_states"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M12",
+      "title": "Spring preload",
+      "integration_state": "open",
+      "capability_refs": [
+        "linear_restraints",
+        "thermal_material_states"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M13",
+      "title": "Code-stress framework",
+      "integration_state": "open",
+      "capability_refs": [
+        "rule_framework"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M14",
+      "title": "Summary stress",
+      "integration_state": "open",
+      "capability_refs": [
+        "pressure_thermal",
+        "stress_results"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M15",
+      "title": "Nonlinear combinations",
+      "integration_state": "open",
+      "capability_refs": [
+        "nonlinear_restraints",
+        "thermal_material_states"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M16",
+      "title": "Thermal/material basis",
+      "integration_state": "open",
+      "capability_refs": [
+        "pressure_thermal",
+        "thermal_material_states"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M17",
+      "title": "Rigid items/weights",
+      "integration_state": "open",
+      "capability_refs": [
+        "components"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M18",
+      "title": "Friction",
+      "integration_state": "open",
+      "capability_refs": [
+        "nonlinear_restraints"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M19",
+      "title": "Restraint types",
+      "integration_state": "open",
+      "capability_refs": [
+        "linear_restraints",
+        "nonlinear_restraints"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M20",
+      "title": "Nozzles/tees",
+      "integration_state": "open",
+      "capability_refs": [
+        "components"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M21",
+      "title": "Hydrotest",
+      "integration_state": "open",
+      "capability_refs": [
+        "pressure_thermal",
+        "thermal_material_states"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M22",
+      "title": "CAEPIPE",
+      "integration_state": "open",
+      "capability_refs": [
+        "interchange",
+        "workflow"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M23",
+      "title": "Libraries",
+      "integration_state": "open",
+      "capability_refs": [
+        "interchange",
+        "workflow"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M24",
+      "title": "Units",
+      "integration_state": "closed_merged",
+      "capability_refs": [
+        "self_weight"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M25",
+      "title": "Authoring speed",
+      "integration_state": "open",
+      "capability_refs": [
+        "workflow"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M26",
+      "title": "Reports",
+      "integration_state": "open",
+      "capability_refs": [
+        "stress_results",
+        "interchange",
+        "workflow"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M27",
+      "title": "Verification",
+      "integration_state": "open",
+      "capability_refs": [
+        "load_fields"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M28",
+      "title": "Wind/seismic",
+      "integration_state": "open",
+      "capability_refs": [
+        "wind_seismic_static"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M29",
+      "title": "Cold spring",
+      "integration_state": "open",
+      "capability_refs": [
+        "pressure_thermal",
+        "thermal_material_states"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M30",
+      "title": "Section properties",
+      "integration_state": "open",
+      "capability_refs": [
+        "pressure_thermal"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M31",
+      "title": "Shear deformation",
+      "integration_state": "open",
+      "capability_refs": [
+        "straight_static"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M32",
+      "title": "Sparse assembly",
+      "integration_state": "open",
+      "capability_refs": [
+        "straight_static",
+        "numerical_integrity"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M33",
+      "title": "Maxima/mixed moduli",
+      "integration_state": "open",
+      "capability_refs": [
+        "pressure_thermal",
+        "stress_results"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M34",
+      "title": "Tolerances/rounding",
+      "integration_state": "open",
+      "capability_refs": [
+        "straight_static",
+        "load_fields",
+        "stress_results",
+        "numerical_integrity"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M35",
+      "title": "Moments/self-weight",
+      "integration_state": "closed_merged",
+      "capability_refs": [
+        "self_weight"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M36",
+      "title": "Exports",
+      "integration_state": "open",
+      "capability_refs": [
+        "interchange",
+        "workflow"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M37",
+      "title": "Conventions/stations/axes",
+      "integration_state": "open",
+      "capability_refs": [
+        "straight_static",
+        "load_fields",
+        "bend",
+        "stress_results"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    },
+    {
+      "id": "M38",
+      "title": "Minor inconsistencies",
+      "integration_state": "open",
+      "capability_refs": [
+        "workflow"
+      ],
+      "dependency": "Retain owning COR node and actual implementation/review/native/CI limits; validation observation does not close entire finding group",
+      "status_source": "root_graph"
+    }
+  ],
+  "source_catalogue": [
+    {
+      "id": "PROJECT-ORIGINAL",
+      "subject": "Analytical mechanics/stress and nonlinear notes",
+      "readiness": "existing_local_not_programme_admitted",
+      "source_refs": [
+        "mechanics_suite",
+        "stress_suite",
+        "nonlinear_suite",
+        "mechanics_notes",
+        "stress_notes"
+      ],
+      "missing": [
+        "Independently recheck governing assumptions, signs, material basis, range stability and source lineage before profile admission",
+        "Retain existing1e-9 internal comparison predicates as historical/protected code checks; do not transplant as universal error budget"
+      ],
+      "programme_outcome": "not_run",
+      "independent_primary_confirmation_this_assignment": false
+    },
+    {
+      "id": "SSLL106",
+      "subject": "Code_Aster straight pipe variants",
+      "readiness": "source_packet_prepared_not_scoring_ready",
+      "source_refs": [
+        "VAL-REF-01",
+        "VAL-REF-02"
+      ],
+      "missing": [
+        "Only axial/torsion/pureMY/pureMZ are proposed compatible subset candidates, all scoring-readiness false",
+        "Transverse TUYAU_3M shear/radial pressure mismatch remains; thermal100/200 source discrepancy unresolved",
+        "Independently verify inputs/meshgroups/frames/cuts/numericoracles/criteria and asset rights/runtime as applicable"
+      ],
+      "programme_outcome": "not_run",
+      "independent_primary_confirmation_this_assignment": false,
+      "work_packet_ref": "STATIC-REFERENCE-PREPARATION"
+    },
+    {
+      "id": "SSLL101",
+      "subject": "Hovgaard assembled static piping",
+      "readiness": "source_packet_prepared_not_scoring_ready",
+      "source_refs": [
+        "VAL-REF-01",
+        "VAL-REF-02"
+      ],
+      "missing": [
+        "SSLL101A reducedbendinertias/shear/effective density mustmatch; C/D/E are distinct Fourier formulations",
+        "E mode-label mismatch and published-versus-regression lineage remain explicit",
+        "Private declaredassets available at pinned source does not establish fullmeshdecode/runtime/rights/oracle qualification"
+      ],
+      "programme_outcome": "not_run",
+      "independent_primary_confirmation_this_assignment": false,
+      "work_packet_ref": "STATIC-REFERENCE-PREPARATION"
+    },
+    {
+      "id": "SSLX102",
+      "subject": "Bent piping ovalization numerical reference",
+      "readiness": "catalogued_unadmitted",
+      "source_refs": [
+        "VAL-REF-01",
+        "VAL-REF-02"
+      ],
+      "missing": [
+        "Shell/solid/enriched-pipe effects differ from simple EB factor macro",
+        "Need complete geometry/BC/material/location and reference-accuracy mapping"
+      ],
+      "programme_outcome": "not_run",
+      "independent_primary_confirmation_this_assignment": false
+    },
+    {
+      "id": "NRC-DYNAMIC",
+      "subject": "NUREG/CR-1677 volumes1/2,CR-6414,CR-6645; ANSYS descendants",
+      "readiness": "catalogued_unadmitted",
+      "source_refs": [
+        "VAL-REF-01",
+        "VAL-REF-02"
+      ],
+      "missing": [
+        "Dynamic production home/method selection first",
+        "NRC and ANSYS outputs retain shared lineage, not independent physical experiments",
+        "Support-motion exclusions and actual mass/combination/correction assumptions must match"
+      ],
+      "programme_outcome": "not_run",
+      "independent_primary_confirmation_this_assignment": false
+    },
+    {
+      "id": "METHODOLOGY",
+      "subject": "NASA7009B/HDBK,ASME V&V10,Sandia MMS",
+      "readiness": "catalogued_unadmitted",
+      "source_refs": [
+        "VAL-REF-01",
+        "VAL-REF-02"
+      ],
+      "missing": [
+        "Methods framework is not test target or compliance certificate",
+        "Actual primary edition/status/selected clauses and newer relevant theory require source-owner confirmation",
+        "No wholesale adoption of external suggested tolerances/layouts"
+      ],
+      "programme_outcome": "not_run",
+      "independent_primary_confirmation_this_assignment": false
+    },
+    {
+      "id": "OPTIONAL-EXTERNAL",
+      "subject": "CAEPIPE/AutoPIPE/NAFEMS licensed or controlled resources",
+      "readiness": "catalogued_unadmitted",
+      "source_refs": [
+        "VAL-REF-01",
+        "VAL-REF-02"
+      ],
+      "missing": [
+        "Complete lawful actual source/runtime/version and explicit execution assignment needed",
+        "No acquisition/execution/license claim from public catalogue mention"
+      ],
+      "programme_outcome": "not_run",
+      "independent_primary_confirmation_this_assignment": false
+    },
+    {
+      "id": "EXPERIMENTAL",
+      "subject": "JNES/NUPEC/NUREG-CR6983 measured piping lead",
+      "readiness": "catalogued_unadmitted",
+      "source_refs": [
+        "VAL-REF-02"
+      ],
+      "missing": [
+        "Complete test setup/time series/calibration/uncertainty not acquired here",
+        "Production/data deliverable home and physical claim unresolved; not static gate"
+      ],
+      "programme_outcome": "not_run",
+      "independent_primary_confirmation_this_assignment": false
+    }
+  ],
+  "claim_semantics": {
+    "implementation": "source presence and historical checks separately recorded",
+    "reference_readiness": "source assets/assumptions/independence/admission separate from solver outcome",
+    "product_Current": "actual invocation/producer/standing is separate from benchmark correctness and professional acceptance",
+    "programme_outcome": "No solver or profile executed by this inventory",
+    "passed_profile": "requires fixed nonzero complete denominator, all required assertions, actual build/input/reference/criterion identities, valid frames/units/definitions, no unresolved required error/block/skip; no release authority"
+  },
+  "unresolved_choices": [
+    "Exact production homes for modal/spectral/harmonic/transient and physical experimental evidence",
+    "Which bounded static capabilities will comprise a later public claim; selected development cuts do not shrink fullQ1/Q2 obligations",
+    "Per-quantity/near-zero/reference uncertainty budgets where existing protected criteria do not already apply",
+    "Actual compatible published variants and admitted source packages",
+    "Profile report ownership between DEL09 assessment and existing DEL14 diagnostic comparison; do not change diagnostic meaning silently"
+  ],
+  "not_performed": [
+    "product edits",
+    "schema changes",
+    "solver execution/build/full suite/CI/native",
+    "external reference execution/acquisition",
+    "tolerance changes",
+    "library or code-rule population",
+    "new release or qualification claim"
+  ],
+  "contracts": [
+    {
+      "id": "production_cli",
+      "source_refs": [
+        "runner",
+        "runner_core",
+        "controlled_export",
+        "runner_schema"
+      ],
+      "input": "RunnerRequest + solve.preview_model Value, optional rule_check_aggregate",
+      "output": "ControlledExport wrapper with payload CliOutput1.0.0/artifact openpipestress.headless_runner_cli_output, raw mechanics_envelope, runner_result and validators; payload may be null",
+      "limit": "headless_runner.schema describes request/result contract envelope, not entire invocation or qualification report",
+      "actual_mode_dispatch": {
+        "main": "sparse_interactive only; dense_scrutiny library-only",
+        "successor": "Physics owner implementing --solver-mode sparse_interactive|dense_scrutiny; no new JSONDTO/schema; not built/reviewed at this map freeze",
+        "consume_successor": "Require actual reviewed candidate/argument/result binding before use; no guessed mode flag"
+      }
+    },
+    {
+      "id": "regression_suites",
+      "source_refs": [
+        "benchmark_binding",
+        "mechanics_suite",
+        "stress_suite",
+        "nonlinear_suite"
+      ],
+      "input": "run-benchmark mechanics|stress and run-regression nonlinear, optional cases; omitted/empty selects current inventory",
+      "output": "SuiteRunReport cases and regression-value comparisons",
+      "source_test_expectations": {
+        "mechanics_cases": 25,
+        "mechanics_values": 206,
+        "stress_cases": 15,
+        "stress_matched": 12,
+        "stress_blocked": 3,
+        "nonlinear_cases": 5
+      },
+      "limit": "not executed here; expected-nonconvergence regression may exit0; duplicate cases/zero generic expectations/failed empty value rows require separate qualification denominator"
+    },
+    {
+      "id": "comparison",
+      "source_refs": [
+        "compare",
+        "mapping_schema",
+        "tolerance_schema",
+        "criterion_owner"
+      ],
+      "input": "two already available run records/result envelopes with explicit mappings, optional tolerance rules and conversions",
+      "output": "diagnostic deltas/classification/findings; no automatic qualification",
+      "limit": "exact-ID automap intersection and duplicate replacement can omit denominator; source classifier max(abs_budget,rel_budget*max(abs(left),abs(right))) is not report proposed additive/reference-side rule; no new threshold adopted"
+    },
+    {
+      "id": "run_and_result_versions",
+      "source_refs": [
+        "result_schema",
+        "analysis_schema",
+        "semantic_main",
+        "num_handoff",
+        "engine_handoff",
+        "scientific_return",
+        "result_binding",
+        "audit_manifest",
+        "report_wire"
+      ],
+      "input": "actual raw result version + matching profile/receipt/actual invocation context",
+      "output": "main canonical0.1/0.2 and AnalysisRun dispatcher; checkpoint raw0.2/canonical0.3 p1/physics-1/source-blocks-1; physics-source-1 selected unfinished; scientific profile standalone",
+      "limit": "Do not mix version hashes/semantics or fabricate private QualifiedPreviewEvidence from serialized CLI JSON; Current is distinct from numerical qualification"
+    }
+  ],
+  "harness_gaps": [
+    {
+      "id": "HG-01",
+      "description": "No frozen required case/quantity denominator across real production solve",
+      "source_refs": [
+        "benchmark_binding",
+        "runner"
+      ],
+      "status": "source_confirmed_gap_no_execution"
+    },
+    {
+      "id": "HG-02",
+      "description": "Duplicate explicit case IDs and intersection-only automatic mapping cannot establish coverage",
+      "source_refs": [
+        "benchmark_binding",
+        "compare"
+      ],
+      "status": "source_confirmed_gap_no_execution"
+    },
+    {
+      "id": "HG-03",
+      "description": "Execution failure can erase expected value rows; no durable interrupted-run required ledger",
+      "source_refs": [
+        "benchmark_binding",
+        "runner"
+      ],
+      "status": "source_confirmed_gap_no_execution"
+    },
+    {
+      "id": "HG-04",
+      "description": "Raw CLI wrapper/row shapes require explicit semantic mapping; exit0 or no blocking diagnostics is not qualification",
+      "source_refs": [
+        "controlled_export",
+        "runner",
+        "compare"
+      ],
+      "status": "source_confirmed_gap_no_execution"
+    },
+    {
+      "id": "HG-05",
+      "description": "Build/executable/reference/profile/predicate identity not complete in SuiteRunReport",
+      "source_refs": [
+        "benchmark_binding",
+        "audit_manifest"
+      ],
+      "status": "source_confirmed_gap_no_execution"
+    },
+    {
+      "id": "HG-06",
+      "description": "Required normalized arithmetic must check intermediate finiteness; existing diagnostic comparator is not strict numerical acceptance",
+      "source_refs": [
+        "compare",
+        "tolerance_schema"
+      ],
+      "status": "source_confirmed_gap_no_execution"
+    },
+    {
+      "id": "HG-07",
+      "description": "Main lacks full signed support/recovery/current-method contracts required by repaired engine profiles",
+      "source_refs": [
+        "product",
+        "num_handoff",
+        "engine_handoff"
+      ],
+      "status": "source_confirmed_gap_no_execution"
+    },
+    {
+      "id": "HG-08",
+      "description": "Reference readiness, actual acquisition and per-quantity criterion admission remain distinct required source work",
+      "source_refs": [
+        "VAL-REF-01",
+        "VAL-REF-02",
+        "criterion_owner"
+      ],
+      "status": "source_confirmed_gap_no_execution"
+    },
+    {
+      "id": "HG-09",
+      "description": "Current main solveCLI binds sparse only; explicitdense mode depends on physics-owned reviewed runner/contextjoin",
+      "source_refs": [
+        "runner",
+        "runner_core",
+        "engine_handoff"
+      ],
+      "status": "source_confirmed_gap_no_execution"
+    }
+  ],
+  "work_packets": [
+    {
+      "id": "STATIC-REFERENCE-PREPARATION",
+      "state": "source_preparation_independently_checked_not_scoring_ready",
+      "scope": "Independent bounded applicability/acquisition review clear; no oracle or scoring-target admission",
+      "files": [
+        {
+          "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/RETURN.md",
+          "sha256": "06e134ab84fb0f0f25252823990686e4253acfa1f57b20d664c88ca629d60372"
+        },
+        {
+          "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/REFERENCE_CANDIDATES.json",
+          "sha256": "e920dda3143fa4b8f8384b171369a0cafaa1fbef3f1e26f74193de8fdf169189"
+        },
+        {
+          "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/PACKET_MANIFEST.json",
+          "sha256": "382eb333e23879a8b03aa4bb24c0fb05d96396830938b68a6fa97a3ded68d7e4"
+        },
+        {
+          "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/INDEPENDENT_REVIEW/RETURN.md",
+          "sha256": "aed66cd8bac3e427a727683ceac7d34a77e693d35b0d2d8c68da3143d59b0d90"
+        },
+        {
+          "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/INDEPENDENT_REVIEW/FINAL_CHECKED_HASHES.json",
+          "sha256": "4960a49879c02230c32029fc4ca489f60a120aae3d09c3cae720ee84fddc4873"
+        }
+      ],
+      "ready_for_campaign_scoring": false
+    }
+  ]
+}

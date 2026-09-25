@@ -1,0 +1,108 @@
+{
+  "role": "TASK",
+  "reviewer": "/root/numerical_resume/n05_admission",
+  "original_parent": "/root/numerical_resume",
+  "assignment": "Root direct cross-manager bounded independent first-static candidate review",
+  "author": "/root/load_state_design",
+  "authorship_disclosure": "Reviewer did not author any of these candidates. Earlier receipt implementation is separate and not independently code-reviewed here.",
+  "mechanism": "harness-native followup; no delegation",
+  "workflow": "none selected",
+  "skill": ".agents/skills/software-code-review/SKILL.md for bindings/checker portions",
+  "instructions": [
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "bytes": 14200
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "bytes": 9016
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
+      "bytes": 1303
+    }
+  ],
+  "source_basis": [
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/NUMERICAL_REFERENCE.md",
+      "sha256": "67c8aac5798e9663528bea94b58d6d8f2eb8308f94b7ebb78aa22dca4b8f94ca",
+      "bytes": 48802
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/STRESS_REFERENCE.md",
+      "sha256": "07700e0b8e383c62cc378b9bd30365d0d5ba2cd9071a450985214111903d3a1c",
+      "bytes": 36668
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_REFERENCE_PREP/independent_oracle.py",
+      "sha256": "5b47991cfbaee479f966a3ab0758e69848c4c052dc4cf4f9dd2517fd12b5fc14",
+      "bytes": 2702
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/NUMERICAL_REFERENCE_PREP/PREPARATION.json",
+      "sha256": "82e3072a08248fd12bedc4d9f7e44e1c0c591f7c74a2a1543e8bc811a7692f95",
+      "bytes": 1872
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "44647cf80ef19ef3316c8e0a8e4bad52ecdee310ddd8134226eb306eb0594905",
+      "bytes": 875880
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/runner/headless/src/lib.rs",
+      "sha256": "5b9144c3e0f42fb2e1b82a7f83a8b5f20d3e542aade601a4335e7aa39c9c201b",
+      "bytes": 66673
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/runner/headless/src/redaction_binding.rs",
+      "sha256": "16770911c5ea85c533163d45478fe1c4085cdf6c086cb79bc2b985155bad0703",
+      "bytes": 26434
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/runner/headless/src/bin/openpipestress-runner.rs",
+      "sha256": "ab2c09da9866af0c789fc15386f34260e8a76b91c21740194311bb4119bd8bae",
+      "bytes": 47840
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/results/physics_connected_mechanics_dense.json",
+      "sha256": "2e3007311d6b5f76172dbf7e9c4a9bbb98ad16382d75ffa63d327c9aab9ebdb6",
+      "bytes": 169724
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/fixtures/results/semantic_contract_v0_3_physics_1.json",
+      "sha256": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc",
+      "bytes": 49093
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/core/comparison/analysis_run/engine.py",
+      "sha256": "14aada4049fde08c6f68a99a844f84e73b16fd8b6e4bb2a91cb7e4c8f63b7f2c",
+      "bytes": 26869
+    }
+  ],
+  "method": "Independent rational free-body polynomial/virtual-work integrals; polar annular area integration; AGM pi at125 Decimal digits; Cauchy-Schwarz circular normal extrema. Author scripts read, never imported/executed. Product source read solely for vocabulary and contract binding; product result values never oracle.",
+  "execution": {
+    "command": "python3 check_candidates.py > CHECK_RUN.stdout.json",
+    "exit_code": 0,
+    "script_sha256": "ef253e8f9b7ca0fd93b2fa3795090a962a349108c4149c49e1d50ad6c94da04e",
+    "stdout_sha256": "4995726695d55ce8fb4d4f036932fee60200bc47022b3c2e83ae8756d60daa14",
+    "new_solves": 0,
+    "native": false,
+    "build": false,
+    "network": false,
+    "git_mutation": false,
+    "write_scope": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW"
+  },
+  "notes": [
+    "Original force_x/y/z draft token mistake and correction retained; reviewed final uses global_x/y/z and rotation_x.",
+    "Initial shell read requested draft-repair note from engine checkout and got not found; it was read from correct validation checkout. No missing packet or product defect.",
+    "Historical PREPARATION.json is prepared arithmetic with policy_activation=false. Its annular physical derivation is reused; no obsolete numerical-method or inverse-certificate policy is reselected."
+  ]
+}

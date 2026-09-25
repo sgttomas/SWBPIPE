@@ -1,0 +1,156 @@
+{
+  "scope": "Bounded pure actual predeclare/summarize/unwrap functions with deliberately synthetic boundary data; no test suite, subprocess, helper, solver or actual first-static execution",
+  "denominator": [
+    {
+      "scenario": "complete",
+      "summary": {
+        "required_cases": 2,
+        "required_assertions": 146,
+        "assertions": {
+          "not_run": 0,
+          "matched": 0,
+          "failed": 0,
+          "blocked": 146,
+          "error": 0
+        },
+        "required_structural_checks": 20,
+        "structural_checks": {
+          "not_run": 0,
+          "matched": 0,
+          "failed": 0,
+          "blocked": 20,
+          "error": 0
+        },
+        "required_section_subchecks": 18,
+        "section_subchecks": {
+          "not_run": 0,
+          "matched": 0,
+          "failed": 0,
+          "blocked": 18,
+          "error": 0
+        },
+        "cases": {
+          "not_run": 0,
+          "matched": 0,
+          "failed": 0,
+          "blocked": 2,
+          "error": 0
+        }
+      },
+      "outcome": "not_satisfied"
+    },
+    {
+      "scenario": "missing_case",
+      "summary": {
+        "required_cases": 2,
+        "required_assertions": 146,
+        "assertions": {
+          "not_run": 0,
+          "matched": 0,
+          "failed": 0,
+          "blocked": 146,
+          "error": 0
+        },
+        "required_structural_checks": 20,
+        "structural_checks": {
+          "not_run": 0,
+          "matched": 0,
+          "failed": 0,
+          "blocked": 20,
+          "error": 0
+        },
+        "required_section_subchecks": 18,
+        "section_subchecks": {
+          "not_run": 0,
+          "matched": 0,
+          "failed": 0,
+          "blocked": 18,
+          "error": 0
+        },
+        "cases": {
+          "not_run": 0,
+          "matched": 0,
+          "failed": 0,
+          "blocked": 2,
+          "error": 0
+        }
+      },
+      "outcome": "not_satisfied"
+    },
+    {
+      "scenario": "missing_assertion",
+      "summary": {
+        "required_cases": 2,
+        "required_assertions": 146,
+        "assertions": {
+          "not_run": 0,
+          "matched": 0,
+          "failed": 0,
+          "blocked": 146,
+          "error": 0
+        },
+        "required_structural_checks": 20,
+        "structural_checks": {
+          "not_run": 0,
+          "matched": 0,
+          "failed": 0,
+          "blocked": 20,
+          "error": 0
+        },
+        "required_section_subchecks": 18,
+        "section_subchecks": {
+          "not_run": 0,
+          "matched": 0,
+          "failed": 0,
+          "blocked": 18,
+          "error": 0
+        },
+        "cases": {
+          "not_run": 0,
+          "matched": 0,
+          "failed": 0,
+          "blocked": 2,
+          "error": 0
+        }
+      },
+      "outcome": "not_satisfied"
+    }
+  ],
+  "legacy_namespace": [
+    {
+      "scenario": "clean_legacy",
+      "legacy_transport_accepted": true,
+      "reason": null,
+      "added_fields": {}
+    },
+    {
+      "scenario": "source_receipt_presence",
+      "legacy_transport_accepted": false,
+      "reason": "newer method identity/evidence is not legacy raw0.1",
+      "added_fields": {
+        "source_block_recovery": null
+      }
+    },
+    {
+      "scenario": "composite_producer_claim",
+      "legacy_transport_accepted": false,
+      "reason": "newer method identity/evidence is not legacy raw0.1",
+      "added_fields": {
+        "producer": {
+          "component_name": "open_pipe_stress_product_physics",
+          "component_version": "0.2.0",
+          "semantic_contract_id": "openpipestress.result_semantics/0.3.0/physics-source-1"
+        }
+      }
+    },
+    {
+      "scenario": "foreign_namespace",
+      "legacy_transport_accepted": false,
+      "reason": "newer method identity/evidence is not legacy raw0.1",
+      "added_fields": {
+        "carrier_evidence": null
+      }
+    }
+  ],
+  "source_sha256": "e38be5ef21e996151afd3f8a923d179dd991858c6743dfb2badb5457531cdcbe"
+}

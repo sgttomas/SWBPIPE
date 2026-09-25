@@ -1,0 +1,125 @@
+{
+  "status": "HOLD two actionable findings",
+  "checked_at_utc": "2026-09-25T11:20:12.138300+00:00",
+  "findings": [
+    "OPA-01",
+    "OPA-02"
+  ],
+  "all11source_hashes": [
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_gate.py",
+      "sha256": "dcdb7822854e3e57293c23222df4509d789ba56f884f1d7e3fc98402a23d53b9",
+      "byte_length": 45490,
+      "base_sha256": "b6980255a17c5ee3c27619f417abc5e5073d17b21d9e6ad118875601000afbbd"
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_physics.py",
+      "sha256": "8ac700410ecff4224912dbdef12e26bcc2bf4a2b3638f5d5ca92b117237fde4c",
+      "byte_length": 15385,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_physics_helper.py",
+      "sha256": "47765efd3b9ff1ba9c6e6c5a2b483c23aa180603d685c0d0265c78cf3f1540fb",
+      "byte_length": 7124,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_physics_structure.py",
+      "sha256": "33bceba232e0bd62716b2ce38f4be82eb04169f7728c1a53b53cae12b43d6ae7",
+      "byte_length": 28740,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/build_first_static_selection.py",
+      "sha256": "6aee22f8b67df8b2191c1a1aa4cb0049898e5b8c0845929a4e7197e8d3f957e8",
+      "byte_length": 8747,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_qualification_physics.py",
+      "sha256": "12f0bf3e7e194c3105f74aabf4186146cd8277456b718cae54c2f7e46159b933",
+      "byte_length": 6444,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_qualification_physics_integration.py",
+      "sha256": "d8412000b05a9fd403d2e7bb272a94d19232aa8b8e46ddb7217d600c3d936c6e",
+      "byte_length": 14347,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_qualification_physics_structure.py",
+      "sha256": "186e80175a2d0b2c4f809a9a918bda7a41ee5cc601e3d51a9dc599aff7dc3192",
+      "byte_length": 20540,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_first_static_selection.py",
+      "sha256": "7f11887ad39f4150e9928216ba739c3d28f6008d5831351084726d440d1c6ccb",
+      "byte_length": 4419,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/GATE_USAGE.md",
+      "sha256": "f72f7e6c8f0a9e1fdff8e44eea4f51208ccd62f757721eee2b621113a69ce633",
+      "byte_length": 12399,
+      "base_sha256": "624ba3dd6a58d52f4278bc6912053da66df6b8fdf1d106572405ee289c7b4a55"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/ordinary_physics_1_semantics.json",
+      "sha256": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc",
+      "byte_length": 49093,
+      "base_sha256": null
+    }
+  ],
+  "inputs": [
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/SOURCE_FREEZE_01.json",
+      "sha256": "aa3a8e43eeb5a2ccdce909811c71219eabdb850382d6d12ac25c04b35c0dbeb0",
+      "bytes": 7014
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/SOURCE_FREEZE_01.patch",
+      "sha256": "71525315db46f1f2a11b8c62004a0865d1ef5c5f3c1bbfedf4870f44eb982645",
+      "bytes": 198661
+    }
+  ],
+  "outputs": [
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/INDEPENDENT_REVIEW/RETURN.md",
+      "sha256": "8c76f83390bbf6ca680d3f9c1e7151fa1a976c8a1c6b5c805a5af96aa34048e8",
+      "bytes": 5678
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/INDEPENDENT_REVIEW/FINDINGS.md",
+      "sha256": "3dc8c333f39d9e0bd3728424882e7e497a9acc65131733dd2815bbcaea9cc531",
+      "bytes": 2817
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/INDEPENDENT_REVIEW/PROVENANCE.json",
+      "sha256": "ebce9a8973f2eb49a3220d8498c0d94d714ee7de25becb32539583bf5224b510",
+      "bytes": 3402
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/INDEPENDENT_REVIEW/FREEZE_AND_EVIDENCE_CHECK.json",
+      "sha256": "b93dcd400000bddc04ff0ce2be36775ae86d7b5a83a09aa8c3c8a5b27bb03eca",
+      "bytes": 5255
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/INDEPENDENT_REVIEW/FOCUSED_BOUNDARIES.json",
+      "sha256": "b03c6190ad1bdc41fd8a7a5824d8df0652f395c73d883cd4305005f8f53e941d",
+      "bytes": 3233
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/INDEPENDENT_REVIEW/focused_boundaries.py",
+      "sha256": "66745229447cb71bc5cf630f36dccc394a26b242867941cdd3efcb7bef160e7b",
+      "bytes": 3442
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/INDEPENDENT_REVIEW/verify_freeze.py",
+      "sha256": "ada377ee17e2024c16d2eea9f9ac499061c2e92316ae127c4ff1de73491000d7",
+      "bytes": 6294
+    }
+  ]
+}

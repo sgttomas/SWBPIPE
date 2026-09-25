@@ -1,0 +1,25 @@
+{
+  "date": "2026-09-25",
+  "tool": "web.run open; two primary index pages not present among privately retained61asset bytes",
+  "observations": [
+    {
+      "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.101/index.html",
+      "observed": "Family introduction says five models but enumerates A,C,D,E; E identified as28 TUYAU_3M SEG4. Supports bounded mismatch/navigation account.",
+      "source_lines": [
+        17,
+        24
+      ],
+      "exact_document_build_commit": "not exposed; no hash identity invented"
+    },
+    {
+      "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.106/index.html",
+      "observed": "Six model variants A\u2013F; A/B3modes,C/D6modes,E/F3modes4nodes; high-level family load description is broader than actual B/D/F scripts.",
+      "source_lines": [
+        19,
+        27
+      ],
+      "exact_document_build_commit": "not exposed; no hash identity invented"
+    }
+  ],
+  "external_source_bytes_vendored": false
+}

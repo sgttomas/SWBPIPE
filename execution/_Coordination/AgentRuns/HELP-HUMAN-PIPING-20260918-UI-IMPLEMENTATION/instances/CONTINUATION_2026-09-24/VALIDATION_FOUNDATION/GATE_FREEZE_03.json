@@ -1,0 +1,39 @@
+{
+  "status": "Remaining R2 capture/consumer and retained-snapshot custody consequences repaired;31focused tests pass; independent narrow backcheck pending",
+  "base_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+  "files": [
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_gate.py",
+      "sha256": "b6980255a17c5ee3c27619f417abc5e5073d17b21d9e6ad118875601000afbbd",
+      "bytes": 33741
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_process.py",
+      "sha256": "bf1ed365763440261f21a0f699ecf8729c745d259880d3851649d0292c1282c6",
+      "bytes": 8428
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_qualification_gate.py",
+      "sha256": "5447262a437532b043b210b0fc397739ec5ee3330238644c342018cc2f89b64a",
+      "bytes": 28259
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/GATE_USAGE.md",
+      "sha256": "624ba3dd6a58d52f4278bc6912053da66df6b8fdf1d106572405ee289c7b4a55",
+      "bytes": 8442
+    }
+  ],
+  "patch_sha256": "6755ea23da97e3e5049a67910bd28377a97c9b3915e4532edf20359359fd97c4",
+  "check_record": "_run_records/gate_checks_05.json",
+  "check_record_sha256": "13d79239ded5258e8fbf67d74549c68cb421eb60556402c3914eab642c8c24d4",
+  "limits": [
+    "Synthetic process/received legacy packet harness evidence only",
+    "No real solver or analytical campaign",
+    "Sparse mainCLI raw0.1 closed dispatch, no precise-producer/mode successor adoption",
+    "No new criterion/default or model/result schema",
+    "No Current/private producer proof or release qualification"
+  ],
+  "supersedes": "GATE_FREEZE_02.json",
+  "reproduction_before": "_run_records/R2_FINAL_REPAIR/BEFORE_REPRODUCTION.json",
+  "reproduction_after": "_run_records/R2_FINAL_REPAIR/REPAIR_CONSEQUENCE_PROBES_02.json"
+}

@@ -1,0 +1,20 @@
+{
+  "selections": [
+    {
+      "mode": "sparse_interactive",
+      "selection": "EXECUTION_SELECTIONS/sparse_interactive/selection.json",
+      "sha256": "63e26f9224a3afa522324e8c061b2779aa5b4e176b94356854aeed70509705ba"
+    },
+    {
+      "mode": "dense_scrutiny",
+      "selection": "EXECUTION_SELECTIONS/dense_scrutiny/selection.json",
+      "sha256": "73a2f815a313ba7b4b24e90c12ede467bb64e37e322f919f8384453b502cbb9e"
+    }
+  ],
+  "actual_first_static_runs": 0,
+  "scalar_obligations": 292,
+  "structural_obligations": 40,
+  "section_subchecks": 36,
+  "build_result_sha256": "04e171dadc7368398d8c548007b95b36c6ed8e52df0e7e85927061062b25bffb",
+  "status": "prepared; independent adapter review pending"
+}

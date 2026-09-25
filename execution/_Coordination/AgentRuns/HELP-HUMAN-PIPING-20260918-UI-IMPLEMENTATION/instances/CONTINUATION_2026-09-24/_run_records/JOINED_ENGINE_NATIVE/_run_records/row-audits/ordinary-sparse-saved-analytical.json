@@ -1,0 +1,539 @@
+{
+  "checker_sha256": "5867cb88cd2869bd31334dc7db500d750c4660cb369da5aa793301fa2931f8dc",
+  "private_capture_sha256": "e1cb2db46a124d8ffbfae8a1e8e226dc4878432245e635c7d6a681ca988a1784",
+  "native_candidate": "8b982aa7ce64afe37e6067d1038d92608f4aaf3f",
+  "case_model_bound": true,
+  "actual_mode": "sparse_interactive",
+  "observed_total_rows": 175,
+  "mode_specific_parity_rows": 0,
+  "independent_method": "Decimal100 AGM pi; force/moment equilibrium, circular-section integrals, Lam\u00e9 fields and declared homogeneous isotropic axial/torsional constitutive equations; no production imports",
+  "criterion_basis": "Existing core/product_physics/tests/pressure_runtime.rs close/support: nonzero relative1e-9; zero uses declared same-unit cap force, cap force times L=1, or pressure scale",
+  "expected": {
+    "extension_mm": 0.00909090909090909,
+    "wall_N": 15707.963267948966,
+    "membrane_Pa": 4545454.545454546,
+    "inner_hoop_Pa": 11090909.090909092,
+    "outer_hoop_Pa": 9090909.090909092,
+    "theta_x_rad": 0.0004933566045173507,
+    "wrong_authored_G_theta_rad": 0.000492863740776574,
+    "maximum_Pa": 41354908.75465696
+  },
+  "checks": [
+    {
+      "result_id": "result:disp:node-fixture-tip:ux",
+      "case_ref": "case:closed-pressure",
+      "observed": 0.009090909090909087,
+      "expected": 0.00909090909090909,
+      "unit": "mm",
+      "relative_error": 3.8163916471489756e-16,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:20:case:closed-pressure:20:support:fixture-root:Fx",
+      "case_ref": "case:closed-pressure",
+      "observed": 9.094947017729282e-13,
+      "expected": 0,
+      "unit": "N",
+      "relative_error": 5.790023100122029e-17,
+      "zero_scale": 15707.963267948966,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:20:case:closed-pressure:20:support:fixture-root:Fy",
+      "case_ref": "case:closed-pressure",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N",
+      "relative_error": 0.0,
+      "zero_scale": 15707.963267948966,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:20:case:closed-pressure:20:support:fixture-root:Fz",
+      "case_ref": "case:closed-pressure",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N",
+      "relative_error": 0.0,
+      "zero_scale": 15707.963267948966,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:20:case:closed-pressure:20:support:fixture-root:Mx",
+      "case_ref": "case:closed-pressure",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N*m",
+      "relative_error": 0.0,
+      "zero_scale": 15707.963267948966,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:20:case:closed-pressure:20:support:fixture-root:My",
+      "case_ref": "case:closed-pressure",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N*m",
+      "relative_error": 0.0,
+      "zero_scale": 15707.963267948966,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:20:case:closed-pressure:20:support:fixture-root:Mz",
+      "case_ref": "case:closed-pressure",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N*m",
+      "relative_error": 0.0,
+      "zero_scale": 15707.963267948966,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:end_i:wall_axial_force",
+      "case_ref": "case:closed-pressure",
+      "observed": 15707.963267948962,
+      "expected": 15707.963267948966,
+      "unit": "N",
+      "relative_error": 2.3160092400488114e-16,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:end_i:effective_axial_force",
+      "case_ref": "case:closed-pressure",
+      "observed": -1.0763826112192057e-12,
+      "expected": 0,
+      "unit": "N",
+      "relative_error": 6.852464529347936e-17,
+      "zero_scale": 15707.963267948966,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:end_i:axial_membrane_stress",
+      "case_ref": "case:closed-pressure",
+      "observed": 4545454.545454544,
+      "expected": 4545454.545454546,
+      "unit": "Pa",
+      "relative_error": 4.097819328308105e-16,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:end_i:lame_inner_radial_stress",
+      "case_ref": "case:closed-pressure",
+      "observed": -2000000,
+      "expected": -2000000.0,
+      "unit": "Pa",
+      "relative_error": 0.0,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:end_i:lame_outer_radial_stress",
+      "case_ref": "case:closed-pressure",
+      "observed": 0,
+      "expected": 0,
+      "unit": "Pa",
+      "relative_error": 0.0,
+      "zero_scale": 2000000.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:end_i:lame_inner_hoop_stress",
+      "case_ref": "case:closed-pressure",
+      "observed": 11090909.090909088,
+      "expected": 11090909.090909092,
+      "unit": "Pa",
+      "relative_error": 3.3588683018918896e-16,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:end_i:lame_outer_hoop_stress",
+      "case_ref": "case:closed-pressure",
+      "observed": 9090909.090909088,
+      "expected": 9090909.090909092,
+      "unit": "Pa",
+      "relative_error": 4.097819328308105e-16,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:end_j:wall_axial_force",
+      "case_ref": "case:closed-pressure",
+      "observed": 15707.963267948962,
+      "expected": 15707.963267948966,
+      "unit": "N",
+      "relative_error": 2.3160092400488114e-16,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:end_j:effective_axial_force",
+      "case_ref": "case:closed-pressure",
+      "observed": -1.0763826112192057e-12,
+      "expected": 0,
+      "unit": "N",
+      "relative_error": 6.852464529347936e-17,
+      "zero_scale": 15707.963267948966,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:end_j:axial_membrane_stress",
+      "case_ref": "case:closed-pressure",
+      "observed": 4545454.545454544,
+      "expected": 4545454.545454546,
+      "unit": "Pa",
+      "relative_error": 4.097819328308105e-16,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:end_j:lame_inner_radial_stress",
+      "case_ref": "case:closed-pressure",
+      "observed": -2000000,
+      "expected": -2000000.0,
+      "unit": "Pa",
+      "relative_error": 0.0,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:end_j:lame_outer_radial_stress",
+      "case_ref": "case:closed-pressure",
+      "observed": 0,
+      "expected": 0,
+      "unit": "Pa",
+      "relative_error": 0.0,
+      "zero_scale": 2000000.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:end_j:lame_inner_hoop_stress",
+      "case_ref": "case:closed-pressure",
+      "observed": 11090909.090909088,
+      "expected": 11090909.090909092,
+      "unit": "Pa",
+      "relative_error": 3.3588683018918896e-16,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:end_j:lame_outer_hoop_stress",
+      "case_ref": "case:closed-pressure",
+      "observed": 9090909.090909088,
+      "expected": 9090909.090909092,
+      "unit": "Pa",
+      "relative_error": 4.097819328308105e-16,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:quarter_1:wall_axial_force",
+      "case_ref": "case:closed-pressure",
+      "observed": 15707.963267948962,
+      "expected": 15707.963267948966,
+      "unit": "N",
+      "relative_error": 2.3160092400488114e-16,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:quarter_1:effective_axial_force",
+      "case_ref": "case:closed-pressure",
+      "observed": -1.0763826112192057e-12,
+      "expected": 0,
+      "unit": "N",
+      "relative_error": 6.852464529347936e-17,
+      "zero_scale": 15707.963267948966,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:quarter_1:axial_membrane_stress",
+      "case_ref": "case:closed-pressure",
+      "observed": 4545454.545454544,
+      "expected": 4545454.545454546,
+      "unit": "Pa",
+      "relative_error": 4.097819328308105e-16,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:quarter_1:lame_inner_radial_stress",
+      "case_ref": "case:closed-pressure",
+      "observed": -2000000,
+      "expected": -2000000.0,
+      "unit": "Pa",
+      "relative_error": 0.0,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:quarter_1:lame_outer_radial_stress",
+      "case_ref": "case:closed-pressure",
+      "observed": 0,
+      "expected": 0,
+      "unit": "Pa",
+      "relative_error": 0.0,
+      "zero_scale": 2000000.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:quarter_1:lame_inner_hoop_stress",
+      "case_ref": "case:closed-pressure",
+      "observed": 11090909.090909088,
+      "expected": 11090909.090909092,
+      "unit": "Pa",
+      "relative_error": 3.3588683018918896e-16,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:quarter_1:lame_outer_hoop_stress",
+      "case_ref": "case:closed-pressure",
+      "observed": 9090909.090909088,
+      "expected": 9090909.090909092,
+      "unit": "Pa",
+      "relative_error": 4.097819328308105e-16,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:midspan:wall_axial_force",
+      "case_ref": "case:closed-pressure",
+      "observed": 15707.963267948962,
+      "expected": 15707.963267948966,
+      "unit": "N",
+      "relative_error": 2.3160092400488114e-16,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:midspan:effective_axial_force",
+      "case_ref": "case:closed-pressure",
+      "observed": -1.0763826112192057e-12,
+      "expected": 0,
+      "unit": "N",
+      "relative_error": 6.852464529347936e-17,
+      "zero_scale": 15707.963267948966,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:midspan:axial_membrane_stress",
+      "case_ref": "case:closed-pressure",
+      "observed": 4545454.545454544,
+      "expected": 4545454.545454546,
+      "unit": "Pa",
+      "relative_error": 4.097819328308105e-16,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:midspan:lame_inner_radial_stress",
+      "case_ref": "case:closed-pressure",
+      "observed": -2000000,
+      "expected": -2000000.0,
+      "unit": "Pa",
+      "relative_error": 0.0,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:midspan:lame_outer_radial_stress",
+      "case_ref": "case:closed-pressure",
+      "observed": 0,
+      "expected": 0,
+      "unit": "Pa",
+      "relative_error": 0.0,
+      "zero_scale": 2000000.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:midspan:lame_inner_hoop_stress",
+      "case_ref": "case:closed-pressure",
+      "observed": 11090909.090909088,
+      "expected": 11090909.090909092,
+      "unit": "Pa",
+      "relative_error": 3.3588683018918896e-16,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:midspan:lame_outer_hoop_stress",
+      "case_ref": "case:closed-pressure",
+      "observed": 9090909.090909088,
+      "expected": 9090909.090909092,
+      "unit": "Pa",
+      "relative_error": 4.097819328308105e-16,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:quarter_3:wall_axial_force",
+      "case_ref": "case:closed-pressure",
+      "observed": 15707.963267948962,
+      "expected": 15707.963267948966,
+      "unit": "N",
+      "relative_error": 2.3160092400488114e-16,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:quarter_3:effective_axial_force",
+      "case_ref": "case:closed-pressure",
+      "observed": -1.0763826112192057e-12,
+      "expected": 0,
+      "unit": "N",
+      "relative_error": 6.852464529347936e-17,
+      "zero_scale": 15707.963267948966,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:quarter_3:axial_membrane_stress",
+      "case_ref": "case:closed-pressure",
+      "observed": 4545454.545454544,
+      "expected": 4545454.545454546,
+      "unit": "Pa",
+      "relative_error": 4.097819328308105e-16,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:quarter_3:lame_inner_radial_stress",
+      "case_ref": "case:closed-pressure",
+      "observed": -2000000,
+      "expected": -2000000.0,
+      "unit": "Pa",
+      "relative_error": 0.0,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:quarter_3:lame_outer_radial_stress",
+      "case_ref": "case:closed-pressure",
+      "observed": 0,
+      "expected": 0,
+      "unit": "Pa",
+      "relative_error": 0.0,
+      "zero_scale": 2000000.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:quarter_3:lame_inner_hoop_stress",
+      "case_ref": "case:closed-pressure",
+      "observed": 11090909.090909088,
+      "expected": 11090909.090909092,
+      "unit": "Pa",
+      "relative_error": 3.3588683018918896e-16,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:20:case:closed-pressure:17:pipe:fixture-span:quarter_3:lame_outer_hoop_stress",
+      "case_ref": "case:closed-pressure",
+      "observed": 9090909.090909088,
+      "expected": 9090909.090909092,
+      "unit": "Pa",
+      "relative_error": 4.097819328308105e-16,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:23:case:six-component-load:20:support:fixture-root:Fx",
+      "case_ref": "case:six-component-load",
+      "observed": -1000,
+      "expected": -1000,
+      "unit": "N",
+      "relative_error": 0.0,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:23:case:six-component-load:20:support:fixture-root:Fy",
+      "case_ref": "case:six-component-load",
+      "observed": -2000.0000000000018,
+      "expected": -2000,
+      "unit": "N",
+      "relative_error": 9.094947017729283e-16,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:23:case:six-component-load:20:support:fixture-root:Fz",
+      "case_ref": "case:six-component-load",
+      "observed": 3000.000000000002,
+      "expected": 3000,
+      "unit": "N",
+      "relative_error": 6.063298011819521e-16,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:23:case:six-component-load:20:support:fixture-root:Mx",
+      "case_ref": "case:six-component-load",
+      "observed": -400,
+      "expected": -400,
+      "unit": "N*m",
+      "relative_error": 0.0,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:23:case:six-component-load:20:support:fixture-root:My",
+      "case_ref": "case:six-component-load",
+      "observed": -2500.000000000001,
+      "expected": -2500,
+      "unit": "N*m",
+      "relative_error": 3.637978807091713e-16,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:23:case:six-component-load:20:support:fixture-root:Mz",
+      "case_ref": "case:six-component-load",
+      "observed": -2600.0000000000014,
+      "expected": -2600,
+      "unit": "N*m",
+      "relative_error": 5.24708481792074e-16,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:loadcase:case-six-component-load:disp:node-fixture-tip:rx",
+      "case_ref": "case:six-component-load",
+      "observed": 0.0004933566045173507,
+      "expected": 0.0004933566045173507,
+      "unit": "rad",
+      "relative_error": 0.0,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:elastic-maximum:23:case:six-component-load:17:pipe:fixture-span",
+      "case_ref": "case:six-component-load",
+      "observed": 41354908.75465697,
+      "expected": 41354908.75465696,
+      "unit": "Pa",
+      "relative_error": 1.8016194017318006e-16,
+      "zero_scale": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:elastic-maximum:20:case:closed-pressure:17:pipe:fixture-span",
+      "case_ref": "case:closed-pressure",
+      "observed": 4545454.545454544,
+      "expected": 4545454.545454546,
+      "unit": "Pa",
+      "relative_error": 4.097819328308105e-16,
+      "zero_scale": null,
+      "passed": true
+    }
+  ],
+  "count": 51,
+  "all_passed": true,
+  "governing_global_case": "case:six-component-load",
+  "governing_station_fraction": 0,
+  "retained_G77_is_not_consumed": true,
+  "native_call_observed_by": "Root CUA Run action; raw core run_id remains its declared fixed identifier and is not claimed as unique invocation authentication"
+}

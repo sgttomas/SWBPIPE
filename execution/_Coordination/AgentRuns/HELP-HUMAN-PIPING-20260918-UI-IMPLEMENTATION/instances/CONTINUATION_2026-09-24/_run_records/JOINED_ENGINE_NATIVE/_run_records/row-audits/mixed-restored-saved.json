@@ -1,0 +1,38 @@
+{
+  "project_id": "project:blank-local-20260925t115315z",
+  "private_capture_sha256": "a016d1d750ec19e4b0b03c479ae2527996af86cc2def29a8db044849fdb128de",
+  "model_json_sha256": "d1550af63d668219d8662ba20891e21ed019db62d52aeae3a430eb53f9a7755c",
+  "model_hash": {
+    "algorithm": "sha256",
+    "canonicalization": "rfc8785_jcs",
+    "hash_status": "computed_local_preview",
+    "payload_ref": "project:blank-local-20260925t115315z",
+    "payload_scope": "model_payload",
+    "value": "sha256:d1550af63d668219d8662ba20891e21ed019db62d52aeae3a430eb53f9a7755c"
+  },
+  "schema_version": "0.3.0",
+  "counts": {
+    "nodes": 2,
+    "pipe_segments": 1,
+    "materials": 1,
+    "supports": 2,
+    "load_cases": 2
+  },
+  "material_density": null,
+  "pressure_contract": {
+    "mode": "exact_straight_pressure_v2",
+    "version": "2.0.0"
+  },
+  "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+  "poisson_ratio": {
+    "unit": "1",
+    "value": 0.25
+  },
+  "result_status": {
+    "mechanics": "MECHANICS_SOLVED",
+    "professional_acceptance": "NOT_PROVIDED",
+    "rule_check": "RULE_INPUTS_INCOMPLETE"
+  },
+  "result_schema": "0.2.0",
+  "result_rows": 191
+}

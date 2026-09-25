@@ -1,0 +1,22 @@
+{
+  "selector": "/root",
+  "role": "HELP_HUMAN",
+  "authority": "Owner resumption following the reviewed validation course; earlier delegated expert correctness/method authority",
+  "selection": "bounded development comparison package, not an observed outcome",
+  "packet_manifest_sha256": "0603a990838166c1da43b26f8b657dae3051289097700a76859d1afaa45db02b",
+  "input_reference_bindings_sha256": "be6e332513634f747a1f44c6f38bb94bd2ad0d7ce8e3caa75ccfcdfc9124bdf9",
+  "independent_review_sha256": "565dc99ae70ba34bb4d913c0bb19b3934c92e704d75e10ab0e22931cbf73de96",
+  "independent_checked_hashes_sha256": "c363cb5000edb2c433d5789c69df270032a19069ba6f3d18a07f444c8391ffba",
+  "cases": [
+    "original_static_axial_v1",
+    "original_static_bending_torsion_v1"
+  ],
+  "modes": [
+    "sparse_interactive",
+    "dense_scrutiny"
+  ],
+  "future_runs": 4,
+  "scalar_obligations": 292,
+  "structural_obligations": 40,
+  "actual_executions": 0
+}

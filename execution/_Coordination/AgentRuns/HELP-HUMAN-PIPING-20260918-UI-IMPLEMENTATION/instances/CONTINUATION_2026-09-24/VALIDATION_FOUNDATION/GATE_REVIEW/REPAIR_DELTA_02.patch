@@ -1,0 +1,399 @@
+--- projects/chirality-piping/tools/validation/qualification_gate.py@freeze01
++++ projects/chirality-piping/tools/validation/qualification_gate.py@freeze02
+@@ -67,6 +67,8 @@
+     def real_token(token):
+         value = float(token)
+         require(math.isfinite(value), 'nonfinite numeric token')
++        significand = token.lower().split('e')[0]
++        require(value != 0.0 or not any(c in '123456789' for c in significand), 'nonzero numeric token underflow')
+         return value
+     try:
+         return json.loads(data.decode('utf-8'), object_pairs_hook=_pairs, parse_constant=forbidden, parse_float=real_token)
+@@ -166,7 +168,9 @@
+ 
+ def _diagnostics(value, label):
+     require(type(value) is list and all(type(d) is dict for d in value), label + ' diagnostics missing')
+-    require(not any(d.get('severity') in ('blocking', 'error', 'fatal') for d in value), label + ' has blocking diagnostics')
++    severities = [d.get('severity') for d in value]
++    require(all(type(s) is str and s.lower() in ('info', 'warning', 'blocking', 'error', 'fatal') for s in severities), label + ' has unknown diagnostic severity')
++    require(not any(s.lower() in ('blocking', 'error', 'fatal') for s in severities), label + ' has blocking diagnostics')
+ 
+ 
+ def unwrap(raw: bytes, request: dict, mode: str) -> tuple[dict, list[dict]]:
+@@ -174,6 +178,11 @@
+     require(type(doc) is dict and set(doc) == {'payload', 'decisions', 'findings', 'blocked', 'summary'}, 'unsupported controlled wrapper')
+     require(doc['blocked'] is False and type(doc['payload']) is dict, 'controlled output blocked')
+     _diagnostics(doc['findings'], 'wrapper')
++    summary = doc['summary']
++    require(type(summary) is dict and type(summary.get('blocking_count')) is int and summary['blocking_count'] == 0, 'wrapper blocking summary missing or inconsistent')
++    require(type(doc['decisions']) is list and type(summary.get('decision_count')) is int and summary['decision_count'] == len(doc['decisions']), 'wrapper decision count inconsistent')
++    require(type(summary.get('finding_count')) is int and summary['finding_count'] == len(doc['findings']), 'wrapper finding count inconsistent')
++    require(type(summary.get('warning_count')) is int and summary['warning_count'] == sum(d['severity'].lower() == 'warning' for d in doc['findings']), 'wrapper warning count inconsistent')
+     payload = doc['payload']
+     require(payload.get('artifact') == 'openpipestress.headless_runner_cli_output' and payload.get('schema_version') == '1.0.0', 'unsupported CLI contract')
+     require(payload.get('command') == 'solve' and payload.get('operation') == 'solve', 'wrong CLI operation')
+@@ -199,6 +208,18 @@
+     ids = [row.get('id') for row in rows]
+     require(all(type(id) is str and id for id in ids) and len(ids) == len(set(ids)), 'missing/duplicate result ID')
+     for row in rows:
++        require(set(row) <= {'id', 'kind', 'value', 'unit', 'entity_ref', 'basis_ref', 'metadata', 'source_result_refs'}, 'unknown raw row field for closed profile')
++        for name in ('id', 'kind', 'unit', 'entity_ref'):
++            _id(row.get(name), 'raw row ' + name)
++        if 'basis_ref' in row:
++            require(type(row['basis_ref']) is dict and set(row['basis_ref']) == {'ref_type', 'ref_id'}, 'invalid raw basis shape')
++            require(row['basis_ref']['ref_type'] in ('load_case', 'combination'), 'unknown raw basis type')
++            _id(row['basis_ref']['ref_id'], 'raw basis ID')
++        if 'metadata' in row:
++            require(type(row['metadata']) is dict and set(row['metadata']) == set(META), 'invalid raw metadata shape')
++            require(all(type(v) is str for v in row['metadata'].values()), 'invalid raw metadata value')
++        if 'source_result_refs' in row:
++            require(type(row['source_result_refs']) is list and all(type(v) is str for v in row['source_result_refs']), 'invalid raw source refs')
+         finite(row.get('value'))
+     # Actual current producer code is pinned by executable/source identity; its
+     # numeric mode row supplements that dispatch, never replaces the identity.
+@@ -247,7 +268,7 @@
+         require(type(selector['metadata']) is dict and set(selector['metadata']) == set(META), 'complete source metadata required')
+         require(all(type(v) is str and v and v != 'TBD' for v in selector['metadata'].values()), 'unresolved source metadata')
+         require(type(selector['basis_ref']) is dict and set(selector['basis_ref']) == {'ref_type', 'ref_id'}, 'explicit case/state basis required')
+-        require(selector['basis_ref']['ref_type'] in ('load_case', 'load_combination'), 'invalid case basis')
++        require(selector['basis_ref']['ref_type'] in ('load_case', 'combination'), 'invalid case basis')
+         _id(selector['basis_ref']['ref_id'], 'case basis ID')
+         signatures = [row for row in semantic_rows if row['kind'] == selector['kind'] and row['unit'] == selector['unit'] and row['component'] == selector['metadata']['component']]
+         require(len(signatures) == 1 and signatures[0]['source_physical_semantic_dimension'] == selector['dimension'], 'selector contradicts pinned source semantics')
+@@ -358,14 +379,14 @@
+             process = capture(executable, ['solve'], prepared['input'], output_dir / f'case-{index:04}', timeout_seconds, output_limit_bytes, expected_executable_sha256=runner['executable_sha256'])
+             case_ledger['process'] = process
+             require(process['executable_sha256_before'] == runner['executable_sha256'], 'executable changed before case')
+-            if process['outcome'] != 'completed':
++            if process['outcome'] != 'completed' or not process['stdin_delivery_complete']:
+                 fail_case(case_ledger, 'error', 'process ' + process['outcome'])
+             else:
+                 mechanics, rows = unwrap((output_dir / f'case-{index:04}' / 'stdout.bin').read_bytes(), prepared['request'], runner['solver_mode'])
+                 case_ledger['observed_result_identity'] = {k: mechanics[k] for k in ('document_kind', 'schema_version', 'run_id', 'model_ref')}
+                 evaluate_rows(case_ledger, prepared, rows)
+             for binding in prepared['bindings']:
+-                require(sha256_bytes(Path(binding['path']).read_bytes()) == binding['sha256'], 'bound input/reference/criterion changed during run')
++                require(file_sha256(Path(binding['path']), max_bytes=MAX_INPUT_BYTES) == binding['sha256'], 'bound input/reference/criterion changed during run')
+             if process['outcome'] == 'interrupted':
+                 ledger['diagnostics'].append('supervisor interrupted; subsequent cases remain not_run')
+                 break
+--- projects/chirality-piping/tools/validation/qualification_process.py@freeze01
++++ projects/chirality-piping/tools/validation/qualification_process.py@freeze02
+@@ -1,8 +1,8 @@
+ """Bounded foreground subprocess capture for the qualification development gate.
+ 
+ No shell, build, lookup on PATH, network operation, or implicit output directory.
+-This module supervises a caller-selected executable; it does not attest that an
+-executable was built from a source revision or establish numerical correctness.
++Records bytes delivered to stdin and retained stdout/stderr, not an attestation
++of the executable's internal use of those bytes or its numerical correctness.
+ """
+ from __future__ import annotations
+ import hashlib
+@@ -18,23 +18,28 @@
+     return hashlib.sha256(data).hexdigest()
+ 
+ 
+-def file_sha256(path: Path) -> str:
++def file_sha256(path: Path, max_bytes: int | None = None) -> str:
++    total = 0
+     digest = hashlib.sha256()
+     with path.open('rb') as stream:
+         for chunk in iter(lambda: stream.read(1024 * 1024), b''):
++            total += len(chunk)
++            if max_bytes is not None and total > max_bytes:
++                raise ValueError('file exceeds bounded hash scope')
+             digest.update(chunk)
+     return digest.hexdigest()
+ 
+ 
+ def capture(executable: Path, arguments: list[str], input_bytes: bytes, directory: Path,
+             timeout_seconds: float, output_limit_bytes: int, *, expected_executable_sha256: str | None = None) -> dict:
+-    """Capture one owned process, retaining bounded raw stdout/stderr on failure."""
++    """Capture one owned process with simultaneous bounded stdin/output I/O."""
+     if not executable.is_absolute() or not executable.is_file():
+         raise ValueError('explicit existing absolute executable required')
+     if not 0 < timeout_seconds <= 3600 or not 0 < output_limit_bytes <= 64 * 1024 * 1024:
+         raise ValueError('invalid supervision limits')
+     directory.mkdir(parents=True, exist_ok=False)
+-    (directory / 'stdin.bin').write_bytes(input_bytes)
++    archive = directory / 'stdin.bin'
++    archive.write_bytes(input_bytes)
+     executable_before = file_sha256(executable)
+     if expected_executable_sha256 is not None and executable_before != expected_executable_sha256:
+         raise ValueError('executable digest changed before process launch')
+@@ -42,48 +47,71 @@
+     outcome, process, return_code = 'error', None, None
+     files = {name: (directory / (name + '.bin')).open('xb') for name in ('stdout', 'stderr')}
+     counts = dict.fromkeys(files, 0)
++    delivered_output = {name: hashlib.sha256() for name in files}
++    sent = 0
+     command = [str(executable), *arguments]
+     detail = None
+     try:
+-        # A real file avoids an unbounded writer thread or a stdin/stdout pipe
+-        # deadlock when the child emits output before consuming its full input.
+-        with (directory / 'stdin.bin').open('rb') as source:
+-            process = subprocess.Popen(command, stdin=source, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+-                                       cwd=directory, start_new_session=True)
+-            selector = selectors.DefaultSelector()
+-            try:
+-                for name, stream in (('stdout', process.stdout), ('stderr', process.stderr)):
+-                    os.set_blocking(stream.fileno(), False)
+-                    selector.register(stream, selectors.EVENT_READ, name)
+-                while selector.get_map():
+-                    remaining = timeout_seconds - (time.monotonic() - start)
+-                    if remaining <= 0:
+-                        outcome, detail = 'timeout', 'process time budget exceeded'
+-                        break
+-                    for key, _ in selector.select(min(0.1, remaining)):
+-                        chunk = os.read(key.fd, 65536)
+-                        if not chunk:
++        # The archive is never the process's input source: a pipe receives the
++        # exact immutable bytes, multiplexed with output to avoid pipe deadlock.
++        process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
++                                   stderr=subprocess.PIPE, cwd=directory, start_new_session=True)
++        selector = selectors.DefaultSelector()
++        try:
++            for name, stream in (('stdout', process.stdout), ('stderr', process.stderr)):
++                os.set_blocking(stream.fileno(), False)
++                selector.register(stream, selectors.EVENT_READ, name)
++            if input_bytes:
++                os.set_blocking(process.stdin.fileno(), False)
++                selector.register(process.stdin, selectors.EVENT_WRITE, 'stdin')
++            else:
++                process.stdin.close()
++            while selector.get_map():
++                remaining = timeout_seconds - (time.monotonic() - start)
++                if remaining <= 0:
++                    outcome, detail = 'timeout', 'process time budget exceeded'
++                    break
++                for key, _ in selector.select(min(0.1, remaining)):
++                    if key.data == 'stdin':
++                        try:
++                            written = os.write(key.fd, input_bytes[sent:sent + 65536])
++                        except BrokenPipeError:
++                            outcome, detail = 'input_closed', 'stdin closed before all selected bytes were delivered'
++                            break
++                        except BlockingIOError:
++                            continue
++                        sent += written
++                        if sent == len(input_bytes):
+                             selector.unregister(key.fileobj)
+                             key.fileobj.close()
+-                            continue
+-                        name = key.data
+-                        available = output_limit_bytes - counts[name]
+-                        files[name].write(chunk[:available])
+-                        counts[name] += min(len(chunk), available)
+-                        if len(chunk) > available:
+-                            outcome, detail = 'output_limit', f'{name} exceeds retained byte limit; remainder not retained'
+-                            break
+-                    if detail:
++                        continue
++                    try:
++                        chunk = os.read(key.fd, 65536)
++                    except BlockingIOError:
++                        continue
++                    if not chunk:
++                        selector.unregister(key.fileobj)
++                        key.fileobj.close()
++                        continue
++                    name = key.data
++                    available = output_limit_bytes - counts[name]
++                    files[name].write(chunk[:available])
++                    delivered_output[name].update(chunk[:available])
++                    counts[name] += min(len(chunk), available)
++                    if len(chunk) > available:
++                        outcome, detail = 'output_limit', f'{name} exceeds retained byte limit; remainder not retained'
+                         break
+-                if detail is None:
+-                    remaining = max(0.001, timeout_seconds - (time.monotonic() - start))
+-                    try:
+-                        return_code = process.wait(timeout=remaining)
+-                        outcome = 'completed' if return_code == 0 else 'nonzero_exit'
+-                    except subprocess.TimeoutExpired:
+-                        outcome, detail = 'timeout', 'process time budget exceeded after pipe EOF'
+-            finally:
+-                selector.close()
++                if detail:
++                    break
++            if detail is None:
++                remaining = max(0.001, timeout_seconds - (time.monotonic() - start))
++                try:
++                    return_code = process.wait(timeout=remaining)
++                    outcome = 'completed' if return_code == 0 else 'nonzero_exit'
++                except subprocess.TimeoutExpired:
++                    outcome, detail = 'timeout', 'process time budget exceeded after pipe EOF'
++        finally:
++            selector.close()
+     except KeyboardInterrupt:
+         outcome, detail = 'interrupted', 'supervisor interrupted; required ledger remains nonpassing'
+     except OSError as exc:
+@@ -96,7 +124,7 @@
+                 except ProcessLookupError:
+                     pass
+             return_code = process.wait()
+-            for stream in (process.stdout, process.stderr):
++            for stream in (process.stdin, process.stdout, process.stderr):
+                 if stream is not None:
+                     stream.close()
+         for stream in files.values():
+@@ -104,13 +132,29 @@
+     after = file_sha256(executable) if executable.is_file() else None
+     if after != executable_before:
+         outcome, detail = 'executable_changed', 'executable identity changed during process'
++    def retained_hash(path: Path, limit: int) -> str | None:
++        try:
++            return file_sha256(path, max_bytes=limit)
++        except (OSError, ValueError):
++            return None
++    retained_input = retained_hash(archive, len(input_bytes))
++    selected_input = sha256_bytes(input_bytes)
++    if retained_input != selected_input:
++        outcome, detail = 'input_archive_changed', 'retained stdin artifact changed during process'
++    retained_outputs = {name: retained_hash(directory / (name + '.bin'), output_limit_bytes) for name in files}
++    if any(retained_outputs[name] != delivered_output[name].hexdigest() for name in files):
++        outcome, detail = 'output_archive_changed', 'retained output differs from actual captured stream'
+     return {'outcome': outcome, 'detail': detail, 'command': command, 'return_code': return_code,
+             'elapsed_seconds': time.monotonic() - start, 'executable_sha256_before': executable_before,
+-            'executable_sha256_after': after, 'stdin_sha256': sha256_bytes(input_bytes),
+-            'stdout_sha256': sha256_bytes((directory / 'stdout.bin').read_bytes()),
+-            'stderr_sha256': sha256_bytes((directory / 'stderr.bin').read_bytes()),
++            'executable_sha256_after': after, 'stdin_sha256': selected_input,
++            'stdin_bytes_delivered': sent, 'stdin_delivered_sha256': sha256_bytes(input_bytes[:sent]),
++            'stdin_delivery_complete': sent == len(input_bytes),
++            'retained_stdin_sha256': retained_input,
++            'stdout_sha256': delivered_output['stdout'].hexdigest(),
++            'stderr_sha256': delivered_output['stderr'].hexdigest(),
++            'retained_stdout_sha256': retained_outputs['stdout'], 'retained_stderr_sha256': retained_outputs['stderr'],
+             'stdout_bytes': counts['stdout'], 'stderr_bytes': counts['stderr'],
+             'timeout_seconds': timeout_seconds, 'output_limit_bytes_per_stream': output_limit_bytes,
+             'raw_capture_complete': detail is None,
+             'environment': {key: os.environ.get(key) for key in ('OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS', 'RAYON_NUM_THREADS')},
+-            'scope': 'actual local process capture; no build-source attestation or solver qualification'}
++            'scope': 'actual local process byte delivery/capture; no internal-use, build-source or solver attestation'}
+--- projects/chirality-piping/tests/test_qualification_gate.py@freeze01
++++ projects/chirality-piping/tests/test_qualification_gate.py@freeze02
+@@ -42,7 +42,7 @@
+                                               'run_id': 'run:preview-linear-static-001', 'model_ref': 'invented-model',
+                                               'status': {'mechanics': 'MECHANICS_SOLVED'}, 'accepted_model_state_mutated': False,
+                                               'diagnostics': [], 'results': [self.mode, *self.rows]}}
+-        self.wrapper = {'payload': self.payload, 'decisions': [], 'findings': [], 'blocked': False, 'summary': {}}
++        self.wrapper = {'payload': self.payload, 'decisions': [], 'findings': [], 'blocked': False, 'summary': {'blocking_count': 0, 'decision_count': 0, 'finding_count': 0, 'warning_count': 0}}
+         self.reference = {'format': gate.REFERENCE_FORMAT, 'case_id': 'case:one', 'readiness': 'ready',
+                           'reference_kind': 'harness_synthetic', 'basis': 'explicit invented gate fixture, not an analytical oracle',
+                           'values': [{'assertion_id': axis, 'unit': 'mm', 'value': value} for axis, value in [('x', 2.0), ('y', -3.0)]]}
+@@ -232,6 +232,63 @@
+             capture(self.bin, ['solve'], b'{}', self.root/'refused-process', 1, 1024, expected_executable_sha256='0'*64)
+         self.assertFalse((self.root/'refused-process/stdout.bin').exists())
+ 
++    def test_actual_uppercase_blocking_and_inconsistent_wrapper_counts(self):
++        for mutation in ('blocking', 'count', 'unknown_severity'):
++            wrapper = deepcopy(self.wrapper)
++            if mutation == 'count': wrapper['summary']['blocking_count'] = 1
++            else:
++                wrapper['findings'] = [{'severity': 'BLOCKING' if mutation == 'blocking' else 'FUTURE'}]
++                wrapper['summary']['finding_count'] = 1
++            self.write_process(wrapper)
++            self.assert_complete_denominator(self.run_case(), 'error')
++
++    def test_stdin_archive_mutation_cannot_change_delivered_bytes_or_pass(self):
++        expected = sha256_bytes((self.root/'input.json').read_bytes())
++        code = 'import sys,hashlib\nfrom pathlib import Path\nPath("stdin.bin").write_bytes(b"changed")\nactual=sys.stdin.buffer.read()\nprint(hashlib.sha256(actual).hexdigest(),file=sys.stderr)\nprint(' + repr(json.dumps(self.wrapper)) + ')'
++        self.write_process(code=code)
++        result = self.run_case()
++        self.assert_complete_denominator(result, 'error')
++        process = result['cases'][0]['process']
++        self.assertEqual(process['outcome'], 'input_archive_changed')
++        self.assertEqual((self.root/'run-1/case-0000/stderr.bin').read_text().strip(), expected)
++        self.assertTrue(process['stdin_delivery_complete'])
++        self.assertEqual(process['stdin_sha256'], expected)
++        self.assertNotEqual(process['retained_stdin_sha256'], expected)
++
++    def test_pipe_multiplexing_delivers_large_input_without_deadlock(self):
++        data = b'x' * (1024 * 1024)
++        self.write_process(code='import sys,hashlib\nsys.stdout.write("y"*100000);sys.stdout.flush()\ndata=sys.stdin.buffer.read()\nprint(hashlib.sha256(data).hexdigest(),file=sys.stderr)')
++        result = capture(self.bin, ['solve'], data, self.root/'multiplexed', 5, 200000)
++        self.assertEqual(result['outcome'], 'completed')
++        self.assertEqual(result['stdin_bytes_delivered'], len(data))
++        self.assertEqual((self.root/'multiplexed/stderr.bin').read_text().strip(), sha256_bytes(data))
++
++    def test_closed_raw_rows_reject_contradictory_dimension(self):
++        for field, value in [('dimension', 'force'), ('future_metadata', {})]:
++            wrapper = deepcopy(self.wrapper)
++            wrapper['payload']['mechanics_envelope']['results'][1][field] = value
++            self.write_process(wrapper)
++            self.assert_complete_denominator(self.run_case(), 'error')
++
++    def test_reference_nonzero_underflow_cannot_match_zero(self):
++        raw = (self.root/'reference.json').read_text().replace('2.0', '1e-999')
++        (self.root/'reference.json').write_text(raw)
++        self.case['reference']['sha256'] = sha256_bytes(raw.encode())
++        wrapper = deepcopy(self.wrapper); wrapper['payload']['mechanics_envelope']['results'][1]['value'] = 0
++        self.write_process(wrapper)
++        self.assert_complete_denominator(self.run_case(), 'blocked')
++
++    def test_actual_combination_token_supported_and_invented_token_refused(self):
++        for assertion in self.case['assertions']:
++            assertion['selector']['basis_ref'] = {'ref_type': 'combination', 'ref_id': 'COMB1'}
++        wrapper = deepcopy(self.wrapper)
++        for row in wrapper['payload']['mechanics_envelope']['results'][1:]:
++            row['basis_ref'] = {'ref_type': 'combination', 'ref_id': 'COMB1'}
++        self.write_process(wrapper)
++        self.assertEqual(self.run_case()['outcome'], 'all_required_assertions_matched')
++        self.case['assertions'][0]['selector']['basis_ref']['ref_type'] = 'load_combination'
++        self.assert_complete_denominator(self.run_case(), 'blocked')
++
+     def test_immutable_output_directory_and_reference_files(self):
+         before = {name: (self.root / name).read_bytes() for name in ('input.json', 'reference.json', 'criterion.json')}
+         self.run_case()
+@@ -256,7 +313,7 @@
+         self.assertEqual(result['summary']['assertions']['not_run'], 2)
+ 
+     def test_duplicate_json_rejected_without_parser_overwrite(self):
+-        for raw in [b'{"x":1,"x":2}', b'{"a":1,"\\u0061":2}', b'{"x":NaN}', b'{"x":Infinity}', b'{"x":1e309}', b'\xff']:
++        for raw in [b'{"x":1,"x":2}', b'{"a":1,"\\u0061":2}', b'{"x":NaN}', b'{"x":Infinity}', b'{"x":1e309}', b'{"x":1e-999}', b'\xff']:
+             with self.assertRaises(gate.AdmissionError): gate.strict_json(raw)
+ 
+     def test_executable_and_semantic_digest_mismatch_blocks_before_launch(self):
+--- projects/chirality-piping/validation/qualification/GATE_USAGE.md@freeze01
++++ projects/chirality-piping/validation/qualification/GATE_USAGE.md@freeze02
+@@ -32,7 +32,8 @@
+   file or absolute. The gate reads them; it never modifies them.
+ - Nonempty unique assertions per case. Each assertion has its ID, criterion
+   rule ID and an exact selector: raw result ID/kind/unit/entity, case basis,
+-  all five source metadata fields, and explicit physical dimension. Duplicate
++  all five source metadata fields, and explicit physical dimension. Basis tokens
++  follow the pinned producer: `load_case` or `combination`. Duplicate
+   required selectors and ambiguous/missing result IDs cannot reduce coverage.
+ 
+ The input remains the existing `request` plus `solve.preview_model` object; no
+@@ -71,11 +72,15 @@
+ shell, and writes only the explicit output directory. Existing output directories
+ are rejected. Runtime discovery/build/network/reference acquisition is absent.
+ 
+-Before each process, the ledger and reference/criterion snapshots exist. Captured
++Before each process, the ledger and reference/criterion snapshots exist. Exact
++immutable input bytes are delivered through a pipe, multiplexed with output; the
++archive file is never used as the process input source. Captured
+ stdin/stdout/stderr, exit or signal, executable before/after hashes, timing and
+ selected thread environment are retained. Timeouts/output-limit failures terminate
+ the owned process group and keep partial raw bytes with explicit incomplete-capture
+-status. Missing executable, wrong hashes, unsupported versions, bad semantics and
++status. Delivered-byte hashes and retained archive hashes are checked separately;
++changed archives cannot support a passing record. This records byte delivery,
++not an attestation of how the executable internally uses it. Missing executable, wrong hashes, unsupported versions, bad semantics and
+ unready references preserve the full required denominator as blocked/error rows.
+ Interruption leaves later rows not_run. Ordinary completion never rewrites a target.
+ 
+@@ -91,6 +96,9 @@
+ bound reference/criterion copies remain immutable observations. `summary.md` derives
+ from that same ledger. Exit0 means only all selected required assertions matched;
+ exit1 means obligations remain unsatisfied; invalid selection/host setup returns2.
++Decoded nonzero numeric tokens that underflow to zero are refused. Current
++uppercase/lowercase diagnostic severities and wrapper counts are checked, and
++unknown raw row fields cannot silently contradict the pinned semantics.
+ Reports explicitly state `qualification: not_established_by_this_harness`.
+ 
+ ## Verification and remaining integration

@@ -1,0 +1,142 @@
+{
+  "materials": [],
+  "model": {
+    "schema_version": "0.3.0",
+    "document_kind": "openpipestress.product_preview.model",
+    "data_boundary": {
+      "private_data_policy": "no_private_project_data",
+      "professional_boundary": "technical_preview_requires_human_engineering_review",
+      "protected_source_policy": "no_bundled_protected_owner_or_standards_data",
+      "public_examples_policy": "invented_or_cleared_data_only"
+    },
+    "analysis_status": {
+      "mechanics": "ready_for_preview_diagnostics",
+      "professional_acceptance": "not_provided",
+      "rule_check": "not_performed_user_rule_inputs_missing"
+    },
+    "project": {
+      "id": "project:original-static-axial",
+      "name": "Original static axial reference candidate",
+      "description": "Invented analytical fixture, explicit linear elastic EB/circular-annulus scope; no libraries or code rules.",
+      "units": {
+        "length": "m",
+        "force": "N",
+        "pressure": "Pa",
+        "stress": "Pa",
+        "angle": "rad",
+        "temperature": "degC"
+      }
+    },
+    "nodes": [
+      {
+        "id": "root",
+        "label": "root",
+        "position": {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        "provenance": "project_original_static_reference_candidate_no_external_data_no_library_or_code_rules"
+      },
+      {
+        "id": "tip",
+        "label": "tip",
+        "position": {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        "provenance": "project_original_static_reference_candidate_no_external_data_no_library_or_code_rules"
+      }
+    ],
+    "pipe_segments": [
+      {
+        "id": "pipe",
+        "label": "Original annulus",
+        "from": "root",
+        "to": "tip",
+        "section": {
+          "outside_diameter": {
+            "value": 0.2,
+            "unit": "m"
+          },
+          "wall_thickness": {
+            "value": 0.01,
+            "unit": "m"
+          }
+        },
+        "material": "material",
+        "y_reference": {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        "provenance": "project_original_static_reference_candidate_no_external_data_no_library_or_code_rules"
+      }
+    ],
+    "materials": [
+      {
+        "id": "material",
+        "label": "Explicit invented E-nu pair",
+        "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+        "elastic_modulus": {
+          "value": 200000000000,
+          "unit": "Pa"
+        },
+        "poisson_ratio": {
+          "value": 0.25,
+          "unit": "1"
+        },
+        "provenance": "project_original_static_reference_candidate_no_external_data_no_library_or_code_rules"
+      }
+    ],
+    "supports": [
+      {
+        "id": "anchor",
+        "label": "Root six-DOF anchor",
+        "node": "root",
+        "family": "anchor",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ],
+        "provenance": "project_original_static_reference_candidate_no_external_data_no_library_or_code_rules"
+      }
+    ],
+    "components": [],
+    "combinations": [],
+    "load_cases": [
+      {
+        "id": "case",
+        "label": "Original axial equilibrium case",
+        "primitive_loads": [
+          {
+            "id": "load:global_x",
+            "category": "concentrated_force",
+            "target": {
+              "type": "node",
+              "node": "tip"
+            },
+            "direction": "global_x",
+            "magnitude": {
+              "value": 1000,
+              "unit": "N"
+            },
+            "dimension": "force",
+            "provenance": "project_original_static_reference_candidate_no_external_data_no_library_or_code_rules"
+          }
+        ],
+        "pressure_regions": [],
+        "provenance": "project_original_static_reference_candidate_no_external_data_no_library_or_code_rules"
+      }
+    ],
+    "pressure_contract": {
+      "version": "2.0.0",
+      "mode": "exact_straight_pressure_v2"
+    }
+  }
+}

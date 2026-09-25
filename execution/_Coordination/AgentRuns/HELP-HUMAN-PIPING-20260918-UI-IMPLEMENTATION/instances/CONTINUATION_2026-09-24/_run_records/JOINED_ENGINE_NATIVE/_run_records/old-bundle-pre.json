@@ -1,0 +1,17 @@
+[
+  {
+    "path": "Contents/Info.plist",
+    "bytes": 979,
+    "sha256": "573a9848c4b521dc352ba10ef10298c645702b53f0557e62bade6a1855261fd8"
+  },
+  {
+    "path": "Contents/MacOS/openpipestress-desktop",
+    "bytes": 58246888,
+    "sha256": "65aab38fc4425eb62661e0fa8c52a254f734b4a22adcc149f319162f1763a632"
+  },
+  {
+    "path": "Contents/Resources/icon.icns",
+    "bytes": 77148,
+    "sha256": "2ddf5cdbfe7c2023349d49fd45efee4debad28e72a4cf8401834aa402f3d238e"
+  }
+]

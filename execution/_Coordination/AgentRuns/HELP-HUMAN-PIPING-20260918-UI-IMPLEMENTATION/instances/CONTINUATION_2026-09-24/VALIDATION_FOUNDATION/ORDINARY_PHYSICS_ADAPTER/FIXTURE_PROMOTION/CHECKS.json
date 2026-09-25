@@ -1,0 +1,157 @@
+{
+  "before": [
+    {
+      "path": "tests/test_qualification_physics_structure.py",
+      "sha256": "36cc2fceec5261dff6defd65296cdf9230c924ef93c146cb35b4a500c2cc8077"
+    },
+    {
+      "path": "tests/test_qualification_physics_integration.py",
+      "sha256": "0610788188b16c01b311bd43484056c73a8127039d4688998146ffce6fbf94a5"
+    },
+    {
+      "path": "tests/test_first_static_selection.py",
+      "sha256": "f83a226afd8ffbce9f4e1ebe239367ba3054778df82080f5ba7defc6eeb56653"
+    },
+    {
+      "path": "tests/qualification_fixture_support.py",
+      "sha256": "7a8a243384cc0defa7f06652243c3aae9ae8d4f4343b6ad531de6a324d610fb5"
+    },
+    {
+      "path": "validation/qualification/fixtures/first_static/INPUT_REFERENCE_BINDINGS.json",
+      "sha256": "be6e332513634f747a1f44c6f38bb94bd2ad0d7ce8e3caa75ccfcdfc9124bdf9"
+    },
+    {
+      "path": "validation/qualification/fixtures/first_static/PROVENANCE.json",
+      "sha256": "859dfa8fdec02a16cb29325311185feeccecf4e46ae5e73ad787d7b1ddffffa4"
+    },
+    {
+      "path": "validation/qualification/fixtures/first_static/README.md",
+      "sha256": "41d709d6246e46ee5dd4e4cdf1d2896bba7a506cb2355722bb084edf666ff684"
+    },
+    {
+      "path": "validation/qualification/fixtures/first_static/STRUCTURAL_EXPECTATIONS.json",
+      "sha256": "b5f6a9446d5485d707ca86a2df554e4ce9d266246ef6f373f4de7f8d564095fa"
+    },
+    {
+      "path": "validation/qualification/fixtures/first_static/STRUCTURAL_NUMERIC_ADDENDUM/STRUCTURAL_NUMERIC_BINDING.json",
+      "sha256": "1ed8aac0910318902cd5f690aeee8cb74bfee036617e33eaa4e2c23ec98ff3c2"
+    },
+    {
+      "path": "validation/qualification/fixtures/first_static/axial.criteria.candidate.json",
+      "sha256": "6dab93d22367d638ac9e519bd98ff72323aa44f5002d5a3c91f9612f567add76"
+    },
+    {
+      "path": "validation/qualification/fixtures/first_static/axial.reference.candidate.json",
+      "sha256": "5c58111b4395796416969e303c377ae27dabf2e0839f6565b0fdc4942dc878b6"
+    },
+    {
+      "path": "validation/qualification/fixtures/first_static/axial.runner_input.candidate.json",
+      "sha256": "ee8fe54222fa5bf6aaa39219b7353a95ff77b91177cccd9c665575229023ff74"
+    },
+    {
+      "path": "validation/qualification/fixtures/first_static/axial.selectors.candidate.json",
+      "sha256": "23379801596b2a1d9a99da5ff30ca1241da14cc5bc92b6618070b0d28380f482"
+    },
+    {
+      "path": "validation/qualification/fixtures/first_static/bending_torsion.criteria.candidate.json",
+      "sha256": "7dc37745f5111decdfffa430b1b334fb3a08def50fbfdfcc9d73648feadea36d"
+    },
+    {
+      "path": "validation/qualification/fixtures/first_static/bending_torsion.reference.candidate.json",
+      "sha256": "b5cb4dd6cd03c22d4c05232241ba6a81301e0420a17376e9c1018f197208f339"
+    },
+    {
+      "path": "validation/qualification/fixtures/first_static/bending_torsion.runner_input.candidate.json",
+      "sha256": "1f2b6e4876d352818a9f0c94bbfc285ca245df5ac27f63317b164e7ddf9d4ff2"
+    },
+    {
+      "path": "validation/qualification/fixtures/first_static/bending_torsion.selectors.candidate.json",
+      "sha256": "2bd1ffaccdfa2dae33fd8b27d6f15a46b5057049122a9f6c13f410844e42584e"
+    },
+    {
+      "path": "validation/qualification/fixtures/first_static/section.reference.json",
+      "sha256": "df00cc0827ebce33e8af8bf4ea00e0bd80f98ffef41bdf2e9780cc266002b96a"
+    }
+  ],
+  "after": [
+    {
+      "path": "tests/test_qualification_physics_structure.py",
+      "sha256": "36cc2fceec5261dff6defd65296cdf9230c924ef93c146cb35b4a500c2cc8077"
+    },
+    {
+      "path": "tests/test_qualification_physics_integration.py",
+      "sha256": "0610788188b16c01b311bd43484056c73a8127039d4688998146ffce6fbf94a5"
+    },
+    {
+      "path": "tests/test_first_static_selection.py",
+      "sha256": "f83a226afd8ffbce9f4e1ebe239367ba3054778df82080f5ba7defc6eeb56653"
+    },
+    {
+      "path": "tests/qualification_fixture_support.py",
+      "sha256": "7a8a243384cc0defa7f06652243c3aae9ae8d4f4343b6ad531de6a324d610fb5"
+    },
+    {
+      "path": "validation/qualification/fixtures/first_static/INPUT_REFERENCE_BINDINGS.json",
+      "sha256": "be6e332513634f747a1f44c6f38bb94bd2ad0d7ce8e3caa75ccfcdfc9124bdf9"
+    },
+    {
+      "path": "validation/qualification/fixtures/first_static/PROVENANCE.json",
+      "sha256": "859dfa8fdec02a16cb29325311185feeccecf4e46ae5e73ad787d7b1ddffffa4"
+    },
+    {
+      "path": "validation/qualification/fixtures/first_static/README.md",
+      "sha256": "41d709d6246e46ee5dd4e4cdf1d2896bba7a506cb2355722bb084edf666ff684"
+    },
+    {
+      "path": "validation/qualification/fixtures/first_static/STRUCTURAL_EXPECTATIONS.json",
+      "sha256": "b5f6a9446d5485d707ca86a2df554e4ce9d266246ef6f373f4de7f8d564095fa"
+    },
+    {
+      "path": "validation/qualification/fixtures/first_static/STRUCTURAL_NUMERIC_ADDENDUM/STRUCTURAL_NUMERIC_BINDING.json",
+      "sha256": "1ed8aac0910318902cd5f690aeee8cb74bfee036617e33eaa4e2c23ec98ff3c2"
+    },
+    {
+      "path": "validation/qualification/fixtures/first_static/axial.criteria.candidate.json",
+      "sha256": "6dab93d22367d638ac9e519bd98ff72323aa44f5002d5a3c91f9612f567add76"
+    },
+    {
+      "path": "validation/qualification/fixtures/first_static/axial.reference.candidate.json",
+      "sha256": "5c58111b4395796416969e303c377ae27dabf2e0839f6565b0fdc4942dc878b6"
+    },
+    {
+      "path": "validation/qualification/fixtures/first_static/axial.runner_input.candidate.json",
+      "sha256": "ee8fe54222fa5bf6aaa39219b7353a95ff77b91177cccd9c665575229023ff74"
+    },
+    {
+      "path": "validation/qualification/fixtures/first_static/axial.selectors.candidate.json",
+      "sha256": "23379801596b2a1d9a99da5ff30ca1241da14cc5bc92b6618070b0d28380f482"
+    },
+    {
+      "path": "validation/qualification/fixtures/first_static/bending_torsion.criteria.candidate.json",
+      "sha256": "7dc37745f5111decdfffa430b1b334fb3a08def50fbfdfcc9d73648feadea36d"
+    },
+    {
+      "path": "validation/qualification/fixtures/first_static/bending_torsion.reference.candidate.json",
+      "sha256": "b5cb4dd6cd03c22d4c05232241ba6a81301e0420a17376e9c1018f197208f339"
+    },
+    {
+      "path": "validation/qualification/fixtures/first_static/bending_torsion.runner_input.candidate.json",
+      "sha256": "1f2b6e4876d352818a9f0c94bbfc285ca245df5ac27f63317b164e7ddf9d4ff2"
+    },
+    {
+      "path": "validation/qualification/fixtures/first_static/bending_torsion.selectors.candidate.json",
+      "sha256": "2bd1ffaccdfa2dae33fd8b27d6f15a46b5057049122a9f6c13f410844e42584e"
+    },
+    {
+      "path": "validation/qualification/fixtures/first_static/section.reference.json",
+      "sha256": "df00cc0827ebce33e8af8bf4ea00e0bd80f98ffef41bdf2e9780cc266002b96a"
+    }
+  ],
+  "source_unchanged": true,
+  "exit_code": 0,
+  "elapsed_seconds": 8.93931583268568,
+  "python": "/private/tmp/chirality-piping-dec025-venv/bin/python",
+  "driver_sha256": "5d9916be862d1fdebe5fb76b844afe097aa834302aa3da64a8e656900d9ddb6a",
+  "log_sha256": "c1ceb58f5308628ba18ad86ad9e8035dadbf023ad6193adc2095520bfb548edc",
+  "scope": "Only affected fixture-dependent tests, with file audit guard refusing historical AgentRuns access. No actual solver or protected-reference rerun."
+}

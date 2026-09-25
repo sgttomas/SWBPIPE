@@ -1,0 +1,8 @@
+{
+  "activated_utc": "2026-09-25T10:33:42.609489+00:00",
+  "candidate": "8b982aa7ce64afe37e6067d1038d92608f4aaf3f",
+  "old_link": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules",
+  "new_link": "/private/tmp/piping-engine-native-dependencies-20260925/node_modules",
+  "workspace_app": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop",
+  "method": "atomic replacement of excluded dependency symlink after source/lane handoff"
+}

@@ -1,0 +1,7 @@
+{
+  "argv": [
+    "wasm-bindgen",
+    "--version"
+  ],
+  "output": "wasm-bindgen 0.2.123"
+}

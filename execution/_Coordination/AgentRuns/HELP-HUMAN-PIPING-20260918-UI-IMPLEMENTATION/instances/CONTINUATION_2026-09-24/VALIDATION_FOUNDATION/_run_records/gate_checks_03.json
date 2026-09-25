@@ -1,0 +1,37 @@
+{
+  "utc": "2026-09-25T08:49:21.884602+00:00",
+  "command": [
+    "/private/tmp/chirality-piping-dec025-venv/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-p",
+    "test_qualification_gate.py",
+    "-v"
+  ],
+  "cwd": "WORKING_ROOT",
+  "exit_code": 0,
+  "seconds": 58.175162333995104,
+  "scope": "Synthetic subprocess and received-packet gate verification only; no Piping solve, Cargo, fullsuite, CI or native run",
+  "files": [
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_gate.py",
+      "sha256": "87c8404d470fd10f1c17eda5016e121318024d485d4361a57f2c99e024556216"
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_process.py",
+      "sha256": "11f9d3789d8ac10457a840e5ae642f5fb676bb159cef65da9a1b94e0e6f9ec6f"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_qualification_gate.py",
+      "sha256": "b8b696c0d90c5fb9c77ba84928e9e789cfa745944bf362988632a24cc4243c30"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/GATE_USAGE.md",
+      "sha256": "08468b37d46c7d48a883e65fb2f1c4cfb8decf0339598d0f2ed2fe469909b61f"
+    }
+  ],
+  "log_sha256": "77fbbf9355f164f2ddac29f88b171824546a4583e9b61784d1791317a61bd627"
+}

@@ -1,0 +1,90 @@
+{
+  "status": "clear_for_bounded_development_binding",
+  "reviewer": "/root",
+  "role": "HELP_HUMAN",
+  "nonimplementation": "Root did not author the addendum or generator; independent derivation and checker do not import them or product code",
+  "binding_sha256": "1ed8aac0910318902cd5f690aeee8cb74bfee036617e33eaa4e2c23ec98ff3c2",
+  "manifest_sha256": "2a5f8af4cbd62dcf27bcfe80f8c6d803c356bfab7a72dfdc2f4e53ff8579aa0e",
+  "checker_sha256": "b7e984b5b149464453323af2b21e9bba00d2255930badddf99167f9408710e2f",
+  "original25_unchanged_at": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+  "arithmetic": "Decimal135 AGM pi; sector area and second-moment integrations",
+  "checks": [
+    {
+      "field": "outside_diameter_m",
+      "independent_decimal": "0.2",
+      "expected_binary64": 0.2,
+      "criterion": "section.source_length_identity",
+      "independent_positive_and_negative_controls": "pass"
+    },
+    {
+      "field": "effective_wall_thickness_m",
+      "independent_decimal": "0.01",
+      "expected_binary64": 0.01,
+      "criterion": "section.source_length_identity",
+      "independent_positive_and_negative_controls": "pass"
+    },
+    {
+      "field": "ro_m",
+      "independent_decimal": "0.1",
+      "expected_binary64": 0.1,
+      "criterion": "section.derived_length_relative",
+      "independent_positive_and_negative_controls": "pass"
+    },
+    {
+      "field": "ri_m",
+      "independent_decimal": "0.09",
+      "expected_binary64": 0.09,
+      "criterion": "section.derived_length_relative",
+      "independent_positive_and_negative_controls": "pass"
+    },
+    {
+      "field": "As_m2",
+      "independent_decimal": "0.0059690260418206071530790224282310554799746218588127010598523947253848511719437970973932661681500224291660813643752363826294783047581461",
+      "expected_binary64": 0.005969026041820607,
+      "criterion": "section.area_relative",
+      "independent_positive_and_negative_controls": "pass"
+    },
+    {
+      "field": "Ai_m2",
+      "independent_decimal": "0.0254469004940773252315474114045639733619970721349383571498970511976933128909182928888870820852711482506553995007575866838414601413373597",
+      "expected_binary64": 0.025446900494077326,
+      "criterion": "section.area_relative",
+      "independent_positive_and_negative_controls": "pass"
+    },
+    {
+      "field": "I_m4",
+      "independent_decimal": "0.000027009842839238247367682576487745526046885163911127472295832086132366451553045681865704529410878851491976518173797944631398389329030611",
+      "expected_binary64": 2.7009842839238247e-05,
+      "criterion": "section.second_moment_relative",
+      "independent_positive_and_negative_controls": "pass"
+    },
+    {
+      "field": "J_m4",
+      "independent_decimal": "0.000054019685678476494735365152975491052093770327822254944591664172264732903106091363731409058821757702983953036347595889262796778658061222",
+      "expected_binary64": 5.4019685678476494e-05,
+      "criterion": "section.second_moment_relative",
+      "independent_positive_and_negative_controls": "pass"
+    },
+    {
+      "field": "Z_m3",
+      "independent_decimal": "0.00027009842839238247367682576487745526046885163911127472295832086132366451553045681865704529410878851491976518173797944631398389329030611",
+      "expected_binary64": 0.00027009842839238247,
+      "criterion": "section.modulus_relative",
+      "independent_positive_and_negative_controls": "pass"
+    }
+  ],
+  "coverage": {
+    "cases": 2,
+    "modes_each": 2,
+    "section_subchecks_per_run": 9,
+    "section_subchecks_total": 36,
+    "existing_scalars_total_unchanged": 292,
+    "existing_structural_obligations_total_unchanged": 40
+  },
+  "actual_solver_runs": 0,
+  "limits": [
+    "Adapter implementation and its review remain required",
+    "No product imports, reference generator execution, solver/native/build/network or source edits",
+    "No global or release tolerance and no coefficient-enclosure epsilon added"
+  ]
+}

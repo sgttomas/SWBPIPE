@@ -1,0 +1,747 @@
+{
+  "utc": "2026-09-25T08:28:29.232920+00:00",
+  "role": "TASK Type 2; independent reviewer; no implementation authorship",
+  "mechanism": "delegated-harness-native descendant",
+  "agent": "/root/scientific_transport_manager/scope_review",
+  "parent": "/root/scientific_transport_manager",
+  "resolved_repo_root": "/private/tmp/piping-validation-foundation-20260925",
+  "base_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+  "instructions": [
+    {
+      "path": "AGENTS.md",
+      "origin": "/private/tmp/piping-validation-foundation-20260925/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "bytes": 14200
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "origin": "/private/tmp/piping-validation-foundation-20260925/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "bytes": 9016
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "bytes": 8475
+    },
+    {
+      "path": ".agents/skills/software-code-review/SKILL.md",
+      "origin": "/private/tmp/piping-validation-foundation-20260925/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
+      "bytes": 1303
+    }
+  ],
+  "brief": {
+    "objective": "Independent review of complete four-file SOURCE_FREEZE_01 VP-SCOPE inventory and VP-HARNESS proposal against exact main/checkpoint/graph source identities. All original report commands/thresholds inert; owner resumed programme via ROOT, prior hold superseded.",
+    "write_scope": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/INDEPENDENT_REVIEW",
+    "limits": [
+      "no child delegation",
+      "no product/maintained-source writes",
+      "no network",
+      "no solver/build/full tests/CI/native",
+      "no Git mutation; Git source reads permitted",
+      "only tiny inventory checker and independent corruption probes permitted"
+    ],
+    "returns": "Actionable findings, exact source and instruction hashes, checker evidence, final bounded review to parent."
+  },
+  "candidate": [
+    {
+      "path": "projects/chirality-piping/validation/qualification/HARNESS_CUT.md",
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/validation/qualification/HARNESS_CUT.md",
+      "sha256": "a6d248e200cd97cce589be16880efd60f9501e835f9518ec2fa078565b278b14",
+      "bytes": 7487
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/README.md",
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/validation/qualification/README.md",
+      "sha256": "654630c7da3b87acc15fc4699682f5ab06073394e60cc381662dcb670363455e",
+      "bytes": 6802
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/capability_inventory.json",
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/validation/qualification/capability_inventory.json",
+      "sha256": "d6401a341d5177e355a55bf86665f0a933736adebc053c0f811a6a3812ee32c1",
+      "bytes": 108139
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/check_inventory.py",
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/validation/qualification/check_inventory.py",
+      "sha256": "98a6b85be7075135bcfaed584af57c1ed7ebdbe6b122da842d34e6929b1f8e5e",
+      "bytes": 7372
+    }
+  ],
+  "coordination_inputs": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/SOURCE_FREEZE_01.json",
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/SOURCE_FREEZE_01.json",
+      "sha256": "a1463fa50828fa1566ea601160d18a7cc59e553dfaebfb7881c069304ea15ee1",
+      "bytes": 1480
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/HARNESS_INVENTORY/INVENTORY.md",
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/HARNESS_INVENTORY/INVENTORY.md",
+      "sha256": "cccf4bc8b2f0ffc6c9806ede629e19cd003c596da224a7e80bc16f295313f1c7",
+      "bytes": 21204
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/HARNESS_INVENTORY/SOURCES.json",
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/HARNESS_INVENTORY/SOURCES.json",
+      "sha256": "2bbbf4a1614783851f0ba75f45890785888e7d9b975dbe7fafe5cd41db489c51",
+      "bytes": 16283
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/HARNESS_INVENTORY/VERIFICATION.json",
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/HARNESS_INVENTORY/VERIFICATION.json",
+      "sha256": "481607a00da43e17571f47c8fccd7afc2067a1607891796a848ab48762bf36d5",
+      "bytes": 987
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/HARNESS_EVIDENCE_RELOCATION.json",
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/HARNESS_EVIDENCE_RELOCATION.json",
+      "sha256": "2af3abe4cda1e4732ab2364067c68a57b8591d31b2a9bead2a58c12aa2b2a961",
+      "bytes": 1181
+    }
+  ],
+  "source_hash_verified_count": 85,
+  "all_git_bindings_verified_by_checker": [
+    {
+      "id": "root_graph",
+      "revision": "d90e4ee0e5abe7ace05dec4e856ca45051893915",
+      "path": "projects/chirality-piping/execution/_Coordination/WorkGraphs/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/WORK_GRAPH.md",
+      "sha256": "7d2a5b909859df2dfe0de150f871c9d1c4a9a87ada9b478f13bc5a1286a73755",
+      "inspection": "Recovered historical hold graph; ROOT live resumption supersedes hold, completed gates remain retained"
+    },
+    {
+      "id": "references_readme",
+      "revision": "d90e4ee0e5abe7ace05dec4e856ca45051893915",
+      "path": "projects/chirality-piping/docs/references/validation-programme/README.md",
+      "sha256": "94c3001655b6cd48403999dcfd99baa23601a27d4ac3d05be5aecadf57652449",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "VAL-REF-01",
+      "revision": "d90e4ee0e5abe7ace05dec4e856ca45051893915",
+      "path": "projects/chirality-piping/docs/references/validation-programme/piping_stress_solver_research_and_agent_plan.md",
+      "sha256": "7c1944fa56b1350008d553e6873ed019ab30b0de1cc3bda74d87796ce5d09774",
+      "inspection": "Supplied proposal/reference, not authority or executed evidence; relevant methods/contracts/source catalogue inspected"
+    },
+    {
+      "id": "VAL-REF-02",
+      "revision": "d90e4ee0e5abe7ace05dec4e856ca45051893915",
+      "path": "projects/chirality-piping/docs/references/validation-programme/piping_solver_benchmark_research_and_agent_plan.md",
+      "sha256": "3c455c627dbbcd08717a1bfcff5d4951cbb0ea00e70e4e6e59daf2e519fa4d3e",
+      "inspection": "Supplied organising proposal/reference, not adopted thresholds/framework; profiles/contracts/comparison/source catalogue inspected"
+    },
+    {
+      "id": "dag",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/_DAG/_LATEST.md",
+      "sha256": "6335bc5cb1b0d1c13c41181b0fbd3e3ab4547fa355b6c9ddc49513307b721422",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "decomposition",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+      "sha256": "2ee818b8acda1d754960d4da964e76745e3142a87ea57dc0cbc6602e116389d7",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "assessment",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_FINDINGS_ASSESSMENT/ASSESSMENT.md",
+      "sha256": "c948cb13ac5d825b0d201074cad50e9b8f4d9de916bc246f574e8304121b72e6",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "product",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "ee3acd7fd1a630ea61e53b1e963dbe637a6f45b8e444b240735ae9f276e233c5",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "product_readme",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/product_physics/README.md",
+      "sha256": "531a31d2c35fabb3587aa4e6ea34350f604f0535f64c14cbdddda0874c5bfbbb",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "frame",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "sha256": "d657e6507aa5d4ef80124e3f6d10bd5a8af8eae54fe21af787c92814c8b73fde",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "straight",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/solver/straight_pipe/src/lib.rs",
+      "sha256": "22c7231bf3c53c67bfcb8de702dda318f8731d784d37b8373362089bbcc57c09",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "bend",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/solver/curved_bend/src/lib.rs",
+      "sha256": "6bfead4091998117612e0a4cebc9807280e2eef60f970acbd6e366e3f0c8dd4b",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "linear_supports",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/solver/linear_supports/src/lib.rs",
+      "sha256": "01ac02c48411813d57adf39b4dd97659f19941628002379890e792b2600e5934",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "nonlinear",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs",
+      "sha256": "3839f407d70d7e85c017bc65ddccbcc5312f3f479eb62587df8ce6e527129a3e",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "nonlinear_integration",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "sha256": "dcb9f8b9b1c09ba9b35627acce8af42383319ef95242088de45eb74a584e371c",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sparse",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs",
+      "sha256": "b480d2978c42517b156ec013a7c637b31db80a99953947e6788616d9cc8b5b71",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "primitive",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/loads/primitive_loads/src/lib.rs",
+      "sha256": "fea5e1839ba663b2df47c1b4b98c0cb98482e1d00806c7ac670af63b918a4252",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "user_loads",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/loads/user_loads/src/lib.rs",
+      "sha256": "688c84a2c26dac651ca1a40ac408f1805f5a505c17a3493491a855ecda606ddc",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "stress",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/loads/stress_recovery/src/lib.rs",
+      "sha256": "0c3a0b6278a1cce4a802fc6c2e4c81af1b6f393c5cde4bb28ff55b99d5d956f2",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "case_algebra",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/loads/load_case_algebra/src/lib.rs",
+      "sha256": "fd70056f81320e33fad4f7e05152a4c83f2a97fd20aaaad384f25eff0b66a050",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "weight",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/product_physics/src/self_weight.rs",
+      "sha256": "6caf38f71d5db7b1adafb7bf439d24f31df969cd3e41397c1a0a253d21279261",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "geometry",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/product_physics/src/annulus_geometry.rs",
+      "sha256": "98a781f126af9d8e6d94de96bbe0d9c3815f83760f7deca7a391e612acf979c9",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "units",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/units/src/lib.rs",
+      "sha256": "b133ae071a28d0ba0e897ad3c50694cc108f956cd9ce32e1288d5a027bdc970c",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "mechanics_suite",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs",
+      "sha256": "095b6991199a845741b422eb1df35350936bb4601c08285be4a2a96f5351fa58",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "stress_suite",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/validation/benchmarks/stress/src/lib.rs",
+      "sha256": "ad7239a073f5ca6c161ee3f63642d487414efed6e3176ae86a2af7979b73210c",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "nonlinear_suite",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/validation/benchmarks/nonlinear/src/lib.rs",
+      "sha256": "6ba0b6e278650afbde02a01a94d4423dca0170c824d14066b4f802064e616e69",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "mechanics_notes",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/validation/hand_calcs/mechanics/README.md",
+      "sha256": "68437a1356df8417cef726a1894b3535ba1e921390febbc6b8b3b4e6ba70d279",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "stress_notes",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/validation/hand_calcs/stress/README.md",
+      "sha256": "b9607ca24a92a145478ad391d3e555a5144d0ef8054bb24297f06bad17307b5b",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "nonlinear_policies",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/validation/benchmarks/nonlinear/README.md",
+      "sha256": "747f68786ff51d2e0f2130eb4470c7db10bc5bdc8b826ab590576c7048a686d2",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "runner",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/runner/headless/src/bin/openpipestress-runner.rs",
+      "sha256": "f873b5b9ac6518e1361049d101a323fbc8a1e54b67017810f48d97a1ba9f33ee",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "runner_core",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/runner/headless/src/lib.rs",
+      "sha256": "39e60b1fb6ce53aaea1e3572eca48705520d6299f7636d3b2a1899190ef344f2",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "benchmark_binding",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/runner/headless/src/benchmark_binding.rs",
+      "sha256": "4a45a0889391046fe6ab887409c791a2148bc30205478138a142af07fd4f1e6f",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "result_binding",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+      "sha256": "6d741832aabe729a40cc9e28aaa9ce8627d5bba4f9ca903c3059438dc0dd7042",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "compare",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/comparison/analysis_run/engine.py",
+      "sha256": "14aada4049fde08c6f68a99a844f84e73b16fd8b6e4bb2a91cb7e4c8f63b7f2c",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "analysis_records",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/analysis_runs/records.py",
+      "sha256": "709f3a16f01b617084dd8d522081138826cae5d390fa0fc56dec23cb6c1a6bb0",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "compatibility",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "sha256": "5b191695c32495c633d21ec74a2ec95aede27b56f6521069a328f0e386575dd7",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "runner_schema",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/schemas/headless_runner.schema.yaml",
+      "sha256": "deaa474eebb07752c0e09878809fbd9a54e9d25052f9a6f0b8bb5f720ce7a182",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "result_schema",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/schemas/results.schema.yaml",
+      "sha256": "8c0a520a21acb439abcbb3c1c033e49efceb113405efc69f3f802542b06f0f01",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "analysis_schema",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/schemas/analysis_run.schema.json",
+      "sha256": "b787444e0a421c995fac4d393c16c28e4e3e84496196d5c2914a7bb082e43e86",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "mapping_schema",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/schemas/comparison_mapping.schema.json",
+      "sha256": "3fdbb88e328b3bb1bce046bd0fa9342fb0e4efd9bb30d4d33ed4579cb249d759",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "tolerance_schema",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/schemas/comparison_tolerance.schema.json",
+      "sha256": "2c2cf4089849bb42a2d8eb83d559f2a60212ca525d2fa1e0bbb910609c10525a",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "semantic_main",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/fixtures/results/semantic_contract_v0_2.json",
+      "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "claim_reporting",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/reporting/state_comparison_handoff_sections/engine.py",
+      "sha256": "53df207fbdb35ed22225bcddfc5a710bb2d3fa3cae975bb297a0be06aa8db2fd",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "validation_strategy",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/docs/VALIDATION_STRATEGY.md",
+      "sha256": "a9bce923d5ca9656191a4abddad8f9464c2fde6b37c94b3d787e98c00949acda",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "num_handoff",
+      "revision": "ed688b13f633ce8aa6aeede784c3562511c20966",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/SOURCE_RECOVERY_IMPLEMENTATION_01/INTEGRATION_HANDOFF.md",
+      "sha256": "15afd47530034b4a8163c5c2202e441c8415005da36f5b1874b4553a1cd68120",
+      "inspection": "Actual checkpoint source-method eligibility and carrier limitations; earlier mutable wording is historical; commit binds inspected bytes"
+    },
+    {
+      "id": "num_frontend_review",
+      "revision": "45d412e5d10e52e80d14a88d5cbea82e2bee005a",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/SOURCE_RECOVERY_IMPLEMENTATION_01/FRONTEND_READERS/INDEPENDENT_REVIEW/RETURN.md",
+      "sha256": "30b7c23bb2ca159d40c3d7b06c0f0e378cbe95fa91bd9185ac5ad53bb388faec",
+      "inspection": "Independent review retains FE-01/P1 and FE-02/P2 open at this revision"
+    },
+    {
+      "id": "engine_handoff",
+      "revision": "22452ecd148e86486fe36a36e34a184c9a5a5943",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/RETURN.md",
+      "sha256": "c1d382d724b880b22de979b6e3eafc6d1fe61cc7526db2256d0f8bc231e64370",
+      "inspection": "Held source fan-in/checkpoint report, not final joined qualification; hold now superseded by live authority"
+    },
+    {
+      "id": "scientific_return",
+      "revision": "05a9baa3342e8a322536ce2286f4189553d43eec",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/RETURN.md",
+      "sha256": "0c7c7420a9e7a1c1127b8fb0f8eeedb49b12cec2146598977cd86a505d871ae3",
+      "inspection": "Clear standalone24Rust/55Python/547token evidence, not adopted by product; no rerun"
+    },
+    {
+      "id": "scientific_api",
+      "revision": "05a9baa3342e8a322536ce2286f4189553d43eec",
+      "path": "projects/chirality-piping/core/serialization/canonical_json/README.md",
+      "sha256": "de4021717cd531cd8474217d4b4b31a25334cc3636615efc911f4c1cefcf6157",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "load_state_design",
+      "revision": "d90e4ee0e5abe7ace05dec4e856ca45051893915",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/LOAD_REFERENCE_STATES/RETURN.md",
+      "sha256": "49e8b8d12a1352c9d8ff182dce9c77f51bbea3dca03524ddcc489773e0b9f554",
+      "inspection": "Design and analytical preparation only; includes hydrostatic wrong-wall-force counterexample"
+    },
+    {
+      "id": "sow_DEL-04-01",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/ScopeOfWork.md",
+      "sha256": "9b4f15fada2ad8cd5157b815ab602f479090ec1428beba882d87b8fe7b3dd373",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-04-02",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/ScopeOfWork.md",
+      "sha256": "d923098dce39eb3fb7091f1eec7926fbe161228a8edf3a6167c977af1407b0b9",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-04-03",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/ScopeOfWork.md",
+      "sha256": "e7a732a0d9d47da268a5e9a775121b85fb4eb2e96ebe0ba718247be6a170cdc3",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-04-04",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/ScopeOfWork.md",
+      "sha256": "9a23f605d0a2c4aef087a080849ba88d4bca9ab734a7304e2fbe43deb6c472cc",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-04-05",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-05_Sparse solver performance harness/ScopeOfWork.md",
+      "sha256": "a56d0bed9383d3fed3873da45d562208e8baf36a42627be8f85aa8997b9a4a79",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-04-06",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/ScopeOfWork.md",
+      "sha256": "6c3f63d7496ee11791a6e997ecbf81f85e3a1381f51597564310832396caa48e",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-04-07",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-07_Product solve integration and nonlinear orchestration/ScopeOfWork.md",
+      "sha256": "e3f701345f6ce750a2ff4681443f788b8cbf80e498c781d158b74bff738c7f88",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-05-01",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/ScopeOfWork.md",
+      "sha256": "29f3163038611f19fde34c6fdc5602a7340f9219fef901c5e9ac998a1870ebf6",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-05-02",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-02_Load-case algebra engine/ScopeOfWork.md",
+      "sha256": "25b8d40065a9be2a33f07cbf50282ddd69a88c12866cf84683cb71cc56179d05",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-05-03",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/ScopeOfWork.md",
+      "sha256": "3f6e913a6ce916f7c1fd9a3cdb3a9ca89d78c60129fd84a15d2dae4a3469a08e",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-05-05",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-05_Concentrated and distributed user load application/ScopeOfWork.md",
+      "sha256": "1c3bbc9d3120240ebe04ead3215443e03dc40ffd3a8307a26519566190bb4a4e",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-07-12",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-12_Interoperability and evidence-review workspace/ScopeOfWork.md",
+      "sha256": "0371486975ac777300e54b5a3b7c43ce709108e80b78db430714e6a314bfad8c",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-09-01",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/ScopeOfWork.md",
+      "sha256": "181b1e37201d93916f03e38e9cdb8e1082d70da5d6297af429bbb8c47d15648e",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-09-02",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-02_Stress recovery benchmark suite/ScopeOfWork.md",
+      "sha256": "74bc07e54fcf39dd7596e213505ef1c60d17443fd6db16766e728469c2b70655",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-09-03",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/ScopeOfWork.md",
+      "sha256": "f97f949356782ecc0ac7156fdb6b68aed942e9c9939679df389b7f58d3ead662",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-09-04",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/ScopeOfWork.md",
+      "sha256": "bc55e58b40d5505e6913155faa4ac4934bbf845fd0eb7c9d9f39724853a03742",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-09-05",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-05_Release quality gate checklist/ScopeOfWork.md",
+      "sha256": "1ea1aee96fba5ab29996d274a4bdf041191252f96467a895c032235f6fb639b0",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-10-04",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-04_Build, packaging, and CI-CD pipeline/ScopeOfWork.md",
+      "sha256": "29a31514d6eb923a165a4590632edd6f29992114bf2d34b79c3ea878e3d50c01",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-10-05",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/ScopeOfWork.md",
+      "sha256": "a5ed8fb84017c02ccd1c72cd2be51b8011c24894646276a11ca4caa58ba0f2dd",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-14-02",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/ScopeOfWork.md",
+      "sha256": "606e86c1233c8bc66f0fdc89efc2e19855bdce24d6f4f862903f22939a527831",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-14-04",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-04_Analysis-run comparison engine/ScopeOfWork.md",
+      "sha256": "200f5c8afb8de77810cb303937303a7b418e097d4e71ced818f92ccad6e1df79",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-14-05",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-05_Comparison mapping, tolerance, and export contracts/ScopeOfWork.md",
+      "sha256": "7677ad2ce7e9250a7036ff238aae1aba1cbb5c395db3f073d471a9beaf9c3b48",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-17-01",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-01_CAEPIPE and export-format source basis/ScopeOfWork.md",
+      "sha256": "0509342f1d9359a2e558a9e065a652660c4f207872cfccede1be4154c273c4df",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-17-02",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-02_Export package, profile, and stable ID map contracts/ScopeOfWork.md",
+      "sha256": "cd307b6c2240a0847e3fcb3e852e3f7f04700a1aef3194088b3a9b14a29919e6",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-17-03",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-03_Native open JSON export package/ScopeOfWork.md",
+      "sha256": "81d70f34bf10e3c5d6631717bab7a2236c22e5e5315e2736a9ce6b0f235d7e17",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-17-04",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-04_CAEPIPE MBF export profile and deterministic writer/ScopeOfWork.md",
+      "sha256": "e0fe2008e5512d8548d32bc9e7fddb47e5d3a2dde6db3bc1f71b1d21fc734dad",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-17-05",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-05_CAEPIPE external run harness and CSV parser/ScopeOfWork.md",
+      "sha256": "35b822e300dd89075adfea80195e2fb2dafcae3f0cd17adc07d84280f7a5bc0e",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-17-06",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/ScopeOfWork.md",
+      "sha256": "898e30e11049a717cc36ec9982ba5a0375f77085f1b1b7a18d8ae9b24ff99f25",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-17-07",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-07_Conservative PCF subset exporter/ScopeOfWork.md",
+      "sha256": "d8373306ff2c13b5a1686915c809f6335b05aff42b66fa1f4d259f8b23de8ed8",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "sow_DEL-17-09",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-09_Export adapter SDK and additional targets/ScopeOfWork.md",
+      "sha256": "142a7a23d59752eb8e4f46ef8c5bc226322d0acff0f9d4e5931cb1a599302bf9",
+      "inspection": "Bounded source inspection; no execution in this mapping run"
+    },
+    {
+      "id": "controlled_export",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/runner/headless/src/redaction_binding.rs",
+      "sha256": "16770911c5ea85c533163d45478fe1c4085cdf6c086cb79bc2b985155bad0703",
+      "inspection": "Independent TASK source inventory; manager integration read of exact bounded API/criterion findings"
+    },
+    {
+      "id": "semantic_helper",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs",
+      "sha256": "865b82d0d465b3e33965d371e4fd0a8904fca01f10bc3953c3504dd4f8d901e7",
+      "inspection": "Independent TASK source inventory; manager integration read of exact bounded API/criterion findings"
+    },
+    {
+      "id": "audit_manifest",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/reporting/audit_manifest/README.md",
+      "sha256": "e9ce2c2ac9d08304490c0b0b8e93193f25299a39c9182728bd602e6130df05c7",
+      "inspection": "Independent TASK source inventory; manager integration read of exact bounded API/criterion findings"
+    },
+    {
+      "id": "report_wire",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/core/reporting/report_package/src/wire.rs",
+      "sha256": "4a04fbde7b50515b00d55dde7438497fa7c5fe1d433bb7fc7d9ff5ee771489e1",
+      "inspection": "Independent TASK source inventory; manager integration read of exact bounded API/criterion findings"
+    },
+    {
+      "id": "criterion_owner",
+      "revision": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-04_tolerance_coverage_thresholds.md",
+      "sha256": "2f4b4cc44e7c74d60640f80b13cb1a46b91677903b56e6b1d45a4adfc5115b4a",
+      "inspection": "Independent TASK source inventory; manager integration read of exact bounded API/criterion findings"
+    }
+  ],
+  "source_content_reviewed_in_full_or_relevant_excerpts": [
+    "root_graph",
+    "VAL-REF-01",
+    "VAL-REF-02",
+    "dag",
+    "assessment",
+    "product",
+    "runner",
+    "runner_core",
+    "controlled_export",
+    "benchmark_binding",
+    "compare",
+    "criterion_owner",
+    "num_handoff",
+    "num_frontend_review",
+    "engine_handoff",
+    "scientific_return",
+    "sow_DEL-09-04",
+    "sow_DEL-09-05",
+    "sow_DEL-10-05",
+    "sow_DEL-14-02",
+    "sow_DEL-14-04",
+    "sow_DEL-14-05"
+  ],
+  "source_inspection_limits": "All 85 pinned source bytes hash-verified; this does not claim semantic inspection of every line of all 85 sources. Complete candidate tables were reviewed; relevant source paths/excerpts and independent harness inventory support scoped claims. No live external fact validation. Copied harness evidence retains recorded PRIMARY origin/deviation.",
+  "not_performed": [
+    "maintained source mutation",
+    "solver execution",
+    "benchmark execution",
+    "compilation/build",
+    "full tests",
+    "CI",
+    "native/UI",
+    "network/source acquisition",
+    "Git mutation",
+    "lifecycle/engineering/release acceptance"
+  ]
+}

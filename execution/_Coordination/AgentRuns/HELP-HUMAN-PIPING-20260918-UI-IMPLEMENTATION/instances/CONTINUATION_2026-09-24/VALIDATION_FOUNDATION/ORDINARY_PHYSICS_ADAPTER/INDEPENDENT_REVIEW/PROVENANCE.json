@@ -1,0 +1,61 @@
+{
+  "reviewer": "/root/numerical_resume/n05_admission",
+  "original_parent": "/root/numerical_resume",
+  "cross_manager_assignment": "/root",
+  "role": "TASK",
+  "mechanism": "delegated-harness-native followup",
+  "author_independence": "No adapter implementation authorship; earlier receipt producer authorship disclosed and outside reviewed delta.",
+  "delegation": "none",
+  "workflow": "none",
+  "skill": ".agents/skills/software-code-review/SKILL.md",
+  "instructions": [
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "bytes": 14200
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "bytes": 9016
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "bytes": 8475
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
+      "bytes": 1303
+    }
+  ],
+  "brief": {
+    "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/REVIEW_BRIEF.md",
+    "sha256": "6af9252c902db23ace7cdabf16c5ee43c9e3eea9183d7cad0fef7cb2ef5c68ca",
+    "bytes": 5257
+  },
+  "source_freeze": {
+    "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/SOURCE_FREEZE_01.json",
+    "sha256": "aa3a8e43eeb5a2ccdce909811c71219eabdb850382d6d12ac25c04b35c0dbeb0",
+    "bytes": 7014
+  },
+  "patch": {
+    "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/SOURCE_FREEZE_01.patch",
+    "sha256": "71525315db46f1f2a11b8c62004a0865d1ef5c5f3c1bbfedf4870f44eb982645",
+    "bytes": 198661
+  },
+  "python": "existing /private/tmp/chirality-piping-review-venv/bin/python3.13.14 with-B/PYTHONDONTWRITEBYTECODE for imports",
+  "methods": [
+    "bounded pure predeclare/summarize/unwrap counterexamples",
+    "Git/plain-unified-patch reconstruction and JSON/hash checks",
+    "read-only actual source/reader/build artifact review"
+  ],
+  "executed_real_cases": 0,
+  "write_scope": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/INDEPENDENT_REVIEW"
+}

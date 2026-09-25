@@ -1,0 +1,46 @@
+{
+  "purpose": "Carry the existing exact owner authority and reviewed composite method resource selection with its implementation; no new instruction or authority change",
+  "primary_commit": "a26fe2f171881c9b284f14d840cbc29bc3828dde",
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/OWNER_PHYSICS_AUTHORITY_2026-09-25.md",
+      "sha256": "7a84fec1aed4e9c2f945c2ad9a51dedeca7cf824ababf514212645a326a758fa"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/SELECTION.md",
+      "sha256": "869353a31e79c3944a8d22ed24bee4783ac29c02232a21e3f6da69dd3589fbd3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/RESOURCE_POLICY.md",
+      "sha256": "03f182cdd0f6b6dc1c9738c6329e20212e59e25f54532a4b0e31f0043af89c38"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/_run_records/RESOURCE_POLICY_BASIS.json",
+      "sha256": "9f76aa17c599db9a06399f27608263bbbf6f16ad01a7cccc2266c9670c92f6f7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/_run_records/SELECTION_BASIS.json",
+      "sha256": "6b138a67a158db82aca6c76ee1e7df77ac92eca76e10818159f60d044e910770"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/_run_records/SOURCE_BLOCK_JOIN_PLAN.selected.md",
+      "sha256": "8446a526b43f863bc5aab963ee3c292bbda98f59392596bb1591cff685b38c5b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/_run_records/policy_review/ORIGIN.json",
+      "sha256": "174d3f429414b37a103cd06c3e0f0dda9c76d745e37276d4c052694c69c407b1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/_run_records/policy_review/RETURN.md",
+      "sha256": "a4da70f6097b3d8a62d807b3ea738aa4c975cfb2ad5d820441bbb857ed1ad923"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/_run_records/policy_review/POLICY_RECORD_REVIEW.json",
+      "sha256": "b7c6e9a2cc3ecec03ca8b2edd2776ba75cbb455167847667b874d9b066a7c181"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/_run_records/policy_review/EXECUTION.json",
+      "sha256": "c502793b528499f6d9f682ee257358adbb3984381f9ab10c333c479bc3ac64be"
+    }
+  ]
+}

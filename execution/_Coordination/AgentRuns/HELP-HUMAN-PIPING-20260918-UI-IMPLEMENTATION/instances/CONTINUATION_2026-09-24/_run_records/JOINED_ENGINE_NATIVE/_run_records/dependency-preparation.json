@@ -1,0 +1,10 @@
+{
+  "purpose": "Prepared separate native dependency tree; not installed into candidate or executed",
+  "source": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules",
+  "copy": "/private/tmp/piping-engine-native-dependencies-20260925/node_modules",
+  "copy_method": "macOS cp -cR clone",
+  "workspace_alias_before": "../../apps/desktop",
+  "workspace_alias_after": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop",
+  "package_lock_sha256": "0dd1616e1ef3c596d5cdaa8e56994f26127c20943bfde066f26c9f924c65d732",
+  "created_utc": "2026-09-25T10:05:42.491076+00:00"
+}

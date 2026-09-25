@@ -1,0 +1,31 @@
+{
+  "project_id": "project:blank-local-20260925t103702z",
+  "private_capture_sha256": "ea14d57117e4252966dd4fef71ec756ada833e33604220b38da8d93ef5e2e6e2",
+  "model_json_sha256": "1ac7f784d36eadcc824dae2ce0de7b5e200fbff283ae3d6fb171a8c2173b90b2",
+  "model_hash": {
+    "algorithm": "sha256",
+    "canonicalization": "rfc8785_jcs",
+    "hash_status": "computed_local_preview",
+    "payload_ref": "project:blank-local-20260925t103702z",
+    "payload_scope": "model_payload",
+    "value": "sha256:1ac7f784d36eadcc824dae2ce0de7b5e200fbff283ae3d6fb171a8c2173b90b2"
+  },
+  "schema_version": "0.2.0",
+  "counts": {
+    "nodes": 2,
+    "pipe_segments": 1,
+    "materials": 1,
+    "supports": 1,
+    "load_cases": 2
+  },
+  "material_density": {
+    "unit": "kg/m^3",
+    "value": 1234
+  },
+  "pressure_contract": null,
+  "constitutive_basis": null,
+  "poisson_ratio": null,
+  "result_status": null,
+  "result_schema": null,
+  "result_rows": 0
+}

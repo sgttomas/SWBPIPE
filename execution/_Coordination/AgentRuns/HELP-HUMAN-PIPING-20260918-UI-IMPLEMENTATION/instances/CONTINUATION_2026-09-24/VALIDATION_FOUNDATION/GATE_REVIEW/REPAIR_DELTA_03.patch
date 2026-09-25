@@ -1,0 +1,286 @@
+--- projects/chirality-piping/tools/validation/qualification_gate.py@freeze02
++++ projects/chirality-piping/tools/validation/qualification_gate.py@freeze03
+@@ -98,6 +98,62 @@
+     require(len(data) <= MAX_INPUT_BYTES, 'bound file grew beyond byte limit')
+     require(sha256_bytes(data) == binding['sha256'], 'bound file digest mismatch: ' + str(path))
+     return data, path.resolve()
++
++
++
++def read_captured_bytes(path: Path, expected_sha256: str, expected_size: int, limit: int) -> bytes:
++    """One bounded read supplies both the integrity check and the consumer bytes.
++
++    A filesystem check is an observation, not a lock or promise against later
++    writes. Parsing must use the returned immutable bytes, never reopen the path.
++    """
++    require(type(expected_size) is int and 0 <= expected_size <= limit, 'captured size outside admission limit')
++    with path.open('rb') as stream:
++        data = stream.read(expected_size + 1)
++    require(len(data) == expected_size, 'retained artifact size changed: ' + str(path))
++    require(sha256_bytes(data) == expected_sha256, 'retained artifact digest changed: ' + str(path))
++    return data
++
++
++def artifact_binding(role: str, path: str, data: bytes, limit: int = MAX_INPUT_BYTES) -> dict:
++    return {'role': role, 'path': path, 'sha256': sha256_bytes(data), 'byte_length': len(data), 'byte_limit': limit}
++
++
++def verify_retained_artifacts(output_dir: Path, artifacts: list[dict]) -> None:
++    for artifact in artifacts:
++        read_captured_bytes(output_dir / artifact['path'], artifact['sha256'],
++                            artifact['byte_length'], artifact['byte_limit'])
++
++
++def verify_publication_custody(ledger: dict, output_dir: Path, selection: dict,
++                               case_artifacts: dict[str, list[dict]], original_bindings: dict[str, list[dict]]) -> None:
++    """Reobserve all retained cases, including ones a later process could alter.
++
++    The ledger owns these expected identities in memory. This is the final
++    observation before publication; it is not post-publication file enforcement.
++    """
++    global_error = None
++    try:
++        verify_retained_artifacts(output_dir, [selection])
++    except (OSError, ValueError) as exc:
++        global_error = str(exc)
++        ledger['diagnostics'].append('publication selection custody: ' + global_error)
++    for case in ledger['cases']:
++        try:
++            require(global_error is None, 'publication selection custody failed')
++            verify_retained_artifacts(output_dir, case_artifacts.get(case['id'], []))
++            for binding in original_bindings.get(case['id'], []):
++                require(file_sha256(Path(binding['path']), max_bytes=MAX_INPUT_BYTES) == binding['sha256'],
++                        'original input/reference/criterion changed before publication')
++            case['custody_at_publication'] = 'checked' if case['id'] in case_artifacts else 'not_captured'
++        except (OSError, ValueError) as exc:
++            fail_case(case, 'error', 'publication custody: ' + str(exc))
++            case['custody_at_publication'] = 'failed'
++    ledger['custody_observation'] = {
++        'checked_at_utc': datetime.now(timezone.utc).isoformat(),
++        'scope': 'bounded retained-selection/input/reference/criterion/stream snapshots and original bindings immediately before final publication',
++        'limits': 'observation-time byte integrity; no filesystem lock, post-publication tamper prevention, internal solver-use or build-source attestation'}
++    ledger['publication_phase'] = 'complete'
+ 
+ 
+ def _id(value, label):
+@@ -131,7 +187,7 @@
+         ledger.append({'id': cid, 'state': 'not_run', 'reason': 'not executed', 'assertions': rows, 'process': None})
+     return {'artifact': 'openpipestress.qualification_development_ledger', 'version': '1.0.0',
+             'profile_id': manifest.get('profile_id'), 'selection_sha256': None,
+-            'qualification': 'not_established_by_this_harness', 'outcome': 'not_run',
++            'qualification': 'not_established_by_this_harness', 'outcome': 'not_run', 'publication_phase': 'in_progress',
+             'cases': ledger, 'summary': {}, 'diagnostics': [],
+             'created_at_utc': datetime.now(timezone.utc).isoformat()}
+ 
+@@ -145,7 +201,7 @@
+     ledger['summary'] = {'required_cases': len(ledger['cases']), 'required_assertions': total,
+                          'assertions': counts, 'cases': {state: sum(c['state'] == state for c in ledger['cases']) for state in STATES}}
+     if total and counts['matched'] == total and all(c['state'] == 'matched' for c in ledger['cases']):
+-        ledger['outcome'] = 'all_required_assertions_matched'
++        ledger['outcome'] = 'all_required_assertions_matched' if ledger['publication_phase'] == 'complete' else 'in_progress'
+     else:
+         ledger['outcome'] = 'not_satisfied'
+ 
+@@ -329,6 +385,9 @@
+     output_dir.mkdir(parents=True, exist_ok=False)
+     (output_dir / 'selection.json').write_bytes(raw_manifest)
+     ledger['selection_sha256'] = sha256_bytes(raw_manifest)
++    selection_artifact = artifact_binding('selection', 'selection.json', raw_manifest)
++    case_artifacts = {}
++    original_bindings = {}
+     summarize(ledger)
+     atomic_record(output_dir / 'ledger.json', ledger)
+     try:
+@@ -361,6 +420,7 @@
+         ledger['diagnostics'].append(str(exc))
+         for case in ledger['cases']:
+             fail_case(case, 'blocked', str(exc))
++        verify_publication_custody(ledger, output_dir, selection_artifact, case_artifacts, original_bindings)
+         summarize(ledger)
+         atomic_record(output_dir / 'ledger.json', ledger)
+         write_summary(output_dir / 'summary.md', ledger)
+@@ -369,22 +429,36 @@
+         try:
+             prepared = prepare_case(case, manifest_path.parent, manifest['purpose'], semantics)
+             case_ledger['bindings'] = prepared['bindings']
++            original_bindings[case['id']] = prepared['bindings']
+             case_ledger['reference_kind'] = prepared['reference_kind']
+-            # Immutable received bindings are copied before execution, not rebuilt
+-            # from parsed objects and not generated by the production solver.
++            # Received bindings are copied before execution. Their expected
++            # identities stay in memory and are rechecked before publication.
+             (output_dir / f'case-{index:04}.reference.json').write_bytes(prepared['reference_bytes'])
+             (output_dir / f'case-{index:04}.criterion.json').write_bytes(prepared['criterion_bytes'])
++            case_artifacts[case['id']] = [
++                artifact_binding('reference', f'case-{index:04}.reference.json', prepared['reference_bytes']),
++                artifact_binding('criterion', f'case-{index:04}.criterion.json', prepared['criterion_bytes'])]
++            case_ledger['retained_artifacts'] = case_artifacts[case['id']]
+             case_ledger['reason'] = 'admitted, process pending'
+             atomic_record(output_dir / 'ledger.json', ledger)
+             process = capture(executable, ['solve'], prepared['input'], output_dir / f'case-{index:04}', timeout_seconds, output_limit_bytes, expected_executable_sha256=runner['executable_sha256'])
+             case_ledger['process'] = process
++            case_artifacts[case['id']].append(artifact_binding('input', f'case-{index:04}/stdin.bin', prepared['input']))
++            for stream_name in ('stdout', 'stderr'):
++                case_artifacts[case['id']].append({'role': stream_name, 'path': f'case-{index:04}/{stream_name}.bin',
++                    'sha256': process[stream_name + '_sha256'], 'byte_length': process[stream_name + '_bytes'],
++                    'byte_limit': process['output_limit_bytes_per_stream']})
+             require(process['executable_sha256_before'] == runner['executable_sha256'], 'executable changed before case')
+             if process['outcome'] != 'completed' or not process['stdin_delivery_complete']:
+                 fail_case(case_ledger, 'error', 'process ' + process['outcome'])
+             else:
+-                mechanics, rows = unwrap((output_dir / f'case-{index:04}' / 'stdout.bin').read_bytes(), prepared['request'], runner['solver_mode'])
++                stdout_bytes = read_captured_bytes(output_dir / f'case-{index:04}' / 'stdout.bin',
++                    process['stdout_sha256'], process['stdout_bytes'], min(output_limit_bytes, MAX_INPUT_BYTES))
++                # Decode exactly the bytes verified above, not a reopened archive.
++                mechanics, rows = unwrap(stdout_bytes, prepared['request'], runner['solver_mode'])
+                 case_ledger['observed_result_identity'] = {k: mechanics[k] for k in ('document_kind', 'schema_version', 'run_id', 'model_ref')}
+                 evaluate_rows(case_ledger, prepared, rows)
++            verify_retained_artifacts(output_dir, case_artifacts[case['id']])
+             for binding in prepared['bindings']:
+                 require(file_sha256(Path(binding['path']), max_bytes=MAX_INPUT_BYTES) == binding['sha256'], 'bound input/reference/criterion changed during run')
+             if process['outcome'] == 'interrupted':
+@@ -399,6 +473,7 @@
+         finally:
+             summarize(ledger)
+             atomic_record(output_dir / 'ledger.json', ledger)
++    verify_publication_custody(ledger, output_dir, selection_artifact, case_artifacts, original_bindings)
+     summarize(ledger)
+     atomic_record(output_dir / 'ledger.json', ledger)
+     write_summary(output_dir / 'summary.md', ledger)
+--- projects/chirality-piping/tests/test_qualification_gate.py@freeze02
++++ projects/chirality-piping/tests/test_qualification_gate.py@freeze03
+@@ -289,6 +289,98 @@
+         self.case['assertions'][0]['selector']['basis_ref']['ref_type'] = 'load_combination'
+         self.assert_complete_denominator(self.run_case(), 'blocked')
+ 
++    def test_stdout_boundary_replacement_cannot_change_compared_value(self):
++        emitted = deepcopy(self.wrapper)
++        emitted['payload']['mechanics_envelope']['results'][1]['value'] = 99
++        self.write_process(emitted)
++        real_capture = gate.capture
++        def replace_after_capture(*args, **kwargs):
++            process = real_capture(*args, **kwargs)
++            (args[3]/'stdout.bin').write_bytes(json.dumps(self.wrapper).encode())
++            return process
++        with patch.object(gate, 'capture', replace_after_capture), patch.object(gate, 'unwrap', wraps=gate.unwrap) as decoder:
++            result = self.run_case()
++        self.assert_complete_denominator(result, 'error')
++        decoder.assert_not_called()
++        self.assertEqual(result['cases'][0]['custody_at_publication'], 'failed')
++
++    def test_stdout_growth_is_bounded_before_decoding(self):
++        real_capture = gate.capture
++        def grow_after_capture(*args, **kwargs):
++            process = real_capture(*args, **kwargs)
++            with (args[3]/'stdout.bin').open('wb') as stream:
++                stream.truncate(gate.MAX_INPUT_BYTES + 1)
++            return process
++        with patch.object(gate, 'capture', grow_after_capture), patch.object(gate, 'unwrap', wraps=gate.unwrap) as decoder:
++            result = self.run_case()
++        self.assert_complete_denominator(result, 'error')
++        decoder.assert_not_called()
++        # The bounded reader reads only the selected length plus one; it never
++        # allocates the grown archive just to discover a size/hash mismatch.
++        import io
++        calls = []
++        class Reader(io.BytesIO):
++            def read(self, size=-1):
++                calls.append(size)
++                return super().read(size)
++        class Source:
++            def open(self, mode):
++                return Reader(b'x' * 100)
++        with self.assertRaises(gate.AdmissionError):
++            gate.read_captured_bytes(Source(), sha256_bytes(b'x' * 10), 10, 1000)
++        self.assertEqual(calls, [11])
++
++    def test_each_retained_snapshot_and_stream_is_rechecked(self):
++        real_capture = gate.capture
++        for name in ('case-0000.reference.json', 'case-0000.criterion.json', 'selection.json',
++                     'case-0000/stdin.bin', 'case-0000/stderr.bin'):
++            def change_after_capture(*args, **kwargs):
++                process = real_capture(*args, **kwargs)
++                (args[3].parent/name).write_bytes(b'{}')
++                return process
++            with patch.object(gate, 'capture', change_after_capture):
++                self.assert_complete_denominator(self.run_case(), 'error')
++        # The original reported reference-copy consequence used an actual child,
++        # not a hook. Preserve that independent execution route as a regression.
++        code = 'from pathlib import Path\nimport sys\nsys.stdin.buffer.read()\nPath("../case-0000.reference.json").write_bytes(b"{}")\nprint(' + repr(json.dumps(self.wrapper)) + ')'
++        self.write_process(code=code)
++        self.assert_complete_denominator(self.run_case(), 'error')
++
++    def test_later_case_cannot_change_an_earlier_case_snapshot(self):
++        selected = deepcopy(self.manifest)
++        second = deepcopy(self.case)
++        second['id'] = 'case:two'
++        second_ref = deepcopy(self.reference)
++        second_ref['case_id'] = second['id']
++        second['reference'] = self.write_bound('reference-two.json', second_ref)
++        selected['cases'].append(second)
++        code = 'from pathlib import Path\nimport sys\nsys.stdin.buffer.read()\nif Path.cwd().name=="case-0001": Path("../case-0000.reference.json").write_bytes(b"{}")\nprint(' + repr(json.dumps(self.wrapper)) + ')'
++        self.write_process(code=code)
++        result = self.run_case(selected)
++        self.assertEqual(result['summary']['required_assertions'], 4)
++        self.assertEqual(result['summary']['assertions']['error'], 2)
++        self.assertEqual(result['summary']['assertions']['matched'], 2)
++        self.assertEqual(result['cases'][0]['custody_at_publication'], 'failed')
++        self.assertNotEqual(result['outcome'], 'all_required_assertions_matched')
++
++    def test_only_final_custody_checked_publication_can_claim_matches(self):
++        publications = []
++        real_record, real_unwrap = gate.atomic_record, gate.unwrap
++        parsed_hashes = []
++        def observe_record(path, value):
++            publications.append((value['publication_phase'], value['outcome']))
++            return real_record(path, value)
++        def observe_bytes(raw, request, mode):
++            parsed_hashes.append(sha256_bytes(raw))
++            return real_unwrap(raw, request, mode)
++        with patch.object(gate, 'atomic_record', observe_record), patch.object(gate, 'unwrap', observe_bytes):
++            result = self.run_case()
++        self.assertEqual(result['outcome'], 'all_required_assertions_matched')
++        self.assertEqual(parsed_hashes, [result['cases'][0]['process']['stdout_sha256']])
++        self.assertEqual(result['cases'][0]['custody_at_publication'], 'checked')
++        self.assertTrue(all(phase == 'complete' for phase, outcome in publications if outcome == 'all_required_assertions_matched'))
++        self.assertEqual(publications[-1], ('complete', 'all_required_assertions_matched'))
++
+     def test_immutable_output_directory_and_reference_files(self):
+         before = {name: (self.root / name).read_bytes() for name in ('input.json', 'reference.json', 'criterion.json')}
+         self.run_case()
+--- projects/chirality-piping/validation/qualification/GATE_USAGE.md@freeze02
++++ projects/chirality-piping/validation/qualification/GATE_USAGE.md@freeze03
+@@ -80,7 +80,9 @@
+ the owned process group and keep partial raw bytes with explicit incomplete-capture
+ status. Delivered-byte hashes and retained archive hashes are checked separately;
+ changed archives cannot support a passing record. This records byte delivery,
+-not an attestation of how the executable internally uses it. Missing executable, wrong hashes, unsupported versions, bad semantics and
++not an attestation of how the executable internally uses it. The consumer performs one bounded size/hash-checked read of captured stdout
++and decodes exactly that returned byte object. It never parses an unchecked
++later reread. Missing executable, wrong hashes, unsupported versions, bad semantics and
+ unready references preserve the full required denominator as blocked/error rows.
+ Interruption leaves later rows not_run. Ordinary completion never rewrites a target.
+ 
+@@ -92,13 +94,20 @@
+ integrated. Model/request/mode identity and process capture are necessary evidence,
+ not an engineering acceptance certificate.
+ 
+-`ledger.json` is updated atomically within the new run directory; raw captures and
+-bound reference/criterion copies remain immutable observations. `summary.md` derives
++`ledger.json` is updated atomically within the new run directory. Before final
++publication, every completed case's retained input/reference/criterion/stdout/
++stderr snapshots, original bindings and retained selection are rechecked against
++their captured in-memory identities. This also detects a later process changing
++an earlier case. Interim ledgers cannot publish an all-matched outcome. Raw
++captures and bound copies are retained observations; the filesystem is not locked,
++and the check does not prevent changes after the observation or after publication.
++Consumers must verify the recorded hashes again before later reliance. `summary.md` derives
+ from that same ledger. Exit0 means only all selected required assertions matched;
+ exit1 means obligations remain unsatisfied; invalid selection/host setup returns2.
+ Decoded nonzero numeric tokens that underflow to zero are refused. Current
+ uppercase/lowercase diagnostic severities and wrapper counts are checked, and
+ unknown raw row fields cannot silently contradict the pinned semantics.
++The final ledger records the custody observation time and these limits.
+ Reports explicitly state `qualification: not_established_by_this_harness`.
+ 
+ ## Verification and remaining integration

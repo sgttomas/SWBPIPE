@@ -1,0 +1,86 @@
+{
+  "reviewer": "/root/numerical_resume/n05_admission",
+  "role": "TASK",
+  "original_harness_parent": "/root/numerical_resume",
+  "cross_manager_assignment": "/root",
+  "mechanism": "delegated-harness-native followup",
+  "delegation": "none",
+  "authorship": "No implementation of any44 frontend paths or3-path repair. Earlier Rust source receipt authorship disclosed; no independent producer/core review claimed.",
+  "write_boundary": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/FINAL_FRONTEND_REVIEW/INDEPENDENT_REVIEW",
+  "workflow": "none selected",
+  "skill": ".agents/skills/software-code-review/SKILL.md",
+  "instructions": [
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "bytes": 14200
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "bytes": 9016
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "bytes": 8475
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
+      "bytes": 1303
+    }
+  ],
+  "instruction_loading": "Retained Root/Piping/LOOP/TASK scope confirmed by Root assignment; selected skill body read in this turn. No other role/workflow loaded.",
+  "basis": [
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/FINAL_FRONTEND_REVIEW/BRIEF.md",
+      "sha256": "ad910ae426c1e9a780de30658a7b8144a19f48c75dfc7df9adffdcd656a425ad",
+      "bytes": 4225
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/FINAL_FRONTEND_REVIEW/MANIFEST.json",
+      "sha256": "c9e7067207e440cb78cbf4f8bb71231574e91e9321041bb3078c2b16978360d0",
+      "bytes": 18446
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/FINAL_FRONTEND_REVIEW/CANDIDATE.patch",
+      "sha256": "52d64bd499c6a6278f6fcf31bcc3adbe5ebca70ceaa7aaf09658b05afd8a7ebd",
+      "bytes": 750631
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/ANALYSIS_SIGNATURE_DELTA/MANIFEST.json",
+      "sha256": "78aa7776fa300a06e6d16072beaa81a1014a99802d32938d2aaea5847c89918b",
+      "bytes": 3726
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/ANALYSIS_SIGNATURE_DELTA/SOURCE.patch",
+      "sha256": "361a31f2dd63653cd72ad35e8f23aa3748467105e8dae44cf67a1b82c31fad1a",
+      "bytes": 7579
+    }
+  ],
+  "prior_review_context": [
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/BROWSER_PROVENANCE_REVIEW.md",
+      "sha256": "adebbe6ec895692ab3fff581b18f9ba1068df69905cddab6fde6240aa2d973dc",
+      "bytes": 6516
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/AUTHORING_NATIVE/REVIEW.md",
+      "sha256": "7842d52513b4d9c784ee36edc3b72c24d3bf79192ece2f60db8537920f4451d0",
+      "bytes": 6646
+    }
+  ],
+  "execution": "Read-only Git/patch reconstruction, source/caller/test review and bounded Node actual-function probes; no product edits, Git mutation, network, solver/build/native/UI/broad suite execution. Physics approved the light Node slot. Native transport is not executed.",
+  "runtime_dependency": {
+    "Node": "v24.18.0",
+    "TypeScript": "5.9.3",
+    "source_root": "/private/tmp/piping-engine-integration-20260925",
+    "typescript_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules/typescript/lib/typescript.js"
+  }
+}

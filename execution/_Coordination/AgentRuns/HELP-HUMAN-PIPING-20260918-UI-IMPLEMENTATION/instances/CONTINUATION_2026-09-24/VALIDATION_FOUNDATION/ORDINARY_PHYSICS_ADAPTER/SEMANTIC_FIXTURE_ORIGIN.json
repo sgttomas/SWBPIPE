@@ -1,0 +1,6 @@
+{
+  "origin": "git:22452ecd148e86486fe36a36e34a184c9a5a5943:projects/chirality-piping/fixtures/results/semantic_contract_v0_3_physics_1.json",
+  "sha256": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc",
+  "copy": "validation/qualification/fixtures/ordinary_physics_1_semantics.json",
+  "scope": "Byte-identical contract metadata for adapter tests; not a new schema or solver/oracle fixture; runtime still verifies the selected candidate table"
+}

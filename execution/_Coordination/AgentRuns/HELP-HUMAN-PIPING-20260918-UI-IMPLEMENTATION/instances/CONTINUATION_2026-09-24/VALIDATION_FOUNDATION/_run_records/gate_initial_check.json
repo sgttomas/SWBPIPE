@@ -1,0 +1,28 @@
+{
+  "command": "PYTHONDONTWRITEBYTECODE=1 /private/tmp/chirality-piping-dec025-venv/bin/python -m unittest discover -s projects/chirality-piping/tests -p test_qualification_gate.py -v",
+  "actual_exec_session": 3142,
+  "tool_output_chunks": [
+    "4c9eb8",
+    "85cc75",
+    "5efe87"
+  ],
+  "exit_code": 0,
+  "tests_passed": 18,
+  "reported_seconds": 53.117,
+  "claim": "actual synthetic localprocess/receivedlegacy packet harness checks, no solver execution",
+  "raw_output_custody": "tool transcript; final candidate rerun will retain dedicated raw log",
+  "files": [
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_gate.py",
+      "sha256": "3021dd14fa600555627ef3a5771d1f292acb1d464d2ccbf237072887ad5aeea2"
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_process.py",
+      "sha256": "b9a4875227ee7a2c37a5a1f0af8508cac390876a09b14d23b6fedb4bc710aeb0"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_qualification_gate.py",
+      "sha256": "d9ad0c2cfb36bd2fc0ae68eef874cac849483603a9bf9fec553b52480a4de29f"
+    }
+  ]
+}

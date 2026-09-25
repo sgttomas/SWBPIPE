@@ -1,0 +1,50 @@
+{
+  "counts": {
+    "actual_runner_invocations": 4,
+    "physical_reader_invocations": 4,
+    "scalar_matched": 292,
+    "structured_matched": 40,
+    "section_matched": 36
+  },
+  "rechecked_retained_artifacts": 96,
+  "actual_process_records": [
+    {
+      "mode": "sparse_interactive",
+      "case_id": "original_static_axial_v1",
+      "stdin_sha256": "ee8fe54222fa5bf6aaa39219b7353a95ff77b91177cccd9c665575229023ff74",
+      "stdout_sha256": "6df8902f89d533598f3604920e8b5f20c35dc6ce5713e5b1977d1d444a29572c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "return_code": 0,
+      "physical_reader_stdout_sha256": "fb0bcb403fcc8a07470de1e05f1acc00dbe02df4488a70e78eb203eb1e0184a5"
+    },
+    {
+      "mode": "sparse_interactive",
+      "case_id": "original_static_bending_torsion_v1",
+      "stdin_sha256": "1f2b6e4876d352818a9f0c94bbfc285ca245df5ac27f63317b164e7ddf9d4ff2",
+      "stdout_sha256": "b942b498a60dda79e1f197222a752b138fab8bcdc87c542392a25e620bfd7130",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "return_code": 0,
+      "physical_reader_stdout_sha256": "d2558d8d53b29330dda2d0d89d9b4edda64f0e27b44c20b7a112da738ac3872f"
+    },
+    {
+      "mode": "dense_scrutiny",
+      "case_id": "original_static_axial_v1",
+      "stdin_sha256": "ee8fe54222fa5bf6aaa39219b7353a95ff77b91177cccd9c665575229023ff74",
+      "stdout_sha256": "461dc0eb73c1337c3b3242ed8e91fe374b73afaa7647af47826362b86e8aac2e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "return_code": 0,
+      "physical_reader_stdout_sha256": "55048a99d3b1d337d61033f657d7bfc58178f58dd23df8c051cc83f54cbc07c2"
+    },
+    {
+      "mode": "dense_scrutiny",
+      "case_id": "original_static_bending_torsion_v1",
+      "stdin_sha256": "1f2b6e4876d352818a9f0c94bbfc285ca245df5ac27f63317b164e7ddf9d4ff2",
+      "stdout_sha256": "a6bebf40d5f068df47ae3161ddb9c34a135617bd0938c98a8231d88c7a6c4705",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "return_code": 0,
+      "physical_reader_stdout_sha256": "0ea049d1a8b33a074408a8e54cfdee14ff7d7992764a20fdbbd770c32f4c3e84"
+    }
+  ],
+  "programme_sha256": "834ecc0ce0405882b6c723ce720dd3d044d8ea1c20e45bea662acb88888b6e2e",
+  "scope": "Manager post-run artifact/command/count verification, not independent review or post-publication tamper prevention."
+}

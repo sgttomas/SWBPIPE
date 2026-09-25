@@ -1,0 +1,227 @@
+{
+  "status": "PASS bounded actual-function repair backcheck",
+  "scope": "In-memory TypeScript transpilation of current function and shared predicate; actual pinned table and genuine captured rows. No full validator/native invocation/new solve.",
+  "node": "v24.18.0",
+  "typescript": "5.9.3",
+  "sources": [
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "sha256": "c464a11fe61fe860bba6c6594123d4764f040f68ad9db84483e15e82707cff26"
+    },
+    {
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.ts",
+      "sha256": "7485999e4655ecb2e888fd1d9609148ae38036dd0cddfc8298582417136f2ac0"
+    }
+  ],
+  "pairs": [
+    {
+      "pair": "n05-sparse_interactive",
+      "raw_sha256": "831bb4a3833b47128a2044eb24bd0540a8a76166fad7446aead7e0b0b848ae6e",
+      "maxima": [
+        {
+          "id": "result:elastic-maximum:4:case:18:independent-member",
+          "expected": "physics-source-endpoint-normal-maximum",
+          "actual": "physics-source-endpoint-normal-maximum",
+          "missing_and_unknown_refused": true
+        }
+      ]
+    },
+    {
+      "pair": "n05-dense_scrutiny",
+      "raw_sha256": "d7b0380b65113d3850808543c48c98a64e8f7f4b087dfee84c4a6e4f0fde3727",
+      "maxima": [
+        {
+          "id": "result:elastic-maximum:4:case:18:independent-member",
+          "expected": "physics-source-endpoint-normal-maximum",
+          "actual": "physics-source-endpoint-normal-maximum",
+          "missing_and_unknown_refused": true
+        }
+      ]
+    },
+    {
+      "pair": "n06-sparse_interactive",
+      "raw_sha256": "233c6bf3f99ecf54e6ff80966bcf02d2ffc19c1bc6e647263eb5de08cc31c222",
+      "maxima": [
+        {
+          "id": "result:elastic-maximum:4:case:18:independent-member",
+          "expected": "physics-source-endpoint-normal-maximum",
+          "actual": "physics-source-endpoint-normal-maximum",
+          "missing_and_unknown_refused": true
+        }
+      ]
+    },
+    {
+      "pair": "n06-dense_scrutiny",
+      "raw_sha256": "e2379dd030de824638d26c4488f45050846bf8e814defc683fd97cd1d607f0b8",
+      "maxima": [
+        {
+          "id": "result:elastic-maximum:4:case:18:independent-member",
+          "expected": "physics-source-endpoint-normal-maximum",
+          "actual": "physics-source-endpoint-normal-maximum",
+          "missing_and_unknown_refused": true
+        }
+      ]
+    },
+    {
+      "pair": "mixed-sparse_interactive",
+      "raw_sha256": "4134fc480d7c77aa412664e0484e08eb3e0c2f44174bbfd6f42023548c4ff4d1",
+      "maxima": [
+        {
+          "id": "result:elastic-maximum:4:case:18:independent-member",
+          "expected": "physics-source-endpoint-normal-maximum",
+          "actual": "physics-source-endpoint-normal-maximum",
+          "missing_and_unknown_refused": true
+        },
+        {
+          "id": "result:elastic-maximum:22:case:ordinary-pressure:18:independent-member",
+          "expected": "supported-source-068",
+          "actual": "supported-source-068",
+          "missing_and_unknown_refused": true
+        }
+      ]
+    },
+    {
+      "pair": "mixed-dense_scrutiny",
+      "raw_sha256": "a240ba6cc38196a806a4720ffd24ac215f4bafca4e70ed2cb3959ca29e506030",
+      "maxima": [
+        {
+          "id": "result:elastic-maximum:4:case:18:independent-member",
+          "expected": "physics-source-endpoint-normal-maximum",
+          "actual": "physics-source-endpoint-normal-maximum",
+          "missing_and_unknown_refused": true
+        },
+        {
+          "id": "result:elastic-maximum:22:case:ordinary-pressure:18:independent-member",
+          "expected": "supported-source-068",
+          "actual": "supported-source-068",
+          "missing_and_unknown_refused": true
+        }
+      ]
+    },
+    {
+      "pair": "fields-sparse_interactive",
+      "raw_sha256": "820ed6df0e166b32cc938988d1abf08840e1a3944ba696416460c712a19ce244",
+      "maxima": [
+        {
+          "id": "result:elastic-maximum:4:case:18:independent-member",
+          "expected": "physics-source-endpoint-normal-maximum",
+          "actual": "physics-source-endpoint-normal-maximum",
+          "missing_and_unknown_refused": true
+        }
+      ]
+    },
+    {
+      "pair": "fields-dense_scrutiny",
+      "raw_sha256": "bbe505b3b7459931b9f49a708b62a9082748ff269696e0a620f3193620d60be9",
+      "maxima": [
+        {
+          "id": "result:elastic-maximum:4:case:18:independent-member",
+          "expected": "physics-source-endpoint-normal-maximum",
+          "actual": "physics-source-endpoint-normal-maximum",
+          "missing_and_unknown_refused": true
+        }
+      ]
+    },
+    {
+      "pair": "n05_units-sparse_interactive",
+      "raw_sha256": "2b6849285aea5074224bbcd505ad5db8f4208268c72cd97911843ff9af47cefe",
+      "maxima": [
+        {
+          "id": "result:elastic-maximum:4:case:18:independent-member",
+          "expected": "physics-source-endpoint-normal-maximum",
+          "actual": "physics-source-endpoint-normal-maximum",
+          "missing_and_unknown_refused": true
+        }
+      ]
+    },
+    {
+      "pair": "n05_units-dense_scrutiny",
+      "raw_sha256": "02d761ab7e64cf3d41a2336a1049a5b20093aa94951ccc0a4739f1250ec32642",
+      "maxima": [
+        {
+          "id": "result:elastic-maximum:4:case:18:independent-member",
+          "expected": "physics-source-endpoint-normal-maximum",
+          "actual": "physics-source-endpoint-normal-maximum",
+          "missing_and_unknown_refused": true
+        }
+      ]
+    },
+    {
+      "pair": "mixed_units-sparse_interactive",
+      "raw_sha256": "0fc195a0e5ca8ded8c0393bded4329d63bc31e6776a3175a70bde9928adbdfb9",
+      "maxima": [
+        {
+          "id": "result:elastic-maximum:4:case:18:independent-member",
+          "expected": "physics-source-endpoint-normal-maximum",
+          "actual": "physics-source-endpoint-normal-maximum",
+          "missing_and_unknown_refused": true
+        },
+        {
+          "id": "result:elastic-maximum:22:case:ordinary-pressure:18:independent-member",
+          "expected": "supported-source-068",
+          "actual": "supported-source-068",
+          "missing_and_unknown_refused": true
+        }
+      ]
+    },
+    {
+      "pair": "mixed_units-dense_scrutiny",
+      "raw_sha256": "c0481764c0f5057dda96cf78529b0df0788f301dd8b1497501ae4bff0d7e1706",
+      "maxima": [
+        {
+          "id": "result:elastic-maximum:4:case:18:independent-member",
+          "expected": "physics-source-endpoint-normal-maximum",
+          "actual": "physics-source-endpoint-normal-maximum",
+          "missing_and_unknown_refused": true
+        },
+        {
+          "id": "result:elastic-maximum:22:case:ordinary-pressure:18:independent-member",
+          "expected": "supported-source-068",
+          "actual": "supported-source-068",
+          "missing_and_unknown_refused": true
+        }
+      ]
+    },
+    {
+      "pair": "n05_unicode-sparse_interactive",
+      "raw_sha256": "468e2ce76a179b1419fc501fe6d38b7bca80adf21d0ee94fd65b85ead1a1c9a5",
+      "maxima": [
+        {
+          "id": "result:elastic-maximum:14:case:温度:α:11:member:ø:1",
+          "expected": "physics-source-endpoint-normal-maximum",
+          "actual": "physics-source-endpoint-normal-maximum",
+          "missing_and_unknown_refused": true
+        }
+      ]
+    },
+    {
+      "pair": "n05_unicode-dense_scrutiny",
+      "raw_sha256": "8bb7f19dbac1444ac352a1ad793ee893a2f7bb41f32ff20b92f005ef5608cd43",
+      "maxima": [
+        {
+          "id": "result:elastic-maximum:14:case:温度:α:11:member:ø:1",
+          "expected": "physics-source-endpoint-normal-maximum",
+          "actual": "physics-source-endpoint-normal-maximum",
+          "missing_and_unknown_refused": true
+        }
+      ]
+    }
+  ],
+  "old_method_compatibility": [
+    {
+      "path": "fixtures/results/precision_connected_ui_mechanics_sparse.json",
+      "sha256": "f986a8d8bfc319a66bce2184119675245dca85ad86cb6977742c3a73c319ec92",
+      "rows_unchanged": 67
+    },
+    {
+      "path": "fixtures/results/physics_connected_ui_mechanics_sparse.json",
+      "sha256": "80396de3e4c8339bc923bb5b4d7309227537ac21dffbb43f4a08648ae98b0d45",
+      "rows_unchanged": 175
+    },
+    {
+      "path": "fixtures/product_preview/source_blocks/n05-sparse_interactive.raw.json",
+      "sha256": "90baefacf40111b85812a2fa8a32c6c9811254ed3c05497494e06f5d6583153f",
+      "rows_unchanged": 79
+    }
+  ]
+}

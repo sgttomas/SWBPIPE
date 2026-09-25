@@ -1,0 +1,62 @@
+{
+  "status": "required design checks; current thin gate implementation pending",
+  "required_checks_per_case": 10,
+  "required_checks": [
+    {
+      "id": "transport_identity_and_mode",
+      "namespace": "ControlledExport.payload",
+      "require": "Unblocked CLI1.0 solve wrapper; expected request_id\u2192runner run_id, expected requested CLI mode corroborated by actual mode evidence; diagnostics/summary internally consistent and no blocking/fatal/error. No canonical document claim from this stdout."
+    },
+    {
+      "id": "actual_input_binding",
+      "namespace": "process capture and payload.mechanics_envelope",
+      "require": "Observed process used the exact bound runner-input bytes, candidate executable/source identity and mode; raw model_ref matches authored project; accepted_model_state_mutated=false. Never hash a substituted DTO or fabricate an input manifest digest."
+    },
+    {
+      "id": "ordinary_physics_contract",
+      "namespace": "payload.mechanics_envelope",
+      "require": "Raw0.2 producer component0.2 physics-1 semantic ID and pinned table; exact_straight_pressure_v2 formulation. No fallback/composite semantic table accepted merely by matching kind."
+    },
+    {
+      "id": "complete_case_material_section",
+      "namespace": "contract_evidence.exact_cases",
+      "require": "Exactly one actual case, correct case/member/material IDs, explicit E200e9,nu.25,derivedG80e9; one annular section with source OD.2/wall.01, no unknown coverage. Pressure evidence/regions empty, no added thermal or mass load. Section values cross-checked to input/independent section reference under declared field criteria, not asserted exactdecimal binary equality."
+    },
+    {
+      "id": "finite_numerical_standing",
+      "namespace": "numerical_quality and rows",
+      "require": "Finite unquantized values and actual checks_passed/passive/retained equations for this stable fixture; preserve accuracy_evidence not_claimed. Required actual numerical diagnostics present. A Sensitive/unresolved/blocked solve is an unmet required case, not an omitted denominator."
+    },
+    {
+      "id": "complete_unique_scalar_rows",
+      "namespace": "results",
+      "require": "All73 selectors match unique real rows including expected zeros. Exact kind/unit/entity/case/metadata and semantic dimension. Missing metadata is required for the two displacement magnitudes; not a fabricated metadata object."
+    },
+    {
+      "id": "normal_maximum_evidence",
+      "namespace": "contract_evidence.exact_cases[case].pipe_stress_extrema",
+      "require": "One pipe/case/result-ID binding, complete coverage/no unavailable members, coefficient_basis=j_side_section_equilibrium_binary64 and coefficient-only enclosure scope; finite ordered bound interval contains published maximum, consistent interval/gap fields. Keep coefficient formation/solve uncertainty separate from enclosure."
+    },
+    {
+      "id": "governing_location",
+      "namespace": "pipe_stress_extrema",
+      "require": "Combined case strict global station_fraction0 and correct member; axial witness in[0,1] is consistent with all-stations tie. No required nonexistent fiber row or false unique axial location; signed fiber expectations remain analytical fields."
+    },
+    {
+      "id": "stress_summary_binding",
+      "namespace": "summary.max_open_formula_stress",
+      "require": "Pa quantity equals selected normal maximum row exactly; location_ref=pipe and result_ref=result:elastic-maximum:4:case:4:pipe. No torsional equivalent-stress reinterpretation."
+    },
+    {
+      "id": "displacement_summary_binding",
+      "namespace": "summary.max_displacement",
+      "require": "mm quantity equals tip displacement_magnitude row exactly; location_ref=tip and result_ref=result:disp:tip. Correct node/segment/support/load-case counts2/1/1/1; no extra physical component or load."
+    }
+  ],
+  "case_specific_location": {
+    "original_static_axial_v1": "any witness fraction0..1; constant axial stress, no unique station or fiber",
+    "original_static_bending_torsion_v1": "strict station0/root; two opposite absolute-normal fibers tied"
+  },
+  "signed_circumferential_extrema": "Expected at all five stations in *.expectations.json; no separate producer rows exist. Not claimed direct scalar output coverage.",
+  "scoring_readiness": false
+}

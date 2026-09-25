@@ -1,0 +1,359 @@
+{
+  "base": "0a438a68672269e5750900792c9565ae9e5555b0",
+  "manifest_sha256": "c9e7067207e440cb78cbf4f8bb71231574e91e9321041bb3078c2b16978360d0",
+  "patch_sha256": "52d64bd499c6a6278f6fcf31bcc3adbe5ebca70ceaa7aaf09658b05afd8a7ebd",
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/c3-viewport-visibility.spec.ts",
+      "frozen_sha256": "1a2c4fe58c875f42df82b84bc8b01e27f310eb883eba6d60fb1f63f49462ede6",
+      "actual_current_sha256": "1a2c4fe58c875f42df82b84bc8b01e27f310eb883eba6d60fb1f63f49462ede6",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 45,
+      "base_sha256": "251ed3228801e2929e92343978df711e091b029c5ebbe9707c5e221d4549ccd1"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts",
+      "frozen_sha256": "9915292ddde4afc2c1549e0fd77519e1c53f8a8486e3570a76a63e543be83bd1",
+      "actual_current_sha256": "9915292ddde4afc2c1549e0fd77519e1c53f8a8486e3570a76a63e543be83bd1",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 169,
+      "base_sha256": "24892f8e86fcb5ded0c45b4c65b67569da595a2c5d04d0aa52c171225eef5261"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+      "frozen_sha256": "77ebb93ddcd5959b7e31cde04a8072d8792325296bf4772636dcea4a51fa19cd",
+      "actual_current_sha256": "77ebb93ddcd5959b7e31cde04a8072d8792325296bf4772636dcea4a51fa19cd",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 25,
+      "base_sha256": "c996c234c07c40555576fa439725a4c52dab16e317a6e59ca11f3add19a01010"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+      "frozen_sha256": "408a839a1c4003d84bfa13577b3a7734eb3804535d727af7015888e464ec1128",
+      "actual_current_sha256": "408a839a1c4003d84bfa13577b3a7734eb3804535d727af7015888e464ec1128",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 364,
+      "base_sha256": "9464cf1163a9a78bd2a607297721c65a71c9db8fc44cc174132dfb6cd0bf2ae5"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/report-package-dist.spec.ts",
+      "frozen_sha256": "8c7a51165ce1d8838440899d6466aa015bda0019fde803ca4856d05f86da9721",
+      "actual_current_sha256": "8c7a51165ce1d8838440899d6466aa015bda0019fde803ca4856d05f86da9721",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 41,
+      "base_sha256": "b94308160608b0651db6cac572aa94871782db2885ef5cb426cce1d3c43fda39"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/result-compatibility-dist.spec.ts",
+      "frozen_sha256": "9771f4ad668841a474c13120bd709484400cd1296c8566510479e2cec7019548",
+      "actual_current_sha256": "9771f4ad668841a474c13120bd709484400cd1296c8566510479e2cec7019548",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 81,
+      "base_sha256": "d62318d0032a2b985ea7bbb4334f3893b3897eb6ec42cad0dd7e412b831c9bc4"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/result-compatibility.spec.ts",
+      "frozen_sha256": "8fb074b54a95e8f119508f2424369d111e9b248614f2c838113043778c9d8530",
+      "actual_current_sha256": "8fb074b54a95e8f119508f2424369d111e9b248614f2c838113043778c9d8530",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 94,
+      "base_sha256": "c469faaeab1d3f684ac340d9f0008efc6624e70ce4fe8b29ac040e22c845b2bb"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation-dist.spec.ts",
+      "frozen_sha256": "888a63ded7086a5e289db7e327b81a78fb9664823e15b2d9c659db60ca31942e",
+      "actual_current_sha256": "888a63ded7086a5e289db7e327b81a78fb9664823e15b2d9c659db60ca31942e",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 368,
+      "base_sha256": "23877e2fcccfce84c03f731afddebac0c703fd3f3188ebccbeb087ef6811f3ff"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts",
+      "frozen_sha256": "7b9efe3783952280fadc103eb76f986276c8394a815c2fd161a1345c205eba87",
+      "actual_current_sha256": "7b9efe3783952280fadc103eb76f986276c8394a815c2fd161a1345c205eba87",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 137,
+      "base_sha256": "0bbfd7c51482a5243e75a347b4ed39cfd5a698ef233b5f172c87fa4dc6a95fd3"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.deadControls.test.tsx",
+      "frozen_sha256": "74f72d50d6ecc2c4c9d5fd2747b893ceb7deea346fb2ca47bff72185a38922a1",
+      "actual_current_sha256": "74f72d50d6ecc2c4c9d5fd2747b893ceb7deea346fb2ca47bff72185a38922a1",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 70,
+      "base_sha256": "58d5d3e219372d02f0c0322d2bce5f3884e32062a85d2ac62369b50e38a65e96"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.projectHandlers.test.tsx",
+      "frozen_sha256": "db9ce5f7836bd9f67e7b9b6dd3651e287e8da266b0beea369a0a7b674d1759b4",
+      "actual_current_sha256": "db9ce5f7836bd9f67e7b9b6dd3651e287e8da266b0beea369a0a7b674d1759b4",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 77,
+      "base_sha256": "cdd85764dada5f5fb4d29d146efefb930c211b9d75429be8f57e8ceab9e729a8"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.shell.test.tsx",
+      "frozen_sha256": "3deb318f28f9ccf24e29ebc89eb4e0d152e3ffb7c95b1637c10c37247f54be5e",
+      "actual_current_sha256": "3deb318f28f9ccf24e29ebc89eb4e0d152e3ffb7c95b1637c10c37247f54be5e",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 191,
+      "base_sha256": "e6fe75ef2c582a6577e51bb2b2b8006734f1fada2dc2c5f6333830844ee26a8c"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "frozen_sha256": "566f9d9a37b009f0d40bcabb99a92069aa026e40ffb025ba789dd69173d4d73a",
+      "actual_current_sha256": "566f9d9a37b009f0d40bcabb99a92069aa026e40ffb025ba789dd69173d4d73a",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 4086,
+      "base_sha256": "5374f136a93132cfbcac349375293db3dc98e6bbb2160dd1e428de7843aebb5a"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "frozen_sha256": "0f6f778f7d4d64620c3bea166111e2750dca472e3687c9eb35ba129ff59c5125",
+      "actual_current_sha256": "0f6f778f7d4d64620c3bea166111e2750dca472e3687c9eb35ba129ff59c5125",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 75,
+      "base_sha256": "ceb1ec1cc525478f32f50aba79d5a3d31df497b69d06dfd9efb097c49c8d291d"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/comparison/ComparisonPanel.tsx",
+      "frozen_sha256": "77c57f8351e2f58cabbd9872ac472d611089b4f5fd4b1cb4ba7452341a40fa44",
+      "actual_current_sha256": "77c57f8351e2f58cabbd9872ac472d611089b4f5fd4b1cb4ba7452341a40fa44",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 13,
+      "base_sha256": "ec2abbffeb468615592f5a28d4de01a61759847b5538a78b24b693612445b08a"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/pressure-authoring/PressureAuthoringPanel.tsx",
+      "frozen_sha256": "61f244f1253256322bebd4990a6366fbb07712013456458eebc834e44d795f03",
+      "actual_current_sha256": "61f244f1253256322bebd4990a6366fbb07712013456458eebc834e44d795f03",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 136,
+      "base_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.ts",
+      "frozen_sha256": "02b89b91c1f3edc3c1b9cdcb036491be36807afcd246559fd03d908e80ef87f9",
+      "actual_current_sha256": "02b89b91c1f3edc3c1b9cdcb036491be36807afcd246559fd03d908e80ef87f9",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 237,
+      "base_sha256": "c578188d59d457bd31a5f169ebcec39acc530841bace94df0824415cf0b41d94"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.test.tsx",
+      "frozen_sha256": "de722facdb0ff5938359b512d88b4562aa5b3121b74dd81555393e373ab1beb9",
+      "actual_current_sha256": "de722facdb0ff5938359b512d88b4562aa5b3121b74dd81555393e373ab1beb9",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 112,
+      "base_sha256": "55e92399edd0829db06b4f8a8b86420824b1590327de1871bd24f7d5ff71c6d7"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.tsx",
+      "frozen_sha256": "77e9c4ef34d8d61398748ef4c4a57375e1de8de32359734eec752d960a472feb",
+      "actual_current_sha256": "77e9c4ef34d8d61398748ef4c4a57375e1de8de32359734eec752d960a472feb",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 57,
+      "base_sha256": "d38f1949b0014a4153d8311626330433a9c60a1488ae634800b2cc71918562b5"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/physicsResultExport.test.ts",
+      "frozen_sha256": "7dd3e7833dc3bc97771532ee1abbd6177ce0a4232e52c4d80177ddcc4e1a0866",
+      "actual_current_sha256": "7dd3e7833dc3bc97771532ee1abbd6177ce0a4232e52c4d80177ddcc4e1a0866",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 140,
+      "base_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "frozen_sha256": "24d1ca3af994b89adfc113f30e7d492545dbe47dc9a2371a17240daecf373a0e",
+      "actual_current_sha256": "24d1ca3af994b89adfc113f30e7d492545dbe47dc9a2371a17240daecf373a0e",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 103,
+      "base_sha256": "15c0211f6e87d62437324c90235ef3baf9f4be24264f64f6fc6ee41935964edf"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/PhysicsSourceEvidencePanel.test.tsx",
+      "frozen_sha256": "1876cc0c159a514b3b3066039706f40021facad9590f25f63303bbd54cc28140",
+      "actual_current_sha256": "1876cc0c159a514b3b3066039706f40021facad9590f25f63303bbd54cc28140",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 51,
+      "base_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/PhysicsSourceEvidencePanel.tsx",
+      "frozen_sha256": "f86bf7a574367f705422c6c42e11fe27c311fd2de7b0ab78681983059648a116",
+      "actual_current_sha256": "f86bf7a574367f705422c6c42e11fe27c311fd2de7b0ab78681983059648a116",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 62,
+      "base_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+      "frozen_sha256": "8948204af80bff81d2b08524c94e8985a828f95147f3cb759dac40927b88cca3",
+      "actual_current_sha256": "8948204af80bff81d2b08524c94e8985a828f95147f3cb759dac40927b88cca3",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 19,
+      "base_sha256": "47b7e0f617d6d4e3b2f97d7b82d3caeed55c64de8689882c504222cc13d2fde9"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/numericalResultQuality.ts",
+      "frozen_sha256": "310d70cd714296e27f418ca7d297062379a088b6dd91e13c678c6985124b0ba5",
+      "actual_current_sha256": "310d70cd714296e27f418ca7d297062379a088b6dd91e13c678c6985124b0ba5",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 86,
+      "base_sha256": "2bb4b372826b90b188da0b91673e22250896986b6bd5b50c918f8c4ae376c16e"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsResultEvidence.ts",
+      "frozen_sha256": "54623e85225ced06a9b3e134538f70d8e8790813345680b2ce3f17afd40d8be1",
+      "actual_current_sha256": "54623e85225ced06a9b3e134538f70d8e8790813345680b2ce3f17afd40d8be1",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 341,
+      "base_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsSourceIntegration.test.tsx",
+      "frozen_sha256": "0e404f4c482f5316031c634016766e52416d787fa85e4fc5e37e1564a15d4608",
+      "actual_current_sha256": "0e404f4c482f5316031c634016766e52416d787fa85e4fc5e37e1564a15d4608",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 128,
+      "base_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsSourceRecovery.test.ts",
+      "frozen_sha256": "81b7e59899b216a4d1c2ce31b36db2253dfbcb8a4972d2ee86e369bcd0f408b7",
+      "actual_current_sha256": "81b7e59899b216a4d1c2ce31b36db2253dfbcb8a4972d2ee86e369bcd0f408b7",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 361,
+      "base_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/physicsSourceRecovery.ts",
+      "frozen_sha256": "ef7ab4c9505825dff5085ee8f836d4e506da458fe67036dfb7ed6036fcd10e42",
+      "actual_current_sha256": "ef7ab4c9505825dff5085ee8f836d4e506da458fe67036dfb7ed6036fcd10e42",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 390,
+      "base_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.ts",
+      "frozen_sha256": "f0140a53e0d8a9b60eb75f7b1a94421be757596b9269b598ee789e037a5474af",
+      "actual_current_sha256": "f0140a53e0d8a9b60eb75f7b1a94421be757596b9269b598ee789e037a5474af",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 37,
+      "base_sha256": "744484fdcd9ee326493a2dae1e6dc9019a4f9b702214bb9908905d659b429351"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/sourceBlockRecovery.test.ts",
+      "frozen_sha256": "ac338acbf79df3375bf2c2f81182e0b6d43d0f5f0c07de58a5d8904a135bbafd",
+      "actual_current_sha256": "ac338acbf79df3375bf2c2f81182e0b6d43d0f5f0c07de58a5d8904a135bbafd",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 412,
+      "base_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/sourceBlockRecovery.ts",
+      "frozen_sha256": "9746a7ac616c0af1b4a9c48067305c9e28c33e0e55e894d9959059c0b3c51fb1",
+      "actual_current_sha256": "9746a7ac616c0af1b4a9c48067305c9e28c33e0e55e894d9959059c0b3c51fb1",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 475,
+      "base_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/solve/SolvePanel.test.tsx",
+      "frozen_sha256": "e153cfaca82491f765285193d03c5284255ba73827c8e7ba1cb08fd3f1a9bb11",
+      "actual_current_sha256": "e153cfaca82491f765285193d03c5284255ba73827c8e7ba1cb08fd3f1a9bb11",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 29,
+      "base_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/solve/SolvePanel.tsx",
+      "frozen_sha256": "e5bd20ba1ba873c7add676bca9d9be189abbe31b338c658e8f89217968f0f6a1",
+      "actual_current_sha256": "e5bd20ba1ba873c7add676bca9d9be189abbe31b338c658e8f89217968f0f6a1",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 12,
+      "base_sha256": "e3aa7600d846e4ab5e8e3db78e5e24ad5bb292e4c708a62ebd0001be6467817d"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+      "frozen_sha256": "e89b82a1c1ee38dd8a1eb4fe3d110b516c73389ae0d83c9988a11d2aa22107de",
+      "actual_current_sha256": "e89b82a1c1ee38dd8a1eb4fe3d110b516c73389ae0d83c9988a11d2aa22107de",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 127,
+      "base_sha256": "c2890e7e0607aeb9558ec9ac72dad0a460a6675907d6bdea4fe276fa1b3eb7c6"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "frozen_sha256": "d9571bbb47e6122538570dcb2a14f5ad510c5db4d9ebfb1c926f6d3941e92c19",
+      "actual_current_sha256": "d9571bbb47e6122538570dcb2a14f5ad510c5db4d9ebfb1c926f6d3941e92c19",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 399,
+      "base_sha256": "b6f07e602fdac816d0c473676ef206dc9adea92f30ec518da19cae0877829e40"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/resultsSessionState.ts",
+      "frozen_sha256": "455a5b294016931242dd14eebde837c9a3d0c8bb6697c27899cba6813f6f2380",
+      "actual_current_sha256": "455a5b294016931242dd14eebde837c9a3d0c8bb6697c27899cba6813f6f2380",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 49,
+      "base_sha256": "c92030018f057c8e826d0486db33a5c78246114d220fa0a062d87a3e21a94ac8"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.shell.test.tsx",
+      "frozen_sha256": "9306de22eafe9d8b2c69f3ee91b416c026705c50692f8febafc944b6275eb9fb",
+      "actual_current_sha256": "9306de22eafe9d8b2c69f3ee91b416c026705c50692f8febafc944b6275eb9fb",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 157,
+      "base_sha256": "4b546c8e5dd6bd056a13f1ac3afb4c271851dac1e19e1b9d0dc3cd1e439e40dd"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+      "frozen_sha256": "d7cad0f732a3ab642435016fd723b49172cc33f4ea9a3a3e74de9524c14a6734",
+      "actual_current_sha256": "d7cad0f732a3ab642435016fd723b49172cc33f4ea9a3a3e74de9524c14a6734",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 250,
+      "base_sha256": "6a113eeaef876c6d7f3d0968b63a7a97da7fd7e4c42cfae00c871f3f058bf674"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "frozen_sha256": "76b434f9bd0789f9182db3c29694f0db2259cfa51ca0252891cf2acaf3e9b8a9",
+      "actual_current_sha256": "76b434f9bd0789f9182db3c29694f0db2259cfa51ca0252891cf2acaf3e9b8a9",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 118,
+      "base_sha256": "742d66ed8c969a7ef9290c7a0a24005ffc19342d20cfea4f7886147508a0b9f4"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "frozen_sha256": "2b11106f3d86dea3bbf4e266fbd194848421e741dac4f6f54a4892f8240823fd",
+      "actual_current_sha256": "2b11106f3d86dea3bbf4e266fbd194848421e741dac4f6f54a4892f8240823fd",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 378,
+      "base_sha256": "b038e31b2797ed14f6dd34743408bde9a8bea4e9561b81d529a1e99041092fe0"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "frozen_sha256": "242f9b2ec084bd448eddf257a97887c743c18e3386bb72356dfc64cc273ebe57",
+      "actual_current_sha256": "242f9b2ec084bd448eddf257a97887c743c18e3386bb72356dfc64cc273ebe57",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 281,
+      "base_sha256": "74b79d41ec53ac8fc5ce267340c404b3ff90f744e3dd24d1236bbf02774f8fdb"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/ruleCheckService.ts",
+      "frozen_sha256": "b55daadcf7db1550edf3aa368d83ec655c0004eb7f6afbc754c1158fb0c66718",
+      "actual_current_sha256": "b55daadcf7db1550edf3aa368d83ec655c0004eb7f6afbc754c1158fb0c66718",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 31,
+      "base_sha256": "98155f7143932269f877688198733d6bdb85dbb5672b07d862a93c2f9e499531"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/types.ts",
+      "frozen_sha256": "f2d9580a7a711f037826895941cd0120ef27e486e006a0d4c79901024f32400c",
+      "actual_current_sha256": "f2d9580a7a711f037826895941cd0120ef27e486e006a0d4c79901024f32400c",
+      "patch_reconstruction_matches": true,
+      "patch_lines": 80,
+      "base_sha256": "25a3b2aa687bd8984cc053f6306e57c546c3adb6efbe8576140cae3f06e8bce1"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "method": "Reverse only manager-specified exact status/scope/twofile addition and README clause in memory; no source write or guessed preimage",
+  "results": [
+    {
+      "path": "projects/chirality-piping/validation/qualification/README.md",
+      "reconstructed_before_sha256": "b51125c7051f7c192351c4723d510dc14adacd2fa15b9934e04e78b79ce42a08",
+      "matches_SOURCE_FREEZE_02": true,
+      "current_sha256": "4b3e2a1d7fc1aee7d2be0dae531e1677913be54ec3a949bb9d908c70c2e884ea"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/capability_inventory.json",
+      "reconstructed_before_sha256": "8d3247f3d2d3b74a8fde4d354b44de6c2039a5db9b00d76efe74cc8c4f062000",
+      "matches_SOURCE_FREEZE_02": true,
+      "current_sha256": "f4155abafcd9f76292e48733a8bf6829ee0a0bb1a816b11fbd7e22de3c8d0a5e"
+    }
+  ]
+}

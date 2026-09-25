@@ -1,0 +1,20 @@
+--- 
++++ 
+@@ -53,7 +53,7 @@
+       const signature=row.metadata?.basis==='retained_source_endpoint_normal_max_v1'?'physics-source-endpoint-normal-maximum':'supported-source-068';
+       expect(resultSemantics(row,source)?.signature_id).toBe(signature);
+       expect(analysisRowSemantics(row,source).semantic?.signature_id).toBe(signature);
+-      expect(analysisRun.analysis_run.result_refs.find(r=>r.result_ref.ref===row.id)?.semantic_contract.signature_id).toBe(signature);
++      expect(analysisRun.analysis_run.result_refs.find(r=>r.result_ref.ref===row.id)?.semantic_contract?.signature_id).toBe(signature);
+     }
+     const hook=renderHook(()=>useResultsSessionState());
+     act(()=>{hook.result.current.setResult(source);hook.result.current.setAnalysisRun(analysisRun);hook.result.current.setInputManifest(inputManifest);});
+@@ -96,7 +96,7 @@
+     const row=source.results.find(r=>r.kind==='pipe_elastic_normal_stress_maximum_v2'&&r.metadata?.basis===basis)!;
+     expect(row).toBeDefined();
+     const changed=structuredClone(analysisRun),reference=changed.analysis_run.result_refs.find(r=>r.result_ref.ref===row.id)!;
+-    reference.semantic_contract.signature_id=basis==='retained_source_endpoint_normal_max_v1'?'supported-source-068':'physics-source-endpoint-normal-maximum';
++    reference.semantic_contract!.signature_id=basis==='retained_source_endpoint_normal_max_v1'?'supported-source-068':'physics-source-endpoint-normal-maximum';
+     changed.analysis_run.hashes.find(h=>h.payload_scope==='analysis_run_record')!.value=await canonicalSha256HexCheckedV1(analysisRecordProjection(changed));
+     await expect(validateAnalysisRunV03(changed,source)).rejects.toThrow('ANALYSIS_ROW_SOURCE_BINDING_MISMATCH');
+     for(const invalid of [undefined,'unrecognized_basis']) {

@@ -1,0 +1,147 @@
+{
+  "status": "CLEAR complete18-path test/fixture portability delta",
+  "freeze03_sha256": "845d0a4ab9298f921156daae2a4456f79640d56ad5f58dceae441d00606ff7bc",
+  "delta_sha256": "a0cdef602209f487794e89247e116dc4379ae7c74e08e7118bc14d4466eda9fb",
+  "all26frozen_hashes_match": true,
+  "reconstructed_delta_paths": [
+    "projects/chirality-piping/tests/qualification_fixture_support.py",
+    "projects/chirality-piping/tests/test_first_static_selection.py",
+    "projects/chirality-piping/tests/test_qualification_physics_integration.py",
+    "projects/chirality-piping/tests/test_qualification_physics_structure.py",
+    "projects/chirality-piping/validation/qualification/fixtures/first_static/INPUT_REFERENCE_BINDINGS.json",
+    "projects/chirality-piping/validation/qualification/fixtures/first_static/PROVENANCE.json",
+    "projects/chirality-piping/validation/qualification/fixtures/first_static/README.md",
+    "projects/chirality-piping/validation/qualification/fixtures/first_static/STRUCTURAL_EXPECTATIONS.json",
+    "projects/chirality-piping/validation/qualification/fixtures/first_static/STRUCTURAL_NUMERIC_ADDENDUM/STRUCTURAL_NUMERIC_BINDING.json",
+    "projects/chirality-piping/validation/qualification/fixtures/first_static/axial.criteria.candidate.json",
+    "projects/chirality-piping/validation/qualification/fixtures/first_static/axial.reference.candidate.json",
+    "projects/chirality-piping/validation/qualification/fixtures/first_static/axial.runner_input.candidate.json",
+    "projects/chirality-piping/validation/qualification/fixtures/first_static/axial.selectors.candidate.json",
+    "projects/chirality-piping/validation/qualification/fixtures/first_static/bending_torsion.criteria.candidate.json",
+    "projects/chirality-piping/validation/qualification/fixtures/first_static/bending_torsion.reference.candidate.json",
+    "projects/chirality-piping/validation/qualification/fixtures/first_static/bending_torsion.runner_input.candidate.json",
+    "projects/chirality-piping/validation/qualification/fixtures/first_static/bending_torsion.selectors.candidate.json",
+    "projects/chirality-piping/validation/qualification/fixtures/first_static/section.reference.json"
+  ],
+  "fixtures_byte_identical": [
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/INPUT_REFERENCE_BINDINGS.json",
+      "sha256": "be6e332513634f747a1f44c6f38bb94bd2ad0d7ce8e3caa75ccfcdfc9124bdf9",
+      "origin_commit": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+      "origin_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/INPUT_REFERENCE_BINDINGS.json"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/STRUCTURAL_EXPECTATIONS.json",
+      "sha256": "b5f6a9446d5485d707ca86a2df554e4ce9d266246ef6f373f4de7f8d564095fa",
+      "origin_commit": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+      "origin_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/STRUCTURAL_EXPECTATIONS.json"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/section.reference.json",
+      "sha256": "df00cc0827ebce33e8af8bf4ea00e0bd80f98ffef41bdf2e9780cc266002b96a",
+      "origin_commit": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+      "origin_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/section.reference.json"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/STRUCTURAL_NUMERIC_ADDENDUM/STRUCTURAL_NUMERIC_BINDING.json",
+      "sha256": "1ed8aac0910318902cd5f690aeee8cb74bfee036617e33eaa4e2c23ec98ff3c2",
+      "origin_commit": null,
+      "origin_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/STRUCTURAL_NUMERIC_ADDENDUM/STRUCTURAL_NUMERIC_BINDING.json"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/axial.runner_input.candidate.json",
+      "sha256": "ee8fe54222fa5bf6aaa39219b7353a95ff77b91177cccd9c665575229023ff74",
+      "origin_commit": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+      "origin_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/axial.runner_input.candidate.json"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/axial.reference.candidate.json",
+      "sha256": "5c58111b4395796416969e303c377ae27dabf2e0839f6565b0fdc4942dc878b6",
+      "origin_commit": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+      "origin_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/axial.reference.candidate.json"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/axial.criteria.candidate.json",
+      "sha256": "6dab93d22367d638ac9e519bd98ff72323aa44f5002d5a3c91f9612f567add76",
+      "origin_commit": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+      "origin_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/axial.criteria.candidate.json"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/axial.selectors.candidate.json",
+      "sha256": "23379801596b2a1d9a99da5ff30ca1241da14cc5bc92b6618070b0d28380f482",
+      "origin_commit": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+      "origin_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/axial.selectors.candidate.json"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/bending_torsion.runner_input.candidate.json",
+      "sha256": "1f2b6e4876d352818a9f0c94bbfc285ca245df5ac27f63317b164e7ddf9d4ff2",
+      "origin_commit": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+      "origin_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/bending_torsion.runner_input.candidate.json"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/bending_torsion.reference.candidate.json",
+      "sha256": "b5cb4dd6cd03c22d4c05232241ba6a81301e0420a17376e9c1018f197208f339",
+      "origin_commit": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+      "origin_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/bending_torsion.reference.candidate.json"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/bending_torsion.criteria.candidate.json",
+      "sha256": "7dc37745f5111decdfffa430b1b334fb3a08def50fbfdfcc9d73648feadea36d",
+      "origin_commit": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+      "origin_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/bending_torsion.criteria.candidate.json"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/bending_torsion.selectors.candidate.json",
+      "sha256": "2bd1ffaccdfa2dae33fd8b27d6f15a46b5057049122a9f6c13f410844e42584e",
+      "origin_commit": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+      "origin_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/FIRST_STATIC_BINDINGS/bending_torsion.selectors.candidate.json"
+    }
+  ],
+  "original25_unchanged": true,
+  "runtime5_unchanged": [
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_gate.py",
+      "sha256": "e38be5ef21e996151afd3f8a923d179dd991858c6743dfb2badb5457531cdcbe",
+      "byte_length": 48737,
+      "base_sha256": "b6980255a17c5ee3c27619f417abc5e5073d17b21d9e6ad118875601000afbbd"
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_physics.py",
+      "sha256": "34862634d41bf7d0db434739b49462719bcae526e422093e179e93c9483050c1",
+      "byte_length": 18562,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_physics_helper.py",
+      "sha256": "47765efd3b9ff1ba9c6e6c5a2b483c23aa180603d685c0d0265c78cf3f1540fb",
+      "byte_length": 7124,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_physics_structure.py",
+      "sha256": "33bceba232e0bd62716b2ce38f4be82eb04169f7728c1a53b53cae12b43d6ae7",
+      "byte_length": 28740,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/build_first_static_selection.py",
+      "sha256": "6aee22f8b67df8b2191c1a1aa4cb0049898e5b8c0845929a4e7197e8d3f957e8",
+      "byte_length": 8747,
+      "base_sha256": null
+    }
+  ],
+  "permanent_test_dated_dependency_removed": true,
+  "test_helper_not_imported_by_runtime": true,
+  "observed_affected_methods": 37,
+  "observed_historical_access_attempts": 0,
+  "audit_guard_negative_control_inspected": true,
+  "actual_four_run_programme_sha256": "834ecc0ce0405882b6c723ce720dd3d044d8ea1c20e45bea662acb88888b6e2e",
+  "actual_denominator": {
+    "case_mode_executions": 4,
+    "scalar_obligations": 292,
+    "structural_obligations": 40,
+    "section_subchecks_nested": 36
+  },
+  "ledger_bound_artifacts_rechecked": 60,
+  "limits": "No suite/solver/build/native/network rerun. Previous complete adapter/repaired source reviews remain scope basis; this preserves recorded genuine comparison evidence, not a new result assessment."
+}

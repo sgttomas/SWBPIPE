@@ -1,0 +1,71 @@
+{
+  "role": "HELPS_HUMANS",
+  "agent": "/root/load_state_design",
+  "actual_parent": "/root",
+  "mechanism": "delegated-harness-native continuation",
+  "assignment": "Bounded SSLL106/SSLL101 static reference applicability and acquisition",
+  "write_scope": "C/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS",
+  "source_basis": [
+    {
+      "origin": "REPO_ROOT/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "kind": "instructions or external-agent lead; not target authority"
+    },
+    {
+      "origin": "REPO_ROOT/agents/AGENT_HELPS_HUMANS.md",
+      "sha256": "a0c9fb9443d8671d694c1f7b24ff3c402ffd626c781a2739342c938f2f3c3d1e",
+      "kind": "instructions or external-agent lead; not target authority"
+    },
+    {
+      "origin": "REPO_ROOT/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "kind": "instructions or external-agent lead; not target authority"
+    },
+    {
+      "origin": "REPO_ROOT/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "kind": "instructions or external-agent lead; not target authority"
+    },
+    {
+      "origin": "REPO_ROOT/projects/chirality-piping/docs/references/validation-programme/README.md",
+      "sha256": "7732cdb45e4f6bb8b902def68803934ca2ecf67693fd4d5abbf3bf2bc8501689",
+      "kind": "instructions or external-agent lead; not target authority"
+    },
+    {
+      "origin": "REPO_ROOT/projects/chirality-piping/docs/references/validation-programme/piping_stress_solver_research_and_agent_plan.md",
+      "sha256": "7c1944fa56b1350008d553e6873ed019ab30b0de1cc3bda74d87796ce5d09774",
+      "kind": "instructions or external-agent lead; not target authority"
+    },
+    {
+      "origin": "REPO_ROOT/projects/chirality-piping/docs/references/validation-programme/piping_solver_benchmark_research_and_agent_plan.md",
+      "sha256": "3c455c627dbbcd08717a1bfcff5d4951cbb0ea00e70e4e6e59daf2e519fa4d3e",
+      "kind": "instructions or external-agent lead; not target authority"
+    },
+    {
+      "origin": "git:22452ecd148e86486fe36a36e34a184c9a5a5943:projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "2ec20f78068d18d3c76f1473638b35e5af16ad131ad55cc1e6112a2ebc26205f",
+      "kind": "fixed engine basis, bounded formulation and kernel read only"
+    },
+    {
+      "origin": "git:22452ecd148e86486fe36a36e34a184c9a5a5943:projects/chirality-piping/core/product_physics/src/pressure_runtime.rs",
+      "sha256": "5755da52f60893102138d0f0f35b72276caf62fa08f982218da85d675ec5d1aa",
+      "kind": "fixed engine basis, bounded formulation and kernel read only"
+    },
+    {
+      "origin": "git:22452ecd148e86486fe36a36e34a184c9a5a5943:projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "sha256": "03f82e343c7aee8f9f38d4b983091d0b71faebb904fb4dc7b59692a0c9cc4ad9",
+      "kind": "fixed engine basis, bounded formulation and kernel read only"
+    }
+  ],
+  "instructions": "Owner resume supersedes planning README historical hold; no solver/campaign run",
+  "boundaries": [
+    "No product/test/graph/instruction/Git writes",
+    "No solver/deck execution, installations or vendored assets",
+    "No material/component/code-rule libraries",
+    "No repeated load-state/joint/shear derivation"
+  ],
+  "primary_manual_versions": "v17 stable and v18 dev as source switcher labels; exact build commit not supplied by rendered docs",
+  "primary_source_commit": "7558f1d06088bd93d8324e314912bf0e6df7801f",
+  "parent_named_planning_commit": "d90e4ee0e5abe7ace05dec4e856ca45051893915",
+  "research_skill": "Not selected: bounded direct primary-source inspection and source mapping sufficient; no reusable research workflow created"
+}

@@ -1,0 +1,27 @@
+{
+  "scope": "Actual frozen analysisRowSemantics function transpiled in memory; semantic table dependency fixed to the genuine composite fixture contract. Not complete native/validator execution or a new solve.",
+  "source_sha256": "76b434f9bd0789f9182db3c29694f0db2259cfa51ca0252891cf2acaf3e9b8a9",
+  "table_sha256": "ba13f2aefd7a38bd725e5f111e6ec30144bc8776aa957c6278ee7b1178298ba1",
+  "typescript_version": "5.9.3",
+  "node": "v24.18.0",
+  "observations": [
+    {
+      "mode": "sparse_interactive",
+      "raw_sha256": "831bb4a3833b47128a2044eb24bd0540a8a76166fad7446aead7e0b0b848ae6e",
+      "row_id": "result:elastic-maximum:4:case:18:independent-member",
+      "row_basis": "retained_source_endpoint_normal_max_v1",
+      "expected_signature": "physics-source-endpoint-normal-maximum",
+      "actual_signature": "supported-source-068",
+      "unknown_basis_refused": false
+    },
+    {
+      "mode": "dense_scrutiny",
+      "raw_sha256": "d7b0380b65113d3850808543c48c98a64e8f7f4b087dfee84c4a6e4f0fde3727",
+      "row_id": "result:elastic-maximum:4:case:18:independent-member",
+      "row_basis": "retained_source_endpoint_normal_max_v1",
+      "expected_signature": "physics-source-endpoint-normal-maximum",
+      "actual_signature": "supported-source-068",
+      "unknown_basis_refused": false
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "observed_native": "operations[0]: Unsupported operation_kind; temporary changes rolled back; model not changed",
+  "cause": "Root setup used unsupported edit token; actual native-generated saved pressure/material operations use modify",
+  "first_batch_sha256": "6fd1aeaea4db4a33e7f59921bb12be6acc08d46584b37a30369aad851509144a",
+  "corrected_batch_sha256": "03ec6cdb58112ba52ac2f51c5f46269319da3ed724e59fddfdf95fa4d28f64cb",
+  "original_retained": true,
+  "late_step_witness_established": false,
+  "production_source_changed": false
+}

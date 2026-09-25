@@ -1,0 +1,245 @@
+{
+  "format": "openpipestress.ordinary_physics_adapter_source_freeze/1",
+  "base_commit": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+  "files": [
+    {
+      "path": "projects/chirality-piping/tests/qualification_fixture_support.py",
+      "sha256": "7a8a243384cc0defa7f06652243c3aae9ae8d4f4343b6ad531de6a324d610fb5",
+      "byte_length": 2193,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_first_static_selection.py",
+      "sha256": "f83a226afd8ffbce9f4e1ebe239367ba3054778df82080f5ba7defc6eeb56653",
+      "byte_length": 4428,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_qualification_physics.py",
+      "sha256": "12f0bf3e7e194c3105f74aabf4186146cd8277456b718cae54c2f7e46159b933",
+      "byte_length": 6444,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_qualification_physics_integration.py",
+      "sha256": "0610788188b16c01b311bd43484056c73a8127039d4688998146ffce6fbf94a5",
+      "byte_length": 18664,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_qualification_physics_structure.py",
+      "sha256": "36cc2fceec5261dff6defd65296cdf9230c924ef93c146cb35b4a500c2cc8077",
+      "byte_length": 20403,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/build_first_static_selection.py",
+      "sha256": "6aee22f8b67df8b2191c1a1aa4cb0049898e5b8c0845929a4e7197e8d3f957e8",
+      "byte_length": 8747,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_gate.py",
+      "sha256": "e38be5ef21e996151afd3f8a923d179dd991858c6743dfb2badb5457531cdcbe",
+      "byte_length": 48737,
+      "base_sha256": "b6980255a17c5ee3c27619f417abc5e5073d17b21d9e6ad118875601000afbbd"
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_physics.py",
+      "sha256": "34862634d41bf7d0db434739b49462719bcae526e422093e179e93c9483050c1",
+      "byte_length": 18562,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_physics_helper.py",
+      "sha256": "47765efd3b9ff1ba9c6e6c5a2b483c23aa180603d685c0d0265c78cf3f1540fb",
+      "byte_length": 7124,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_physics_structure.py",
+      "sha256": "33bceba232e0bd62716b2ce38f4be82eb04169f7728c1a53b53cae12b43d6ae7",
+      "byte_length": 28740,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/GATE_USAGE.md",
+      "sha256": "607d95eccf65570852d0b28854b26539ff763e4a1d484385949aeaf8de4a9f12",
+      "byte_length": 12869,
+      "base_sha256": "624ba3dd6a58d52f4278bc6912053da66df6b8fdf1d106572405ee289c7b4a55"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/INPUT_REFERENCE_BINDINGS.json",
+      "sha256": "be6e332513634f747a1f44c6f38bb94bd2ad0d7ce8e3caa75ccfcdfc9124bdf9",
+      "byte_length": 2317,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/PROVENANCE.json",
+      "sha256": "859dfa8fdec02a16cb29325311185feeccecf4e46ae5e73ad787d7b1ddffffa4",
+      "byte_length": 7838,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/README.md",
+      "sha256": "41d709d6246e46ee5dd4e4cdf1d2896bba7a506cb2355722bb084edf666ff684",
+      "byte_length": 1138,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/STRUCTURAL_EXPECTATIONS.json",
+      "sha256": "b5f6a9446d5485d707ca86a2df554e4ce9d266246ef6f373f4de7f8d564095fa",
+      "byte_length": 4343,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/STRUCTURAL_NUMERIC_ADDENDUM/STRUCTURAL_NUMERIC_BINDING.json",
+      "sha256": "1ed8aac0910318902cd5f690aeee8cb74bfee036617e33eaa4e2c23ec98ff3c2",
+      "byte_length": 10565,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/axial.criteria.candidate.json",
+      "sha256": "6dab93d22367d638ac9e519bd98ff72323aa44f5002d5a3c91f9612f567add76",
+      "byte_length": 9865,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/axial.reference.candidate.json",
+      "sha256": "5c58111b4395796416969e303c377ae27dabf2e0839f6565b0fdc4942dc878b6",
+      "byte_length": 7601,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/axial.runner_input.candidate.json",
+      "sha256": "ee8fe54222fa5bf6aaa39219b7353a95ff77b91177cccd9c665575229023ff74",
+      "byte_length": 6939,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/axial.selectors.candidate.json",
+      "sha256": "23379801596b2a1d9a99da5ff30ca1241da14cc5bc92b6618070b0d28380f482",
+      "byte_length": 81504,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/bending_torsion.criteria.candidate.json",
+      "sha256": "7dc37745f5111decdfffa430b1b334fb3a08def50fbfdfcc9d73648feadea36d",
+      "byte_length": 10561,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/bending_torsion.reference.candidate.json",
+      "sha256": "b5cb4dd6cd03c22d4c05232241ba6a81301e0420a17376e9c1018f197208f339",
+      "byte_length": 7842,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/bending_torsion.runner_input.candidate.json",
+      "sha256": "1f2b6e4876d352818a9f0c94bbfc285ca245df5ac27f63317b164e7ddf9d4ff2",
+      "byte_length": 8112,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/bending_torsion.selectors.candidate.json",
+      "sha256": "2bd1ffaccdfa2dae33fd8b27d6f15a46b5057049122a9f6c13f410844e42584e",
+      "byte_length": 81619,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/section.reference.json",
+      "sha256": "df00cc0827ebce33e8af8bf4ea00e0bd80f98ffef41bdf2e9780cc266002b96a",
+      "byte_length": 818,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/ordinary_physics_1_semantics.json",
+      "sha256": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc",
+      "byte_length": 49093,
+      "base_sha256": null
+    }
+  ],
+  "patch": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/SOURCE_FREEZE_03.patch",
+    "sha256": "c7dfc9441728efa612f102a5809c882a37b18e62a1ae2b3c3d4e2a3480dcc3aa",
+    "byte_length": 462463
+  },
+  "predecessor": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/SOURCE_FREEZE_02.json",
+    "sha256": "609ed22c4204465712d773d2f881a0971612c8c4c03d07a094b09c16a0e5d951",
+    "byte_length": 6232
+  },
+  "fixture_delta": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/SOURCE_REPAIR_02_TO_03.patch",
+    "sha256": "a0cdef602209f487794e89247e116dc4379ae7c74e08e7118bc14d4466eda9fb",
+    "byte_length": 260634
+  },
+  "changed_paths": [
+    "projects/chirality-piping/tests/qualification_fixture_support.py",
+    "projects/chirality-piping/tests/test_first_static_selection.py",
+    "projects/chirality-piping/tests/test_qualification_physics_integration.py",
+    "projects/chirality-piping/tests/test_qualification_physics_structure.py",
+    "projects/chirality-piping/validation/qualification/fixtures/first_static/INPUT_REFERENCE_BINDINGS.json",
+    "projects/chirality-piping/validation/qualification/fixtures/first_static/PROVENANCE.json",
+    "projects/chirality-piping/validation/qualification/fixtures/first_static/README.md",
+    "projects/chirality-piping/validation/qualification/fixtures/first_static/STRUCTURAL_EXPECTATIONS.json",
+    "projects/chirality-piping/validation/qualification/fixtures/first_static/STRUCTURAL_NUMERIC_ADDENDUM/STRUCTURAL_NUMERIC_BINDING.json",
+    "projects/chirality-piping/validation/qualification/fixtures/first_static/axial.criteria.candidate.json",
+    "projects/chirality-piping/validation/qualification/fixtures/first_static/axial.reference.candidate.json",
+    "projects/chirality-piping/validation/qualification/fixtures/first_static/axial.runner_input.candidate.json",
+    "projects/chirality-piping/validation/qualification/fixtures/first_static/axial.selectors.candidate.json",
+    "projects/chirality-piping/validation/qualification/fixtures/first_static/bending_torsion.criteria.candidate.json",
+    "projects/chirality-piping/validation/qualification/fixtures/first_static/bending_torsion.reference.candidate.json",
+    "projects/chirality-piping/validation/qualification/fixtures/first_static/bending_torsion.runner_input.candidate.json",
+    "projects/chirality-piping/validation/qualification/fixtures/first_static/bending_torsion.selectors.candidate.json",
+    "projects/chirality-piping/validation/qualification/fixtures/first_static/section.reference.json"
+  ],
+  "runtime_adapter_unchanged": [
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_gate.py",
+      "sha256": "e38be5ef21e996151afd3f8a923d179dd991858c6743dfb2badb5457531cdcbe",
+      "byte_length": 48737,
+      "base_sha256": "b6980255a17c5ee3c27619f417abc5e5073d17b21d9e6ad118875601000afbbd"
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_physics.py",
+      "sha256": "34862634d41bf7d0db434739b49462719bcae526e422093e179e93c9483050c1",
+      "byte_length": 18562,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_physics_helper.py",
+      "sha256": "47765efd3b9ff1ba9c6e6c5a2b483c23aa180603d685c0d0265c78cf3f1540fb",
+      "byte_length": 7124,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_physics_structure.py",
+      "sha256": "33bceba232e0bd62716b2ce38f4be82eb04169f7728c1a53b53cae12b43d6ae7",
+      "byte_length": 28740,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/build_first_static_selection.py",
+      "sha256": "6aee22f8b67df8b2191c1a1aa4cb0049898e5b8c0845929a4e7197e8d3f957e8",
+      "byte_length": 8747,
+      "base_sha256": null
+    }
+  ],
+  "fixture_provenance": {
+    "path": "projects/chirality-piping/validation/qualification/fixtures/first_static/PROVENANCE.json",
+    "sha256": "859dfa8fdec02a16cb29325311185feeccecf4e46ae5e73ad787d7b1ddffffa4",
+    "byte_length": 7838
+  },
+  "affected_checks": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/FIXTURE_PROMOTION/CHECKS.json",
+    "sha256": "fdd39cd9dd0b22a7ddff8322be3fd39f977016c793f47c4b1acf91816bf1a2c5",
+    "byte_length": 7166
+  },
+  "actual_four_run_programme_unchanged": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/COMPARISON_RUN_01/PROGRAMME.json",
+    "sha256": "834ecc0ce0405882b6c723ce720dd3d044d8ea1c20e45bea662acb88888b6e2e",
+    "byte_length": 4282
+  },
+  "status": "Maintained fixture/test portability change pending narrow independent backcheck. No target/admission/runtime/build or actual result changes."
+}

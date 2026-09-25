@@ -1,0 +1,241 @@
+{
+  "candidate": "8b982aa7ce64afe37e6067d1038d92608f4aaf3f",
+  "mode": "sparse_interactive",
+  "reference_sha256": "f2e5ca626d5055157fce2bc3ff149f7c2823a429f3b7b37e1e1e82373b31595c",
+  "checker_sha256": "3cb747c3fa5dfcbd099e73880e5b50d5e3e19a723c3dccabc902bc52468dd488",
+  "private_capture_sha256": "713f1bf91b1b5908c2a350597242bc98fe94662c4a43ca8b53c327522980d0f0",
+  "model_sha256": "afbb90c3fd89f8078f77f7953a1f3287a3adba72cf2b3dbf5dd1e5eb4b1ba037",
+  "original_ordinary_outcome": "sensitive",
+  "selected_method": "retained_source_blocks_exact_v1",
+  "scope": "Named numeric/reference and saved-source consistency; actual CUA invocation supplies separate origin witness",
+  "checks": [
+    {
+      "result_id": "result:support-action:4:case:6:anchor:Fx",
+      "observed": -0.001,
+      "expected": -0.001,
+      "unit": "N",
+      "relative_error": 0.0,
+      "criterion": "unchanged nonzero relative1e-9",
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:4:case:6:anchor:Fy",
+      "observed": -0.002,
+      "expected": -0.002,
+      "unit": "N",
+      "relative_error": 0.0,
+      "criterion": "unchanged nonzero relative1e-9",
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:4:case:6:anchor:Fz",
+      "observed": 0.003,
+      "expected": 0.003,
+      "unit": "N",
+      "relative_error": 0.0,
+      "criterion": "unchanged nonzero relative1e-9",
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:4:case:6:anchor:Mx",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N*m",
+      "relative_error": null,
+      "criterion": "exact structural zero",
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:4:case:6:anchor:My",
+      "observed": -0.005499999999999999,
+      "expected": -0.0055,
+      "unit": "N*m",
+      "relative_error": 1.5770213417970976e-16,
+      "criterion": "unchanged nonzero relative1e-9",
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:4:case:6:anchor:Mz",
+      "observed": -0.004599999999999999,
+      "expected": -0.0046,
+      "unit": "N*m",
+      "relative_error": 1.8855689956269643e-16,
+      "criterion": "unchanged nonzero relative1e-9",
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:4:case:18:independent-spring:Fx",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N",
+      "relative_error": null,
+      "criterion": "exact structural zero",
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:4:case:18:independent-spring:Fy",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N",
+      "relative_error": null,
+      "criterion": "exact structural zero",
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:4:case:18:independent-spring:Fz",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N",
+      "relative_error": null,
+      "criterion": "exact structural zero",
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:4:case:18:independent-spring:Mx",
+      "observed": -1e-08,
+      "expected": -1e-08,
+      "unit": "N*m",
+      "relative_error": 0.0,
+      "criterion": "unchanged nonzero relative1e-9",
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:4:case:18:independent-spring:My",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N*m",
+      "relative_error": null,
+      "criterion": "exact structural zero",
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:4:case:18:independent-spring:Mz",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N*m",
+      "relative_error": null,
+      "criterion": "exact structural zero",
+      "passed": true
+    },
+    {
+      "result_id": "result:disp:independent-tip:ux",
+      "observed": 1.6753151904410035e-09,
+      "expected": 1.6753151904410035e-09,
+      "unit": "mm",
+      "relative_error": 0.0,
+      "criterion": "unchanged nonzero relative1e-9",
+      "passed": true
+    },
+    {
+      "result_id": "result:disp:independent-tip:rx",
+      "observed": 0.00010000000000462794,
+      "expected": 0.00010000000000462795,
+      "unit": "rad",
+      "relative_error": 1.3552527155441602e-16,
+      "criterion": "unchanged nonzero relative1e-9",
+      "passed": true
+    },
+    {
+      "result_id": "result:disp:independent-tip:uy",
+      "observed": 1.209435643927943e-06,
+      "expected": 1.2094356439279437e-06,
+      "unit": "mm",
+      "relative_error": 5.252654108799971e-16,
+      "criterion": "unchanged nonzero relative1e-9",
+      "passed": true
+    },
+    {
+      "result_id": "result:disp:independent-tip:ry",
+      "observed": 9.255885030060788e-10,
+      "expected": 9.255885030060793e-10,
+      "unit": "rad",
+      "relative_error": 5.585504586180526e-16,
+      "criterion": "unchanged nonzero relative1e-9",
+      "passed": true
+    },
+    {
+      "result_id": "result:disp:independent-tip:uz",
+      "observed": -1.2958239042085103e-06,
+      "expected": -1.295823904208511e-06,
+      "unit": "mm",
+      "relative_error": 4.902477168213307e-16,
+      "criterion": "unchanged nonzero relative1e-9",
+      "passed": true
+    },
+    {
+      "result_id": "result:disp:independent-tip:rz",
+      "observed": 9.62612043126322e-10,
+      "expected": 9.626120431263225e-10,
+      "unit": "rad",
+      "relative_error": 6.444812984054452e-16,
+      "criterion": "unchanged nonzero relative1e-9",
+      "passed": true
+    },
+    {
+      "result_id": "result:disp:independent-root:rx",
+      "observed": 9.999999999999999e-05,
+      "expected": 0.0001,
+      "unit": "rad",
+      "relative_error": 1.3552527156068805e-16,
+      "criterion": "unchanged nonzero relative1e-9",
+      "passed": true
+    },
+    {
+      "result_id": "result:stress:independent-member:end-i:torsional-shear",
+      "observed": 1.851177006012158e-11,
+      "expected": 1.8511770060121587e-11,
+      "unit": "MPa",
+      "relative_error": 3.4909403663628283e-16,
+      "criterion": "unchanged nonzero relative1e-9",
+      "passed": true
+    },
+    {
+      "result_id": "result:stress:independent-member:quarter-1:torsional-shear",
+      "observed": 1.851177006012158e-11,
+      "expected": 1.8511770060121587e-11,
+      "unit": "MPa",
+      "relative_error": 3.4909403663628283e-16,
+      "criterion": "unchanged nonzero relative1e-9",
+      "passed": true
+    },
+    {
+      "result_id": "result:stress:independent-member:midspan:torsional-shear",
+      "observed": 1.851177006012158e-11,
+      "expected": 1.8511770060121587e-11,
+      "unit": "MPa",
+      "relative_error": 3.4909403663628283e-16,
+      "criterion": "unchanged nonzero relative1e-9",
+      "passed": true
+    },
+    {
+      "result_id": "result:stress:independent-member:quarter-3:torsional-shear",
+      "observed": 1.851177006012158e-11,
+      "expected": 1.8511770060121587e-11,
+      "unit": "MPa",
+      "relative_error": 3.4909403663628283e-16,
+      "criterion": "unchanged nonzero relative1e-9",
+      "passed": true
+    },
+    {
+      "result_id": "result:stress:independent-member:end-j:torsional-shear",
+      "observed": 1.851177006012158e-11,
+      "expected": 1.8511770060121587e-11,
+      "unit": "MPa",
+      "relative_error": 3.4909403663628283e-16,
+      "criterion": "unchanged nonzero relative1e-9",
+      "passed": true
+    },
+    {
+      "result_id": "result:elastic-maximum:4:case:18:independent-member",
+      "observed": 26.713693785790383,
+      "expected": 26.7136937857904,
+      "unit": "Pa",
+      "relative_error": 6.649611445142542e-16,
+      "criterion": "unchanged nonzero relative1e-9",
+      "passed": true
+    }
+  ],
+  "count": 25,
+  "all_passed": true,
+  "governing_station_fraction": 0
+}

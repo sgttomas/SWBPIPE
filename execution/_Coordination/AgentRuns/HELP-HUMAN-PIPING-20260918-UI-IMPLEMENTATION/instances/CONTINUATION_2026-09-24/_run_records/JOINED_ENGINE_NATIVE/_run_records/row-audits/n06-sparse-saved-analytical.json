@@ -1,0 +1,205 @@
+{
+  "candidate": "8b982aa7ce64afe37e6067d1038d92608f4aaf3f",
+  "variant": "n06",
+  "mode": "sparse_interactive",
+  "private_capture_sha256": "dfd2a9f0fd2161588886315021bd392f1662cd98346688d4f73d4d8101de3595",
+  "checker_sha256": "bf72e067308ed616ccac6940874dda8c86a338f2acb09bff8bba19336dd65657",
+  "model_sha256": "797a7834f8099d04555301056372fe056b23708d4e69d22dde77c2ec4e85daf4",
+  "method": "Independent Decimal100 AGM pi and circular Saint-Venant torsion: root rotation M/K, tip rotation M/K+ML/GJ; support balance; signed j-side section shear Mr/J; no product/author imports",
+  "original_ordinary_outcome": "rejected",
+  "selected_method": "retained_source_blocks_exact_v1",
+  "recorded_receipt_outcome": "qualified",
+  "scope": "Numeric/reference and saved-data identity checks; actual native CUA Run is separate origin evidence; this script does not authenticate imported receipts",
+  "references": {
+    "root_rx_rad": 0.0001,
+    "tip_rx_rad": 0.0001,
+    "spring_Mx_Nm": -1e-16,
+    "section_torsional_shear_MPa": 1.8511770060121586e-19
+  },
+  "checks": [
+    {
+      "result_id": "result:disp:independent-root:rx",
+      "observed": 9.999999999999999e-05,
+      "expected": 0.0001,
+      "unit": "rad",
+      "criterion": "unchanged nonzero relative1e-9",
+      "relative_error": 1.3552527156068805e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:disp:independent-tip:rx",
+      "observed": 9.999999999999999e-05,
+      "expected": 0.0001,
+      "unit": "rad",
+      "criterion": "unchanged nonzero relative1e-9",
+      "relative_error": 1.3552527156068805e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:4:case:6:anchor:Fx",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N",
+      "criterion": "exact analytical zero",
+      "relative_error": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:4:case:6:anchor:Fy",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N",
+      "criterion": "exact analytical zero",
+      "relative_error": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:4:case:6:anchor:Fz",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N",
+      "criterion": "exact analytical zero",
+      "relative_error": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:4:case:6:anchor:Mx",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N*m",
+      "criterion": "exact analytical zero",
+      "relative_error": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:4:case:6:anchor:My",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N*m",
+      "criterion": "exact analytical zero",
+      "relative_error": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:4:case:6:anchor:Mz",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N*m",
+      "criterion": "exact analytical zero",
+      "relative_error": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:4:case:18:independent-spring:Fx",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N",
+      "criterion": "exact analytical zero",
+      "relative_error": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:4:case:18:independent-spring:Fy",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N",
+      "criterion": "exact analytical zero",
+      "relative_error": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:4:case:18:independent-spring:Fz",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N",
+      "criterion": "exact analytical zero",
+      "relative_error": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:4:case:18:independent-spring:Mx",
+      "observed": -9.999999999999999e-17,
+      "expected": -1e-16,
+      "unit": "N*m",
+      "criterion": "unchanged nonzero relative1e-9",
+      "relative_error": 1.232595164407831e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:4:case:18:independent-spring:My",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N*m",
+      "criterion": "exact analytical zero",
+      "relative_error": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:4:case:18:independent-spring:Mz",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N*m",
+      "criterion": "exact analytical zero",
+      "relative_error": null,
+      "passed": true
+    },
+    {
+      "result_id": "result:stress:independent-member:end-i:torsional-shear",
+      "observed": 1.8511770060121576e-19,
+      "expected": 1.8511770060121586e-19,
+      "unit": "MPa",
+      "criterion": "unchanged nonzero relative1e-9",
+      "relative_error": 5.20190651172821e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:stress:independent-member:quarter-1:torsional-shear",
+      "observed": 1.8511770060121576e-19,
+      "expected": 1.8511770060121586e-19,
+      "unit": "MPa",
+      "criterion": "unchanged nonzero relative1e-9",
+      "relative_error": 5.20190651172821e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:stress:independent-member:midspan:torsional-shear",
+      "observed": 1.8511770060121576e-19,
+      "expected": 1.8511770060121586e-19,
+      "unit": "MPa",
+      "criterion": "unchanged nonzero relative1e-9",
+      "relative_error": 5.20190651172821e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:stress:independent-member:quarter-3:torsional-shear",
+      "observed": 1.8511770060121576e-19,
+      "expected": 1.8511770060121586e-19,
+      "unit": "MPa",
+      "criterion": "unchanged nonzero relative1e-9",
+      "relative_error": 5.20190651172821e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:stress:independent-member:end-j:torsional-shear",
+      "observed": 1.8511770060121576e-19,
+      "expected": 1.8511770060121586e-19,
+      "unit": "MPa",
+      "criterion": "unchanged nonzero relative1e-9",
+      "relative_error": 5.20190651172821e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:elastic-maximum:4:case:18:independent-member",
+      "observed": 0,
+      "expected": 0,
+      "unit": "Pa",
+      "criterion": "exact analytical zero",
+      "relative_error": null,
+      "passed": true
+    }
+  ],
+  "count": 20,
+  "all_passed": true,
+  "whole_span_constant_verified": true,
+  "observed_result_count": 81
+}

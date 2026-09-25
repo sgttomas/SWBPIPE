@@ -1,0 +1,6 @@
+{
+  "model_bytes_identical": true,
+  "raw_mechanics_bytes_identical": true,
+  "model_hash": "a335271236b6dbbcb3c807cd5bf040a33726c4dfd67aa33ec37a0f26f03483ce",
+  "reason": "Fresh native sparse solve after actual process quit/restart and Historical reopening; no fixture promoted to Current"
+}

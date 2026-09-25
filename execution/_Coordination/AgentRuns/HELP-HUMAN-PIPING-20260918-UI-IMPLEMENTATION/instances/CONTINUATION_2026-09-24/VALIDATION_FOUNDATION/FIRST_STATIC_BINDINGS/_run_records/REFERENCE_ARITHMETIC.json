@@ -1,0 +1,15 @@
+{
+  "status": "PASS reference arithmetic only",
+  "cases": 2,
+  "scalar_row_expectations_per_case": 73,
+  "total_scalar_row_expectations": 146,
+  "precision_check": "80 versus100 decimal digits; nonzero relative difference below1e-70; exact zeros retained",
+  "formula_checks": "section coefficients, complete force/moment equilibrium, station maximum",
+  "not_run": [
+    "product solve",
+    "native",
+    "external solver",
+    "thin gate"
+  ],
+  "script_sha256": "18552e3a511d9582aec423183c14e3ea3a67f21755567dbdace600c50f7c3c17"
+}

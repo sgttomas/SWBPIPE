@@ -1,0 +1,48 @@
+{
+  "role": "WORKING_ITEMS Type1",
+  "agent": "/root/scientific_transport_manager",
+  "parent": "/root",
+  "mechanism": "delegated-harness-native descendant",
+  "selected_workflow": null,
+  "instruction_basis": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "byte_length": 14200
+    },
+    {
+      "path": "agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665",
+      "byte_length": 1804
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "byte_length": 1499
+    },
+    {
+      "path": ".agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
+      "byte_length": 1303
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "byte_length": 9016
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "byte_length": 8475
+    }
+  ],
+  "actual_child": "/root/scientific_transport_manager/static_structure",
+  "child_status": "returned; two owned source/test files integrated unchanged",
+  "child_evidence": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/STRUCTURE_TASK/PROVENANCE.json",
+    "sha256": "67bd6c7ed7be07a2ee7fe9cf60db8eae82c6c06f402c4e8d94f18428b9326823",
+    "byte_length": 9365
+  },
+  "review_dispatch": "Root-reserved n05_admission, not dispatched by this written record",
+  "scope": "Validation adapter and evidence only; no product/schema/library/rule writes. Root explicitly authorized fresh read-only-source headless build. No actual first-static run yet."
+}

@@ -1,0 +1,60 @@
+{
+  "recorded_at_utc": "2026-09-25T10:34:55.264554+00:00",
+  "actual_manager": "/root/physics_resume",
+  "actual_parent": "/root",
+  "source_checkpoint": "1792774a2c5b77612e666332151f10f4b14dbc2c",
+  "root_current_main_union": "8b982aa7ce64afe37e6067d1038d92608f4aaf3f",
+  "selection_sha256": "de2ad9a554ab924ededb0a1e851cd5349279550cadb34d234b677662d32aa26a",
+  "status": "All239 selected maintained paths now have named independent source coverage; final native/main-union/registered-check qualification remains ROOT-owned",
+  "coverage_closure": {
+    "exact_reviewed_at_selection": 193,
+    "diagnostic_witness_repair_now_clear": 2,
+    "complete_frontend_scope_now_clear": 44,
+    "total_selected_maintained": 239,
+    "frontend_repair": "Original44 plus exact3path source_basis correction, overlapping within44"
+  },
+  "new_completed_reviews": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/FINAL_SUPPORT_REVIEW/INDEPENDENT_REVIEW/RETURN.md",
+      "sha256": "f584227accca9c76c4c0f3e967351b97e19bfb98874e46a8095d67957208af12"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/COMPOSITE_VALIDATOR/PAIR_DOMAIN_REPAIR/INDEPENDENT_BACKCHECK/RETURN.md",
+      "sha256": "960b0aedab0776dc744b43896d77c4d9fdc3d5290594ce60c6db839d715e3706"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/UTF8_CSV/INDEPENDENT_REVIEW/RETURN.md",
+      "sha256": "15b6d6440fab2e28d4725ef6a39b9587c2649c4276597dcfc3280ab4ce4aa360"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/WITNESS_TARGET_INTEROP/INDEPENDENT_BACKCHECK/RETURN.md",
+      "sha256": "702c68e2147f964c06de02bf73d742e09c92093dd1d96b0d12ab0baa606c5e72"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/FINAL_FRONTEND_REVIEW/INDEPENDENT_REVIEW/RETURN.md",
+      "sha256": "ac40786e84a8b7977770460d0bf632f7c93edc15fed8945dcba291489d50ca1d"
+    }
+  ],
+  "runtime_evidence": {
+    "producer": "268library+62public pass,1private16M measurement ignored",
+    "consumer_current": "tsc10pass;174affected TS pass; prior App26pass/199filtered; counts overlap",
+    "interchange": "14actual producer pairs,42schemas,126materialized/reopened members/allbits,8headless canonicalschemas; simulatedTSIPC is not native"
+  },
+  "root_union_delta": {
+    "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "selected_sha256": "44647cf80ef19ef3316c8e0a8e4bad52ecdee310ddd8134226eb306eb0594905",
+    "union_sha256": "e68d1f702064da9fbf58e3a026fd7fde94b8a119ae2396013e71eb504f6fa396",
+    "scope": "Top module documentation only; ROOT restored main local-user-data statement, executable body unchanged",
+    "other_selected_maintained_hashes_unchanged": 238,
+    "separate_record": "ROOT_MAIN_UNION"
+  },
+  "native_boundary": "ROOT has started actual build on8b982aa7ce with isolated candidate-bound workspace dependencies; this manager performed no native build/UI and freezes source",
+  "historical_cli_build": "NATIVE_TRANSFER_ADDENDUM.md distinguishes retained historical a02b67 runner from final full dependency build",
+  "limits": [
+    "No full original-finding/stress-group closure inferred from this tranche",
+    "PHYS-R4 earlier public positive, present joined range refusal and repaired publication controls remain distinct",
+    "Broader mechanics and hydrostatic composition remain open",
+    "No material/component data libraries or code-rule population",
+    "Merge/acceptance/release not implied by source review or local checkpoint"
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "agent": "/root/load_state_design",
+  "role": "HELPS_HUMANS",
+  "parent": "/root",
+  "mechanism": "delegated-harness-native bounded continuation",
+  "scope": "FIRST_STATIC_BINDINGS/STRUCTURAL_NUMERIC_ADDENDUM only",
+  "delegation": "none; explicitly prohibited for this small assignment",
+  "parent_checkpoint": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+  "supplied_authority": "ROOT directs additive criterion completion under owner delegated engineering authority; independent review and selection remain pending",
+  "source_basis": [
+    {
+      "origin": "../section.reference.json",
+      "sha256": "df00cc0827ebce33e8af8bf4ea00e0bd80f98ffef41bdf2e9780cc266002b96a",
+      "purpose": "unchanged parent analytical, identity or review basis"
+    },
+    {
+      "origin": "../INPUT_REFERENCE_BINDINGS.json",
+      "sha256": "be6e332513634f747a1f44c6f38bb94bd2ad0d7ce8e3caa75ccfcdfc9124bdf9",
+      "purpose": "unchanged parent analytical, identity or review basis"
+    },
+    {
+      "origin": "../STRUCTURAL_EXPECTATIONS.json",
+      "sha256": "b5f6a9446d5485d707ca86a2df554e4ce9d266246ef6f373f4de7f8d564095fa",
+      "purpose": "unchanged parent analytical, identity or review basis"
+    },
+    {
+      "origin": "../REFERENCE_DOMAIN.md",
+      "sha256": "5a5f69295748a640c55cbd3d115705e1309ad5977d0cb75881f26beb0bcb8a5c",
+      "purpose": "unchanged parent analytical, identity or review basis"
+    },
+    {
+      "origin": "../INDEPENDENT_REVIEW/RETURN.md",
+      "sha256": "565dc99ae70ba34bb4d913c0bb19b3934c92e704d75e10ab0e22931cbf73de96",
+      "purpose": "unchanged parent analytical, identity or review basis"
+    },
+    {
+      "origin": "PHYSICS_CHECKOUT/core/product_physics/src/lib.rs",
+      "sha256": "44647cf80ef19ef3316c8e0a8e4bad52ecdee310ddd8134226eb306eb0594905",
+      "purpose": "Read exact_section_evidence field names/geometry basis only; no production arithmetic or output target reused"
+    },
+    {
+      "origin": "REPO_ROOT/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "purpose": "active/retained applicable instructions; role freshly read for this addendum"
+    },
+    {
+      "origin": "REPO_ROOT/agents/AGENT_HELPS_HUMANS.md",
+      "sha256": "a0c9fb9443d8671d694c1f7b24ff3c402ffd626c781a2739342c938f2f3c3d1e",
+      "purpose": "active/retained applicable instructions; role freshly read for this addendum"
+    },
+    {
+      "origin": "REPO_ROOT/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "purpose": "active/retained applicable instructions; role freshly read for this addendum"
+    },
+    {
+      "origin": "REPO_ROOT/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+      "purpose": "active/retained applicable instructions; role freshly read for this addendum"
+    }
+  ],
+  "no_product_execution": true
+}

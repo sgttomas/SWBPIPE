@@ -1,0 +1,6 @@
+{
+  "source": "/private/tmp/qualification-adapter-first-combined.log",
+  "destination": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/ORDINARY_PHYSICS_ADAPTER/_run_records/preliminary_combined_60.log",
+  "sha256": "bcd5c8bb82196ff1eca0dd07fd0cd902931b331ef0de5e1f46a8ce3482b3d9ca",
+  "scope": "Prior preliminary 60-method run on earlier unfrozen source; retained without rebinding it to current source."
+}

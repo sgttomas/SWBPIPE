@@ -1,0 +1,45 @@
+{
+  "authority": "ROOT live direction during first static binding preparation; this records obligations, does not modify programme graph",
+  "first_cut_purpose": "Direct comparison of selected published nodal/support/section and normal/torsional-stress outputs for two explicit original straight elastic cases",
+  "future_required_outputs": [
+    {
+      "quantity": "transverse_shear_stress_distribution",
+      "status": "unsupported_observation_in_current_producer",
+      "current_case": "bending_torsion has nonzero Vy/Vz; their shear stresses are not zero",
+      "home": [
+        "COR-PRESSURE",
+        "COR-RESULTS"
+      ],
+      "finding_ids": [
+        "M14",
+        "M31"
+      ],
+      "deliverables": [
+        "DEL-05-03",
+        "DEL-09-02"
+      ],
+      "reference_status": "Complete physical transverse-shear stress distribution not derived in this bounded packet; requires the selected applicable section/beam theory and independent reference",
+      "selector": null
+    },
+    {
+      "quantity": "signed_circumferential_normal_extrema_and_fibers",
+      "status": "no_direct_producer_rows; analytical values retained",
+      "current_case": "both cases, all five section stations",
+      "home": [
+        "COR-PRESSURE",
+        "COR-RESULTS"
+      ],
+      "finding_ids": [
+        "M14",
+        "M31"
+      ],
+      "deliverables": [
+        "DEL-05-03",
+        "DEL-09-02"
+      ],
+      "reference_status": "sigma_plus/minus and governing fibers/ties retained in *.expectations.json",
+      "selector": null
+    }
+  ],
+  "gate_consequence": "If selected as required in a later complete profile, report unsupported/missing observation explicitly and keep it in the denominator. Do not invent a selector, substitute zero, count an independently recomputed value as direct producer publication, or infer complete equivalent/3D stress qualification."
+}

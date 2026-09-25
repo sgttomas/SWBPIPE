@@ -1,0 +1,137 @@
+{
+  "status": "Complete frozen-source/evidence comparison; two code findings retained separately",
+  "base": "74bd1bac253a9d58bac095efd8b8b888a3d351cd",
+  "files": [
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_gate.py",
+      "sha256": "dcdb7822854e3e57293c23222df4509d789ba56f884f1d7e3fc98402a23d53b9",
+      "byte_length": 45490,
+      "base_sha256": "b6980255a17c5ee3c27619f417abc5e5073d17b21d9e6ad118875601000afbbd"
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_physics.py",
+      "sha256": "8ac700410ecff4224912dbdef12e26bcc2bf4a2b3638f5d5ca92b117237fde4c",
+      "byte_length": 15385,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_physics_helper.py",
+      "sha256": "47765efd3b9ff1ba9c6e6c5a2b483c23aa180603d685c0d0265c78cf3f1540fb",
+      "byte_length": 7124,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_physics_structure.py",
+      "sha256": "33bceba232e0bd62716b2ce38f4be82eb04169f7728c1a53b53cae12b43d6ae7",
+      "byte_length": 28740,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/build_first_static_selection.py",
+      "sha256": "6aee22f8b67df8b2191c1a1aa4cb0049898e5b8c0845929a4e7197e8d3f957e8",
+      "byte_length": 8747,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_qualification_physics.py",
+      "sha256": "12f0bf3e7e194c3105f74aabf4186146cd8277456b718cae54c2f7e46159b933",
+      "byte_length": 6444,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_qualification_physics_integration.py",
+      "sha256": "d8412000b05a9fd403d2e7bb272a94d19232aa8b8e46ddb7217d600c3d936c6e",
+      "byte_length": 14347,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_qualification_physics_structure.py",
+      "sha256": "186e80175a2d0b2c4f809a9a918bda7a41ee5cc601e3d51a9dc599aff7dc3192",
+      "byte_length": 20540,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_first_static_selection.py",
+      "sha256": "7f11887ad39f4150e9928216ba739c3d28f6008d5831351084726d440d1c6ccb",
+      "byte_length": 4419,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/GATE_USAGE.md",
+      "sha256": "f72f7e6c8f0a9e1fdff8e44eea4f51208ccd62f757721eee2b621113a69ce633",
+      "byte_length": 12399,
+      "base_sha256": "624ba3dd6a58d52f4278bc6912053da66df6b8fdf1d106572405ee289c7b4a55"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/fixtures/ordinary_physics_1_semantics.json",
+      "sha256": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc",
+      "byte_length": 49093,
+      "base_sha256": null
+    }
+  ],
+  "patch_reconstructed_paths": 11,
+  "evidence_and_unchanged_dependency_hashes_match": true,
+  "owner_focused_methods": [
+    70,
+    3
+  ],
+  "reviewed_reader_files": [
+    {
+      "path": "core/analysis_runs/physics_evidence.py",
+      "sha256": "40013aa421adf9f24f1b9ec7b23bbfccafe054904dd5c9c8125a6bd24e653fad"
+    },
+    {
+      "path": "fixtures/results/semantic_contract_v0_3_physics_1.json",
+      "sha256": "9a2cf6268b57bd5265a1a115497c07450819dd4d03cd5ab618097bd9d19da8cc"
+    },
+    {
+      "path": "core/units/src/lib.rs",
+      "sha256": "521717eb4cac8114b5c1bbeef3f8caebd57eb3021c7743860f9be8f1078b710c"
+    }
+  ],
+  "review_basis_hashes_match": true,
+  "selections": [
+    {
+      "mode": "sparse_interactive",
+      "sha256": "63e26f9224a3afa522324e8c061b2779aa5b4e176b94356854aeed70509705ba",
+      "scalar": 146,
+      "structural": 20,
+      "nested": 18,
+      "runner": {
+        "candidate_commit": "8b982aa7ce64afe37e6067d1038d92608f4aaf3f",
+        "executable_sha256": "506866a9beefcb4ec1374d1fd7b8f2f999f17670cb7c65b2b17ef91a92162614",
+        "solver_mode": "sparse_interactive",
+        "explicit_local_private_intent": true
+      }
+    },
+    {
+      "mode": "dense_scrutiny",
+      "sha256": "73a2f815a313ba7b4b24e90c12ede467bb64e37e322f919f8384453b502cbb9e",
+      "scalar": 146,
+      "structural": 20,
+      "nested": 18,
+      "runner": {
+        "candidate_commit": "8b982aa7ce64afe37e6067d1038d92608f4aaf3f",
+        "executable_sha256": "506866a9beefcb4ec1374d1fd7b8f2f999f17670cb7c65b2b17ef91a92162614",
+        "solver_mode": "dense_scrutiny",
+        "explicit_local_private_intent": true
+      }
+    }
+  ],
+  "denominator": {
+    "scalar": 292,
+    "structural": 40,
+    "nested": 36,
+    "actual_first_static_runs": 0
+  },
+  "build": {
+    "candidate": "8b982aa7ce64afe37e6067d1038d92608f4aaf3f",
+    "binary_sha256": "506866a9beefcb4ec1374d1fd7b8f2f999f17670cb7c65b2b17ef91a92162614",
+    "before_after_inputs_verified": 1347,
+    "dep_info_inputs_recorded": 74,
+    "registry_archives_verified": 22,
+    "no_solver_run": true
+  },
+  "historical_reader_observations": 2,
+  "limits": "Record parsing/hashing only; no repeated owner suites, solver/build/native execution. Supplied dep-info closure and source review are reused; no independent receipt implementation review claimed."
+}

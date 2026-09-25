@@ -1,0 +1,27 @@
+{
+  "scope": "Two narrow consequences of repaired archive custody, not solver qualification",
+  "source_hashes": {
+    "qualification_gate.py": "0204427bad354e84164e4fc6a78de87a6601e1f32ba0ec4c6a3baad4d78d2de2",
+    "qualification_process.py": "bf1ed365763440261f21a0f699ecf8729c745d259880d3851649d0292c1282c6"
+  },
+  "results": [
+    {
+      "scenario": "stdout_changed_between_capture_and_consumer",
+      "probe_mechanism": "real synthetic process then deterministic post-capture file mutation hook, not a claimed solver attack",
+      "outcome": "all_required_assertions_matched",
+      "case_reason": "required assertion assessment",
+      "process_captured_sha256": "cebb16a09fc796bb798d90566a3e72faee320706a916e8ec7625401907c27372",
+      "consumed_archive_sha256": "736fc5f9cfd2af97225775fba1739b6d510cfcf20f874ef14d072f6523bbd6e7",
+      "emitted_required_x": 99,
+      "replacement_required_x": 2
+    },
+    {
+      "scenario": "retained_reference_copy_changed_during_process",
+      "probe_mechanism": "actual synthetic child modifies retained reference copy; original bound reference untouched",
+      "outcome": "all_required_assertions_matched",
+      "case_reason": "required assertion assessment",
+      "original_reference_sha256": "0643b530d016b333c16466a35fc9f45646ff6fcc7f09eb360b9e784b8129eea9",
+      "retained_reference_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    }
+  ]
+}

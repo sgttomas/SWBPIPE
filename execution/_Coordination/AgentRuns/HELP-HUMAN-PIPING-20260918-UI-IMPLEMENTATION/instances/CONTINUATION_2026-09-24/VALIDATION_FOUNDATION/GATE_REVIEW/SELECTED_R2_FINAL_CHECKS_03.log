@@ -1,0 +1,8 @@
+test_stdout_growth_is_bounded_before_decoding (gate_r2_final.GateTests.test_stdout_growth_is_bounded_before_decoding) ... ok
+test_later_case_cannot_change_an_earlier_case_snapshot (gate_r2_final.GateTests.test_later_case_cannot_change_an_earlier_case_snapshot) ... ok
+test_only_final_custody_checked_publication_can_claim_matches (gate_r2_final.GateTests.test_only_final_custody_checked_publication_can_claim_matches) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 4.495s
+
+OK

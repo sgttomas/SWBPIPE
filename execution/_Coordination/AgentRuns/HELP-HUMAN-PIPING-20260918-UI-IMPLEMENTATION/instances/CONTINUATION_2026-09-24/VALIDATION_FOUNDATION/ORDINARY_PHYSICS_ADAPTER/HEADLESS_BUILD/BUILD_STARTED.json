@@ -1,0 +1,121 @@
+{
+  "bound_input_count": 1347,
+  "build_command": [
+    "/Users/ryan/.cargo/bin/cargo",
+    "build",
+    "--manifest-path",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/runner/headless/Cargo.toml",
+    "--bin",
+    "openpipestress-runner",
+    "--offline",
+    "--locked",
+    "--jobs",
+    "2",
+    "--target-dir",
+    "/private/tmp/piping-validation-headless-20260925",
+    "--message-format",
+    "json-render-diagnostics"
+  ],
+  "candidate_commit": "8b982aa7ce64afe37e6067d1038d92608f4aaf3f",
+  "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+  "configuration_probes": [
+    {
+      "exists": false,
+      "path": "/private/tmp/piping-engine-integration-20260925/.cargo/config"
+    },
+    {
+      "exists": false,
+      "path": "/private/tmp/piping-engine-integration-20260925/.cargo/config.toml"
+    },
+    {
+      "exists": false,
+      "path": "/private/tmp/piping-engine-integration-20260925/rust-toolchain"
+    },
+    {
+      "exists": false,
+      "path": "/private/tmp/piping-engine-integration-20260925/rust-toolchain.toml"
+    },
+    {
+      "exists": false,
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/.cargo/config"
+    },
+    {
+      "exists": false,
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/.cargo/config.toml"
+    },
+    {
+      "exists": false,
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/rust-toolchain"
+    },
+    {
+      "exists": false,
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/rust-toolchain.toml"
+    },
+    {
+      "exists": false,
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/runner/headless/.cargo/config"
+    },
+    {
+      "exists": false,
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/runner/headless/.cargo/config.toml"
+    },
+    {
+      "exists": false,
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/runner/headless/rust-toolchain"
+    },
+    {
+      "exists": false,
+      "path": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/runner/headless/rust-toolchain.toml"
+    },
+    {
+      "exists": false,
+      "path": "/Users/ryan/.cargo/config"
+    },
+    {
+      "exists": false,
+      "path": "/Users/ryan/.cargo/config.toml"
+    },
+    {
+      "exists": false,
+      "path": "/Users/ryan/rust-toolchain"
+    },
+    {
+      "exists": false,
+      "path": "/Users/ryan/rust-toolchain.toml"
+    }
+  ],
+  "dependency_package_count": 49,
+  "environment_overrides": {
+    "CARGO_BUILD_JOBS": "2",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_TARGET_DIR": "/private/tmp/piping-validation-headless-20260925"
+  },
+  "format": "openpipestress.validation_headless_build/1",
+  "metadata_command": [
+    "/Users/ryan/.cargo/bin/cargo",
+    "metadata",
+    "--manifest-path",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/core/runner/headless/Cargo.toml",
+    "--format-version",
+    "1",
+    "--offline",
+    "--locked"
+  ],
+  "metadata_sha256": "f80b57c72f1e82cb4f009bbf0db867405d1df2ae3bb9a2ca601c2f4dc6578d94",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "python": "3.13.14",
+  "removed_optional_build_environment_keys": [
+    "RUSTFLAGS",
+    "CARGO_ENCODED_RUSTFLAGS",
+    "RUSTC_WRAPPER",
+    "RUSTC_WORKSPACE_WRAPPER",
+    "RUSTDOCFLAGS",
+    "CARGO_TARGET_DIR"
+  ],
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: aarch64-apple-darwin\nrelease: 1.97.1\nLLVM version: 22.1.6",
+  "solver_execution_performed": false,
+  "source_before_sha256": "8a95ef07d8d7c2b6ff93dbc69034c6a6b49785fd70a1d8e7838752d5f841caab",
+  "source_root": "/private/tmp/piping-engine-integration-20260925",
+  "source_status_before": "?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/FINAL_FRONTEND_REVIEW/INDEPENDENT_REVIEW/\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/FINAL_REVIEW_COVERAGE_ADDENDUM.json\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/RETURN.md\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/WITNESS_TARGET_INTEROP/INDEPENDENT_BACKCHECK/\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/ROOT_MAIN_UNION/INDEPENDENT_REVIEW/\n?? projects/chirality-piping/node_modules",
+  "target_dir": "/private/tmp/piping-validation-headless-20260925"
+}

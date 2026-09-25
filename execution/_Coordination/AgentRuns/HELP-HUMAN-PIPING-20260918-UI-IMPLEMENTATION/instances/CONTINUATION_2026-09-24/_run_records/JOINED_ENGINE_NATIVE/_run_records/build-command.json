@@ -1,0 +1,29 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "tauri",
+    "--",
+    "build",
+    "--debug",
+    "--bundles",
+    "app"
+  ],
+  "cwd": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/apps/desktop",
+  "started": "2026-09-25T10:33:44.076522+00:00",
+  "environment": {
+    "PATH": "/Users/ryan/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Users/ryan/.codex/tmp/arg0/codex-arg0CK25g0:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/ryan/.local/share/mise/installs/node/24/bin:/Users/ryan/.local/share/mise/installs/python/3.13/bin:/Users/ryan/.cargo/bin:/Users/ryan/.local/bin:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "CARGO_TARGET_DIR": null,
+    "CARGO_BUILD_JOBS": "2",
+    "CARGO_NET_OFFLINE": "true",
+    "npm_config_offline": "true",
+    "SWBPIPE_LIVE_CONTROL": null,
+    "RUSTFLAGS": null,
+    "CARGO_ENCODED_RUSTFLAGS": null,
+    "NODE_ENV": null,
+    "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+    "MACOSX_DEPLOYMENT_TARGET": null
+  },
+  "exit_code": 0,
+  "finished": "2026-09-25T10:35:51.640897+00:00"
+}

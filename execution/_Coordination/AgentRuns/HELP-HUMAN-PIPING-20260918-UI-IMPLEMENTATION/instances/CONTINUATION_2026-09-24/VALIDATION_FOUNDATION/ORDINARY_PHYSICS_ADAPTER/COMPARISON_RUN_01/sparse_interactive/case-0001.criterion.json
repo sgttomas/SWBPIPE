@@ -1,0 +1,385 @@
+{
+  "schema_version": "0.1.0",
+  "tolerance_profile": {
+    "profile_id": "first-static-bending_torsion-field-comparison-v1",
+    "profile_status": "reviewed",
+    "scope": "These two named original finite-input cases only; unchanged inherited assertions and numerical method contracts remain at their owners.",
+    "rules": [
+      {
+        "rule_id": "criterion:displacement:length:mm:exact_prescribed",
+        "dimension_id": "length",
+        "result_family": "displacement",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "mm"
+        },
+        "normalization_basis": "same_unit_required",
+        "relative_tolerance_value": 0.0,
+        "absolute_tolerance_value": 0.0,
+        "tolerance_value_status": "project_specific_review_required",
+        "review": {
+          "source_review": {
+            "path": "../../../FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/RETURN.md",
+            "sha256": "565dc99ae70ba34bb4d913c0bb19b3934c92e704d75e10ab0e22931cbf73de96"
+          },
+          "technical_selection": {
+            "path": "../../../FIRST_STATIC_BINDINGS/ROOT_SELECTION.md",
+            "sha256": "c7899527ad9c63c46e1c016f178a37331eb0ae1bf7d93f1ba20fbc1482caac11"
+          },
+          "human_equation_review_claimed": false
+        },
+        "provenance": "exact imposed-zero reconstruction; numeric equality, either zero sign allowed"
+      },
+      {
+        "rule_id": "criterion:rotation:angle:rad:exact_prescribed",
+        "dimension_id": "angle",
+        "result_family": "rotation",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "rad"
+        },
+        "normalization_basis": "same_unit_required",
+        "relative_tolerance_value": 0.0,
+        "absolute_tolerance_value": 0.0,
+        "tolerance_value_status": "project_specific_review_required",
+        "review": {
+          "source_review": {
+            "path": "../../../FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/RETURN.md",
+            "sha256": "565dc99ae70ba34bb4d913c0bb19b3934c92e704d75e10ab0e22931cbf73de96"
+          },
+          "technical_selection": {
+            "path": "../../../FIRST_STATIC_BINDINGS/ROOT_SELECTION.md",
+            "sha256": "c7899527ad9c63c46e1c016f178a37331eb0ae1bf7d93f1ba20fbc1482caac11"
+          },
+          "human_equation_review_claimed": false
+        },
+        "provenance": "exact imposed-zero reconstruction; numeric equality, either zero sign allowed"
+      },
+      {
+        "rule_id": "criterion:displacement:length:mm:case_scaled_absolute",
+        "dimension_id": "length",
+        "result_family": "displacement",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "mm"
+        },
+        "normalization_basis": "same_unit_required",
+        "relative_tolerance_value": 0.0,
+        "absolute_tolerance_value": 2.4682360080162116e-11,
+        "tolerance_value_status": "project_specific_review_required",
+        "review": {
+          "source_review": {
+            "path": "../../../FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/RETURN.md",
+            "sha256": "565dc99ae70ba34bb4d913c0bb19b3934c92e704d75e10ab0e22931cbf73de96"
+          },
+          "technical_selection": {
+            "path": "../../../FIRST_STATIC_BINDINGS/ROOT_SELECTION.md",
+            "sha256": "c7899527ad9c63c46e1c016f178a37331eb0ae1bf7d93f1ba20fbc1482caac11"
+          },
+          "human_equation_review_claimed": false
+        },
+        "provenance": "new derived-zero absolute budget:1e-9*length_mm; scale=0.02468236008016211468742987509896510412475869275804306658876298831968933568040733315345372534903605098"
+      },
+      {
+        "rule_id": "criterion:displacement:length:mm:relative_1e-9_candidate",
+        "dimension_id": "length",
+        "result_family": "displacement",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "mm"
+        },
+        "normalization_basis": "same_unit_required",
+        "relative_tolerance_value": 1e-09,
+        "absolute_tolerance_value": 0.0,
+        "tolerance_value_status": "project_specific_review_required",
+        "review": {
+          "source_review": {
+            "path": "../../../FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/RETURN.md",
+            "sha256": "565dc99ae70ba34bb4d913c0bb19b3934c92e704d75e10ab0e22931cbf73de96"
+          },
+          "technical_selection": {
+            "path": "../../../FIRST_STATIC_BINDINGS/ROOT_SELECTION.md",
+            "sha256": "c7899527ad9c63c46e1c016f178a37331eb0ae1bf7d93f1ba20fbc1482caac11"
+          },
+          "human_equation_review_claimed": false
+        },
+        "provenance": "new field-relative development comparison; abs(delta)<=1e-9*max(abs(reference),abs(observed)); no release criterion"
+      },
+      {
+        "rule_id": "criterion:rotation:angle:rad:relative_1e-9_candidate",
+        "dimension_id": "angle",
+        "result_family": "rotation",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "rad"
+        },
+        "normalization_basis": "same_unit_required",
+        "relative_tolerance_value": 1e-09,
+        "absolute_tolerance_value": 0.0,
+        "tolerance_value_status": "project_specific_review_required",
+        "review": {
+          "source_review": {
+            "path": "../../../FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/RETURN.md",
+            "sha256": "565dc99ae70ba34bb4d913c0bb19b3934c92e704d75e10ab0e22931cbf73de96"
+          },
+          "technical_selection": {
+            "path": "../../../FIRST_STATIC_BINDINGS/ROOT_SELECTION.md",
+            "sha256": "c7899527ad9c63c46e1c016f178a37331eb0ae1bf7d93f1ba20fbc1482caac11"
+          },
+          "human_equation_review_claimed": false
+        },
+        "provenance": "new field-relative development comparison; abs(delta)<=1e-9*max(abs(reference),abs(observed)); no release criterion"
+      },
+      {
+        "rule_id": "criterion:reaction:force:N:case_scaled_absolute",
+        "dimension_id": "force",
+        "result_family": "reaction",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "N"
+        },
+        "normalization_basis": "same_unit_required",
+        "relative_tolerance_value": 0.0,
+        "absolute_tolerance_value": 5e-08,
+        "tolerance_value_status": "project_specific_review_required",
+        "review": {
+          "source_review": {
+            "path": "../../../FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/RETURN.md",
+            "sha256": "565dc99ae70ba34bb4d913c0bb19b3934c92e704d75e10ab0e22931cbf73de96"
+          },
+          "technical_selection": {
+            "path": "../../../FIRST_STATIC_BINDINGS/ROOT_SELECTION.md",
+            "sha256": "c7899527ad9c63c46e1c016f178a37331eb0ae1bf7d93f1ba20fbc1482caac11"
+          },
+          "human_equation_review_claimed": false
+        },
+        "provenance": "new derived-zero absolute budget:1e-9*force_N; scale=50"
+      },
+      {
+        "rule_id": "criterion:reaction:force:N:relative_1e-9_candidate",
+        "dimension_id": "force",
+        "result_family": "reaction",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "N"
+        },
+        "normalization_basis": "same_unit_required",
+        "relative_tolerance_value": 1e-09,
+        "absolute_tolerance_value": 0.0,
+        "tolerance_value_status": "project_specific_review_required",
+        "review": {
+          "source_review": {
+            "path": "../../../FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/RETURN.md",
+            "sha256": "565dc99ae70ba34bb4d913c0bb19b3934c92e704d75e10ab0e22931cbf73de96"
+          },
+          "technical_selection": {
+            "path": "../../../FIRST_STATIC_BINDINGS/ROOT_SELECTION.md",
+            "sha256": "c7899527ad9c63c46e1c016f178a37331eb0ae1bf7d93f1ba20fbc1482caac11"
+          },
+          "human_equation_review_claimed": false
+        },
+        "provenance": "new field-relative development comparison; abs(delta)<=1e-9*max(abs(reference),abs(observed)); no release criterion"
+      },
+      {
+        "rule_id": "criterion:reaction:moment:N*m:relative_1e-9_candidate",
+        "dimension_id": "moment",
+        "result_family": "reaction",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "N*m"
+        },
+        "normalization_basis": "same_unit_required",
+        "relative_tolerance_value": 1e-09,
+        "absolute_tolerance_value": 0.0,
+        "tolerance_value_status": "project_specific_review_required",
+        "review": {
+          "source_review": {
+            "path": "../../../FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/RETURN.md",
+            "sha256": "565dc99ae70ba34bb4d913c0bb19b3934c92e704d75e10ab0e22931cbf73de96"
+          },
+          "technical_selection": {
+            "path": "../../../FIRST_STATIC_BINDINGS/ROOT_SELECTION.md",
+            "sha256": "c7899527ad9c63c46e1c016f178a37331eb0ae1bf7d93f1ba20fbc1482caac11"
+          },
+          "human_equation_review_claimed": false
+        },
+        "provenance": "new field-relative development comparison; abs(delta)<=1e-9*max(abs(reference),abs(observed)); no release criterion"
+      },
+      {
+        "rule_id": "criterion:force:force:N:case_scaled_absolute",
+        "dimension_id": "force",
+        "result_family": "force",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "N"
+        },
+        "normalization_basis": "same_unit_required",
+        "relative_tolerance_value": 0.0,
+        "absolute_tolerance_value": 5e-08,
+        "tolerance_value_status": "project_specific_review_required",
+        "review": {
+          "source_review": {
+            "path": "../../../FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/RETURN.md",
+            "sha256": "565dc99ae70ba34bb4d913c0bb19b3934c92e704d75e10ab0e22931cbf73de96"
+          },
+          "technical_selection": {
+            "path": "../../../FIRST_STATIC_BINDINGS/ROOT_SELECTION.md",
+            "sha256": "c7899527ad9c63c46e1c016f178a37331eb0ae1bf7d93f1ba20fbc1482caac11"
+          },
+          "human_equation_review_claimed": false
+        },
+        "provenance": "new derived-zero absolute budget:1e-9*force_N; scale=50"
+      },
+      {
+        "rule_id": "criterion:force:force:N:relative_1e-9_candidate",
+        "dimension_id": "force",
+        "result_family": "force",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "N"
+        },
+        "normalization_basis": "same_unit_required",
+        "relative_tolerance_value": 1e-09,
+        "absolute_tolerance_value": 0.0,
+        "tolerance_value_status": "project_specific_review_required",
+        "review": {
+          "source_review": {
+            "path": "../../../FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/RETURN.md",
+            "sha256": "565dc99ae70ba34bb4d913c0bb19b3934c92e704d75e10ab0e22931cbf73de96"
+          },
+          "technical_selection": {
+            "path": "../../../FIRST_STATIC_BINDINGS/ROOT_SELECTION.md",
+            "sha256": "c7899527ad9c63c46e1c016f178a37331eb0ae1bf7d93f1ba20fbc1482caac11"
+          },
+          "human_equation_review_claimed": false
+        },
+        "provenance": "new field-relative development comparison; abs(delta)<=1e-9*max(abs(reference),abs(observed)); no release criterion"
+      },
+      {
+        "rule_id": "criterion:moment:moment:N*m:relative_1e-9_candidate",
+        "dimension_id": "moment",
+        "result_family": "moment",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "N*m"
+        },
+        "normalization_basis": "same_unit_required",
+        "relative_tolerance_value": 1e-09,
+        "absolute_tolerance_value": 0.0,
+        "tolerance_value_status": "project_specific_review_required",
+        "review": {
+          "source_review": {
+            "path": "../../../FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/RETURN.md",
+            "sha256": "565dc99ae70ba34bb4d913c0bb19b3934c92e704d75e10ab0e22931cbf73de96"
+          },
+          "technical_selection": {
+            "path": "../../../FIRST_STATIC_BINDINGS/ROOT_SELECTION.md",
+            "sha256": "c7899527ad9c63c46e1c016f178a37331eb0ae1bf7d93f1ba20fbc1482caac11"
+          },
+          "human_equation_review_claimed": false
+        },
+        "provenance": "new field-relative development comparison; abs(delta)<=1e-9*max(abs(reference),abs(observed)); no release criterion"
+      },
+      {
+        "rule_id": "criterion:stress:stress:MPa:case_scaled_absolute",
+        "dimension_id": "stress",
+        "result_family": "stress",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "MPa"
+        },
+        "normalization_basis": "same_unit_required",
+        "relative_tolerance_value": 0.0,
+        "absolute_tolerance_value": 3.702354012024317e-10,
+        "tolerance_value_status": "project_specific_review_required",
+        "review": {
+          "source_review": {
+            "path": "../../../FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/RETURN.md",
+            "sha256": "565dc99ae70ba34bb4d913c0bb19b3934c92e704d75e10ab0e22931cbf73de96"
+          },
+          "technical_selection": {
+            "path": "../../../FIRST_STATIC_BINDINGS/ROOT_SELECTION.md",
+            "sha256": "c7899527ad9c63c46e1c016f178a37331eb0ae1bf7d93f1ba20fbc1482caac11"
+          },
+          "human_equation_review_claimed": false
+        },
+        "provenance": "new derived-zero absolute budget:1e-9*stress_MPa; scale=0.3702354012024317203114481264844765618713803913706459988314448247953400352061099973018058802355407646"
+      },
+      {
+        "rule_id": "criterion:stress:stress:MPa:relative_1e-9_candidate",
+        "dimension_id": "stress",
+        "result_family": "stress",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "MPa"
+        },
+        "normalization_basis": "same_unit_required",
+        "relative_tolerance_value": 1e-09,
+        "absolute_tolerance_value": 0.0,
+        "tolerance_value_status": "project_specific_review_required",
+        "review": {
+          "source_review": {
+            "path": "../../../FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/RETURN.md",
+            "sha256": "565dc99ae70ba34bb4d913c0bb19b3934c92e704d75e10ab0e22931cbf73de96"
+          },
+          "technical_selection": {
+            "path": "../../../FIRST_STATIC_BINDINGS/ROOT_SELECTION.md",
+            "sha256": "c7899527ad9c63c46e1c016f178a37331eb0ae1bf7d93f1ba20fbc1482caac11"
+          },
+          "human_equation_review_claimed": false
+        },
+        "provenance": "new field-relative development comparison; abs(delta)<=1e-9*max(abs(reference),abs(observed)); no release criterion"
+      },
+      {
+        "rule_id": "criterion:moment:moment:N*m:case_scaled_absolute",
+        "dimension_id": "moment",
+        "result_family": "moment",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "N*m"
+        },
+        "normalization_basis": "same_unit_required",
+        "relative_tolerance_value": 0.0,
+        "absolute_tolerance_value": 1e-07,
+        "tolerance_value_status": "project_specific_review_required",
+        "review": {
+          "source_review": {
+            "path": "../../../FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/RETURN.md",
+            "sha256": "565dc99ae70ba34bb4d913c0bb19b3934c92e704d75e10ab0e22931cbf73de96"
+          },
+          "technical_selection": {
+            "path": "../../../FIRST_STATIC_BINDINGS/ROOT_SELECTION.md",
+            "sha256": "c7899527ad9c63c46e1c016f178a37331eb0ae1bf7d93f1ba20fbc1482caac11"
+          },
+          "human_equation_review_claimed": false
+        },
+        "provenance": "new derived-zero absolute budget:1e-9*moment_Nm; scale=100"
+      },
+      {
+        "rule_id": "criterion:stress:stress:Pa:relative_1e-9_candidate",
+        "dimension_id": "stress",
+        "result_family": "stress",
+        "unit_ref": {
+          "ref_type": "unit",
+          "ref": "Pa"
+        },
+        "normalization_basis": "same_unit_required",
+        "relative_tolerance_value": 1e-09,
+        "absolute_tolerance_value": 0.0,
+        "tolerance_value_status": "project_specific_review_required",
+        "review": {
+          "source_review": {
+            "path": "../../../FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/RETURN.md",
+            "sha256": "565dc99ae70ba34bb4d913c0bb19b3934c92e704d75e10ab0e22931cbf73de96"
+          },
+          "technical_selection": {
+            "path": "../../../FIRST_STATIC_BINDINGS/ROOT_SELECTION.md",
+            "sha256": "c7899527ad9c63c46e1c016f178a37331eb0ae1bf7d93f1ba20fbc1482caac11"
+          },
+          "human_equation_review_claimed": false
+        },
+        "provenance": "new field-relative development comparison; abs(delta)<=1e-9*max(abs(reference),abs(observed)); no release criterion"
+      }
+    ]
+  }
+}

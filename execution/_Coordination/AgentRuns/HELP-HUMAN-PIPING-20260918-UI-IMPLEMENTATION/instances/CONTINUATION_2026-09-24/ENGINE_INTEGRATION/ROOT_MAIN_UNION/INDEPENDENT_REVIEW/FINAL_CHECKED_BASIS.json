@@ -1,0 +1,91 @@
+{
+  "status": "CLEAR bounded integration backcheck",
+  "checked_at_utc": "2026-09-25T10:38:49.916978+00:00",
+  "union": "8b982aa7ce64afe37e6067d1038d92608f4aaf3f",
+  "role": "TASK",
+  "reviewer": "/root/numerical_resume/n05_admission",
+  "original_parent": "/root/numerical_resume",
+  "cross_manager_assignment": "/root",
+  "delegation": "none",
+  "selected_skill": ".agents/skills/software-code-review/SKILL.md",
+  "workflow": "none",
+  "instructions": [
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+      "bytes": 14200
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+      "bytes": 9016
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
+      "bytes": 1303
+    }
+  ],
+  "inputs": [
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/ROOT_MAIN_UNION/BASIS.json",
+      "sha256": "01c58b962a69a86b3728976d23c3f821716c1613cdce000e9f51f3430ac5a722",
+      "bytes": 2244
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/ROOT_MAIN_UNION/checkpoint-source-delta.patch",
+      "sha256": "923d6fd3b807b46a364c4dcdb1a6f5523dcb7b0dc7cea2708096fc0c089a6ee8",
+      "bytes": 1077
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CURRENT_CHECKPOINT_SELECTION.json",
+      "sha256": "de2ad9a554ab924ededb0a1e851cd5349279550cadb34d234b677662d32aa26a",
+      "bytes": 213818
+    }
+  ],
+  "reused_reviews": [
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/FINAL_FRONTEND_REVIEW/INDEPENDENT_REVIEW/RETURN.md",
+      "sha256": "ac40786e84a8b7977770460d0bf632f7c93edc15fed8945dcba291489d50ca1d",
+      "bytes": 7350
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/PRODUCER/RETURN.md",
+      "sha256": "3547fd3e618d953f17d08a3c71e3191c83172a90cd2aaab205579f4ebda39c9e",
+      "bytes": 8437
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/AUTHORING_NATIVE/REVIEW.md",
+      "sha256": "7842d52513b4d9c784ee36edc3b72c24d3bf79192ece2f60db8537920f4451d0",
+      "bytes": 6646
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/INDEPENDENT_REVIEW/RETURN.md",
+      "sha256": "9dd7347fdfd8988c9ee1b10686559520d9ed4d74b283bab3ef90acdb3d1911b1",
+      "bytes": 4854
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/SCIENTIFIC_JSON_INTEGRATION/readiness_review/RETURN.md",
+      "sha256": "a38ae15edfb6951fe4896185400426cef76a843c36103b44834735792b0a62f1",
+      "bytes": 5181
+    }
+  ],
+  "outputs": [
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/ROOT_MAIN_UNION/INDEPENDENT_REVIEW/RETURN.md",
+      "sha256": "a6346a8f34fd15ecb6f5a9dd6e69518eb41066e858cbf44606e704138dfb1a09",
+      "bytes": 3154
+    },
+    {
+      "origin": "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/ROOT_MAIN_UNION/INDEPENDENT_REVIEW/CHECKS.json",
+      "sha256": "7c64401311c8fddd2a04f982d24ffb654c5d033663f07826bffd1346fa1b1373",
+      "bytes": 82811
+    }
+  ],
+  "limits": "Integration/source comparisons only. Prior receipt authorship disclosed; no full producer or foundation re-review and no new qualification/native claim."
+}

@@ -1,0 +1,122 @@
+{
+  "observed_at_utc": "2026-09-25T11:03:30.197108+00:00",
+  "actual_actor": "/root/physics_resume",
+  "actual_parent": "/root",
+  "role": "WORKING_ITEMS Type1, bounded read-only diagnosis; no delegation",
+  "source_head": "8b982aa7ce64afe37e6067d1038d92608f4aaf3f",
+  "source_sha256": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "sha256": "1a18b63275eb70418ec8628097cde3ce0f97d298abd07c572ccaded33b5bc0c3"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx",
+      "sha256": "46f45d7483311c8b1ec9b50e81fd6ec3a33ac01e1628c18fc9f5629d1330fefc"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/inputManifestService.ts",
+      "sha256": "7fee1a96e3fb66b6658d5562d9c50d2d26fe8a3eb5d0f0a2e4be459f30021cf3"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/inputManifestService.test.ts",
+      "sha256": "f96c47f10b8c3abcbfb597d4ac168e466c8d0be0e57078032e7487f462a1b4d9"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/workspaceSession.ts",
+      "sha256": "d7cad0f732a3ab642435016fd723b49172cc33f4ea9a3a3e74de9524c14a6734"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "sha256": "c464a11fe61fe860bba6c6594123d4764f040f68ad9db84483e15e82707cff26"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "sha256": "242f9b2ec084bd448eddf257a97887c743c18e3386bb72356dfc64cc273ebe57"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/projectService.ts",
+      "sha256": "d0305330b8c4d428347896ba99332800815a98cbc084aa19faa492bfe74d6c1b"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/types.ts",
+      "sha256": "f2d9580a7a711f037826895941cd0120ef27e486e006a0d4c79901024f32400c"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "3859d254cc2da58a5fdcb336cf78fe400caa8f96719cb39010fa233a2d19009f"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/analysis_run.v0.3.schema.json",
+      "sha256": "f81f1c8e04ba3ecce5da51d72f303d41f6d710b26ea1a77f9163cfe94cae6abe"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/ScopeOfWork.md",
+      "sha256": "606e86c1233c8bc66f0fdc89efc2e19855bdce24d6f4f862903f22939a527831"
+    }
+  ],
+  "instruction_basis": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": ".agents/skills/software-defect-diagnosis/SKILL.md",
+      "sha256": "f281558734732ab0a97cf1407ba80a53c25e8c2b9dd96069bec589fd521a7a23"
+    }
+  ],
+  "saved_capture_observations": [
+    {
+      "mode": "sparse",
+      "private_input_path": "/private/tmp/piping-native-engine-records-20260925/private-rows/ordinary-sparse-saved.json",
+      "private_input_sha256": "e1cb2db46a124d8ffbfae8a1e8e226dc4878432245e635c7d6a681ca988a1784",
+      "raw_schema": "0.2.0",
+      "analysis_schema": "0.3.0",
+      "analysis_serialized_sha256": "136092d0000e96e0b8da136d9c8d6dabe30a3eb16f53e932f17080df124642d2",
+      "raw_serialized_sha256": "09395910cf751f7a4116ed53141c844171890685f9de4ef2b7025ad4d3de4d2b",
+      "stored_model_hash_claim": "sha256:a335271236b6dbbcb3c807cd5bf040a33726c4dfd67aa33ec37a0f26f03483ce",
+      "raw_analysis_run_identity_match": true,
+      "manifest_ref_count": 1,
+      "manifest_hash_count": 1,
+      "manifest_claim_sha256": "c3e97ceaa93773e6ec9fea8f2f2ec7d2363dca4c4d0e5ae98d9010dcf02d64a8",
+      "manifest_ref_claim_match": true,
+      "digest_suffix_matches_ref": true,
+      "manifest_payload_in_capture": false,
+      "manifest_payload_in_analysis": false,
+      "stored_model_and_project_hash_claims_present": true
+    },
+    {
+      "mode": "dense",
+      "private_input_path": "/private/tmp/piping-native-engine-records-20260925/private-rows/ordinary-dense-saved.json",
+      "private_input_sha256": "b4eaa333f93eb21102b9e04420c9f2c20fc3e10fc05aeceb8da65203af9f3615",
+      "raw_schema": "0.2.0",
+      "analysis_schema": "0.3.0",
+      "analysis_serialized_sha256": "da6896a3c736e6d3880d6d1647986a71afe984a33e0b07ade7ca50e898a650c5",
+      "raw_serialized_sha256": "5a4eaae78e75557c3dfee9976396b6ab5b7eff7dc79fbdf9d7772d268f5ebbb5",
+      "stored_model_hash_claim": "sha256:a335271236b6dbbcb3c807cd5bf040a33726c4dfd67aa33ec37a0f26f03483ce",
+      "raw_analysis_run_identity_match": true,
+      "manifest_ref_count": 1,
+      "manifest_hash_count": 1,
+      "manifest_claim_sha256": "d1bdb14061aa58578452acd6715c014ffa4f6cff97ea3da9dc5ed6608116828c",
+      "manifest_ref_claim_match": true,
+      "digest_suffix_matches_ref": true,
+      "manifest_payload_in_capture": false,
+      "manifest_payload_in_analysis": false,
+      "stored_model_and_project_hash_claims_present": true
+    }
+  ],
+  "method": "Read-only JSON parsing of the two supplied private captures and source/contract/caller inspection. Exact private bytes hashed but not copied. No saved-manifest reconstruction, source edit, production invocation, build, native operation or Git mutation.",
+  "finding": "Expected current-session manifest persistence boundary; no new save/reopen omission relative to the selected local-project contract. Broader full historical input-basis persistence/replay remains unavailable.",
+  "limits": "Parent owns actual native observations/hash verification. This diagnosis checks structure and ref/hash correspondence, not cryptographic recomputation of every stored model/result/envelope claim and not new engineering acceptance."
+}

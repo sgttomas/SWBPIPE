@@ -1,0 +1,952 @@
+{
+  "source_commit": "7558f1d06088bd93d8324e314912bf0e6df7801f",
+  "source_commit_time": "2026-09-23T07:54:18.000+02:00",
+  "inspection_date": "2026-09-25",
+  "private_asset_root": "TEMP_ACQUISITION_ROOT; host path in run script only",
+  "source_assets_vendored": false,
+  "retrievals": [
+    {
+      "name": "src_main",
+      "url": "https://gitlab.com/api/v4/projects/codeaster%2Fsrc/repository/commits/main",
+      "status": 200,
+      "final_url": "https://gitlab.com/api/v4/projects/codeaster%2Fsrc/repository/commits/main",
+      "bytes": 855,
+      "sha256": "1de80c3a234cdf2c7fc7cdb5d149c0fdcc6ebb60971862b635194ea611d68aac",
+      "private_inspection_filename": "src_main.json",
+      "local_retrieval_mtime_utc": "2026-09-25T08:12:28.313586+00:00"
+    },
+    {
+      "name": "doc_main",
+      "url": "https://gitlab.com/api/v4/projects/codeaster%2Fdoc/repository/commits/main",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "name": "106_problem",
+      "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.106/Probl_me_de_r_f_rence.html",
+      "status": 200,
+      "final_url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.106/Probl_me_de_r_f_rence.html",
+      "bytes": 22152,
+      "sha256": "55ea7b0f2dec7c3b938f22f7295a324b1ab3f6d4f7848c0d33cd71e589fbf76a",
+      "private_inspection_filename": "106_problem.html",
+      "local_retrieval_mtime_utc": "2026-09-25T08:12:33.729272+00:00"
+    },
+    {
+      "name": "101_problem",
+      "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.101/Probl_me_de_r_f_rence.html",
+      "status": 200,
+      "final_url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.101/Probl_me_de_r_f_rence.html",
+      "bytes": 17977,
+      "sha256": "c26153d42846f5bf4e66f26a409e34663da3f9d35089b27b1cec92e1f97304de",
+      "private_inspection_filename": "101_problem.html",
+      "local_retrieval_mtime_utc": "2026-09-25T08:12:34.746750+00:00"
+    },
+    {
+      "name": "ssll106a.export",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106a.export",
+      "status": 200,
+      "final_url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106a.export",
+      "bytes": 162,
+      "sha256": "df4f7abccb9b9e24bec10e573cd79ff27ab29aed3f042fde20c718c3c79eab85",
+      "private_inspection_filename": "ssll106a.export",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:21.247494+00:00"
+    },
+    {
+      "name": "ssll106a.comm",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106a.comm",
+      "status": 200,
+      "final_url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106a.comm",
+      "bytes": 32617,
+      "sha256": "53ee13f16fdd15d4caebaa83727702db25c0559987d7f45d07315de9978ea2dd",
+      "private_inspection_filename": "ssll106a.comm",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:21.247530+00:00"
+    },
+    {
+      "name": "ssll106b.export",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106b.export",
+      "status": 200,
+      "final_url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106b.export",
+      "bytes": 162,
+      "sha256": "328fc87d463d06e5f16bf678ceaccb0e7f61f5960bc98669573b98ac33918c7c",
+      "private_inspection_filename": "ssll106b.export",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:21.132490+00:00"
+    },
+    {
+      "name": "ssll106b.comm",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106b.comm",
+      "status": 200,
+      "final_url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106b.comm",
+      "bytes": 20494,
+      "sha256": "ff19b93ec7a0819994537923919d521d0b4c7272d40e6e036fd46f51e86720a9",
+      "private_inspection_filename": "ssll106b.comm",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:21.135215+00:00"
+    },
+    {
+      "name": "ssll106c.export",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106c.export",
+      "status": 200,
+      "final_url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106c.export",
+      "bytes": 162,
+      "sha256": "b70e7c0c12a83292979bd842f1dfcacaf872df791e660d06abd9b4589aff4723",
+      "private_inspection_filename": "ssll106c.export",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:21.151947+00:00"
+    },
+    {
+      "name": "ssll106c.comm",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106c.comm",
+      "status": 200,
+      "final_url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106c.comm",
+      "bytes": 32617,
+      "sha256": "dc0698454b559f8095b7024870928090b25178d2a912ecc78e3b3c53a6aa51fa",
+      "private_inspection_filename": "ssll106c.comm",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:21.649059+00:00"
+    },
+    {
+      "name": "ssll106d.export",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106d.export",
+      "status": 200,
+      "final_url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106d.export",
+      "bytes": 163,
+      "sha256": "c439ac74870df418f7d8922fc87820e20b084282b8c7a905e62bcade20025017",
+      "private_inspection_filename": "ssll106d.export",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:21.615835+00:00"
+    },
+    {
+      "name": "ssll106d.comm",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106d.comm",
+      "status": 200,
+      "final_url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106d.comm",
+      "bytes": 20549,
+      "sha256": "d105eb9f08f95bd70ec9b8073d251649dfc49d1d2482b08fb2927a84bd5edf55",
+      "private_inspection_filename": "ssll106d.comm",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:21.665674+00:00"
+    },
+    {
+      "name": "ssll106e.export",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106e.export",
+      "status": 200,
+      "final_url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106e.export",
+      "bytes": 188,
+      "sha256": "a890978cf9c51074e93cd05f3f3b232ee03ad3edebb254fd0725dd6429c695b0",
+      "private_inspection_filename": "ssll106e.export",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:21.736183+00:00"
+    },
+    {
+      "name": "ssll106e.comm",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106e.comm",
+      "status": 200,
+      "final_url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106e.comm",
+      "bytes": 32103,
+      "sha256": "256b65b9292bdbfaa05d84348881a6299ca7f68625fb933bb871fd8519afa17f",
+      "private_inspection_filename": "ssll106e.comm",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:21.751865+00:00"
+    },
+    {
+      "name": "ssll106f.export",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106f.export",
+      "status": 200,
+      "final_url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106f.export",
+      "bytes": 169,
+      "sha256": "f36ff254a722e2bc7eb49975fc0772caa4b54c194031791fc9a6e6ae59262d80",
+      "private_inspection_filename": "ssll106f.export",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:22.313141+00:00"
+    },
+    {
+      "name": "ssll106f.comm",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106f.comm",
+      "status": 200,
+      "final_url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106f.comm",
+      "bytes": 23430,
+      "sha256": "42d44351f9cbb68f57bd225c4f2feabc03bd315155a3f4d6c69b0c39cc52e5f3",
+      "private_inspection_filename": "ssll106f.comm",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:22.312979+00:00"
+    },
+    {
+      "name": "ssll101a.export",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101a.export",
+      "status": 200,
+      "final_url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101a.export",
+      "bytes": 169,
+      "sha256": "567f48af143c4a728a6eecf6b73ef9569c95bd71bf422b8edd03927c9f04c90f",
+      "private_inspection_filename": "ssll101a.export",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:22.311858+00:00"
+    },
+    {
+      "name": "ssll101a.comm",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101a.comm",
+      "status": 200,
+      "final_url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101a.comm",
+      "bytes": 31944,
+      "sha256": "d46f574494fb05a4df3e22874fc8042ee893f83cb8d4857a1f31f529e0a6d956",
+      "private_inspection_filename": "ssll101a.comm",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:22.655470+00:00"
+    },
+    {
+      "name": "ssll101b.export",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101b.export",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "name": "ssll101b.comm",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101b.comm",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "name": "ssll101c.export",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101c.export",
+      "status": 200,
+      "final_url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101c.export",
+      "bytes": 194,
+      "sha256": "5dc3788e98ecfcd2e09d59eed59067e15c4c80f19436c0887034b651493861c5",
+      "private_inspection_filename": "ssll101c.export",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:22.928450+00:00"
+    },
+    {
+      "name": "ssll101c.comm",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101c.comm",
+      "status": 200,
+      "final_url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101c.comm",
+      "bytes": 8023,
+      "sha256": "455544f7ac59f7b3318a6a772552845a7e14a6afcd231cc1f75a3756eeddc03a",
+      "private_inspection_filename": "ssll101c.comm",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:22.928756+00:00"
+    },
+    {
+      "name": "ssll101d.export",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101d.export",
+      "status": 200,
+      "final_url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101d.export",
+      "bytes": 169,
+      "sha256": "08deecb35a154ed6cb8f3fbeb6d960f847e3ca144a69f8550a1cb584abd1ba3e",
+      "private_inspection_filename": "ssll101d.export",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:23.243927+00:00"
+    },
+    {
+      "name": "ssll101d.comm",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101d.comm",
+      "status": 200,
+      "final_url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101d.comm",
+      "bytes": 8049,
+      "sha256": "5c601dd40491ad8f6ae6f8dbb8de738ac695abd5e8c920f5d9cdca5485616ef7",
+      "private_inspection_filename": "ssll101d.comm",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:23.359727+00:00"
+    },
+    {
+      "name": "ssll101e.export",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101e.export",
+      "status": 200,
+      "final_url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101e.export",
+      "bytes": 169,
+      "sha256": "a822422c95198d18a85d956279764bbd8dbc64807a0e27c31d8edcc96c4015d0",
+      "private_inspection_filename": "ssll101e.export",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:23.375460+00:00"
+    },
+    {
+      "name": "ssll101e.comm",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101e.comm",
+      "status": 200,
+      "final_url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101e.comm",
+      "bytes": 10069,
+      "sha256": "d1dc6628bdfd942e538a8ef7f8b00c662035ed64a2cc750aea99dc3765aa8a66",
+      "private_inspection_filename": "ssll101e.comm",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:23.458978+00:00"
+    },
+    {
+      "name": "src_project.json",
+      "url": "https://gitlab.com/api/v4/projects/codeaster%2Fsrc",
+      "status": 200,
+      "final_url": "https://gitlab.com/api/v4/projects/codeaster%2Fsrc",
+      "bytes": 981,
+      "sha256": "5fd36bddf198b7fcd6cd90df1ea6ec7b33fc472c1e99c9309b53a48aac1ac8df",
+      "private_inspection_filename": "src_project.json",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:23.344400+00:00"
+    },
+    {
+      "name": "doc_project.json",
+      "url": "https://gitlab.com/api/v4/projects/codeaster%2Fdoc",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "name": "docaster_project.json",
+      "url": "https://gitlab.com/api/v4/projects/codeaster%2Fdocaster",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "name": "106_Solution_de_r_f_rence.html",
+      "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.106/Solution_de_r_f_rence.html",
+      "status": 200,
+      "final_url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.106/Solution_de_r_f_rence.html",
+      "bytes": 25381,
+      "sha256": "bedeb089c7cfefc4451ea1a66d6b290aa5ff4f0582d6b1738697cb75ebcdedfe",
+      "private_inspection_filename": "106_Solution_de_r_f_rence.html",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:23.885146+00:00"
+    },
+    {
+      "name": "106_Mod_lisation_A.html",
+      "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.106/Mod_lisation_A.html",
+      "status": 200,
+      "final_url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.106/Mod_lisation_A.html",
+      "bytes": 28604,
+      "sha256": "02cf9f9422a29bd5e3dbb5f74d1b2b3755b4b57fbf53e175825222c6c6771ccd",
+      "private_inspection_filename": "106_Mod_lisation_A.html",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:24.092467+00:00"
+    },
+    {
+      "name": "106_Mod_lisation_C.html",
+      "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.106/Mod_lisation_C.html",
+      "status": 200,
+      "final_url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.106/Mod_lisation_C.html",
+      "bytes": 28514,
+      "sha256": "cfa87bb854ea8dad442f0220549c95ef2793f029e64d780a55357614d7e28021",
+      "private_inspection_filename": "106_Mod_lisation_C.html",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:24.070323+00:00"
+    },
+    {
+      "name": "106_Mod_lisation_D.html",
+      "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.106/Mod_lisation_D.html",
+      "status": 200,
+      "final_url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.106/Mod_lisation_D.html",
+      "bytes": 24885,
+      "sha256": "b02cdc9eb8af4a5b032787cbf1ac3385683c0d4f63c1b06553688e8230df834c",
+      "private_inspection_filename": "106_Mod_lisation_D.html",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:24.208925+00:00"
+    },
+    {
+      "name": "106_Mod_lisation_E.html",
+      "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.106/Mod_lisation_E.html",
+      "status": 200,
+      "final_url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.106/Mod_lisation_E.html",
+      "bytes": 28034,
+      "sha256": "913f525871cb144c07216b2720dbee04e9cb0c3ed2618b67bf50d0184df70670",
+      "private_inspection_filename": "106_Mod_lisation_E.html",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:24.441549+00:00"
+    },
+    {
+      "name": "106_Synth_se_des_r_sultats.html",
+      "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.106/Synth_se_des_r_sultats.html",
+      "status": 200,
+      "final_url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.106/Synth_se_des_r_sultats.html",
+      "bytes": 15045,
+      "sha256": "fbd2c8e495056c551281a0207c3dcfd19215ffc9d63e2f42b44ac507633c00a1",
+      "private_inspection_filename": "106_Synth_se_des_r_sultats.html",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:24.308558+00:00"
+    },
+    {
+      "name": "101_Solution_de_r_f_rence.html",
+      "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.101/Solution_de_r_f_rence.html",
+      "status": 200,
+      "final_url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.101/Solution_de_r_f_rence.html",
+      "bytes": 21493,
+      "sha256": "0bd1b3f0e5be84587cf01714a0df26c5bc479bbd9ed6a37d434add541b43f1bd",
+      "private_inspection_filename": "101_Solution_de_r_f_rence.html",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:24.572211+00:00"
+    },
+    {
+      "name": "101_Mod_lisation_A.html",
+      "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.101/Mod_lisation_A.html",
+      "status": 200,
+      "final_url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.101/Mod_lisation_A.html",
+      "bytes": 19988,
+      "sha256": "9751d472461803cb99ca63f4d49edbf9d77384e7aaf48a9eea3cc361f9a54bd4",
+      "private_inspection_filename": "101_Mod_lisation_A.html",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:24.563442+00:00"
+    },
+    {
+      "name": "101_Mod_lisation_C.html",
+      "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.101/Mod_lisation_C.html",
+      "status": 200,
+      "final_url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.101/Mod_lisation_C.html",
+      "bytes": 20005,
+      "sha256": "18ea3c6109fb6ff0c498046a7f0b75c52103a08c8c73ac629d685a4b00f80e59",
+      "private_inspection_filename": "101_Mod_lisation_C.html",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:24.731022+00:00"
+    },
+    {
+      "name": "101_Mod_lisation_D.html",
+      "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.101/Mod_lisation_D.html",
+      "status": 200,
+      "final_url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.101/Mod_lisation_D.html",
+      "bytes": 19984,
+      "sha256": "9537b66b0db97d2ee3e59c4f4467a2ffb54e5bedce976e59ef25ad355e415006",
+      "private_inspection_filename": "101_Mod_lisation_D.html",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:24.808122+00:00"
+    },
+    {
+      "name": "101_Mod_lisation_E.html",
+      "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.101/Mod_lisation_E.html",
+      "status": 200,
+      "final_url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.101/Mod_lisation_E.html",
+      "bytes": 19816,
+      "sha256": "57e7bc3b484f53f40dbce444d9560207e2b05827d523696522e592a881d4936b",
+      "private_inspection_filename": "101_Mod_lisation_E.html",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:25.127033+00:00"
+    },
+    {
+      "name": "101_Synth_se_des_r_sultats.html",
+      "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.101/Synth_se_des_r_sultats.html",
+      "status": 200,
+      "final_url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.101/Synth_se_des_r_sultats.html",
+      "bytes": 14647,
+      "sha256": "4c55b4f92700d3b5476e6fe4891b300e574d8ca7249ed052eb294b7f9621ddad",
+      "private_inspection_filename": "101_Synth_se_des_r_sultats.html",
+      "local_retrieval_mtime_utc": "2026-09-25T08:13:24.956894+00:00"
+    },
+    {
+      "name": "ssll106e.datg",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106e.datg",
+      "status": 200,
+      "final_url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106e.datg",
+      "bytes": 248,
+      "sha256": "d6fac43194d550f36143a9791b6d2c4ea6ffef6c1e2f8d37a274a1cad1fbed39",
+      "private_inspection_filename": "ssll106e.datg",
+      "local_retrieval_mtime_utc": "2026-09-25T08:14:32.449739+00:00"
+    },
+    {
+      "name": "ssll101c.com1",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101c.com1",
+      "status": 200,
+      "final_url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101c.com1",
+      "bytes": 1701,
+      "sha256": "f747f49e98946f7e7215b879edfb18f54def9b568ee71c78e65d15af07310771",
+      "private_inspection_filename": "ssll101c.com1",
+      "local_retrieval_mtime_utc": "2026-09-25T08:14:32.551268+00:00"
+    },
+    {
+      "name": "ssll106f.mail",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106f.mail",
+      "status": 200,
+      "final_url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106f.mail",
+      "bytes": 772,
+      "sha256": "1f195a1f68accaf11171ef1b126c4869a892ef36006e79c6e1ed5c12f7ed5156",
+      "private_inspection_filename": "ssll106f.mail",
+      "local_retrieval_mtime_utc": "2026-09-25T08:14:32.446759+00:00"
+    },
+    {
+      "name": "ssll106e.mail",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106e.mail",
+      "status": 200,
+      "final_url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106e.mail",
+      "bytes": 2074,
+      "sha256": "aeca71596ec3d648dde8a5025fa8f5fa50354bd9fd773361566b1d9c90729e79",
+      "private_inspection_filename": "ssll106e.mail",
+      "local_retrieval_mtime_utc": "2026-09-25T08:14:32.444876+00:00"
+    },
+    {
+      "name": "ssll106a.mmed",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106a.mmed",
+      "status": 200,
+      "final_url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106a.mmed",
+      "bytes": 19760,
+      "sha256": "4a748fa68b48f80f2bd63759ade4d97724d7e2a070793e3832ae3fce7248f6dd",
+      "private_inspection_filename": "ssll106a.mmed",
+      "local_retrieval_mtime_utc": "2026-09-25T08:14:32.956604+00:00"
+    },
+    {
+      "name": "ssll101a.mmed",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101a.mmed",
+      "status": 200,
+      "final_url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101a.mmed",
+      "bytes": 26056,
+      "sha256": "792fe64a9d10b7285bb24c4f3aec85496092c2d6c4933b896f728cec153a59cc",
+      "private_inspection_filename": "ssll101a.mmed",
+      "local_retrieval_mtime_utc": "2026-09-25T08:14:32.982511+00:00"
+    },
+    {
+      "name": "ssll101e.mmed",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101e.mmed",
+      "status": 200,
+      "final_url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101e.mmed",
+      "bytes": 28166,
+      "sha256": "12ea9d3fa2dfe792811d122dbce19c01fa2f7670aee592c523145d63e71994c6",
+      "private_inspection_filename": "ssll101e.mmed",
+      "local_retrieval_mtime_utc": "2026-09-25T08:14:32.923236+00:00"
+    },
+    {
+      "name": "ssll101c.msup",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101c.msup",
+      "status": 200,
+      "final_url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101c.msup",
+      "bytes": 15102,
+      "sha256": "5942b6b5b64d72d28d801ab6f23e4e54174a92aa8833f3807fbf66672b1f84ce",
+      "private_inspection_filename": "ssll101c.msup",
+      "local_retrieval_mtime_utc": "2026-09-25T08:14:33.027242+00:00"
+    },
+    {
+      "name": "root_tree.json",
+      "url": "https://gitlab.com/api/v4/projects/32737231/repository/tree?ref=7558f1d06088bd93d8324e314912bf0e6df7801f&per_page=100",
+      "status": 200,
+      "final_url": "https://gitlab.com/api/v4/projects/32737231/repository/tree?ref=7558f1d06088bd93d8324e314912bf0e6df7801f&per_page=100",
+      "bytes": 5319,
+      "sha256": "5910f0cde079840a320ccc83ebcdc43ff6e65dca499b0dc652a08695b02331df",
+      "private_inspection_filename": "root_tree.json",
+      "local_retrieval_mtime_utc": "2026-09-25T08:14:33.489275+00:00"
+    },
+    {
+      "name": "switcher.json",
+      "url": "https://codeaster.gitlab.io/doc/docaster/switcher.json",
+      "status": 200,
+      "final_url": "https://codeaster.gitlab.io/doc/docaster/switcher.json",
+      "bytes": 600,
+      "sha256": "8963bd8356a904e6f9b45f5db4ec95e07b3e2c4acca4f84db00697c8fc9bc6bd",
+      "private_inspection_filename": "switcher.json",
+      "local_retrieval_mtime_utc": "2026-09-25T08:14:33.538165+00:00"
+    },
+    {
+      "name": "v17_106_Probl_me_de_r_f_rence.html",
+      "url": "https://code-aster.org/doc/v17/manuals/man_v/v3/v3.01.106/Probl_me_de_r_f_rence.html",
+      "status": 200,
+      "final_url": "https://code-aster.org/doc/v17/manuals/man_v/v3/v3.01.106/Probl_me_de_r_f_rence.html",
+      "bytes": 507889,
+      "sha256": "c68be9eb69bd7b66e0698ccbda5ee6e5d588629e121671fed4d8505a1056f9b1",
+      "private_inspection_filename": "v17_106_Probl_me_de_r_f_rence.html",
+      "local_retrieval_mtime_utc": "2026-09-25T08:14:34.652231+00:00"
+    },
+    {
+      "name": "v17_106_Solution_de_r_f_rence.html",
+      "url": "https://code-aster.org/doc/v17/manuals/man_v/v3/v3.01.106/Solution_de_r_f_rence.html",
+      "status": 200,
+      "final_url": "https://code-aster.org/doc/v17/manuals/man_v/v3/v3.01.106/Solution_de_r_f_rence.html",
+      "bytes": 510961,
+      "sha256": "c0598c7713aac5e51939d4c0da63ad674f8fa660a9fabc2c0ce6f624c9ca1de2",
+      "private_inspection_filename": "v17_106_Solution_de_r_f_rence.html",
+      "local_retrieval_mtime_utc": "2026-09-25T08:14:34.553651+00:00"
+    },
+    {
+      "name": "v17_106_Mod_lisation_A.html",
+      "url": "https://code-aster.org/doc/v17/manuals/man_v/v3/v3.01.106/Mod_lisation_A.html",
+      "status": 200,
+      "final_url": "https://code-aster.org/doc/v17/manuals/man_v/v3/v3.01.106/Mod_lisation_A.html",
+      "bytes": 514370,
+      "sha256": "81e507f6847502e51430d57886d966627bbaa0bf511e883f85580effb97d1b7c",
+      "private_inspection_filename": "v17_106_Mod_lisation_A.html",
+      "local_retrieval_mtime_utc": "2026-09-25T08:14:34.893061+00:00"
+    },
+    {
+      "name": "v17_101_Probl_me_de_r_f_rence.html",
+      "url": "https://code-aster.org/doc/v17/manuals/man_v/v3/v3.01.101/Probl_me_de_r_f_rence.html",
+      "status": 200,
+      "final_url": "https://code-aster.org/doc/v17/manuals/man_v/v3/v3.01.101/Probl_me_de_r_f_rence.html",
+      "bytes": 503764,
+      "sha256": "4b831ba3e46a8d3c4ed50686770f943b9e7c982b0c5fad2b2c73c138f8b73395",
+      "private_inspection_filename": "v17_101_Probl_me_de_r_f_rence.html",
+      "local_retrieval_mtime_utc": "2026-09-25T08:14:35.173576+00:00"
+    },
+    {
+      "name": "v17_101_Solution_de_r_f_rence.html",
+      "url": "https://code-aster.org/doc/v17/manuals/man_v/v3/v3.01.101/Solution_de_r_f_rence.html",
+      "status": 200,
+      "final_url": "https://code-aster.org/doc/v17/manuals/man_v/v3/v3.01.101/Solution_de_r_f_rence.html",
+      "bytes": 507241,
+      "sha256": "9e4d755775f7ead9e8d74ccfdeeeef1d1c01bd0eac35b95909510ad7cb3e720a",
+      "private_inspection_filename": "v17_101_Solution_de_r_f_rence.html",
+      "local_retrieval_mtime_utc": "2026-09-25T08:14:38.625365+00:00"
+    },
+    {
+      "name": "v17_101_Mod_lisation_A.html",
+      "url": "https://code-aster.org/doc/v17/manuals/man_v/v3/v3.01.101/Mod_lisation_A.html",
+      "status": 200,
+      "final_url": "https://code-aster.org/doc/v17/manuals/man_v/v3/v3.01.101/Mod_lisation_A.html",
+      "bytes": 505743,
+      "sha256": "ad6f249e383ff7eee681bc09a51c9cac7910c8bbda6e5d7e1b0305054a4c02c5",
+      "private_inspection_filename": "v17_101_Mod_lisation_A.html",
+      "local_retrieval_mtime_utc": "2026-09-25T08:14:38.448831+00:00"
+    },
+    {
+      "name": "106_section_droite_tuyau.svg",
+      "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.106/_images/section_droite_tuyau.svg",
+      "status": 200,
+      "final_url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.106/_images/section_droite_tuyau.svg",
+      "bytes": 4358,
+      "sha256": "99453eeb908acb8fbaa64496cde4e3748ed728120513dd2f45cb11341ceaf227",
+      "private_inspection_filename": "106_section_droite_tuyau.svg",
+      "local_retrieval_mtime_utc": "2026-09-25T08:14:35.440981+00:00"
+    },
+    {
+      "name": "101_100018D600002A4500001A0C52F8BA0F02A87592.svg",
+      "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.101/_images/100018D600002A4500001A0C52F8BA0F02A87592.svg",
+      "status": 200,
+      "final_url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.101/_images/100018D600002A4500001A0C52F8BA0F02A87592.svg",
+      "bytes": 70470,
+      "sha256": "75a478a645921089bf4db6a3401e611f6d52017247dd9ab13c932866f7e269d6",
+      "private_inspection_filename": "101_100018D600002A4500001A0C52F8BA0F02A87592.svg",
+      "local_retrieval_mtime_utc": "2026-09-25T08:14:36.513194+00:00"
+    },
+    {
+      "name": "LICENSE",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/LICENSE",
+      "status": 200,
+      "bytes": 35147,
+      "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+      "private_inspection_filename": "LICENSE",
+      "local_retrieval_mtime_utc": "2026-09-25T08:16:24.989553+00:00"
+    },
+    {
+      "name": "test_resu.py",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/code_aster/Cata/Commands/test_resu.py",
+      "status": 200,
+      "bytes": 6431,
+      "sha256": "8cec4d6024dd10f403276d2527b811d3ca94d341bd655d93a44f4be78e9e26a8",
+      "private_inspection_filename": "test_resu.py",
+      "local_retrieval_mtime_utc": "2026-09-25T08:16:24.999910+00:00"
+    },
+    {
+      "name": "tuyeau_commands.html",
+      "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_u/u2/u2.02.02/Description_du_jeux_de_commandes.html",
+      "status": 200,
+      "bytes": 72016,
+      "sha256": "b76080e1a91ab6458886f9fc92ec0f72059f89cbcbb3fa38a4d710245b2a33ff",
+      "private_inspection_filename": "tuyeau_commands.html",
+      "local_retrieval_mtime_utc": "2026-09-25T08:16:25.122230+00:00"
+    },
+    {
+      "name": "beam_section_commands.html",
+      "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_u/u4/u4.42.01/Mot_cle_POUTRE.html",
+      "status": 200,
+      "bytes": 71818,
+      "sha256": "a322596036b927bae9dfd5cfa8085721e448bdc3ccaab75e09959d6408719b88",
+      "private_inspection_filename": "beam_section_commands.html",
+      "local_retrieval_mtime_utc": "2026-09-25T08:16:25.120385+00:00"
+    },
+    {
+      "name": "tuyau_theory_index.html",
+      "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_r/r3/r3.08.06/index.html",
+      "status": 200,
+      "bytes": 24686,
+      "sha256": "4dd6dced5095739461e96c35a79a3365620109c21d5c2180ddb6958cd070f514",
+      "private_inspection_filename": "tuyau_theory_index.html",
+      "local_retrieval_mtime_utc": "2026-09-25T08:16:25.513874+00:00"
+    },
+    {
+      "name": "106_Mod_lisation_F.html",
+      "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.106/Mod_lisation_F.html",
+      "status": 200,
+      "bytes": 24432,
+      "sha256": "be265db92c5d9a3732020e0091c673a073494c42a6bd6069dfe4e4e97d9246ca",
+      "private_inspection_filename": "106_Mod_lisation_F.html",
+      "local_retrieval_mtime_utc": "2026-09-25T08:16:25.546139+00:00"
+    },
+    {
+      "name": "c_test_reference.py",
+      "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/code_aster/Cata/Commons/c_test_reference.py",
+      "status": 200,
+      "bytes": 3882,
+      "sha256": "9dc0a6fd02ba5e5ae38d36c8fd03beb9e9183bdefb5ecff4b572fd27b6665832",
+      "private_inspection_filename": "c_test_reference.py",
+      "local_retrieval_mtime_utc": "2026-09-25T08:17:30.943987+00:00"
+    }
+  ],
+  "declared_test_dependencies": [
+    {
+      "test_id": "ssll101a",
+      "export_sha256": "567f48af143c4a728a6eecf6b73ef9569c95bd71bf422b8edd03927c9f04c90f",
+      "dependencies": [
+        {
+          "kind": "comm",
+          "name": "ssll101a.comm",
+          "mode": "D",
+          "logical_unit": "1",
+          "retrieved": true,
+          "bytes": 31944,
+          "sha256": "d46f574494fb05a4df3e22874fc8042ee893f83cb8d4857a1f31f529e0a6d956",
+          "container": "text",
+          "content_decode": "command/dependency text inspected"
+        },
+        {
+          "kind": "mmed",
+          "name": "ssll101a.mmed",
+          "mode": "D",
+          "logical_unit": "20",
+          "retrieved": true,
+          "bytes": 26056,
+          "sha256": "792fe64a9d10b7285bb24c4f3aec85496092c2d6c4933b896f728cec153a59cc",
+          "container": "HDF5/MED signature",
+          "content_decode": "input bytes available; full mesh/group interpretation not qualified"
+        }
+      ],
+      "static_dependency_scope": "All F declarations acquired; command read/include scan found no extra external input beyond Code_Aster runtime and listed inputs. No deck run or runtime qualification."
+    },
+    {
+      "test_id": "ssll101c",
+      "export_sha256": "5dc3788e98ecfcd2e09d59eed59067e15c4c80f19436c0887034b651493861c5",
+      "dependencies": [
+        {
+          "kind": "comm",
+          "name": "ssll101c.comm",
+          "mode": "D",
+          "logical_unit": "1",
+          "retrieved": true,
+          "bytes": 8023,
+          "sha256": "455544f7ac59f7b3318a6a772552845a7e14a6afcd231cc1f75a3756eeddc03a",
+          "container": "text",
+          "content_decode": "command/dependency text inspected"
+        },
+        {
+          "kind": "comm",
+          "name": "ssll101c.com1",
+          "mode": "D",
+          "logical_unit": "1",
+          "retrieved": true,
+          "bytes": 1701,
+          "sha256": "f747f49e98946f7e7215b879edfb18f54def9b568ee71c78e65d15af07310771",
+          "container": "text",
+          "content_decode": "command/dependency text inspected"
+        },
+        {
+          "kind": "msup",
+          "name": "ssll101c.msup",
+          "mode": "D",
+          "logical_unit": "19",
+          "retrieved": true,
+          "bytes": 15102,
+          "sha256": "5942b6b5b64d72d28d801ab6f23e4e54174a92aa8833f3807fbf66672b1f84ce",
+          "container": "text",
+          "content_decode": "input bytes available; full mesh/group interpretation not qualified"
+        }
+      ],
+      "static_dependency_scope": "All F declarations acquired; command read/include scan found no extra external input beyond Code_Aster runtime and listed inputs. No deck run or runtime qualification."
+    },
+    {
+      "test_id": "ssll101d",
+      "export_sha256": "08deecb35a154ed6cb8f3fbeb6d960f847e3ca144a69f8550a1cb584abd1ba3e",
+      "dependencies": [
+        {
+          "kind": "comm",
+          "name": "ssll101d.comm",
+          "mode": "D",
+          "logical_unit": "1",
+          "retrieved": true,
+          "bytes": 8049,
+          "sha256": "5c601dd40491ad8f6ae6f8dbb8de738ac695abd5e8c920f5d9cdca5485616ef7",
+          "container": "text",
+          "content_decode": "command/dependency text inspected"
+        },
+        {
+          "kind": "msup",
+          "name": "ssll101c.msup",
+          "mode": "D",
+          "logical_unit": "19",
+          "retrieved": true,
+          "bytes": 15102,
+          "sha256": "5942b6b5b64d72d28d801ab6f23e4e54174a92aa8833f3807fbf66672b1f84ce",
+          "container": "text",
+          "content_decode": "input bytes available; full mesh/group interpretation not qualified"
+        }
+      ],
+      "static_dependency_scope": "All F declarations acquired; command read/include scan found no extra external input beyond Code_Aster runtime and listed inputs. No deck run or runtime qualification."
+    },
+    {
+      "test_id": "ssll101e",
+      "export_sha256": "a822422c95198d18a85d956279764bbd8dbc64807a0e27c31d8edcc96c4015d0",
+      "dependencies": [
+        {
+          "kind": "comm",
+          "name": "ssll101e.comm",
+          "mode": "D",
+          "logical_unit": "1",
+          "retrieved": true,
+          "bytes": 10069,
+          "sha256": "d1dc6628bdfd942e538a8ef7f8b00c662035ed64a2cc750aea99dc3765aa8a66",
+          "container": "text",
+          "content_decode": "command/dependency text inspected"
+        },
+        {
+          "kind": "mmed",
+          "name": "ssll101e.mmed",
+          "mode": "D",
+          "logical_unit": "20",
+          "retrieved": true,
+          "bytes": 28166,
+          "sha256": "12ea9d3fa2dfe792811d122dbce19c01fa2f7670aee592c523145d63e71994c6",
+          "container": "HDF5/MED signature",
+          "content_decode": "input bytes available; full mesh/group interpretation not qualified"
+        }
+      ],
+      "static_dependency_scope": "All F declarations acquired; command read/include scan found no extra external input beyond Code_Aster runtime and listed inputs. No deck run or runtime qualification."
+    },
+    {
+      "test_id": "ssll106a",
+      "export_sha256": "df4f7abccb9b9e24bec10e573cd79ff27ab29aed3f042fde20c718c3c79eab85",
+      "dependencies": [
+        {
+          "kind": "comm",
+          "name": "ssll106a.comm",
+          "mode": "D",
+          "logical_unit": "1",
+          "retrieved": true,
+          "bytes": 32617,
+          "sha256": "53ee13f16fdd15d4caebaa83727702db25c0559987d7f45d07315de9978ea2dd",
+          "container": "text",
+          "content_decode": "command/dependency text inspected"
+        },
+        {
+          "kind": "mmed",
+          "name": "ssll106a.mmed",
+          "mode": "D",
+          "logical_unit": "20",
+          "retrieved": true,
+          "bytes": 19760,
+          "sha256": "4a748fa68b48f80f2bd63759ade4d97724d7e2a070793e3832ae3fce7248f6dd",
+          "container": "HDF5/MED signature",
+          "content_decode": "input bytes available; full mesh/group interpretation not qualified"
+        }
+      ],
+      "static_dependency_scope": "All F declarations acquired; command read/include scan found no extra external input beyond Code_Aster runtime and listed inputs. No deck run or runtime qualification."
+    },
+    {
+      "test_id": "ssll106b",
+      "export_sha256": "328fc87d463d06e5f16bf678ceaccb0e7f61f5960bc98669573b98ac33918c7c",
+      "dependencies": [
+        {
+          "kind": "comm",
+          "name": "ssll106b.comm",
+          "mode": "D",
+          "logical_unit": "1",
+          "retrieved": true,
+          "bytes": 20494,
+          "sha256": "ff19b93ec7a0819994537923919d521d0b4c7272d40e6e036fd46f51e86720a9",
+          "container": "text",
+          "content_decode": "command/dependency text inspected"
+        },
+        {
+          "kind": "mmed",
+          "name": "ssll106a.mmed",
+          "mode": "D",
+          "logical_unit": "20",
+          "retrieved": true,
+          "bytes": 19760,
+          "sha256": "4a748fa68b48f80f2bd63759ade4d97724d7e2a070793e3832ae3fce7248f6dd",
+          "container": "HDF5/MED signature",
+          "content_decode": "input bytes available; full mesh/group interpretation not qualified"
+        }
+      ],
+      "static_dependency_scope": "All F declarations acquired; command read/include scan found no extra external input beyond Code_Aster runtime and listed inputs. No deck run or runtime qualification."
+    },
+    {
+      "test_id": "ssll106c",
+      "export_sha256": "b70e7c0c12a83292979bd842f1dfcacaf872df791e660d06abd9b4589aff4723",
+      "dependencies": [
+        {
+          "kind": "comm",
+          "name": "ssll106c.comm",
+          "mode": "D",
+          "logical_unit": "1",
+          "retrieved": true,
+          "bytes": 32617,
+          "sha256": "dc0698454b559f8095b7024870928090b25178d2a912ecc78e3b3c53a6aa51fa",
+          "container": "text",
+          "content_decode": "command/dependency text inspected"
+        },
+        {
+          "kind": "mmed",
+          "name": "ssll106a.mmed",
+          "mode": "D",
+          "logical_unit": "20",
+          "retrieved": true,
+          "bytes": 19760,
+          "sha256": "4a748fa68b48f80f2bd63759ade4d97724d7e2a070793e3832ae3fce7248f6dd",
+          "container": "HDF5/MED signature",
+          "content_decode": "input bytes available; full mesh/group interpretation not qualified"
+        }
+      ],
+      "static_dependency_scope": "All F declarations acquired; command read/include scan found no extra external input beyond Code_Aster runtime and listed inputs. No deck run or runtime qualification."
+    },
+    {
+      "test_id": "ssll106d",
+      "export_sha256": "c439ac74870df418f7d8922fc87820e20b084282b8c7a905e62bcade20025017",
+      "dependencies": [
+        {
+          "kind": "comm",
+          "name": "ssll106d.comm",
+          "mode": "D",
+          "logical_unit": "1",
+          "retrieved": true,
+          "bytes": 20549,
+          "sha256": "d105eb9f08f95bd70ec9b8073d251649dfc49d1d2482b08fb2927a84bd5edf55",
+          "container": "text",
+          "content_decode": "command/dependency text inspected"
+        },
+        {
+          "kind": "mmed",
+          "name": "ssll106a.mmed",
+          "mode": "D",
+          "logical_unit": "20",
+          "retrieved": true,
+          "bytes": 19760,
+          "sha256": "4a748fa68b48f80f2bd63759ade4d97724d7e2a070793e3832ae3fce7248f6dd",
+          "container": "HDF5/MED signature",
+          "content_decode": "input bytes available; full mesh/group interpretation not qualified"
+        }
+      ],
+      "static_dependency_scope": "All F declarations acquired; command read/include scan found no extra external input beyond Code_Aster runtime and listed inputs. No deck run or runtime qualification."
+    },
+    {
+      "test_id": "ssll106e",
+      "export_sha256": "a890978cf9c51074e93cd05f3f3b232ee03ad3edebb254fd0725dd6429c695b0",
+      "dependencies": [
+        {
+          "kind": "comm",
+          "name": "ssll106e.comm",
+          "mode": "D",
+          "logical_unit": "1",
+          "retrieved": true,
+          "bytes": 32103,
+          "sha256": "256b65b9292bdbfaa05d84348881a6299ca7f68625fb933bb871fd8519afa17f",
+          "container": "text",
+          "content_decode": "command/dependency text inspected"
+        },
+        {
+          "kind": "mail",
+          "name": "ssll106e.mail",
+          "mode": "D",
+          "logical_unit": "20",
+          "retrieved": true,
+          "bytes": 2074,
+          "sha256": "aeca71596ec3d648dde8a5025fa8f5fa50354bd9fd773361566b1d9c90729e79",
+          "container": "text",
+          "content_decode": "input bytes available; full mesh/group interpretation not qualified"
+        },
+        {
+          "kind": "datg",
+          "name": "ssll106e.datg",
+          "mode": "D",
+          "logical_unit": "16",
+          "retrieved": true,
+          "bytes": 248,
+          "sha256": "d6fac43194d550f36143a9791b6d2c4ea6ffef6c1e2f8d37a274a1cad1fbed39",
+          "container": "text",
+          "content_decode": "command/dependency text inspected"
+        }
+      ],
+      "static_dependency_scope": "All F declarations acquired; command read/include scan found no extra external input beyond Code_Aster runtime and listed inputs. No deck run or runtime qualification."
+    },
+    {
+      "test_id": "ssll106f",
+      "export_sha256": "f36ff254a722e2bc7eb49975fc0772caa4b54c194031791fc9a6e6ae59262d80",
+      "dependencies": [
+        {
+          "kind": "comm",
+          "name": "ssll106f.comm",
+          "mode": "D",
+          "logical_unit": "1",
+          "retrieved": true,
+          "bytes": 23430,
+          "sha256": "42d44351f9cbb68f57bd225c4f2feabc03bd315155a3f4d6c69b0c39cc52e5f3",
+          "container": "text",
+          "content_decode": "command/dependency text inspected"
+        },
+        {
+          "kind": "mail",
+          "name": "ssll106f.mail",
+          "mode": "D",
+          "logical_unit": "20",
+          "retrieved": true,
+          "bytes": 772,
+          "sha256": "1f195a1f68accaf11171ef1b126c4869a892ef36006e79c6e1ed5c12f7ed5156",
+          "container": "text",
+          "content_decode": "input bytes available; full mesh/group interpretation not qualified"
+        }
+      ],
+      "static_dependency_scope": "All F declarations acquired; command read/include scan found no extra external input beyond Code_Aster runtime and listed inputs. No deck run or runtime qualification."
+    }
+  ],
+  "errors_retained": "Web cache failures recovered via direct public HTTP; doc-project API404 and ssll101b404 remain unavailable endpoints. No source asset is qualified merely by download."
+}

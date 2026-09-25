@@ -1,0 +1,12 @@
+{
+  "actual_apply_refused_at_final_profile": true,
+  "same_saved_bytes": {
+    "model_json": true,
+    "mechanics_result_json": true,
+    "analysis_run_json": true,
+    "model_hash_json": true
+  },
+  "undo_observed": 0,
+  "applied_batches_observed": 0,
+  "initial_setup_token_refusal_preserved": true
+}

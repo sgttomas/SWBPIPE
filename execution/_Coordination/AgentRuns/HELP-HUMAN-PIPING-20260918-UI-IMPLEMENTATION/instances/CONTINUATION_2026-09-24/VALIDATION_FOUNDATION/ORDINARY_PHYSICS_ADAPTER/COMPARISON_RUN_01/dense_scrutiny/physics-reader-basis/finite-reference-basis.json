@@ -1,0 +1,65 @@
+{
+  "status": "finite candidate package, not runnable admission or observed results",
+  "cases": [
+    {
+      "case_id": "original_static_axial_v1",
+      "input": {
+        "path": "axial.runner_input.candidate.json",
+        "sha256": "ee8fe54222fa5bf6aaa39219b7353a95ff77b91177cccd9c665575229023ff74"
+      },
+      "product_request": {
+        "path": "axial.preview_request.json",
+        "sha256": "dfca10a0b76f08d903261a0fbb885b0f9f223b6a0d8ee6696b1cd62c18ebcd71"
+      },
+      "reference": {
+        "path": "axial.reference.candidate.json",
+        "sha256": "5c58111b4395796416969e303c377ae27dabf2e0839f6565b0fdc4942dc878b6"
+      },
+      "criterion": {
+        "path": "axial.criteria.candidate.json",
+        "sha256": "6dab93d22367d638ac9e519bd98ff72323aa44f5002d5a3c91f9612f567add76"
+      },
+      "selectors": {
+        "path": "axial.selectors.candidate.json",
+        "sha256": "23379801596b2a1d9a99da5ff30ca1241da14cc5bc92b6618070b0d28380f482"
+      },
+      "required_scalar_rows": 73,
+      "modes_proposed": [
+        "sparse_interactive",
+        "dense_scrutiny"
+      ],
+      "scoring_readiness": false
+    },
+    {
+      "case_id": "original_static_bending_torsion_v1",
+      "input": {
+        "path": "bending_torsion.runner_input.candidate.json",
+        "sha256": "1f2b6e4876d352818a9f0c94bbfc285ca245df5ac27f63317b164e7ddf9d4ff2"
+      },
+      "product_request": {
+        "path": "bending_torsion.preview_request.json",
+        "sha256": "d2cd8c15910fd6f98ccf1cb267f56dbeecec8226dab9129f989aa37716204dc3"
+      },
+      "reference": {
+        "path": "bending_torsion.reference.candidate.json",
+        "sha256": "b5cb4dd6cd03c22d4c05232241ba6a81301e0420a17376e9c1018f197208f339"
+      },
+      "criterion": {
+        "path": "bending_torsion.criteria.candidate.json",
+        "sha256": "7dc37745f5111decdfffa430b1b334fb3a08def50fbfdfcc9d73648feadea36d"
+      },
+      "selectors": {
+        "path": "bending_torsion.selectors.candidate.json",
+        "sha256": "2bd1ffaccdfa2dae33fd8b27d6f15a46b5057049122a9f6c13f410844e42584e"
+      },
+      "required_scalar_rows": 73,
+      "modes_proposed": [
+        "sparse_interactive",
+        "dense_scrutiny"
+      ],
+      "scoring_readiness": false
+    }
+  ],
+  "actual_new_case_outputs": null,
+  "pending_independent_review": true
+}

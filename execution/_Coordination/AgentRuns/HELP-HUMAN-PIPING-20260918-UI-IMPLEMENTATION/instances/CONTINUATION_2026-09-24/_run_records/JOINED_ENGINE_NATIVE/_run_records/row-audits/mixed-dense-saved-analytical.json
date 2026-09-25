@@ -1,0 +1,600 @@
+{
+  "candidate": "8b982aa7ce64afe37e6067d1038d92608f4aaf3f",
+  "mode": "dense_scrutiny",
+  "reference_sha256": "f2e5ca626d5055157fce2bc3ff149f7c2823a429f3b7b37e1e1e82373b31595c",
+  "checker_sha256": "85398206ee6d124c6f0b08b13fd5258774eb6e7d8aa5e2e81e9bd347a4bf3396",
+  "private_capture_sha256": "1ed2014c08c15e8e5dc3cb68515168fc73b9731a7ce1eb9765d854e7ca0fd937",
+  "model_sha256": "d1550af63d668219d8662ba20891e21ed019db62d52aeae3a430eb53f9a7755c",
+  "scope": "Independent named physical references and case/material/method separation; actual native Run is separate origin evidence",
+  "criteria": "Nonzero relative1e-9; exact source zeros; existing pressure_runtime zero scale from cap force, cap force*L or pressure",
+  "case_methods": {
+    "case": "retained_source_blocks_exact_v1",
+    "case:ordinary-pressure": "ordinary_dense_structural_v1"
+  },
+  "checks": [
+    {
+      "result_id": "result:disp:independent-root:rx",
+      "case": "case",
+      "observed": 9.999999999999999e-05,
+      "expected": 0.0001,
+      "unit": "rad",
+      "scale": 0.0001,
+      "scaled_error": 1.3552527156068805e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:disp:independent-tip:rx",
+      "case": "case",
+      "observed": 0.00010000000000462794,
+      "expected": 0.00010000000000462795,
+      "unit": "rad",
+      "scale": 0.00010000000000462795,
+      "scaled_error": 1.3552527155441602e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:4:case:18:independent-spring:Mx",
+      "case": "case",
+      "observed": -1e-08,
+      "expected": -1e-08,
+      "unit": "N*m",
+      "scale": 1e-08,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:elastic-maximum:4:case:18:independent-member",
+      "case": "case",
+      "observed": 0,
+      "expected": 0,
+      "unit": "Pa",
+      "scale": 0,
+      "scaled_error": 0,
+      "passed": true
+    },
+    {
+      "result_id": "result:stress:independent-member:end-i:torsional-shear",
+      "case": "case",
+      "observed": 1.851177006012158e-11,
+      "expected": 1.8511770060121587e-11,
+      "unit": "MPa",
+      "scale": 1.8511770060121587e-11,
+      "scaled_error": 3.4909403663628283e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:end_i:wall_axial_force",
+      "case": "case:ordinary-pressure",
+      "observed": 2.544690049407733e-07,
+      "expected": 2.5446900494077325e-07,
+      "unit": "N",
+      "scale": 2.5446900494077325e-07,
+      "scaled_error": 2.080393217858311e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:end_i:effective_axial_force",
+      "case": "case:ordinary-pressure",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N",
+      "scale": 2.5446900494077325e-07,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:end_i:axial_membrane_stress",
+      "case": "case:ordinary-pressure",
+      "observed": 4.2631578947368425e-05,
+      "expected": 4.263157894736842e-05,
+      "unit": "Pa",
+      "scale": 4.263157894736842e-05,
+      "scaled_error": 1.5894939257117735e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:end_i:lame_inner_radial_stress",
+      "case": "case:ordinary-pressure",
+      "observed": -1e-05,
+      "expected": -1e-05,
+      "unit": "Pa",
+      "scale": 1e-05,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:end_i:lame_outer_radial_stress",
+      "case": "case:ordinary-pressure",
+      "observed": 0,
+      "expected": 0.0,
+      "unit": "Pa",
+      "scale": 1e-05,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:end_i:lame_inner_hoop_stress",
+      "case": "case:ordinary-pressure",
+      "observed": 9.526315789473685e-05,
+      "expected": 9.526315789473685e-05,
+      "unit": "Pa",
+      "scale": 9.526315789473685e-05,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:end_i:lame_outer_hoop_stress",
+      "case": "case:ordinary-pressure",
+      "observed": 8.526315789473685e-05,
+      "expected": 8.526315789473684e-05,
+      "unit": "Pa",
+      "scale": 8.526315789473684e-05,
+      "scaled_error": 1.5894939257117735e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:stress:independent-member:quarter-1:torsional-shear",
+      "case": "case",
+      "observed": 1.851177006012158e-11,
+      "expected": 1.8511770060121587e-11,
+      "unit": "MPa",
+      "scale": 1.8511770060121587e-11,
+      "scaled_error": 3.4909403663628283e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:quarter_1:wall_axial_force",
+      "case": "case:ordinary-pressure",
+      "observed": 2.544690049407733e-07,
+      "expected": 2.5446900494077325e-07,
+      "unit": "N",
+      "scale": 2.5446900494077325e-07,
+      "scaled_error": 2.080393217858311e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:quarter_1:effective_axial_force",
+      "case": "case:ordinary-pressure",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N",
+      "scale": 2.5446900494077325e-07,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:quarter_1:axial_membrane_stress",
+      "case": "case:ordinary-pressure",
+      "observed": 4.2631578947368425e-05,
+      "expected": 4.263157894736842e-05,
+      "unit": "Pa",
+      "scale": 4.263157894736842e-05,
+      "scaled_error": 1.5894939257117735e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:quarter_1:lame_inner_radial_stress",
+      "case": "case:ordinary-pressure",
+      "observed": -1e-05,
+      "expected": -1e-05,
+      "unit": "Pa",
+      "scale": 1e-05,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:quarter_1:lame_outer_radial_stress",
+      "case": "case:ordinary-pressure",
+      "observed": 0,
+      "expected": 0.0,
+      "unit": "Pa",
+      "scale": 1e-05,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:quarter_1:lame_inner_hoop_stress",
+      "case": "case:ordinary-pressure",
+      "observed": 9.526315789473685e-05,
+      "expected": 9.526315789473685e-05,
+      "unit": "Pa",
+      "scale": 9.526315789473685e-05,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:quarter_1:lame_outer_hoop_stress",
+      "case": "case:ordinary-pressure",
+      "observed": 8.526315789473685e-05,
+      "expected": 8.526315789473684e-05,
+      "unit": "Pa",
+      "scale": 8.526315789473684e-05,
+      "scaled_error": 1.5894939257117735e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:stress:independent-member:midspan:torsional-shear",
+      "case": "case",
+      "observed": 1.851177006012158e-11,
+      "expected": 1.8511770060121587e-11,
+      "unit": "MPa",
+      "scale": 1.8511770060121587e-11,
+      "scaled_error": 3.4909403663628283e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:midspan:wall_axial_force",
+      "case": "case:ordinary-pressure",
+      "observed": 2.544690049407733e-07,
+      "expected": 2.5446900494077325e-07,
+      "unit": "N",
+      "scale": 2.5446900494077325e-07,
+      "scaled_error": 2.080393217858311e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:midspan:effective_axial_force",
+      "case": "case:ordinary-pressure",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N",
+      "scale": 2.5446900494077325e-07,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:midspan:axial_membrane_stress",
+      "case": "case:ordinary-pressure",
+      "observed": 4.2631578947368425e-05,
+      "expected": 4.263157894736842e-05,
+      "unit": "Pa",
+      "scale": 4.263157894736842e-05,
+      "scaled_error": 1.5894939257117735e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:midspan:lame_inner_radial_stress",
+      "case": "case:ordinary-pressure",
+      "observed": -1e-05,
+      "expected": -1e-05,
+      "unit": "Pa",
+      "scale": 1e-05,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:midspan:lame_outer_radial_stress",
+      "case": "case:ordinary-pressure",
+      "observed": 0,
+      "expected": 0.0,
+      "unit": "Pa",
+      "scale": 1e-05,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:midspan:lame_inner_hoop_stress",
+      "case": "case:ordinary-pressure",
+      "observed": 9.526315789473685e-05,
+      "expected": 9.526315789473685e-05,
+      "unit": "Pa",
+      "scale": 9.526315789473685e-05,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:midspan:lame_outer_hoop_stress",
+      "case": "case:ordinary-pressure",
+      "observed": 8.526315789473685e-05,
+      "expected": 8.526315789473684e-05,
+      "unit": "Pa",
+      "scale": 8.526315789473684e-05,
+      "scaled_error": 1.5894939257117735e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:stress:independent-member:quarter-3:torsional-shear",
+      "case": "case",
+      "observed": 1.851177006012158e-11,
+      "expected": 1.8511770060121587e-11,
+      "unit": "MPa",
+      "scale": 1.8511770060121587e-11,
+      "scaled_error": 3.4909403663628283e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:quarter_3:wall_axial_force",
+      "case": "case:ordinary-pressure",
+      "observed": 2.544690049407733e-07,
+      "expected": 2.5446900494077325e-07,
+      "unit": "N",
+      "scale": 2.5446900494077325e-07,
+      "scaled_error": 2.080393217858311e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:quarter_3:effective_axial_force",
+      "case": "case:ordinary-pressure",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N",
+      "scale": 2.5446900494077325e-07,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:quarter_3:axial_membrane_stress",
+      "case": "case:ordinary-pressure",
+      "observed": 4.2631578947368425e-05,
+      "expected": 4.263157894736842e-05,
+      "unit": "Pa",
+      "scale": 4.263157894736842e-05,
+      "scaled_error": 1.5894939257117735e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:quarter_3:lame_inner_radial_stress",
+      "case": "case:ordinary-pressure",
+      "observed": -1e-05,
+      "expected": -1e-05,
+      "unit": "Pa",
+      "scale": 1e-05,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:quarter_3:lame_outer_radial_stress",
+      "case": "case:ordinary-pressure",
+      "observed": 0,
+      "expected": 0.0,
+      "unit": "Pa",
+      "scale": 1e-05,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:quarter_3:lame_inner_hoop_stress",
+      "case": "case:ordinary-pressure",
+      "observed": 9.526315789473685e-05,
+      "expected": 9.526315789473685e-05,
+      "unit": "Pa",
+      "scale": 9.526315789473685e-05,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:quarter_3:lame_outer_hoop_stress",
+      "case": "case:ordinary-pressure",
+      "observed": 8.526315789473685e-05,
+      "expected": 8.526315789473684e-05,
+      "unit": "Pa",
+      "scale": 8.526315789473684e-05,
+      "scaled_error": 1.5894939257117735e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:stress:independent-member:end-j:torsional-shear",
+      "case": "case",
+      "observed": 1.851177006012158e-11,
+      "expected": 1.8511770060121587e-11,
+      "unit": "MPa",
+      "scale": 1.8511770060121587e-11,
+      "scaled_error": 3.4909403663628283e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:end_j:wall_axial_force",
+      "case": "case:ordinary-pressure",
+      "observed": 2.544690049407733e-07,
+      "expected": 2.5446900494077325e-07,
+      "unit": "N",
+      "scale": 2.5446900494077325e-07,
+      "scaled_error": 2.080393217858311e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:end_j:effective_axial_force",
+      "case": "case:ordinary-pressure",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N",
+      "scale": 2.5446900494077325e-07,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:end_j:axial_membrane_stress",
+      "case": "case:ordinary-pressure",
+      "observed": 4.2631578947368425e-05,
+      "expected": 4.263157894736842e-05,
+      "unit": "Pa",
+      "scale": 4.263157894736842e-05,
+      "scaled_error": 1.5894939257117735e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:end_j:lame_inner_radial_stress",
+      "case": "case:ordinary-pressure",
+      "observed": -1e-05,
+      "expected": -1e-05,
+      "unit": "Pa",
+      "scale": 1e-05,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:end_j:lame_outer_radial_stress",
+      "case": "case:ordinary-pressure",
+      "observed": 0,
+      "expected": 0.0,
+      "unit": "Pa",
+      "scale": 1e-05,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:end_j:lame_inner_hoop_stress",
+      "case": "case:ordinary-pressure",
+      "observed": 9.526315789473685e-05,
+      "expected": 9.526315789473685e-05,
+      "unit": "Pa",
+      "scale": 9.526315789473685e-05,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:pressure-exact:22:case:ordinary-pressure:18:independent-member:end_j:lame_outer_hoop_stress",
+      "case": "case:ordinary-pressure",
+      "observed": 8.526315789473685e-05,
+      "expected": 8.526315789473684e-05,
+      "unit": "Pa",
+      "scale": 8.526315789473684e-05,
+      "scaled_error": 1.5894939257117735e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:22:case:ordinary-pressure:6:anchor:Fx",
+      "case": "case:ordinary-pressure",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N",
+      "scale": 2.5446900494077325e-07,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:22:case:ordinary-pressure:6:anchor:Fy",
+      "case": "case:ordinary-pressure",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N",
+      "scale": 2.5446900494077325e-07,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:22:case:ordinary-pressure:6:anchor:Fz",
+      "case": "case:ordinary-pressure",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N",
+      "scale": 2.5446900494077325e-07,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:22:case:ordinary-pressure:6:anchor:Mx",
+      "case": "case:ordinary-pressure",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N*m",
+      "scale": 5.089380098815465e-07,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:22:case:ordinary-pressure:6:anchor:My",
+      "case": "case:ordinary-pressure",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N*m",
+      "scale": 5.089380098815465e-07,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:22:case:ordinary-pressure:6:anchor:Mz",
+      "case": "case:ordinary-pressure",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N*m",
+      "scale": 5.089380098815465e-07,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:22:case:ordinary-pressure:18:independent-spring:Fx",
+      "case": "case:ordinary-pressure",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N",
+      "scale": 2.5446900494077325e-07,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:22:case:ordinary-pressure:18:independent-spring:Fy",
+      "case": "case:ordinary-pressure",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N",
+      "scale": 2.5446900494077325e-07,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:22:case:ordinary-pressure:18:independent-spring:Fz",
+      "case": "case:ordinary-pressure",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N",
+      "scale": 2.5446900494077325e-07,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:22:case:ordinary-pressure:18:independent-spring:Mx",
+      "case": "case:ordinary-pressure",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N*m",
+      "scale": 5.089380098815465e-07,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:22:case:ordinary-pressure:18:independent-spring:My",
+      "case": "case:ordinary-pressure",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N*m",
+      "scale": 5.089380098815465e-07,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:support-action:22:case:ordinary-pressure:18:independent-spring:Mz",
+      "case": "case:ordinary-pressure",
+      "observed": 0,
+      "expected": 0,
+      "unit": "N*m",
+      "scale": 5.089380098815465e-07,
+      "scaled_error": 0.0,
+      "passed": true
+    },
+    {
+      "result_id": "result:loadcase:case-ordinary-pressure:disp:independent-tip:ux",
+      "case": "case:ordinary-pressure",
+      "observed": 2.1315789473684212e-05,
+      "expected": 2.131578947368421e-05,
+      "unit": "mm",
+      "scale": 2.131578947368421e-05,
+      "scaled_error": 1.5894939257117735e-16,
+      "passed": true
+    },
+    {
+      "result_id": "result:elastic-maximum:22:case:ordinary-pressure:18:independent-member",
+      "case": "case:ordinary-pressure",
+      "observed": 4.2631578947368425e-05,
+      "expected": 4.263157894736842e-05,
+      "unit": "Pa",
+      "scale": 4.263157894736842e-05,
+      "scaled_error": 1.5894939257117735e-16,
+      "passed": true
+    }
+  ],
+  "count": 58,
+  "all_passed": true,
+  "global_maximum_case": "case:ordinary-pressure",
+  "thermal_alpha_not_invented": true
+}

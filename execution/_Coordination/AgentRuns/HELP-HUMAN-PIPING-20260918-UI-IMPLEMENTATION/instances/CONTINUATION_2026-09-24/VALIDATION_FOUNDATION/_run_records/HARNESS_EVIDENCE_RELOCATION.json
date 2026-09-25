@@ -1,0 +1,23 @@
+{
+  "source": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/HARNESS_INVENTORY",
+  "destination": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/HARNESS_INVENTORY",
+  "result": "Copied byte-for-byte; primary cleanup left to ROOT",
+  "deviation": "TASK evidence written to PRIMARY despite assigned isolated checkout; source reads remained assigned main snapshot; no product writes reported",
+  "files": [
+    {
+      "path": "INVENTORY.md",
+      "sha256": "cccf4bc8b2f0ffc6c9806ede629e19cd003c596da224a7e80bc16f295313f1c7",
+      "bytes": 21204
+    },
+    {
+      "path": "SOURCES.json",
+      "sha256": "2bbbf4a1614783851f0ba75f45890785888e7d9b975dbe7fafe5cd41db489c51",
+      "bytes": 16283
+    },
+    {
+      "path": "VERIFICATION.json",
+      "sha256": "481607a00da43e17571f47c8fccd7afc2067a1607891796a848ab48762bf36d5",
+      "bytes": 987
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+test_actual_combination_token_supported_and_invented_token_refused (gate_selected.GateTests.test_actual_combination_token_supported_and_invented_token_refused) ... ok
+test_pipe_multiplexing_delivers_large_input_without_deadlock (gate_selected.GateTests.test_pipe_multiplexing_delivers_large_input_without_deadlock) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.832s
+
+OK

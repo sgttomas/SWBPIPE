@@ -1,0 +1,182 @@
+{
+  "actor": "/root/physics_resume/joined_producer_review",
+  "assignment_requester": "/root",
+  "role": "TASK Type2",
+  "execution": "Independent stdlib hash/record/equilibrium arithmetic only; no original checker/build/native/store execution",
+  "public_custody_files": 60,
+  "private_custody_files": 36,
+  "maintained_build_inputs_verified": 1092,
+  "executable_sha256": "f68dc4de906eb5e8c96bb72c8736b7a5a9afec09ba533ada7ac676223fd36dcc",
+  "checks": 7774,
+  "primary_comparisons": 348,
+  "repeated_comparisons": 129,
+  "largest_recorded_scaled_error": "9.094947017729283E-16",
+  "analytical_method": "Independent Decimal Machin pi, integral circular section properties, vector equilibrium and axial/Euler-Bernoulli/Saint-Venant/declared uniform-pressure equations for the named cases; no production imports",
+  "comparison_records": [
+    {
+      "label": "fields-dense-saved.json",
+      "mode": "dense_scrutiny",
+      "count": 25,
+      "repeated": false,
+      "capture_sha256": "07273ecd04559714e3ae7afefdb52fedf7ec7b9ed4b5e1a0082097e2605e2811",
+      "model_sha256": "afbb90c3fd89f8078f77f7953a1f3287a3adba72cf2b3dbf5dd1e5eb4b1ba037",
+      "raw_sha256": "5988110c0c3a63177064d5d54dd33a83195e50d5d7388ada105365ba38a16c20"
+    },
+    {
+      "label": "fields-sparse-saved.json",
+      "mode": "sparse_interactive",
+      "count": 25,
+      "repeated": false,
+      "capture_sha256": "713f1bf91b1b5908c2a350597242bc98fe94662c4a43ca8b53c327522980d0f0",
+      "model_sha256": "afbb90c3fd89f8078f77f7953a1f3287a3adba72cf2b3dbf5dd1e5eb4b1ba037",
+      "raw_sha256": "ac982db5408ee20b782a32f3930025ca92e17b2ae61fdf94fe5fcd356e9654e9"
+    },
+    {
+      "label": "mixed-dense-saved.json",
+      "mode": "dense_scrutiny",
+      "count": 58,
+      "repeated": false,
+      "capture_sha256": "1ed2014c08c15e8e5dc3cb68515168fc73b9731a7ce1eb9765d854e7ca0fd937",
+      "model_sha256": "d1550af63d668219d8662ba20891e21ed019db62d52aeae3a430eb53f9a7755c",
+      "raw_sha256": "1aea3076153e82b1f44afac54a190d9676d91ffdab435ed733f4bf1fdfaec397"
+    },
+    {
+      "label": "mixed-restored-saved.json",
+      "mode": "sparse_interactive",
+      "count": 58,
+      "repeated": true,
+      "capture_sha256": "a016d1d750ec19e4b0b03c479ae2527996af86cc2def29a8db044849fdb128de",
+      "model_sha256": "d1550af63d668219d8662ba20891e21ed019db62d52aeae3a430eb53f9a7755c",
+      "raw_sha256": "e0fbcdb329d9556911f475cd051450e46431fb0d3f88fe52bac3341cedc4abe1"
+    },
+    {
+      "label": "mixed-sparse-saved.json",
+      "mode": "sparse_interactive",
+      "count": 58,
+      "repeated": false,
+      "capture_sha256": "1d96b3a3a470bb56c5bc35a3dd430c407b73602821f8d62962f39cb080799da2",
+      "model_sha256": "d1550af63d668219d8662ba20891e21ed019db62d52aeae3a430eb53f9a7755c",
+      "raw_sha256": "e0fbcdb329d9556911f475cd051450e46431fb0d3f88fe52bac3341cedc4abe1"
+    },
+    {
+      "label": "n05-dense-saved.json",
+      "mode": "dense_scrutiny",
+      "count": 20,
+      "repeated": false,
+      "capture_sha256": "f69ca099167006fef5953f05d1d8be5699cb5d1d0214fbbc9e2cc11377ae7c07",
+      "model_sha256": "60d30f7fe0ebdfc42a910212bf684d05f4783df892529c3976a77230938adce2",
+      "raw_sha256": "6a53ea10a5eba158776c0cf8100533d511fb4d8173d7774961ed788470d257f4"
+    },
+    {
+      "label": "n05-reopened-fresh-saved.json",
+      "mode": "dense_scrutiny",
+      "count": 20,
+      "repeated": true,
+      "capture_sha256": "b2cd05cf2f844ed2f3de4fec7b69e43bee089fe332c04ae8dded9ff1810e4547",
+      "model_sha256": "60d30f7fe0ebdfc42a910212bf684d05f4783df892529c3976a77230938adce2",
+      "raw_sha256": "6a53ea10a5eba158776c0cf8100533d511fb4d8173d7774961ed788470d257f4"
+    },
+    {
+      "label": "n05-sparse-saved.json",
+      "mode": "sparse_interactive",
+      "count": 20,
+      "repeated": false,
+      "capture_sha256": "510885db93076118af13af1bfcff86059af23bb13b95208c4c06dacfe5031483",
+      "model_sha256": "60d30f7fe0ebdfc42a910212bf684d05f4783df892529c3976a77230938adce2",
+      "raw_sha256": "3f8a2be77beb030c1ba381f16fe5e56f19fa3add26276fca39c41e022be7e5e1"
+    },
+    {
+      "label": "n06-dense-saved.json",
+      "mode": "dense_scrutiny",
+      "count": 20,
+      "repeated": false,
+      "capture_sha256": "33f2b1b031b174903745f330426a4fd60afa12813326d8ef3eb599f433f0e10e",
+      "model_sha256": "797a7834f8099d04555301056372fe056b23708d4e69d22dde77c2ec4e85daf4",
+      "raw_sha256": "c468a76667f896b68a5e492f3e048ec0cfb801991a757cf4b4351b5031d93f14"
+    },
+    {
+      "label": "n06-sparse-saved.json",
+      "mode": "sparse_interactive",
+      "count": 20,
+      "repeated": false,
+      "capture_sha256": "dfd2a9f0fd2161588886315021bd392f1662cd98346688d4f73d4d8101de3595",
+      "model_sha256": "797a7834f8099d04555301056372fe056b23708d4e69d22dde77c2ec4e85daf4",
+      "raw_sha256": "9a872d033aa9d8c10943ada372cd6df125c2e1a653498d92a08f2494814a4a0d"
+    },
+    {
+      "label": "ordinary-dense-saved.json",
+      "mode": "dense_scrutiny",
+      "count": 51,
+      "repeated": false,
+      "capture_sha256": "b4eaa333f93eb21102b9e04420c9f2c20fc3e10fc05aeceb8da65203af9f3615",
+      "model_sha256": "a335271236b6dbbcb3c807cd5bf040a33726c4dfd67aa33ec37a0f26f03483ce",
+      "raw_sha256": "5a4eaae78e75557c3dfee9976396b6ab5b7eff7dc79fbdf9d7772d268f5ebbb5"
+    },
+    {
+      "label": "ordinary-reopened-fresh-saved.json",
+      "mode": "sparse_interactive",
+      "count": 51,
+      "repeated": true,
+      "capture_sha256": "f61794a0411a75f7604a7b15e3597ba180f1613fa092ff63871c2c1717ffab68",
+      "model_sha256": "a335271236b6dbbcb3c807cd5bf040a33726c4dfd67aa33ec37a0f26f03483ce",
+      "raw_sha256": "09395910cf751f7a4116ed53141c844171890685f9de4ef2b7025ad4d3de4d2b"
+    },
+    {
+      "label": "ordinary-sparse-saved.json",
+      "mode": "sparse_interactive",
+      "count": 51,
+      "repeated": false,
+      "capture_sha256": "e1cb2db46a124d8ffbfae8a1e8e226dc4878432245e635c7d6a681ca988a1784",
+      "model_sha256": "a335271236b6dbbcb3c807cd5bf040a33726c4dfd67aa33ec37a0f26f03483ce",
+      "raw_sha256": "09395910cf751f7a4116ed53141c844171890685f9de4ef2b7025ad4d3de4d2b"
+    }
+  ],
+  "preservation": [
+    {
+      "before": "ordinary-sparse-saved.json",
+      "after": "ordinary-reopened-fresh-saved.json",
+      "identical_fields": [
+        "model_json",
+        "mechanics_result_json"
+      ]
+    },
+    {
+      "before": "ordinary-reopened-fresh-saved.json",
+      "after": "atomic-rejected-saved.json",
+      "identical_fields": [
+        "model_json",
+        "mechanics_result_json",
+        "analysis_run_json",
+        "model_hash_json"
+      ]
+    },
+    {
+      "before": "atomic-rejected-saved.json",
+      "after": "dependency-refusals-saved.json",
+      "identical_fields": [
+        "model_json",
+        "mechanics_result_json",
+        "analysis_run_json",
+        "model_hash_json"
+      ]
+    },
+    {
+      "before": "n05-dense-saved.json",
+      "after": "n05-reopened-fresh-saved.json",
+      "identical_fields": [
+        "model_json",
+        "mechanics_result_json"
+      ]
+    },
+    {
+      "before": "mixed-sparse-saved.json",
+      "after": "mixed-restored-saved.json",
+      "identical_fields": [
+        "model_json",
+        "mechanics_result_json"
+      ]
+    }
+  ],
+  "UI_observation_limit": "UI actions, Current/Historical labels, rejection display, actual Quit and app inventory are ROOT-observed; reviewer did not witness UI",
+  "private_payloads_copied": false
+}

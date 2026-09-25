@@ -1,0 +1,147 @@
+{
+  "reviewer": "/root/physics_resume/joined_consumer_review",
+  "original_actual_parent": "/root/physics_resume",
+  "assigner": "/root",
+  "author": "/root/scientific_transport_manager",
+  "role": "TASK Type2",
+  "mechanism": "delegated-harness-native",
+  "delegation": "none",
+  "freeze_sha256": "928836bb530d91482f6a1cd63bdce9879e14d0fd854987c9defad20816a892e6",
+  "files": [
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_gate.py",
+      "sha256": "87c8404d470fd10f1c17eda5016e121318024d485d4361a57f2c99e024556216",
+      "bytes": 26741,
+      "current_sha256": "87c8404d470fd10f1c17eda5016e121318024d485d4361a57f2c99e024556216",
+      "matches_freeze": true
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_process.py",
+      "sha256": "11f9d3789d8ac10457a840e5ae642f5fb676bb159cef65da9a1b94e0e6f9ec6f",
+      "bytes": 6165,
+      "current_sha256": "11f9d3789d8ac10457a840e5ae642f5fb676bb159cef65da9a1b94e0e6f9ec6f",
+      "matches_freeze": true
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_qualification_gate.py",
+      "sha256": "b8b696c0d90c5fb9c77ba84928e9e789cfa745944bf362988632a24cc4243c30",
+      "bytes": 19174,
+      "current_sha256": "b8b696c0d90c5fb9c77ba84928e9e789cfa745944bf362988632a24cc4243c30",
+      "matches_freeze": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/GATE_USAGE.md",
+      "sha256": "08468b37d46c7d48a883e65fb2f1c4cfb8decf0339598d0f2ed2fe469909b61f",
+      "bytes": 7065,
+      "current_sha256": "08468b37d46c7d48a883e65fb2f1c4cfb8decf0339598d0f2ed2fe469909b61f",
+      "matches_freeze": true
+    }
+  ],
+  "patch_sha256": "aabf064eb7bc8a430914c9b15ff8e18f3a35cce8d34ed98cc02368e536c20bd4",
+  "executed_maintained_check": {
+    "record_sha256": "085b4ca9bf4701aa185800e8700e4cd8ef31a10d5de2a23b4ba06beb3e7c7321",
+    "log_sha256": "77fbbf9355f164f2ddac29f88b171824546a4583e9b61784d1791317a61bd627",
+    "exit": 0,
+    "scope": "Synthetic subprocess and received-packet gate verification only; no Piping solve, Cargo, fullsuite, CI or native run"
+  },
+  "instruction_origins": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": ".agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+    }
+  ],
+  "read_source_hashes": [
+    {
+      "path": "tools/validation/qualification_gate.py",
+      "sha256": "87c8404d470fd10f1c17eda5016e121318024d485d4361a57f2c99e024556216"
+    },
+    {
+      "path": "tools/validation/qualification_process.py",
+      "sha256": "11f9d3789d8ac10457a840e5ae642f5fb676bb159cef65da9a1b94e0e6f9ec6f"
+    },
+    {
+      "path": "tests/test_qualification_gate.py",
+      "sha256": "b8b696c0d90c5fb9c77ba84928e9e789cfa745944bf362988632a24cc4243c30"
+    },
+    {
+      "path": "validation/qualification/GATE_USAGE.md",
+      "sha256": "08468b37d46c7d48a883e65fb2f1c4cfb8decf0339598d0f2ed2fe469909b61f"
+    },
+    {
+      "path": "core/comparison/analysis_run/engine.py",
+      "sha256": "14aada4049fde08c6f68a99a844f84e73b16fd8b6e4bb2a91cb7e4c8f63b7f2c"
+    },
+    {
+      "path": "core/runner/headless/src/bin/openpipestress-runner.rs",
+      "sha256": "f873b5b9ac6518e1361049d101a323fbc8a1e54b67017810f48d97a1ba9f33ee"
+    },
+    {
+      "path": "core/runner/headless/src/redaction_binding.rs",
+      "sha256": "16770911c5ea85c533163d45478fe1c4085cdf6c086cb79bc2b985155bad0703"
+    },
+    {
+      "path": "core/runner/headless/src/lib.rs",
+      "sha256": "39e60b1fb6ce53aaea1e3572eca48705520d6299f7636d3b2a1899190ef344f2"
+    },
+    {
+      "path": "core/product_physics/src/lib.rs",
+      "sha256": "ee3acd7fd1a630ea61e53b1e963dbe637a6f45b8e444b240735ae9f276e233c5"
+    },
+    {
+      "path": "fixtures/product_preview/invented_mechanics_result.json",
+      "sha256": "fb6724aafca965509b999390b3abd4a3eed6b8b85551a6b308ec5aa529c2a58c"
+    },
+    {
+      "path": "fixtures/results/semantic_contract_v0_2.json",
+      "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da"
+    }
+  ],
+  "mapping_state_delta": [
+    {
+      "path": "projects/chirality-piping/validation/qualification/README.md",
+      "before_sha256": "b51125c7051f7c192351c4723d510dc14adacd2fa15b9934e04e78b79ce42a08",
+      "sha256": "4b3e2a1d7fc1aee7d2be0dae531e1677913be54ec3a949bb9d908c70c2e884ea",
+      "reason": "Reflect completed independent static source preparation review; keep scoringready false, append review filehashes"
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/capability_inventory.json",
+      "before_sha256": "8d3247f3d2d3b74a8fde4d354b44de6c2039a5db9b00d76efe74cc8c4f062000",
+      "sha256": "f4155abafcd9f76292e48733a8bf6829ee0a0bb1a816b11fbd7e22de3c8d0a5e",
+      "reason": "Reflect completed independent static source preparation review; keep scoringready false, append review filehashes"
+    }
+  ],
+  "mapping_readiness_false": true,
+  "mapping_source_review_files_hash_match": true,
+  "independent_probe": {
+    "path": "probe_gate_boundaries.py",
+    "sha256": "b5225c1137a35cc287600ddb3d2bf6c333858fcda141cd11fa363032107c3ce7",
+    "output_sha256": "039646e83c9fa924764cd75870b793b4676016fdd9cc7e40a76fef576fb36a16",
+    "exit": 0,
+    "scope": "4synthetic short processes; no product solve"
+  },
+  "findings": [
+    "GATE-R1",
+    "GATE-R2",
+    "GATE-R3",
+    "GATE-R4",
+    "GATE-R5"
+  ],
+  "report_sha256": "49c72ec3ad6da87b56e74e0c9fda0ec29cfbb673e24ecaaedf8de1366793f6ec",
+  "mapping_delta_backcheck_sha256": "e200c9c5af5cbfaec913691bb6e224eaa813d63d682a68196dc51612cae7297d"
+}

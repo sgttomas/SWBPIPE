@@ -1,0 +1,64 @@
+test_four_case_modes_keep_scalar_and_structural_denominators (test_qualification_physics_integration.PhysicsIntegrationTests.test_four_case_modes_keep_scalar_and_structural_denominators) ... ERROR
+test_future_composite_sensitive_duplicate_diagnostics_and_wrong_mode_refuse (test_qualification_physics_integration.PhysicsIntegrationTests.test_future_composite_sensitive_duplicate_diagnostics_and_wrong_mode_refuse) ... ok
+test_metadata_absence_is_not_null_or_invented_text (test_qualification_physics_integration.PhysicsIntegrationTests.test_metadata_absence_is_not_null_or_invented_text) ... ERROR
+test_missing_scalar_or_structural_binding_does_not_reduce_predeclared_ledger (test_qualification_physics_integration.PhysicsIntegrationTests.test_missing_scalar_or_structural_binding_does_not_reduce_predeclared_ledger) ... ok
+test_selected_targets_criteria_selectors_and_addendum_cannot_drift (test_qualification_physics_integration.PhysicsIntegrationTests.test_selected_targets_criteria_selectors_and_addendum_cannot_drift) ... ERROR
+
+======================================================================
+ERROR: test_four_case_modes_keep_scalar_and_structural_denominators (test_qualification_physics_integration.PhysicsIntegrationTests.test_four_case_modes_keep_scalar_and_structural_denominators)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/tests/test_qualification_physics_integration.py", line 65, in test_four_case_modes_keep_scalar_and_structural_denominators
+    prepared = self.prepare(case)
+  File "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/tests/test_qualification_physics_integration.py", line 53, in prepare
+    result = gate.prepare_case(case,self.selection_path.parent,'development_comparison',TABLE['rows'],transport=physics.TRANSPORT)
+  File "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/tools/validation/qualification_gate.py", line 304, in prepare_case
+    input_bytes, input_path = read_bound(case['input'], base)
+                              ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/tools/validation/qualification_gate.py", line 97, in read_bound
+    require(path.is_file() and path.stat().st_size <= MAX_INPUT_BYTES, 'bound file missing or oversized')
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/tools/validation/qualification_gate.py", line 54, in require
+    raise AdmissionError(reason)
+tools.validation.qualification_gate.AdmissionError: bound file missing or oversized
+
+======================================================================
+ERROR: test_metadata_absence_is_not_null_or_invented_text (test_qualification_physics_integration.PhysicsIntegrationTests.test_metadata_absence_is_not_null_or_invented_text)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/tests/test_qualification_physics_integration.py", line 97, in test_metadata_absence_is_not_null_or_invented_text
+    prepared = self.prepare(case)
+  File "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/tests/test_qualification_physics_integration.py", line 53, in prepare
+    result = gate.prepare_case(case,self.selection_path.parent,'development_comparison',TABLE['rows'],transport=physics.TRANSPORT)
+  File "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/tools/validation/qualification_gate.py", line 304, in prepare_case
+    input_bytes, input_path = read_bound(case['input'], base)
+                              ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/tools/validation/qualification_gate.py", line 97, in read_bound
+    require(path.is_file() and path.stat().st_size <= MAX_INPUT_BYTES, 'bound file missing or oversized')
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/tools/validation/qualification_gate.py", line 54, in require
+    raise AdmissionError(reason)
+tools.validation.qualification_gate.AdmissionError: bound file missing or oversized
+
+======================================================================
+ERROR: test_selected_targets_criteria_selectors_and_addendum_cannot_drift (test_qualification_physics_integration.PhysicsIntegrationTests.test_selected_targets_criteria_selectors_and_addendum_cannot_drift)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/tests/test_qualification_physics_integration.py", line 112, in test_selected_targets_criteria_selectors_and_addendum_cannot_drift
+    prepared = self.prepare(case);mutate(prepared)
+  File "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/tests/test_qualification_physics_integration.py", line 53, in prepare
+    result = gate.prepare_case(case,self.selection_path.parent,'development_comparison',TABLE['rows'],transport=physics.TRANSPORT)
+  File "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/tools/validation/qualification_gate.py", line 304, in prepare_case
+    input_bytes, input_path = read_bound(case['input'], base)
+                              ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/tools/validation/qualification_gate.py", line 97, in read_bound
+    require(path.is_file() and path.stat().st_size <= MAX_INPUT_BYTES, 'bound file missing or oversized')
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/tools/validation/qualification_gate.py", line 54, in require
+    raise AdmissionError(reason)
+tools.validation.qualification_gate.AdmissionError: bound file missing or oversized
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.055s
+
+FAILED (errors=3)

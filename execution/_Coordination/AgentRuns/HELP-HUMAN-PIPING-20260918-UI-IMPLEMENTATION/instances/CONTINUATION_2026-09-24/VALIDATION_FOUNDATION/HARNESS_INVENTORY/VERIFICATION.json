@@ -1,0 +1,28 @@
+{
+  "checked_at_utc": "2026-09-25T08:19:35.294124+00:00",
+  "kind": "source_custody_and_output_presence_only",
+  "source_files_checked": 33,
+  "sources_changed_during_inventory": [],
+  "reference_manifest_hash_checks": [
+    {
+      "source_id": "VAL-REF-01",
+      "sha256_matches": true
+    },
+    {
+      "source_id": "VAL-REF-02",
+      "sha256_matches": true
+    }
+  ],
+  "inventory_markdown_present": true,
+  "solver_or_test_execution": false,
+  "artifact_sha256": {
+    "INVENTORY.md": "cccf4bc8b2f0ffc6c9806ede629e19cd003c596da224a7e80bc16f295313f1c7",
+    "SOURCES.json": "2bbbf4a1614783851f0ba75f45890785888e7d9b975dbe7fafe5cd41db489c51"
+  },
+  "source_worktree_final_tracked_diff_empty": true,
+  "source_worktree_untracked_directories": [
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/",
+    "validation/qualification/"
+  ],
+  "updated_at_utc": "2026-09-25T08:19:56.271264+00:00"
+}

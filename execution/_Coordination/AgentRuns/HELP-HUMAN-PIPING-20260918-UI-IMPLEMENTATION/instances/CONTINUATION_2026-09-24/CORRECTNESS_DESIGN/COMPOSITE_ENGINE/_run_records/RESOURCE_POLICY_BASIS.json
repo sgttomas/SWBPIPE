@@ -1,0 +1,27 @@
+{
+  "selector": "/root",
+  "role": "HELP_HUMAN",
+  "actual_supplier": "/root/physics_resume",
+  "source_branch": "codex/piping-engine-integration-20260925",
+  "source_head_before_moving_work": "22452ecd148e86486fe36a36e34a184c9a5a5943",
+  "measurement_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/resource-measurement-01.json",
+  "measurement_sha256": "da6f6d8af96ce9c464f414ab8369277284a3aff02a3a6d2fba634ba16722101f",
+  "measurement_log_sha256": "5bb47b924c6066f7ea56c43b2a124d401916729d6763d8ff38546f7544a91a96",
+  "source_hashes": {
+    "projects/chirality-piping/core/product_physics/src/source_receipt/endpoint_maximum.rs": "abc3b1766debcefc2bdb7e3d7f0cd4720642049a7d5b2735a3529a65269b66e6",
+    "projects/chirality-piping/core/product_physics/src/source_receipt/source.rs": "cae846c609e9dfd2a650e91b85419d55b6b8b96137834a5ca9fbaf562bebf4ca",
+    "projects/chirality-piping/core/product_physics/src/source_receipt/rows.rs": "17b4570259da139e406a47229131b4a0a8a7640a5625a161af53f67ebe3e8262",
+    "projects/chirality-piping/core/product_physics/src/source_receipt/tests.rs": "13526bcd71a800e5565112423b3e75c9422f7505d08b69c75d5e4da160260dde",
+    "projects/chirality-piping/core/product_physics/src/source_receipt/composite.rs": "b88ffcd920cb8e612d81f164f10ffbb6afc4cc289eab1f6f89f452174fc7eaf4",
+    "projects/chirality-piping/core/product_physics/src/source_receipt.rs": "e4b3bf5483a48cf5b2d4f78858f38b860f0b34e12345ca07c0be15b927c07249",
+    "projects/chirality-piping/core/product_physics/src/source_recovery.rs": "5112182dc369a529ea5859c0ac2f1212ec1f649ed2bf150b20e72bbeb91c90ef",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "1f649ad4885a51c9db4c3be211aa78ee409e7fd11119f18eab1704df14132218"
+  },
+  "observed_elapsed_seconds": 2.8010759353637695,
+  "selected_policy": {
+    "semantic_id": "openpipestress.result_semantics/0.3.0/physics-source-1",
+    "case_limit": 8000000,
+    "invocation_limit": 64000000
+  },
+  "scope": "Prospective method resource policy; actual public checks and independent review still required."
+}

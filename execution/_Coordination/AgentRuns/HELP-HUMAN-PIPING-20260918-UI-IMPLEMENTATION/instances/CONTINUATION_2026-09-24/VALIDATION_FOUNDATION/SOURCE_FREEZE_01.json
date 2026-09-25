@@ -1,0 +1,37 @@
+{
+  "status": "mapping/checker ready for independent review; not programme qualification",
+  "utc": "2026-09-25T08:23:29.099268+00:00",
+  "base_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+  "files": [
+    {
+      "path": "projects/chirality-piping/validation/qualification/HARNESS_CUT.md",
+      "sha256": "a6d248e200cd97cce589be16880efd60f9501e835f9518ec2fa078565b278b14",
+      "bytes": 7487
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/README.md",
+      "sha256": "654630c7da3b87acc15fc4699682f5ab06073394e60cc381662dcb670363455e",
+      "bytes": 6802
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/capability_inventory.json",
+      "sha256": "d6401a341d5177e355a55bf86665f0a933736adebc053c0f811a6a3812ee32c1",
+      "bytes": 108139
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/check_inventory.py",
+      "sha256": "98a6b85be7075135bcfaed584af57c1ed7ebdbe6b122da842d34e6929b1f8e5e",
+      "bytes": 7372
+    }
+  ],
+  "checks": {
+    "command": [
+      "/private/tmp/chirality-piping-dec025-venv/bin/python",
+      "projects/chirality-piping/validation/qualification/check_inventory.py",
+      "--self-check"
+    ],
+    "exit_code": 0,
+    "meaning": "85sourcehashes/links/coverage verified;7inventory corruption controls fail as expected; no solver or benchmark execution"
+  },
+  "check_log_sha256": "f2c110651ab263ca928e089ef55a424814cd2fb2c20dc78418839316da2999e4"
+}

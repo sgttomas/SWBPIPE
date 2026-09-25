@@ -1,0 +1,9 @@
+{
+  "completed_utc": "2026-09-25T12:33:11.687928+00:00",
+  "outputs": {
+    "RETURN.md": "d1b91d3bfafd35b9a2edec555b016a9ea12f4f1804611cffb77df2fddd8cae29",
+    "VERIFICATION.json": "094d9c98d290cbd953bbb24e2c2b74a3404b09025fed14f1d87c63ac85a59fe7",
+    "EXECUTION.json": "3b4e5df5d80f0e80a1fa17f5529ecfae77dd096241500a78a7f2155eb37b2d39",
+    "verify_evidence.py": "28c00e4216dd990c122216e0b4f3dcf89c72bc912e2f6650b322dc9068f3e36b"
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "role": "TASK",
+  "reviewer": "/root/physics_resume/joined_consumer_review",
+  "actual_parent": "/root/physics_resume",
+  "scope": "Exactly two-file new-method Python witness correction; no TS source review",
+  "files": [
+    {
+      "path": "core/handoff/stress_neutral/package_v0_3.py",
+      "before_sha256": "8b07faea35dacabfda35f4537d708a57ba585e918760c988b550f1d3f9414921",
+      "after_sha256": "db128dab312dbeced9b5ccab0a4e80f35994e9ebdde5034b77edc9dcf3a967ea"
+    },
+    {
+      "path": "tests/test_stress_neutral_physics_source.py",
+      "before_sha256": "82abba8a3fb720f4a78fed36bd45b23f0e78dc8981bd410220ebe6ede4fab3f5",
+      "after_sha256": "b486c3e4ab64600d907736a0ead512a92f4c6554b6d456181a8c6cdf51fe5447"
+    }
+  ],
+  "schema_unchanged": {
+    "path": "schemas/stress_neutral_export.v0.3.schema.json",
+    "sha256": "af3d229289c72349f2daa5b7826bd7f0be4924d6b854c6358d480c89d1d991dd"
+  },
+  "two_preimages_current_and_reconstructed_patch_hashes_match": true,
+  "records": [
+    {
+      "path": "STRESS_NEUTRAL_PYTHON/WITNESS_TARGET_INTEROP/SOURCE_MANIFEST.json",
+      "sha256": "eeb08d76ecc3531d5bceb9aa47894361ba7bac33482ace8d4c0faaf1d564b90f"
+    },
+    {
+      "path": "STRESS_NEUTRAL_PYTHON/WITNESS_TARGET_INTEROP/WITNESS_DELTA.patch",
+      "sha256": "d8a9050968789a2a1d6c62f7ffb88054afa7ee80452b9bed255220b5d3d9cbe5"
+    },
+    {
+      "path": "STRESS_NEUTRAL_PYTHON/WITNESS_TARGET_INTEROP/EXECUTION_BASIS.json",
+      "sha256": "f3efd509f41eba65b20211d20daab20c4e624389de6578fcb4f7ed9cd23a9c8a"
+    },
+    {
+      "path": "STRESS_NEUTRAL_PYTHON/WITNESS_TARGET_INTEROP/FOCUSED_TEST_RESULT.json",
+      "sha256": "6b511b12a8b767fabdc103d2bb85b01ae16e518d11ace22c9ebe207109750f30"
+    },
+    {
+      "path": "STRESS_NEUTRAL_PYTHON/WITNESS_TARGET_INTEROP/FOCUSED_TEST.log",
+      "sha256": "f3d0cedd836f94a9dccdef8fc021c5dd31f603b24f74af4f6e93f2b892418d9f"
+    },
+    {
+      "path": "STRESS_NEUTRAL_PYTHON/WITNESS_TARGET_INTEROP/ORIGINAL_INTEROP_FAILURE.log",
+      "sha256": "74e9e9c9f255db68162ad33d592e48f471d73310e19e71ee48313e18d2f6acdb"
+    },
+    {
+      "path": "FINAL_INTEROP_CHECK.json",
+      "sha256": "dd24bb5bdd1176c324d0bc4306e1c175d09867f4e436bbc5ea811e09cf0b047d"
+    },
+    {
+      "path": "TS_FINAL_FREEZE/interop-final-04.log",
+      "sha256": "4e966ede1699c08e1b8da195504946378db7af0460855f1b23bd62b23bee5903"
+    },
+    {
+      "path": "TS_FINAL_FREEZE/INTEROP_RESULT.json",
+      "sha256": "6a3280855c114f11acc9b2057d99f9f54864ce88012bcead4fc70ed9a253344c"
+    }
+  ],
+  "reviewer_probes": [
+    {
+      "path": "INITIAL_HASH_CHECK.json",
+      "sha256": "1457b9b9fc6f857f240b3fedb9603045c0d71a1a653d1dca30615ac712439edd"
+    },
+    {
+      "path": "probe_witness.py",
+      "sha256": "f3bae0fdeaabb9e462c6ee4f45384babd4a1fa191f00c88ec476317339455b13"
+    },
+    {
+      "path": "WITNESS_PROBES.json",
+      "sha256": "d1656ea981e6281a8c306655db3f277792387615e659f572a0021e52b3932f7d"
+    }
+  ],
+  "observed_parent_interop": "Later FINAL_INTEROP_CHECK+rawlog+14-entry result manifest agree on14TS pairs/126members/42TS artifact schemas/8headless canonical schemas; manager execution observed, not reviewer TS code coverage",
+  "result": "clear bounded witness repair",
+  "limits": "No producer solve/native/build/browser/network/Git mutation/delegation; reviewer source/readback probes only. Prior reviews and final frontend qualification remain separate.",
+  "final_owned_manifest": {
+    "path": "FINAL_OWNED_SOURCE_MANIFEST.json",
+    "sha256": "6abcb12b90de0438b07461f11d8e7a0c24a893a8f0a098fc58712a9d00c52fc2",
+    "interop_record_hash_matches": true,
+    "selected_reviewed_files": [
+      {
+        "path": "projects/chirality-piping/core/handoff/stress_neutral/package_v0_3.py",
+        "sha256": "db128dab312dbeced9b5ccab0a4e80f35994e9ebdde5034b77edc9dcf3a967ea",
+        "bytes": 55612,
+        "owner": "/root/physics_resume/physics_reader_join"
+      },
+      {
+        "path": "projects/chirality-piping/tests/test_stress_neutral_physics_source.py",
+        "sha256": "b486c3e4ab64600d907736a0ead512a92f4c6554b6d456181a8c6cdf51fe5447",
+        "bytes": 30928,
+        "owner": "/root/physics_resume/physics_reader_join"
+      }
+    ],
+    "scope": "Only two owned entries bound; not independent review of all60 source paths"
+  }
+}

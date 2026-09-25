@@ -1,0 +1,74 @@
+[
+  {
+    "case": "106",
+    "page": "Probl_me_de_r_f_rence",
+    "v17_file": "v17_106_Probl_me_de_r_f_rence.html",
+    "v18_file": "106_problem.html",
+    "normalization": "article text only, whitespace folded; no image equality claim",
+    "text_equal": true,
+    "text_sha256": [
+      "80bc30b470dc4921666fb0b9a2aa7746f33b4d29a00d257c4ce8cd882092bc38",
+      "80bc30b470dc4921666fb0b9a2aa7746f33b4d29a00d257c4ce8cd882092bc38"
+    ]
+  },
+  {
+    "case": "106",
+    "page": "Solution_de_r_f_rence",
+    "v17_file": "v17_106_Solution_de_r_f_rence.html",
+    "v18_file": "106_Solution_de_r_f_rence.html",
+    "normalization": "article text only, whitespace folded; no image equality claim",
+    "text_equal": true,
+    "text_sha256": [
+      "6b0ee9967b6dcb46bed8ca7b0bac524d6e87d294b97a15c45a0ec6dd20f0d5b2",
+      "6b0ee9967b6dcb46bed8ca7b0bac524d6e87d294b97a15c45a0ec6dd20f0d5b2"
+    ]
+  },
+  {
+    "case": "106",
+    "page": "Mod_lisation_A",
+    "v17_file": "v17_106_Mod_lisation_A.html",
+    "v18_file": "106_Mod_lisation_A.html",
+    "normalization": "article text only, whitespace folded; no image equality claim",
+    "text_equal": true,
+    "text_sha256": [
+      "e3f71902349818807eab0780582337167dc33b2447f8d86693655b7d074be865",
+      "e3f71902349818807eab0780582337167dc33b2447f8d86693655b7d074be865"
+    ]
+  },
+  {
+    "case": "101",
+    "page": "Probl_me_de_r_f_rence",
+    "v17_file": "v17_101_Probl_me_de_r_f_rence.html",
+    "v18_file": "101_problem.html",
+    "normalization": "article text only, whitespace folded; no image equality claim",
+    "text_equal": true,
+    "text_sha256": [
+      "db5d5fc73cb54f38d3fde306baae14bbb9b0f3bb4c9778e8be34575b32641c73",
+      "db5d5fc73cb54f38d3fde306baae14bbb9b0f3bb4c9778e8be34575b32641c73"
+    ]
+  },
+  {
+    "case": "101",
+    "page": "Solution_de_r_f_rence",
+    "v17_file": "v17_101_Solution_de_r_f_rence.html",
+    "v18_file": "101_Solution_de_r_f_rence.html",
+    "normalization": "article text only, whitespace folded; no image equality claim",
+    "text_equal": true,
+    "text_sha256": [
+      "e82e58cf86424f203123d2d46281ad6aa69671b07d33b1ed89e9f5738d25fecb",
+      "e82e58cf86424f203123d2d46281ad6aa69671b07d33b1ed89e9f5738d25fecb"
+    ]
+  },
+  {
+    "case": "101",
+    "page": "Mod_lisation_A",
+    "v17_file": "v17_101_Mod_lisation_A.html",
+    "v18_file": "101_Mod_lisation_A.html",
+    "normalization": "article text only, whitespace folded; no image equality claim",
+    "text_equal": true,
+    "text_sha256": [
+      "f33a36bec56b4e7fdbaf6a4310476c1fd5320c4718f565fa673134b67d1479f6",
+      "f33a36bec56b4e7fdbaf6a4310476c1fd5320c4718f565fa673134b67d1479f6"
+    ]
+  }
+]
