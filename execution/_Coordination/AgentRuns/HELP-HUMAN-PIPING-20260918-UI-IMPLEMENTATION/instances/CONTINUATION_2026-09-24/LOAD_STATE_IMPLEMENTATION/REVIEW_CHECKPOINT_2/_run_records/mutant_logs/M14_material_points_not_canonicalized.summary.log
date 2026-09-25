@@ -1,0 +1,8 @@
+     Running unittests src/lib.rs (/home/user/cargo-targets/lsreview2/scratch_target/debug/deps/open_pipe_stress_product_physics-f6a14ff10cb528f4)
+test result: ok. 299 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 2.44s
+     Running tests/load_reference_state_runtime.rs (/home/user/cargo-targets/lsreview2/scratch_target/debug/deps/load_reference_state_runtime-6e7854afb5d7f6af)
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.56s
+     Running tests/review2_probes.rs (/home/user/cargo-targets/lsreview2/scratch_target/debug/deps/review2_probes-9bee1ca8a08c1be6)
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+     Running tests/review2_probes_b.rs (/home/user/cargo-targets/lsreview2/scratch_target/debug/deps/review2_probes_b-a943f18e0ad7206b)
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s

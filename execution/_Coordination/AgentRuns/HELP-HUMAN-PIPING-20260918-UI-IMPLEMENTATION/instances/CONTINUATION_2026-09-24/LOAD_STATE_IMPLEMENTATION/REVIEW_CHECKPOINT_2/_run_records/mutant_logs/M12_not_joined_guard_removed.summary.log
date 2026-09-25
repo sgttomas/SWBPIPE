@@ -1,0 +1,23 @@
+     Running unittests src/lib.rs (/home/user/cargo-targets/lsreview2/scratch_target/debug/deps/open_pipe_stress_product_physics-f6a14ff10cb528f4)
+test case_state::tests::prescribed_root_translation_couples_through_partitioned_solve_and_unreduced_reactions ... FAILED
+test result: FAILED. 298 passed; 1 failed; 1 ignored; 0 measured; 0 filtered out; finished in 2.51s
+error: test failed, to rerun pass `--lib`
+     Running tests/load_reference_state_runtime.rs (/home/user/cargo-targets/lsreview2/scratch_target/debug/deps/load_reference_state_runtime-6e7854afb5d7f6af)
+test constant_alpha_interval_needs_no_absolute_temperature ... FAILED
+test duplicate_source_ref_blocks_and_distinct_equal_sources_both_apply ... FAILED
+test negative_additional_wire_rules_block ... FAILED
+test negative_legacy_thermal_referenced_with_resolved_state_blocks ... FAILED
+test persistent_source_counted_once_and_unreferenced_excluded ... FAILED
+test prescribed_rotation_all_fixed_reproduces_signed_end_actions ... FAILED
+test prescribed_rotation_free_tip_is_rigid_radian_rotation ... FAILED
+test prescribed_translation_all_fixed_single_bar_has_nonzero_reactions ... FAILED
+test prescribed_translation_two_bar_couples_prescribed_root_motion ... FAILED
+test shared_material_serial_companion_selects_point_per_member ... FAILED
+test signed_fit_baselines_cut_long_and_direct_fit_strain ... FAILED
+test thermal_datum_ratio_secant_table_fixed_and_free ... FAILED
+test signed_fit_cold_hot_return_fixed_and_released ... FAILED
+test result: FAILED. 7 passed; 13 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.42s
+error: test failed, to rerun pass `--test load_reference_state_runtime`
+     Running tests/review2_probes.rs (/home/user/cargo-targets/lsreview2/scratch_target/debug/deps/review2_probes-9bee1ca8a08c1be6)
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+error: 2 targets failed:

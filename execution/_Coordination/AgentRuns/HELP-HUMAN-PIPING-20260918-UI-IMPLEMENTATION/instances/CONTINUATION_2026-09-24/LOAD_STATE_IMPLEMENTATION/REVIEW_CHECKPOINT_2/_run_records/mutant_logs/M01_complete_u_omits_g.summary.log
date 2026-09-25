@@ -1,0 +1,18 @@
+     Running unittests src/lib.rs (/home/user/cargo-targets/lsreview2/scratch_target/debug/deps/open_pipe_stress_product_physics-f6a14ff10cb528f4)
+test case_state::tests::all_prescribed_single_bar_has_no_free_axial_motion_but_nonzero_reactions ... FAILED
+test case_state::tests::prescribed_root_translation_couples_through_partitioned_solve_and_unreduced_reactions ... FAILED
+test result: FAILED. 297 passed; 2 failed; 1 ignored; 0 measured; 0 filtered out; finished in 2.36s
+error: test failed, to rerun pass `--lib`
+     Running tests/load_reference_state_runtime.rs (/home/user/cargo-targets/lsreview2/scratch_target/debug/deps/load_reference_state_runtime-6e7854afb5d7f6af)
+test prescribed_rotation_free_tip_is_rigid_radian_rotation ... FAILED
+test prescribed_rotation_all_fixed_reproduces_signed_end_actions ... FAILED
+test prescribed_translation_all_fixed_single_bar_has_nonzero_reactions ... FAILED
+test prescribed_translation_two_bar_couples_prescribed_root_motion ... FAILED
+test result: FAILED. 16 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.62s
+error: test failed, to rerun pass `--test load_reference_state_runtime`
+     Running tests/review2_probes.rs (/home/user/cargo-targets/lsreview2/scratch_target/debug/deps/review2_probes-9bee1ca8a08c1be6)
+test p01_prescribed_motion_eigenstrain_force_and_factor_against_own_derivation ... FAILED
+test p02_two_cases_rebuild_stiffness_and_do_not_share_state ... FAILED
+test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+error: test failed, to rerun pass `--test review2_probes`
+error: 3 targets failed:

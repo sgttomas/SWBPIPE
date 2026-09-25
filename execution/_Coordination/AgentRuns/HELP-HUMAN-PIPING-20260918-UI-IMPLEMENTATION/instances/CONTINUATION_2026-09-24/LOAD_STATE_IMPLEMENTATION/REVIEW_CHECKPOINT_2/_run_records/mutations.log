@@ -1,0 +1,353 @@
+M01_complete_u_omits_g {"exit": 101, "compile_error": false, "killed_by_reviewed_tests": true, "killed_by_review_probes_only": false, "failed": {"lib": ["case_state::tests::all_prescribed_single_bar_has_no_free_axial_motion_but_nonzero_reactions", "case_state::tests::prescribed_root_translation_couples_through_partitioned_solve_and_unreduced_reactions"], "load_reference_state_runtime": ["prescribed_rotation_free_tip_is_rigid_radian_rotation", "prescribed_rotation_all_fixed_reproduces_signed_end_actions", "prescribed_translation_all_fixed_single_bar_has_nonzero_reactions", "prescribed_translation_two_bar_couples_pres
+M02_observation_lane_uses_uncoupled_force {"exit": 0, "compile_error": false, "killed_by_reviewed_tests": false, "killed_by_review_probes_only": false, "failed": {}}
+M03_legacy_reduced_system_zero_boundary {"exit": 0, "compile_error": false, "killed_by_reviewed_tests": false, "killed_by_review_probes_only": false, "failed": {}}
+M04_eigenload_doubled_in_assembly_and_recovery {"exit": 101, "compile_error": false, "killed_by_reviewed_tests": true, "killed_by_review_probes_only": false, "failed": {"lib": ["case_state::tests::pressure_recovery_uses_each_cases_resolved_pair_and_eigenstrain_once", "case_state::tests::product_route_reproduces_single_and_multi_segment_free_length_references"], "load_reference_state_runtime": ["constant_alpha_interval_needs_no_absolute_temperature", "negative_additional_wire_rules_block", "negative_legacy_thermal_referenced_with_resolved_state_blocks", "shared_material_serial_companion_selects_point_per_member", "signed_fit_baselines_cut_l
+M05_eigenload_not_removed_in_recovery {"exit": 101, "compile_error": false, "killed_by_reviewed_tests": true, "killed_by_review_probes_only": false, "failed": {"lib": ["case_state::tests::pressure_recovery_uses_each_cases_resolved_pair_and_eigenstrain_once"], "load_reference_state_runtime": ["constant_alpha_interval_needs_no_absolute_temperature", "negative_legacy_thermal_referenced_with_resolved_state_blocks", "negative_additional_wire_rules_block", "shared_material_serial_companion_selects_point_per_member", "signed_fit_baselines_cut_long_and_direct_fit_strain", "signed_fit_cold_hot_return_fixed_and_released", "thermal_datum_rat
+M06_pressure_ignores_resolved_pairs {"exit": 101, "compile_error": false, "killed_by_reviewed_tests": true, "killed_by_review_probes_only": false, "failed": {"lib": ["case_state::tests::pressure_recovery_uses_each_cases_resolved_pair_and_eigenstrain_once"]}}
+M07_case_stiffness_reused_from_case_0 {"exit": 101, "compile_error": false, "killed_by_reviewed_tests": true, "killed_by_review_probes_only": false, "failed": {"load_reference_state_runtime": ["signed_fit_baselines_cut_long_and_direct_fit_strain", "signed_fit_cold_hot_return_fixed_and_released"], "review2_probes": ["p02_two_cases_rebuild_stiffness_and_do_not_share_state"]}}
+M08_unfiltered_case_applied {"exit": 101, "compile_error": false, "killed_by_reviewed_tests": true, "killed_by_review_probes_only": false, "failed": {"lib": ["case_state::tests::declared_sources_apply_once_and_unreferenced_or_duplicate_sources_do_not"], "load_reference_state_runtime": ["duplicate_source_ref_blocks_and_distinct_equal_sources_both_apply", "persistent_source_counted_once_and_unreferenced_excluded"], "review2_probes": ["p01_prescribed_motion_eigenstrain_force_and_factor_against_own_derivation"]}}
+M09_factor_ignored {"exit": 101, "compile_error": false, "killed_by_reviewed_tests": true, "killed_by_review_probes_only": false, "failed": {"load_reference_state_runtime": ["duplicate_source_ref_blocks_and_distinct_equal_sources_both_apply"], "review2_probes": ["p01_prescribed_motion_eigenstrain_force_and_factor_against_own_derivation"]}}
+M10_G_not_derived_from_pair {"exit": 101, "compile_error": false, "killed_by_reviewed_tests": true, "killed_by_review_probes_only": false, "failed": {"load_reference_state_runtime": ["shared_material_serial_companion_selects_point_per_member"]}}
+M11_duplicate_source_admitted {"exit": 101, "compile_error": false, "killed_by_reviewed_tests": true, "killed_by_review_probes_only": false, "failed": {"lib": ["case_state::tests::declared_sources_apply_once_and_unreferenced_or_duplicate_sources_do_not"], "load_reference_state_runtime": ["duplicate_source_ref_blocks_and_distinct_equal_sources_both_apply"]}}
+M12_not_joined_guard_removed {"exit": 101, "compile_error": false, "killed_by_reviewed_tests": true, "killed_by_review_probes_only": false, "failed": {"lib": ["case_state::tests::prescribed_root_translation_couples_through_partitioned_solve_and_unreduced_reactions"], "load_reference_state_runtime": ["constant_alpha_interval_needs_no_absolute_temperature", "duplicate_source_ref_blocks_and_distinct_equal_sources_both_apply", "negative_additional_wire_rules_block", "negative_legacy_thermal_referenced_with_resolved_state_blocks", "persistent_source_counted_once_and_unreferenced_excluded", "prescribed_rotation_all_fixed_reprod
+M13_prescribed_sign_flipped {"exit": 101, "compile_error": false, "killed_by_reviewed_tests": true, "killed_by_review_probes_only": false, "failed": {"lib": ["case_state::tests::all_prescribed_single_bar_has_no_free_axial_motion_but_nonzero_reactions", "case_state::tests::prescribed_root_translation_couples_through_partitioned_solve_and_unreduced_reactions"], "load_reference_state_runtime": ["prescribed_rotation_all_fixed_reproduces_signed_end_actions", "prescribed_rotation_free_tip_is_rigid_radian_rotation", "prescribed_translation_all_fixed_single_bar_has_nonzero_reactions", "prescribed_translation_two_bar_couples_pres
+M14_material_points_not_canonicalized {"exit": 0, "compile_error": false, "killed_by_reviewed_tests": false, "killed_by_review_probes_only": false, "failed": {}}
+M15_order_check_disabled {"exit": 101, "compile_error": false, "killed_by_reviewed_tests": true, "killed_by_review_probes_only": false, "failed": {"lib": ["case_state::temperature::tests::exactly_equal_temperatures_share_a_representative_and_order_is_checked"]}}
+M16_secant_datum_coverage_restored {"exit": 101, "compile_error": false, "killed_by_reviewed_tests": true, "killed_by_review_probes_only": false, "failed": {"lib": ["case_state::thermal::tests::secant_datum_conversion_matches_43_over_25009_from_verification_two_point_table", "case_state::thermal::tests::secant_table_covers_only_the_evaluated_interval_and_refuses_uncovered_evaluation"], "load_reference_state_runtime": ["thermal_datum_ratio_secant_table_fixed_and_free"]}}
+M17_dilation_datum_sample_counted_consumed {"exit": 0, "compile_error": false, "killed_by_reviewed_tests": false, "killed_by_review_probes_only": false, "failed": {}}
+M18_legacy_thermal_guard_removed {"exit": 101, "compile_error": false, "killed_by_reviewed_tests": true, "killed_by_review_probes_only": false, "failed": {"load_reference_state_runtime": ["negative_legacy_thermal_referenced_with_resolved_state_blocks"]}}
+M19_evidence_pipe_materials_from_base {"exit": 101, "compile_error": false, "killed_by_reviewed_tests": true, "killed_by_review_probes_only": false, "failed": {"lib": ["case_state::tests::pressure_recovery_uses_each_cases_resolved_pair_and_eigenstrain_once"]}}
+M20_fit_ignored_on_resolve {"exit": 101, "compile_error": false, "killed_by_reviewed_tests": true, "killed_by_review_probes_only": false, "failed": {"load_reference_state_runtime": ["negative_thermal_law_coverage_controls_block", "negative_additional_wire_rules_block", "signed_fit_baselines_cut_long_and_direct_fit_strain", "signed_fit_cold_hot_return_fixed_and_released"]}}
+M21_version_mismatch_guard_removed {"exit": 101, "compile_error": false, "killed_by_reviewed_tests": true, "killed_by_review_probes_only": false, "failed": {"lib": ["case_state::tests::older_documents_carrying_the_new_namespace_block_instead_of_ignoring_it"], "load_reference_state_runtime": ["negative_legacy_version_documents_carrying_load_state_block"]}}
+M22_operating_temperature_not_canonicalized {"exit": 101, "compile_error": false, "killed_by_reviewed_tests": true, "killed_by_review_probes_only": false, "failed": {"lib": ["case_state::tests::temperature_identity_is_exact_across_authored_units"]}}
+M23_pressure_member_E_from_base_in_evidence_only {"exit": 101, "compile_error": false, "killed_by_reviewed_tests": true, "killed_by_review_probes_only": false, "failed": {"lib": ["case_state::tests::pressure_recovery_uses_each_cases_resolved_pair_and_eigenstrain_once"]}}
+{
+ "M01_complete_u_omits_g": {
+  "exit": 101,
+  "compile_error": false,
+  "killed_by_reviewed_tests": true,
+  "killed_by_review_probes_only": false,
+  "failed": {
+   "lib": [
+    "case_state::tests::all_prescribed_single_bar_has_no_free_axial_motion_but_nonzero_reactions",
+    "case_state::tests::prescribed_root_translation_couples_through_partitioned_solve_and_unreduced_reactions"
+   ],
+   "load_reference_state_runtime": [
+    "prescribed_rotation_free_tip_is_rigid_radian_rotation",
+    "prescribed_rotation_all_fixed_reproduces_signed_end_actions",
+    "prescribed_translation_all_fixed_single_bar_has_nonzero_reactions",
+    "prescribed_translation_two_bar_couples_prescribed_root_motion"
+   ],
+   "review2_probes": [
+    "p01_prescribed_motion_eigenstrain_force_and_factor_against_own_derivation",
+    "p02_two_cases_rebuild_stiffness_and_do_not_share_state"
+   ]
+  }
+ },
+ "M02_observation_lane_uses_uncoupled_force": {
+  "exit": 0,
+  "compile_error": false,
+  "killed_by_reviewed_tests": false,
+  "killed_by_review_probes_only": false,
+  "failed": {}
+ },
+ "M03_legacy_reduced_system_zero_boundary": {
+  "exit": 0,
+  "compile_error": false,
+  "killed_by_reviewed_tests": false,
+  "killed_by_review_probes_only": false,
+  "failed": {}
+ },
+ "M04_eigenload_doubled_in_assembly_and_recovery": {
+  "exit": 101,
+  "compile_error": false,
+  "killed_by_reviewed_tests": true,
+  "killed_by_review_probes_only": false,
+  "failed": {
+   "lib": [
+    "case_state::tests::pressure_recovery_uses_each_cases_resolved_pair_and_eigenstrain_once",
+    "case_state::tests::product_route_reproduces_single_and_multi_segment_free_length_references"
+   ],
+   "load_reference_state_runtime": [
+    "constant_alpha_interval_needs_no_absolute_temperature",
+    "negative_additional_wire_rules_block",
+    "negative_legacy_thermal_referenced_with_resolved_state_blocks",
+    "shared_material_serial_companion_selects_point_per_member",
+    "signed_fit_baselines_cut_long_and_direct_fit_strain",
+    "signed_fit_cold_hot_return_fixed_and_released",
+    "thermal_datum_ratio_secant_table_fixed_and_free"
+   ],
+   "review2_probes": [
+    "p01_prescribed_motion_eigenstrain_force_and_factor_against_own_derivation"
+   ]
+  }
+ },
+ "M05_eigenload_not_removed_in_recovery": {
+  "exit": 101,
+  "compile_error": false,
+  "killed_by_reviewed_tests": true,
+  "killed_by_review_probes_only": false,
+  "failed": {
+   "lib": [
+    "case_state::tests::pressure_recovery_uses_each_cases_resolved_pair_and_eigenstrain_once"
+   ],
+   "load_reference_state_runtime": [
+    "constant_alpha_interval_needs_no_absolute_temperature",
+    "negative_legacy_thermal_referenced_with_resolved_state_blocks",
+    "negative_additional_wire_rules_block",
+    "shared_material_serial_companion_selects_point_per_member",
+    "signed_fit_baselines_cut_long_and_direct_fit_strain",
+    "signed_fit_cold_hot_return_fixed_and_released",
+    "thermal_datum_ratio_secant_table_fixed_and_free"
+   ]
+  }
+ },
+ "M06_pressure_ignores_resolved_pairs": {
+  "exit": 101,
+  "compile_error": false,
+  "killed_by_reviewed_tests": true,
+  "killed_by_review_probes_only": false,
+  "failed": {
+   "lib": [
+    "case_state::tests::pressure_recovery_uses_each_cases_resolved_pair_and_eigenstrain_once"
+   ]
+  }
+ },
+ "M07_case_stiffness_reused_from_case_0": {
+  "exit": 101,
+  "compile_error": false,
+  "killed_by_reviewed_tests": true,
+  "killed_by_review_probes_only": false,
+  "failed": {
+   "load_reference_state_runtime": [
+    "signed_fit_baselines_cut_long_and_direct_fit_strain",
+    "signed_fit_cold_hot_return_fixed_and_released"
+   ],
+   "review2_probes": [
+    "p02_two_cases_rebuild_stiffness_and_do_not_share_state"
+   ]
+  }
+ },
+ "M08_unfiltered_case_applied": {
+  "exit": 101,
+  "compile_error": false,
+  "killed_by_reviewed_tests": true,
+  "killed_by_review_probes_only": false,
+  "failed": {
+   "lib": [
+    "case_state::tests::declared_sources_apply_once_and_unreferenced_or_duplicate_sources_do_not"
+   ],
+   "load_reference_state_runtime": [
+    "duplicate_source_ref_blocks_and_distinct_equal_sources_both_apply",
+    "persistent_source_counted_once_and_unreferenced_excluded"
+   ],
+   "review2_probes": [
+    "p01_prescribed_motion_eigenstrain_force_and_factor_against_own_derivation"
+   ]
+  }
+ },
+ "M09_factor_ignored": {
+  "exit": 101,
+  "compile_error": false,
+  "killed_by_reviewed_tests": true,
+  "killed_by_review_probes_only": false,
+  "failed": {
+   "load_reference_state_runtime": [
+    "duplicate_source_ref_blocks_and_distinct_equal_sources_both_apply"
+   ],
+   "review2_probes": [
+    "p01_prescribed_motion_eigenstrain_force_and_factor_against_own_derivation"
+   ]
+  }
+ },
+ "M10_G_not_derived_from_pair": {
+  "exit": 101,
+  "compile_error": false,
+  "killed_by_reviewed_tests": true,
+  "killed_by_review_probes_only": false,
+  "failed": {
+   "load_reference_state_runtime": [
+    "shared_material_serial_companion_selects_point_per_member"
+   ]
+  }
+ },
+ "M11_duplicate_source_admitted": {
+  "exit": 101,
+  "compile_error": false,
+  "killed_by_reviewed_tests": true,
+  "killed_by_review_probes_only": false,
+  "failed": {
+   "lib": [
+    "case_state::tests::declared_sources_apply_once_and_unreferenced_or_duplicate_sources_do_not"
+   ],
+   "load_reference_state_runtime": [
+    "duplicate_source_ref_blocks_and_distinct_equal_sources_both_apply"
+   ]
+  }
+ },
+ "M12_not_joined_guard_removed": {
+  "exit": 101,
+  "compile_error": false,
+  "killed_by_reviewed_tests": true,
+  "killed_by_review_probes_only": false,
+  "failed": {
+   "lib": [
+    "case_state::tests::prescribed_root_translation_couples_through_partitioned_solve_and_unreduced_reactions"
+   ],
+   "load_reference_state_runtime": [
+    "constant_alpha_interval_needs_no_absolute_temperature",
+    "duplicate_source_ref_blocks_and_distinct_equal_sources_both_apply",
+    "negative_additional_wire_rules_block",
+    "negative_legacy_thermal_referenced_with_resolved_state_blocks",
+    "persistent_source_counted_once_and_unreferenced_excluded",
+    "prescribed_rotation_all_fixed_reproduces_signed_end_actions",
+    "prescribed_rotation_free_tip_is_rigid_radian_rotation",
+    "prescribed_translation_all_fixed_single_bar_has_nonzero_reactions",
+    "prescribed_translation_two_bar_couples_prescribed_root_motion",
+    "shared_material_serial_companion_selects_point_per_member",
+    "signed_fit_baselines_cut_long_and_direct_fit_strain",
+    "thermal_datum_ratio_secant_table_fixed_and_free",
+    "signed_fit_cold_hot_return_fixed_and_released"
+   ]
+  }
+ },
+ "M13_prescribed_sign_flipped": {
+  "exit": 101,
+  "compile_error": false,
+  "killed_by_reviewed_tests": true,
+  "killed_by_review_probes_only": false,
+  "failed": {
+   "lib": [
+    "case_state::tests::all_prescribed_single_bar_has_no_free_axial_motion_but_nonzero_reactions",
+    "case_state::tests::prescribed_root_translation_couples_through_partitioned_solve_and_unreduced_reactions"
+   ],
+   "load_reference_state_runtime": [
+    "prescribed_rotation_all_fixed_reproduces_signed_end_actions",
+    "prescribed_rotation_free_tip_is_rigid_radian_rotation",
+    "prescribed_translation_all_fixed_single_bar_has_nonzero_reactions",
+    "prescribed_translation_two_bar_couples_prescribed_root_motion"
+   ],
+   "review2_probes": [
+    "p02_two_cases_rebuild_stiffness_and_do_not_share_state",
+    "p01_prescribed_motion_eigenstrain_force_and_factor_against_own_derivation"
+   ]
+  }
+ },
+ "M14_material_points_not_canonicalized": {
+  "exit": 0,
+  "compile_error": false,
+  "killed_by_reviewed_tests": false,
+  "killed_by_review_probes_only": false,
+  "failed": {}
+ },
+ "M15_order_check_disabled": {
+  "exit": 101,
+  "compile_error": false,
+  "killed_by_reviewed_tests": true,
+  "killed_by_review_probes_only": false,
+  "failed": {
+   "lib": [
+    "case_state::temperature::tests::exactly_equal_temperatures_share_a_representative_and_order_is_checked"
+   ]
+  }
+ },
+ "M16_secant_datum_coverage_restored": {
+  "exit": 101,
+  "compile_error": false,
+  "killed_by_reviewed_tests": true,
+  "killed_by_review_probes_only": false,
+  "failed": {
+   "lib": [
+    "case_state::thermal::tests::secant_datum_conversion_matches_43_over_25009_from_verification_two_point_table",
+    "case_state::thermal::tests::secant_table_covers_only_the_evaluated_interval_and_refuses_uncovered_evaluation"
+   ],
+   "load_reference_state_runtime": [
+    "thermal_datum_ratio_secant_table_fixed_and_free"
+   ]
+  }
+ },
+ "M17_dilation_datum_sample_counted_consumed": {
+  "exit": 0,
+  "compile_error": false,
+  "killed_by_reviewed_tests": false,
+  "killed_by_review_probes_only": false,
+  "failed": {}
+ },
+ "M18_legacy_thermal_guard_removed": {
+  "exit": 101,
+  "compile_error": false,
+  "killed_by_reviewed_tests": true,
+  "killed_by_review_probes_only": false,
+  "failed": {
+   "load_reference_state_runtime": [
+    "negative_legacy_thermal_referenced_with_resolved_state_blocks"
+   ]
+  }
+ },
+ "M19_evidence_pipe_materials_from_base": {
+  "exit": 101,
+  "compile_error": false,
+  "killed_by_reviewed_tests": true,
+  "killed_by_review_probes_only": false,
+  "failed": {
+   "lib": [
+    "case_state::tests::pressure_recovery_uses_each_cases_resolved_pair_and_eigenstrain_once"
+   ]
+  }
+ },
+ "M20_fit_ignored_on_resolve": {
+  "exit": 101,
+  "compile_error": false,
+  "killed_by_reviewed_tests": true,
+  "killed_by_review_probes_only": false,
+  "failed": {
+   "load_reference_state_runtime": [
+    "negative_thermal_law_coverage_controls_block",
+    "negative_additional_wire_rules_block",
+    "signed_fit_baselines_cut_long_and_direct_fit_strain",
+    "signed_fit_cold_hot_return_fixed_and_released"
+   ]
+  }
+ },
+ "M21_version_mismatch_guard_removed": {
+  "exit": 101,
+  "compile_error": false,
+  "killed_by_reviewed_tests": true,
+  "killed_by_review_probes_only": false,
+  "failed": {
+   "lib": [
+    "case_state::tests::older_documents_carrying_the_new_namespace_block_instead_of_ignoring_it"
+   ],
+   "load_reference_state_runtime": [
+    "negative_legacy_version_documents_carrying_load_state_block"
+   ]
+  }
+ },
+ "M22_operating_temperature_not_canonicalized": {
+  "exit": 101,
+  "compile_error": false,
+  "killed_by_reviewed_tests": true,
+  "killed_by_review_probes_only": false,
+  "failed": {
+   "lib": [
+    "case_state::tests::temperature_identity_is_exact_across_authored_units"
+   ]
+  }
+ },
+ "M23_pressure_member_E_from_base_in_evidence_only": {
+  "exit": 101,
+  "compile_error": false,
+  "killed_by_reviewed_tests": true,
+  "killed_by_review_probes_only": false,
+  "failed": {
+   "lib": [
+    "case_state::tests::pressure_recovery_uses_each_cases_resolved_pair_and_eigenstrain_once"
+   ]
+  }
+ }
+}
+
+real	5m17.472s
+user	5m5.958s
+sys	0m43.322s
+exit=0

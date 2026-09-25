@@ -1,0 +1,165 @@
+//! CP2 independent-review probes, part B (scratch copy only).
+use open_pipe_stress_product_physics::{
+    run_linear_static_preview_value_with_mode, MechanicsEnvelope, PreviewSolverMode,
+};
+use serde::Deserialize;
+use serde_json::{json, Value};
+
+const MODES: [PreviewSolverMode; 2] = [
+    PreviewSolverMode::SparseInteractive,
+    PreviewSolverMode::DenseScrutiny,
+];
+
+fn fixture() -> Value {
+    let path = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/fixtures/load_reference_states/reference_cases.json");
+    serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap()
+}
+
+fn single_member(points: Vec<Value>, selection: Value, operating: Option<Value>) -> Value {
+    let mut element = json!({"pipe_ref": "pipe:1", "material_selection": selection,
+        "thermal_state": {"kind": "unchanged_reference", "provenance": "invented"}});
+    if let Some(t) = operating {
+        element["operating_temperature"] = t;
+    }
+    json!({"model": {
+        "schema_version": "0.4.0", "document_kind": "openpipestress.product_preview.model",
+        "pressure_contract": {"version": "2.0.0", "mode": "exact_straight_pressure_v2"},
+        "project": {"id": "project:review2b", "units": {"length": "m"}},
+        "analysis_status": {"mechanics": "ready", "rule_check": "not_performed", "professional_acceptance": "not_provided"},
+        "nodes": [{"id": "node:a", "position": {"x": 0, "y": 0, "z": 0}, "provenance": "invented"},
+                  {"id": "node:b", "position": {"x": 1, "y": 0, "z": 0}, "provenance": "invented"}],
+        "pipe_segments": [{"id": "pipe:1", "from": "node:a", "to": "node:b",
+            "section": {"outside_diameter": {"value": 0.2, "unit": "m"}, "wall_thickness": {"value": 0.01, "unit": "m"}},
+            "material": "material:m", "y_reference": {"x": 0, "y": 1, "z": 0}, "provenance": "invented"}],
+        "supports": [{"id": "support:root", "node": "node:a", "family": "anchor",
+            "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"], "provenance": "invented"}],
+        "components": [],
+        "materials": [{"id": "material:m", "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+            "elastic_modulus": {"value": 200, "unit": "GPa"}, "poisson_ratio": {"value": 0.3, "unit": "1"},
+            "provenance": "invented", "temperature_points": points}],
+        "reference_configurations": [{"id": "reference:installed", "geometry_ref": {"kind": "authored_model_geometry"},
+            "member_references": [{"pipe_ref": "pipe:1", "basis": {"kind": "direct_strain_reference"}, "fit": {"kind": "none"}, "provenance": "invented"}],
+            "provenance": "invented"}],
+        "load_cases": [{"id": "case:one", "primitive_loads": [], "pressure_regions": [], "provenance": "invented",
+            "analysis_state": {"contract": "openpipestress.load_reference_state/1.0.0",
+                "reference_configuration_ref": "reference:installed", "element_states": [element],
+                "support_states": [{"support_ref": "support:root", "participation": {"kind": "active_model_device"}}],
+                "load_sources": [], "history": {"kind": "independent_equilibrium"}, "provenance": "invented"}}],
+        "combinations": []}, "materials": []})
+}
+
+fn point(id: &str, t: &Value, e_gpa: f64) -> Value {
+    json!({"id": id, "temperature": {"value": t["value"], "unit": t["unit"]},
+        "elastic_modulus": {"value": e_gpa, "unit": "GPa"}, "poisson_ratio": {"value": 0.3, "unit": "1"}})
+}
+
+fn interpolation(t: &Value) -> Value {
+    json!({"kind": "temperature_interpolation", "material_ref": "material:m",
+        "temperature": {"value": t["value"], "unit": t["unit"]}, "interpolation": "piecewise_linear", "extrapolation": "forbidden"})
+}
+
+fn blocking(out: &MechanicsEnvelope) -> Vec<String> {
+    out.diagnostics.iter().filter(|d| d.severity == "blocking").map(|d| d.code.clone()).collect()
+}
+
+#[test]
+fn b01_fixture_non_equal_control_is_not_snapped_through_the_public_route() {
+    let f = fixture();
+    let control = &f["cases"]["temperature_unit_identity"]["variants"]["exact_affine_identity"]["inputs"]["non_equal_control"]["authored"];
+    let (near, endpoint) = (&control[0], &control[1]); // -49.999999 degC, 223.15 K
+    let warm = json!({"value": 300.0, "unit": "K"});
+    // Table [223.15 K, 300 K]; request -49.999999 degC must interpolate, not select the endpoint.
+    let request = single_member(vec![point("point:cold", endpoint, 200.0), point("point:warm", &warm, 100.0)], interpolation(near), None);
+    for mode in MODES {
+        let out = run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap();
+        assert!(blocking(&out).is_empty(), "{:?}", out.diagnostics);
+        let member = &out.contract_evidence.as_ref().unwrap()["load_reference_states"][0]["members"][0];
+        let consumed = member["consumed_material_points"].as_array().unwrap().len();
+        println!("PROBE b01 {} consumed_points={} fraction={} selected_E={}", mode.as_str(), consumed, member["interpolation_fraction"], member["selected_E_pa"]);
+        assert_eq!(consumed, 2, "distinct near temperature must not snap to the endpoint");
+        assert!(member["interpolation_fraction"].as_f64().unwrap() > 0.0);
+    }
+    // Exact-point: the endpoint point with actual temperature -49.999999 degC needs an override.
+    let exact = single_member(vec![point("point:cold", endpoint, 200.0)],
+        json!({"kind": "exact_point", "material_ref": "material:m", "point_ref": "point:cold"}),
+        Some(json!({"value": near["value"], "unit": near["unit"]})));
+    let out = run_linear_static_preview_value_with_mode(exact, PreviewSolverMode::DenseScrutiny).unwrap();
+    println!("PROBE b01 exact-point with near actual T blocking={:?}", blocking(&out));
+    assert!(blocking(&out).contains(&"LOAD_STATE_MATERIAL_TEMPERATURE_OVERRIDE_REQUIRED".to_string()));
+}
+
+#[test]
+fn b02_identity_order_refusal_is_reachable_and_targeted() {
+    // 467.6 degF is exactly 515.15 K, but its ordinary binary64 conversion is
+    // 515.1500000000001; a K point authored as 515.1500000000001 is a distinct
+    // exact temperature with the same binary64. That set cannot keep order.
+    let a = json!({"value": 467.6, "unit": "degF"});
+    let b = json!({"value": 515.1500000000001f64, "unit": "K"});
+    let c = json!({"value": 600.0, "unit": "K"});
+    let request = single_member(vec![point("point:a", &a, 200.0), point("point:b", &b, 150.0), point("point:c", &c, 100.0)], interpolation(&json!({"value": 550.0, "unit": "K"})), None);
+    let out = run_linear_static_preview_value_with_mode(request, PreviewSolverMode::DenseScrutiny).unwrap();
+    println!("PROBE b02 blocking={:?} messages={:?}", blocking(&out), out.diagnostics.iter().filter(|d| d.severity == "blocking").map(|d| d.message.clone()).collect::<Vec<_>>());
+    assert!(blocking(&out).contains(&"LOAD_STATE_TEMPERATURE_IDENTITY_UNRESOLVED".to_string()));
+    assert!(out.results.is_empty());
+}
+
+#[test]
+fn b03_multi_case_result_and_diagnostic_ids_are_unique() {
+    let warm = json!({"value": 300.0, "unit": "K"});
+    let cold = json!({"value": 223.15, "unit": "K"});
+    let mut request = single_member(vec![point("point:cold", &cold, 200.0), point("point:warm", &warm, 100.0)],
+        json!({"kind": "exact_point", "material_ref": "material:m", "point_ref": "point:cold"}), None);
+    let mut second = request["model"]["load_cases"][0].clone();
+    second["id"] = json!("case:two");
+    second["analysis_state"]["element_states"][0]["material_selection"]["point_ref"] = json!("point:warm");
+    request["model"]["load_cases"].as_array_mut().unwrap().push(second);
+    for mode in MODES {
+        let out = run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap();
+        assert!(blocking(&out).is_empty(), "{:?}", out.diagnostics);
+        let mut ids: Vec<_> = out.results.iter().map(|r| r.id.clone()).collect();
+        let n = ids.len();
+        ids.sort();
+        ids.dedup();
+        let mut dids: Vec<_> = out.diagnostics.iter().map(|d| d.id.clone()).collect();
+        let dn = dids.len();
+        dids.sort();
+        dids.dedup();
+        println!("PROBE b03 {} results={} unique={} diagnostics={} unique={}", mode.as_str(), n, ids.len(), dn, dids.len());
+        assert_eq!(n, ids.len());
+        assert_eq!(dn, dids.len());
+    }
+}
+
+// Does the suggested repair (empty struct variants) close the unit-variant gap?
+#[derive(Debug, Deserialize)]
+#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+#[allow(dead_code)]
+enum UnitStyle {
+    #[serde(rename = "none")]
+    NoFit,
+    FitStrain { strain: f64 },
+}
+#[derive(Debug, Deserialize)]
+#[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
+#[allow(dead_code)]
+enum EmptyStructStyle {
+    #[serde(rename = "none")]
+    NoFit {},
+    FitStrain { strain: f64 },
+}
+
+#[test]
+fn b04_serde_unit_variant_versus_empty_struct_variant() {
+    let extra = json!({"kind": "none", "length_change": {"value": -2, "unit": "mm"}});
+    let plain = json!({"kind": "none"});
+    let unit_extra = serde_json::from_value::<UnitStyle>(extra.clone());
+    let empty_extra = serde_json::from_value::<EmptyStructStyle>(extra);
+    let unit_plain = serde_json::from_value::<UnitStyle>(plain.clone());
+    let empty_plain = serde_json::from_value::<EmptyStructStyle>(plain);
+    println!("PROBE b04 unit+extra={:?} empty+extra={:?} unit plain={:?} empty plain={:?}",
+        unit_extra.as_ref().map_err(|e| e.to_string()), empty_extra.as_ref().map_err(|e| e.to_string()),
+        unit_plain.as_ref().map_err(|e| e.to_string()), empty_plain.as_ref().map_err(|e| e.to_string()));
+    assert!(unit_extra.is_ok(), "unit variant ignores extra fields (the defect)");
+    assert!(empty_extra.is_err(), "empty struct variant rejects extra fields (the repair)");
+    assert!(unit_plain.is_ok() && empty_plain.is_ok());
+}

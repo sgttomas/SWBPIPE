@@ -1,0 +1,4 @@
+cp1 leaf paths=1816 current leaf paths=2526
+added cases: ['multi_segment_free_length', 'temperature_unit_identity']
+added thermal_datum_ratio variants: ['verification_two_point']
+checks=2214 failures=0
