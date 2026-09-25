@@ -1,0 +1,150 @@
+[
+  {
+    "file": "ssll101a.comm",
+    "sha256": "d46f574494fb05a4df3e22874fc8042ee893f83cb8d4857a1f31f529e0a6d956",
+    "AST_static_only": true,
+    "assertion_blocks_by_explicit_reference": {
+      "SOURCE_EXTERNE": 76,
+      "NON_DEFINI": 5,
+      "AUTRE_ASTER": 1
+    },
+    "source_semantics": "VALE_CALC and VALE_REFE/REFERENCE are separate carrier fields; no source execution and no independent target admission",
+    "axial_assertion_locators": []
+  },
+  {
+    "file": "ssll101c.comm",
+    "sha256": "455544f7ac59f7b3318a6a772552845a7e14a6afcd231cc1f75a3756eeddc03a",
+    "AST_static_only": true,
+    "assertion_blocks_by_explicit_reference": {
+      "SOURCE_EXTERNE": 9
+    },
+    "source_semantics": "VALE_CALC and VALE_REFE/REFERENCE are separate carrier fields; no source execution and no independent target admission",
+    "axial_assertion_locators": []
+  },
+  {
+    "file": "ssll101d.comm",
+    "sha256": "5c601dd40491ad8f6ae6f8dbb8de738ac695abd5e8c920f5d9cdca5485616ef7",
+    "AST_static_only": true,
+    "assertion_blocks_by_explicit_reference": {
+      "SOURCE_EXTERNE": 9
+    },
+    "source_semantics": "VALE_CALC and VALE_REFE/REFERENCE are separate carrier fields; no source execution and no independent target admission",
+    "axial_assertion_locators": []
+  },
+  {
+    "file": "ssll101e.comm",
+    "sha256": "d1dc6628bdfd942e538a8ef7f8b00c662035ed64a2cc750aea99dc3765aa8a66",
+    "AST_static_only": true,
+    "assertion_blocks_by_explicit_reference": {
+      "SOURCE_EXTERNE": 12
+    },
+    "source_semantics": "VALE_CALC and VALE_REFE/REFERENCE are separate carrier fields; no source execution and no independent target admission",
+    "axial_assertion_locators": []
+  },
+  {
+    "file": "ssll106a.comm",
+    "sha256": "53ee13f16fdd15d4caebaa83727702db25c0559987d7f45d07315de9978ea2dd",
+    "AST_static_only": true,
+    "assertion_blocks_by_explicit_reference": {
+      "not_explicitly_external_or_analytical": 4,
+      "ANALYTIQUE": 73
+    },
+    "source_semantics": "VALE_CALC and VALE_REFE/REFERENCE are separate carrier fields; no source execution and no independent target admission",
+    "axial_assertion_locators": [
+      {
+        "line": 193,
+        "end_line": 203,
+        "reference_class": "ANALYTIQUE",
+        "field": "DEPL",
+        "component": "DX",
+        "reference_expression": "FM2 * L / (E * S)"
+      },
+      {
+        "line": 204,
+        "end_line": 214,
+        "reference_class": "ANALYTIQUE",
+        "field": "DEPL",
+        "component": "DY",
+        "reference_expression": "FM1 * L / (E * S)"
+      },
+      {
+        "line": 215,
+        "end_line": 227,
+        "reference_class": "ANALYTIQUE",
+        "field": "SIEF_ELGA",
+        "component": "SIXX",
+        "reference_expression": "FM / S"
+      },
+      {
+        "line": 228,
+        "end_line": 240,
+        "reference_class": "ANALYTIQUE",
+        "field": "EPSI_ELGA",
+        "component": "EPXX",
+        "reference_expression": "FM / (E * S)"
+      },
+      {
+        "line": 241,
+        "end_line": 252,
+        "reference_class": "ANALYTIQUE",
+        "field": "EFGE_ELNO",
+        "component": "N",
+        "reference_expression": "FM"
+      }
+    ]
+  },
+  {
+    "file": "ssll106b.comm",
+    "sha256": "ff19b93ec7a0819994537923919d521d0b4c7272d40e6e036fd46f51e86720a9",
+    "AST_static_only": true,
+    "assertion_blocks_by_explicit_reference": {
+      "ANALYTIQUE": 35,
+      "NON_DEFINI": 1
+    },
+    "source_semantics": "VALE_CALC and VALE_REFE/REFERENCE are separate carrier fields; no source execution and no independent target admission",
+    "axial_assertion_locators": []
+  },
+  {
+    "file": "ssll106c.comm",
+    "sha256": "dc0698454b559f8095b7024870928090b25178d2a912ecc78e3b3c53a6aa51fa",
+    "AST_static_only": true,
+    "assertion_blocks_by_explicit_reference": {
+      "not_explicitly_external_or_analytical": 4,
+      "ANALYTIQUE": 73
+    },
+    "source_semantics": "VALE_CALC and VALE_REFE/REFERENCE are separate carrier fields; no source execution and no independent target admission",
+    "axial_assertion_locators": []
+  },
+  {
+    "file": "ssll106d.comm",
+    "sha256": "d105eb9f08f95bd70ec9b8073d251649dfc49d1d2482b08fb2927a84bd5edf55",
+    "AST_static_only": true,
+    "assertion_blocks_by_explicit_reference": {
+      "ANALYTIQUE": 35,
+      "NON_DEFINI": 1
+    },
+    "source_semantics": "VALE_CALC and VALE_REFE/REFERENCE are separate carrier fields; no source execution and no independent target admission",
+    "axial_assertion_locators": []
+  },
+  {
+    "file": "ssll106e.comm",
+    "sha256": "256b65b9292bdbfaa05d84348881a6299ca7f68625fb933bb871fd8519afa17f",
+    "AST_static_only": true,
+    "assertion_blocks_by_explicit_reference": {
+      "ANALYTIQUE": 73
+    },
+    "source_semantics": "VALE_CALC and VALE_REFE/REFERENCE are separate carrier fields; no source execution and no independent target admission",
+    "axial_assertion_locators": []
+  },
+  {
+    "file": "ssll106f.comm",
+    "sha256": "42d44351f9cbb68f57bd225c4f2feabc03bd315155a3f4d6c69b0c39cc52e5f3",
+    "AST_static_only": true,
+    "assertion_blocks_by_explicit_reference": {
+      "not_explicitly_external_or_analytical": 3,
+      "ANALYTIQUE": 36
+    },
+    "source_semantics": "VALE_CALC and VALE_REFE/REFERENCE are separate carrier fields; no source execution and no independent target admission",
+    "axial_assertion_locators": []
+  }
+]

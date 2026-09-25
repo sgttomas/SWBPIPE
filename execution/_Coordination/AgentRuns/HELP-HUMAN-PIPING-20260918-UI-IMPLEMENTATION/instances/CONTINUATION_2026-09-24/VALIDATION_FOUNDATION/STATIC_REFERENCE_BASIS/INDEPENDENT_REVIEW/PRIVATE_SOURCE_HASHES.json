@@ -1,0 +1,368 @@
+[
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/src_main.json",
+    "url": "https://gitlab.com/api/v4/projects/codeaster%2Fsrc/repository/commits/main",
+    "sha256": "1de80c3a234cdf2c7fc7cdb5d149c0fdcc6ebb60971862b635194ea611d68aac",
+    "bytes": 855
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/106_problem.html",
+    "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.106/Probl_me_de_r_f_rence.html",
+    "sha256": "55ea7b0f2dec7c3b938f22f7295a324b1ab3f6d4f7848c0d33cd71e589fbf76a",
+    "bytes": 22152
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/101_problem.html",
+    "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.101/Probl_me_de_r_f_rence.html",
+    "sha256": "c26153d42846f5bf4e66f26a409e34663da3f9d35089b27b1cec92e1f97304de",
+    "bytes": 17977
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/ssll106a.export",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106a.export",
+    "sha256": "df4f7abccb9b9e24bec10e573cd79ff27ab29aed3f042fde20c718c3c79eab85",
+    "bytes": 162
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/ssll106a.comm",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106a.comm",
+    "sha256": "53ee13f16fdd15d4caebaa83727702db25c0559987d7f45d07315de9978ea2dd",
+    "bytes": 32617
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/ssll106b.export",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106b.export",
+    "sha256": "328fc87d463d06e5f16bf678ceaccb0e7f61f5960bc98669573b98ac33918c7c",
+    "bytes": 162
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/ssll106b.comm",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106b.comm",
+    "sha256": "ff19b93ec7a0819994537923919d521d0b4c7272d40e6e036fd46f51e86720a9",
+    "bytes": 20494
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/ssll106c.export",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106c.export",
+    "sha256": "b70e7c0c12a83292979bd842f1dfcacaf872df791e660d06abd9b4589aff4723",
+    "bytes": 162
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/ssll106c.comm",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106c.comm",
+    "sha256": "dc0698454b559f8095b7024870928090b25178d2a912ecc78e3b3c53a6aa51fa",
+    "bytes": 32617
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/ssll106d.export",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106d.export",
+    "sha256": "c439ac74870df418f7d8922fc87820e20b084282b8c7a905e62bcade20025017",
+    "bytes": 163
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/ssll106d.comm",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106d.comm",
+    "sha256": "d105eb9f08f95bd70ec9b8073d251649dfc49d1d2482b08fb2927a84bd5edf55",
+    "bytes": 20549
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/ssll106e.export",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106e.export",
+    "sha256": "a890978cf9c51074e93cd05f3f3b232ee03ad3edebb254fd0725dd6429c695b0",
+    "bytes": 188
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/ssll106e.comm",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106e.comm",
+    "sha256": "256b65b9292bdbfaa05d84348881a6299ca7f68625fb933bb871fd8519afa17f",
+    "bytes": 32103
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/ssll106f.export",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106f.export",
+    "sha256": "f36ff254a722e2bc7eb49975fc0772caa4b54c194031791fc9a6e6ae59262d80",
+    "bytes": 169
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/ssll106f.comm",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106f.comm",
+    "sha256": "42d44351f9cbb68f57bd225c4f2feabc03bd315155a3f4d6c69b0c39cc52e5f3",
+    "bytes": 23430
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/ssll101a.export",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101a.export",
+    "sha256": "567f48af143c4a728a6eecf6b73ef9569c95bd71bf422b8edd03927c9f04c90f",
+    "bytes": 169
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/ssll101a.comm",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101a.comm",
+    "sha256": "d46f574494fb05a4df3e22874fc8042ee893f83cb8d4857a1f31f529e0a6d956",
+    "bytes": 31944
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/ssll101c.export",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101c.export",
+    "sha256": "5dc3788e98ecfcd2e09d59eed59067e15c4c80f19436c0887034b651493861c5",
+    "bytes": 194
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/ssll101c.comm",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101c.comm",
+    "sha256": "455544f7ac59f7b3318a6a772552845a7e14a6afcd231cc1f75a3756eeddc03a",
+    "bytes": 8023
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/ssll101d.export",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101d.export",
+    "sha256": "08deecb35a154ed6cb8f3fbeb6d960f847e3ca144a69f8550a1cb584abd1ba3e",
+    "bytes": 169
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/ssll101d.comm",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101d.comm",
+    "sha256": "5c601dd40491ad8f6ae6f8dbb8de738ac695abd5e8c920f5d9cdca5485616ef7",
+    "bytes": 8049
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/ssll101e.export",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101e.export",
+    "sha256": "a822422c95198d18a85d956279764bbd8dbc64807a0e27c31d8edcc96c4015d0",
+    "bytes": 169
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/ssll101e.comm",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101e.comm",
+    "sha256": "d1dc6628bdfd942e538a8ef7f8b00c662035ed64a2cc750aea99dc3765aa8a66",
+    "bytes": 10069
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/src_project.json",
+    "url": "https://gitlab.com/api/v4/projects/codeaster%2Fsrc",
+    "sha256": "5fd36bddf198b7fcd6cd90df1ea6ec7b33fc472c1e99c9309b53a48aac1ac8df",
+    "bytes": 981
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/106_Solution_de_r_f_rence.html",
+    "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.106/Solution_de_r_f_rence.html",
+    "sha256": "bedeb089c7cfefc4451ea1a66d6b290aa5ff4f0582d6b1738697cb75ebcdedfe",
+    "bytes": 25381
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/106_Mod_lisation_A.html",
+    "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.106/Mod_lisation_A.html",
+    "sha256": "02cf9f9422a29bd5e3dbb5f74d1b2b3755b4b57fbf53e175825222c6c6771ccd",
+    "bytes": 28604
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/106_Mod_lisation_C.html",
+    "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.106/Mod_lisation_C.html",
+    "sha256": "cfa87bb854ea8dad442f0220549c95ef2793f029e64d780a55357614d7e28021",
+    "bytes": 28514
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/106_Mod_lisation_D.html",
+    "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.106/Mod_lisation_D.html",
+    "sha256": "b02cdc9eb8af4a5b032787cbf1ac3385683c0d4f63c1b06553688e8230df834c",
+    "bytes": 24885
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/106_Mod_lisation_E.html",
+    "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.106/Mod_lisation_E.html",
+    "sha256": "913f525871cb144c07216b2720dbee04e9cb0c3ed2618b67bf50d0184df70670",
+    "bytes": 28034
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/106_Synth_se_des_r_sultats.html",
+    "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.106/Synth_se_des_r_sultats.html",
+    "sha256": "fbd2c8e495056c551281a0207c3dcfd19215ffc9d63e2f42b44ac507633c00a1",
+    "bytes": 15045
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/101_Solution_de_r_f_rence.html",
+    "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.101/Solution_de_r_f_rence.html",
+    "sha256": "0bd1b3f0e5be84587cf01714a0df26c5bc479bbd9ed6a37d434add541b43f1bd",
+    "bytes": 21493
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/101_Mod_lisation_A.html",
+    "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.101/Mod_lisation_A.html",
+    "sha256": "9751d472461803cb99ca63f4d49edbf9d77384e7aaf48a9eea3cc361f9a54bd4",
+    "bytes": 19988
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/101_Mod_lisation_C.html",
+    "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.101/Mod_lisation_C.html",
+    "sha256": "18ea3c6109fb6ff0c498046a7f0b75c52103a08c8c73ac629d685a4b00f80e59",
+    "bytes": 20005
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/101_Mod_lisation_D.html",
+    "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.101/Mod_lisation_D.html",
+    "sha256": "9537b66b0db97d2ee3e59c4f4467a2ffb54e5bedce976e59ef25ad355e415006",
+    "bytes": 19984
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/101_Mod_lisation_E.html",
+    "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.101/Mod_lisation_E.html",
+    "sha256": "57e7bc3b484f53f40dbce444d9560207e2b05827d523696522e592a881d4936b",
+    "bytes": 19816
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/101_Synth_se_des_r_sultats.html",
+    "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.101/Synth_se_des_r_sultats.html",
+    "sha256": "4c55b4f92700d3b5476e6fe4891b300e574d8ca7249ed052eb294b7f9621ddad",
+    "bytes": 14647
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/ssll106e.datg",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106e.datg",
+    "sha256": "d6fac43194d550f36143a9791b6d2c4ea6ffef6c1e2f8d37a274a1cad1fbed39",
+    "bytes": 248
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/ssll101c.com1",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101c.com1",
+    "sha256": "f747f49e98946f7e7215b879edfb18f54def9b568ee71c78e65d15af07310771",
+    "bytes": 1701
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/ssll106f.mail",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106f.mail",
+    "sha256": "1f195a1f68accaf11171ef1b126c4869a892ef36006e79c6e1ed5c12f7ed5156",
+    "bytes": 772
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/ssll106e.mail",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106e.mail",
+    "sha256": "aeca71596ec3d648dde8a5025fa8f5fa50354bd9fd773361566b1d9c90729e79",
+    "bytes": 2074
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/ssll106a.mmed",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106a.mmed",
+    "sha256": "4a748fa68b48f80f2bd63759ade4d97724d7e2a070793e3832ae3fce7248f6dd",
+    "bytes": 19760
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/ssll101a.mmed",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101a.mmed",
+    "sha256": "792fe64a9d10b7285bb24c4f3aec85496092c2d6c4933b896f728cec153a59cc",
+    "bytes": 26056
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/ssll101e.mmed",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101e.mmed",
+    "sha256": "12ea9d3fa2dfe792811d122dbce19c01fa2f7670aee592c523145d63e71994c6",
+    "bytes": 28166
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/ssll101c.msup",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101c.msup",
+    "sha256": "5942b6b5b64d72d28d801ab6f23e4e54174a92aa8833f3807fbf66672b1f84ce",
+    "bytes": 15102
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/root_tree.json",
+    "url": "https://gitlab.com/api/v4/projects/32737231/repository/tree?ref=7558f1d06088bd93d8324e314912bf0e6df7801f&per_page=100",
+    "sha256": "5910f0cde079840a320ccc83ebcdc43ff6e65dca499b0dc652a08695b02331df",
+    "bytes": 5319
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/switcher.json",
+    "url": "https://codeaster.gitlab.io/doc/docaster/switcher.json",
+    "sha256": "8963bd8356a904e6f9b45f5db4ec95e07b3e2c4acca4f84db00697c8fc9bc6bd",
+    "bytes": 600
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/v17_106_Probl_me_de_r_f_rence.html",
+    "url": "https://code-aster.org/doc/v17/manuals/man_v/v3/v3.01.106/Probl_me_de_r_f_rence.html",
+    "sha256": "c68be9eb69bd7b66e0698ccbda5ee6e5d588629e121671fed4d8505a1056f9b1",
+    "bytes": 507889
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/v17_106_Solution_de_r_f_rence.html",
+    "url": "https://code-aster.org/doc/v17/manuals/man_v/v3/v3.01.106/Solution_de_r_f_rence.html",
+    "sha256": "c0598c7713aac5e51939d4c0da63ad674f8fa660a9fabc2c0ce6f624c9ca1de2",
+    "bytes": 510961
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/v17_106_Mod_lisation_A.html",
+    "url": "https://code-aster.org/doc/v17/manuals/man_v/v3/v3.01.106/Mod_lisation_A.html",
+    "sha256": "81e507f6847502e51430d57886d966627bbaa0bf511e883f85580effb97d1b7c",
+    "bytes": 514370
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/v17_101_Probl_me_de_r_f_rence.html",
+    "url": "https://code-aster.org/doc/v17/manuals/man_v/v3/v3.01.101/Probl_me_de_r_f_rence.html",
+    "sha256": "4b831ba3e46a8d3c4ed50686770f943b9e7c982b0c5fad2b2c73c138f8b73395",
+    "bytes": 503764
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/v17_101_Solution_de_r_f_rence.html",
+    "url": "https://code-aster.org/doc/v17/manuals/man_v/v3/v3.01.101/Solution_de_r_f_rence.html",
+    "sha256": "9e4d755775f7ead9e8d74ccfdeeeef1d1c01bd0eac35b95909510ad7cb3e720a",
+    "bytes": 507241
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/v17_101_Mod_lisation_A.html",
+    "url": "https://code-aster.org/doc/v17/manuals/man_v/v3/v3.01.101/Mod_lisation_A.html",
+    "sha256": "ad6f249e383ff7eee681bc09a51c9cac7910c8bbda6e5d7e1b0305054a4c02c5",
+    "bytes": 505743
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/106_section_droite_tuyau.svg",
+    "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.106/_images/section_droite_tuyau.svg",
+    "sha256": "99453eeb908acb8fbaa64496cde4e3748ed728120513dd2f45cb11341ceaf227",
+    "bytes": 4358
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/101_100018D600002A4500001A0C52F8BA0F02A87592.svg",
+    "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.101/_images/100018D600002A4500001A0C52F8BA0F02A87592.svg",
+    "sha256": "75a478a645921089bf4db6a3401e611f6d52017247dd9ab13c932866f7e269d6",
+    "bytes": 70470
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/LICENSE",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/LICENSE",
+    "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+    "bytes": 35147
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/test_resu.py",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/code_aster/Cata/Commands/test_resu.py",
+    "sha256": "8cec4d6024dd10f403276d2527b811d3ca94d341bd655d93a44f4be78e9e26a8",
+    "bytes": 6431
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/tuyeau_commands.html",
+    "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_u/u2/u2.02.02/Description_du_jeux_de_commandes.html",
+    "sha256": "b76080e1a91ab6458886f9fc92ec0f72059f89cbcbb3fa38a4d710245b2a33ff",
+    "bytes": 72016
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/beam_section_commands.html",
+    "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_u/u4/u4.42.01/Mot_cle_POUTRE.html",
+    "sha256": "a322596036b927bae9dfd5cfa8085721e448bdc3ccaab75e09959d6408719b88",
+    "bytes": 71818
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/tuyau_theory_index.html",
+    "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_r/r3/r3.08.06/index.html",
+    "sha256": "4dd6dced5095739461e96c35a79a3365620109c21d5c2180ddb6958cd070f514",
+    "bytes": 24686
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/106_Mod_lisation_F.html",
+    "url": "https://codeaster.gitlab.io/doc/docaster/manuals/man_v/v3/v3.01.106/Mod_lisation_F.html",
+    "sha256": "be265db92c5d9a3732020e0091c673a073494c42a6bd6069dfe4e4e97d9246ca",
+    "bytes": 24432
+  },
+  {
+    "origin": "/private/tmp/piping-static-reference-acquisition-20260925/c_test_reference.py",
+    "url": "https://gitlab.com/codeaster/src/-/raw/7558f1d06088bd93d8324e314912bf0e6df7801f/code_aster/Cata/Commons/c_test_reference.py",
+    "sha256": "9dc0a6fd02ba5e5ae38d36c8fd03beb9e9183bdefb5ecff4b572fd27b6665832",
+    "bytes": 3882
+  }
+]

@@ -1,0 +1,7 @@
+{
+  "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/GATE_REVIEW/probe_repair_consequences_02.py",
+  "sha256": "fcb26bde0d6efeb25f95ff1371b636d2f850ac7a5ff390f5d601174557563f8f",
+  "copied_exactly": true,
+  "reason": "Reproduce original2consequences without overwriting independent failed evidence; HERE relocates new output naturally",
+  "basis": "GATE_FREEZE_02.json"
+}

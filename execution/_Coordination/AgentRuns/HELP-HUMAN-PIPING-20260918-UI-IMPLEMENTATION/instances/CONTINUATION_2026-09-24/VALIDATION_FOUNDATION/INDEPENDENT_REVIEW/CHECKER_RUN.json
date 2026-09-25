@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/validation/qualification/check_inventory.py",
+    "--self-check"
+  ],
+  "cwd": "/private/tmp/piping-validation-foundation-20260925",
+  "exit": 0,
+  "stdout": "{\n  \"status\": \"PASS\",\n  \"meaning\": \"inventory consistency only; no solver/profile qualification\",\n  \"source_bindings\": 85,\n  \"capabilities\": 17,\n  \"original_findings\": 38,\n  \"profiles\": 12,\n  \"fault_detection\": {\n    \"missing_original_finding\": true,\n    \"duplicate_source\": true,\n    \"unknown_output_set\": true,\n    \"zero_profile_denominator\": true,\n    \"invented_profile_pass\": true,\n    \"path_escape\": true,\n    \"silent_finding_closure\": true\n  },\n  \"errors\": []\n}\n",
+  "stderr": "",
+  "python": "3.9.6 (default, May 22 2026, 11:13:45) \n[Clang 21.0.0 (clang-2100.1.1.101)]",
+  "platform": "macOS-26.6.2-arm64-arm-64bit"
+}

@@ -1,0 +1,37 @@
+{
+  "status": "Four review findings repaired; independent backcheck pending",
+  "base_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+  "files": [
+    {
+      "path": "projects/chirality-piping/validation/qualification/HARNESS_CUT.md",
+      "sha256": "01a0074e6b06c3d090dd320d6201b2e3ac6f92db7c9d07ddb3df71494af6807e",
+      "bytes": 7987
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/README.md",
+      "sha256": "b51125c7051f7c192351c4723d510dc14adacd2fa15b9934e04e78b79ce42a08",
+      "bytes": 7614
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/capability_inventory.json",
+      "sha256": "8d3247f3d2d3b74a8fde4d354b44de6c2039a5db9b00d76efe74cc8c4f062000",
+      "bytes": 111085
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/check_inventory.py",
+      "sha256": "badd6c47b7ccbb60f685ef8e5f12b5c291fbaf51172ac13ab224e47b7c470939",
+      "bytes": 10434
+    }
+  ],
+  "supersedes": "SOURCE_FREEZE_01.json",
+  "checks": {
+    "command": [
+      "/private/tmp/chirality-piping-dec025-venv/bin/python",
+      "projects/chirality-piping/validation/qualification/check_inventory.py",
+      "--self-check"
+    ],
+    "exit_code": 0,
+    "meaning": "85Git sources, work-packet hashes, reciprocal mappings and13 corruption controls; inventory only"
+  },
+  "check_log_sha256": "846f4b1d21fc31c7ac286f7a887ee7f0ee4ee2c1a6760dc4e27924334698dba1"
+}

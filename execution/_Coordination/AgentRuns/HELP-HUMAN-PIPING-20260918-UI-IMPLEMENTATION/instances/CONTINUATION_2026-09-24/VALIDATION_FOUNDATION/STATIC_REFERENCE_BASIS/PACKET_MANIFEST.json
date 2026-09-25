@@ -1,0 +1,55 @@
+{
+  "claim": "Source applicability and acquisition-preparation packet only; not independent oracle or product/campaign qualification",
+  "files": [
+    {
+      "path": "ACQUISITION.json",
+      "sha256": "c68ba6db71dcb108847ddf5335e11fc62113d429ac0dfaab4c644783c4571fef",
+      "bytes": 45611
+    },
+    {
+      "path": "ACQUISITION_CONTRACT.md",
+      "sha256": "c38e6643dd73c56524c0b909b9429cad397f3aa0f445ad0e5075164e5b2288a0",
+      "bytes": 7280
+    },
+    {
+      "path": "APPLICABILITY.md",
+      "sha256": "cd72ae3e03d94cf11f7f669202aad1bee977ea797faabb47386b111404ea9210",
+      "bytes": 12576
+    },
+    {
+      "path": "ASSERTION_LINEAGE.json",
+      "sha256": "43b47d0441828d0bc8d3e8154bf153e2de22f7d81cf248dd3b041dd09bb647f3",
+      "bytes": 5371
+    },
+    {
+      "path": "BASIS.json",
+      "sha256": "1239e02fb6f591608608a40dbd6b1639b9c2a2634021774f98cdbdbfaa47a4d2",
+      "bytes": 3824
+    },
+    {
+      "path": "REFERENCE_CANDIDATES.json",
+      "sha256": "e920dda3143fa4b8f8384b171369a0cafaa1fbef3f1e26f74193de8fdf169189",
+      "bytes": 5679
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "06e134ab84fb0f0f25252823990686e4253acfa1f57b20d664c88ca629d60372",
+      "bytes": 3761
+    },
+    {
+      "path": "_run_records/CHECKS.json",
+      "sha256": "eba0399858a759daa40350250877df2d6485045d2d31b87d8b4a9fae9491e1e8",
+      "bytes": 1614
+    },
+    {
+      "path": "_run_records/MANUAL_VERSION_CHECK.json",
+      "sha256": "d812c7c24911c5698c977e0f761f57a52a7fe3cd0bd47055f105a4391e2c3081",
+      "bytes": 2651
+    },
+    {
+      "path": "_run_records/build_inventory.py",
+      "sha256": "e3868b9791546b7b3dba55280b7ba4465768b5a50761fbe2aa3adafa16fd88ec",
+      "bytes": 5815
+    }
+  ]
+}

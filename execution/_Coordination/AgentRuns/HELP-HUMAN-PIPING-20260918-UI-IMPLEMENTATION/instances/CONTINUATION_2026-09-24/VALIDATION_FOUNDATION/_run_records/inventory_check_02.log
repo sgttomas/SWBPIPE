@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "meaning": "inventory consistency only; no solver/profile qualification",
+  "source_bindings": 85,
+  "capabilities": 17,
+  "original_findings": 38,
+  "profiles": 12,
+  "fault_detection": {
+    "missing_original_finding": true,
+    "duplicate_source": true,
+    "unknown_output_set": true,
+    "zero_profile_denominator": true,
+    "invented_profile_pass": true,
+    "path_escape": true,
+    "silent_finding_closure": true,
+    "unknown_reverse_q_link": true,
+    "missing_unreferenced_vp": true,
+    "duplicate_first_cut": true,
+    "empty_contract_sources": true,
+    "dropped_capability_output": true,
+    "source_ready_without_admission": true
+  },
+  "errors": []
+}

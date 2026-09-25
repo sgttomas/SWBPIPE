@@ -1,0 +1,337 @@
+{
+  "status": "PASS static source checks",
+  "source_pin": "7558f1d06088bd93d8324e314912bf0e6df7801f",
+  "retrieved_hashes_checked": 61,
+  "declared_dependencies": [
+    {
+      "test": "ssll101a",
+      "F_input_count": 2,
+      "all_declared_bytes_match": true
+    },
+    {
+      "test": "ssll101c",
+      "F_input_count": 3,
+      "all_declared_bytes_match": true
+    },
+    {
+      "test": "ssll101d",
+      "F_input_count": 2,
+      "all_declared_bytes_match": true
+    },
+    {
+      "test": "ssll101e",
+      "F_input_count": 2,
+      "all_declared_bytes_match": true
+    },
+    {
+      "test": "ssll106a",
+      "F_input_count": 2,
+      "all_declared_bytes_match": true
+    },
+    {
+      "test": "ssll106b",
+      "F_input_count": 2,
+      "all_declared_bytes_match": true
+    },
+    {
+      "test": "ssll106c",
+      "F_input_count": 2,
+      "all_declared_bytes_match": true
+    },
+    {
+      "test": "ssll106d",
+      "F_input_count": 2,
+      "all_declared_bytes_match": true
+    },
+    {
+      "test": "ssll106e",
+      "F_input_count": 3,
+      "all_declared_bytes_match": true
+    },
+    {
+      "test": "ssll106f",
+      "F_input_count": 2,
+      "all_declared_bytes_match": true
+    }
+  ],
+  "assertion_lineage": [
+    {
+      "file": "ssll101a.comm",
+      "counts": {
+        "SOURCE_EXTERNE": 76,
+        "NON_DEFINI": 5,
+        "AUTRE_ASTER": 1
+      },
+      "matches_packet": true
+    },
+    {
+      "file": "ssll101c.comm",
+      "counts": {
+        "SOURCE_EXTERNE": 9
+      },
+      "matches_packet": true
+    },
+    {
+      "file": "ssll101d.comm",
+      "counts": {
+        "SOURCE_EXTERNE": 9
+      },
+      "matches_packet": true
+    },
+    {
+      "file": "ssll101e.comm",
+      "counts": {
+        "SOURCE_EXTERNE": 12
+      },
+      "matches_packet": true
+    },
+    {
+      "file": "ssll106a.comm",
+      "counts": {
+        "not_explicitly_external_or_analytical": 4,
+        "ANALYTIQUE": 73
+      },
+      "matches_packet": true
+    },
+    {
+      "file": "ssll106b.comm",
+      "counts": {
+        "ANALYTIQUE": 35,
+        "NON_DEFINI": 1
+      },
+      "matches_packet": true
+    },
+    {
+      "file": "ssll106c.comm",
+      "counts": {
+        "not_explicitly_external_or_analytical": 4,
+        "ANALYTIQUE": 73
+      },
+      "matches_packet": true
+    },
+    {
+      "file": "ssll106d.comm",
+      "counts": {
+        "ANALYTIQUE": 35,
+        "NON_DEFINI": 1
+      },
+      "matches_packet": true
+    },
+    {
+      "file": "ssll106e.comm",
+      "counts": {
+        "ANALYTIQUE": 73
+      },
+      "matches_packet": true
+    },
+    {
+      "file": "ssll106f.comm",
+      "counts": {
+        "not_explicitly_external_or_analytical": 3,
+        "ANALYTIQUE": 36
+      },
+      "matches_packet": true
+    }
+  ],
+  "input_calls_static_only": [
+    {
+      "file": "ssll101a.comm",
+      "line": 26,
+      "function": "LIRE_MAILLAGE",
+      "units": {
+        "FORMAT": "MED",
+        "UNITE": 20
+      }
+    },
+    {
+      "file": "ssll101c.comm",
+      "line": 33,
+      "function": "LIRE_MAILLAGE",
+      "units": {
+        "FORMAT": "IDEAS",
+        "UNITE": 19
+      }
+    },
+    {
+      "file": "ssll101d.comm",
+      "line": 33,
+      "function": "LIRE_MAILLAGE",
+      "units": {
+        "FORMAT": "IDEAS",
+        "UNITE": 19
+      }
+    },
+    {
+      "file": "ssll101e.comm",
+      "line": 39,
+      "function": "LIRE_MAILLAGE",
+      "units": {
+        "FORMAT": "MED"
+      }
+    },
+    {
+      "file": "ssll106a.comm",
+      "line": 25,
+      "function": "LIRE_MAILLAGE",
+      "units": {
+        "FORMAT": "MED"
+      }
+    },
+    {
+      "file": "ssll106b.comm",
+      "line": 25,
+      "function": "LIRE_MAILLAGE",
+      "units": {
+        "FORMAT": "MED"
+      }
+    },
+    {
+      "file": "ssll106c.comm",
+      "line": 25,
+      "function": "LIRE_MAILLAGE",
+      "units": {
+        "FORMAT": "MED"
+      }
+    },
+    {
+      "file": "ssll106d.comm",
+      "line": 25,
+      "function": "LIRE_MAILLAGE",
+      "units": {
+        "FORMAT": "MED"
+      }
+    },
+    {
+      "file": "ssll106e.comm",
+      "line": 25,
+      "function": "LIRE_MAILLAGE",
+      "units": {
+        "FORMAT": "ASTER"
+      }
+    },
+    {
+      "file": "ssll106f.comm",
+      "line": 26,
+      "function": "LIRE_MAILLAGE",
+      "units": {
+        "FORMAT": "ASTER"
+      }
+    }
+  ],
+  "manual_versions": [
+    {
+      "v17": "v17_106_Probl_me_de_r_f_rence.html",
+      "v18": "106_problem.html",
+      "article_text_equal": true
+    },
+    {
+      "v17": "v17_106_Solution_de_r_f_rence.html",
+      "v18": "106_Solution_de_r_f_rence.html",
+      "article_text_equal": true
+    },
+    {
+      "v17": "v17_106_Mod_lisation_A.html",
+      "v18": "106_Mod_lisation_A.html",
+      "article_text_equal": true
+    },
+    {
+      "v17": "v17_101_Probl_me_de_r_f_rence.html",
+      "v18": "101_problem.html",
+      "article_text_equal": true
+    },
+    {
+      "v17": "v17_101_Solution_de_r_f_rence.html",
+      "v18": "101_Solution_de_r_f_rence.html",
+      "article_text_equal": true
+    },
+    {
+      "v17": "v17_101_Mod_lisation_A.html",
+      "v18": "101_Mod_lisation_A.html",
+      "article_text_equal": true
+    }
+  ],
+  "thermal_datum_check": {
+    "alpha_per_C": "1/100000",
+    "pinned_temperature": 200,
+    "pinned_VALE_REF": 0,
+    "manual_problem_temperature": 100,
+    "results": {
+      "100": {
+        "local_axial_m": "1/200",
+        "global_x_m": "1/250",
+        "global_y_m": "3/1000",
+        "thermal_strain": "1/1000"
+      },
+      "200": {
+        "local_axial_m": "1/100",
+        "global_x_m": "1/125",
+        "global_y_m": "3/500",
+        "thermal_strain": "1/500"
+      }
+    },
+    "conclusion": "Manual problem100 cannot yield its0.008/0.006 table under shown alpha*T formula; pinned200/ref0 can. No differing reference datum is supplied to reconcile manual100. Source mismatch retained; no target selected."
+  },
+  "pressure_sign_check": {
+    "manual_denominator": "b\u00b2-a\u00b2 with a outer,b inner",
+    "command_denominator": "a\u00b2-b\u00b2",
+    "manual_ur_m": "-625887/36100000000",
+    "command_ur_m": "625887/36100000000",
+    "magnitudes_equal_opposite_sign": true,
+    "conclusion": "Printed equations differ algebraically under the supplied definitions; radial sign/operator convention still requires explicit target mapping. No repaired pressure target adopted."
+  },
+  "eb_shear_check": {
+    "force_tip_shear_correction_relative_to_EB": "7059/31250000",
+    "decimal": 0.000225888,
+    "protected_criterion": 1e-09,
+    "comparison_claim": "Confirms distinct model; not a product run or target tolerance adoption."
+  },
+  "four_subsets": {
+    "axial_projected_load_N": [
+      "400",
+      "300",
+      "0"
+    ],
+    "torsion_projected_moment_Nm": [
+      "400",
+      "300",
+      "0"
+    ],
+    "my_projected_moment_Nm": [
+      "-300",
+      "400",
+      "0"
+    ],
+    "mz_projected_moment_Nm": [
+      "0",
+      "0",
+      "500"
+    ],
+    "axial_tip_expression": "u=(F L/(E A))*ex",
+    "torsion_tip_expression": "theta=(T L/(G J))*ex",
+    "my_tip_expressions": "u=-(My L\u00b2/(2 E I))*ez; theta=(My L/(E I))*ey",
+    "mz_tip_expressions": "u=(Mz L\u00b2/(2 E I))*ey; theta=(Mz L/(E I))*ez",
+    "reason_no_timoshenko_delta_in_pure_moments": "zero transverse shear force; no shear contribution to these displacement fields",
+    "no_target_values_adopted": true
+  },
+  "fixed_engine_hashes": [
+    {
+      "origin": "git:22452ecd148e86486fe36a36e34a184c9a5a5943:projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "2ec20f78068d18d3c76f1473638b35e5af16ad131ad55cc1e6112a2ebc26205f"
+    },
+    {
+      "origin": "git:22452ecd148e86486fe36a36e34a184c9a5a5943:projects/chirality-piping/core/product_physics/src/pressure_runtime.rs",
+      "sha256": "5755da52f60893102138d0f0f35b72276caf62fa08f982218da85d675ec5d1aa"
+    },
+    {
+      "origin": "git:22452ecd148e86486fe36a36e34a184c9a5a5943:projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "sha256": "03f82e343c7aee8f9f38d4b983091d0b71faebb904fb4dc7b59692a0c9cc4ad9"
+    }
+  ],
+  "limits": [
+    "No acquired command/deck imported or executed",
+    "No mesh topology/group decode",
+    "No installed external runtime qualification",
+    "No campaign target/tolerance adoption",
+    "No product/solver/native/build execution"
+  ]
+}

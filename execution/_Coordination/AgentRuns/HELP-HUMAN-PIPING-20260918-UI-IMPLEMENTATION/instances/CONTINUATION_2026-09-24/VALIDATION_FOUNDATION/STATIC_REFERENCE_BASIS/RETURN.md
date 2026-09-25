@@ -1,0 +1,18 @@
+# Static reference applicability and acquisition return
+
+Recommend four small **SSLL106A analytical-source candidates** first: axial force, torsion and the two pure-moment cases. Add its uniform thermal axial case only after the documented temperature mismatch is explicitly reconciled. Keep SSLL101A as a later assembled-system numerical comparison and C/D/E as separate enriched-pipe targets. No complete external case or target number is admitted for campaign scoring by this packet.
+
+The comparison basis is Piping commit `22452ecd148e86486fe36a36e34a184c9a5a5943`, not a later moving implementation. Its straight-frame bending matrix is Euler–Bernoulli; its exact pressure profile is small-displacement, homogeneous isotropic E/nu, straight circular members, uniform internal differential pressure, explicit equal-bore collinear regions/closures and separate wall/effective-force bookkeeping. It has no enriched radial/ovalization DOFs. [APPLICABILITY.md](APPLICABILITY.md) maps the actual differences and source mismatches; these are not demands that a beam implement all shell outputs.
+
+All declared file inputs for the inspected ten command variants were retrieved privately at upstream source commit `7558f1d06088bd93d8324e314912bf0e6df7801f` (2026-09-23). [ACQUISITION.json](ACQUISITION.json) records exact URLs/hashes, dependency files, availability and failed endpoints. The rendered manuals identify v17 stable and v18 development; six core v17/v18 article bodies were identical in this inspection. They expose no exact documentation-build commit, so byte hashes and observed version labels are retained without inventing one. A web-cache main-commit response was older than the direct repository response; only the direct pinned bytes supply this packet's source identity.
+
+[ACQUISITION_CONTRACT.md](ACQUISITION_CONTRACT.md) gives the remaining path to usable targets: reconcile variant assumptions, decode mesh/groups and output stations, identify each assertion's actual source, independently verify numerical expectations, check asset rights, and bind a real runtime/version before any execution comparison. The retrieved meshes are available, but their full decoded topology/group interpretation is not qualified here. No executable deck was run or installed, and no external asset was vendored to project source.
+
+Important distinctions:
+
+- SSLL106 transverse displacements include Timoshenko shear; pressure assertions concern radial mean displacement/plane-stress hoop response. Neither is automatically a current Piping EB/annulus target.
+- Its manual thermal input says100°C; the pinned command uses200 with reference0 and constant alpha, while the manual output agrees with200. This remains a **source mismatch**, not an adopted corrected benchmark.
+- SSLL101A has intentionally reduced bend inertias and explicit shear coefficients. C/D/E have shell-like Fourier DOFs and distinct constraints. Its AUTRE_ASTER equivalent-moment row is same-engine numerical lineage. Published external displacements and regression values are separate evidence.
+- A source-labelled analytical or external reference is not an independently verified oracle. Published2% uncertainty and upstream comparison tolerances do not replace protected Piping criteria.
+
+Static source inventories and hashes passed; an initial inventory filename-suffix error was corrected without source changes and retained in [_run_records/CHECKS.json](_run_records/CHECKS.json). This is source/assumption preparation only: no Piping solve, Code_Aster run, external-solver qualification, profile pass, physical validation, license clearance or product finding closure is claimed. Existing load-state, pressure, joint and shear research was referenced as context, not rederived.

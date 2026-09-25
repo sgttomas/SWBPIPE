@@ -1,0 +1,102 @@
+{
+  "scope": "Only synthetic short Python processes from preserved test setup; no actual Piping solve or reference qualification",
+  "gate_sha256": "87c8404d470fd10f1c17eda5016e121318024d485d4361a57f2c99e024556216",
+  "process_sha256": "11f9d3789d8ac10457a840e5ae642f5fb676bb159cef65da9a1b94e0e6f9ec6f",
+  "results": [
+    {
+      "scenario": "uppercase_blocking_wrapper",
+      "outcome": "all_required_assertions_matched",
+      "summary": {
+        "required_cases": 1,
+        "required_assertions": 2,
+        "assertions": {
+          "not_run": 0,
+          "matched": 2,
+          "failed": 0,
+          "blocked": 0,
+          "error": 0
+        },
+        "cases": {
+          "not_run": 0,
+          "matched": 1,
+          "failed": 0,
+          "blocked": 0,
+          "error": 0
+        }
+      },
+      "case_reason": "required assertion assessment"
+    },
+    {
+      "scenario": "contradictory_row_dimension",
+      "outcome": "all_required_assertions_matched",
+      "summary": {
+        "required_cases": 1,
+        "required_assertions": 2,
+        "assertions": {
+          "not_run": 0,
+          "matched": 2,
+          "failed": 0,
+          "blocked": 0,
+          "error": 0
+        },
+        "cases": {
+          "not_run": 0,
+          "matched": 1,
+          "failed": 0,
+          "blocked": 0,
+          "error": 0
+        }
+      },
+      "case_reason": "required assertion assessment"
+    },
+    {
+      "scenario": "reference_lexical_underflow",
+      "outcome": "all_required_assertions_matched",
+      "summary": {
+        "required_cases": 1,
+        "required_assertions": 2,
+        "assertions": {
+          "not_run": 0,
+          "matched": 2,
+          "failed": 0,
+          "blocked": 0,
+          "error": 0
+        },
+        "cases": {
+          "not_run": 0,
+          "matched": 1,
+          "failed": 0,
+          "blocked": 0,
+          "error": 0
+        }
+      },
+      "case_reason": "required assertion assessment"
+    },
+    {
+      "scenario": "stdin_file_changed_by_process",
+      "outcome": "all_required_assertions_matched",
+      "summary": {
+        "required_cases": 1,
+        "required_assertions": 2,
+        "assertions": {
+          "not_run": 0,
+          "matched": 2,
+          "failed": 0,
+          "blocked": 0,
+          "error": 0
+        },
+        "cases": {
+          "not_run": 0,
+          "matched": 1,
+          "failed": 0,
+          "blocked": 0,
+          "error": 0
+        }
+      },
+      "case_reason": "required assertion assessment",
+      "reported_stdin_sha256": "5bffd19ffd76b4f6a1adc9d30539fa1bba1275a7d33ff8c38aeabe0a126042a8",
+      "actual_read_sha256": "54e9cf74e2ac119e15160b76be7a31356bbcedcb93c1cf177f72faf427cc802c",
+      "actually_read": "{\"different_input\":true}"
+    }
+  ]
+}

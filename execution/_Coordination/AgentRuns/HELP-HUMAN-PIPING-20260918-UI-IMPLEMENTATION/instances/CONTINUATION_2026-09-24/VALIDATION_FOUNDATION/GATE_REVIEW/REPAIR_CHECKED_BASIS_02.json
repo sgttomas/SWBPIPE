@@ -1,0 +1,71 @@
+{
+  "role": "TASK",
+  "reviewer": "/root/physics_resume/joined_consumer_review",
+  "actual_parent": "/root/physics_resume",
+  "assignment": "ROOT cross-manager repair backcheck after completed composite initial review; separate scope",
+  "freeze_sha256": "be35489aba7476165111e2db07664787ddfe79c6aa6ecb158a53a8f2f08c10e6",
+  "patch_sha256": "21aa4ad5b888dc9f3a0de83f3c548547b210ca0e283f8e84faa7095dfe4c7dad",
+  "full_reviewed_files": [
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_gate.py",
+      "sha256": "0204427bad354e84164e4fc6a78de87a6601e1f32ba0ec4c6a3baad4d78d2de2",
+      "bytes": 28933
+    },
+    {
+      "path": "projects/chirality-piping/tools/validation/qualification_process.py",
+      "sha256": "bf1ed365763440261f21a0f699ecf8729c745d259880d3851649d0292c1282c6",
+      "bytes": 8428
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_qualification_gate.py",
+      "sha256": "f4f4e2b5736b6ce978fd5ab99895cc21b5b4afb6d780ca5e683724275a94b0bd",
+      "bytes": 22961
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/GATE_USAGE.md",
+      "sha256": "0e916b3a98d47143063d5305e4116c3ed51c990266a344daa5c8e8ac52dd62ae",
+      "bytes": 7719
+    }
+  ],
+  "old_and_new_patch_reconstruction_hashes_match": true,
+  "repair_delta_sha256": "50870a756e577dcd0c0afb32fa7525ab4404ef8669e2dbf3432ecce1c97adfd4",
+  "records": [
+    {
+      "path": "GATE_REPAIRS.md",
+      "sha256": "fed80a64ac0bba077868dbdc38ea005bb4a5a3ec1fb2876562326c1735103340"
+    },
+    {
+      "path": "_run_records/gate_checks_04.json",
+      "sha256": "8d6e7e23ceed054a73c3cd16c50d71d54f5fcab689170589029e731b12f6e001"
+    },
+    {
+      "path": "_run_records/gate_checks_04.log",
+      "sha256": "b9c3241c9aafc2af4b263b19ede673a0df47ef56e1d9f728897618330e9ba8cc"
+    },
+    {
+      "path": "GATE_REVIEW/BOUNDARY_PROBES_FREEZE_02.json",
+      "sha256": "694dcca72391f413078a6f3e0ea1689523c2fbcdce17adbcd2509712c749a936"
+    },
+    {
+      "path": "GATE_REVIEW/REPAIR_CONSEQUENCE_PROBES_02.json",
+      "sha256": "ec6cc77fd24a8ab6aa8026b472a1e10ad8ab9d917a9a260c2ec1e08283712fbe"
+    },
+    {
+      "path": "GATE_REVIEW/probe_repair_consequences_02.py",
+      "sha256": "fcb26bde0d6efeb25f95ff1371b636d2f850ac7a5ff390f5d601174557563f8f"
+    },
+    {
+      "path": "GATE_REVIEW/SELECTED_REPAIR_CHECKS_02.json",
+      "sha256": "588596d00bf04e0fb5dde730de38d8bcac2a3cad9d9e9c3dd778dd2ecbb06b68"
+    },
+    {
+      "path": "GATE_REVIEW/SELECTED_REPAIR_CHECKS_02.log",
+      "sha256": "8ecd1fd94fe75f72e3df03241da91a1a4ab0ad6c54a4f21c4bd747ae3b72698e"
+    }
+  ],
+  "result": "GATE-R1/R3/R4/R5 repaired; R2 original stdin trigger repaired, two retained-custody consequences remain",
+  "limits": [
+    "Synthetic processes, one deterministic boundary mutation hook, token probes and source review only",
+    "No solver, native, benchmark, broad suite, build or Git mutation"
+  ]
+}

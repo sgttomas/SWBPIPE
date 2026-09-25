@@ -1,0 +1,41 @@
+{
+  "selected_unittest_methods": [
+    "test_actual_combination_token_supported_and_invented_token_refused",
+    "test_pipe_multiplexing_delivers_large_input_without_deadlock"
+  ],
+  "run": 2,
+  "failures": 0,
+  "errors": 0,
+  "log_sha256": "8ecd1fd94fe75f72e3df03241da91a1a4ab0ad6c54a4f21c4bd747ae3b72698e",
+  "lexical_boundary_probe": {
+    "0e-9999": {
+      "accepted": true,
+      "value": 0.0
+    },
+    "-0e-9999": {
+      "accepted": true,
+      "value": -0.0
+    },
+    "1e-9999": {
+      "accepted": false,
+      "reason": "nonzero numeric token underflow"
+    },
+    "-1e-9999": {
+      "accepted": false,
+      "reason": "nonzero numeric token underflow"
+    },
+    "0.1e-9999": {
+      "accepted": false,
+      "reason": "nonzero numeric token underflow"
+    },
+    "5e-324": {
+      "accepted": true,
+      "value": 5e-324
+    },
+    "1e309": {
+      "accepted": false,
+      "reason": "nonfinite numeric token"
+    }
+  },
+  "scope": "Synthetic selected regression and token admission checks only; no solver execution"
+}

@@ -1,0 +1,131 @@
+{
+  "actor": "/root",
+  "role": "HELP_HUMAN",
+  "author_independence": "Root did not implement the four mapping/checker files; original fresh full review remains scope_review. This is a repair-only backcheck.",
+  "utc": "2026-09-25T08:38:43.111336+00:00",
+  "freeze_sha256": "6599f653bbf4713f02acde50b6952978e2298328434f64dc1e18267d934b473d",
+  "baseline_errors": [],
+  "independent_fault_probes": [
+    {
+      "case": "lost_outputs_Q1-STRAIGHT-STATIC",
+      "errors": [
+        "Q1-STRAIGHT-STATIC: capability-required outputs omitted"
+      ],
+      "expected_failure_detected": true
+    },
+    {
+      "case": "lost_outputs_Q2-PIPING-STATIC",
+      "errors": [
+        "Q2-PIPING-STATIC: capability-required outputs omitted"
+      ],
+      "expected_failure_detected": true
+    },
+    {
+      "case": "lost_outputs_Q3-RESTRAINT-NONLINEAR",
+      "errors": [
+        "Q3-RESTRAINT-NONLINEAR: capability-required outputs omitted"
+      ],
+      "expected_failure_detected": true
+    },
+    {
+      "case": "lost_outputs_Q8-AUTOMATION",
+      "errors": [
+        "Q8-AUTOMATION: capability-required outputs omitted"
+      ],
+      "expected_failure_detected": true
+    },
+    {
+      "case": "unknown_VP_profile",
+      "errors": [
+        "VP-HARNESS: unknown profiles reference not-a-profile",
+        "VP-HARNESS: profile reverse mapping differs"
+      ],
+      "expected_failure_detected": true
+    },
+    {
+      "case": "lost_VP_SOURCES",
+      "errors": [
+        "VP coverage changed from pinned17-node route"
+      ],
+      "expected_failure_detected": true
+    },
+    {
+      "case": "duplicate_first_cut",
+      "errors": [
+        "first_profile_cuts: duplicate identity"
+      ],
+      "expected_failure_detected": true
+    },
+    {
+      "case": "empty_contract_basis",
+      "errors": [
+        "production_cli: empty contract/gap source basis"
+      ],
+      "expected_failure_detected": true
+    },
+    {
+      "case": "empty_gap_basis",
+      "errors": [
+        "HG-01: empty contract/gap source basis"
+      ],
+      "expected_failure_detected": true
+    },
+    {
+      "case": "reverse_capability_link",
+      "errors": [
+        "Q1-STRAIGHT-STATIC: capability reverse mapping differs"
+      ],
+      "expected_failure_detected": true
+    },
+    {
+      "case": "unadmitted_source_pass",
+      "errors": [
+        "STATIC-REFERENCE-PREPARATION: unreviewed reference promoted"
+      ],
+      "expected_failure_detected": true
+    }
+  ],
+  "checked_source_packet_bindings": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/RETURN.md",
+      "sha256": "06e134ab84fb0f0f25252823990686e4253acfa1f57b20d664c88ca629d60372"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/REFERENCE_CANDIDATES.json",
+      "sha256": "e920dda3143fa4b8f8384b171369a0cafaa1fbef3f1e26f74193de8fdf169189"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/PACKET_MANIFEST.json",
+      "sha256": "382eb333e23879a8b03aa4bb24c0fb05d96396830938b68a6fa97a3ded68d7e4"
+    }
+  ],
+  "source_hashes": [
+    {
+      "path": "projects/chirality-piping/validation/qualification/HARNESS_CUT.md",
+      "sha256": "01a0074e6b06c3d090dd320d6201b2e3ac6f92db7c9d07ddb3df71494af6807e",
+      "bytes": 7987
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/README.md",
+      "sha256": "b51125c7051f7c192351c4723d510dc14adacd2fa15b9934e04e78b79ce42a08",
+      "bytes": 7614
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/capability_inventory.json",
+      "sha256": "8d3247f3d2d3b74a8fde4d354b44de6c2039a5db9b00d76efe74cc8c4f062000",
+      "bytes": 111085
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/check_inventory.py",
+      "sha256": "badd6c47b7ccbb60f685ef8e5f12b5c291fbaf51172ac13ab224e47b7c470939",
+      "bytes": 10434
+    }
+  ],
+  "result": "IR01-IR04 repaired; no new actionable mapping issue found",
+  "limits": [
+    "Planning inventory only; no qualification target adopted",
+    "External source conclusions need their separate independent review",
+    "No product/solver/native/build/network execution",
+    "Disjoint new gate code is outside this review"
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "scope": "Only synthetic short Python processes from preserved test setup; no actual Piping solve or reference qualification",
+  "gate_sha256": "0204427bad354e84164e4fc6a78de87a6601e1f32ba0ec4c6a3baad4d78d2de2",
+  "process_sha256": "bf1ed365763440261f21a0f699ecf8729c745d259880d3851649d0292c1282c6",
+  "results": [
+    {
+      "scenario": "uppercase_blocking_wrapper",
+      "outcome": "not_satisfied",
+      "summary": {
+        "required_cases": 1,
+        "required_assertions": 2,
+        "assertions": {
+          "not_run": 0,
+          "matched": 0,
+          "failed": 0,
+          "blocked": 0,
+          "error": 2
+        },
+        "cases": {
+          "not_run": 0,
+          "matched": 0,
+          "failed": 0,
+          "blocked": 0,
+          "error": 1
+        }
+      },
+      "case_reason": "wrapper has blocking diagnostics"
+    },
+    {
+      "scenario": "contradictory_row_dimension",
+      "outcome": "not_satisfied",
+      "summary": {
+        "required_cases": 1,
+        "required_assertions": 2,
+        "assertions": {
+          "not_run": 0,
+          "matched": 0,
+          "failed": 0,
+          "blocked": 0,
+          "error": 2
+        },
+        "cases": {
+          "not_run": 0,
+          "matched": 0,
+          "failed": 0,
+          "blocked": 0,
+          "error": 1
+        }
+      },
+      "case_reason": "unknown raw row field for closed profile"
+    },
+    {
+      "scenario": "reference_lexical_underflow",
+      "outcome": "not_satisfied",
+      "summary": {
+        "required_cases": 1,
+        "required_assertions": 2,
+        "assertions": {
+          "not_run": 0,
+          "matched": 0,
+          "failed": 0,
+          "blocked": 2,
+          "error": 0
+        },
+        "cases": {
+          "not_run": 0,
+          "matched": 0,
+          "failed": 0,
+          "blocked": 1,
+          "error": 0
+        }
+      },
+      "case_reason": "nonzero numeric token underflow"
+    },
+    {
+      "scenario": "stdin_file_changed_by_process",
+      "outcome": "not_satisfied",
+      "summary": {
+        "required_cases": 1,
+        "required_assertions": 2,
+        "assertions": {
+          "not_run": 0,
+          "matched": 0,
+          "failed": 0,
+          "blocked": 0,
+          "error": 2
+        },
+        "cases": {
+          "not_run": 0,
+          "matched": 0,
+          "failed": 0,
+          "blocked": 0,
+          "error": 1
+        }
+      },
+      "case_reason": "process input_archive_changed",
+      "reported_stdin_sha256": "5bffd19ffd76b4f6a1adc9d30539fa1bba1275a7d33ff8c38aeabe0a126042a8",
+      "actual_read_sha256": "5bffd19ffd76b4f6a1adc9d30539fa1bba1275a7d33ff8c38aeabe0a126042a8",
+      "actually_read": "{\"request\": {\"request_id\": \"invented-request\", \"operation\": \"solve\"}, \"solve\": {\"preview_model\": {\"model\": {\"project\": {\"id\": \"invented-model\"}}}}}"
+    }
+  ]
+}

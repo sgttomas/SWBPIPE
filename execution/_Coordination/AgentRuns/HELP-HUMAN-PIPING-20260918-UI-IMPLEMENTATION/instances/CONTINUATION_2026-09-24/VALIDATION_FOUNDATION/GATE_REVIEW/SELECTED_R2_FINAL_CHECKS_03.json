@@ -1,0 +1,12 @@
+{
+  "selected_methods": [
+    "test_stdout_growth_is_bounded_before_decoding",
+    "test_later_case_cannot_change_an_earlier_case_snapshot",
+    "test_only_final_custody_checked_publication_can_claim_matches"
+  ],
+  "run": 3,
+  "failures": 0,
+  "errors": 0,
+  "log_sha256": "fb47f03c776e0d21938881a0b8f0531d987cffb0e65e5bb4fb340806ed1c4f16",
+  "scope": "Three bounded synthetic regression methods only; no solver/build/native execution"
+}

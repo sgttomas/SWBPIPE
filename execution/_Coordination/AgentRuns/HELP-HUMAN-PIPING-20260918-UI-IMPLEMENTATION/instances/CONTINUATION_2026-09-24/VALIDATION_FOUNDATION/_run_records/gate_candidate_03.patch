@@ -1,0 +1,1239 @@
+--- /dev/null
++++ b/projects/chirality-piping/tools/validation/qualification_gate.py
+@@ -0,0 +1,515 @@
++#!/usr/bin/env python3
++"""Thin development required-output gate around the existing headless solve.
++
++Records observed assertion outcomes, never app Current, independent reference
++approval, physical validation, professional acceptance or release qualification.
++The current closed transport is main's sparse CLI with raw mechanics0.1. Future
++producer/mode contracts need explicit dispatch, not labels or profile fallback.
++"""
++from __future__ import annotations
++import argparse
++from datetime import datetime, timezone
++import hashlib
++import json
++import math
++import os
++from pathlib import Path
++import platform
++import re
++import subprocess
++import sys
++
++PROJECT = Path(__file__).resolve().parents[2]
++if str(PROJECT) not in sys.path:
++    sys.path.insert(0, str(PROJECT))
++from core.comparison.analysis_run.engine import _classify_delta
++try:
++    from .qualification_process import capture, sha256_bytes, file_sha256
++except ImportError:
++    from qualification_process import capture, sha256_bytes, file_sha256
++
++TRANSPORT = 'main_sparse_cli_1.0_raw0.1'
++MANIFEST_FORMAT = 'openpipestress.qualification_selection/1'
++REFERENCE_FORMAT = 'openpipestress.qualification_reference_values/1'
++MAX_INPUT_BYTES = 8 * 1024 * 1024
++MAX_CASES = 256
++MAX_ASSERTIONS = 65536
++SEMANTICS = PROJECT / 'fixtures/results/semantic_contract_v0_2.json'
++SEMANTICS_SHA256 = '4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da'
++CLASSIFIER = PROJECT / 'core/comparison/analysis_run/engine.py'
++CLASSIFIER_SHA256 = '14aada4049fde08c6f68a99a844f84e73b16fd8b6e4bb2a91cb7e4c8f63b7f2c'
++META = ('component', 'coordinate_system', 'location', 'basis', 'sign_convention')
++SELECTOR_KEYS = {'id', 'kind', 'unit', 'entity_ref', 'basis_ref', 'metadata', 'dimension'}
++STATES = ('not_run', 'matched', 'failed', 'blocked', 'error')
++
++
++class AdmissionError(ValueError):
++    pass
++
++
++def require(value: bool, reason: str) -> None:
++    if not value:
++        raise AdmissionError(reason)
++
++
++def _pairs(pairs):
++    result = {}
++    for key, value in pairs:
++        require(key not in result, 'duplicate JSON member')
++        result[key] = value
++    return result
++
++
++def strict_json(data: bytes):
++    require(len(data) <= MAX_INPUT_BYTES, 'JSON byte limit exceeded')
++    def forbidden(value):
++        raise AdmissionError('nonfinite JSON constant: ' + value)
++    def real_token(token):
++        value = float(token)
++        require(math.isfinite(value), 'nonfinite numeric token')
++        significand = token.lower().split('e')[0]
++        require(value != 0.0 or not any(c in '123456789' for c in significand), 'nonzero numeric token underflow')
++        return value
++    try:
++        return json.loads(data.decode('utf-8'), object_pairs_hook=_pairs, parse_constant=forbidden, parse_float=real_token)
++    except (UnicodeDecodeError, json.JSONDecodeError, RecursionError) as exc:
++        raise AdmissionError('invalid UTF-8/JSON: ' + type(exc).__name__) from exc
++
++
++def finite(value) -> float:
++    require(type(value) in (int, float), 'numeric value required (bool is not a number)')
++    try:
++        result = float(value)
++    except OverflowError as exc:
++        raise AdmissionError('numeric overflow') from exc
++    require(math.isfinite(result), 'nonfinite numeric value')
++    return result
++
++
++def read_bound(binding: dict, base: Path) -> tuple[bytes, Path]:
++    require(type(binding) is dict and set(binding) == {'path', 'sha256'}, 'exact path/hash binding required')
++    require(type(binding['path']) is str and binding['path'], 'bound path missing')
++    require(type(binding['sha256']) is str and bool(re.fullmatch('[0-9a-f]{64}', binding['sha256'])), 'invalid SHA256 binding')
++    path = Path(binding['path'])
++    path = path if path.is_absolute() else base / path
++    require(path.is_file() and path.stat().st_size <= MAX_INPUT_BYTES, 'bound file missing or oversized')
++    with path.open('rb') as stream:
++        data = stream.read(MAX_INPUT_BYTES + 1)
++    require(len(data) <= MAX_INPUT_BYTES, 'bound file grew beyond byte limit')
++    require(sha256_bytes(data) == binding['sha256'], 'bound file digest mismatch: ' + str(path))
++    return data, path.resolve()
++
++
++
++def read_captured_bytes(path: Path, expected_sha256: str, expected_size: int, limit: int) -> bytes:
++    """One bounded read supplies both the integrity check and the consumer bytes.
++
++    A filesystem check is an observation, not a lock or promise against later
++    writes. Parsing must use the returned immutable bytes, never reopen the path.
++    """
++    require(type(expected_size) is int and 0 <= expected_size <= limit, 'captured size outside admission limit')
++    with path.open('rb') as stream:
++        data = stream.read(expected_size + 1)
++    require(len(data) == expected_size, 'retained artifact size changed: ' + str(path))
++    require(sha256_bytes(data) == expected_sha256, 'retained artifact digest changed: ' + str(path))
++    return data
++
++
++def artifact_binding(role: str, path: str, data: bytes, limit: int = MAX_INPUT_BYTES) -> dict:
++    return {'role': role, 'path': path, 'sha256': sha256_bytes(data), 'byte_length': len(data), 'byte_limit': limit}
++
++
++def verify_retained_artifacts(output_dir: Path, artifacts: list[dict]) -> None:
++    for artifact in artifacts:
++        read_captured_bytes(output_dir / artifact['path'], artifact['sha256'],
++                            artifact['byte_length'], artifact['byte_limit'])
++
++
++def verify_publication_custody(ledger: dict, output_dir: Path, selection: dict,
++                               case_artifacts: dict[str, list[dict]], original_bindings: dict[str, list[dict]]) -> None:
++    """Reobserve all retained cases, including ones a later process could alter.
++
++    The ledger owns these expected identities in memory. This is the final
++    observation before publication; it is not post-publication file enforcement.
++    """
++    global_error = None
++    try:
++        verify_retained_artifacts(output_dir, [selection])
++    except (OSError, ValueError) as exc:
++        global_error = str(exc)
++        ledger['diagnostics'].append('publication selection custody: ' + global_error)
++    for case in ledger['cases']:
++        try:
++            require(global_error is None, 'publication selection custody failed')
++            verify_retained_artifacts(output_dir, case_artifacts.get(case['id'], []))
++            for binding in original_bindings.get(case['id'], []):
++                require(file_sha256(Path(binding['path']), max_bytes=MAX_INPUT_BYTES) == binding['sha256'],
++                        'original input/reference/criterion changed before publication')
++            case['custody_at_publication'] = 'checked' if case['id'] in case_artifacts else 'not_captured'
++        except (OSError, ValueError) as exc:
++            fail_case(case, 'error', 'publication custody: ' + str(exc))
++            case['custody_at_publication'] = 'failed'
++    ledger['custody_observation'] = {
++        'checked_at_utc': datetime.now(timezone.utc).isoformat(),
++        'scope': 'bounded retained-selection/input/reference/criterion/stream snapshots and original bindings immediately before final publication',
++        'limits': 'observation-time byte integrity; no filesystem lock, post-publication tamper prevention, internal solver-use or build-source attestation'}
++    ledger['publication_phase'] = 'complete'
++
++
++def _id(value, label):
++    require(type(value) is str and bool(value.strip()), label + ' missing')
++    return value
++
++
++def predeclare(manifest: dict) -> dict:
++    """Every intelligible required row exists before file/process admission."""
++    require(type(manifest) is dict, 'selection must be an object')
++    cases = manifest.get('cases')
++    require(type(cases) is list and 0 < len(cases) <= MAX_CASES, 'nonzero bounded case inventory required')
++    ledger, seen, assertion_total = [], set(), 0
++    for case in cases:
++        require(type(case) is dict, 'case must be an object')
++        cid = _id(case.get('id'), 'case ID')
++        require(cid not in seen, 'duplicate case ID')
++        seen.add(cid)
++        assertions = case.get('assertions')
++        require(type(assertions) is list and bool(assertions), 'case needs required assertions')
++        ids = set()
++        rows = []
++        for assertion in assertions:
++            require(type(assertion) is dict, 'assertion must be an object')
++            aid = _id(assertion.get('id'), 'assertion ID')
++            require(aid not in ids, 'duplicate assertion ID within case')
++            ids.add(aid)
++            assertion_total += 1
++            require(assertion_total <= MAX_ASSERTIONS, 'assertion inventory limit')
++            rows.append({'id': aid, 'state': 'not_run', 'reason': 'not executed', 'observed': None})
++        ledger.append({'id': cid, 'state': 'not_run', 'reason': 'not executed', 'assertions': rows, 'process': None})
++    return {'artifact': 'openpipestress.qualification_development_ledger', 'version': '1.0.0',
++            'profile_id': manifest.get('profile_id'), 'selection_sha256': None,
++            'qualification': 'not_established_by_this_harness', 'outcome': 'not_run', 'publication_phase': 'in_progress',
++            'cases': ledger, 'summary': {}, 'diagnostics': [],
++            'created_at_utc': datetime.now(timezone.utc).isoformat()}
++
++
++def summarize(ledger: dict) -> None:
++    counts = {state: 0 for state in STATES}
++    for case in ledger['cases']:
++        for row in case['assertions']:
++            counts[row['state']] += 1
++    total = sum(counts.values())
++    ledger['summary'] = {'required_cases': len(ledger['cases']), 'required_assertions': total,
++                         'assertions': counts, 'cases': {state: sum(c['state'] == state for c in ledger['cases']) for state in STATES}}
++    if total and counts['matched'] == total and all(c['state'] == 'matched' for c in ledger['cases']):
++        ledger['outcome'] = 'all_required_assertions_matched' if ledger['publication_phase'] == 'complete' else 'in_progress'
++    else:
++        ledger['outcome'] = 'not_satisfied'
++
++
++def fail_case(case: dict, state: str, reason: str) -> None:
++    case.update(state=state, reason=reason)
++    for row in case['assertions']:
++        row.update(state=state, reason=reason, observed=None)
++
++
++def atomic_record(path: Path, value: dict) -> None:
++    temporary = path.with_suffix(path.suffix + '.partial')
++    data = json.dumps(value, indent=2, ensure_ascii=True, allow_nan=False).encode() + b'\n'
++    with temporary.open('wb') as file:
++        file.write(data)
++        file.flush()
++        os.fsync(file.fileno())
++    os.replace(temporary, path)
++
++
++def _diagnostics(value, label):
++    require(type(value) is list and all(type(d) is dict for d in value), label + ' diagnostics missing')
++    severities = [d.get('severity') for d in value]
++    require(all(type(s) is str and s.lower() in ('info', 'warning', 'blocking', 'error', 'fatal') for s in severities), label + ' has unknown diagnostic severity')
++    require(not any(s.lower() in ('blocking', 'error', 'fatal') for s in severities), label + ' has blocking diagnostics')
++
++
++def unwrap(raw: bytes, request: dict, mode: str) -> tuple[dict, list[dict]]:
++    doc = strict_json(raw)
++    require(type(doc) is dict and set(doc) == {'payload', 'decisions', 'findings', 'blocked', 'summary'}, 'unsupported controlled wrapper')
++    require(doc['blocked'] is False and type(doc['payload']) is dict, 'controlled output blocked')
++    _diagnostics(doc['findings'], 'wrapper')
++    summary = doc['summary']
++    require(type(summary) is dict and type(summary.get('blocking_count')) is int and summary['blocking_count'] == 0, 'wrapper blocking summary missing or inconsistent')
++    require(type(doc['decisions']) is list and type(summary.get('decision_count')) is int and summary['decision_count'] == len(doc['decisions']), 'wrapper decision count inconsistent')
++    require(type(summary.get('finding_count')) is int and summary['finding_count'] == len(doc['findings']), 'wrapper finding count inconsistent')
++    require(type(summary.get('warning_count')) is int and summary['warning_count'] == sum(d['severity'].lower() == 'warning' for d in doc['findings']), 'wrapper warning count inconsistent')
++    payload = doc['payload']
++    require(payload.get('artifact') == 'openpipestress.headless_runner_cli_output' and payload.get('schema_version') == '1.0.0', 'unsupported CLI contract')
++    require(payload.get('command') == 'solve' and payload.get('operation') == 'solve', 'wrong CLI operation')
++    for key in ('request_validation', 'result_validation'):
++        require(type(payload.get(key)) is dict, key + ' missing')
++        _diagnostics(payload[key].get('diagnostics'), key)
++    _diagnostics(payload.get('diagnostics'), 'CLI')
++    runner = payload.get('runner_result')
++    require(type(runner) is dict and runner.get('run_id') == 'run:headless-preview:' + request['request']['request_id'], 'runner request identity mismatch')
++    require(runner.get('job', {}).get('state') == 'COMPLETED', 'runner not completed')
++    require('MECHANICS_SOLVED' in runner.get('analysis_status', []), 'runner mechanics not solved')
++    _diagnostics(runner.get('diagnostics'), 'runner')
++    mechanics = payload.get('mechanics_envelope')
++    require(type(mechanics) is dict and mechanics.get('schema_version') == '0.1.0' and mechanics.get('document_kind') == 'openpipestress.product_preview.mechanics_result', 'unsupported raw mechanics version')
++    require(mechanics.get('run_id') == 'run:preview-linear-static-001', 'raw run identity mismatch for current profile')
++    require(mechanics.get('model_ref') == request['solve']['preview_model']['model']['project']['id'], 'actual model identity mismatch')
++    require(mechanics.get('accepted_model_state_mutated') is False, 'solver reports model mutation')
++    require(mechanics.get('status', {}).get('mechanics') == 'MECHANICS_SOLVED', 'mechanics not solved')
++    _diagnostics(mechanics.get('diagnostics'), 'mechanics')
++    require(mode == 'sparse_interactive', 'unsupported actual mode')
++    rows = mechanics.get('results')
++    require(type(rows) is list and rows and all(type(row) is dict for row in rows), 'result rows missing')
++    ids = [row.get('id') for row in rows]
++    require(all(type(id) is str and id for id in ids) and len(ids) == len(set(ids)), 'missing/duplicate result ID')
++    for row in rows:
++        require(set(row) <= {'id', 'kind', 'value', 'unit', 'entity_ref', 'basis_ref', 'metadata', 'source_result_refs'}, 'unknown raw row field for closed profile')
++        for name in ('id', 'kind', 'unit', 'entity_ref'):
++            _id(row.get(name), 'raw row ' + name)
++        if 'basis_ref' in row:
++            require(type(row['basis_ref']) is dict and set(row['basis_ref']) == {'ref_type', 'ref_id'}, 'invalid raw basis shape')
++            require(row['basis_ref']['ref_type'] in ('load_case', 'combination'), 'unknown raw basis type')
++            _id(row['basis_ref']['ref_id'], 'raw basis ID')
++        if 'metadata' in row:
++            require(type(row['metadata']) is dict and set(row['metadata']) == set(META), 'invalid raw metadata shape')
++            require(all(type(v) is str for v in row['metadata'].values()), 'invalid raw metadata value')
++        if 'source_result_refs' in row:
++            require(type(row['source_result_refs']) is list and all(type(v) is str for v in row['source_result_refs']), 'invalid raw source refs')
++        finite(row.get('value'))
++    # Actual current producer code is pinned by executable/source identity; its
++    # numeric mode row supplements that dispatch, never replaces the identity.
++    mode_rows = [row for row in rows if row.get('kind') == 'linear_solver_mode_basis']
++    require(bool(mode_rows) and all(finite(row.get('value')) == 1.0 and row.get('unit') == 'mode_code' for row in mode_rows), 'actual mode evidence mismatch or fallback')
++    return mechanics, rows
++
++
++def prepare_case(case: dict, base: Path, purpose: str, semantic_rows: list[dict]) -> dict:
++    require(set(case) == {'id', 'input', 'reference', 'criterion', 'assertions'}, 'unknown/missing case fields')
++    input_bytes, input_path = read_bound(case['input'], base)
++    ref_bytes, ref_path = read_bound(case['reference'], base)
++    criterion_bytes, criterion_path = read_bound(case['criterion'], base)
++    request, reference, criterion = map(strict_json, (input_bytes, ref_bytes, criterion_bytes))
++    require(type(request) is dict and type(request.get('request')) is dict and type(request.get('solve')) is dict, 'input is not a production solve request')
++    require(request['request'].get('operation') == 'solve', 'input operation not solve')
++    _id(request['request'].get('request_id'), 'actual request ID')
++    _id(request['solve']['preview_model']['model']['project']['id'], 'actual model ID')
++    require(reference.get('format') == REFERENCE_FORMAT and reference.get('case_id') == case['id'], 'reference identity/version mismatch')
++    require(reference.get('readiness') == 'ready' and bool(reference.get('basis')), 'reference not ready or basis absent')
++    kind = reference.get('reference_kind')
++    require(kind in ('harness_synthetic', 'analytical', 'regression', 'published_numerical'), 'unknown reference kind')
++    require(purpose == 'harness_development' or kind != 'harness_synthetic', 'synthetic target cannot score a mechanics development comparison')
++    if purpose != 'harness_development':
++        require(bool(reference.get('independent_review_ref')), 'independent reference admission missing')
++    require(type(criterion) is dict and criterion.get('schema_version') == '0.1.0', 'unsupported tolerance document version')
++    profile = criterion.get('tolerance_profile')
++    require(type(profile) is dict and profile.get('profile_status') == 'reviewed', 'criterion profile not reviewed')
++    rules = profile.get('rules')
++    require(type(rules) is list and rules and all(type(x) is dict for x in rules), 'criterion rules missing')
++    rule_ids = [rule.get('rule_id') for rule in rules]
++    require(all(type(id) is str and id for id in rule_ids) and len(rule_ids) == len(set(rule_ids)), 'duplicate/missing criterion IDs')
++    values = reference.get('values')
++    require(type(values) is list and all(type(x) is dict for x in values), 'reference values missing')
++    expected = {value.get('assertion_id'): value for value in values}
++    require(len(expected) == len(values) and set(expected) == {a['id'] for a in case['assertions']}, 'reference assertion denominator mismatch')
++    selected, selector_ids = [], set()
++    for assertion in case['assertions']:
++        require(set(assertion) == {'id', 'selector', 'criterion_rule_id'}, 'unknown/missing assertion fields')
++        selector = assertion['selector']
++        require(type(selector) is dict and set(selector) == SELECTOR_KEYS, 'complete explicit selector required')
++        for key in ('id', 'kind', 'unit', 'entity_ref', 'dimension'):
++            _id(selector[key], 'selector ' + key)
++        require(selector['id'] not in selector_ids, 'duplicate required result selector')
++        selector_ids.add(selector['id'])
++        require(type(selector['metadata']) is dict and set(selector['metadata']) == set(META), 'complete source metadata required')
++        require(all(type(v) is str and v and v != 'TBD' for v in selector['metadata'].values()), 'unresolved source metadata')
++        require(type(selector['basis_ref']) is dict and set(selector['basis_ref']) == {'ref_type', 'ref_id'}, 'explicit case/state basis required')
++        require(selector['basis_ref']['ref_type'] in ('load_case', 'combination'), 'invalid case basis')
++        _id(selector['basis_ref']['ref_id'], 'case basis ID')
++        signatures = [row for row in semantic_rows if row['kind'] == selector['kind'] and row['unit'] == selector['unit'] and row['component'] == selector['metadata']['component']]
++        require(len(signatures) == 1 and signatures[0]['source_physical_semantic_dimension'] == selector['dimension'], 'selector contradicts pinned source semantics')
++        rules_found = [rule for rule in rules if rule['rule_id'] == assertion['criterion_rule_id']]
++        require(len(rules_found) == 1, 'criterion rule missing')
++        rule = rules_found[0]
++        require(rule.get('dimension_id') == selector['dimension'], 'criterion dimension mismatch')
++        require(rule.get('result_family') == signatures[0]['family'] and signatures[0]['family'] is not None, 'criterion result family mismatch')
++        unit = rule.get('unit_ref', {})
++        require(unit.get('ref') == selector['unit'], 'criterion same-unit binding required')
++        require(rule.get('normalization_basis') == 'same_unit_required', 'unit conversion not supported by first gate')
++        require(rule.get('tolerance_value_status') in ('externally_governed', 'project_specific_review_required'), 'criterion unresolved')
++        require(bool(rule.get('review')) and bool(rule.get('provenance')), 'criterion review/provenance missing')
++        pair = ('relative_tolerance_value' in rule, 'absolute_tolerance_value' in rule)
++        require(pair in ((True, True), (False, False)), 'incomplete tolerance pair')
++        for key in ('relative_tolerance_value', 'absolute_tolerance_value') if pair[0] else ('tolerance_value',):
++            require(finite(rule.get(key)) >= 0, 'negative criterion')
++        value = expected[assertion['id']]
++        require(value.get('unit') == selector['unit'], 'reference unit mismatch')
++        selected.append({'assertion': assertion, 'expected': finite(value.get('value')), 'rule': rule})
++    return {'input': input_bytes, 'reference_bytes': ref_bytes, 'criterion_bytes': criterion_bytes,
++            'request': request, 'selected': selected, 'profile': profile,
++            'bindings': [{'role': role, 'path': str(path), 'sha256': sha256_bytes(data)} for role, path, data in
++                         [('input', input_path, input_bytes), ('reference', ref_path, ref_bytes), ('criterion', criterion_path, criterion_bytes)]],
++            'reference_kind': kind}
++
++
++def evaluate_rows(case_ledger: dict, prepared: dict, rows: list[dict]) -> None:
++    indexed = {row['id']: row for row in rows}
++    for item, target in zip(prepared['selected'], case_ledger['assertions']):
++        selector = item['assertion']['selector']
++        try:
++            require(selector['id'] in indexed, 'required result missing')
++            row = indexed[selector['id']]
++            require(all(row.get(key) == selector[key] for key in ('kind', 'unit', 'entity_ref', 'basis_ref', 'metadata')), 'required semantic selector mismatch')
++            actual, expected = finite(row.get('value')), item['expected']
++            delta = finite(actual - expected)
++            absolute = finite(abs(delta))
++            rule = item['rule']
++            if 'relative_tolerance_value' in rule:
++                finite(finite(rule['relative_tolerance_value']) * max(abs(actual), abs(expected)))
++            classification, basis = _classify_delta(absolute, expected, actual, prepared['profile'], rule, selector['unit'])
++            require(classification in ('within_tolerance_profile', 'exceeds_tolerance_profile'), 'required comparison unclassified')
++            target.update(state='matched' if classification == 'within_tolerance_profile' else 'failed', reason=classification,
++                          observed=actual, expected=expected, absolute_delta=absolute, unit=selector['unit'], predicate_basis=basis)
++        except (ValueError, KeyError, TypeError, AttributeError, OverflowError) as exc:
++            target.update(state='error', reason=str(exc), observed=None)
++    states = {row['state'] for row in case_ledger['assertions']}
++    case_ledger.update(state='matched' if states == {'matched'} else 'error' if 'error' in states else 'failed', reason='required assertion assessment')
++
++
++def run_selection(manifest_path: Path, executable: Path, source_root: Path, output_dir: Path,
++                  timeout_seconds: float = 30, output_limit_bytes: int = 8 * 1024 * 1024) -> dict:
++    with manifest_path.open('rb') as stream:
++        raw_manifest = stream.read(MAX_INPUT_BYTES + 1)
++    manifest = strict_json(raw_manifest)
++    ledger = predeclare(manifest)
++    output_dir.mkdir(parents=True, exist_ok=False)
++    (output_dir / 'selection.json').write_bytes(raw_manifest)
++    ledger['selection_sha256'] = sha256_bytes(raw_manifest)
++    selection_artifact = artifact_binding('selection', 'selection.json', raw_manifest)
++    case_artifacts = {}
++    original_bindings = {}
++    summarize(ledger)
++    atomic_record(output_dir / 'ledger.json', ledger)
++    try:
++        require(math.isfinite(timeout_seconds) and 0 < timeout_seconds <= 3600, 'invalid process time limit')
++        require(type(output_limit_bytes) is int and 0 < output_limit_bytes <= 64 * 1024 * 1024, 'invalid process output limit')
++        require(set(manifest) == {'format', 'profile_id', 'purpose', 'transport', 'runner', 'cases'}, 'unknown/missing selection fields')
++        require(manifest['format'] == MANIFEST_FORMAT and manifest['transport'] == TRANSPORT, 'unsupported selection/transport version')
++        require(manifest['purpose'] in ('harness_development', 'development_comparison'), 'unsupported run purpose; release qualification not implemented')
++        _id(manifest['profile_id'], 'profile ID')
++        runner = manifest['runner']
++        require(set(runner) == {'candidate_commit', 'executable_sha256', 'solver_mode'}, 'unknown/missing runner binding')
++        require(runner['solver_mode'] == 'sparse_interactive', 'dense mode not available through current CLI')
++        require(executable.is_absolute() and executable.is_file(), 'explicit executable required')
++        require(file_sha256(executable) == runner['executable_sha256'], 'executable digest mismatch')
++        actual_commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=source_root, text=True).strip()
++        require(actual_commit == runner['candidate_commit'], 'candidate revision mismatch')
++        status = subprocess.check_output(['git', 'status', '--porcelain=v1'], cwd=source_root, text=True)
++        require(sha256_bytes(SEMANTICS.read_bytes()) == SEMANTICS_SHA256, 'pinned semantic table changed')
++        require(sha256_bytes(CLASSIFIER.read_bytes()) == CLASSIFIER_SHA256, 'existing comparison predicate changed')
++        semantics = strict_json(SEMANTICS.read_bytes())['rows']
++        ledger['execution_basis'] = {'source_commit': actual_commit, 'dirty_tree': bool(status), 'source_status': status,
++            'executable_sha256': runner['executable_sha256'], 'solver_mode_dispatch': 'sparse_interactive implicit current CLI',
++            'semantic_contract_sha256': SEMANTICS_SHA256, 'existing_predicate_sha256': CLASSIFIER_SHA256,
++            'harness_sha256': sha256_bytes(Path(__file__).read_bytes()),
++            'process_supervisor_sha256': sha256_bytes(Path(__file__).with_name('qualification_process.py').read_bytes()),
++            'python': sys.version, 'platform': platform.platform(),
++            'source_artifact_association': 'selected checkout and executable identities; not independent build-source attestation',
++            'producer_precision': 'legacy raw0.1 six-decimal publication; not unmerged precise producer'}
++    except (ValueError, KeyError, TypeError, AttributeError, OSError, subprocess.SubprocessError) as exc:
++        ledger['diagnostics'].append(str(exc))
++        for case in ledger['cases']:
++            fail_case(case, 'blocked', str(exc))
++        verify_publication_custody(ledger, output_dir, selection_artifact, case_artifacts, original_bindings)
++        summarize(ledger)
++        atomic_record(output_dir / 'ledger.json', ledger)
++        write_summary(output_dir / 'summary.md', ledger)
++        return ledger
++    for index, (case, case_ledger) in enumerate(zip(manifest['cases'], ledger['cases'])):
++        try:
++            prepared = prepare_case(case, manifest_path.parent, manifest['purpose'], semantics)
++            case_ledger['bindings'] = prepared['bindings']
++            original_bindings[case['id']] = prepared['bindings']
++            case_ledger['reference_kind'] = prepared['reference_kind']
++            # Received bindings are copied before execution. Their expected
++            # identities stay in memory and are rechecked before publication.
++            (output_dir / f'case-{index:04}.reference.json').write_bytes(prepared['reference_bytes'])
++            (output_dir / f'case-{index:04}.criterion.json').write_bytes(prepared['criterion_bytes'])
++            case_artifacts[case['id']] = [
++                artifact_binding('reference', f'case-{index:04}.reference.json', prepared['reference_bytes']),
++                artifact_binding('criterion', f'case-{index:04}.criterion.json', prepared['criterion_bytes'])]
++            case_ledger['retained_artifacts'] = case_artifacts[case['id']]
++            case_ledger['reason'] = 'admitted, process pending'
++            atomic_record(output_dir / 'ledger.json', ledger)
++            process = capture(executable, ['solve'], prepared['input'], output_dir / f'case-{index:04}', timeout_seconds, output_limit_bytes, expected_executable_sha256=runner['executable_sha256'])
++            case_ledger['process'] = process
++            case_artifacts[case['id']].append(artifact_binding('input', f'case-{index:04}/stdin.bin', prepared['input']))
++            for stream_name in ('stdout', 'stderr'):
++                case_artifacts[case['id']].append({'role': stream_name, 'path': f'case-{index:04}/{stream_name}.bin',
++                    'sha256': process[stream_name + '_sha256'], 'byte_length': process[stream_name + '_bytes'],
++                    'byte_limit': process['output_limit_bytes_per_stream']})
++            require(process['executable_sha256_before'] == runner['executable_sha256'], 'executable changed before case')
++            if process['outcome'] != 'completed' or not process['stdin_delivery_complete']:
++                fail_case(case_ledger, 'error', 'process ' + process['outcome'])
++            else:
++                stdout_bytes = read_captured_bytes(output_dir / f'case-{index:04}' / 'stdout.bin',
++                    process['stdout_sha256'], process['stdout_bytes'], min(output_limit_bytes, MAX_INPUT_BYTES))
++                # Decode exactly the bytes verified above, not a reopened archive.
++                mechanics, rows = unwrap(stdout_bytes, prepared['request'], runner['solver_mode'])
++                case_ledger['observed_result_identity'] = {k: mechanics[k] for k in ('document_kind', 'schema_version', 'run_id', 'model_ref')}
++                evaluate_rows(case_ledger, prepared, rows)
++            verify_retained_artifacts(output_dir, case_artifacts[case['id']])
++            for binding in prepared['bindings']:
++                require(file_sha256(Path(binding['path']), max_bytes=MAX_INPUT_BYTES) == binding['sha256'], 'bound input/reference/criterion changed during run')
++            if process['outcome'] == 'interrupted':
++                ledger['diagnostics'].append('supervisor interrupted; subsequent cases remain not_run')
++                break
++        except (ValueError, KeyError, TypeError, AttributeError, OSError, OverflowError) as exc:
++            fail_case(case_ledger, 'blocked' if case_ledger['process'] is None else 'error', str(exc))
++        except KeyboardInterrupt:
++            fail_case(case_ledger, 'error', 'interrupted before or after process capture')
++            ledger['diagnostics'].append('interrupted; subsequent cases remain not_run')
++            break
++        finally:
++            summarize(ledger)
++            atomic_record(output_dir / 'ledger.json', ledger)
++    verify_publication_custody(ledger, output_dir, selection_artifact, case_artifacts, original_bindings)
++    summarize(ledger)
++    atomic_record(output_dir / 'ledger.json', ledger)
++    write_summary(output_dir / 'summary.md', ledger)
++    return ledger
++
++
++def write_summary(path: Path, ledger: dict) -> None:
++    counts = ledger['summary']['assertions']
++    lines = ['# Qualification development observation', '', f"Outcome: {ledger['outcome']}",
++             f"Required: {ledger['summary']['required_cases']} cases / {ledger['summary']['required_assertions']} assertions.",
++             ' | '.join(f'{state}: {counts[state]}' for state in STATES), '',
++             'This report does not establish app Current, independent oracle admission, physical validation, professional acceptance or release.', '',
++             '| Case | Outcome | Required assertions |', '|---|---|---|']
++    for case in ledger['cases']:
++        label = str(case['id']).replace('|', '\\|').replace('\n', ' ')
++        lines.append(f"| {label} | {case['state']} | {len(case['assertions'])} |")
++    path.write_text('\n'.join(lines) + '\n')
++
++
++def main() -> None:
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--selection', type=Path, required=True)
++    parser.add_argument('--executable', type=Path, required=True)
++    parser.add_argument('--source-root', type=Path, required=True)
++    parser.add_argument('--output-dir', type=Path, required=True)
++    parser.add_argument('--timeout-seconds', type=float, default=30)
++    parser.add_argument('--output-limit-bytes', type=int, default=8 * 1024 * 1024)
++    args = parser.parse_args()
++    try:
++        result = run_selection(args.selection.resolve(), args.executable, args.source_root.resolve(), args.output_dir.resolve(), args.timeout_seconds, args.output_limit_bytes)
++    except (AdmissionError, OSError, ValueError, KeyError, TypeError) as exc:
++        print(json.dumps({'outcome': 'selection_error', 'reason': str(exc), 'qualification': 'not_established_by_this_harness'}))
++        raise SystemExit(2)
++    print(json.dumps({'outcome': result['outcome'], 'summary': result['summary'], 'ledger': str(args.output_dir / 'ledger.json')}))
++    raise SystemExit(0 if result['outcome'] == 'all_required_assertions_matched' else 1)
++
++
++if __name__ == '__main__':
++    main()
+--- /dev/null
++++ b/projects/chirality-piping/tools/validation/qualification_process.py
+@@ -0,0 +1,160 @@
++"""Bounded foreground subprocess capture for the qualification development gate.
++
++No shell, build, lookup on PATH, network operation, or implicit output directory.
++Records bytes delivered to stdin and retained stdout/stderr, not an attestation
++of the executable's internal use of those bytes or its numerical correctness.
++"""
++from __future__ import annotations
++import hashlib
++import os
++from pathlib import Path
++import selectors
++import signal
++import subprocess
++import time
++
++
++def sha256_bytes(data: bytes) -> str:
++    return hashlib.sha256(data).hexdigest()
++
++
++def file_sha256(path: Path, max_bytes: int | None = None) -> str:
++    total = 0
++    digest = hashlib.sha256()
++    with path.open('rb') as stream:
++        for chunk in iter(lambda: stream.read(1024 * 1024), b''):
++            total += len(chunk)
++            if max_bytes is not None and total > max_bytes:
++                raise ValueError('file exceeds bounded hash scope')
++            digest.update(chunk)
++    return digest.hexdigest()
++
++
++def capture(executable: Path, arguments: list[str], input_bytes: bytes, directory: Path,
++            timeout_seconds: float, output_limit_bytes: int, *, expected_executable_sha256: str | None = None) -> dict:
++    """Capture one owned process with simultaneous bounded stdin/output I/O."""
++    if not executable.is_absolute() or not executable.is_file():
++        raise ValueError('explicit existing absolute executable required')
++    if not 0 < timeout_seconds <= 3600 or not 0 < output_limit_bytes <= 64 * 1024 * 1024:
++        raise ValueError('invalid supervision limits')
++    directory.mkdir(parents=True, exist_ok=False)
++    archive = directory / 'stdin.bin'
++    archive.write_bytes(input_bytes)
++    executable_before = file_sha256(executable)
++    if expected_executable_sha256 is not None and executable_before != expected_executable_sha256:
++        raise ValueError('executable digest changed before process launch')
++    start = time.monotonic()
++    outcome, process, return_code = 'error', None, None
++    files = {name: (directory / (name + '.bin')).open('xb') for name in ('stdout', 'stderr')}
++    counts = dict.fromkeys(files, 0)
++    delivered_output = {name: hashlib.sha256() for name in files}
++    sent = 0
++    command = [str(executable), *arguments]
++    detail = None
++    try:
++        # The archive is never the process's input source: a pipe receives the
++        # exact immutable bytes, multiplexed with output to avoid pipe deadlock.
++        process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
++                                   stderr=subprocess.PIPE, cwd=directory, start_new_session=True)
++        selector = selectors.DefaultSelector()
++        try:
++            for name, stream in (('stdout', process.stdout), ('stderr', process.stderr)):
++                os.set_blocking(stream.fileno(), False)
++                selector.register(stream, selectors.EVENT_READ, name)
++            if input_bytes:
++                os.set_blocking(process.stdin.fileno(), False)
++                selector.register(process.stdin, selectors.EVENT_WRITE, 'stdin')
++            else:
++                process.stdin.close()
++            while selector.get_map():
++                remaining = timeout_seconds - (time.monotonic() - start)
++                if remaining <= 0:
++                    outcome, detail = 'timeout', 'process time budget exceeded'
++                    break
++                for key, _ in selector.select(min(0.1, remaining)):
++                    if key.data == 'stdin':
++                        try:
++                            written = os.write(key.fd, input_bytes[sent:sent + 65536])
++                        except BrokenPipeError:
++                            outcome, detail = 'input_closed', 'stdin closed before all selected bytes were delivered'
++                            break
++                        except BlockingIOError:
++                            continue
++                        sent += written
++                        if sent == len(input_bytes):
++                            selector.unregister(key.fileobj)
++                            key.fileobj.close()
++                        continue
++                    try:
++                        chunk = os.read(key.fd, 65536)
++                    except BlockingIOError:
++                        continue
++                    if not chunk:
++                        selector.unregister(key.fileobj)
++                        key.fileobj.close()
++                        continue
++                    name = key.data
++                    available = output_limit_bytes - counts[name]
++                    files[name].write(chunk[:available])
++                    delivered_output[name].update(chunk[:available])
++                    counts[name] += min(len(chunk), available)
++                    if len(chunk) > available:
++                        outcome, detail = 'output_limit', f'{name} exceeds retained byte limit; remainder not retained'
++                        break
++                if detail:
++                    break
++            if detail is None:
++                remaining = max(0.001, timeout_seconds - (time.monotonic() - start))
++                try:
++                    return_code = process.wait(timeout=remaining)
++                    outcome = 'completed' if return_code == 0 else 'nonzero_exit'
++                except subprocess.TimeoutExpired:
++                    outcome, detail = 'timeout', 'process time budget exceeded after pipe EOF'
++        finally:
++            selector.close()
++    except KeyboardInterrupt:
++        outcome, detail = 'interrupted', 'supervisor interrupted; required ledger remains nonpassing'
++    except OSError as exc:
++        outcome, detail = 'spawn_error', f'{type(exc).__name__}: {exc}'
++    finally:
++        if process is not None:
++            if process.poll() is None or detail is not None:
++                try:
++                    os.killpg(process.pid, signal.SIGKILL)
++                except ProcessLookupError:
++                    pass
++            return_code = process.wait()
++            for stream in (process.stdin, process.stdout, process.stderr):
++                if stream is not None:
++                    stream.close()
++        for stream in files.values():
++            stream.close()
++    after = file_sha256(executable) if executable.is_file() else None
++    if after != executable_before:
++        outcome, detail = 'executable_changed', 'executable identity changed during process'
++    def retained_hash(path: Path, limit: int) -> str | None:
++        try:
++            return file_sha256(path, max_bytes=limit)
++        except (OSError, ValueError):
++            return None
++    retained_input = retained_hash(archive, len(input_bytes))
++    selected_input = sha256_bytes(input_bytes)
++    if retained_input != selected_input:
++        outcome, detail = 'input_archive_changed', 'retained stdin artifact changed during process'
++    retained_outputs = {name: retained_hash(directory / (name + '.bin'), output_limit_bytes) for name in files}
++    if any(retained_outputs[name] != delivered_output[name].hexdigest() for name in files):
++        outcome, detail = 'output_archive_changed', 'retained output differs from actual captured stream'
++    return {'outcome': outcome, 'detail': detail, 'command': command, 'return_code': return_code,
++            'elapsed_seconds': time.monotonic() - start, 'executable_sha256_before': executable_before,
++            'executable_sha256_after': after, 'stdin_sha256': selected_input,
++            'stdin_bytes_delivered': sent, 'stdin_delivered_sha256': sha256_bytes(input_bytes[:sent]),
++            'stdin_delivery_complete': sent == len(input_bytes),
++            'retained_stdin_sha256': retained_input,
++            'stdout_sha256': delivered_output['stdout'].hexdigest(),
++            'stderr_sha256': delivered_output['stderr'].hexdigest(),
++            'retained_stdout_sha256': retained_outputs['stdout'], 'retained_stderr_sha256': retained_outputs['stderr'],
++            'stdout_bytes': counts['stdout'], 'stderr_bytes': counts['stderr'],
++            'timeout_seconds': timeout_seconds, 'output_limit_bytes_per_stream': output_limit_bytes,
++            'raw_capture_complete': detail is None,
++            'environment': {key: os.environ.get(key) for key in ('OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS', 'RAYON_NUM_THREADS')},
++            'scope': 'actual local process byte delivery/capture; no internal-use, build-source or solver attestation'}
+--- /dev/null
++++ b/projects/chirality-piping/tests/test_qualification_gate.py
+@@ -0,0 +1,421 @@
++"""Synthetic-process and received-packet gate checks, not solver qualification.
++
++Run as unittest to avoid the repository pytest setup's unrelated Rust build.
++All explicit numbers below are harness-test data, not engineering criteria.
++"""
++from __future__ import annotations
++from copy import deepcopy
++import importlib.util
++import json
++import os
++from pathlib import Path
++import subprocess
++import sys
++import tempfile
++import unittest
++from unittest.mock import patch
++
++PROJECT = Path(__file__).resolve().parents[1]
++sys.path.insert(0, str(PROJECT))
++from tools.validation import qualification_gate as gate
++from tools.validation.qualification_process import capture, sha256_bytes
++
++
++class GateTests(unittest.TestCase):
++    def setUp(self):
++        self.temp = tempfile.TemporaryDirectory()
++        self.addCleanup(self.temp.cleanup)
++        self.root = Path(self.temp.name)
++        self.input = {'request': {'request_id': 'invented-request', 'operation': 'solve'},
++                      'solve': {'preview_model': {'model': {'project': {'id': 'invented-model'}}}}}
++        self.rows = []
++        for axis, value in [('x', 2.0), ('y', -3.0)]:
++            self.rows.append({'id': 'result:' + axis, 'kind': 'global_nodal_displacement_' + axis, 'value': value,
++                              'unit': 'mm', 'entity_ref': 'node:tip', 'basis_ref': {'ref_type': 'load_case', 'ref_id': 'LC1'},
++                              'metadata': {'component': 'nodal_displacement_' + axis, 'coordinate_system': 'global',
++                                           'location': 'node', 'basis': 'solved_from_global_linear_system', 'sign_convention': 'signed_global_component'}})
++        self.mode = {'id': 'result:mode', 'kind': 'linear_solver_mode_basis', 'value': 1, 'unit': 'mode_code', 'entity_ref': 'solver'}
++        self.payload = {'artifact': 'openpipestress.headless_runner_cli_output', 'schema_version': '1.0.0', 'command': 'solve', 'operation': 'solve',
++                        'request_validation': {'diagnostics': []}, 'result_validation': {'diagnostics': []}, 'diagnostics': [],
++                        'runner_result': {'run_id': 'run:headless-preview:invented-request', 'job': {'state': 'COMPLETED'}, 'analysis_status': ['MECHANICS_SOLVED'], 'diagnostics': []},
++                        'mechanics_envelope': {'schema_version': '0.1.0', 'document_kind': 'openpipestress.product_preview.mechanics_result',
++                                              'run_id': 'run:preview-linear-static-001', 'model_ref': 'invented-model',
++                                              'status': {'mechanics': 'MECHANICS_SOLVED'}, 'accepted_model_state_mutated': False,
++                                              'diagnostics': [], 'results': [self.mode, *self.rows]}}
++        self.wrapper = {'payload': self.payload, 'decisions': [], 'findings': [], 'blocked': False, 'summary': {'blocking_count': 0, 'decision_count': 0, 'finding_count': 0, 'warning_count': 0}}
++        self.reference = {'format': gate.REFERENCE_FORMAT, 'case_id': 'case:one', 'readiness': 'ready',
++                          'reference_kind': 'harness_synthetic', 'basis': 'explicit invented gate fixture, not an analytical oracle',
++                          'values': [{'assertion_id': axis, 'unit': 'mm', 'value': value} for axis, value in [('x', 2.0), ('y', -3.0)]]}
++        self.criterion = {'schema_version': '0.1.0', 'tolerance_profile': {'profile_id': 'harness-only', 'profile_status': 'reviewed',
++                          'rules': [{'rule_id': 'test-rule', 'result_family': 'displacement', 'dimension_id': 'length', 'unit_ref': {'object_type': 'unit', 'ref': 'mm'},
++                                     'normalization_basis': 'same_unit_required', 'tolerance_value': 0,
++                                     'tolerance_value_status': 'project_specific_review_required',
++                                     'review': {'scope': 'synthetic gate fixture only'}, 'provenance': {'source': 'invented test values'}}]}}
++        self.bin = self.root / 'fake-runner'
++        self.write_process(self.wrapper)
++        self.case = {'id': 'case:one', 'input': self.write_bound('input.json', self.input),
++                     'reference': self.write_bound('reference.json', self.reference), 'criterion': self.write_bound('criterion.json', self.criterion),
++                     'assertions': [{'id': axis, 'selector': {**{k: v for k, v in row.items() if k != 'value'}, 'dimension': 'length'},
++                                     'criterion_rule_id': 'test-rule'} for axis, row in zip(('x', 'y'), self.rows)]}
++        self.commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=PROJECT, text=True).strip()
++        self.manifest = {'format': gate.MANIFEST_FORMAT, 'profile_id': 'synthetic-gate-only', 'purpose': 'harness_development',
++                         'transport': gate.TRANSPORT, 'runner': {'candidate_commit': self.commit, 'executable_sha256': sha256_bytes(self.bin.read_bytes()),
++                                                              'solver_mode': 'sparse_interactive'}, 'cases': [self.case]}
++        self.counter = 0
++
++    def write_bound(self, filename, value):
++        data = json.dumps(value, allow_nan=False).encode()
++        (self.root / filename).write_bytes(data)
++        return {'path': filename, 'sha256': sha256_bytes(data)}
++
++    def write_process(self, wrapper=None, code=None):
++        body = code if code is not None else 'import sys\nsys.stdin.buffer.read()\nprint(' + repr(json.dumps(wrapper)) + ')\n'
++        self.bin.write_text('#!' + sys.executable + '\n' + body)
++        self.bin.chmod(0o700)
++
++    def run_case(self, manifest=None, **kwargs):
++        self.counter += 1
++        selected = deepcopy(self.manifest if manifest is None else manifest)
++        selected['runner']['executable_sha256'] = sha256_bytes(self.bin.read_bytes())
++        path = self.root / f'selection-{self.counter}.json'
++        path.write_text(json.dumps(selected))
++        return gate.run_selection(path, self.bin, PROJECT, self.root / f'run-{self.counter}', **kwargs)
++
++    def assert_complete_denominator(self, result, state):
++        self.assertEqual(result['summary']['required_cases'], 1)
++        self.assertEqual(result['summary']['required_assertions'], 2)
++        self.assertEqual(result['summary']['assertions'][state], 2)
++        self.assertNotEqual(result['outcome'], 'all_required_assertions_matched')
++
++    def test_complete_actual_fake_process_and_raw_identity(self):
++        result = self.run_case()
++        self.assertEqual(result['outcome'], 'all_required_assertions_matched')
++        self.assertEqual(result['summary']['assertions']['matched'], 2)
++        self.assertEqual(result['qualification'], 'not_established_by_this_harness')
++        process = result['cases'][0]['process']
++        self.assertEqual(process['command'], [str(self.bin), 'solve'])
++        self.assertEqual(process['stdin_sha256'], self.case['input']['sha256'])
++        self.assertEqual((self.root / 'run-1/case-0000.reference.json').read_bytes(), (self.root / 'reference.json').read_bytes())
++        self.assertEqual((self.root / 'run-1/case-0000.criterion.json').read_bytes(), (self.root / 'criterion.json').read_bytes())
++        self.assertEqual(process['stdout_sha256'], sha256_bytes((self.root / 'run-1/case-0000/stdout.bin').read_bytes()))
++        self.assertIn('legacy raw0.1', result['execution_basis']['producer_precision'])
++        self.assertIn('Required: 1 cases / 2 assertions', (self.root / 'run-1/summary.md').read_text())
++        self.assertEqual(json.loads((self.root / 'run-1/ledger.json').read_text()), result)
++
++    def test_ledger_exists_before_process_starts(self):
++        original = capture
++        def observing(*args, **kwargs):
++            ledger = json.loads((args[3].parent / 'ledger.json').read_text())
++            self.assertEqual([x['state'] for x in ledger['cases'][0]['assertions']], ['not_run', 'not_run'])
++            return original(*args, **kwargs)
++        with patch.object(gate, 'capture', observing):
++            self.assertEqual(self.run_case()['outcome'], 'all_required_assertions_matched')
++
++    def test_wrong_value_sign_and_partial_missing_row_keep_denominator(self):
++        for mutation in ('sign', 'missing'):
++            wrapper = deepcopy(self.wrapper)
++            rows = wrapper['payload']['mechanics_envelope']['results']
++            if mutation == 'sign': rows[1]['value'] *= -1
++            else: rows.pop(1)
++            self.write_process(wrapper)
++            result = self.run_case()
++            self.assertEqual(result['summary']['required_assertions'], 2)
++            self.assertEqual(result['summary']['assertions']['matched'], 1)
++            self.assertNotEqual(result['outcome'], 'all_required_assertions_matched')
++
++    def test_duplicate_rows_and_wrong_mode_cannot_pass(self):
++        for mutation in ('duplicate', 'dense', 'fallback', 'missing_mode'):
++            wrapper = deepcopy(self.wrapper); rows = wrapper['payload']['mechanics_envelope']['results']
++            if mutation == 'duplicate': rows.append(deepcopy(rows[1]))
++            elif mutation == 'missing_mode': rows.pop(0)
++            else: rows[0]['value'] = 2 if mutation == 'dense' else 3
++            self.write_process(wrapper)
++            self.assert_complete_denominator(self.run_case(), 'error')
++
++    def test_frame_unit_case_entity_and_kind_mismatch(self):
++        for field, value in [('unit', 'm'), ('basis_ref', {'ref_type': 'load_case', 'ref_id': 'WRONG'}), ('entity_ref', 'wrong'), ('kind', 'unknown')]:
++            wrapper = deepcopy(self.wrapper); wrapper['payload']['mechanics_envelope']['results'][1][field] = value
++            self.write_process(wrapper); result = self.run_case()
++            self.assertEqual(result['summary']['assertions']['error'], 1)
++        wrapper = deepcopy(self.wrapper); wrapper['payload']['mechanics_envelope']['results'][1]['metadata']['coordinate_system'] = 'element_local'
++        self.write_process(wrapper); self.assertEqual(self.run_case()['summary']['assertions']['error'], 1)
++
++    def test_blocked_failed_unconverged_or_future_wrapper(self):
++        for mutation in ('blocked', 'null', 'future', 'failed', 'nonconverged', 'request_identity', 'model_identity', 'mutated', 'validation'):
++            wrapper = deepcopy(self.wrapper); payload = wrapper['payload']
++            if mutation == 'blocked': wrapper['blocked'] = True
++            elif mutation == 'null': wrapper['payload'] = None
++            elif mutation == 'future': payload['mechanics_envelope']['schema_version'] = '0.2.0'
++            elif mutation == 'failed': payload['runner_result']['job']['state'] = 'FAILED'
++            elif mutation == 'nonconverged': payload['mechanics_envelope']['status']['mechanics'] = 'MECHANICS_UNRESOLVED'
++            elif mutation == 'request_identity': payload['runner_result']['run_id'] = 'different'
++            elif mutation == 'model_identity': payload['mechanics_envelope']['model_ref'] = 'different'
++            elif mutation == 'mutated': payload['mechanics_envelope']['accepted_model_state_mutated'] = True
++            else: payload['request_validation']['diagnostics'] = [{'severity': 'blocking'}]
++            self.write_process(wrapper); self.assert_complete_denominator(self.run_case(), 'error')
++
++    def test_nonfinite_nonnumeric_and_finite_overflow(self):
++        for value in (None, True, '2', float('inf')):
++            wrapper = deepcopy(self.wrapper); wrapper['payload']['mechanics_envelope']['results'][1]['value'] = value
++            self.write_process(wrapper); result = self.run_case()
++            self.assertNotEqual(result['outcome'], 'all_required_assertions_matched')
++        self.reference['values'][0]['value'] = -1e308
++        self.case['reference'] = self.write_bound('reference.json', self.reference)
++        wrapper = deepcopy(self.wrapper); wrapper['payload']['mechanics_envelope']['results'][1]['value'] = 1e308
++        self.write_process(wrapper); self.assertEqual(self.run_case()['summary']['assertions']['error'], 1)
++
++    def test_existing_predicate_exact_boundary_pair_and_overflow(self):
++        rule = self.criterion['tolerance_profile']['rules'][0]
++        rule.update(relative_tolerance_value=0.0, absolute_tolerance_value=0.25)
++        self.case['criterion'] = self.write_bound('criterion.json', self.criterion)
++        for value, state in [(2.25, 'matched'), (2.2500000001, 'failed')]:
++            wrapper = deepcopy(self.wrapper); wrapper['payload']['mechanics_envelope']['results'][1]['value'] = value
++            self.write_process(wrapper); result = self.run_case()
++            self.assertEqual(result['cases'][0]['assertions'][0]['state'], state)
++        rule['relative_tolerance_value'] = 1e308
++        self.case['criterion'] = self.write_bound('criterion.json', self.criterion)
++        self.write_process(self.wrapper); self.assertEqual(self.run_case()['summary']['assertions']['error'], 2)
++
++    def test_reference_selector_and_criterion_admission(self):
++        for mutate in [lambda x: x['reference'].update(sha256='0'*64), lambda x: x['assertions'].append(deepcopy(x['assertions'][0])),
++                       lambda x: x['assertions'][0]['selector'].update(dimension='force')]:
++            selected = deepcopy(self.manifest); mutate(selected['cases'][0])
++            if len(selected['cases'][0]['assertions']) > 2:
++                with self.assertRaises(gate.AdmissionError): self.run_case(selected)
++            else: self.assert_complete_denominator(self.run_case(selected), 'blocked')
++        for change in [{'readiness': 'pending'}, {'values': self.reference['values'][:1]}, {'reference_kind': 'future'}]:
++            ref = self.reference | change; self.case['reference'] = self.write_bound('reference.json', ref)
++            self.assert_complete_denominator(self.run_case(), 'blocked')
++
++    def test_unreviewed_negative_incomplete_or_wrong_unit_criterion(self):
++        for change in [{'result_family': 'stress'}, {'tolerance_value': -1}, {'tolerance_value_status': 'TBD'}, {'relative_tolerance_value': 0.1}, {'unit_ref': {'ref': 'm'}}, {'review': {}}]:
++            criterion = deepcopy(self.criterion); criterion['tolerance_profile']['rules'][0].update(change)
++            self.case['criterion'] = self.write_bound('criterion.json', criterion)
++            self.assert_complete_denominator(self.run_case(), 'blocked')
++
++    def test_empty_duplicate_or_unsupported_selection(self):
++        for change in [{'cases': []}, {'cases': [self.case, deepcopy(self.case)]}]:
++            with self.assertRaises(gate.AdmissionError): self.run_case(self.manifest | change)
++        for change in [{'transport': 'future'}, {'purpose': 'release_qualification'}]:
++            self.assert_complete_denominator(self.run_case(self.manifest | change), 'blocked')
++        selected = deepcopy(self.manifest); selected['runner']['solver_mode'] = 'dense_scrutiny'
++        self.assert_complete_denominator(self.run_case(selected), 'blocked')
++        selected = deepcopy(self.manifest); selected['runner']['candidate_commit'] = '0'*40
++        self.assert_complete_denominator(self.run_case(selected), 'blocked')
++
++    def test_nonzero_timeout_output_limit_and_malformed_output(self):
++        cases = [('import sys\nprint("partial")\nsys.exit(7)', 'nonzero_exit', {}),
++                 ('import time\nprint("partial",flush=True)\ntime.sleep(2)', 'timeout', {'timeout_seconds': .05}),
++                 ('print("x"*1024)', 'output_limit', {'output_limit_bytes': 32}),
++                 ('print("{")', 'completed', {})]
++        for code, outcome, options in cases:
++            self.write_process(code=code)
++            result = self.run_case(**options)
++            self.assert_complete_denominator(result, 'error')
++            self.assertEqual(result['cases'][0]['process']['outcome'], outcome)
++            self.assertTrue((self.root / f'run-{self.counter}/case-0000/stdout.bin').exists())
++
++    def test_actual_received_legacy_packet_is_not_silently_new_transport(self):
++        packet = (PROJECT / 'validation/witness/generated/tp_runner_015_final_cli_solve.json').read_bytes()
++        self.assertEqual(json.loads(packet)['artifact'], 'openpipestress.headless_runner_cli_output')
++        with self.assertRaisesRegex(gate.AdmissionError, 'unsupported controlled wrapper'):
++            gate.unwrap(packet, self.input, 'sparse_interactive')
++
++    def test_uncompared_nonfinite_row_is_not_silently_discarded(self):
++        wrapper = deepcopy(self.wrapper)
++        wrapper['payload']['mechanics_envelope']['results'].append({'id': 'extra', 'kind': 'extra', 'value': None})
++        self.write_process(wrapper)
++        self.assert_complete_denominator(self.run_case(), 'error')
++
++    def test_supervisor_refuses_changed_executable_before_launch(self):
++        with self.assertRaisesRegex(ValueError, 'before process launch'):
++            capture(self.bin, ['solve'], b'{}', self.root/'refused-process', 1, 1024, expected_executable_sha256='0'*64)
++        self.assertFalse((self.root/'refused-process/stdout.bin').exists())
++
++    def test_actual_uppercase_blocking_and_inconsistent_wrapper_counts(self):
++        for mutation in ('blocking', 'count', 'unknown_severity'):
++            wrapper = deepcopy(self.wrapper)
++            if mutation == 'count': wrapper['summary']['blocking_count'] = 1
++            else:
++                wrapper['findings'] = [{'severity': 'BLOCKING' if mutation == 'blocking' else 'FUTURE'}]
++                wrapper['summary']['finding_count'] = 1
++            self.write_process(wrapper)
++            self.assert_complete_denominator(self.run_case(), 'error')
++
++    def test_stdin_archive_mutation_cannot_change_delivered_bytes_or_pass(self):
++        expected = sha256_bytes((self.root/'input.json').read_bytes())
++        code = 'import sys,hashlib\nfrom pathlib import Path\nPath("stdin.bin").write_bytes(b"changed")\nactual=sys.stdin.buffer.read()\nprint(hashlib.sha256(actual).hexdigest(),file=sys.stderr)\nprint(' + repr(json.dumps(self.wrapper)) + ')'
++        self.write_process(code=code)
++        result = self.run_case()
++        self.assert_complete_denominator(result, 'error')
++        process = result['cases'][0]['process']
++        self.assertEqual(process['outcome'], 'input_archive_changed')
++        self.assertEqual((self.root/'run-1/case-0000/stderr.bin').read_text().strip(), expected)
++        self.assertTrue(process['stdin_delivery_complete'])
++        self.assertEqual(process['stdin_sha256'], expected)
++        self.assertNotEqual(process['retained_stdin_sha256'], expected)
++
++    def test_pipe_multiplexing_delivers_large_input_without_deadlock(self):
++        data = b'x' * (1024 * 1024)
++        self.write_process(code='import sys,hashlib\nsys.stdout.write("y"*100000);sys.stdout.flush()\ndata=sys.stdin.buffer.read()\nprint(hashlib.sha256(data).hexdigest(),file=sys.stderr)')
++        result = capture(self.bin, ['solve'], data, self.root/'multiplexed', 5, 200000)
++        self.assertEqual(result['outcome'], 'completed')
++        self.assertEqual(result['stdin_bytes_delivered'], len(data))
++        self.assertEqual((self.root/'multiplexed/stderr.bin').read_text().strip(), sha256_bytes(data))
++
++    def test_closed_raw_rows_reject_contradictory_dimension(self):
++        for field, value in [('dimension', 'force'), ('future_metadata', {})]:
++            wrapper = deepcopy(self.wrapper)
++            wrapper['payload']['mechanics_envelope']['results'][1][field] = value
++            self.write_process(wrapper)
++            self.assert_complete_denominator(self.run_case(), 'error')
++
++    def test_reference_nonzero_underflow_cannot_match_zero(self):
++        raw = (self.root/'reference.json').read_text().replace('2.0', '1e-999')
++        (self.root/'reference.json').write_text(raw)
++        self.case['reference']['sha256'] = sha256_bytes(raw.encode())
++        wrapper = deepcopy(self.wrapper); wrapper['payload']['mechanics_envelope']['results'][1]['value'] = 0
++        self.write_process(wrapper)
++        self.assert_complete_denominator(self.run_case(), 'blocked')
++
++    def test_actual_combination_token_supported_and_invented_token_refused(self):
++        for assertion in self.case['assertions']:
++            assertion['selector']['basis_ref'] = {'ref_type': 'combination', 'ref_id': 'COMB1'}
++        wrapper = deepcopy(self.wrapper)
++        for row in wrapper['payload']['mechanics_envelope']['results'][1:]:
++            row['basis_ref'] = {'ref_type': 'combination', 'ref_id': 'COMB1'}
++        self.write_process(wrapper)
++        self.assertEqual(self.run_case()['outcome'], 'all_required_assertions_matched')
++        self.case['assertions'][0]['selector']['basis_ref']['ref_type'] = 'load_combination'
++        self.assert_complete_denominator(self.run_case(), 'blocked')
++
++    def test_stdout_boundary_replacement_cannot_change_compared_value(self):
++        emitted = deepcopy(self.wrapper)
++        emitted['payload']['mechanics_envelope']['results'][1]['value'] = 99
++        self.write_process(emitted)
++        real_capture = gate.capture
++        def replace_after_capture(*args, **kwargs):
++            process = real_capture(*args, **kwargs)
++            (args[3]/'stdout.bin').write_bytes(json.dumps(self.wrapper).encode())
++            return process
++        with patch.object(gate, 'capture', replace_after_capture), patch.object(gate, 'unwrap', wraps=gate.unwrap) as decoder:
++            result = self.run_case()
++        self.assert_complete_denominator(result, 'error')
++        decoder.assert_not_called()
++        self.assertEqual(result['cases'][0]['custody_at_publication'], 'failed')
++
++    def test_stdout_growth_is_bounded_before_decoding(self):
++        real_capture = gate.capture
++        def grow_after_capture(*args, **kwargs):
++            process = real_capture(*args, **kwargs)
++            with (args[3]/'stdout.bin').open('wb') as stream:
++                stream.truncate(gate.MAX_INPUT_BYTES + 1)
++            return process
++        with patch.object(gate, 'capture', grow_after_capture), patch.object(gate, 'unwrap', wraps=gate.unwrap) as decoder:
++            result = self.run_case()
++        self.assert_complete_denominator(result, 'error')
++        decoder.assert_not_called()
++        # The bounded reader reads only the selected length plus one; it never
++        # allocates the grown archive just to discover a size/hash mismatch.
++        import io
++        calls = []
++        class Reader(io.BytesIO):
++            def read(self, size=-1):
++                calls.append(size)
++                return super().read(size)
++        class Source:
++            def open(self, mode):
++                return Reader(b'x' * 100)
++        with self.assertRaises(gate.AdmissionError):
++            gate.read_captured_bytes(Source(), sha256_bytes(b'x' * 10), 10, 1000)
++        self.assertEqual(calls, [11])
++
++    def test_each_retained_snapshot_and_stream_is_rechecked(self):
++        real_capture = gate.capture
++        for name in ('case-0000.reference.json', 'case-0000.criterion.json', 'selection.json',
++                     'case-0000/stdin.bin', 'case-0000/stderr.bin'):
++            def change_after_capture(*args, **kwargs):
++                process = real_capture(*args, **kwargs)
++                (args[3].parent/name).write_bytes(b'{}')
++                return process
++            with patch.object(gate, 'capture', change_after_capture):
++                self.assert_complete_denominator(self.run_case(), 'error')
++        # The original reported reference-copy consequence used an actual child,
++        # not a hook. Preserve that independent execution route as a regression.
++        code = 'from pathlib import Path\nimport sys\nsys.stdin.buffer.read()\nPath("../case-0000.reference.json").write_bytes(b"{}")\nprint(' + repr(json.dumps(self.wrapper)) + ')'
++        self.write_process(code=code)
++        self.assert_complete_denominator(self.run_case(), 'error')
++
++    def test_later_case_cannot_change_an_earlier_case_snapshot(self):
++        selected = deepcopy(self.manifest)
++        second = deepcopy(self.case)
++        second['id'] = 'case:two'
++        second_ref = deepcopy(self.reference)
++        second_ref['case_id'] = second['id']
++        second['reference'] = self.write_bound('reference-two.json', second_ref)
++        selected['cases'].append(second)
++        code = 'from pathlib import Path\nimport sys\nsys.stdin.buffer.read()\nif Path.cwd().name=="case-0001": Path("../case-0000.reference.json").write_bytes(b"{}")\nprint(' + repr(json.dumps(self.wrapper)) + ')'
++        self.write_process(code=code)
++        result = self.run_case(selected)
++        self.assertEqual(result['summary']['required_assertions'], 4)
++        self.assertEqual(result['summary']['assertions']['error'], 2)
++        self.assertEqual(result['summary']['assertions']['matched'], 2)
++        self.assertEqual(result['cases'][0]['custody_at_publication'], 'failed')
++        self.assertNotEqual(result['outcome'], 'all_required_assertions_matched')
++
++    def test_only_final_custody_checked_publication_can_claim_matches(self):
++        publications = []
++        real_record, real_unwrap = gate.atomic_record, gate.unwrap
++        parsed_hashes = []
++        def observe_record(path, value):
++            publications.append((value['publication_phase'], value['outcome']))
++            return real_record(path, value)
++        def observe_bytes(raw, request, mode):
++            parsed_hashes.append(sha256_bytes(raw))
++            return real_unwrap(raw, request, mode)
++        with patch.object(gate, 'atomic_record', observe_record), patch.object(gate, 'unwrap', observe_bytes):
++            result = self.run_case()
++        self.assertEqual(result['outcome'], 'all_required_assertions_matched')
++        self.assertEqual(parsed_hashes, [result['cases'][0]['process']['stdout_sha256']])
++        self.assertEqual(result['cases'][0]['custody_at_publication'], 'checked')
++        self.assertTrue(all(phase == 'complete' for phase, outcome in publications if outcome == 'all_required_assertions_matched'))
++        self.assertEqual(publications[-1], ('complete', 'all_required_assertions_matched'))
++
++    def test_immutable_output_directory_and_reference_files(self):
++        before = {name: (self.root / name).read_bytes() for name in ('input.json', 'reference.json', 'criterion.json')}
++        self.run_case()
++        for name, data in before.items(): self.assertEqual((self.root / name).read_bytes(), data)
++        with self.assertRaises(FileExistsError):
++            gate.run_selection(self.root/'selection-1.json', self.bin, PROJECT, self.root/'run-1')
++
++    def test_reference_changed_during_run_is_error(self):
++        self.write_process(code='from pathlib import Path\nPath(' + repr(str(self.root/'reference.json')) + ').write_text("changed")\nprint(' + repr(json.dumps(self.wrapper)) + ')')
++        self.assert_complete_denominator(self.run_case(), 'error')
++
++    def test_interrupted_case_preserves_subsequent_not_run_rows(self):
++        selected = deepcopy(self.manifest)
++        second = deepcopy(self.case); second['id'] = 'case:two'; selected['cases'].append(second)
++        def interrupted(*args, **kwargs):
++            raise KeyboardInterrupt()
++        with patch.object(gate, 'capture', interrupted):
++            result = self.run_case(selected)
++        self.assertEqual(result['summary']['required_cases'], 2)
++        self.assertEqual(result['summary']['required_assertions'], 4)
++        self.assertEqual(result['summary']['assertions']['error'], 2)
++        self.assertEqual(result['summary']['assertions']['not_run'], 2)
++
++    def test_duplicate_json_rejected_without_parser_overwrite(self):
++        for raw in [b'{"x":1,"x":2}', b'{"a":1,"\\u0061":2}', b'{"x":NaN}', b'{"x":Infinity}', b'{"x":1e309}', b'{"x":1e-999}', b'\xff']:
++            with self.assertRaises(gate.AdmissionError): gate.strict_json(raw)
++
++    def test_executable_and_semantic_digest_mismatch_blocks_before_launch(self):
++        selected = deepcopy(self.manifest); selected['runner']['executable_sha256'] = '0'*64
++        path = self.root / 'bad-hash-selection.json'; path.write_text(json.dumps(selected))
++        result = gate.run_selection(path, self.bin, PROJECT, self.root/'bad-hash-run')
++        self.assert_complete_denominator(result, 'blocked')
++        with patch.object(gate, 'SEMANTICS_SHA256', '0'*64):
++            self.assert_complete_denominator(self.run_case(), 'blocked')
++
++
++if __name__ == '__main__':
++    unittest.main()
+--- /dev/null
++++ b/projects/chirality-piping/validation/qualification/GATE_USAGE.md
+@@ -0,0 +1,131 @@
++# Required-output development gate
++
++`tools/validation/qualification_gate.py` is the thin VP-HARNESS adapter selected
++by ROOT. It preserves a nonempty required case/assertion ledger before execution,
++runs an explicitly selected foreground executable, retains bounded raw data and
++reports every required outcome. It does not build a solver, download references,
++regenerate targets, set app Current, mint an opaque producer token, or authorize
++engineering/release use. No material/component library or code rule is supplied.
++
++The initial closed transport is `main_sparse_cli_1.0_raw0.1`: the existing
++`openpipestress-runner solve` command, implicit sparse_interactive dispatch,
++ControlledExport wrapper, CLI1.0 and raw mechanics0.1. The known semantic table
++and existing comparison implementation are hash-pinned. Dense, source-block,
++physics/composite and future profiles are refused until explicitly integrated.
++Main's six-decimal output remains that producer; this adapter cannot upgrade it.
++
++The physics owner is implementing a closed `--solver-mode` extension, but this
++adapter intentionally does not call the proposed flag before the actual reviewed
++interface/build is supplied. Mode-independent machinery does not depend on it.
++
++## Existing records, narrow selection
++
++The selection file is an obligation manifest, not a second model/result schema.
++Its `format` is `openpipestress.qualification_selection/1`. It contains:
++
++- `profile_id`, `purpose` (`harness_development` or `development_comparison`),
++  `transport`, and `runner` with exact candidate commit/executable SHA256 and
++  `solver_mode: sparse_interactive`.
++- Nonempty unique `cases`, each with an ID and SHA256/path bindings to the actual
++  CLI input, independently prepared reference values and existing PKG-14
++  tolerance-profile document. Paths are explicit, relative to the selection
++  file or absolute. The gate reads them; it never modifies them.
++- Nonempty unique assertions per case. Each assertion has its ID, criterion
++  rule ID and an exact selector: raw result ID/kind/unit/entity, case basis,
++  all five source metadata fields, and explicit physical dimension. Basis tokens
++  follow the pinned producer: `load_case` or `combination`. Duplicate
++  required selectors and ambiguous/missing result IDs cannot reduce coverage.
++
++The input remains the existing `request` plus `solve.preview_model` object; no
++new product field is injected. Reference files use the small
++`openpipestress.qualification_reference_values/1` record: `case_id`,
++`reference_kind`, `readiness`, `basis`, and exactly one `{assertion_id,value,unit}`
++for each assertion. Non-synthetic development comparisons also require an
++`independent_review_ref`. Those labels record supplied provenance; the gate does
++not authenticate an agent/human review or make an unadmitted oracle ready.
++External source candidates remain unavailable for scoring until their real
++independent input/oracle/selector/criterion package is frozen.
++
++The criterion file is the existing `tolerance_profile` structure at declared
++schema0.1: reviewed profile, unique rules, dimension/family/unit, same-unit
++normalization, numeric nonnegative single-absolute or relative/absolute values,
++review and provenance. The adapter deliberately supports the required consumed
++fields, not a substitute whole-document schema validator. Each rule must match
++the asserted physical quantity. It calls the existing PKG-14 classifier with its
++unchanged symmetric maximum policy. It does not adopt the supplied reports'
++additive/reference-sided formula or a default epsilon. Conversion is currently
++unsupported; quantities must already share explicit units. No near-zero floor
++is inferred. Missing or unclassified criteria block the case.
++
++`tests/test_qualification_gate.py` provides executable **synthetic harness-only**
++examples of the complete selection and data objects. Those numbers/criteria are
++test inputs, not analytical targets or production policy. It also checks refusal
++of an actual preserved legacy unwrapped packet; no legacy output is silently
++promoted to the new transport.
++
++## Explicit execution and evidence
++
++Invoke the adapter with `--selection`, `--executable` (absolute), `--source-root`
++and a new `--output-dir`. Optional `--timeout-seconds` and
++`--output-limit-bytes` control bounded process observation. The script adds only
++`solve` to the selected executable, supplies exact input bytes on stdin, uses no
++shell, and writes only the explicit output directory. Existing output directories
++are rejected. Runtime discovery/build/network/reference acquisition is absent.
++
++Before each process, the ledger and reference/criterion snapshots exist. Exact
++immutable input bytes are delivered through a pipe, multiplexed with output; the
++archive file is never used as the process input source. Captured
++stdin/stdout/stderr, exit or signal, executable before/after hashes, timing and
++selected thread environment are retained. Timeouts/output-limit failures terminate
++the owned process group and keep partial raw bytes with explicit incomplete-capture
++status. Delivered-byte hashes and retained archive hashes are checked separately;
++changed archives cannot support a passing record. This records byte delivery,
++not an attestation of how the executable internally uses it. The consumer performs one bounded size/hash-checked read of captured stdout
++and decodes exactly that returned byte object. It never parses an unchecked
++later reread. Missing executable, wrong hashes, unsupported versions, bad semantics and
++unready references preserve the full required denominator as blocked/error rows.
++Interruption leaves later rows not_run. Ordinary completion never rewrites a target.
++
++The run records actual checkout revision/dirty state, executable and harness
++identity, selection/input/reference/criterion hashes and the bound source semantics.
++A selected source checkout and executable digest are not proof that this binary was
++built from those exact sources; a real build manifest/distributed candidate witness
++remains required for that claim. This matters especially while the engine is being
++integrated. Model/request/mode identity and process capture are necessary evidence,
++not an engineering acceptance certificate.
++
++`ledger.json` is updated atomically within the new run directory. Before final
++publication, every completed case's retained input/reference/criterion/stdout/
++stderr snapshots, original bindings and retained selection are rechecked against
++their captured in-memory identities. This also detects a later process changing
++an earlier case. Interim ledgers cannot publish an all-matched outcome. Raw
++captures and bound copies are retained observations; the filesystem is not locked,
++and the check does not prevent changes after the observation or after publication.
++Consumers must verify the recorded hashes again before later reliance. `summary.md` derives
++from that same ledger. Exit0 means only all selected required assertions matched;
++exit1 means obligations remain unsatisfied; invalid selection/host setup returns2.
++Decoded nonzero numeric tokens that underflow to zero are refused. Current
++uppercase/lowercase diagnostic severities and wrapper counts are checked, and
++unknown raw row fields cannot silently contradict the pinned semantics.
++The final ledger records the custody observation time and these limits.
++Reports explicitly state `qualification: not_established_by_this_harness`.
++
++## Verification and remaining integration
++
++Run the focused stdlib suite with the project's Python environment:
++
++```sh
++PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s tests -p test_qualification_gate.py -v
++```
++
++This route avoids the general pytest setup's unrelated Rust build. It starts only
++short synthetic executables in temporary directories, including timeout/output
++limit/nonzero/malformed cases. It checks exact denominator retention, criteria,
++semantics, identity, immutable inputs, interruption and raw capture. Passing this
++suite is harness evidence only. No actual Piping solve is claimed by this slice.
++
++Next: independently freeze the first real axial and bending/torsion request,
++reference, selector and criterion bindings; select the real reviewed solver build;
++add its closed mode/raw/semantic dispatch; then execute and assess. Signed-support,
++precise/source/physics carrier gaps go to their source owners. Native/human/agent
++workflow witnesses, licensed reference execution and release remain separate.

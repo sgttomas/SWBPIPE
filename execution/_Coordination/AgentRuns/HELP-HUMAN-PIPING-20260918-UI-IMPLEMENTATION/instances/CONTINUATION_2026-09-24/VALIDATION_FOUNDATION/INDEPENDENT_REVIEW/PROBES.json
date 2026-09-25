@@ -1,0 +1,112 @@
+{
+  "candidate": [
+    {
+      "path": "projects/chirality-piping/validation/qualification/HARNESS_CUT.md",
+      "sha256": "a6d248e200cd97cce589be16880efd60f9501e835f9518ec2fa078565b278b14",
+      "bytes": 7487,
+      "matches_freeze": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/README.md",
+      "sha256": "654630c7da3b87acc15fc4699682f5ab06073394e60cc381662dcb670363455e",
+      "bytes": 6802,
+      "matches_freeze": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/capability_inventory.json",
+      "sha256": "d6401a341d5177e355a55bf86665f0a933736adebc053c0f811a6a3812ee32c1",
+      "bytes": 108139,
+      "matches_freeze": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/qualification/check_inventory.py",
+      "sha256": "98a6b85be7075135bcfaed584af57c1ed7ebdbe6b122da842d34e6929b1f8e5e",
+      "bytes": 7372,
+      "matches_freeze": true
+    }
+  ],
+  "baseline_checker_status": 0,
+  "probes": [
+    {
+      "name": "unknown_vp_profile",
+      "reported_pass": true,
+      "errors": []
+    },
+    {
+      "name": "duplicate_first_cut",
+      "reported_pass": true,
+      "errors": []
+    },
+    {
+      "name": "remove_unreferenced_vp_sources",
+      "reported_pass": true,
+      "errors": []
+    },
+    {
+      "name": "clear_contract_sources",
+      "reported_pass": true,
+      "errors": []
+    },
+    {
+      "name": "remove_required_profile_stress",
+      "reported_pass": true,
+      "errors": []
+    },
+    {
+      "name": "known_source_hash_tamper",
+      "reported_pass": false,
+      "errors": [
+        "root_graph: source hash mismatch"
+      ]
+    }
+  ],
+  "profile_output_omissions": [
+    {
+      "profile": "Q0-HARNESS",
+      "capability_output_sets_missing_from_profile": [
+        "kinematics",
+        "member_actions",
+        "stress_fields",
+        "support_actions"
+      ]
+    },
+    {
+      "profile": "Q1-STRAIGHT-STATIC",
+      "capability_output_sets_missing_from_profile": [
+        "load_inventory",
+        "material_state",
+        "pressure_state"
+      ]
+    },
+    {
+      "profile": "Q2-PIPING-STATIC",
+      "capability_output_sets_missing_from_profile": [
+        "load_inventory"
+      ]
+    },
+    {
+      "profile": "Q3-RESTRAINT-NONLINEAR",
+      "capability_output_sets_missing_from_profile": [
+        "load_inventory",
+        "material_state",
+        "member_actions",
+        "stress_fields"
+      ]
+    },
+    {
+      "profile": "Q8-AUTOMATION",
+      "capability_output_sets_missing_from_profile": [
+        "rule_context"
+      ]
+    },
+    {
+      "profile": "Q9-ADVANCED",
+      "capability_output_sets_missing_from_profile": [
+        "kinematics",
+        "member_actions",
+        "support_actions"
+      ]
+    }
+  ],
+  "limits": "In-memory corruption probes exercise inventory checker only; no solver/build/test suite/native/network execution and no maintained-source writes."
+}

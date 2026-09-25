@@ -1,0 +1,88 @@
+{
+  "utc": "2026-09-25T08:37:57.490328+00:00",
+  "executor": "/root/numerical_resume/n05_admission",
+  "role": "TASK",
+  "actual_harness_parent": "/root/numerical_resume",
+  "assignment_authority": "/root",
+  "mechanism": "Root cross-manager assignment to existing harness-native child; original parentage preserved",
+  "packet_author": "/root/load_state_design",
+  "independence": "Reviewer authored neither static design/reference packet nor upstream materials. Earlier receipt-producer authorship is disclosed; no independent producer-code review is claimed. Earlier attempted reviewer resume failed thread limit perRoot; this assignment is the sole independent review.",
+  "descendants": [],
+  "selected_workflow": null,
+  "selected_skill": null,
+  "write_scope": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/INDEPENDENT_REVIEW",
+  "primary_acquisition_read_root": "/private/tmp/piping-static-reference-acquisition-20260925",
+  "read_only_git": "git rev-parse HEAD; git show22452:path only to read/verify fixed source blobs",
+  "execution": "python3 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/INDEPENDENT_REVIEW/check_static_sources.py",
+  "execution_exit": 0,
+  "method": "read-only hash/AST/HTML/export inventory and Fraction scalar source-conclusion checks; acquired code never imported/evaluated/executed",
+  "not_done": [
+    "target adoption",
+    "external command or executable deck",
+    "Piping solver or product run",
+    "build/native",
+    "Git mutation",
+    "private source asset vendoring",
+    "complete MED topology/group decode",
+    "external runtime or asset redistribution clearance"
+  ],
+  "source_boundaries": "Unreviewed engineering-corpus OCR not used. Source labels/VALE_CALC do not become independent references. Current manual switcher does not establish doc commit.",
+  "inputs": [
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/PACKET_MANIFEST.json",
+      "sha256": "382eb333e23879a8b03aa4bb24c0fb05d96396830938b68a6fa97a3ded68d7e4"
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/ACQUISITION.json",
+      "sha256": "c68ba6db71dcb108847ddf5335e11fc62113d429ac0dfaab4c644783c4571fef"
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/ACQUISITION_CONTRACT.md",
+      "sha256": "c38e6643dd73c56524c0b909b9429cad397f3aa0f445ad0e5075164e5b2288a0"
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/APPLICABILITY.md",
+      "sha256": "cd72ae3e03d94cf11f7f669202aad1bee977ea797faabb47386b111404ea9210"
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/ASSERTION_LINEAGE.json",
+      "sha256": "43b47d0441828d0bc8d3e8154bf153e2de22f7d81cf248dd3b041dd09bb647f3"
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/BASIS.json",
+      "sha256": "1239e02fb6f591608608a40dbd6b1639b9c2a2634021774f98cdbdbfaa47a4d2"
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/REFERENCE_CANDIDATES.json",
+      "sha256": "e920dda3143fa4b8f8384b171369a0cafaa1fbef3f1e26f74193de8fdf169189"
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/RETURN.md",
+      "sha256": "06e134ab84fb0f0f25252823990686e4253acfa1f57b20d664c88ca629d60372"
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/_run_records/CHECKS.json",
+      "sha256": "eba0399858a759daa40350250877df2d6485045d2d31b87d8b4a9fae9491e1e8"
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/_run_records/MANUAL_VERSION_CHECK.json",
+      "sha256": "d812c7c24911c5698c977e0f761f57a52a7fe3cd0bd47055f105a4391e2c3081"
+    },
+    {
+      "origin": "/private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/_run_records/build_inventory.py",
+      "sha256": "e3868b9791546b7b3dba55280b7ba4465768b5a50761fbe2aa3adafa16fd88ec"
+    }
+  ]
+}

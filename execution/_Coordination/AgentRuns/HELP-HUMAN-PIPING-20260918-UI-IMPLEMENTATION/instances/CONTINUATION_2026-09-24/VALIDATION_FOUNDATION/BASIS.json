@@ -1,0 +1,65 @@
+{
+  "agent": "/root/scientific_transport_manager",
+  "role": "WORKING_ITEMS Type1",
+  "parent": "/root",
+  "mechanism": "native collaboration followup_task, continuing same agent under new brief",
+  "base_commit": "eec2855d829d9cd3704892fc7d603562fbd39b88",
+  "owner_authority": "ROOT relayed explicit owner resumption of all work following this new course; supersedes prior hold and satisfies VP-GO for progressive open validation. Original supplied documents remain inert.",
+  "scope": [
+    "VP-SCOPE capability/evidence/profile mapping",
+    "VP-HARNESS concrete minimal extension proposal",
+    "optional executable inventory sanity checks only"
+  ],
+  "exclusions": [
+    "product/model/result schema changes",
+    "full tests/build/CI/native/licensed execution",
+    "instruction/workgraph edits",
+    "Git mutations",
+    "scientific foundation adoption",
+    "material/component library or code-rule population"
+  ],
+  "instructions": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    }
+  ],
+  "delegation": [
+    {
+      "agent": "/root/scientific_transport_manager/harness_inventory",
+      "role": "TASK Type2",
+      "mechanism": "collaboration.spawn_agent",
+      "actual_parent": "/root/scientific_transport_manager",
+      "context": "fresh explicit brief; full role read/supplied",
+      "scope": "read-only runner/comparator source; evidence only HARNESS_INVENTORY",
+      "no_delegation": true,
+      "return": "HARNESS_INVENTORY/INVENTORY.md and33sourcebindings; source read from intended main checkout, evidence mistakenly writtenPRIMARY and copied byte-identically; exact deviation _run_records/HARNESS_EVIDENCE_RELOCATION.json"
+    },
+    {
+      "agent": "/root/scientific_transport_manager/scope_review",
+      "role": "TASK Type2",
+      "mechanism": "collaboration.spawn_agent",
+      "actual_parent": "/root/scientific_transport_manager",
+      "context": "fresh explicit brief; fullrole read/supplied",
+      "scope": "read-only independent review of4maintained files; evidence only INDEPENDENT_REVIEW",
+      "no_delegation": true
+    }
+  ],
+  "recording": "One-run construction script removed after producing inspectable maintained inventory; not a reusable workflow or required tool. Final inventory and exactsource hashes are maintained truth."
+}

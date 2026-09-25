@@ -1,0 +1,130 @@
+{
+  "status": "proposed scope only; no assertion numbers or campaign thresholds adopted",
+  "engine_basis": "22452ecd148e86486fe36a36e34a184c9a5a5943",
+  "cases": [
+    {
+      "candidate_id": "CA-106A-AXIAL",
+      "source_variant": "ssll106a",
+      "source": "https://gitlab.com/codeaster/src/-/blob/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106a.comm",
+      "source_lines": "191-250",
+      "reference_class": "source-labelled analytical expressions; independent oracle pending",
+      "proposed_quantities": [
+        "mapped centerline displacement and rotation components",
+        "signed section resultant components",
+        "independently established support components and equilibrium"
+      ],
+      "excluded": [
+        "unmatched Gauss stress/strain or radial DOFs",
+        "full external deck pass",
+        "unadmitted source numerical/regression constants"
+      ],
+      "status": "compatible_formulation_subset_candidate",
+      "ready_for_campaign_scoring": false,
+      "remaining": [
+        "mesh/group and frame/cut mapping",
+        "independent reference values and protected-criterion mapping",
+        "asset rights and runtime if actual external execution selected"
+      ]
+    },
+    {
+      "candidate_id": "CA-106A-TORSION",
+      "source_variant": "ssll106a",
+      "source": "https://gitlab.com/codeaster/src/-/blob/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106a.comm",
+      "source_lines": "329-415",
+      "reference_class": "source-labelled analytical expressions; independent oracle pending",
+      "proposed_quantities": [
+        "mapped centerline displacement and rotation components",
+        "signed section resultant components",
+        "independently established support components and equilibrium"
+      ],
+      "excluded": [
+        "unmatched Gauss stress/strain or radial DOFs",
+        "full external deck pass",
+        "unadmitted source numerical/regression constants"
+      ],
+      "status": "compatible_formulation_subset_candidate",
+      "ready_for_campaign_scoring": false,
+      "remaining": [
+        "mesh/group and frame/cut mapping",
+        "independent reference values and protected-criterion mapping",
+        "asset rights and runtime if actual external execution selected"
+      ]
+    },
+    {
+      "candidate_id": "CA-106A-MY",
+      "source_variant": "ssll106a",
+      "source": "https://gitlab.com/codeaster/src/-/blob/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106a.comm",
+      "source_lines": "420-496",
+      "reference_class": "source-labelled analytical expressions; independent oracle pending",
+      "proposed_quantities": [
+        "mapped centerline displacement and rotation components",
+        "signed section resultant components",
+        "independently established support components and equilibrium"
+      ],
+      "excluded": [
+        "unmatched Gauss stress/strain or radial DOFs",
+        "full external deck pass",
+        "unadmitted source numerical/regression constants"
+      ],
+      "status": "compatible_formulation_subset_candidate",
+      "ready_for_campaign_scoring": false,
+      "remaining": [
+        "mesh/group and frame/cut mapping",
+        "independent reference values and protected-criterion mapping",
+        "asset rights and runtime if actual external execution selected"
+      ]
+    },
+    {
+      "candidate_id": "CA-106A-MZ",
+      "source_variant": "ssll106a",
+      "source": "https://gitlab.com/codeaster/src/-/blob/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106a.comm",
+      "source_lines": "498-572",
+      "reference_class": "source-labelled analytical expressions; independent oracle pending",
+      "proposed_quantities": [
+        "mapped centerline displacement and rotation components",
+        "signed section resultant components",
+        "independently established support components and equilibrium"
+      ],
+      "excluded": [
+        "unmatched Gauss stress/strain or radial DOFs",
+        "full external deck pass",
+        "unadmitted source numerical/regression constants"
+      ],
+      "status": "compatible_formulation_subset_candidate",
+      "ready_for_campaign_scoring": false,
+      "remaining": [
+        "mesh/group and frame/cut mapping",
+        "independent reference values and protected-criterion mapping",
+        "asset rights and runtime if actual external execution selected"
+      ]
+    },
+    {
+      "candidate_id": "CA-106A-THERMAL",
+      "source_variant": "ssll106a",
+      "source": "https://gitlab.com/codeaster/src/-/blob/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll106a.comm",
+      "source_lines": "40,65,849-987",
+      "reference_class": "source-labelled constant-alpha analytical interval; manual/command mismatch",
+      "status": "pending_source_reconciliation_MISMATCH_01",
+      "ready_for_campaign_scoring": false
+    },
+    {
+      "candidate_id": "CA-101A-SYSTEM",
+      "source_variant": "ssll101a",
+      "source": "https://gitlab.com/codeaster/src/-/blob/7558f1d06088bd93d8324e314912bf0e6df7801f/astest/ssll101a.comm",
+      "reference_class": "published external numerical lineage; separate AUTRE_ASTER/regression rows",
+      "status": "later_shear_effective_bend_model_and_reference_acquisition",
+      "ready_for_campaign_scoring": false
+    },
+    {
+      "candidate_id": "CA-101-CDE-ENRICHED",
+      "source_variants": [
+        "ssll101c",
+        "ssll101d",
+        "ssll101e"
+      ],
+      "reference_class": "published ABAQUS pipe lineage by Fourier order, not reproduced",
+      "status": "later_distinct_enriched_pipe_profile; E manual mode label conflict unresolved",
+      "ready_for_campaign_scoring": false
+    }
+  ]
+}

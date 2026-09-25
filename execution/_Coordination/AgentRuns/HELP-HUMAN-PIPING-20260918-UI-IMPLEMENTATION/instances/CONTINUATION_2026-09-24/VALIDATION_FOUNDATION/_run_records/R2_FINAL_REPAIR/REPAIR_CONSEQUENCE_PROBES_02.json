@@ -1,0 +1,27 @@
+{
+  "scope": "Two narrow consequences of repaired archive custody, not solver qualification",
+  "source_hashes": {
+    "qualification_gate.py": "b6980255a17c5ee3c27619f417abc5e5073d17b21d9e6ad118875601000afbbd",
+    "qualification_process.py": "bf1ed365763440261f21a0f699ecf8729c745d259880d3851649d0292c1282c6"
+  },
+  "results": [
+    {
+      "scenario": "stdout_changed_between_capture_and_consumer",
+      "probe_mechanism": "real synthetic process then deterministic post-capture file mutation hook, not a claimed solver attack",
+      "outcome": "not_satisfied",
+      "case_reason": "publication custody: retained artifact digest changed: /private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/R2_FINAL_REPAIR/tmp4vu5vwlj/run-1/case-0000/stdout.bin",
+      "process_captured_sha256": "cebb16a09fc796bb798d90566a3e72faee320706a916e8ec7625401907c27372",
+      "consumed_archive_sha256": "736fc5f9cfd2af97225775fba1739b6d510cfcf20f874ef14d072f6523bbd6e7",
+      "emitted_required_x": 99,
+      "replacement_required_x": 2
+    },
+    {
+      "scenario": "retained_reference_copy_changed_during_process",
+      "probe_mechanism": "actual synthetic child modifies retained reference copy; original bound reference untouched",
+      "outcome": "not_satisfied",
+      "case_reason": "publication custody: retained artifact size changed: /private/tmp/piping-validation-foundation-20260925/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/R2_FINAL_REPAIR/tmpe_1bithe/run-1/case-0000.reference.json",
+      "original_reference_sha256": "0643b530d016b333c16466a35fc9f45646ff6fcc7f09eb360b9e784b8129eea9",
+      "retained_reference_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    }
+  ]
+}
