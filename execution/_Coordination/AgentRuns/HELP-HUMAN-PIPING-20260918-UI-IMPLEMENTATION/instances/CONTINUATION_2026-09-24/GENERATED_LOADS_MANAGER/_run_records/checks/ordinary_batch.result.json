@@ -1,0 +1,18 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--manifest-path",
+    "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml",
+    "atomic_batch::tests",
+    "--",
+    "--nocapture"
+  ],
+  "started_at": "2026-09-25T01:50:54.427983+00:00",
+  "exit_code": 0,
+  "target": "/private/tmp/piping-generated-loads-target/operation_applier",
+  "jobs": 2,
+  "manifest_sha256": "0a60331dac87de644cdc3ff4c4b2a0a125a313b73fb74efcf3e6e29c55deeff6",
+  "log_sha256": "25cf43f5114d326284413bf2fd3f9d26b2966425899cabf7173cbca55ccfb103"
+}

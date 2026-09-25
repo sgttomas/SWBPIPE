@@ -1,0 +1,56 @@
+{
+  "base_commit": "0a438a68672269e5750900792c9565ae9e5555b0",
+  "status": "implemented; first full tests pending shared build lane",
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/Cargo.toml",
+      "sha256": "4f371b06ff85a2c7eccdebbc0a0b513f3f3d57ebc8d4c759c529b21d7ea48b0f",
+      "bytes": 882
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/adapter.py",
+      "sha256": "9d9ab8d84209dc1f4cf7d3693dd54c1220ce434c373ffafec07eeebd8a84ae6c",
+      "bytes": 12513
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/README.md",
+      "sha256": "0b92faa88bcb625fc8e5b575f11e216b3820f5f63c0f3e1491dd56d3a0d1c056",
+      "bytes": 6484
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/lib.rs",
+      "sha256": "96e6ca5562849b9136bc75b665d10b421e75a9b9805303c40b68982101889336",
+      "bytes": 17509
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/binary64.rs",
+      "sha256": "1fc120f15fe9aebf8b335b9fbd95b37d0c7c66b081c82298b23885f258376966",
+      "bytes": 15858
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/binary64_cli.rs",
+      "sha256": "8b17e860bfd9deac9045ae6b2f853349b5b9e4d4fc2674044a0fc3f7f19c52bc",
+      "bytes": 2386
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/bin/openpipestress_jcs_binary64.rs",
+      "sha256": "526f30db364a62253a56092c6a5e97759fba74d5581fc7a15765a7ce9765b5c5",
+      "bytes": 808
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/tests/binary64_profile.rs",
+      "sha256": "bfda6ebc0e39dc69016200766ed3c8d82060646b73abfce6acdc931e44cfd5a3",
+      "bytes": 10177
+    },
+    {
+      "path": "projects/chirality-piping/tools/serialization/build_checked_json.py",
+      "sha256": "120f0125c5aae4ccc42dce56665c1f6a02353a3bf61c496f735b526f492f49fb",
+      "bytes": 1277
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_binary64_canonical_json_adapter.py",
+      "sha256": "994ce152746cdd0ab3b59b034b31bbda18f511ef8645c773b318b8b28b59198f",
+      "bytes": 10182
+    }
+  ]
+}

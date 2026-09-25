@@ -1,0 +1,27 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--manifest-path",
+    "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/loads/self_weight_wasm/Cargo.toml",
+    "--test",
+    "applied_self_weight",
+    "--",
+    "--nocapture"
+  ],
+  "started_at": "2026-09-25T00:58:49.289670+00:00",
+  "exit_code": 0,
+  "target": "/private/tmp/piping-generated-loads-target/self_weight_wasm",
+  "jobs": 2,
+  "source_hashes": {
+    "core/product_physics/src/self_weight.rs": "1f0b2d747b3584020ecfc6716bbfbb9367b49373f6d20caae1eb9d3aa24be994",
+    "core/product_physics/src/lib.rs": "f792ad3791e6d2588a0eee2a410766f725f1aade2230c397a475016ddc8a0edb",
+    "core/loads/self_weight_wasm/src/lib.rs": "af540fa1831edef4b33c5a8c43c6ed532bd1180f8aebc621f621a1d489621355",
+    "core/loads/self_weight_wasm/tests/applied_self_weight.rs": "cc9cce2a3bb3068e3b5677255daeee500f6a2168549849834f0397fe4c5cc473",
+    "core/model_operations/operation_applier/src/lib.rs": "f3a7995fefd6d591a11edc12f0d141a9308e2cd875f05460ec479fd251bee254",
+    "core/model_operations/operation_applier/src/rich_authoring.rs": "aefadd7dcc36eccf52aace0f6abca3b739a534fe1fbfa260a991318b0218b4ef",
+    "core/model_operations/operation_applier/src/atomic_batch.rs": "452a8b5c622334742cf998372c892748603fab18dcc4a0a793d12b65cabb109e"
+  },
+  "log_sha256": "6c8292a41f40c1b30f7d63f6b52536372bbe8b216684f2977fba09da8dc4dc73"
+}

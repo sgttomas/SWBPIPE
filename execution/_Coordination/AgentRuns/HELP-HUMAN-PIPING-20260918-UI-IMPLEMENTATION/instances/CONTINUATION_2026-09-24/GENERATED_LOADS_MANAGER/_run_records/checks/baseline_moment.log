@@ -1,0 +1,21 @@
+   Compiling open_pipe_stress_self_weight_wasm v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/loads/self_weight_wasm)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.03s
+     Running tests/applied_self_weight.rs (/private/tmp/piping-generated-loads-target/self_weight_wasm/debug/deps/applied_self_weight-408c740a23331412)
+
+running 1 test
+density changed 1000 -> 2000 kg/m^3; stored q=-19.792033717615706 N/m; independently expected q=-39.58406743523141 N/m; actual reaction=50.584067 N; expected reaction=90.16813487046282 N; expected first moment=101.16813487046282 N*m
+actual first moment=61.584067 N*m
+
+thread 'density_edit_must_not_solve_with_stale_applied_self_weight' (79513350) panicked at tests/applied_self_weight.rs:17:5:
+total root reaction: actual=50.584067000000, expected=90.168134870463
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test density_edit_must_not_solve_with_stale_applied_self_weight ... FAILED
+
+failures:
+
+failures:
+    density_edit_must_not_solve_with_stale_applied_self_weight
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `--test applied_self_weight`

@@ -1,0 +1,18 @@
+{
+  "command": [
+    "cargo",
+    "run",
+    "--offline",
+    "--manifest-path",
+    "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/_run_records/mass_probe/Cargo.toml"
+  ],
+  "started_at": "2026-09-25T01:15:46.003824+00:00",
+  "exit_code": 0,
+  "scope": "float_roundtrip dependency only; source mass formula unchanged",
+  "source_hashes": {
+    "core/product_physics/src/self_weight.rs": "1f0b2d747b3584020ecfc6716bbfbb9367b49373f6d20caae1eb9d3aa24be994",
+    "core/product_physics/Cargo.toml": "35e36952c2e4d37d55992153d726a6cbb709402a3e0dcac08a4712b53288c1c5",
+    "core/serialization/canonical_json/Cargo.toml": "531d6fcb62e47c3f4dfa5aae3c920255d40f2f1619036a001c1cb37e691c10f4"
+  },
+  "output_sha256": "71857969226106189e48cb059cf3dc12458ca730568a3575bbe54629572d695b"
+}

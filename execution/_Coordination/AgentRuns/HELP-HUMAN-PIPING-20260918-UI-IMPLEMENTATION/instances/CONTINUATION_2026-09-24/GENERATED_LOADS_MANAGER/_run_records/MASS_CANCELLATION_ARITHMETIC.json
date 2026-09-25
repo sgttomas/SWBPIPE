@@ -1,0 +1,83 @@
+{
+  "claim": "Independent exact rational evaluation of represented OD/effective-wall inputs compared to current source formula. This is not an actual Rust generator execution.",
+  "source_sha256": "f792ad3791e6d2588a0eee2a410766f725f1aade2230c397a475016ddc8a0edb",
+  "formula_location": "compute_pipe_mass_per_length",
+  "rows": [
+    {
+      "outside_diameter": 0.1,
+      "effective_wall": 0.01,
+      "represented_od_ratio": [
+        3602879701896397,
+        36028797018963968
+      ],
+      "represented_wall_ratio": [
+        5764607523034235,
+        576460752303423488
+      ],
+      "rounded_bore": 0.08,
+      "legacy_area_over_pi": 0.0009000000000000004,
+      "stable_float_area_over_pi": 0.0009000000000000001,
+      "exact_area_over_pi_numerator": "299076299051606095384123884385495",
+      "exact_area_over_pi_denominator": "332306998946228968225951765070086144",
+      "legacy_relative_error": 3.743147767052177e-16,
+      "stable_relative_error": 1.2914052543382895e-17
+    },
+    {
+      "outside_diameter": 1.0,
+      "effective_wall": 1e-09,
+      "represented_od_ratio": [
+        1,
+        1
+      ],
+      "represented_wall_ratio": [
+        4835703278458517,
+        4835703278458516698824704
+      ],
+      "rounded_bore": 0.999999998,
+      "legacy_area_over_pi": 1.0000000272292198e-09,
+      "stable_float_area_over_pi": 9.999999990000001e-10,
+      "exact_area_over_pi_numerator": "23384026173910421950358873977327028964679",
+      "exact_area_over_pi_denominator": "23384026197294446691258957323460528314494920687616",
+      "legacy_relative_error": 2.8229219733780173e-08,
+      "stable_relative_error": 5.758387178553237e-17
+    },
+    {
+      "outside_diameter": 1.0,
+      "effective_wall": 1e-12,
+      "represented_od_ratio": [
+        1,
+        1
+      ],
+      "represented_wall_ratio": [
+        4951760157141521,
+        4951760157141521099596496896
+      ],
+      "rounded_bore": 0.999999999998,
+      "legacy_area_over_pi": 9.999778782798785e-13,
+      "stable_float_area_over_pi": 9.99999999999e-13,
+      "exact_area_over_pi_numerator": "24519928653829701311901733093175590887025375",
+      "exact_area_over_pi_denominator": "24519928653854221733733552434404946937899825954937634816",
+      "legacy_relative_error": 2.212171912150605e-05,
+      "stable_relative_error": 4.8435879539406526e-17
+    },
+    {
+      "outside_diameter": 1.0,
+      "effective_wall": 2.7755575615628914e-17,
+      "represented_od_ratio": [
+        1,
+        1
+      ],
+      "represented_wall_ratio": [
+        1,
+        36028797018963968
+      ],
+      "rounded_bore": 1.0,
+      "legacy_area_over_pi": 0.0,
+      "stable_float_area_over_pi": 2.7755575615628914e-17,
+      "exact_area_over_pi_numerator": "36028797018963967",
+      "exact_area_over_pi_denominator": "1298074214633706907132624082305024",
+      "legacy_relative_error": 1.0,
+      "stable_relative_error": 2.7755575615628914e-17
+    }
+  ]
+}

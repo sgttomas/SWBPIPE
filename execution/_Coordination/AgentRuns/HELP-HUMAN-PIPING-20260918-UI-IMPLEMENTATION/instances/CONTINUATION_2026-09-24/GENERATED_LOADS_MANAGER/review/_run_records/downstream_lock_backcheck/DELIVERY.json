@@ -1,0 +1,24 @@
+{
+  "reviewer": "/root/authoring_manager/self_weight_review",
+  "parent": "/root/authoring_manager",
+  "status": "PASS complete23 source and lock review; no hold for future runtime evidence",
+  "patch_sha256": "94b02b66cf7ddaa533bc4a664c9de52911ef98ed3d7561fdff3f10bcf638ddc7",
+  "outputs": [
+    {
+      "path": "RETURN.md",
+      "sha256": "6654f938b51dadbfd9b6e15520271c8787d942d607a44df73dbf27d3c7cc25c8"
+    },
+    {
+      "path": "REFERENCE_CHECK.md",
+      "sha256": "c9da01a655620e656a9f9897a9ce35df526e3197183fd52e0bda76ca486b6f03"
+    },
+    {
+      "path": "_run_records/DOWNSTREAM_LOCK_BACKCHECK.md",
+      "sha256": "1cbf3cac89830828be64459ea6a6d3c3e045e1559970192078da21b00d9f88b2"
+    },
+    {
+      "path": "_run_records/downstream_lock_backcheck/COMPARISON.json",
+      "sha256": "4e064c5ebf5f39a7ee2e92141282b4e898673d433ca963ec55255593ed0f3c0f"
+    }
+  ]
+}

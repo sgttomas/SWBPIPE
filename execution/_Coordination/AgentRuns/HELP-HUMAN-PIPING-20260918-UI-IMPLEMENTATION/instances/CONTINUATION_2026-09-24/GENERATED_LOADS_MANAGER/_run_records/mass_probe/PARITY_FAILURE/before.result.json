@@ -1,0 +1,18 @@
+{
+  "command": [
+    "cargo",
+    "run",
+    "--offline",
+    "--manifest-path",
+    "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/_run_records/mass_probe/Cargo.toml"
+  ],
+  "started_at": "2026-09-25T01:07:57.967617+00:00",
+  "exit_code": 101,
+  "target": "/private/tmp/piping-generated-loads-target/mass_probe",
+  "jobs": 2,
+  "product_sha256": "f792ad3791e6d2588a0eee2a410766f725f1aade2230c397a475016ddc8a0edb",
+  "self_weight_sha256": "1f0b2d747b3584020ecfc6716bbfbb9367b49373f6d20caae1eb9d3aa24be994",
+  "probe_sha256": "d6d6dbc34f32aa8b6bc9190fdf5a594320c4eae9edc31baa5e1f49b9cad323f2",
+  "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "387ae5e624ea5d57b786f0dac9ef23438ee778dde73f553b78b2b96381d55a2d"
+}

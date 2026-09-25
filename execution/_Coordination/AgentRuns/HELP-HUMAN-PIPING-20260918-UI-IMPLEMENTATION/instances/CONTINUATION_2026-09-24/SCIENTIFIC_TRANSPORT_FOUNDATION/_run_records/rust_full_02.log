@@ -1,0 +1,65 @@
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/private/tmp/piping-scientific-json-20260925/projects/chirality-piping/core/serialization/canonical_json)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.17s
+     Running unittests src/lib.rs (core/serialization/canonical_json/target/debug/deps/open_pipe_stress_canonical_json-c603364167a15ec1)
+
+running 8 tests
+test tests::null_and_bool_scalars_render_literally ... ok
+test tests::strings_escape_exactly_as_json_stringify ... ok
+test tests::objects_sort_keys_by_utf16_code_units ... ok
+test tests::float_and_integer_repr_converge ... ok
+test tests::rfc8785_appendix_b_bit_pattern_vectors ... ok
+test tests::integers_beyond_2_53_keep_exact_precision ... ok
+test tests::composite_document_matches_ecmascript_rendering ... ok
+test tests::ecma_notation_branch_vectors ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/openpipestress_jcs_binary64.rs (core/serialization/canonical_json/target/debug/deps/openpipestress_jcs_binary64-1f4ce5349ef0ee47)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/openpipestress_jcs_ijson.rs (core/serialization/canonical_json/target/debug/deps/openpipestress_jcs_ijson-9bba2f631f4c30c7)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/binary64_profile.rs (core/serialization/canonical_json/target/debug/deps/binary64_profile-97ee3600e38f5ae3)
+
+running 10 tests
+test original_token_checks_reject_underflow_zero_and_overflow ... ok
+test snapshot_domain_is_explicit_and_does_not_alter_history ... ok
+test original_count_fields_are_checked_before_projection ... ok
+test rfc_finite_rendering_vectors_and_new_negative_zero_policy ... ok
+test real_spellings_converge_without_integer_variant_precision ... ok
+test strings_duplicates_sorting_and_syntax_are_strict ... ok
+test cli_profile_envelope_and_batch_contract ... ok
+test repeated_long_keys_cannot_amplify_capture_without_bound ... ok
+test programmatic_output_expansion_is_bounded_before_rendering ... ok
+test bounded_document_depth_number_and_nodes ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.04s
+
+     Running tests/checked_profile.rs (core/serialization/canonical_json/target/debug/deps/checked_profile-ea94e8deab3db071)
+
+running 2 tests
+test rejects_duplicates_and_unsafe_integrals ... ok
+test canonicalizes_checked_boundaries ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/precision_transport.rs (core/serialization/canonical_json/target/debug/deps/precision_transport-1bb1c4ac4531242a)
+
+running 1 test
+test checked_text_preserves_same_unit_nonzero_binary64_bits ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests open_pipe_stress_canonical_json
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -1,0 +1,80 @@
+{
+  "reviewer": "/root/authoring_manager/self_weight_review",
+  "parent": "/root/authoring_manager",
+  "stage": "same TASK; one-file TS source repair and preceding runtime evidence check",
+  "candidate_patch_sha256": "6a349262358bcfc8295cc18e7ec116be544f6738ee425dae51848b3447334c99",
+  "patch_hash_matches": true,
+  "changed_paths": [
+    "projects/chirality-piping/apps/desktop/src/features/self-weight-authoring/SelfWeightPlanPanel.tsx"
+  ],
+  "actual_source_mismatches": [],
+  "scope_exit": 0,
+  "checks": [
+    {
+      "name": "candidate_wasm_final",
+      "command": [
+        "node",
+        "scripts/build-wasm-engine.mjs"
+      ],
+      "exit_code": 0,
+      "recorded_patch": "94b02b66cf7ddaa533bc4a664c9de52911ef98ed3d7561fdff3f10bcf638ddc7",
+      "source_before_matches_reviewed23": true,
+      "source_after_matches_reviewed23": true,
+      "log_hash_matches": true,
+      "result_sha256": "2dd63393e266dc97f19be7dc7db6f9e02cda78d02154a54036a9f84948ca988c",
+      "log_sha256": "33664a8b17c2b44d19ab5960d0bec23ce463dd0b177ed58dc72c83dd89be0895"
+    },
+    {
+      "name": "candidate_vitest",
+      "command": [
+        "node",
+        "../../node_modules/vitest/vitest.mjs",
+        "run",
+        "src/features/self-weight-authoring/SelfWeightRefresh.test.tsx",
+        "src/features/offline-proposal-intake/workflows.test.tsx",
+        "src/services/operationBatchService.test.ts",
+        "--maxWorkers=2"
+      ],
+      "exit_code": 0,
+      "recorded_patch": "94b02b66cf7ddaa533bc4a664c9de52911ef98ed3d7561fdff3f10bcf638ddc7",
+      "source_before_matches_reviewed23": true,
+      "source_after_matches_reviewed23": true,
+      "log_hash_matches": true,
+      "result_sha256": "196e0a39dce7e42ed276a8208310b7a2b6caf084d741088faed961782126a0eb",
+      "log_sha256": "5ac8ca7abc0a825111cbb23d841ddc37f11784c4260772883caa4c754ed9aa5c"
+    },
+    {
+      "name": "candidate_tsc",
+      "command": [
+        "node",
+        "../../node_modules/typescript/bin/tsc",
+        "--noEmit",
+        "--project",
+        "tsconfig.json"
+      ],
+      "exit_code": 2,
+      "recorded_patch": "94b02b66cf7ddaa533bc4a664c9de52911ef98ed3d7561fdff3f10bcf638ddc7",
+      "source_before_matches_reviewed23": true,
+      "source_after_matches_reviewed23": true,
+      "log_hash_matches": true,
+      "result_sha256": "eed438b8452d92a55906147a6f1349f4fbff30e27bbf4fbee70835765a63f5c6",
+      "log_sha256": "4528db05c3281f40c09d0d1483329314e082345373d6c1d84eefcd1cf76f7cdb"
+    }
+  ],
+  "runtime_qualification": "Vitest25PASS includes actual-WASM self-weight/workflow tests and5mocked service transport tests; no native-runtime claim. Previous tsc2errors retained; repaired source rerun pending.",
+  "execution": "Reviewer only read source/evidence and ran hash/scope checks; no product tests/builds/edits.",
+  "output_hashes": [
+    {
+      "path": "RETURN.md",
+      "sha256": "8c03874bf100fc59bbec36c3c836e8e24b79000ea4009f4f5537d345d1b12e27"
+    },
+    {
+      "path": "REFERENCE_CHECK.md",
+      "sha256": "ff2d1d55b6fc8b9cdd55561fe9cdfc182e1e97fc2ea9fc4bd3ac278290fa7a59"
+    },
+    {
+      "path": "_run_records/UI_RUNTIME_TSC_BACKCHECK.md",
+      "sha256": "25217c3ea241dc7ceab8eeee472d401341ae1c1bc8f404cad566c11e98cf0af6"
+    }
+  ]
+}

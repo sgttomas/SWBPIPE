@@ -1,0 +1,129 @@
+{
+  "executor": "/root/physics_resume/joined_consumer_review",
+  "original_actual_parent": "/root/physics_resume",
+  "assigner": "/root",
+  "manager": "/root/scientific_transport_manager",
+  "role": "TASK Type2",
+  "mechanism": "delegated-harness-native",
+  "final_freeze_sha256": "34d33c50d3ef2a32280d49bd2803f3184d7eab4cd935e9ab6ca97b1c772c67f7",
+  "full_patch_sha256": "3206a4035178080eb0f1bc1d728eaf606869822bbe73c666add99065b9fabf15",
+  "source": [
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/Cargo.toml",
+      "sha256": "4f371b06ff85a2c7eccdebbc0a0b513f3f3d57ebc8d4c759c529b21d7ea48b0f",
+      "bytes": 882,
+      "base_sha256": "531d6fcb62e47c3f4dfa5aae3c920255d40f2f1619036a001c1cb37e691c10f4",
+      "actual_sha256": "4f371b06ff85a2c7eccdebbc0a0b513f3f3d57ebc8d4c759c529b21d7ea48b0f",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/adapter.py",
+      "sha256": "f7f94c8d5541dfd1db33c3eab02ca3f8d8b47c39a8780261c1b2b00f8a1bdafd",
+      "bytes": 14509,
+      "base_sha256": "f6c92a186b65f1ae1990194098f668566b190a7ac77376b3fcf792d0711335df",
+      "actual_sha256": "f7f94c8d5541dfd1db33c3eab02ca3f8d8b47c39a8780261c1b2b00f8a1bdafd",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/README.md",
+      "sha256": "de4021717cd531cd8474217d4b4b31a25334cc3636615efc911f4c1cefcf6157",
+      "bytes": 6888,
+      "base_sha256": null,
+      "actual_sha256": "de4021717cd531cd8474217d4b4b31a25334cc3636615efc911f4c1cefcf6157",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/lib.rs",
+      "sha256": "96e6ca5562849b9136bc75b665d10b421e75a9b9805303c40b68982101889336",
+      "bytes": 17509,
+      "base_sha256": "0236e76eeed2949d95d2826c0c20f68232e6bb4a5ceb983744e8db78628a3573",
+      "actual_sha256": "96e6ca5562849b9136bc75b665d10b421e75a9b9805303c40b68982101889336",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/binary64.rs",
+      "sha256": "6773d3abc6d725e210aa5452e34bd4124ed6943347451be48dcfb275cd76ea6e",
+      "bytes": 17999,
+      "base_sha256": null,
+      "actual_sha256": "6773d3abc6d725e210aa5452e34bd4124ed6943347451be48dcfb275cd76ea6e",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/binary64_cli.rs",
+      "sha256": "8b17e860bfd9deac9045ae6b2f853349b5b9e4d4fc2674044a0fc3f7f19c52bc",
+      "bytes": 2386,
+      "base_sha256": null,
+      "actual_sha256": "8b17e860bfd9deac9045ae6b2f853349b5b9e4d4fc2674044a0fc3f7f19c52bc",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/bin/openpipestress_jcs_binary64.rs",
+      "sha256": "526f30db364a62253a56092c6a5e97759fba74d5581fc7a15765a7ce9765b5c5",
+      "bytes": 808,
+      "base_sha256": null,
+      "actual_sha256": "526f30db364a62253a56092c6a5e97759fba74d5581fc7a15765a7ce9765b5c5",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/tests/binary64_profile.rs",
+      "sha256": "44ba26aae775ba7cb9c14260f35eceed696aa6e4f04d0d9127805a7534bf232f",
+      "bytes": 14619,
+      "base_sha256": null,
+      "actual_sha256": "44ba26aae775ba7cb9c14260f35eceed696aa6e4f04d0d9127805a7534bf232f",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/tools/serialization/build_checked_json.py",
+      "sha256": "120f0125c5aae4ccc42dce56665c1f6a02353a3bf61c496f735b526f492f49fb",
+      "bytes": 1277,
+      "base_sha256": "6d5d55434d2ca94c896c2794ebdebc89ef1bb0efbfd605d840b0835a9d654bd3",
+      "actual_sha256": "120f0125c5aae4ccc42dce56665c1f6a02353a3bf61c496f735b526f492f49fb",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_binary64_canonical_json_adapter.py",
+      "sha256": "91a49857fe7206da49615fd57c2a6e489e8a30ce85944762bffc50c21b53fa86",
+      "bytes": 13597,
+      "base_sha256": null,
+      "actual_sha256": "91a49857fe7206da49615fd57c2a6e489e8a30ce85944762bffc50c21b53fa86",
+      "matches": true
+    }
+  ],
+  "all_source_hashes_match": true,
+  "final_checks": [
+    {
+      "metadata": "rust_full_04.json",
+      "metadata_sha256": "a97f327fd814071915968f2e9fda2f34ff133339c2628aa9f1742b474ab6b172",
+      "log_sha256": "52bd72561943c8b57b20b0144dff649f02b0a2fcc86006caadad4f30265f0931",
+      "exit_code": 0,
+      "source_binding": "all metadata file hashes match current source"
+    },
+    {
+      "metadata": "python_cross_language_04.json",
+      "metadata_sha256": "9c1082e906c6f35159f8d5470723e065d91cbd1dbe0d278420be76a2bb32bcc6",
+      "log_sha256": "fd271ab7962c301d31191119a2b89241c048abde296086f937ab6f01e421a955",
+      "exit_code": 0,
+      "source_binding": "all metadata file hashes match current source"
+    }
+  ],
+  "environment_sha256": "4aa9b329ee0bd1961de8744ca25f0c6a7131e2a7a2840f55420704045a3abd94",
+  "binaries": [
+    {
+      "path": "REPO_ROOT/projects/chirality-piping/core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_binary64",
+      "sha256": "1e63c841e75117fa06d0cabf184e88fff8fa94b620dfadd3d7cd643265c16bb7",
+      "bytes": 695280
+    },
+    {
+      "path": "REPO_ROOT/projects/chirality-piping/core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson",
+      "sha256": "1ecf4f51bf50e9d7564a643fd93bc29c52784de31c57a447dffc13861b01a2e1",
+      "bytes": 675104
+    }
+  ],
+  "final_numeric_edge_probe_matches_current_binary": true,
+  "old_library_body_and_python_prefix_base_match": true,
+  "finding_status": {
+    "SJ-R1": "resolved",
+    "SJ-R2": "resolved including pointer-budget parity"
+  },
+  "report_sha256": "9dd7347fdfd8988c9ee1b10686559520d9ed4d74b283bab3ef90acdb3d1911b1"
+}

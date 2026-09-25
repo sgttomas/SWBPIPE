@@ -1,0 +1,13 @@
+{
+  "status": "PASS source review; conditional runtime checks pending",
+  "reviewer": "/root/authoring_manager/self_weight_review",
+  "parent": "/root/authoring_manager",
+  "patch_sha256": "3de09d087abb772d4067781aae78d98529771fc1a4607668416ffae27971e4e8",
+  "primary_return": "RETURN.md",
+  "final_backcheck": "_run_records/FINAL_BACKCHECK.md",
+  "provenance": "_run_records/final_backcheck/MANIFEST.json",
+  "reference": "_run_records/SEVEN_MASS_REFERENCES.json",
+  "portable_paths": "All output links relative to review packet. Absolute observed origins retained only as historical evidence; no runtime path requirement.",
+  "approved_source_scope": "CANDIDATE_FILES.reviewed.json (21 files)",
+  "no_product_writes": true
+}

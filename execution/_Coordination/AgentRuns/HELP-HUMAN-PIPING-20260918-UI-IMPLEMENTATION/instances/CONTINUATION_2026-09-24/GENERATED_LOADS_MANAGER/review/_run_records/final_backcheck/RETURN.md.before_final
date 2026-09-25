@@ -1,0 +1,7 @@
+# Independent review return
+
+**Hold the reviewed candidate for one P1 defect:** direct/imported generated-refresh apply can overwrite a manually modified magnitude because it does not share the planner's exact historical-payload eligibility check. The manager confirmed the route is preserve-only for modified records and is preparing a source-owned guard.
+
+The [complete 19-file review](_run_records/FROZEN_CANDIDATE_REVIEW.md) covers patch `5d9134f528a4f423d105a07575a9dc1c9fe53ef663678b41b89ea5033278fa12` on base `f702b439536c6e76af8e1c81ee536d5685e87907`. All source hashes and scope checks passed. The three prior manual-preservation/unit findings are repaired; 57 retained targeted checks passed. Stable mass arithmetic matches all seven independent references, and shared pressure changes are visibility only. No other actionable source finding was identified.
+
+The [reference packet](REFERENCE_CHECK.md) remains valid. This reviewer performed no product edit, build, test, native/browser action, or Git mutation. Recorded runtime evidence was read and assessed. Revised source/dependency/adversarial-test backcheck and conditional WASM/UI/TypeScript checks remain outstanding; no fan-in, UI runtime, engineering acceptance, or whole-M35 closure is claimed.

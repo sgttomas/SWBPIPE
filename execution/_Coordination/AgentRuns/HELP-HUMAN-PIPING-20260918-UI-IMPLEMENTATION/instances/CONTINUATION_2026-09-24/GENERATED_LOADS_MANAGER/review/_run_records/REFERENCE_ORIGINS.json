@@ -1,0 +1,157 @@
+{
+  "role": "TASK Type 2, independent reviewer/reference checker",
+  "parent": "/root/authoring_manager",
+  "agent": "/root/authoring_manager/self_weight_review",
+  "actual_delegation": "delegated-harness-native collaboration task; fresh NEW_TASK assignment",
+  "scope": "reference arithmetic and policy review; initial mutable source is not a frozen merge candidate",
+  "read_boundaries": "lib.rs mass helper selected lines only; baseline model relevant inputs/results only; other listed bodies read in full or complete stdout available",
+  "wider_role_consultation": "ROOT_BRIEF.md includes WORKING_ITEMS role; read as supplied brief; no manager role activation",
+  "write_boundary": "GENERATED_LOADS_MANAGER/review/{REFERENCE_CHECK.md,RETURN.md,_run_records/*}",
+  "executed": "read-only filesystem inspections, primary web source reads, standalone Python rational arithmetic; no product build/test/browser/native/Git commands",
+  "python": "3.13.14 (main, Jul 18 2026, 16:56:45) [Clang 22.1.3 ]",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "origins": [
+    {
+      "path": "AGENTS.md",
+      "absolute_origin": "/private/tmp/piping-generated-loads-20260924/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "absolute_origin": "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "absolute_origin": "/private/tmp/piping-generated-loads-20260924/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "absolute_origin": "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": ".agents/skills/software-code-review/SKILL.md",
+      "absolute_origin": "/private/tmp/piping-generated-loads-20260924/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/self_weight.rs",
+      "absolute_origin": "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/product_physics/src/self_weight.rs",
+      "sha256": "1f0b2d747b3584020ecfc6716bbfbb9367b49373f6d20caae1eb9d3aa24be994"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "absolute_origin": "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "f792ad3791e6d2588a0eee2a410766f725f1aade2230c397a475016ddc8a0edb"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/ROOT_BRIEF.md",
+      "absolute_origin": "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/ROOT_BRIEF.md",
+      "sha256": "2511e8963d791f907f075ac34142d805a00bdd7972f337e0ff4fb70832efc21b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/INTEGRATION_CONTRACT.md",
+      "absolute_origin": "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/INTEGRATION_CONTRACT.md",
+      "sha256": "0c5ac88616d5b28bfe68b57ca95b52e727441d707fd75b0f973c1ea1156517e2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/REFERENCE_BASIS.md",
+      "absolute_origin": "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/REFERENCE_BASIS.md",
+      "sha256": "64de89801cce0649669a0fd09c18a26b67f9472d56e18b39b601050bdc73efae"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/_run_records/mass_probe/src/main.rs",
+      "absolute_origin": "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/_run_records/mass_probe/src/main.rs",
+      "sha256": "d6d6dbc34f32aa8b6bc9190fdf5a594320c4eae9edc31baa5e1f49b9cad323f2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/_run_records/mass_probe/before.json",
+      "absolute_origin": "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/_run_records/mass_probe/before.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/_run_records/mass_probe/before.result.json",
+      "absolute_origin": "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/_run_records/mass_probe/before.result.json",
+      "sha256": "da76f286db4e38fc58996ca93d9e35cc09ca53a088976d5883baa59f208e93d7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/_run_records/mass_probe/before.stderr.log",
+      "absolute_origin": "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/_run_records/mass_probe/before.stderr.log",
+      "sha256": "387ae5e624ea5d57b786f0dac9ef23438ee778dde73f553b78b2b96381d55a2d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/_run_records/MASS_CANCELLATION_ARITHMETIC.json",
+      "absolute_origin": "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/_run_records/MASS_CANCELLATION_ARITHMETIC.json",
+      "sha256": "c94a8208fa6fea87bca2fa18fb33df6bf4a69d74fdc4b1bff6a2841475d36604"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/_run_records/checks/baseline_artifacts/density_baseline.json",
+      "absolute_origin": "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/_run_records/checks/baseline_artifacts/density_baseline.json",
+      "sha256": "5ce7fcc48bfbfb9e6ce379704f97dc437bdf2dbe90c1959a544754fe63a46081"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/_run_records/checks/baseline.log",
+      "absolute_origin": "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/_run_records/checks/baseline.log",
+      "sha256": "a6ad18432f0fdf8995f2aa4115748a42cf9d79921720a5a3ee6d55d7ff48e20a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/_run_records/checks/baseline.result.json",
+      "absolute_origin": "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/_run_records/checks/baseline.result.json",
+      "sha256": "ba1722e04931776f2d98d50d75a69d42ce9043656665aa8ec9672eb88e141f62"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_ACTIVATION.md",
+      "absolute_origin": "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_ACTIVATION.md",
+      "sha256": "dd98701526a31248f36a5e6e03490975af682f748dd349aa52faa1bfafc912a0"
+    }
+  ],
+  "completion_utc": "2026-09-25T01:16:02.106668+00:00",
+  "parent_followup_record": {
+    "received": "During reference check, before return",
+    "substance": "Parent acknowledged initial typed/wire parity failure and retention. Existing shared compute_pipe_mass_per_length remains legacy; stable v2 in self_weight calls sole PHYSICS annulus_geometry source helper; v1 dispatch is explicitly old algorithm; stable v2 mass_method mandatory; unmerged pre-stable v2 artifacts historical, not relabeled."
+  },
+  "external_source_reads": [
+    {
+      "url": "https://www.nist.gov/pml/special-publication-811/nist-guide-si-chapter-4-two-classes-si-units-and-si-prefixes",
+      "tool": "web open",
+      "inspected": "tables 2\u20133, derived unit identities",
+      "retrieval": "2026-09-25 UTC",
+      "hash_status": "web reader supplied text, not original source bytes; no page hash claimed"
+    },
+    {
+      "url": "https://web.mit.edu/4.441/1_lectures/1_lecture16/1_lecture16.html",
+      "tool": "web open",
+      "inspected": "lines 5\u201319, resultants and moments of distributed/parallel loads",
+      "retrieval": "2026-09-25 UTC",
+      "hash_status": "web reader supplied text, not original source bytes; no page hash claimed"
+    }
+  ],
+  "commands_for_arithmetic": [
+    "python3 reference_arithmetic.py",
+    "Python Fraction equality comparison between prior 4 wall areas and independent 7-case reference; output PRIOR_ARITHMETIC_BACKCHECK.json"
+  ],
+  "output_hashes": [
+    {
+      "path": "REFERENCE_CHECK.md",
+      "sha256": "d4ea5c661a9888157684d719056c866f7409057b592f3e065d06cb3b59ad506a"
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "e4df00497e04eca8e86ac441b5e75898ea2de4ebb435db83c29f5f55d49391a0"
+    },
+    {
+      "path": "_run_records/reference_arithmetic.py",
+      "sha256": "aa0efe9d5e4059c184b08ee6a6dc45c04412e146c69ee2de882f3ed9fa12e048"
+    },
+    {
+      "path": "_run_records/SEVEN_MASS_REFERENCES.json",
+      "sha256": "1d91c763caf4a1aedd4efdc4b67603392f7e5da3cfb58abc48e32de36dfdc6c5"
+    },
+    {
+      "path": "_run_records/PRIOR_ARITHMETIC_BACKCHECK.json",
+      "sha256": "64b97b113f93812a01c564af30daeb036ce9e0653d5fa675c21f98d29270aebe"
+    }
+  ]
+}

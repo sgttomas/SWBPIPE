@@ -1,0 +1,60 @@
+{
+  "role": "TASK Type 2",
+  "parent": "/root/authoring_manager",
+  "agent": "/root/authoring_manager/self_weight_core",
+  "mechanism": "delegated-harness-native collaboration.spawn_agent",
+  "basis_commit": "f702b439536c6e76af8e1c81ee536d5685e87907",
+  "source_root": "REPO_ROOT",
+  "limits": "Source copy and declared two-file write scope are coordination boundaries, not an OS sandbox. No delegation, Git, Cargo, npm, builds, tests, native or browser execution. No external physics checkout edits. Parent owns validation allocation and integration.",
+  "origins": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/ROOT_BRIEF.md",
+      "sha256": "2511e8963d791f907f075ac34142d805a00bdd7972f337e0ff4fb70832efc21b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/INTEGRATION_CONTRACT.md",
+      "sha256": "0c5ac88616d5b28bfe68b57ca95b52e727441d707fd75b0f973c1ea1156517e2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/REFERENCE_BASIS.md",
+      "sha256": "64de89801cce0649669a0fd09c18a26b67f9472d56e18b39b601050bdc73efae"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/self_weight.rs",
+      "sha256": "e096a0ee1bc55d82ef4426229973611f8291d77d09ad409eb58f87bbc171b5dd"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "f792ad3791e6d2588a0eee2a410766f725f1aade2230c397a475016ddc8a0edb"
+    }
+  ],
+  "checks": [
+    {
+      "command": "rustfmt --edition 2021 projects/chirality-piping/core/product_physics/src/self_weight.rs",
+      "result": "exit 0; formatting/parser check only, no typecheck or test execution"
+    }
+  ],
+  "raw_execution_record": {
+    "path": "_run_records/portability/core_implementation/freeze_01/AUTHORING.json",
+    "sha256": "b192d75182d96fe06bba6e3277ee82cf3f38800bd709b6f70d1cbb948703f010"
+  },
+  "path_basis": "REPO_ROOT denotes this candidate checkout; exact runtime root retained in raw_execution_record."
+}

@@ -1,0 +1,320 @@
+--- freeze01/projects/chirality-piping/core/serialization/canonical_json/adapter.py
++++ freeze02/projects/chirality-piping/core/serialization/canonical_json/adapter.py
+@@ -164,30 +164,70 @@
+     return result
+ 
+ 
+-def _freeze_binary64(value: Any, active: set[int], depth: int, nodes: list[int]) -> Any:
++def _bounded_string_size(value: str, maximum: int, *, escaped: bool) -> int:
++    # Count bytes without allocating an encoded/escaped copy. Aliased large
++    # strings must pay their full expansion each time they occur in a snapshot.
++    size = 2 if escaped else 0
++    if len(value) + size > maximum:
++        raise ValueError("BINARY64-JSON-BYTE-LIMIT")
++    for character in value:
++        point = ord(character)
++        if 0xD800 <= point <= 0xDFFF:
++            raise ValueError("BINARY64-JSON-UTF8")
++        if escaped and character in ('"', "\\", "\b", "\t", "\n", "\f", "\r"):
++            size += 2
++        elif escaped and point < 0x20:
++            size += 6
++        else:
++            size += 1 if point < 0x80 else 2 if point < 0x800 else 3 if point < 0x10000 else 4
++        if size > maximum:
++            raise ValueError("BINARY64-JSON-BYTE-LIMIT")
++    return size
++
++
++def _snapshot_bytes(state: list[int], amount: int) -> None:
++    state[1] += amount
++    if state[1] > _BINARY64_MAX_BYTES:
++        raise ValueError("BINARY64-JSON-BYTE-LIMIT")
++
++
++def _freeze_binary64(value: Any, active: set[int], depth: int, state: list[int]) -> Any:
+     if depth > _BINARY64_MAX_DEPTH:
+         raise ValueError("BINARY64-JSON-DEPTH-LIMIT")
+-    nodes[0] += 1
+-    if nodes[0] > _BINARY64_MAX_NODES:
++    state[0] += 1
++    if state[0] > _BINARY64_MAX_NODES:
+         raise ValueError("BINARY64-JSON-NODE-LIMIT")
+     if value is None or type(value) is bool:
++        _snapshot_bytes(state, 4 if value is None or value else 5)
+         return value
+     if type(value) is str:
++        _snapshot_bytes(state, _bounded_string_size(value, _BINARY64_MAX_BYTES - state[1], escaped=True))
+         return _binary64_string(value)
+     if type(value) is int:
+-        return exact_integer(value)
++        integer = exact_integer(value)
++        _snapshot_bytes(state, len(str(integer)))
++        return integer
+     if type(value) is float:
+-        return scientific_real(value)
++        real = scientific_real(value)
++        _snapshot_bytes(state, len(json.dumps(real, allow_nan=False)))
++        return real
+     if type(value) not in (dict, list):
+         raise ValueError(f"BINARY64-JSON-UNSUPPORTED-TYPE: {type(value).__name__}")
+     identity = id(value)
+     if identity in active:
+         raise ValueError("BINARY64-JSON-CYCLIC-VALUE")
++    # Punctuation is known before constructing a frozen container.
++    _snapshot_bytes(state, 2 + max(0, len(value) - 1))
+     active.add(identity)
+     try:
+         if type(value) is dict:
+-            return {_binary64_string(key): _freeze_binary64(item, active, depth + 1, nodes) for key, item in list(value.items())}
+-        return [_freeze_binary64(item, active, depth + 1, nodes) for item in list(value)]
++            frozen = {}
++            for key, item in value.items():
++                _binary64_string(key)
++                _snapshot_bytes(state, _bounded_string_size(key, _BINARY64_MAX_BYTES - state[1], escaped=True) + 1)
++                frozen[key] = _freeze_binary64(item, active, depth + 1, state)
++            return frozen
++        return [_freeze_binary64(item, active, depth + 1, state) for item in value]
+     finally:
+         active.remove(identity)
+ 
+@@ -209,27 +249,28 @@
+     """
+     request_items = []
+     seen: set[str] = set()
++    request_header = {"protocol_version": PROTOCOL_VERSION, "profile": BINARY64_PROFILE, "items": []}
++    request_size = len(json.dumps(request_header, separators=(",", ":")))
++    if request_size > _BINARY64_MAX_REQUEST_BYTES:
++        raise ValueError("BINARY64-JSON-REQUEST-BYTE-LIMIT")
+     for item_id, json_text in items:
+         _binary64_string(item_id)
+         if not item_id or item_id in seen:
+             raise ValueError("BINARY64-JSON-ITEM-ID-INVALID")
+-        seen.add(item_id)
+-        # Validate only the Python transport string's encoding here. Rust owns
+-        # JSON syntax, decoded Unicode and the original numeric-token checks.
+         if type(json_text) is not str:
+             raise ValueError("BINARY64-JSON-TEXT-REQUIRED")
+-        try:
+-            encoded = json_text.encode("utf-8", errors="strict")
+-        except UnicodeEncodeError as exc:
+-            raise ValueError("BINARY64-JSON-UTF8") from exc
+-        if len(encoded) > _BINARY64_MAX_BYTES:
+-            raise ValueError("BINARY64-JSON-BYTE-LIMIT")
++        # Per-document UTF-8 and aggregate escaped-envelope accounting happen
++        # before materialization, including aliases and batches of many items.
++        _bounded_string_size(json_text, _BINARY64_MAX_BYTES, escaped=False)
++        request_size += len('{"id":,"json_text":}') + (1 if request_items else 0)
++        request_size += _bounded_string_size(item_id, _BINARY64_MAX_REQUEST_BYTES - request_size, escaped=True)
++        request_size += _bounded_string_size(json_text, _BINARY64_MAX_REQUEST_BYTES - request_size, escaped=True)
++        seen.add(item_id)
+         request_items.append({"id": item_id, "json_text": json_text})
+         if len(request_items) > _BINARY64_MAX_ITEMS:
+             raise ValueError("BINARY64-JSON-BATCH-LIMIT")
+-    request = json.dumps({"protocol_version": PROTOCOL_VERSION, "profile": BINARY64_PROFILE, "items": request_items}, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
+-    if len(request.encode("utf-8")) > _BINARY64_MAX_REQUEST_BYTES:
+-        raise ValueError("BINARY64-JSON-REQUEST-BYTE-LIMIT")
++    request_header["items"] = request_items
++    request = json.dumps(request_header, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
+     completed = subprocess.run([str(binary64_executable())], input=request, text=True, encoding="utf-8", capture_output=True, check=False, shell=False)
+     if completed.returncode != 0:
+         raise RuntimeError(f"BINARY64-JSON-AUTHORITY-REJECTED: {completed.stderr.strip()}")
+@@ -253,13 +294,13 @@
+ 
+ def canonicalize_binary64_batch(items: Sequence[tuple[str, Any]]) -> dict[str, str]:
+     """Freeze actual plain Python snapshots before transport; no raw custody."""
+-    texts = []
+-    for item_id, value in items:
+-        frozen = _freeze_binary64(value, set(), 0, [0])
+-        texts.append((item_id, json.dumps(frozen, ensure_ascii=False, separators=(",", ":"), allow_nan=False)))
+-        if len(texts) > _BINARY64_MAX_ITEMS:
+-            raise ValueError("BINARY64-JSON-BATCH-LIMIT")
+-    return canonicalize_binary64_text_batch(texts)
++    def texts():
++        for item_id, value in items:
++            frozen = _freeze_binary64(value, set(), 0, [0, 0])
++            yield item_id, json.dumps(frozen, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
++    # Stream each bounded snapshot into aggregate admission instead of retaining
++    # all serialized documents before checking the request's total expansion.
++    return canonicalize_binary64_text_batch(texts())
+ 
+ 
+ def canonical_json_binary64_v1_text(json_text: str) -> str:
+--- freeze01/projects/chirality-piping/core/serialization/canonical_json/README.md
++++ freeze02/projects/chirality-piping/core/serialization/canonical_json/README.md
+@@ -45,7 +45,9 @@
+ construction. The latter is checked before escaping/allocation to bound
+ repeated long-key amplification in token capture. Object keys are not counted
+ as value nodes. These are prospective transport admission limits, not solver
+-capability limits or changes to old-profile acceptance.
++capability limits or changes to old-profile acceptance. Programmatic snapshot
++output bytes and cumulative escaped request bytes are checked before full
++serialization; repeated aliases pay their full expansion each time.
+ 
+ ## CLI and Python
+ 
+--- freeze01/projects/chirality-piping/core/serialization/canonical_json/src/binary64.rs
++++ freeze02/projects/chirality-piping/core/serialization/canonical_json/src/binary64.rs
+@@ -142,7 +142,7 @@
+ /// Unsafe i64/u64 values are rejected: a scientific integer must be explicitly
+ /// converted by its typed owner to f64, or supplied via the raw-text real API.
+ pub fn canonical_json_binary64_v1_value(value: &Value) -> Result<String, String> {
+-    validate_value(value, 0, &mut 0)?;
++    validate_value(value, 0, &mut 0, &mut 0)?;
+     let mut output = String::new();
+     write_value(value, &mut output);
+     if output.len() > MAX_DOCUMENT_BYTES {
+@@ -151,7 +151,37 @@
+     Ok(output)
+ }
+ 
+-fn validate_value(value: &Value, depth: usize, nodes: &mut usize) -> Result<(), String> {
++fn output_bytes(bytes: &mut usize, additional: usize) -> Result<(), String> {
++    *bytes = bytes
++        .checked_add(additional)
++        .filter(|size| *size <= MAX_DOCUMENT_BYTES)
++        .ok_or_else(|| error("BYTE-LIMIT"))?;
++    Ok(())
++}
++
++fn string_output_bytes(text: &str, bytes: &mut usize) -> Result<(), String> {
++    // UTF-8 source bytes are a lower bound; check before any escaping/allocation.
++    if text.len() > MAX_DOCUMENT_BYTES.saturating_sub(*bytes) {
++        return Err(error("BYTE-LIMIT"));
++    }
++    output_bytes(bytes, 2)?;
++    for character in text.chars() {
++        let width = match character {
++            '"' | '\\' | '\u{8}' | '\t' | '\n' | '\u{c}' | '\r' => 2,
++            '\u{0}'..='\u{1f}' => 6,
++            _ => character.len_utf8(),
++        };
++        output_bytes(bytes, width)?;
++    }
++    valid_string(text)
++}
++
++fn validate_value(
++    value: &Value,
++    depth: usize,
++    nodes: &mut usize,
++    bytes: &mut usize,
++) -> Result<(), String> {
+     if depth > MAX_DEPTH {
+         return Err(error("DEPTH-LIMIT"));
+     }
+@@ -175,20 +205,26 @@
+             if v == 0.0 && v.is_sign_negative() {
+                 return Err(error("NEGATIVE-ZERO"));
+             }
+-        }
+-        Value::String(s) => valid_string(s)?,
++            output_bytes(bytes, ecma_number_to_string(v).len())?;
++        }
++        Value::String(s) => string_output_bytes(s, bytes)?,
+         Value::Array(items) => {
++            output_bytes(bytes, 2 + items.len().saturating_sub(1))?;
+             for item in items {
+-                validate_value(item, depth + 1, nodes)?;
++                validate_value(item, depth + 1, nodes, bytes)?;
+             }
+         }
+         Value::Object(items) => {
++            output_bytes(bytes, 2 + items.len().saturating_sub(1))?;
+             for (key, item) in items {
+-                valid_string(key)?;
+-                validate_value(item, depth + 1, nodes)?;
+-            }
+-        }
+-        _ => {}
++                string_output_bytes(key, bytes)?;
++                output_bytes(bytes, 1)?;
++                validate_value(item, depth + 1, nodes, bytes)?;
++            }
++        }
++        Value::Null => output_bytes(bytes, 4)?,
++        Value::Bool(true) => output_bytes(bytes, 4)?,
++        Value::Bool(false) => output_bytes(bytes, 5)?,
+     }
+     Ok(())
+ }
+--- freeze01/projects/chirality-piping/core/serialization/canonical_json/tests/binary64_profile.rs
++++ freeze02/projects/chirality-piping/core/serialization/canonical_json/tests/binary64_profile.rs
+@@ -283,3 +283,27 @@
+         .unwrap_err()
+         .contains("PATH-LIMIT"));
+ }
++
++#[test]
++fn programmatic_output_expansion_is_bounded_before_rendering() {
++    // Raw control bytes expand sixfold in JSON. Admission counts that expansion
++    // before constructing the canonical output string.
++    let oversized = Value::String("\u{0}".repeat(MAX_DOCUMENT_BYTES / 6 + 1));
++    assert!(canonical_json_binary64_v1_value(&oversized)
++        .unwrap_err()
++        .contains("BYTE-LIMIT"));
++    let exact = Value::String("a".repeat(MAX_DOCUMENT_BYTES - 2));
++    assert_eq!(
++        canonical_json_binary64_v1_value(&exact).unwrap().len(),
++        MAX_DOCUMENT_BYTES
++    );
++    let one_over = Value::String("a".repeat(MAX_DOCUMENT_BYTES - 1));
++    assert!(canonical_json_binary64_v1_value(&one_over).is_err());
++    for value in [
++        json!({"x": [null, true, false, "é😀\u{0}\n\"\\", 1e160, 0.1]}),
++        json!([]),
++        json!({}),
++    ] {
++        assert!(canonical_json_binary64_v1_value(&value).is_ok());
++    }
++}
+--- freeze01/projects/chirality-piping/tests/test_binary64_canonical_json_adapter.py
++++ freeze02/projects/chirality-piping/tests/test_binary64_canonical_json_adapter.py
+@@ -200,3 +200,47 @@
+         request = {'protocol_version': api.PROTOCOL_VERSION, 'profile': api.BINARY64_PROFILE, 'items': []} | change
+         result = subprocess.run([str(api.binary64_executable())], input=json.dumps(request), text=True, capture_output=True)
+         assert result.returncode == 2 and not result.stdout and 'MISMATCH' in result.stderr
++
++
++def test_alias_expansion_rejected_before_snapshot_materialization(monkeypatch: pytest.MonkeyPatch) -> None:
++    shared = 'x' * (1024 * 1024)
++    original_dumps = api.json.dumps
++    def refuse_snapshot_dump(value, *args, **kwargs):
++        if type(value) is list:
++            pytest.fail('oversized snapshot was serialized before admission')
++        return original_dumps(value, *args, **kwargs)
++    monkeypatch.setattr(api.json, 'dumps', refuse_snapshot_dump)
++    monkeypatch.setattr(api.subprocess, 'run', lambda *args, **kwargs: pytest.fail('process started'))
++    with pytest.raises(ValueError, match='BYTE-LIMIT'):
++        api.canonical_json_binary64_v1([shared] * 9)
++
++
++def test_request_expansion_rejected_before_materialization(monkeypatch: pytest.MonkeyPatch) -> None:
++    # A small test budget exercises exactly the same cumulative64MiB production
++    # path without constructing a64MiB test request. Default limit is pinned.
++    assert api._BINARY64_MAX_REQUEST_BYTES == 64 * 1024 * 1024
++    monkeypatch.setattr(api, '_BINARY64_MAX_REQUEST_BYTES', 512)
++    original_dumps = api.json.dumps
++    def refuse_populated_request(value, *args, **kwargs):
++        if type(value) is dict and value.get('items'):
++            pytest.fail('oversized request was materialized before admission')
++        return original_dumps(value, *args, **kwargs)
++    monkeypatch.setattr(api.json, 'dumps', refuse_populated_request)
++    monkeypatch.setattr(api.subprocess, 'run', lambda *args, **kwargs: pytest.fail('process started'))
++    with pytest.raises(ValueError, match='BYTE-LIMIT'):
++        api.canonicalize_binary64_text_batch([(str(i), '"' + 'a' * 150 + '"') for i in range(4)])
++    with pytest.raises(ValueError, match='BYTE-LIMIT'):
++        api.canonicalize_binary64_batch([(str(i), 'a' * 150) for i in range(4)])
++
++
++def test_preflight_byte_accounting_matches_transport() -> None:
++    values = [None, True, False, 0, -1, 1e160, 0.1, 'é😀\x00\n\"\\', [], {}, {'a': [1, 'b'], '😀': False}]
++    for value in values:
++        state = [0, 0]
++        frozen = api._freeze_binary64(value, set(), 0, state)
++        assert state[1] == len(json.dumps(frozen, ensure_ascii=False, separators=(',', ':'), allow_nan=False).encode('utf-8'))
++    for text in ['', 'é😀\x00\n\"\\', 'x' * 100]:
++        expected = len(json.dumps(text, ensure_ascii=False).encode('utf-8'))
++        assert api._bounded_string_size(text, expected, escaped=True) == expected
++        with pytest.raises(ValueError, match='BYTE-LIMIT'):
++            api._bounded_string_size(text, expected - 1, escaped=True)

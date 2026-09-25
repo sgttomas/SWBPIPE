@@ -1,0 +1,5 @@
+{
+  "before_sha256": "d56bb7d018a4dcc0b6135fc965dbdfaafa7747cfd214113954c47d88e76fcb9e",
+  "after_sha256": "7add9caa41099b424638d412832a092da5efa90f1d5a5067c3454dc55da1efb0",
+  "reason": "Capture operation/change discriminants as immutable local strings so TypeScript control flow preserves the existing admitted literal union after alias guards. No cast, widened contract or changed allowed operations."
+}

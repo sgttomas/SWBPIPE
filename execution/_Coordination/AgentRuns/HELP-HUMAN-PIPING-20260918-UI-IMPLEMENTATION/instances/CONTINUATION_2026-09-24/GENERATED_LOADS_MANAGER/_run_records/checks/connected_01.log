@@ -1,0 +1,18 @@
+   Compiling open_pipe_stress_product_physics v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/product_physics)
+   Compiling open_pipe_stress_operation_applier v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/model_operations/operation_applier)
+   Compiling open_pipe_stress_self_weight_wasm v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/loads/self_weight_wasm)
+error[E0282]: type annotations needed
+   --> src/lib.rs:139:104
+    |
+139 | ...original_generation: Value = match original["provenance"].as_str().and_then(|text| serde_json::from_str(text).ok()) {
+    |                                                                                       ^^^^^^^^^^^^^^^^^^^^ cannot infer type of the type parameter `T` declared on the function `from_str`
+140 | ...Some(value) if value.is_object() => value,
+    |                   ----- type must be known at this point
+    |
+help: consider specifying a concrete type for the type parameter `T`
+    |
+139 |                 let original_generation: Value = match original["provenance"].as_str().and_then(|text| serde_json::from_str::</* Type */>(text).ok()) {
+    |                                                                                                                            ++++++++++++++
+
+For more information about this error, try `rustc --explain E0282`.
+error: could not compile `open_pipe_stress_self_weight_wasm` (lib) due to 1 previous error

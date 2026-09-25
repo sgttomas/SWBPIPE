@@ -1,0 +1,25 @@
+# Authoritative-inspection backcheck — intermediate freeze
+
+Reviewed patch `39f2989e5b8775f32c6e2079c128561585d2e159b99aebd8ef9a7ff6d44bfc0d`, 21 files on the unchanged f702 base. This is continuation of the same independent TASK reviewer, not a new launch. Complete prior 19-file review remains applicable to the 16 unchanged files; the complete five-file delta was inspected. The new dependency and both locks, rich-authoring before/after inspection, revised real fixtures, and direct/imported negative controls were read. [authoritative_backcheck/MANIFEST.json](authoritative_backcheck/MANIFEST.json) retains the reviewed patch and scope/log evidence.
+
+**Original P1 is repaired.** Managed refresh now requires source-owned before state Fresh/Stale and candidate state Fresh. Manual detach requires Modified→ManualOverride with exact current payload retention. Inspection occurs on typed clones without solve or accepted-model mutation. Consequently a current manual magnitude cannot be restored to generated ownership by a direct/imported refresh; a forged or still-stale candidate mass/dependency record is also rejected. Existing source/hash/count/order/unit/lineage guards remain. Real legacy and generated fixtures replace the formerly structural-only fixture.
+
+The ROOT-authorized applier→product_physics dependency is acyclic: the product crate's regular dependency list has no applier or self_weight_wasm dependency. New lock entries are existing local product dependency closure, not registry upgrades. The self_weight_wasm lock adds the missing applier→product edge. Ordinary batch source code is unchanged; ordinary operations do not call the generated-load inspector.
+
+## Remaining P1 — Refresh can rewrite explicit gravity and source intent
+
+In this intermediate freeze, `rich_authoring.rs:1037–1062` does not bind new gravity to prior gravity. A direct/imported managed update can change −7 to −14 m/s², change normalized acceleration, and double magnitude/snapshot consistently, leaving the actual current mass dependencies unchanged. Before inspection is Fresh/Stale; after inspection is Fresh because the new gravity is itself the alleged explicit source. This bypasses the contract's required preservation of the original user acceleration. Bind the full original gravity record across managed refresh; keep after-inspection's dimensional/physical consistency check.
+
+The same route can rewrite `request_provenance`: retained_basis only requires a nonblank string and uses the replacement as a new request value. Bind this original user generation-intent string exactly as well. Do not freeze old mass_inputs, current section identity, or source_model_hash: those are current-model evidence legitimately updated by refresh. Current pipe/shared-section descriptive provenance also must not be frozen to an old model value merely to implement the request-intent guard.
+
+The manager dispatched gravity/source-intent repair during review. The scope/hash recording therefore correctly reports the two actively changing source/test files as no longer matching this intermediate manifest. The saved patch remains the exact reviewed basis; a replacement freeze is required for the final source disposition.
+
+## Complete-case reconciliation concern sent to manager
+
+Canonical-equal rows skip inspection gating at line 1019, and after-state requirements include only changed rows. Direct/imported apply can refresh generated A while leaving generated B Invalid/Modified/Stale in the same case; the ordinary complete-case planner refuses that incomplete result. If the rich operation is the contracted complete-case refresh, require all recognized generated rows in the target case to end Fresh or ManualOverride. Keep ordinary manual rows and unrelated cases untouched. Solver still blocks B, so this concern is partial reconciliation rather than silent wrong solving. The manager's disposition/repair belongs in the next backcheck.
+
+## Evidence assessed, without reviewer execution
+
+The actual revised logs show 10 applier tests passing, 9 connected tests passing, 5 facade tests passing, and 10 ordinary batch tests passing. The connected success command was the offline reconciliation run **without --locked**; its earlier locked attempt failed because the new path edge was absent. The facade/applier/ordinary successful commands were locked. A mistyped integration target `--test atomic_batch` failed and was retained; the corrected `atomic_batch::tests` filter passed 10, with other test binaries filtered to zero and not counted. Core 21/helper 5 and the seven-case arithmetic source are unchanged from their prior evidence.
+
+This review performed only source/evidence/hash/scope reads and wrote review records. No new build, test, runtime, browser, or product edit was executed. Source disposition for this intermediate freeze remains HOLD pending explicit gravity/source-intent binding and the complete-case disposition; conditional UI/WASM/TypeScript verification remains unclaimed.

@@ -1,0 +1,9 @@
+
+ RUN  v4.1.10 /private/tmp/piping-generated-loads-20260924/projects/chirality-piping/apps/desktop
+
+
+ Test Files  3 passed (3)
+      Tests  25 passed (25)
+   Start at  20:27:55
+   Duration  1.34s (transform 256ms, setup 230ms, import 310ms, tests 712ms, environment 866ms)
+

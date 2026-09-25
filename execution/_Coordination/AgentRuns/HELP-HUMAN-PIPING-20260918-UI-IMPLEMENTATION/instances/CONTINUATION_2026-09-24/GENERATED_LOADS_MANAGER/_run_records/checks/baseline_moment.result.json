@@ -1,0 +1,20 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--manifest-path",
+    "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/loads/self_weight_wasm/Cargo.toml",
+    "--test",
+    "applied_self_weight",
+    "density_edit_must_not_solve_with_stale_applied_self_weight",
+    "--",
+    "--nocapture"
+  ],
+  "started_at": "2026-09-25T00:35:18.304140+00:00",
+  "exit_code": 101,
+  "reason": "Add actual moment and raw model/result custody to original already-failed force baseline, unchanged production source and expected criteria.",
+  "test_sha256": "4c2f300fb5f5a49ae93dbb36c49e7045ccb62268d651c0a42a2c19f76e85a79f",
+  "product_self_weight_sha256": "23429a54f0f611b0a920364bb7734bf9c44a6e675b985fb43426c2b33fe00144",
+  "log_sha256": "c108b7a6e97019bff6d3a9c89bce39bb13e0b95084da80ed054ac47a1469bdce"
+}

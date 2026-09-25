@@ -1,0 +1,12 @@
+{
+  "binary_sha256": "a0663bc98060c6cb2a0e9f73de54e9e973f86f6f650a7a43e3285c48ce28dc01",
+  "source_bytes": 5194308,
+  "source_nodes": 200002,
+  "declared_document_byte_limit": 8388608,
+  "first_exit": 0,
+  "canonical_bytes": 8594308,
+  "canonical_sha256": "bbeffb86d30bd802dea5af4dc964aa592ad8bdb2f8d6ba666051509c318a8c69",
+  "second_exit": 2,
+  "second_error": "BINARY64-CLI-ITEM-INVALID probe: BINARY64-JSON-BYTE-LIMIT",
+  "scope": "One actual standalone CLI probe; no product/native UI or broad suite."
+}

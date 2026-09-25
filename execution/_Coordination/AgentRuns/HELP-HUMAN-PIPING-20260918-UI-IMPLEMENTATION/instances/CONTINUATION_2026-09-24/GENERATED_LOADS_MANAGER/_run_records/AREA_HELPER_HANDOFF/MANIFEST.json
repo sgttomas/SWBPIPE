@@ -1,0 +1,40 @@
+{
+  "owner": "/root/physics_manager; AUTHORING consumes exact shared bytes",
+  "base": "f702b439536c6e76af8e1c81ee536d5685e87907",
+  "no_new_material_dependency": "API accepts OD/effective-wall/insulation geometry only, no E or nu; reuses unchanged internal Scaled arithmetic already in base product crate",
+  "excluded": "Do not copy full newer pressure_exact/lib.rs or source_geometry module, profiles, DTO changes or package version",
+  "source": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+      "base_sha256": "baa83a5a62ea34d0677a5c5c5d6cd2fd2f977b6b62a5e2d4ddd06fa18951abc0",
+      "minimal_postimage_sha256": "3f42e4ffe1140d6f813c14654c636699edaece397d880000a9141ca6d4447d35",
+      "scope": "visibility only; no numerical expression changes"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "base_sha256": "534d93aec126d6102ae6a4649e52764d4bd32af3a41b528298ff1bdee3c7e215",
+      "minimal_postimage_sha256": "de18d99497fedcf8f002a924b788ed82f4046c8260e6b7255b04a4858985d029",
+      "scope": "pure geometry module declaration only"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/annulus_geometry.rs",
+      "sha256": "98a781f126af9d8e6d94de96bbe0d9c3815f83760f7deca7a391e612acf979c9",
+      "scope": "pure source geometry functions and five unit controls"
+    }
+  ],
+  "independent_reference": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PHYSICS_MANAGER/SECTION_GEOMETRY/SOURCE_REFERENCE_RETURN.md",
+      "sha256": "05ae78e734b65a7e3074b2b4538fcc01df9c1809c12183cf1b7377dfbe984841"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PHYSICS_MANAGER/SECTION_GEOMETRY/SOURCE_ODWALL_EXPECTATIONS.json",
+      "sha256": "7e51ecb3c7eca573194ce60222f2e2e7422b817be7aacad9a2a5e79102801ab1"
+    }
+  ],
+  "checks": {
+    "pure_area_module": "5/5 pass",
+    "log": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PHYSICS_MANAGER/SECTION_GEOMETRY/pure-area-tests-01.log",
+    "pressure_geometry_public": "ordinary/thin source properties/response pass; separate near-load cancellation and large-value parser issues remain pressure-owned"
+  }
+}

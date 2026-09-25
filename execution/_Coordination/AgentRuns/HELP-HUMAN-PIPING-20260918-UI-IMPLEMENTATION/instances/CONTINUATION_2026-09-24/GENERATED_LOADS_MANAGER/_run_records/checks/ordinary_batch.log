@@ -1,0 +1,42 @@
+   Compiling open_pipe_stress_operation_applier v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/model_operations/operation_applier)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.86s
+     Running unittests src/lib.rs (/private/tmp/piping-generated-loads-target/operation_applier/debug/deps/open_pipe_stress_operation_applier-46054b11e6749505)
+
+running 10 tests
+test atomic_batch::tests::duplicate_ids_and_empty_batches_are_preflight_failures ... ok
+test atomic_batch::tests::validation_simulates_dependencies_without_any_application_or_acceptance ... ok
+test atomic_batch::tests::submitted_validation_claims_are_untrusted_and_cannot_override_engine_failure ... ok
+test atomic_batch::tests::late_reference_failure_rolls_back_and_stops_replay ... ok
+test atomic_batch::tests::late_stale_before_discards_earlier_success ... ok
+test atomic_batch::tests::dependent_create_case_and_load_apply_atomically_and_deterministically ... ok
+test atomic_batch::tests::section_geometry_batch_validates_each_intermediate_state_and_never_publishes_failure ... ok
+test atomic_batch::tests::author_metadata_is_preserved_and_user_agent_have_same_semantics ... ok
+test atomic_batch::tests::mandatory_complete_initial_hash_rejects_null_malformed_mismatch_before_replay ... ok
+test atomic_batch::tests::preflight_rejects_each_boundary_flag_missing_agent_attribution_and_bad_source_shape ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 129 filtered out; finished in 0.02s
+
+     Running tests/canonical_hash_parity.rs (/private/tmp/piping-generated-loads-target/operation_applier/debug/deps/canonical_hash_parity-2bb029682d97bbf9)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s
+
+     Running tests/contract_corpus.rs (/private/tmp/piping-generated-loads-target/operation_applier/debug/deps/contract_corpus-71dc31d92731d74e)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s
+
+     Running tests/generated_self_weight.rs (/private/tmp/piping-generated-loads-target/operation_applier/debug/deps/generated_self_weight-b06bcff34a3cee0c)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.00s
+
+     Running tests/support_authoring_conflicts.rs (/private/tmp/piping-generated-loads-target/operation_applier/debug/deps/support_authoring_conflicts-89764bf1b685e78a)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.00s
+

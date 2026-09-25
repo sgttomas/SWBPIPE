@@ -1,0 +1,30 @@
+{
+  "result": "PASS",
+  "commit": "a09931a74e197627105c1287c03957317a297351",
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SCIENTIFIC_JSON_PROFILE/DESIGN.md",
+      "sha256": "af4a63c68dc82b0db0492cbd4cc1971bf025c009f359afd9744f2c405aa65c86"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SCIENTIFIC_JSON_PROFILE/REFERENCES.md",
+      "sha256": "ff39e75cb20ef8ef0bc0dd29f4fc228696b3138e8d8cfa93bfaa3cd31442005b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SCIENTIFIC_JSON_PROFILE/CASES.md",
+      "sha256": "d91f74aaf99e353158bc2e91d50b0150d32717ca8d485438312e2c33397a67ca"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SCIENTIFIC_JSON_PROFILE/probe_numeric_domains.py",
+      "sha256": "f8f9bb432e20e292a270fa147a2fc30249377a759845d236c8fa02f479d323fd"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SCIENTIFIC_JSON_PROFILE/BASIS.json",
+      "sha256": "330170c4a19345e3649fc9f7dfcfe5444d626ff0ed9c5dad1388157a672917d2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SCIENTIFIC_JSON_PROFILE/RETURN.md",
+      "sha256": "8857337d078dbc273b7395642b6976355ca59552ca5353036583911462551d94"
+    }
+  ]
+}

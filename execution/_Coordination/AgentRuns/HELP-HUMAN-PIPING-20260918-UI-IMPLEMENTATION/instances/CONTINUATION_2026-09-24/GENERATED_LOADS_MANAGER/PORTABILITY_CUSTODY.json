@@ -1,0 +1,38 @@
+[
+  {
+    "path": "core_implementation/AUTHORING.json",
+    "original_sha256": "a74a8056fa634f3019b76b0daba8c03416e6d97895538cf47ceb175848ee9e7d",
+    "raw_path": "_run_records/portability/core_implementation/AUTHORING.json",
+    "view_sha256": "2dca7a36f414582ef9b52217655da8e99f062fd5ae36b1fef45c74dded647685",
+    "substitution": {
+      "source_root": "REPO_ROOT"
+    }
+  },
+  {
+    "path": "core_implementation/freeze_01/AUTHORING.json",
+    "original_sha256": "b192d75182d96fe06bba6e3277ee82cf3f38800bd709b6f70d1cbb948703f010",
+    "raw_path": "_run_records/portability/core_implementation/freeze_01/AUTHORING.json",
+    "view_sha256": "fafea0691da8d83c1e3dc0756cd097c46bbfc4978f99d5d4e9d56f4cf42136e6",
+    "substitution": {
+      "source_root": "REPO_ROOT"
+    }
+  },
+  {
+    "path": "core_implementation/freeze_02/AUTHORING.json",
+    "original_sha256": "a008842c109f80c748f1b09799b927d8529f95d6b7ee426d580bc14bb5a88536",
+    "raw_path": "_run_records/portability/core_implementation/freeze_02/AUTHORING.json",
+    "view_sha256": "ce6bb6b2d379ff452801e77072e2403d294a7f90c82a95ab0c69f2162f1dcaa5",
+    "substitution": {
+      "source_root": "REPO_ROOT"
+    }
+  },
+  {
+    "path": "core_implementation/freeze_03/AUTHORING.json",
+    "original_sha256": "6be098a7d7aac199700478cbcbe3a6d6d505f5d09bde33da660d2b54ef38394b",
+    "raw_path": "_run_records/portability/core_implementation/freeze_03/AUTHORING.json",
+    "view_sha256": "c89c4af1359f31770fcbe08ff62c6f33c49c4907f5ac6114f846d56987506003",
+    "substitution": {
+      "source_root": "REPO_ROOT"
+    }
+  }
+]

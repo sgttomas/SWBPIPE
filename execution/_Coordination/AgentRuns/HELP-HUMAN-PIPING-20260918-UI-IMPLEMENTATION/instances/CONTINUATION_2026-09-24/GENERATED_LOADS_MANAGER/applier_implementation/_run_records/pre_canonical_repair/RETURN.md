@@ -1,0 +1,9 @@
+# Applier implementation return
+
+TASK /root/authoring_manager/self_weight_applier, parent /root/authoring_manager; delegated-harness-native execution. Active role TASK, no children. Instruction origins/raw copies/hashes under `_run_records/supplied_basis.json`. Scope enforced by instructions, no OS containment claim.
+
+Implemented optional batch source_model_hash (strict lowercase SHA256, independent complete initial model comparison before simulation); existing claimed hash handling unchanged. Added existing update_load/Load generated_self_weight rich field, canonical array before/after, complete current claim requirement, exact count/order/identity, exact unchanged unrelated records, magnitude/provenance-only managed refresh, provenance-only explicit manual preservation with retained original record. Six controlled fields bind generated_payload, all extra raw keys remain unchanged. Primitive quantities use shared finite compatible ForcePerLength units; source/provenance structural checks use core-provided field contract. No physics computed here.
+
+Three public-route tests authored: current claim/refresh identities and annotations, manual physical preservation, stale batch source and later failure rollback. Tests, formatting, compilation, build and Git were NOT run under parent execution hold. Parent must execute and review complete integrated candidate. Structural guard is not a physics/source-truth validator; core solve owns dependency/mass verification. Refresh source hash binds current model at its step; deliberate safe refusal if preceding batch operation changes model. Facade emits one refresh operation per plan.
+
+Wire search found OperationBatch TypeScript service (parent-owned), with no maintained JSON schema change identified. No files outside four allowed paths and this evidence were written. Frozen hashes in frozen_files.json. Parent owns final diff generation and independent review.

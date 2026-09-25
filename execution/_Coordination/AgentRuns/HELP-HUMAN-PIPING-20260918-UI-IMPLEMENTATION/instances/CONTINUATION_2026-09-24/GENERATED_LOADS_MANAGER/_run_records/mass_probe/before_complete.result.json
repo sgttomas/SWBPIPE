@@ -1,0 +1,21 @@
+{
+  "command": [
+    "cargo",
+    "run",
+    "--offline",
+    "--manifest-path",
+    "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/_run_records/mass_probe/Cargo.toml"
+  ],
+  "started_at": "2026-09-25T01:12:45.229142+00:00",
+  "exit_code": 0,
+  "role": "Actual pre-stable API outcomes; parity mismatch retained as data, originalassertionfailure preserved in PARITY_FAILURE",
+  "target": "/private/tmp/piping-generated-loads-target/mass_probe",
+  "jobs": 2,
+  "source_hashes": {
+    "core/product_physics/src/self_weight.rs": "1f0b2d747b3584020ecfc6716bbfbb9367b49373f6d20caae1eb9d3aa24be994",
+    "core/product_physics/src/lib.rs": "f792ad3791e6d2588a0eee2a410766f725f1aade2230c397a475016ddc8a0edb",
+    "core/loads/self_weight_wasm/src/lib.rs": "af540fa1831edef4b33c5a8c43c6ed532bd1180f8aebc621f621a1d489621355"
+  },
+  "probe_sha256": "0ab14f1c24db798525148082e967d1d2a72988f474c07c1ebf04e5574cfe0f24",
+  "output_sha256": "8e2f39d04b8171749e7c44d640318d2b2eaada80f9500db6bf78f9d560b9c239"
+}

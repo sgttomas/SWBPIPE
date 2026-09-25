@@ -1,0 +1,2 @@
+src/features/self-weight-authoring/SelfWeightPlanPanel.tsx(22,9): error TS2322: Type 'string' is not assignable to type '"insert" | "create" | "connect" | "delete" | "modify"'.
+src/features/self-weight-authoring/SelfWeightPlanPanel.tsx(25,55): error TS2322: Type 'string' is not assignable to type '"set_field" | "update_load" | "update_support" | "create_node" | "delete_node" | "connect_pipe_run" | "delete_pipe_run" | "create_section" | "create_material" | "create_support" | ... 16 more ... | "insert_component_symbol"'.

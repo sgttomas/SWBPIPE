@@ -1,0 +1,22 @@
+{
+  "prior_arithmetic_sha256": "c94a8208fa6fea87bca2fa18fb33df6bf4a69d74fdc4b1bff6a2841475d36604",
+  "independent_reference_sha256": "1d91c763caf4a1aedd4efdc4b67603392f7e5da3cfb58abc48e32de36dfdc6c5",
+  "checks": [
+    {
+      "name": "ordinary",
+      "exact_wall_area_over_pi_equal": true
+    },
+    {
+      "name": "thin_1e9",
+      "exact_wall_area_over_pi_equal": true
+    },
+    {
+      "name": "thin_1e12",
+      "exact_wall_area_over_pi_equal": true
+    },
+    {
+      "name": "sub_ulp_wall",
+      "exact_wall_area_over_pi_equal": true
+    }
+  ]
+}

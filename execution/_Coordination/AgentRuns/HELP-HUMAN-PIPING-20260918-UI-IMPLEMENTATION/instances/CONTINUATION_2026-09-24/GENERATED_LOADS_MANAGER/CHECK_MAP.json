@@ -1,0 +1,114 @@
+{
+  "status": "Bounded source, Rust, candidate WASM, focused application and TypeScript checks complete; parent integration gates remain",
+  "candidate_patch_sha256": "6a349262358bcfc8295cc18e7ec116be544f6738ee425dae51848b3447334c99",
+  "checks": [
+    {
+      "check": "stable_core",
+      "passed": 21,
+      "basis": "retained unchanged product source",
+      "result_path": "_run_records/checks/stable_core.result.json",
+      "result_sha256": "5c9cdb851deb75059c532cbcb6be7d44a7d40ea6de9ddb7e3ebb13bd81545dc5"
+    },
+    {
+      "check": "shared_area",
+      "passed": 5,
+      "basis": "retained unchanged shared helper source",
+      "result_path": "_run_records/checks/shared_area.result.json",
+      "result_sha256": "0c5f6f81987d60e11e52fd1f08f9bd32ff7af181361c10cc9d385b8379abd935"
+    },
+    {
+      "check": "request_applier",
+      "passed": 13,
+      "basis": "final frozen candidate",
+      "result_path": "_run_records/checks/request_applier.result.json",
+      "result_sha256": "d2670e94efb6257e365a307503994a265864a73478dc199920d5ed68136c378c"
+    },
+    {
+      "check": "request_connected",
+      "passed": 9,
+      "basis": "final frozen candidate actual operation/apply/product solver",
+      "result_path": "_run_records/checks/request_connected.result.json",
+      "result_sha256": "733289adb6a56a3f9b000823bab4ada10c3517a0180a5640ddefeab4a77e4a47"
+    },
+    {
+      "check": "request_facade",
+      "passed": 5,
+      "basis": "final frozen candidate JSON request facade",
+      "result_path": "_run_records/checks/request_facade.result.json",
+      "result_sha256": "2c9d2b5490d021cf731eced09032af9d865a69f48bc2b63ad7e7eb4c0330348c"
+    },
+    {
+      "check": "request_batch",
+      "passed": 10,
+      "basis": "final frozen candidate ordinary atomic-batch regression",
+      "result_path": "_run_records/checks/request_batch.result.json",
+      "result_sha256": "d719363b98845d10ae906d3e265e6d23cb1edf48d63526fc1e3e7b266910df57"
+    }
+  ],
+  "retained_source_identity": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/Cargo.toml",
+      "sha256": "35e36952c2e4d37d55992153d726a6cbb709402a3e0dcac08a4712b53288c1c5"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/annulus_geometry.rs",
+      "sha256": "98a781f126af9d8e6d94de96bbe0d9c3815f83760f7deca7a391e612acf979c9"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "ee3acd7fd1a630ea61e53b1e963dbe637a6f45b8e444b240735ae9f276e233c5"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+      "sha256": "3f42e4ffe1140d6f813c14654c636699edaece397d880000a9141ca6d4447d35"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/self_weight.rs",
+      "sha256": "6caf38f71d5db7b1adafb7bf439d24f31df969cd3e41397c1a0a253d21279261"
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/Cargo.toml",
+      "sha256": "531d6fcb62e47c3f4dfa5aae3c920255d40f2f1619036a001c1cb37e691c10f4"
+    }
+  ],
+  "independent_api_reference": "review/_run_records/SEVEN_MASS_REFERENCES.json",
+  "actual_api_comparison": "_run_records/mass_probe/STABLE_COMPARISON.json",
+  "notes": [
+    "63 selected Rust tests pass; not a full suite claim.",
+    "Seven API mass quantities and direct/JSON parity are separate measured probes, not extra Rust tests.",
+    "Earlier failed baseline, compilation, transport, lock and mistyped-target commands are retained under _run_records.",
+    "Final request_* checks are --locked; the earlier authoritative_connected_reconciled run updated its path dependency edge offline."
+  ],
+  "application_checks": [
+    {
+      "check": "candidate_vitest",
+      "description": "Prior3-suite25 mixed UI/transport tests; only unchanged operationBatchService5 mock tests carried from this run",
+      "passed": 25,
+      "result_path": "_run_records/checks/candidate_vitest.result.json",
+      "result_sha256": "196e0a39dce7e42ed276a8208310b7a2b6caf084d741088faed961782126a0eb"
+    },
+    {
+      "check": "narrowed_vitest",
+      "description": "Final2-suite20 UI/workflow tests, including seven actual-WASM SelfWeightRefresh tests",
+      "passed": 20,
+      "result_path": "_run_records/checks/narrowed_vitest.result.json",
+      "result_sha256": "9321a6365c41f475d44a29e92c06d3a51d18592ea242eb5019d31d4838cadf22"
+    },
+    {
+      "check": "narrowed_tsc",
+      "description": "Final TypeScript project check",
+      "passed": null,
+      "result_path": "_run_records/checks/narrowed_tsc.result.json",
+      "result_sha256": "257f0e8bd69cc275a81005fc18d41a8bae801f322efb731cdd892bf0f2b97127"
+    },
+    {
+      "check": "candidate_wasm_final",
+      "description": "Both maintained WASM engine builds; compiled inputs unchanged by subsequent production TypeScript narrowing",
+      "passed": null,
+      "result_path": "_run_records/checks/candidate_wasm_final.result.json",
+      "result_sha256": "2dd63393e266dc97f19be7dc7db6f9e02cda78d02154a54036a9f84948ca988c"
+    }
+  ],
+  "review_state": "Complete23 source and final TypeScript narrowing independently PASS; evidence-only reading of final narrowed_tsc/narrowed_vitest was not launched because harness thread limit refused followup. ROOT notified.",
+  "artifact_binding": "WASM_ARTIFACTS.json"
+}

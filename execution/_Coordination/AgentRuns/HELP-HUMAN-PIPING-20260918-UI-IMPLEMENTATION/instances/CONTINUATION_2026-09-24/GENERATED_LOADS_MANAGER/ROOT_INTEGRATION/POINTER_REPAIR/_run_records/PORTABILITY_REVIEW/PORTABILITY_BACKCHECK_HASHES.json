@@ -1,0 +1,53 @@
+{
+  "reviewer": "/root/m35_integration_review",
+  "parent": "/root",
+  "role": "TASK",
+  "time_utc": "2026-09-25T03:26:31.976737+00:00",
+  "base_candidate": "b526aeb23c9f5bcc3cdb5c98efb449beb8e1339d",
+  "repair_record_sha256": "1fe82010bd0435b901c64c64ccea4f00ec54ca86bd9e116c30ec67fce0daf091",
+  "rows": [
+    {
+      "active_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/ROOT_INTEGRATION/POINTER_REPAIR/integration-RETURN.md",
+      "raw_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/ROOT_INTEGRATION/POINTER_REPAIR/_run_records/INTEGRATION_REVIEW_RAW/integration-RETURN.md",
+      "raw_sha256": "26b6aa9788b9a555b6b83aa70738cb9fb445c585e75e672d35d3decf253d8376",
+      "active_sha256": "c20c844a224d03f6f7d64019bfe0bc05e32f4e458fddf0bc003483bc97f60e4f",
+      "raw_matches_original_b526": true,
+      "raw_matches_reviewer_original": true,
+      "manifest_raw_hash_matches": true,
+      "manifest_active_hash_matches": true,
+      "only_root_transform_plus_explicit_custody": true,
+      "active_role": "UNCLASSIFIED",
+      "active_machine_path_lines": [],
+      "raw_role": "EVIDENCE",
+      "raw_reason": "managed evidence directory",
+      "custody_annotation": "Portable view: host-specific root spellings are replaced by declared root tokens. The byte-exact reviewer original is retained at `_run_records/INTEGRATION_REVIEW_RAW/integration-RETURN.md`; this does not change that reviewer's original conclusion or execution."
+    },
+    {
+      "active_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/ROOT_INTEGRATION/POINTER_REPAIR/integration-HASHES.json",
+      "raw_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/ROOT_INTEGRATION/POINTER_REPAIR/_run_records/INTEGRATION_REVIEW_RAW/integration-HASHES.json",
+      "raw_sha256": "95f7fe46bae1a62337f6d7bc88f189c9c40cfa1559c8f247c9c9d0c1cfc4cfdd",
+      "active_sha256": "58f2eef016bcae3327bf6dc3707ef2204add87e39c8e5cf1da4934a8ac5767d2",
+      "raw_matches_original_b526": true,
+      "raw_matches_reviewer_original": true,
+      "manifest_raw_hash_matches": true,
+      "manifest_active_hash_matches": true,
+      "only_root_transform_plus_explicit_custody": true,
+      "active_role": "UNCLASSIFIED",
+      "active_machine_path_lines": [],
+      "raw_role": "EVIDENCE",
+      "raw_reason": "managed evidence directory",
+      "custody_annotation": {
+        "raw_original": "_run_records/INTEGRATION_REVIEW_RAW/integration-HASHES.json",
+        "raw_original_sha256": "95f7fe46bae1a62337f6d7bc88f189c9c40cfa1559c8f247c9c9d0c1cfc4cfdd",
+        "transformation": "Only declared host root spellings replaced by root tokens; reported source/content hashes preserved."
+      }
+    }
+  ],
+  "reviewed_source_files": 23,
+  "source_mismatches": [],
+  "classifier_or_policy_delta": "",
+  "root_owned_targeted_test_log": "/private/tmp/piping-m35-ci-b526-20260925/portability-repair-check.log",
+  "root_owned_targeted_test_log_sha256": "efb8301a3ccf048efe0ea37ff33d0f03da6e39f0154e389578cc14a701c4ad32",
+  "root_owned_targeted_test_log_text": ".                                                                        [100%]\n1 passed in 32.97s\n",
+  "limits": "Reviewer evaluated unchanged deterministic classifier and read ROOT test output; did not execute tests. Does not qualify an uncommitted repair or future candidate CI."
+}

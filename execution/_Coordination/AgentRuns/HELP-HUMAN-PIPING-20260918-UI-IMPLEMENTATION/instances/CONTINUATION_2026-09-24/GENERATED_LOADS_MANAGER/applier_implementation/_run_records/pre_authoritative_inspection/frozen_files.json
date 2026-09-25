@@ -1,0 +1,18 @@
+[
+  {
+    "path": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+    "sha256": "f3a7995fefd6d591a11edc12f0d141a9308e2cd875f05460ec479fd251bee254"
+  },
+  {
+    "path": "projects/chirality-piping/core/model_operations/operation_applier/src/rich_authoring.rs",
+    "sha256": "e890ab25da5f2fe31e7e33f58b82ae50054c8a5ec65e32b2a07c1d65236829b8"
+  },
+  {
+    "path": "projects/chirality-piping/core/model_operations/operation_applier/src/atomic_batch.rs",
+    "sha256": "452a8b5c622334742cf998372c892748603fab18dcc4a0a793d12b65cabb109e"
+  },
+  {
+    "path": "projects/chirality-piping/core/model_operations/operation_applier/tests/generated_self_weight.rs",
+    "sha256": "74ea8f6b4e2b4c596de5783eea3bdfbfdee7457f247edfd6309298b36b84cd6a"
+  }
+]

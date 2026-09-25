@@ -1,0 +1,8 @@
+   Compiling serde_json v1.0.151
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/serialization/canonical_json)
+   Compiling open_pipe_stress_product_physics v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/product_physics)
+   Compiling open_pipe_stress_operation_applier v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/model_operations/operation_applier)
+   Compiling open_pipe_stress_self_weight_wasm v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/loads/self_weight_wasm)
+   Compiling self_weight_mass_probe v0.0.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/_run_records/mass_probe)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.79s
+     Running `/private/tmp/piping-generated-loads-target/mass_probe/debug/self_weight_mass_probe`

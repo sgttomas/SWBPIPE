@@ -1,0 +1,10 @@
+{
+  "third_party_origin": "/Users/ryan/.codex/worktrees/6614/chirality/projects/chirality-piping/node_modules",
+  "candidate": "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/node_modules",
+  "third_party_links": 168,
+  "workspace_link": "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/node_modules/@openpipestress/desktop",
+  "workspace_resolved": "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/apps/desktop",
+  "hidden_cache_policy": "No hidden source cache/metadata directory linked; .bin is own directory of executable links; cache paths remain candidate-local.",
+  "manifests_byte_identical": true,
+  "installation": "no install/update/globalconfiguration action"
+}

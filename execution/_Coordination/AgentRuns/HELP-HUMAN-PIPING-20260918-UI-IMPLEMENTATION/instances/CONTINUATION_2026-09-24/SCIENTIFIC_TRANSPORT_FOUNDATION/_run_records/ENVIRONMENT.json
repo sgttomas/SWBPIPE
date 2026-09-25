@@ -1,0 +1,21 @@
+{
+  "versions": {
+    "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+    "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+    "node": "v24.18.0",
+    "python": "Python 3.13.14"
+  },
+  "binaries": [
+    {
+      "path": "REPO_ROOT/projects/chirality-piping/core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_binary64",
+      "sha256": "afbe2a36a2d1fda4c466b3502a1d2698194cf47b5dbb63e7eb0bbb756e72618c",
+      "bytes": 678176
+    },
+    {
+      "path": "REPO_ROOT/projects/chirality-piping/core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson",
+      "sha256": "1ecf4f51bf50e9d7564a643fd93bc29c52784de31c57a447dffc13861b01a2e1",
+      "bytes": 675104
+    }
+  ],
+  "not_committed": "compiled binaries and target directories"
+}

@@ -1,0 +1,32 @@
+{
+  "scope": "Four affected locks; only local dependency closure and canonical package/dependency ordering. Registry records retain version/source/checksum/dependencies.",
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+      "base_sha256": "8b68e437515761bf5877a485cc99c52947bac386595f0182f5dcbc17732c71af",
+      "candidate_sha256": "0ee3fa0c2d247d22468746457595abb943a661d5d9aa1d9b4afcd6387e932958",
+      "registry_record_content_identical": true
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.lock",
+      "base_sha256": "18d729de26a4ee9c040af8732fea24bf7492d178ab83fbe2092660ec31527b7e",
+      "candidate_sha256": "a16fbfab2ab2210bc6dbba238a7fa6f336af57abe2b6f700d7c5f3e0a08402b4",
+      "registry_record_content_identical": true
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/Cargo.lock",
+      "base_sha256": "ea31afc93ac9e721234a0d6843777ff4caa240545f108208d3f550c447efe116",
+      "candidate_sha256": "ea48467ce0f8da976e96303214cb0381ff5a8fb9091730d0ffe0a153b0f63ac3",
+      "registry_record_content_identical": true
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.lock",
+      "base_sha256": "9e05f6cc80383de85adf3c430c430ad7fde424791d7120d6f9e31d344a3b31d7",
+      "candidate_sha256": "39d8ac762df47b736cc9159415a8003364e4b0d10bbaad5ed396c4091537524a",
+      "registry_record_content_identical": true
+    }
+  ],
+  "ordering_only_evidence": "_run_records/cargo_normalization/NORMALIZATION.json",
+  "native_metadata_limit": "_run_records/downstream_lock_closure/RESOLVED_RESULT.json",
+  "host_metadata_result": "_run_records/downstream_lock_closure/HOST_RESULT.json"
+}

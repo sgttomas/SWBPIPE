@@ -1,0 +1,39 @@
+{
+  "checkpoint": "1792774a2c5b77612e666332151f10f4b14dbc2c",
+  "main": "aa312755e671b0fc7d598314d591c552749aaea6",
+  "common_ancestor": "f702b439536c6e76af8e1c81ee536d5685e87907",
+  "actual_conflicts": [
+    "projects/chirality-piping/core/model_operations/operation_applier/Cargo.lock",
+    "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+    "projects/chirality-piping/core/product_physics/src/lib.rs"
+  ],
+  "resolutions": {
+    "operation_applier_lock": "retain exact reviewed checkpoint current product0.2 canonical_json/sha2 dependency graph",
+    "operation_applier_source": "retain exact checkpoint with both M35 current-hash and explicit pressure authoring routes/guards",
+    "product_physics_source": "retain exact checkpoint mechanics including M35 validation, annulus and source receipt modules; restore main locally-supplied-input module comment"
+  },
+  "maintained239_comparison": {
+    "exact_unchanged": 238,
+    "comment_only_change": [
+      {
+        "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+        "checkpoint_sha256": "44647cf80ef19ef3316c8e0a8e4bad52ecdee310ddd8134226eb306eb0594905",
+        "merged_sha256": "e68d1f702064da9fbf58e3a026fd7fde94b8a119ae2396013e71eb504f6fa396"
+      }
+    ]
+  },
+  "no_new_numerical_or_unit_policy": true,
+  "review_pending": true,
+  "main_scientific_foundation_paths_byte_identical": [
+    "projects/chirality-piping/core/serialization/canonical_json/Cargo.toml",
+    "projects/chirality-piping/core/serialization/canonical_json/README.md",
+    "projects/chirality-piping/core/serialization/canonical_json/adapter.py",
+    "projects/chirality-piping/core/serialization/canonical_json/src/bin/openpipestress_jcs_binary64.rs",
+    "projects/chirality-piping/core/serialization/canonical_json/src/binary64.rs",
+    "projects/chirality-piping/core/serialization/canonical_json/src/binary64_cli.rs",
+    "projects/chirality-piping/core/serialization/canonical_json/src/lib.rs",
+    "projects/chirality-piping/core/serialization/canonical_json/tests/binary64_profile.rs",
+    "projects/chirality-piping/tests/test_binary64_canonical_json_adapter.py",
+    "projects/chirality-piping/tools/serialization/build_checked_json.py"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "adapter_sha256": "9d9ab8d84209dc1f4cf7d3693dd54c1220ce434c373ffafec07eeebd8a84ae6c",
+  "scope": "Small allocation-order probe, not an OOM experiment or process execution",
+  "unique_string_payload_bytes": 1048576,
+  "list_items": 9,
+  "serialization_calls_before_refusal": [
+    {
+      "output_characters": 9437212,
+      "over_document_limit": true
+    }
+  ],
+  "final_refusal": "BINARY64-JSON-BYTE-LIMIT",
+  "implication": "The document byte guard rejects only after a 9MiB-plus JSON string has been fully allocated. Increasing references below the node cap proportionally amplifies allocation before rejection."
+}

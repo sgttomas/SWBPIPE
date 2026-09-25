@@ -1,0 +1,16 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--locked",
+    "--manifest-path",
+    "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/loads/self_weight_wasm/Cargo.toml",
+    "--lib",
+    "--",
+    "--nocapture"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 1.0270206928253174,
+  "target": "/private/tmp/piping-generated-loads-target/self_weight_wasm"
+}

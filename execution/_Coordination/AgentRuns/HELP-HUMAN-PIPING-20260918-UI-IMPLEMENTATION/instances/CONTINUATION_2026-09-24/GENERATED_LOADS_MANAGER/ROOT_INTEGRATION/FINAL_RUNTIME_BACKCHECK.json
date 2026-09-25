@@ -1,0 +1,29 @@
+{
+  "reviewer": "/root",
+  "role": "HELP_HUMAN",
+  "candidate_base": "f702b439536c6e76af8e1c81ee536d5685e87907",
+  "candidate_patch_sha256": "6a349262358bcfc8295cc18e7ec116be544f6738ee425dae51848b3447334c99",
+  "source_paths_verified": 23,
+  "evidence_paths_verified": 279,
+  "handoff_manifest_sha256": "40bbbdd6c1efff1e2c4a56256b52b163c737bb37cf556affa22c118b1e2b7cc9",
+  "checks": [
+    {
+      "record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/_run_records/checks/narrowed_tsc.result.json",
+      "record_sha256": "257f0e8bd69cc275a81005fc18d41a8bae801f322efb731cdd892bf0f2b97127",
+      "log": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/_run_records/checks/narrowed_tsc.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit_code": 0
+    },
+    {
+      "record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/_run_records/checks/narrowed_vitest.result.json",
+      "record_sha256": "9321a6365c41f475d44a29e92c06d3a51d18592ea242eb5019d31d4838cadf22",
+      "log": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/_run_records/checks/narrowed_vitest.log",
+      "log_sha256": "d4739b44b20f11d998ef4e3524defacd8990566970d821b6410447a8a8915932",
+      "exit_code": 0
+    }
+  ],
+  "wasm_artifacts_verified": 8,
+  "carried_runtime_input_hashes_verified": 17,
+  "result": "PASS for final runtime evidence and unchanged candidate custody",
+  "limits": "Independent source review is at review/RETURN.md and its backchecks. ROOT checked these final logs after the evidence-only reviewer resume was capacity-refused; no new test execution, native/CI/DEC025 or group-closure claim."
+}

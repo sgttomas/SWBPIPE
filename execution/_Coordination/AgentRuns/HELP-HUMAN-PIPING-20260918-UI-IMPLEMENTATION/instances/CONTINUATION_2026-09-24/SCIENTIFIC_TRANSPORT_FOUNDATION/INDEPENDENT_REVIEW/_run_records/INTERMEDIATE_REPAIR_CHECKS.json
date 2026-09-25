@@ -1,0 +1,166 @@
+[
+  {
+    "freeze": "SOURCE_FREEZE_02.json",
+    "freeze_sha256": "e8ef7cb2468e529e1fe1db78c28c00ebba072fd023d2d918e10eff2821036ae3",
+    "files": [
+      {
+        "path": "projects/chirality-piping/core/serialization/canonical_json/Cargo.toml",
+        "sha256": "4f371b06ff85a2c7eccdebbc0a0b513f3f3d57ebc8d4c759c529b21d7ea48b0f",
+        "bytes": 882,
+        "base_sha256": "531d6fcb62e47c3f4dfa5aae3c920255d40f2f1619036a001c1cb37e691c10f4"
+      },
+      {
+        "path": "projects/chirality-piping/core/serialization/canonical_json/adapter.py",
+        "sha256": "f7f94c8d5541dfd1db33c3eab02ca3f8d8b47c39a8780261c1b2b00f8a1bdafd",
+        "bytes": 14509,
+        "base_sha256": "f6c92a186b65f1ae1990194098f668566b190a7ac77376b3fcf792d0711335df"
+      },
+      {
+        "path": "projects/chirality-piping/core/serialization/canonical_json/README.md",
+        "sha256": "5e3809e622336753895699c05badb65a5afdd88256117c5f14f9bef39a1f526d",
+        "bytes": 6648,
+        "base_sha256": null
+      },
+      {
+        "path": "projects/chirality-piping/core/serialization/canonical_json/src/lib.rs",
+        "sha256": "96e6ca5562849b9136bc75b665d10b421e75a9b9805303c40b68982101889336",
+        "bytes": 17509,
+        "base_sha256": "0236e76eeed2949d95d2826c0c20f68232e6bb4a5ceb983744e8db78628a3573"
+      },
+      {
+        "path": "projects/chirality-piping/core/serialization/canonical_json/src/binary64.rs",
+        "sha256": "5936a654d100517c49fc9f6918419ea688eb32173295a72d52110f451349d653",
+        "bytes": 17175,
+        "base_sha256": null
+      },
+      {
+        "path": "projects/chirality-piping/core/serialization/canonical_json/src/binary64_cli.rs",
+        "sha256": "8b17e860bfd9deac9045ae6b2f853349b5b9e4d4fc2674044a0fc3f7f19c52bc",
+        "bytes": 2386,
+        "base_sha256": null
+      },
+      {
+        "path": "projects/chirality-piping/core/serialization/canonical_json/src/bin/openpipestress_jcs_binary64.rs",
+        "sha256": "526f30db364a62253a56092c6a5e97759fba74d5581fc7a15765a7ce9765b5c5",
+        "bytes": 808,
+        "base_sha256": null
+      },
+      {
+        "path": "projects/chirality-piping/core/serialization/canonical_json/tests/binary64_profile.rs",
+        "sha256": "79c04717fc16ec1eaa0a968ddb0515b35b46d2512a5a8d50caba85a6aef62542",
+        "bytes": 11115,
+        "base_sha256": null
+      },
+      {
+        "path": "projects/chirality-piping/tools/serialization/build_checked_json.py",
+        "sha256": "120f0125c5aae4ccc42dce56665c1f6a02353a3bf61c496f735b526f492f49fb",
+        "bytes": 1277,
+        "base_sha256": "6d5d55434d2ca94c896c2794ebdebc89ef1bb0efbfd605d840b0835a9d654bd3"
+      },
+      {
+        "path": "projects/chirality-piping/tests/test_binary64_canonical_json_adapter.py",
+        "sha256": "ff15cc5a559a96be4d7a59660ddc2fc3cb7ed1ef16d17fa4ff9f762203444b64",
+        "bytes": 12748,
+        "base_sha256": null
+      }
+    ],
+    "checks": [
+      {
+        "metadata": "rust_full_02.json",
+        "metadata_sha256": "64532552b6519540ea510cb01907b68f1e918e89c109ac23308c065e0e87af0c",
+        "log_sha256": "f80d2d3671f3ebe3bab2c7a916f7c4e966cd52f3b5a776f3252f96e1de6b96c5",
+        "exit_code": 0,
+        "log_tail": "calizes_checked_boundaries ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n     Running tests/precision_transport.rs (core/serialization/canonical_json/target/debug/deps/precision_transport-1bb1c4ac4531242a)\n\nrunning 1 test\ntest checked_text_preserves_same_unit_nonzero_binary64_bits ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n   Doc-tests open_pipe_stress_canonical_json\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+      },
+      {
+        "metadata": "python_cross_language_02.json",
+        "metadata_sha256": "f388f6fd38a8ac2e4ce7ebba80b57ceefaf6814bf1779055638a0c7d1bedea3f",
+        "log_sha256": "1533863e7f1d2cf47ddcdd8c5530d6feb201188053f72c2e7a002494ea8a6e47",
+        "exit_code": 0,
+        "log_tail": "   Compiling open_pipe_stress_canonical_json v0.1.0 (/private/tmp/piping-scientific-json-20260925/projects/chirality-piping/core/serialization/canonical_json)\n    Finished `release` profile [optimized] target(s) in 1.70s\n.......................................{\"conformance_tokens\": 547, \"random_seed\": \"0xB1642026\", \"node\": \"v24.18.0\", \"v8\": \"13.6.233.17-node.50\", \"scope\": \"Rust native CLI/Python/stock Node; no WASM or solver qualification\"}\n...............\n54 passed in 3.80s\n"
+      }
+    ]
+  },
+  {
+    "freeze": "SOURCE_FREEZE_03.json",
+    "freeze_sha256": "04b99768c6676b29e4a1a7c192a0394dd24039f65a66e4605814e49d59c81b8f",
+    "files": [
+      {
+        "path": "projects/chirality-piping/core/serialization/canonical_json/Cargo.toml",
+        "sha256": "4f371b06ff85a2c7eccdebbc0a0b513f3f3d57ebc8d4c759c529b21d7ea48b0f",
+        "bytes": 882,
+        "base_sha256": "531d6fcb62e47c3f4dfa5aae3c920255d40f2f1619036a001c1cb37e691c10f4"
+      },
+      {
+        "path": "projects/chirality-piping/core/serialization/canonical_json/adapter.py",
+        "sha256": "f7f94c8d5541dfd1db33c3eab02ca3f8d8b47c39a8780261c1b2b00f8a1bdafd",
+        "bytes": 14509,
+        "base_sha256": "f6c92a186b65f1ae1990194098f668566b190a7ac77376b3fcf792d0711335df"
+      },
+      {
+        "path": "projects/chirality-piping/core/serialization/canonical_json/README.md",
+        "sha256": "f88da9cd452f581630e04ba7911ea2148ccc50e21fd73eaf2475b98cf690336e",
+        "bytes": 6740,
+        "base_sha256": null
+      },
+      {
+        "path": "projects/chirality-piping/core/serialization/canonical_json/src/lib.rs",
+        "sha256": "96e6ca5562849b9136bc75b665d10b421e75a9b9805303c40b68982101889336",
+        "bytes": 17509,
+        "base_sha256": "0236e76eeed2949d95d2826c0c20f68232e6bb4a5ceb983744e8db78628a3573"
+      },
+      {
+        "path": "projects/chirality-piping/core/serialization/canonical_json/src/binary64.rs",
+        "sha256": "1aabe4f39159779af277224eb3609b79e36f1340ece467ceedb7202b4d0b8d8b",
+        "bytes": 17295,
+        "base_sha256": null
+      },
+      {
+        "path": "projects/chirality-piping/core/serialization/canonical_json/src/binary64_cli.rs",
+        "sha256": "8b17e860bfd9deac9045ae6b2f853349b5b9e4d4fc2674044a0fc3f7f19c52bc",
+        "bytes": 2386,
+        "base_sha256": null
+      },
+      {
+        "path": "projects/chirality-piping/core/serialization/canonical_json/src/bin/openpipestress_jcs_binary64.rs",
+        "sha256": "526f30db364a62253a56092c6a5e97759fba74d5581fc7a15765a7ce9765b5c5",
+        "bytes": 808,
+        "base_sha256": null
+      },
+      {
+        "path": "projects/chirality-piping/core/serialization/canonical_json/tests/binary64_profile.rs",
+        "sha256": "3e56243abf91a39af6034c0bc310d0dca154ddc8707b9b48281fbab3b15e19de",
+        "bytes": 12063,
+        "base_sha256": null
+      },
+      {
+        "path": "projects/chirality-piping/tools/serialization/build_checked_json.py",
+        "sha256": "120f0125c5aae4ccc42dce56665c1f6a02353a3bf61c496f735b526f492f49fb",
+        "bytes": 1277,
+        "base_sha256": "6d5d55434d2ca94c896c2794ebdebc89ef1bb0efbfd605d840b0835a9d654bd3"
+      },
+      {
+        "path": "projects/chirality-piping/tests/test_binary64_canonical_json_adapter.py",
+        "sha256": "ff15cc5a559a96be4d7a59660ddc2fc3cb7ed1ef16d17fa4ff9f762203444b64",
+        "bytes": 12748,
+        "base_sha256": null
+      }
+    ],
+    "checks": [
+      {
+        "metadata": "rust_full_03.json",
+        "metadata_sha256": "c047f79761fe55e00107953a77513ee4116a6de4110ef6824642a762027a0814",
+        "log_sha256": "84dda97c334377ab880ff7771ee5a60ca6e21b959b9a6636066fd8f00b7ddbd7",
+        "exit_code": 0,
+        "log_tail": "calizes_checked_boundaries ... ok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n     Running tests/precision_transport.rs (core/serialization/canonical_json/target/debug/deps/precision_transport-1bb1c4ac4531242a)\n\nrunning 1 test\ntest checked_text_preserves_same_unit_nonzero_binary64_bits ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n   Doc-tests open_pipe_stress_canonical_json\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+      },
+      {
+        "metadata": "python_cross_language_03.json",
+        "metadata_sha256": "b773bec760ed771aa1cc17c487e624dfc20cbd2ef6b6101d1f8ef36122a9bde5",
+        "log_sha256": "a38b9945767dfcdc7f878ce00d15157c60a00efd41798d5b4ab1634165952201",
+        "exit_code": 0,
+        "log_tail": "   Compiling open_pipe_stress_canonical_json v0.1.0 (/private/tmp/piping-scientific-json-20260925/projects/chirality-piping/core/serialization/canonical_json)\n    Finished `release` profile [optimized] target(s) in 1.68s\n.......................................{\"conformance_tokens\": 547, \"random_seed\": \"0xB1642026\", \"node\": \"v24.18.0\", \"v8\": \"13.6.233.17-node.50\", \"scope\": \"Rust native CLI/Python/stock Node; no WASM or solver qualification\"}\n...............\n54 passed in 3.79s\n"
+      }
+    ]
+  }
+]

@@ -1,0 +1,102 @@
+{
+  "adapter_sha256": "f7f94c8d5541dfd1db33c3eab02ca3f8d8b47c39a8780261c1b2b00f8a1bdafd",
+  "scope": "New-profile resource backcheck only. Small local cumulative budget uses unchanged production path; no actual 64MiB/OOM experiment.",
+  "outcomes": [
+    {
+      "case": "original one-MiB alias repeated nine times",
+      "result": "BINARY64-JSON-BYTE-LIMIT",
+      "full_snapshot_serialization_performed": false
+    },
+    {
+      "case": "raw_batch",
+      "test_request_budget": 512,
+      "result": "BINARY64-JSON-BYTE-LIMIT",
+      "full_request_serialization_performed": false
+    },
+    {
+      "case": "snapshot_batch",
+      "test_request_budget": 512,
+      "result": "BINARY64-JSON-BYTE-LIMIT",
+      "full_request_serialization_performed": false
+    }
+  ],
+  "admitted_small_materializations": [
+    {
+      "kind": "dict",
+      "characters": 82
+    },
+    {
+      "kind": "dict",
+      "characters": 82
+    },
+    {
+      "kind": "dict",
+      "characters": 82
+    },
+    {
+      "kind": "str",
+      "characters": 152
+    },
+    {
+      "kind": "str",
+      "characters": 152
+    },
+    {
+      "kind": "str",
+      "characters": 152
+    }
+  ],
+  "byte_accounting": [
+    {
+      "case": 0,
+      "preflight_bytes": 4,
+      "actual_bytes": 4
+    },
+    {
+      "case": 1,
+      "preflight_bytes": 4,
+      "actual_bytes": 4
+    },
+    {
+      "case": 2,
+      "preflight_bytes": 5,
+      "actual_bytes": 5
+    },
+    {
+      "case": 3,
+      "preflight_bytes": 2,
+      "actual_bytes": 2
+    },
+    {
+      "case": 4,
+      "preflight_bytes": 2,
+      "actual_bytes": 2
+    },
+    {
+      "case": 5,
+      "preflight_bytes": 5,
+      "actual_bytes": 5
+    },
+    {
+      "case": 6,
+      "preflight_bytes": 23,
+      "actual_bytes": 23
+    },
+    {
+      "case": 7,
+      "preflight_bytes": 20,
+      "actual_bytes": 20
+    },
+    {
+      "case": 8,
+      "preflight_bytes": 32,
+      "actual_bytes": 32
+    },
+    {
+      "case": 9,
+      "preflight_bytes": 1061,
+      "actual_bytes": 1061
+    }
+  ],
+  "production_request_limit": 67108864
+}

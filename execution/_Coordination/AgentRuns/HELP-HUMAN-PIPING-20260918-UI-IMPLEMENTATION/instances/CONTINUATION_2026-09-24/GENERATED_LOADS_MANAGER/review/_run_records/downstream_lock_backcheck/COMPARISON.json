@@ -1,0 +1,70 @@
+{
+  "patch_sha256": "94b02b66cf7ddaa533bc4a664c9de52911ef98ed3d7561fdff3f10bcf638ddc7",
+  "patch_matches": true,
+  "candidate_file_count": 23,
+  "new_paths": [
+    "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+    "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.lock"
+  ],
+  "changed_previous_paths": [],
+  "mismatched_files": [],
+  "scope_exit": 0,
+  "lock_changes": [
+    {
+      "name": "native",
+      "before_sha256": "8b68e437515761bf5877a485cc99c52947bac386595f0182f5dcbc17732c71af",
+      "after_sha256": "0ee3fa0c2d247d22468746457595abb943a661d5d9aa1d9b4afcd6387e932958",
+      "headers_equal": true,
+      "package_count_before": 487,
+      "package_count_after": 487,
+      "changes": [
+        {
+          "package": [
+            "open_pipe_stress_operation_applier",
+            "0.1.0"
+          ],
+          "added": [
+            "\"open_pipe_stress_product_physics\","
+          ],
+          "removed": []
+        }
+      ]
+    },
+    {
+      "name": "physics_audit",
+      "before_sha256": "9e05f6cc80383de85adf3c430c430ad7fde424791d7120d6f9e31d344a3b31d7",
+      "after_sha256": "39d8ac762df47b736cc9159415a8003364e4b0d10bbaad5ed396c4091537524a",
+      "headers_equal": true,
+      "package_count_before": 38,
+      "package_count_after": 38,
+      "changes": [
+        {
+          "package": [
+            "open_pipe_stress_operation_applier",
+            "0.1.0"
+          ],
+          "added": [
+            "\"open_pipe_stress_product_physics\","
+          ],
+          "removed": []
+        }
+      ]
+    }
+  ],
+  "reviewer": "/root/authoring_manager/self_weight_review",
+  "parent": "/root/authoring_manager",
+  "authority": "Parent reports ROOT explicitly extended exactly native and physics_audit Cargo.lock paths; bounded lock-only review.",
+  "host_metadata_inspection": [
+    {
+      "name": "native",
+      "metadata_sha256": "469191a08969d53724b883606abb488cb3ed3a1d0119c734f9dd38d8b020801e",
+      "resolved_applier_to_product": true
+    },
+    {
+      "name": "physics_audit",
+      "metadata_sha256": "5af3779b93b22c040708b251f4ca01f352287b013320c76e17d468a748a143fc",
+      "resolved_applier_to_product": true
+    }
+  ],
+  "limit": "Host-filtered aarch64-apple-darwin metadata succeeded for both. Unfiltered native offline metadata failed on uncached android_system_properties v0.1.5; no cross-platform/native/benchmark runtime success claimed."
+}

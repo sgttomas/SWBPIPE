@@ -1,0 +1,18 @@
+{
+  "command": [
+    "cargo",
+    "run",
+    "--offline",
+    "--manifest-path",
+    "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/_run_records/mass_probe/Cargo.toml"
+  ],
+  "started_at": "2026-09-25T01:45:46.043082+00:00",
+  "exit_code": 0,
+  "source_hashes": {
+    "core/product_physics/src/self_weight.rs": "6caf38f71d5db7b1adafb7bf439d24f31df969cd3e41397c1a0a253d21279261",
+    "core/product_physics/src/annulus_geometry.rs": "98a781f126af9d8e6d94de96bbe0d9c3815f83760f7deca7a391e612acf979c9",
+    "core/product_physics/src/pressure_exact.rs": "3f42e4ffe1140d6f813c14654c636699edaece397d880000a9141ca6d4447d35"
+  },
+  "output_sha256": "9c2551edb287615feedbc5aa590c542b277dd796e65c2c2359dc9cbff5e6e431",
+  "relative_limit": "1e-12, shared-area test criterion, no absolute floor"
+}

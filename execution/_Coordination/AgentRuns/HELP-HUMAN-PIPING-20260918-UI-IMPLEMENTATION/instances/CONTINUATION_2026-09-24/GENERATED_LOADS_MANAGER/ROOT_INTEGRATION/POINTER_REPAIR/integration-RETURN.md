@@ -1,0 +1,29 @@
+# Independent M35 integration and evidence review
+
+**Source integration and final runtime-evidence custody PASS; one P3 handoff pointer correction remains.** This review is bounded to integration identity, claims, fixture provenance, and evidence. It carries the existing independent complete-source review; it does not claim another complete implementation review or execute tests.
+
+Reviewer `/root/m35_integration_review`, TASK, actual parent `/root`, delegated-harness-native fresh reviewer with no implementation authorship or delegation. Resolved repository is `{M35_REPO_ROOT}`; project is its `projects/chirality-piping` directory. Root/Piping AGENTS, TASK, LOOP_INIT and project `software-code-review` skill were read; actual source-qualified origins and hashes are in `HASHES.json`. Historical ROOT_BRIEF embeds WORKING_ITEMS instructions, consulted for assignment/provenance only.
+
+## Actionable finding
+
+- **P3 — repair the baseline evidence pointer.** `GENERATED_LOADS_MANAGER/NATIVE_WITNESS_HANDOFF.md:5` points to `_run_records/baseline_artifacts/density_baseline.json`, which does not exist. The retained actual failure/input artifact is `_run_records/checks/baseline_artifacts/density_baseline.json` (SHA256 `5ce7fcc48bfbfb9e6ce379704f97dc437bdf2dbe90c1959a544754fe63a46081`). Following the native procedure otherwise fails to locate its promised starting evidence. Insert `checks/` in the pointer and refresh the affected evidence-hash chain. No product repair or product-test rerun is indicated by that textual correction.
+
+## Verified candidate and evidence
+
+- Clean HEAD and observed pushed branch: `64487068b740977083275baa4ead5ed4171c6084`, parents reviewed source `7654fb36eb0912ba540f40d5a4dfdf736f7cbfce` and main `3c3adae355739b2ad24acdb33d3b5422bb36db95`. The complete `git diff --binary main→candidate` is byte-for-byte equal to `f702b439536c6e76af8e1c81ee536d5685e87907→7654fb36…`: SHA256 `61e295b9e401a7a92e485886cfc70fc79b1f7bc563fc81aad221f67c7b0fec3e`.
+- The 305 changed paths equal exactly 23 source/lock/fixture paths, 279 handed-off evidence paths, HANDOFF_WHITELIST, and the two ROOT_INTEGRATION backcheck files. No omission, extra source, or uncommitted candidate state. Exact-path scope validation passes. Incoming main changes no Piping path or applicable Root/Piping/TASK/review-skill instruction. It does change a Root workflow/catalog and catalog test plus PEC records; a blanket claim that no instructions/checks changed would be inaccurate.
+- All 23 source and 279 evidence live SHA256 values match. Recomputed source patch equals stored/reviewed `6a349262358bcfc8295cc18e7ec116be544f6738ee425dae51848b3447334c99`; whitelist hash equals ROOT's `40bbbdd6c1efff1e2c4a56256b52b163c737bb37cf556affa22c118b1e2b7cc9`. The final independent review manifest and patch are the same source cut. Its final, lock-normalization, downstream-lock, and UI/TypeScript backchecks were read as their historical bounded claims.
+- Independently checked both final narrowed_tsc/narrowed_vitest result and raw-log hashes, zero exit codes, final patch identity, and all 23 pre/post/live source identities. TypeScript has an empty successful log; the affected two suites report 20 passes. Five preceding mocked transport tests remain separate; the prior 25-test result is not 25 real-WASM or product-solver executions. The original failed tsc record remains retained. All CHECK_MAP result/log references match.
+- All eight ignored generated WASM artifact hashes/sizes match, and all 17 carried core/source/manifest/lock/fixture identities match build-before, build-after, final manifest and live bytes. Only the already reviewed desktop TypeScript narrowing changed after that final WASM build. No reviewer build or runtime execution is implied.
+- Recursive proposed-JSON inspection finds 24 model objects, all the explicit two-node/one-beam `project:invented-self-weight` regression and its parameter variants. The maintained v1 golden parses exactly to the retained original baseline's `initial_applied_model`, with both origin hashes matching. Baseline source/return and fixture-origin record explicitly establish invented inputs. No copied complete user-created model was found. F-PIP-1 remains unchanged. Three zero-byte JSON outputs are retained failed attempts, not successful evidence.
+
+ROOT's final backcheck is truthful about its actual execution and the refused earlier reviewer resume. This fresh review is a distinct actual reviewer execution; it does not retroactively turn that refusal into a launch. The original failures, historical method, and manual-intent preservation account remain intact.
+
+## Remaining boundary
+
+After the pointer/hash correction, this candidate is suitable for ROOT's integration work. Required actual-candidate CI, clean DEC-025, applicable full suites, native workflow witness, and independent practitioner/usability gates are not cleared by this review. No future or unexecuted CI was reviewed; ROOT owns those gates and Git/PR/native actions. No engineering acceptance, release, M30 completion, or whole-M35 closure is asserted.
+
+Reproducible read-only checks and full results: `verify.py`, `HASHES.json`, `SCOPE_CHECK.json`. All outputs stay in this separate temporary review directory; no checkout edits, Git mutations, product tests/builds, browser/native activity or delegation occurred. Checkout was clean at both recorded boundaries.
+
+
+Portable view: host-specific root spellings are replaced by declared root tokens. The byte-exact reviewer original is retained at `_run_records/INTEGRATION_REVIEW_RAW/integration-RETURN.md`; this does not change that reviewer's original conclusion or execution.
