@@ -1,0 +1,85 @@
+date: 2026-09-25T20:10:56.835966Z
+target: apps/desktop/src/features/workspace/resultsSessionState.ts
+sha256 before: 455a5b294016931242dd14eebde837c9a3d0c8bb6697c27899cba6813f6f2380
+sha256 HEAD blob: 455a5b294016931242dd14eebde837c9a3d0c8bb6697c27899cba6813f6f2380
+--- replaced (exactly once) ---
+(!!inputManifest && physicsSourceModeMatches(result, inputManifest.manifest.model_basis.model_payload, currentSolver!.solver_mode))
+--- with ---
+(!!inputManifest && false)
+---
+sha256 mutated: 523b64312eb68dbb85ceb353a729353b1e9cee29baa20b12c9ca0aa6482feb74
+command (from WORKING_ROOT): npm test --workspace apps/desktop -- --run src/features/results/physicsSourceIntegration.test.tsx
+--- vitest output (jsdom canvas noise and stack/DOM dump lines elided) ---
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run --run src/features/results/physicsSourceIntegration.test.tsx
+
+
+ RUN  v4.1.10 /home/user/wt/engine/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/results/physicsSourceIntegration.test.tsx (17 tests | 14 failed) 28465ms
+     × n05 sparse_interactive binds actual input, Current gates and portable evidence 1535ms
+     × n05 dense_scrutiny binds actual input, Current gates and portable evidence 1390ms
+     × n06 sparse_interactive binds actual input, Current gates and portable evidence 1458ms
+     × n06 dense_scrutiny binds actual input, Current gates and portable evidence 1400ms
+     × mixed sparse_interactive binds actual input, Current gates and portable evidence 1615ms
+     × mixed dense_scrutiny binds actual input, Current gates and portable evidence 1669ms
+     × fields sparse_interactive binds actual input, Current gates and portable evidence 1381ms
+     × fields dense_scrutiny binds actual input, Current gates and portable evidence 1382ms
+     × n05_units sparse_interactive binds actual input, Current gates and portable evidence 1374ms
+     × n05_units dense_scrutiny binds actual input, Current gates and portable evidence 1437ms
+     × mixed_units sparse_interactive binds actual input, Current gates and portable evidence 1605ms
+     × mixed_units dense_scrutiny binds actual input, Current gates and portable evidence 1654ms
+     × n05_unicode sparse_interactive binds actual input, Current gates and portable evidence 1387ms
+     × n05_unicode dense_scrutiny binds actual input, Current gates and portable evidence 1384ms
+
+ Test Files  1 failed (1)
+      Tests  14 failed | 3 passed (17)
+   Start at  20:10:57
+   Duration  31.08s (transform 1.44s, setup 144ms, import 1.92s, tests 28.47s, environment 393ms)
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 14 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > n05 sparse_interactive binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > n05 dense_scrutiny binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > n06 sparse_interactive binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > n06 dense_scrutiny binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > mixed sparse_interactive binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > mixed dense_scrutiny binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > fields sparse_interactive binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > fields dense_scrutiny binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > n05_units sparse_interactive binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > n05_units dense_scrutiny binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > mixed_units sparse_interactive binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > mixed_units dense_scrutiny binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > n05_unicode sparse_interactive binds actual input, Current gates and portable evidence
+ FAIL  src/features/results/physicsSourceIntegration.test.tsx > joined composite native transport unit simulation > n05_unicode dense_scrutiny binds actual input, Current gates and portable evidence
+AssertionError: expected null not to be null
+
+Ignored nodes: comments, script, style
+ ❯ src/features/results/physicsSourceIntegration.test.tsx:80:83
+     78|   act(() => hook.result.current.results.setSolverMode(mode as "sparse_…
+     79|   await act(async () => { await hook.result.current.results.handleRun(…
+     80|   await waitFor(() => expect(hook.result.current.results.currentSolved…
+       |                                                                                   ^
+     81|   expect(started).toEqual([mode]);
+     82|   const { result: source, inputManifest, analysisRun } = hook.result.c…
+ ❯ runWithExpensiveErrorDiagnosticsDisabled ../../node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback ../../node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback ../../node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/14]⎯
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run --run src/features/results/physicsSourceIntegration.test.tsx
+exit=1
+sha256 restored: 455a5b294016931242dd14eebde837c9a3d0c8bb6697c27899cba6813f6f2380
+git diff --stat after restore: (empty)
+restored == before: True; before == HEAD blob: True
+verdict: FAIL-as-expected

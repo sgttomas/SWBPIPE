@@ -1,0 +1,6 @@
+        target_quantity: {
+          value: item.value,
+          unit: item.unit,
+          dimension
+        },
+        target_quantity_policy: "headless_runner_handoff_preserves_received_value_unit_and_declared_dimension",

@@ -1,0 +1,82 @@
+date: 2026-09-25T20:08:22.087781Z
+target: apps/desktop/src/services/previewService.ts
+sha256 before: 242f9b2ec084bd448eddf257a97887c743c18e3386bb72356dfc64cc273ebe57
+sha256 HEAD blob: 242f9b2ec084bd448eddf257a97887c743c18e3386bb72356dfc64cc273ebe57
+--- replaced (exactly once) ---
+  if (!hasCurrentSourceContract(result)) throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
+  return buildAnalysisRunV03(
+--- with ---
+  if (!hasCurrentSourceContract(result)) return (await import("./analysisRunCompatibility")).buildAnalysisRunV02(result, inputManifest, effective);
+  return buildAnalysisRunV03(
+---
+sha256 mutated: 0420d76c1f04d9dd294735e7ae7659951d94c8d3774f099305b66953b11de463
+command (from WORKING_ROOT): npm test --workspace apps/desktop -- --run src/features/handoff/HandoffPanel.test.tsx src/features/headless-runner/HeadlessRunnerPanel.test.tsx
+--- vitest output (jsdom canvas noise and stack/DOM dump lines elided) ---
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run --run src/features/handoff/HandoffPanel.test.tsx src/features/headless-runner/HeadlessRunnerPanel.test.tsx
+
+
+ RUN  v4.1.10 /home/user/wt/engine/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/handoff/HandoffPanel.test.tsx (2 tests | 1 failed) 785ms
+   × refuses the legacy carrier as the handoff analysis basis without changing it 314ms
+ ❯ src/features/headless-runner/HeadlessRunnerPanel.test.tsx (2 tests | 1 failed) 812ms
+   × refuses the legacy carrier as the runner analysis basis without changing it 327ms
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 2 passed (4)
+   Start at  20:08:22
+   Duration  1.99s (transform 615ms, setup 295ms, import 787ms, tests 1.60s, environment 820ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/handoff/HandoffPanel.test.tsx > refuses the legacy carrier as the handoff analysis basis without changing it
+AssertionError: promise resolved "{ schema_version: '0.2.0', …(6) }" instead of rejecting
+
+[... 2 lines of the resolved v0.2 analysis-record diff dump elided in this record ...]
+
+[... 25553 lines of the resolved v0.2 analysis-record diff dump elided in this record ...]
+  }
+
+ ❯ src/features/handoff/HandoffPanel.test.tsx:38:87
+     36|  const model=modelJson as PreviewModel,legacy=bindSourceResultDimensio…
+     37|  expect(sourceContract(legacy)).toBe('legacy');
+     38|  await expect(buildAnalysisRunPreview(legacy,{inputManifest:await mani…
+       |                                                                                       ^
+     39|  expect(JSON.stringify(legacy)).toBe(before);
+     40| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/features/headless-runner/HeadlessRunnerPanel.test.tsx > refuses the legacy carrier as the runner analysis basis without changing it
+AssertionError: promise resolved "{ schema_version: '0.2.0', …(6) }" instead of rejecting
+
+[... 2 lines of the resolved v0.2 analysis-record diff dump elided in this record ...]
+
+[... 25553 lines of the resolved v0.2 analysis-record diff dump elided in this record ...]
+  }
+
+ ❯ src/features/headless-runner/HeadlessRunnerPanel.test.tsx:39:87
+     37|  const model=modelJson as PreviewModel,legacy=bindSourceResultDimensio…
+     38|  expect(sourceContract(legacy)).toBe('legacy');
+     39|  await expect(buildAnalysisRunPreview(legacy,{inputManifest:await mani…
+       |                                                                                       ^
+     40|  expect(JSON.stringify(legacy)).toBe(before);
+     41| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run --run src/features/handoff/HandoffPanel.test.tsx src/features/headless-runner/HeadlessRunnerPanel.test.tsx
+exit=1
+sha256 restored: 242f9b2ec084bd448eddf257a97887c743c18e3386bb72356dfc64cc273ebe57
+git diff --stat after restore: (empty)
+restored == before: True; before == HEAD blob: True
+verdict: FAIL-as-expected

@@ -1,0 +1,30 @@
+date: 2026-09-25T20:08:56.930600Z
+target: apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx
+sha256 before: ff13f5f154b6ad7ca7f4bb4053c0a4238c5d712b647cd681a73584118522c3e4
+sha256 HEAD blob: ff13f5f154b6ad7ca7f4bb4053c0a4238c5d712b647cd681a73584118522c3e4
+--- replaced (exactly once) ---
+      .filter((input) => !input.solver_result_ref)
+--- with ---
+      .filter(() => true)
+---
+sha256 mutated: 7dea05507c7a5972155a340b1d9bbfeb747689406c84fe3b411cdc9ffa762ccb
+command (from WORKING_ROOT): npm test --workspace apps/desktop -- --run src/features/rule-check/RuleCheckRunPanel.test.tsx
+--- vitest output (jsdom canvas noise and stack/DOM dump lines elided) ---
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run --run src/features/rule-check/RuleCheckRunPanel.test.tsx
+
+
+ RUN  v4.1.10 /home/user/wt/engine/projects/chirality-piping/apps/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  24 passed (24)
+   Start at  20:08:57
+   Duration  2.69s (transform 638ms, setup 146ms, import 793ms, tests 1.01s, environment 508ms)
+
+exit=0
+sha256 restored: ff13f5f154b6ad7ca7f4bb4053c0a4238c5d712b647cd681a73584118522c3e4
+git diff --stat after restore: (empty)
+restored == before: True; before == HEAD blob: True
+verdict: UNEXPECTED-PASS

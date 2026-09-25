@@ -1,0 +1,2 @@
+      .filter((input) => !input.solver_result_ref)
+      .map((input) => ({ input_id: input.input_id, result_id: solverSelections[input.input_id] ?? "" }))

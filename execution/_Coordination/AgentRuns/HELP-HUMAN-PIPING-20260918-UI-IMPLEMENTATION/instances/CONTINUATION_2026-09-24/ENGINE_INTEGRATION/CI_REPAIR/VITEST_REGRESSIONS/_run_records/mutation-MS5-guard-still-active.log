@@ -1,0 +1,55 @@
+date: 2026-09-25T20:12:38Z
+purpose: show the unchanged session-boundary guard still rejects the original offending import after the repair
+target (repaired test file, temporarily): apps/desktop/src/features/results/physicsSourceIntegration.test.tsx
+sha256 before: e6c2a638501a9e4adbcd39ceb85688b16079999eaa553f8132bcc8187e57eaaf
+inserted line: import { useResultsSessionState } from "../workspace/resultsSessionState"; void useResultsSessionState;
+sha256 mutated: 28a6e08869313770c71ce15b6e0601cb2c26953edd7b937f00f2b7bcde328f14
+command (from WORKING_ROOT): npm test --workspace apps/desktop -- --run src/features/workspace/sessionBoundary.test.ts
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run --run src/features/workspace/sessionBoundary.test.ts
+
+
+ RUN  v4.1.10 /home/user/wt/engine/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/workspace/sessionBoundary.test.ts (3 tests | 1 failed) 20ms
+     × lets no file but workspaceSession.ts import a *SessionState module 15ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/workspace/sessionBoundary.test.ts > session-state import guard > lets no file but workspaceSession.ts import a *SessionState module
+AssertionError: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "features/results/physicsSourceIntegration.test.tsx imports ../workspace/resultsSessionState",
++ ]
+
+ ❯ src/features/workspace/sessionBoundary.test.ts:67:23
+     65|         .map((specifier) => `${file.relative} imports ${specifier}`);
+     66|     });
+     67|     expect(offenders).toEqual([]);
+       |                       ^
+     68|   });
+     69|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  20:12:39
+   Duration  715ms (transform 91ms, setup 139ms, import 39ms, tests 20ms, environment 371ms)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run --run src/features/workspace/sessionBoundary.test.ts
+exit=1
+sha256 restored: e6c2a638501a9e4adbcd39ceb85688b16079999eaa553f8132bcc8187e57eaaf (equal to before: true)

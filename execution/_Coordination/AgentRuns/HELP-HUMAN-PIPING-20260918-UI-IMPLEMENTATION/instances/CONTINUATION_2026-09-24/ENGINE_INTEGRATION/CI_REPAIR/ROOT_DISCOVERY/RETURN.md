@@ -30,3 +30,11 @@ Corrections to the [browser repair return](../BROWSER_REPAIR/RETURN.md), per the
 
 - Several of its `file:line` paths are relative to `apps/desktop/`, not `projects/chirality-piping/`.
 - Its statement that the DEC-025 sweep runs the dist lane holds only for a host-mode sweep. The CI-bound sweep binds surface 4 to the hosted source run and does not run the dist lane (see [DIST_LANE](../DIST_LANE/RETURN.md)).
+
+Desktop vitest surface (`50b9dd5af`):
+
+- The full suite had 8 failures in 4 files. All four files pass on main `aa312755e` (28/28), so they are PR905 regressions.
+- The [vitest repair](../VITEST_REGRESSIONS/RETURN.md) changed test files only. It found no production defect and brings the full suite to 2057/2057.
+- The repair reported one reachability gap: through the permitted session boundary, a mode-mismatched manifest cannot reach the Current gate. ROOT added direct-setter controls in `apps/desktop/src/features/workspace/resultsSessionState.test.ts`, one for physics-source and one for source-blocks (which never had one). Each shows a mode-flipped manifest withdraws Current, and restoring it reinstates Current.
+- Mutation evidence: removing a family's mode clause together with the native-invocation mode argument makes that family's control fail. Removing the clause alone is masked by the redundant mode check inside `hasNativeMechanicsInvocation`, which is defence in depth, not a coverage claim.
+

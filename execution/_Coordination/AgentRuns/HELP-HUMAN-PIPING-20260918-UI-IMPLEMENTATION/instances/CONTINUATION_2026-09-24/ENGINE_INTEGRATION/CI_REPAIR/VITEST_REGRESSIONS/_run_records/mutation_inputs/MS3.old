@@ -1,0 +1,1 @@
+(!!inputManifest && sourceBlockModeMatches(result, inputManifest.manifest.model_basis.model_payload, currentSolver!.solver_mode))

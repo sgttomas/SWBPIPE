@@ -1,0 +1,6 @@
+        target_quantity: {
+          value: item.value,
+          unit: item.unit,
+          dimension: "dimension_not_preserved"
+        },
+        target_quantity_policy: "referenced_received_carrier_value_unit_and_declared_dimension_preserved",

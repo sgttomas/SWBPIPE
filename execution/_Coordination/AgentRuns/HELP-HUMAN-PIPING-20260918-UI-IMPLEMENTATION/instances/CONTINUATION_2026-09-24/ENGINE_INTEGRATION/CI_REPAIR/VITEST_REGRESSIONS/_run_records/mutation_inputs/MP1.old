@@ -1,0 +1,2 @@
+  if (!hasCurrentSourceContract(result)) throw new Error("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED");
+  return buildAnalysisRunV03(

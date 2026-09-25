@@ -2,15 +2,40 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-libra
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { invoke } from "@tauri-apps/api/core";
 import { RuleCheckRunPanel } from "./RuleCheckRunPanel";
+import { hasNativeMechanicsInvocation, runPreviewMechanics, type PreviewSolverMode } from "../../services/previewService";
+import { numericalResultStanding } from "../results/numericalResultQuality";
+import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
 import type { MechanicsResult, PreviewModel } from "../../types";
 
 // Phase C4 GUI slice (TP-C4-CHECKGUI-001). jsdom has no Tauri runtime, so the
 // browser-preview tests pin the honest desktop-only seam; the desktop-render
 // test opts into the backend path by setting __TAURI_INTERNALS__ and mocking
-// invoke so the per-check outcome rendering can be asserted.
+// invoke so the per-check outcome rendering can be asserted. A desktop rule run
+// requires a fresh native mechanics invocation (RULE_NATIVE_INVOCATION_REQUIRED
+// otherwise), so desktop runs use nativeSolvedBasis(). All native transport and
+// rule responses here are unit simulations, NOT native UI qualification or
+// rule-evaluation evidence.
 
 vi.mock("@tauri-apps/api/core", () => ({ invoke: vi.fn() }));
 const invokeMock = vi.mocked(invoke);
+
+// A natively invoked, numerically eligible source as the rule service requires:
+// the captured precision producer pair (the pair App.test.tsx uses for Current)
+// is replayed through mocked IPC and registered only by the production private
+// IPC route. The mock is reset afterwards, so each test's own invoke mock sees
+// the panel's calls only.
+async function nativeSolvedBasis(mode: PreviewSolverMode = "sparse_interactive") {
+  const pair = nativeMechanicsReplayPair(mode, { profile: "precision" });
+  (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+  invokeMock.mockImplementation(createNativeMechanicsReplay({ profile: "precision" }).invoke);
+  const result = await runPreviewMechanics(pair.model, mode);
+  expect(hasNativeMechanicsInvocation(result, pair.model, mode)).toBe(true);
+  expect(numericalResultStanding(result, pair.model).eligible).toBe(true);
+  invokeMock.mockReset();
+  const stressRowId = result.results.find((row) => row.kind === "element_local_axial_normal_stress")!.id;
+  return { model: pair.model, result, stressRowId };
+}
+const ruleRunCalls = () => invokeMock.mock.calls.filter(([command]) => command === "run_rule_checks");
 
 const modelStub = {
   project: { id: "project:c4-run-test", name: "Invented C4 Run Test Project" }
@@ -310,7 +335,7 @@ describe("RuleCheckRunPanel", () => {
   });
 
   it("renders per-check outcomes and the aggregate from a desktop run", async () => {
-    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const native = await nativeSolvedBasis();
     mockCatalogAndRuleRun({
       document_kind: "openpipestress.rule_check.run",
       rule_pack_id: "invented_demo_rule_pack",
@@ -336,7 +361,7 @@ describe("RuleCheckRunPanel", () => {
         "Rule-check results are engineering decision-support information computed from user-supplied rules and data. Human review remains required."
     });
 
-    render(<RuleCheckRunPanel model={modelStub} result={resultStub} />);
+    render(<RuleCheckRunPanel model={native.model} result={native.result} />);
     fireEvent.click(screen.getByTestId("rule-check-load-demo"));
     await screen.findByTestId("rule-check-binding-plan");
 
@@ -362,10 +387,44 @@ describe("RuleCheckRunPanel", () => {
     // keeps "the emitted notice is not rendered" checked against the text it now has.
     expect(screen.getByTestId("rule-check-run-panel").textContent).not.toContain("Human review remains required");
     expect(invokeMock).toHaveBeenCalledWith("run_rule_checks", expect.objectContaining({ rulePackDocument: expect.anything() }));
+    // The rule backend receives the natively invoked source and its model, not a re-solve.
+    expect(ruleRunCalls()).toHaveLength(1);
+    expect(ruleRunCalls()[0][1]).toMatchObject({ solvedEnvelope: native.result, model: native.model });
+  });
+
+  it("refuses a desktop run over a result without a native invocation and never reaches the rule backend", async () => {
+    const native = await nativeSolvedBasis();
+    mockCatalogAndRuleRun({
+      document_kind: "openpipestress.rule_check.run",
+      rule_pack_id: "invented_demo_rule_pack",
+      grammar_version: "1.0.0",
+      aggregate_status: "USER_RULE_CHECKED",
+      checks: [],
+      professional_boundary_notice: "notice"
+    });
+    const onAggregateChange = vi.fn();
+    // A stub result and a byte-identical copy of the natively invoked source:
+    // neither carries a live invocation registration.
+    for (const [model, result] of [[modelStub, resultStub], [native.model, structuredClone(native.result)]] as const) {
+      const view = render(<RuleCheckRunPanel model={model} result={result} onAggregateChange={onAggregateChange} />);
+      fireEvent.click(screen.getByTestId("rule-check-load-demo"));
+      await screen.findByTestId("rule-check-binding-plan");
+      onAggregateChange.mockClear();
+      fireEvent.click(screen.getByTestId("rule-check-run"));
+      await waitFor(() =>
+        expect(screen.getByTestId("rule-check-run-status").textContent).toContain("RULE_NATIVE_INVOCATION_REQUIRED")
+      );
+      expect(screen.queryByTestId("rule-check-run-result")).not.toBeInTheDocument();
+      expect(onAggregateChange).toHaveBeenCalledWith(null);
+      expect(onAggregateChange).not.toHaveBeenCalledWith("USER_RULE_CHECKED");
+      expect(screen.getByTestId("rule-check-run")).not.toBeDisabled();
+      view.unmount();
+    }
+    expect(ruleRunCalls()).toHaveLength(0);
   });
 
   it("omits caller-supplied solver bindings when a solver_result_ref is authored in the pack", async () => {
-    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const native = await nativeSolvedBasis();
     invokeMock.mockResolvedValue({
       document_kind: "openpipestress.rule_check.run",
       rule_pack_id: "p",
@@ -383,19 +442,20 @@ describe("RuleCheckRunPanel", () => {
           name: "Actual stress",
           source_kind: "solver_result",
           quantity_intent: { dimension: "stress", unit_ref: "demo_unit" },
-          solver_result_ref: { result_id: "result:stress:demo" }
+          solver_result_ref: { result_id: native.stressRowId }
         }
       ]
     };
 
-    render(<RuleCheckRunPanel model={modelStub} result={resultStub} />);
+    render(<RuleCheckRunPanel model={native.model} result={native.result} />);
     fireEvent.change(screen.getByTestId("rule-check-pack-json"), {
       target: { value: JSON.stringify(pack) }
     });
     fireEvent.click(screen.getByTestId("rule-check-run"));
 
     await screen.findByTestId("rule-check-run-result");
-    const [, args] = invokeMock.mock.calls[0];
+    const [command, args] = invokeMock.mock.calls[0];
+    expect(command).toBe("run_rule_checks");
     expect(args).not.toHaveProperty("solverResultBindings");
   });
 });
@@ -426,11 +486,11 @@ describe("RuleCheckRunPanel aggregate lift (TP-C4-APPAGG-001)", () => {
   };
 
   it("lifts the worst-of aggregate to onAggregateChange on a desktop run", async () => {
-    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const native = await nativeSolvedBasis();
     mockCatalogAndRuleRun(passingRun);
     const onAggregateChange = vi.fn();
 
-    render(<RuleCheckRunPanel model={modelStub} result={resultStub} onAggregateChange={onAggregateChange} />);
+    render(<RuleCheckRunPanel model={native.model} result={native.result} onAggregateChange={onAggregateChange} />);
     fireEvent.click(screen.getByTestId("rule-check-load-demo"));
     await screen.findByTestId("rule-check-binding-plan");
     fireEvent.click(screen.getByTestId("rule-check-run"));
@@ -458,32 +518,33 @@ describe("RuleCheckRunPanel aggregate lift (TP-C4-APPAGG-001)", () => {
   });
 
   it("retires a completed same-ID result basis before paint while retaining pack and binding drafts", async () => {
-    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const native = await nativeSolvedBasis();
     mockCatalogAndRuleRun(passingRun);
     const onAggregateChange = vi.fn();
     const basisA = { projectSessionGeneration: 4, modelRevision: 8, resultSequence: 2 };
     const view = render(<RuleCheckRunPanel
       basis={basisA}
-      model={modelStub}
-      result={resultStub}
+      model={native.model}
+      result={native.result}
       onAggregateChange={onAggregateChange}
     />);
     fireEvent.click(screen.getByTestId("rule-check-load-demo"));
     await screen.findByTestId("rule-check-binding-plan");
     fireEvent.change(screen.getByTestId("rule-check-solver-select-demo_actual_quantity"), {
-      target: { value: "result:stress:demo" }
+      target: { value: native.stressRowId }
     });
     fireEvent.change(screen.getByTestId("rule-check-value-input-demo_limit_quantity"), {
       target: { value: "73" }
     });
     fireEvent.click(screen.getByTestId("rule-check-run"));
     await screen.findByTestId("rule-check-run-result");
+    expect(ruleRunCalls()[0][1]).toMatchObject({ solverResultBindings: [{ input_id: "demo_actual_quantity", result_id: native.stressRowId }] });
     onAggregateChange.mockClear();
 
-    const nextResult = { ...resultStub };
+    const nextResult = { ...native.result };
     view.rerender(<RuleCheckRunPanel
       basis={{ ...basisA, resultSequence: 3 }}
-      model={modelStub}
+      model={native.model}
       result={nextResult}
       onAggregateChange={onAggregateChange}
     />);
@@ -493,14 +554,17 @@ describe("RuleCheckRunPanel aggregate lift (TP-C4-APPAGG-001)", () => {
       "No rule-check run for the current model and solved-result basis."
     );
     expect((screen.getByTestId("rule-check-pack-json") as HTMLTextAreaElement).value).toContain("invented_demo_rule_pack");
-    expect(screen.getByTestId("rule-check-solver-select-demo_actual_quantity")).toHaveValue("result:stress:demo");
+    expect(screen.getByTestId("rule-check-solver-select-demo_actual_quantity")).toHaveValue(native.stressRowId);
     expect(screen.getByTestId("rule-check-value-input-demo_limit_quantity")).toHaveValue(73);
     expect(onAggregateChange).toHaveBeenCalledTimes(1);
     expect(onAggregateChange).toHaveBeenCalledWith(null);
   });
 
   it("lets a new-basis run publish while a late old run cannot publish or clear its busy state", async () => {
-    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    // Two separately invoked native solves: the new basis carries its own fresh
+    // (dense-mode) source rather than a relabelled copy of the old one.
+    const nativeA = await nativeSolvedBasis();
+    const nativeB = await nativeSolvedBasis("dense_scrutiny");
     const runA = deferred<unknown>();
     const runB = deferred<unknown>();
     let runCount = 0;
@@ -513,8 +577,8 @@ describe("RuleCheckRunPanel aggregate lift (TP-C4-APPAGG-001)", () => {
     const basisA = { projectSessionGeneration: 7, modelRevision: 11, resultSequence: 5 };
     const view = render(<RuleCheckRunPanel
       basis={basisA}
-      model={modelStub}
-      result={resultStub}
+      model={nativeA.model}
+      result={nativeA.result}
       onAggregateChange={onAggregateChange}
     />);
     fireEvent.click(screen.getByTestId("rule-check-load-demo"));
@@ -524,12 +588,13 @@ describe("RuleCheckRunPanel aggregate lift (TP-C4-APPAGG-001)", () => {
 
     view.rerender(<RuleCheckRunPanel
       basis={{ ...basisA, resultSequence: 6 }}
-      model={modelStub}
-      result={{ ...resultStub, run_id: "run:c4-test-b" }}
+      model={nativeA.model}
+      result={nativeB.result}
       onAggregateChange={onAggregateChange}
     />);
     fireEvent.click(screen.getByTestId("rule-check-run"));
     await waitFor(() => expect(runCount).toBe(2));
+    expect(ruleRunCalls().map(([, args]) => (args as { solvedEnvelope: unknown }).solvedEnvelope)).toEqual([nativeA.result, nativeB.result]);
     expect(screen.getByTestId("rule-check-run")).toBeDisabled();
 
     await act(async () => runA.resolve({ ...passingRun, aggregate_status: "USER_RULE_CHECKED" }));
@@ -544,7 +609,7 @@ describe("RuleCheckRunPanel aggregate lift (TP-C4-APPAGG-001)", () => {
   });
 
   it("prevents an old-pack request from reviving findings after a reset to a new pack", async () => {
-    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const native = await nativeSolvedBasis();
     const oldRun = deferred<unknown>();
     invokeMock.mockImplementation((command) => {
       if (command === "get_unit_catalog") return Promise.resolve(unitCatalogStub);
@@ -555,8 +620,8 @@ describe("RuleCheckRunPanel aggregate lift (TP-C4-APPAGG-001)", () => {
     const basisA = { projectSessionGeneration: 9, modelRevision: 14, resultSequence: 4 };
     const view = render(<RuleCheckRunPanel
       basis={basisA}
-      model={modelStub}
-      result={resultStub}
+      model={native.model}
+      result={native.result}
       onAggregateChange={onAggregateChange}
     />);
     fireEvent.click(screen.getByTestId("rule-check-load-demo"));
@@ -568,8 +633,8 @@ describe("RuleCheckRunPanel aggregate lift (TP-C4-APPAGG-001)", () => {
 
     view.rerender(<RuleCheckRunPanel
       basis={{ ...basisA, modelRevision: 15 }}
-      model={{ ...modelStub }}
-      result={resultStub}
+      model={{ ...native.model }}
+      result={native.result}
       onAggregateChange={onAggregateChange}
     />);
     const newPack = JSON.stringify({ metadata: { rule_pack_id: "replacement-pack" }, required_inputs: [] });
@@ -577,6 +642,8 @@ describe("RuleCheckRunPanel aggregate lift (TP-C4-APPAGG-001)", () => {
     onAggregateChange.mockClear();
 
     await act(async () => oldRun.resolve(passingRun));
+    // The old-pack request actually reached the rule backend, so this is not a vacuous pass.
+    expect(ruleRunCalls()).toHaveLength(1);
     expect(screen.getByTestId("rule-check-pack-json")).toHaveValue(newPack);
     expect(screen.queryByTestId("rule-check-run-result")).not.toBeInTheDocument();
     expect(screen.getByTestId("rule-check-run-status")).not.toHaveTextContent("aggregate=USER_RULE_FAILED");

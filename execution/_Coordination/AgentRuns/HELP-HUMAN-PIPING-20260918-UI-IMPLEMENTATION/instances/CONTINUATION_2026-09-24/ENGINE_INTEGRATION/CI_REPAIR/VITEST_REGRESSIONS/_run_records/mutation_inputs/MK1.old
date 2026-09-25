@@ -1,0 +1,1 @@
+  if (!hasNativeMechanicsInvocation(source, args.model)) throw new Error("RULE_NATIVE_INVOCATION_REQUIRED: reference or saved data is not a fresh supported solve.");
