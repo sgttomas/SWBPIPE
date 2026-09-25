@@ -1,0 +1,35 @@
+   Compiling version_check v0.9.5
+   Compiling proc-macro2 v1.0.106
+   Compiling generic-array v0.14.7
+   Compiling unicode-ident v1.0.24
+   Compiling quote v1.0.45
+   Compiling serde_core v1.0.228
+   Compiling typenum v1.20.1
+   Compiling libc v0.2.186
+   Compiling zmij v1.0.21
+   Compiling syn v2.0.117
+   Compiling serde v1.0.228
+   Compiling serde_json v1.0.150
+   Compiling serde_derive v1.0.228
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling memchr v2.8.1
+   Compiling itoa v1.0.18
+   Compiling digest v0.10.7
+   Compiling cpufeatures v0.2.17
+   Compiling ryu v1.0.23
+   Compiling cfg-if v1.0.4
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/serialization/canonical_json)
+   Compiling sha2 v0.10.9
+   Compiling open_pipe_stress_units v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/units)
+   Compiling open_pipe_stress_operation_applier v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/model_operations/operation_applier)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.47s
+     Running tests/generated_self_weight.rs (/private/tmp/piping-generated-loads-target/operation_applier/debug/deps/generated_self_weight-52d7616112fc4f74)
+
+running 3 tests
+test manual_detach_preserves_every_physical_field ... ok
+test refresh_needs_current_hash_and_preserves_identity ... ok
+test source_plan_guard_and_late_failure_publish_no_model ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

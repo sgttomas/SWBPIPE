@@ -7,6 +7,7 @@
 //! private datasets, or professional acceptance are bundled by this crate.
 
 pub mod self_weight;
+mod annulus_geometry;
 
 use open_pipe_stress_curved_bend::CurvedBendMacroElement;
 use open_pipe_stress_frame_kernel::{
@@ -859,6 +860,11 @@ pub fn run_linear_static_preview_with_mode(
             vec!["model".to_string()],
         ));
     }
+    if has_blocking(&diagnostics) {
+        return blocked_envelope(model, diagnostics);
+    }
+
+    self_weight::validate_applied_self_weight(&model, &mut diagnostics);
     if has_blocking(&diagnostics) {
         return blocked_envelope(model, diagnostics);
     }

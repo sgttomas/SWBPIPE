@@ -1,0 +1,82 @@
+{
+  "mechanism": "delegated-harness-native child execution",
+  "parent": "/root/authoring_manager",
+  "child": "/root/authoring_manager/self_weight_baseline",
+  "role": "TASK Type 2",
+  "base": "f702b439536c6e76af8e1c81ee536d5685e87907",
+  "scope": "Connected regression and dev dependency only; no production edits",
+  "limits": "No Cargo/npm/build/browser/native execution, dependency installation, Git or global config; parent owns execution and integration",
+  "supplied_origins": [
+    {
+      "origin": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "origin": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "origin": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/ROOT_BRIEF.md",
+      "sha256": "2511e8963d791f907f075ac34142d805a00bdd7972f337e0ff4fb70832efc21b"
+    },
+    {
+      "origin": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/ROOT_BASIS.json",
+      "sha256": "99e7077a1cbb05a4ea131b880b3b989fe1dafb3c60e5993e8d2d91568d9ded04"
+    },
+    {
+      "origin": "projects/chirality-piping/core/loads/self_weight_wasm/src/lib.rs",
+      "sha256": "61512d3c9d6a0343977a81fd3d8f93118d135ae1a25d204683a4fe9d4b93f8c8"
+    },
+    {
+      "origin": "projects/chirality-piping/core/product_physics/src/self_weight.rs",
+      "sha256": "23429a54f0f611b0a920364bb7734bf9c44a6e675b985fb43426c2b33fe00144"
+    },
+    {
+      "origin": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "534d93aec126d6102ae6a4649e52764d4bd32af3a41b528298ff1bdee3c7e215"
+    },
+    {
+      "origin": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "sha256": "ba0bffc40456311b4de2915eb287b046de9b2ff273c2261600254f2001c86853"
+    },
+    {
+      "origin": "projects/chirality-piping/core/model_operations/operation_applier/src/atomic_batch.rs",
+      "sha256": "dae2f22f1a24e04bd5fae2ea95b7d67f8640eaef085e91f51c07c0b859ce85d5"
+    },
+    {
+      "origin": "projects/chirality-piping/core/model_operations/operation_applier/tests/support_authoring_conflicts.rs",
+      "sha256": "ef036a20ef61ae87b8a6366d616392da4bf31d5b9b864b88b7a516c1f6611239"
+    }
+  ],
+  "authored": [
+    {
+      "origin": "projects/chirality-piping/core/loads/self_weight_wasm/tests/applied_self_weight.rs",
+      "sha256": "825832a4d18c795343f43cf586a254ccf9dc592e1cb49b4700c1ccc0b04d472c"
+    },
+    {
+      "origin": "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.toml",
+      "sha256": "9d6527f2f1ab3e303df12f6e03352e96fd39334bcf9b111230fe136a4cb9d391"
+    }
+  ],
+  "role_context_note": "ROOT_BRIEF includes full parent WORKING_ITEMS role as supplied context; active child role remains TASK, no delegation",
+  "execution": "Source inspection and authoring only; compilation and empirical results pending parent",
+  "independent_reference": {
+    "area_m2": 0.002827433388230815,
+    "initial_q_N_per_m": -19.792033717615706,
+    "fresh_density_q_N_per_m": -39.58406743523141,
+    "initial_force_N": 50.58406743523141,
+    "density_fresh_force_N": 90.16813487046282,
+    "initial_first_moment_Nm": 61.58406743523141,
+    "density_fresh_first_moment_Nm": 101.16813487046282,
+    "span3_force_N": 70.37610115284711,
+    "span3_first_moment_Nm": 122.06415172927068
+  }
+}

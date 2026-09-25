@@ -1,0 +1,26 @@
+{
+  "role": "same TASK independent reviewer",
+  "reviewer": "/root/authoring_manager/self_weight_review",
+  "parent": "/root/authoring_manager",
+  "patch_sha256": "db49225576f5291634476c2d1f279f6666390570fc0f663af6d28ff5ca7b85e8",
+  "scope": "lock-only normalization backcheck and read-only maintained builder evidence",
+  "disposition": "PASS source review carried forward; UI/tsc and downstream integration pending",
+  "outputs": [
+    {
+      "path": "RETURN.md",
+      "sha256": "324b6c2a93bb9d8ac0f803b59f1fea0694f1bedc6ad809561b39cf9a8ba9d6ff"
+    },
+    {
+      "path": "REFERENCE_CHECK.md",
+      "sha256": "56cb8803f47423778ff11c8f28bc978fd56b1dc05b16ed243c60ef203a5d112c"
+    },
+    {
+      "path": "_run_records/LOCK_NORMALIZATION_BACKCHECK.md",
+      "sha256": "faac9d3727052785408259a3cac5a432f5de3fd44bcd5f9639a8bbf8ef52d05c"
+    },
+    {
+      "path": "_run_records/lock_normalization/COMPARISON.json",
+      "sha256": "69c852909aadfef5472318f4f792b95527c2a5577dadcaa90dc085402c72d557"
+    }
+  ]
+}

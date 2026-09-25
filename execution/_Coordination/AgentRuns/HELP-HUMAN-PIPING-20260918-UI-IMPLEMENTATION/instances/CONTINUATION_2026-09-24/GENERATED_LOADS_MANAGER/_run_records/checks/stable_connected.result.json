@@ -1,0 +1,19 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--manifest-path",
+    "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/loads/self_weight_wasm/Cargo.toml",
+    "--test",
+    "applied_self_weight",
+    "--",
+    "--nocapture"
+  ],
+  "started_at": "2026-09-25T01:50:44.849604+00:00",
+  "exit_code": 0,
+  "target": "/private/tmp/piping-generated-loads-target/self_weight_wasm",
+  "jobs": 2,
+  "manifest_sha256": "9d6527f2f1ab3e303df12f6e03352e96fd39334bcf9b111230fe136a4cb9d391",
+  "log_sha256": "4a72f629b78c91bd84eb178c7a8075af9b0b181db953aa3a18e8e7cb742a64e7"
+}

@@ -1,0 +1,21 @@
+   Compiling serde_json v1.0.151
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/serialization/canonical_json)
+   Compiling open_pipe_stress_product_physics v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/product_physics)
+   Compiling open_pipe_stress_operation_applier v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/model_operations/operation_applier)
+   Compiling open_pipe_stress_self_weight_wasm v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/loads/self_weight_wasm)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.82s
+     Running tests/applied_self_weight.rs (/private/tmp/piping-generated-loads-target/self_weight_wasm/debug/deps/applied_self_weight-4dfe28cf53cdab25)
+
+running 9 tests
+test preapply_source_hash_guard_rejects_dependency_edit ... ok
+test known_v1_requires_explicit_method_refresh_and_retains_original_provenance ... ok
+test span_edit_scales_weight_and_preserves_manual_load_after_save_reopen ... ok
+test queued_refresh_rejects_a_later_dependency_edit_even_with_current_claim ... ok
+test valid_imported_retarget_can_be_kept_manual_after_old_pipe_is_removed ... ok
+test modified_weight_requires_explicit_preservation_and_remains_fixed_manual ... ok
+test shared_section_edit_propagates_then_requires_weight_refresh ... ok
+test real_generated_mill_contents_and_insulation_record_refreshes_through_applier ... ok
+test density_edit_must_not_solve_with_stale_applied_self_weight ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+

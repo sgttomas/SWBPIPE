@@ -1,0 +1,3 @@
+{
+  "result": "Initial strict byte-block comparison failed because formerly final zmij record acquired a separator blank line before appended local package records; no registry content change. Corrected comparison strips only inter-record leading/trailing whitespace."
+}

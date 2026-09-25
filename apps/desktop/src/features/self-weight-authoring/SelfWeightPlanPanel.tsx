@@ -10,26 +10,32 @@ export function selfWeightPlanBatch(plan: SelfWeightOperationPlan, sourceHash: s
     throw new Error("The self-weight plan does not match the current model or supported scope. Generate it again.");
   return {
     batch_id: `batch:self-weight:${crypto.randomUUID()}`,
+    source_model_hash: sourceHash,
     operations: plan.changes.map(change => {
-      if (change.object_type !== "Load" || change.operation_kind !== "create" ||
-          (change.change_kind !== "create_load_case" && change.change_kind !== "create_primitive_load"))
+      const { operation_kind: operationKind, change_kind: changeKind } = change;
+      const creation = operationKind === "create" &&
+        (changeKind === "create_load_case" || changeKind === "create_primitive_load");
+      const refresh = operationKind === "modify" && changeKind === "update_load" &&
+        change.field_path === "generated_self_weight" && change.unit === "none" && change.dimension === "dimensionless";
+      if (change.object_type !== "Load" || (!creation && !refresh))
         throw new Error("The generator returned an unsupported operation. No batch was queued.");
       return draftIntent({
-        operation_kind: change.operation_kind,
+        operation_kind: operationKind,
         target: { object_type: change.object_type, ref: change.target_ref },
         change: {
-          change_id: `change:${crypto.randomUUID()}`, change_kind: change.change_kind,
+          change_id: `change:${crypto.randomUUID()}`, change_kind: changeKind,
           field_label: change.field_label, field_path: change.field_path,
           before: change.before, after: change.after, unit: change.unit,
           dimension: change.dimension, source_note: change.source_note
         },
-        rationale: "User-requested self-weight plan for selected pipe mass only."
+        rationale: refresh ? "User-requested reconciliation of existing generated self-weight; preserve the reviewed manual overrides." : "User-requested self-weight plan for selected pipe mass only."
       });
     })
   };
 }
 export function SelfWeightPlanPanel(props: WorkflowProps & { selectedPipeRefs?: readonly string[] }) {
-  const [input, setInput] = useState({ caseId: "", label: "", value: "", unit: "", axis: "", provenance: "", pipes: [] as string[] });
+  const [input, setInput] = useState({ mode: "create" as "create" | "refresh", preserveModified: false,
+    caseId: "", label: "", value: "", unit: "", axis: "", provenance: "", pipes: [] as string[] });
   const [review, setReview] = useState<{
     plan: SelfWeightOperationPlan; model: WorkflowProps["model"]; inputs: typeof input;
     selectionId: string; selectionType: string; requestEpoch?: number; revision: number;
@@ -48,12 +54,16 @@ export function SelfWeightPlanPanel(props: WorkflowProps & { selectedPipeRefs?: 
   async function generate() {
     setReview(null);
     await state.run(async () => {
-      if (![input.caseId, input.label, input.value, input.unit, input.axis, input.provenance].every(v => v.trim()) || !input.pipes.length)
+      if (input.mode === "create" && (![input.caseId, input.label, input.value, input.unit, input.axis, input.provenance].every(v => v.trim()) || !input.pipes.length))
         throw new Error("Enter the case ID, label, gravity value, unit, direction, provenance and at least one pipe.");
-      if (!Number.isFinite(Number(input.value))) throw new Error("Gravity requires a finite explicit number.");
+      if (input.mode === "refresh" && !input.caseId.trim()) throw new Error("Choose the existing load case to refresh.");
+      if (input.mode === "create" && !Number.isFinite(Number(input.value))) throw new Error("Gravity requires a finite explicit number.");
       const hash = await computeModelHash(props.model);
       if (!hash) throw new Error("Model hash is unavailable.");
-      const result = await generateSelfWeightPlan(props.model, {
+      const result = await generateSelfWeightPlan(props.model, input.mode === "refresh" ? {
+        mode: "refresh", case_id: input.caseId, source_model_hash: hash.value,
+        manual_overrides: input.preserveModified ? "preserve" : "block"
+      } : {
         case_id: input.caseId, label: input.label, pipe_refs: input.pipes,
         gravity: { value: Number(input.value), unit: input.unit, axis: input.axis },
         provenance: input.provenance, source_model_hash: hash.value
@@ -79,6 +89,16 @@ export function SelfWeightPlanPanel(props: WorkflowProps & { selectedPipeRefs?: 
     {disabledReason && <p id="self-weight-plan-disabled-reason" role="status">{disabledReason}</p>}
     <p>Uses selected pipe mass only. Components, supports and equipment are excluded. Missing mass inputs are reported; none are assumed.</p>
     <fieldset disabled={props.busy || state.pending} aria-describedby={disabledReason ? "self-weight-plan-disabled-reason" : undefined} title={disabledReason}><legend>Load case and gravity</legend>
+      <label>Self-weight action<select value={input.mode} onChange={event => setInput({ ...input, mode: event.target.value as "create" | "refresh", caseId: "", preserveModified: false })}>
+        <option value="create">Create a self-weight case</option><option value="refresh">Refresh an existing case</option>
+      </select></label>
+      {input.mode === "refresh" ? <>
+        <label>Existing self-weight case<select value={input.caseId} onChange={event => setInput({ ...input, caseId: event.target.value })}>
+          <option value="">Choose a case</option>{props.model.load_cases.map(loadCase => <option key={loadCase.id} value={loadCase.id}>{loadCase.label || loadCase.id}</option>)}
+        </select></label>
+        <label><input type="checkbox" checked={input.preserveModified} onChange={event => setInput({ ...input, preserveModified: event.target.checked })} />Keep modified generated loads as manual overrides</label>
+        <p>Refresh uses each generated load's recorded gravity and selected pipe. Modified loads block the plan unless you explicitly keep their current values as manual loads. Manual overrides will not update with later mass changes.</p>
+      </> : <>
       {([['caseId', 'Self-weight case ID'], ['label', 'Self-weight case label'], ['value', 'Gravity value'], ['unit', 'Gravity unit'], ['provenance', 'Self-weight provenance']] as const).map(([key, label]) =>
         <label key={key}>{label}<input value={input[key]} onChange={event => setInput({ ...input, [key]: event.target.value })} /></label>)}
       <label>Gravity direction<select value={input.axis} onChange={event => setInput({ ...input, axis: event.target.value })}>
@@ -102,7 +122,8 @@ export function SelfWeightPlanPanel(props: WorkflowProps & { selectedPipeRefs?: 
         ? `Frozen selected-pipe snapshot: ${input.pipes.join(", ")}`
         : "Select one or more pipes, then freeze them into this draft."}</p>
       </fieldset>
-      <button type="button" onClick={() => void generate()}>Generate self-weight plan</button>
+      </>}
+      <button type="button" onClick={() => void generate()}>{input.mode === "refresh" ? "Generate self-weight refresh plan" : "Generate self-weight plan"}</button>
     </fieldset>
     {state.error && <p role="alert">{state.error}</p>}
     {current && review && <div>

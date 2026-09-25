@@ -1,0 +1,47 @@
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling proc-macro2 v1.0.106
+   Compiling open_pipe_stress_linear_supports v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/solver/linear_supports)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling unicode-ident v1.0.24
+   Compiling quote v1.0.45
+   Compiling serde_core v1.0.228
+   Compiling zmij v1.0.21
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/solver/diagnostics)
+   Compiling syn v2.0.117
+   Compiling serde_json v1.0.149
+   Compiling serde v1.0.228
+   Compiling serde_derive v1.0.228
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/solver/curved_bend)
+   Compiling open_pipe_stress_straight_pipe v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/solver/straight_pipe)
+   Compiling itoa v1.0.18
+   Compiling memchr v2.8.0
+   Compiling open_pipe_stress_stress_recovery v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/loads/stress_recovery)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/solver/nonlinear_integration)
+   Compiling open_pipe_stress_load_case_algebra v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/loads/load_case_algebra)
+   Compiling open_pipe_stress_units v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/units)
+   Compiling open_pipe_stress_product_physics v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/product_physics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.69s
+     Running unittests src/lib.rs (/private/tmp/piping-generated-loads-target/product_physics/debug/deps/open_pipe_stress_product_physics-a29aaa3511bd4745)
+
+running 16 tests
+test self_weight::tests::self_weight_rejects_unknown_request_options ... ok
+test self_weight::tests::applied_self_weight_fails_closed_for_malformed_lineage_but_ignores_manual ... ok
+test self_weight::tests::applied_legacy_without_source_hash_is_inspected_without_fabrication ... ok
+test self_weight::tests::ordinary_manual_mentions_and_near_prefixes_are_not_lineage ... ok
+test self_weight::tests::applied_self_weight_invalid_units_and_shared_cache_are_not_stale ... ok
+test self_weight::tests::self_weight_selection_geometry_and_collisions ... ok
+test self_weight::tests::applied_self_weight_snapshot_cannot_authenticate_itself ... ok
+test self_weight::tests::applied_self_weight_ignores_unconsumed_edits_and_equivalent_units ... ok
+test self_weight::tests::applied_self_weight_invalid_current_geometry_is_input_invalid ... ok
+test self_weight::tests::self_weight_invalid_quantities_fail_without_partial_plan ... ok
+test self_weight::tests::applied_self_weight_modified_requires_explicit_manual_preservation ... ok
+test self_weight::tests::self_weight_alternate_units_and_all_mass_sources ... ok
+test self_weight::tests::applied_self_weight_is_pure_and_density_drift_blocks ... ok
+test self_weight::tests::self_weight_section_resolution_and_unselected_isolation ... ok
+test self_weight::tests::self_weight_signed_axes_shape_and_immutable_inputs ... ok
+test self_weight::tests::applied_self_weight_checks_each_consumed_input ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 178 filtered out; finished in 0.01s
+

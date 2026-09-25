@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "active_non_evidence_path_hits": [],
+  "evidence_files_with_retained_machine_paths": 59,
+  "classifier_path": "tools/practitioner_harness/surface_roles.py",
+  "classifier_sha256": "7786998c8eb047e770c98b3e846353d40a307f5cfa9862c95681c3405866949e",
+  "note": "Final scoped existing-classifier scan. No policy/classifier modifications; retained raw runtime origins are evidence."
+}

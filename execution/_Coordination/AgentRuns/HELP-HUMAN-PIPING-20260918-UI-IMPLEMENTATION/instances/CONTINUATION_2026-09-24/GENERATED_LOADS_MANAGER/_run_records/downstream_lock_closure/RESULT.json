@@ -1,0 +1,36 @@
+[
+  {
+    "name": "native",
+    "command": [
+      "cargo",
+      "metadata",
+      "--offline",
+      "--format-version",
+      "1",
+      "--no-deps",
+      "--manifest-path",
+      "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml"
+    ],
+    "exit_code": 0,
+    "before_sha256": "8b68e437515761bf5877a485cc99c52947bac386595f0182f5dcbc17732c71af",
+    "after_sha256": "8b68e437515761bf5877a485cc99c52947bac386595f0182f5dcbc17732c71af",
+    "registry_records_identical": true
+  },
+  {
+    "name": "physics_audit",
+    "command": [
+      "cargo",
+      "metadata",
+      "--offline",
+      "--format-version",
+      "1",
+      "--no-deps",
+      "--manifest-path",
+      "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.toml"
+    ],
+    "exit_code": 0,
+    "before_sha256": "9e05f6cc80383de85adf3c430c430ad7fde424791d7120d6f9e31d344a3b31d7",
+    "after_sha256": "9e05f6cc80383de85adf3c430c430ad7fde424791d7120d6f9e31d344a3b31d7",
+    "registry_records_identical": true
+  }
+]

@@ -22,4 +22,4 @@ open_pipe_stress_straight_pipe = { path = "../solver/straight_pipe" }
 open_pipe_stress_stress_recovery = { path = "../loads/stress_recovery" }
 open_pipe_stress_units = { path = "../units" }
 serde = { version = "1", features = ["derive"] }
-serde_json = "1"
+serde_json = { version = "1", features = ["float_roundtrip"] }

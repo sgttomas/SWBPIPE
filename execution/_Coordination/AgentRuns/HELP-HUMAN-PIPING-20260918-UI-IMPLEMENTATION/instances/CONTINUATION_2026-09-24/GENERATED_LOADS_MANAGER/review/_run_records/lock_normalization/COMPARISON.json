@@ -1,0 +1,19 @@
+{
+  "old_header_equals_new": true,
+  "package_count": 44,
+  "changed_package_records": [],
+  "before_sha256": "46d0215313e5c71e786e681315b589b80b6689e139c62d15f67cd74364a5ff09",
+  "after_sha256": "ea48467ce0f8da976e96303214cb0381ff5a8fb9091730d0ffe0a153b0f63ac3",
+  "only_candidate_manifest_drift": [
+    "projects/chirality-piping/core/model_operations/operation_applier/Cargo.lock"
+  ],
+  "all_current_files_match": true,
+  "new_patch_sha256_matches": true,
+  "wasm_result_sha256": "0a5839714b0aa3c02cbb30864e80b404bdc8694dfa912e9a42c905fab4a76f77",
+  "wasm_log_sha256": "253b634e5af61c7c153cecf6eeaf1ce5d84270b26b1c977b8a3b0f0ebf63792b",
+  "wasm_result_exit": 0,
+  "wasm_log_hash_matches": true,
+  "wasm_before_matches_prior_review": true,
+  "wasm_after_matches_new_review": true,
+  "wasm_drift_interpretation": "candidate_unchanged false is expected and truthful; sole source-manifest drift is Cargo.lock ordering, independently checked across all 44 package records."
+}

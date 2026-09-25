@@ -1,0 +1,6 @@
+error: no test target named `atomic_batch` in default-run packages
+help: available test targets:
+    canonical_hash_parity
+    contract_corpus
+    generated_self_weight
+    support_authoring_conflicts

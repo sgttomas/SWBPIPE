@@ -1,0 +1,18 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--manifest-path",
+    "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/product_physics/Cargo.toml",
+    "annulus_geometry::tests",
+    "--",
+    "--nocapture"
+  ],
+  "started_at": "2026-09-25T01:50:44.807385+00:00",
+  "exit_code": 0,
+  "target": "/private/tmp/piping-generated-loads-target/product_physics",
+  "jobs": 2,
+  "manifest_sha256": "35e36952c2e4d37d55992153d726a6cbb709402a3e0dcac08a4712b53288c1c5",
+  "log_sha256": "81d9bb23a2a77adf9ffbbd7227b11b242b4dd7732547de9653a13ffcfc72f74d"
+}

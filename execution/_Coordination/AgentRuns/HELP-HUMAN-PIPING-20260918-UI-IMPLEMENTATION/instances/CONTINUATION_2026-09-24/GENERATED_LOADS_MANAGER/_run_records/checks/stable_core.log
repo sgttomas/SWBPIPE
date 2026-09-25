@@ -1,0 +1,30 @@
+   Compiling serde_json v1.0.149
+   Compiling open_pipe_stress_product_physics v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/product_physics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.31s
+     Running unittests src/lib.rs (/private/tmp/piping-generated-loads-target/product_physics/debug/deps/open_pipe_stress_product_physics-5b3655bb4848fade)
+
+running 21 tests
+test self_weight::tests::self_weight_rejects_unknown_request_options ... ok
+test self_weight::tests::self_weight_invalid_quantities_fail_without_partial_plan ... ok
+test self_weight::tests::applied_self_weight_fails_closed_for_malformed_lineage_but_ignores_manual ... ok
+test self_weight::tests::ordinary_manual_mentions_and_near_prefixes_are_not_lineage ... ok
+test self_weight::tests::applied_legacy_without_source_hash_is_inspected_without_fabrication ... ok
+test self_weight::tests::applied_self_weight_modified_requires_explicit_manual_preservation ... ok
+test self_weight::tests::applied_self_weight_snapshot_cannot_authenticate_itself ... ok
+test self_weight::tests::applied_self_weight_ignores_unconsumed_edits_and_equivalent_units ... ok
+test self_weight::tests::stable_mass_ranges_fail_but_actual_optional_zero_is_valid ... ok
+test self_weight::tests::self_weight_selection_geometry_and_collisions ... ok
+test self_weight::tests::self_weight_section_resolution_and_unselected_isolation ... ok
+test self_weight::tests::self_weight_alternate_units_and_all_mass_sources ... ok
+test self_weight::tests::applied_self_weight_invalid_units_and_shared_cache_are_not_stale ... ok
+test self_weight::tests::modified_retarget_can_be_preserved_after_original_source_is_removed ... ok
+test self_weight::tests::applied_self_weight_is_pure_and_density_drift_blocks ... ok
+test self_weight::tests::stable_method_tag_is_mandatory_and_not_inferred ... ok
+test self_weight::tests::genuine_v1_requires_method_refresh_and_retains_verbatim_history ... ok
+test self_weight::tests::stable_source_areas_preserve_thin_wall_and_insulation ... ok
+test self_weight::tests::applied_self_weight_invalid_current_geometry_is_input_invalid ... ok
+test self_weight::tests::self_weight_signed_axes_shape_and_immutable_inputs ... ok
+test self_weight::tests::applied_self_weight_checks_each_consumed_input ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 183 filtered out; finished in 0.01s
+

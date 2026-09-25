@@ -1,0 +1,238 @@
+{
+  "reviewer": "/root/authoring_manager/self_weight_review",
+  "parent": "/root/authoring_manager",
+  "role": "TASK Type2 independent nonimplementing reviewer",
+  "mechanism": "existing delegated-harness-native reviewer followup",
+  "reviewed_utc": "2026-09-25T01:57:36.273026+00:00",
+  "base": "f702b439536c6e76af8e1c81ee536d5685e87907",
+  "patch_sha256": "5d9134f528a4f423d105a07575a9dc1c9fe53ef663678b41b89ea5033278fa12",
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/self-weight-authoring/SelfWeightPlanPanel.tsx",
+      "sha256": "d56bb7d018a4dcc0b6135fc965dbdfaafa7747cfd214113954c47d88e76fcb9e",
+      "actual_sha256": "d56bb7d018a4dcc0b6135fc965dbdfaafa7747cfd214113954c47d88e76fcb9e",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/self-weight-authoring/SelfWeightRefresh.test.tsx",
+      "sha256": "739f590599e2c338a53ba2427ee9468514f844d051b7d3eff67ae28a782a3d5b",
+      "actual_sha256": "739f590599e2c338a53ba2427ee9468514f844d051b7d3eff67ae28a782a3d5b",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/operationBatchService.ts",
+      "sha256": "010b4882fc59a9f7228f0111e3a0013efd411e8e8f0e834f31a459c010904dc6",
+      "actual_sha256": "010b4882fc59a9f7228f0111e3a0013efd411e8e8f0e834f31a459c010904dc6",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/selfWeightPlanService.ts",
+      "sha256": "9378805a56c1d66bef83bd7083850948422512c114ac26416337535f1b16b999",
+      "actual_sha256": "9378805a56c1d66bef83bd7083850948422512c114ac26416337535f1b16b999",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.lock",
+      "sha256": "afc65e05c6762e612e23e7e143198227d8d8b81e04b47a6e7b6be6bfde3be24b",
+      "actual_sha256": "afc65e05c6762e612e23e7e143198227d8d8b81e04b47a6e7b6be6bfde3be24b",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.toml",
+      "sha256": "9d6527f2f1ab3e303df12f6e03352e96fd39334bcf9b111230fe136a4cb9d391",
+      "actual_sha256": "9d6527f2f1ab3e303df12f6e03352e96fd39334bcf9b111230fe136a4cb9d391",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/src/lib.rs",
+      "sha256": "d80e7c1b0b6813db4deea72d226cb1f257692155a11be256e4bc5295ab39ed02",
+      "actual_sha256": "d80e7c1b0b6813db4deea72d226cb1f257692155a11be256e4bc5295ab39ed02",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/tests/applied_self_weight.rs",
+      "sha256": "c8d400d8ea8be9a08edecb48b4e5e827512d076fe090fed97ba6f16ad4396784",
+      "actual_sha256": "c8d400d8ea8be9a08edecb48b4e5e827512d076fe090fed97ba6f16ad4396784",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/tests/fixtures/applied_self_weight_v1.json",
+      "sha256": "e116e46a51cce5305341af36d531e6534efb436e63b7d737595110a6b8f2514f",
+      "actual_sha256": "e116e46a51cce5305341af36d531e6534efb436e63b7d737595110a6b8f2514f",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/atomic_batch.rs",
+      "sha256": "452a8b5c622334742cf998372c892748603fab18dcc4a0a793d12b65cabb109e",
+      "actual_sha256": "452a8b5c622334742cf998372c892748603fab18dcc4a0a793d12b65cabb109e",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "sha256": "f3a7995fefd6d591a11edc12f0d141a9308e2cd875f05460ec479fd251bee254",
+      "actual_sha256": "f3a7995fefd6d591a11edc12f0d141a9308e2cd875f05460ec479fd251bee254",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/rich_authoring.rs",
+      "sha256": "e890ab25da5f2fe31e7e33f58b82ae50054c8a5ec65e32b2a07c1d65236829b8",
+      "actual_sha256": "e890ab25da5f2fe31e7e33f58b82ae50054c8a5ec65e32b2a07c1d65236829b8",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/tests/generated_self_weight.rs",
+      "sha256": "74ea8f6b4e2b4c596de5783eea3bdfbfdee7457f247edfd6309298b36b84cd6a",
+      "actual_sha256": "74ea8f6b4e2b4c596de5783eea3bdfbfdee7457f247edfd6309298b36b84cd6a",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/Cargo.toml",
+      "sha256": "35e36952c2e4d37d55992153d726a6cbb709402a3e0dcac08a4712b53288c1c5",
+      "actual_sha256": "35e36952c2e4d37d55992153d726a6cbb709402a3e0dcac08a4712b53288c1c5",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/annulus_geometry.rs",
+      "sha256": "98a781f126af9d8e6d94de96bbe0d9c3815f83760f7deca7a391e612acf979c9",
+      "actual_sha256": "98a781f126af9d8e6d94de96bbe0d9c3815f83760f7deca7a391e612acf979c9",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "ee3acd7fd1a630ea61e53b1e963dbe637a6f45b8e444b240735ae9f276e233c5",
+      "actual_sha256": "ee3acd7fd1a630ea61e53b1e963dbe637a6f45b8e444b240735ae9f276e233c5",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+      "sha256": "3f42e4ffe1140d6f813c14654c636699edaece397d880000a9141ca6d4447d35",
+      "actual_sha256": "3f42e4ffe1140d6f813c14654c636699edaece397d880000a9141ca6d4447d35",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/self_weight.rs",
+      "sha256": "6caf38f71d5db7b1adafb7bf439d24f31df969cd3e41397c1a0a253d21279261",
+      "actual_sha256": "6caf38f71d5db7b1adafb7bf439d24f31df969cd3e41397c1a0a253d21279261",
+      "matches": true
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/Cargo.toml",
+      "sha256": "531d6fcb62e47c3f4dfa5aae3c920255d40f2f1619036a001c1cb37e691c10f4",
+      "actual_sha256": "531d6fcb62e47c3f4dfa5aae3c920255d40f2f1619036a001c1cb37e691c10f4",
+      "matches": true
+    }
+  ],
+  "scope_command": [
+    "python3",
+    "/private/tmp/piping-generated-loads-20260924/tools/software_workflow/validate_change_scope.py",
+    "/private/tmp/piping-generated-loads-20260924",
+    "--base",
+    "f702b439536c6e76af8e1c81ee536d5685e87907",
+    "--allowed",
+    "projects/chirality-piping/apps/desktop/src/features/self-weight-authoring/SelfWeightPlanPanel.tsx",
+    "--allowed",
+    "projects/chirality-piping/apps/desktop/src/features/self-weight-authoring/SelfWeightRefresh.test.tsx",
+    "--allowed",
+    "projects/chirality-piping/apps/desktop/src/services/operationBatchService.ts",
+    "--allowed",
+    "projects/chirality-piping/apps/desktop/src/services/selfWeightPlanService.ts",
+    "--allowed",
+    "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.lock",
+    "--allowed",
+    "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.toml",
+    "--allowed",
+    "projects/chirality-piping/core/loads/self_weight_wasm/src/lib.rs",
+    "--allowed",
+    "projects/chirality-piping/core/loads/self_weight_wasm/tests/applied_self_weight.rs",
+    "--allowed",
+    "projects/chirality-piping/core/loads/self_weight_wasm/tests/fixtures/applied_self_weight_v1.json",
+    "--allowed",
+    "projects/chirality-piping/core/model_operations/operation_applier/src/atomic_batch.rs",
+    "--allowed",
+    "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+    "--allowed",
+    "projects/chirality-piping/core/model_operations/operation_applier/src/rich_authoring.rs",
+    "--allowed",
+    "projects/chirality-piping/core/model_operations/operation_applier/tests/generated_self_weight.rs",
+    "--allowed",
+    "projects/chirality-piping/core/product_physics/Cargo.toml",
+    "--allowed",
+    "projects/chirality-piping/core/product_physics/src/annulus_geometry.rs",
+    "--allowed",
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "--allowed",
+    "projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+    "--allowed",
+    "projects/chirality-piping/core/product_physics/src/self_weight.rs",
+    "--allowed",
+    "projects/chirality-piping/core/serialization/canonical_json/Cargo.toml",
+    "--allowed",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER"
+  ],
+  "scope_exit_code": 0,
+  "checks": [
+    {
+      "name": "stable_core",
+      "result_sha256": "5c9cdb851deb75059c532cbcb6be7d44a7d40ea6de9ddb7e3ebb13bd81545dc5",
+      "log_sha256": "ac066966b482030e2314a091359e58f002b1b9177d0724c900b0adff10f64542",
+      "recorded_log_hash_matches": true,
+      "exit_code": 0,
+      "source_binding_limit": "suite result records manifest hash, not a complete source/test hash set; parent freeze and transcript supply candidate binding"
+    },
+    {
+      "name": "shared_area",
+      "result_sha256": "0c5f6f81987d60e11e52fd1f08f9bd32ff7af181361c10cc9d385b8379abd935",
+      "log_sha256": "81d9bb23a2a77adf9ffbbd7227b11b242b4dd7732547de9653a13ffcfc72f74d",
+      "recorded_log_hash_matches": true,
+      "exit_code": 0,
+      "source_binding_limit": "suite result records manifest hash, not a complete source/test hash set; parent freeze and transcript supply candidate binding"
+    },
+    {
+      "name": "stable_connected",
+      "result_sha256": "902f99e7d3383a252502e41653f5fb21776cbfa89749423bd717d4d487ee2627",
+      "log_sha256": "4a72f629b78c91bd84eb178c7a8075af9b0b181db953aa3a18e8e7cb742a64e7",
+      "recorded_log_hash_matches": true,
+      "exit_code": 0,
+      "source_binding_limit": "suite result records manifest hash, not a complete source/test hash set; parent freeze and transcript supply candidate binding"
+    },
+    {
+      "name": "stable_facade",
+      "result_sha256": "d999816f42c0901bac7d66617e6ef89360f6d63f305b945e4e628f9546f4c76a",
+      "log_sha256": "db9e94e0b32a879b0aa41329e8ce5034b9c8de905a1e47433542cf89e20c011a",
+      "recorded_log_hash_matches": true,
+      "exit_code": 0,
+      "source_binding_limit": "suite result records manifest hash, not a complete source/test hash set; parent freeze and transcript supply candidate binding"
+    },
+    {
+      "name": "stable_applier",
+      "result_sha256": "77d6da8136ba368962972654fcc50fb1309edecf4381906b9f620a9b78efc227",
+      "log_sha256": "28c9621d2c4f7bbf0141a2284bf315697a41c7ca417fba5c589c359b0e7f7fd6",
+      "recorded_log_hash_matches": true,
+      "exit_code": 0,
+      "source_binding_limit": "suite result records manifest hash, not a complete source/test hash set; parent freeze and transcript supply candidate binding"
+    },
+    {
+      "name": "ordinary_batch",
+      "result_sha256": "874878c748f439ad29eb9c12b45f168704da5555c9b46f9b3c970049a90e559a",
+      "log_sha256": "25cf43f5114d326284413bf2fd3f9d26b2966425899cabf7173cbca55ccfb103",
+      "recorded_log_hash_matches": true,
+      "exit_code": 0,
+      "source_binding_limit": "suite result records manifest hash, not a complete source/test hash set; parent freeze and transcript supply candidate binding"
+    }
+  ],
+  "executed_by_reviewer": "source/evidence reads, SHA256 and read-only scope validator; no tests/builds/native/browser/network/product changes or Git mutations",
+  "output_hashes": [
+    {
+      "path": "REFERENCE_CHECK.md",
+      "sha256": "71ed67c7d4b368b125ad1f231692b1cfb1d97b872955406b9ec4500476f4110e"
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "bb7b3d90966c4d50624b9b1c6b0cf546a1369a25eb46929d63a23b9de4cfc97f"
+    },
+    {
+      "path": "_run_records/FROZEN_CANDIDATE_REVIEW.md",
+      "sha256": "903807a15e99e4806ccadc47b7849c5b0ea9692df52446140b0b119758507846"
+    }
+  ]
+}

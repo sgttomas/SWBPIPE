@@ -1,0 +1,25 @@
+{
+  "primary": "/Users/ryan/.codex/worktrees/6614/chirality",
+  "candidate": "/private/tmp/piping-generated-loads-20260924",
+  "files": [
+    {
+      "path": "package.json",
+      "candidate_sha256": "7e719791e3ffdc7b57eddb2bb32d682705bf945af5b7207ffc699a2a45648656",
+      "primary_sha256": "7e719791e3ffdc7b57eddb2bb32d682705bf945af5b7207ffc699a2a45648656",
+      "identical": true
+    },
+    {
+      "path": "package-lock.json",
+      "candidate_sha256": "0dd1616e1ef3c596d5cdaa8e56994f26127c20943bfde066f26c9f924c65d732",
+      "primary_sha256": "0dd1616e1ef3c596d5cdaa8e56994f26127c20943bfde066f26c9f924c65d732",
+      "identical": true
+    },
+    {
+      "path": "apps/desktop/package.json",
+      "candidate_sha256": "c0e3ddd045e0ea7576a4cd01af86c4921bab7314e7b3d927b5eab11822e959fa",
+      "primary_sha256": "c0e3ddd045e0ea7576a4cd01af86c4921bab7314e7b3d927b5eab11822e959fa",
+      "identical": true
+    }
+  ],
+  "primary_node_modules_exists": true
+}

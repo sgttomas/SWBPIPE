@@ -1,0 +1,150 @@
+                    ));
+                    None
+                }
+            }
+        })
+        .collect::<Vec<_>>();
+    append_equivalent_static_generated_loads(model, load_case, &mut loads, diagnostics);
+    loads
+}
+
+/// Compute one pipe's mass per unit length from its own user-entered
+/// section inputs, mirroring `core/section_properties/calculator.py`
+/// (metal + contents + insulation over the mill-tolerance-reduced
+/// effective wall). Absent optional inputs contribute nothing; the
+/// required inputs for the requesting generation path are diagnosed by
+/// the caller.
+fn compute_pipe_mass_per_length(
+    pipe: &PreviewPipe,
+    load_case_id: &str,
+    diagnostics: &mut Vec<Diagnostic>,
+) -> Option<f64> {
+    let section = &pipe.section;
+    let od = section.outside_diameter.value;
+    let wall = section.wall_thickness.value;
+    let mill_tolerance = section.mill_tolerance.as_ref().map_or(0.0, |q| q.value);
+    let effective_wall = wall - mill_tolerance;
+    if !od.is_finite() || !effective_wall.is_finite() || od <= 0.0 || effective_wall <= 0.0 {
+        diagnostics.push(diag(
+            &format!(
+                "diagnostic:equivalent-static:{}:{}:section",
+                stable_suffix(load_case_id),
+                stable_suffix(&pipe.id)
+            ),
+            "EQUIVALENT_STATIC_INPUT_INVALID",
+            "blocking",
+            "equivalent-static mass distribution requires a valid pipe section (positive outside diameter and effective wall)",
+            vec![pipe.id.clone(), load_case_id.to_string()],
+        ));
+        return None;
+    }
+    let Some(material_density) = section.material_density.as_ref().map(|q| q.value) else {
+        diagnostics.push(diag(
+            &format!(
+                "diagnostic:equivalent-static:{}:{}:material-density",
+                stable_suffix(load_case_id),
+                stable_suffix(&pipe.id)
+            ),
+            "EQUIVALENT_STATIC_INPUT_MISSING",
+            "blocking",
+            "seismic equivalent-static generation requires user-entered material_density on every pipe segment; no density is defaulted",
+            vec![pipe.id.clone(), "material_density".to_string(), load_case_id.to_string()],
+        ));
+        return None;
+    };
+    if !material_density.is_finite() || material_density <= 0.0 {
+        diagnostics.push(diag(
+            &format!(
+                "diagnostic:equivalent-static:{}:{}:material-density-invalid",
+                stable_suffix(load_case_id),
+                stable_suffix(&pipe.id)
+            ),
+            "EQUIVALENT_STATIC_INPUT_INVALID",
+            "blocking",
+            "material_density must be a finite positive user-entered value",
+            vec![
+                pipe.id.clone(),
+                "material_density".to_string(),
+                load_case_id.to_string(),
+            ],
+        ));
+        return None;
+    }
+    let id = od - 2.0 * effective_wall;
+    if id < 0.0 {
+        diagnostics.push(diag(
+            &format!(
+                "diagnostic:equivalent-static:{}:{}:inside-diameter",
+                stable_suffix(load_case_id),
+                stable_suffix(&pipe.id)
+            ),
+            "EQUIVALENT_STATIC_INPUT_INVALID",
+            "blocking",
+            "equivalent-static mass distribution requires a non-negative inside diameter",
+            vec![pipe.id.clone(), load_case_id.to_string()],
+        ));
+        return None;
+    }
+    let metal_area = PI / 4.0 * (od.powi(2) - id.powi(2));
+    let mut mass_per_length = metal_area * material_density;
+    if let Some(contents_density) = section.contents_density.as_ref().map(|q| q.value) {
+        if !contents_density.is_finite() || contents_density < 0.0 {
+            diagnostics.push(diag(
+                &format!(
+                    "diagnostic:equivalent-static:{}:{}:contents-density",
+                    stable_suffix(load_case_id),
+                    stable_suffix(&pipe.id)
+                ),
+                "EQUIVALENT_STATIC_INPUT_INVALID",
+                "blocking",
+                "contents_density must be a finite non-negative user-entered value",
+                vec![
+                    pipe.id.clone(),
+                    "contents_density".to_string(),
+                    load_case_id.to_string(),
+                ],
+            ));
+            return None;
+        }
+        mass_per_length += PI / 4.0 * id.powi(2) * contents_density;
+    }
+    match (
+        section.insulation_thickness.as_ref().map(|q| q.value),
+        section.insulation_density.as_ref().map(|q| q.value),
+    ) {
+        (None, None) => {}
+        (Some(thickness), Some(density)) => {
+            if !thickness.is_finite() || thickness < 0.0 || !density.is_finite() || density < 0.0 {
+                diagnostics.push(diag(
+                    &format!(
+                        "diagnostic:equivalent-static:{}:{}:insulation",
+                        stable_suffix(load_case_id),
+                        stable_suffix(&pipe.id)
+                    ),
+                    "EQUIVALENT_STATIC_INPUT_INVALID",
+                    "blocking",
+                    "insulation_thickness and insulation_density must be finite non-negative user-entered values",
+                    vec![pipe.id.clone(), load_case_id.to_string()],
+                ));
+                return None;
+            }
+            let insulation_od = od + 2.0 * thickness;
+            mass_per_length += PI / 4.0 * (insulation_od.powi(2) - od.powi(2)) * density;
+        }
+        _ => {
+            diagnostics.push(diag(
+                &format!(
+                    "diagnostic:equivalent-static:{}:{}:insulation-pair",
+                    stable_suffix(load_case_id),
+                    stable_suffix(&pipe.id)
+                ),
+                "EQUIVALENT_STATIC_INPUT_MISSING",
+                "blocking",
+                "insulation mass requires both insulation_thickness and insulation_density; supply both or neither (no silent skip)",
+                vec![pipe.id.clone(), load_case_id.to_string()],
+            ));
+            return None;
+        }
+    }
+    Some(mass_per_length)
+}

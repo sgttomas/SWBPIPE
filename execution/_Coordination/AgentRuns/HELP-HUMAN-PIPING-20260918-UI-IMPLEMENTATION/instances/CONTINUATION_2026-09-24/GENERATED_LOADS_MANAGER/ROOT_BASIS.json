@@ -1,0 +1,25 @@
+{
+  "base": "f702b439536c6e76af8e1c81ee536d5685e87907",
+  "issuer": "/root",
+  "intended_recipient": "/root/authoring_manager",
+  "mechanism": "delegated-harness-native follow-up; actual execution requires tool acceptance",
+  "sources": [
+    {
+      "origin": "AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "origin": "agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665"
+    },
+    {
+      "origin": "projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "origin": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    }
+  ],
+  "brief_sha256": "2511e8963d791f907f075ac34142d805a00bdd7972f337e0ff4fb70832efc21b"
+}

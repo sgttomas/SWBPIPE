@@ -1,0 +1,209 @@
+{
+  "command": [
+    "node",
+    "../../node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--project",
+    "tsconfig.json"
+  ],
+  "cwd": "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/apps/desktop",
+  "environment": {
+    "CARGO_BUILD_JOBS": "2",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_TARGET_DIR": null
+  },
+  "started_at": "2026-09-25T02:33:25.967731+00:00",
+  "elapsed_seconds": 5.96603798866272,
+  "exit_code": 0,
+  "candidate_patch_sha256": "6a349262358bcfc8295cc18e7ec116be544f6738ee425dae51848b3447334c99",
+  "source_files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+      "sha256": "0ee3fa0c2d247d22468746457595abb943a661d5d9aa1d9b4afcd6387e932958"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/self-weight-authoring/SelfWeightPlanPanel.tsx",
+      "sha256": "7add9caa41099b424638d412832a092da5efa90f1d5a5067c3454dc55da1efb0"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/self-weight-authoring/SelfWeightRefresh.test.tsx",
+      "sha256": "739f590599e2c338a53ba2427ee9468514f844d051b7d3eff67ae28a782a3d5b"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/operationBatchService.ts",
+      "sha256": "010b4882fc59a9f7228f0111e3a0013efd411e8e8f0e834f31a459c010904dc6"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/selfWeightPlanService.ts",
+      "sha256": "9378805a56c1d66bef83bd7083850948422512c114ac26416337535f1b16b999"
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.lock",
+      "sha256": "a16fbfab2ab2210bc6dbba238a7fa6f336af57abe2b6f700d7c5f3e0a08402b4"
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.toml",
+      "sha256": "9d6527f2f1ab3e303df12f6e03352e96fd39334bcf9b111230fe136a4cb9d391"
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/src/lib.rs",
+      "sha256": "d80e7c1b0b6813db4deea72d226cb1f257692155a11be256e4bc5295ab39ed02"
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/tests/applied_self_weight.rs",
+      "sha256": "c8d400d8ea8be9a08edecb48b4e5e827512d076fe090fed97ba6f16ad4396784"
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/tests/fixtures/applied_self_weight_v1.json",
+      "sha256": "e116e46a51cce5305341af36d531e6534efb436e63b7d737595110a6b8f2514f"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/Cargo.lock",
+      "sha256": "ea48467ce0f8da976e96303214cb0381ff5a8fb9091730d0ffe0a153b0f63ac3"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml",
+      "sha256": "cfa2c68fe4f25365bdec83be7471d8904c823120c90081ce1e8ada06eef60fb3"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/atomic_batch.rs",
+      "sha256": "452a8b5c622334742cf998372c892748603fab18dcc4a0a793d12b65cabb109e"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "sha256": "f3a7995fefd6d591a11edc12f0d141a9308e2cd875f05460ec479fd251bee254"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/rich_authoring.rs",
+      "sha256": "d5756175e7d5d8a3b1c998e827e02c2e934d575425f1e3d58ae3882329da621d"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/tests/generated_self_weight.rs",
+      "sha256": "c837f29e2b91d22d5d53da3179665ff725b333b202b8af84d0c8fe03fd735daa"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/Cargo.toml",
+      "sha256": "35e36952c2e4d37d55992153d726a6cbb709402a3e0dcac08a4712b53288c1c5"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/annulus_geometry.rs",
+      "sha256": "98a781f126af9d8e6d94de96bbe0d9c3815f83760f7deca7a391e612acf979c9"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "ee3acd7fd1a630ea61e53b1e963dbe637a6f45b8e444b240735ae9f276e233c5"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+      "sha256": "3f42e4ffe1140d6f813c14654c636699edaece397d880000a9141ca6d4447d35"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/self_weight.rs",
+      "sha256": "6caf38f71d5db7b1adafb7bf439d24f31df969cd3e41397c1a0a253d21279261"
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/Cargo.toml",
+      "sha256": "531d6fcb62e47c3f4dfa5aae3c920255d40f2f1619036a001c1cb37e691c10f4"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.lock",
+      "sha256": "39d8ac762df47b736cc9159415a8003364e4b0d10bbaad5ed396c4091537524a"
+    }
+  ],
+  "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "source_files_after": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+      "sha256": "0ee3fa0c2d247d22468746457595abb943a661d5d9aa1d9b4afcd6387e932958"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/self-weight-authoring/SelfWeightPlanPanel.tsx",
+      "sha256": "7add9caa41099b424638d412832a092da5efa90f1d5a5067c3454dc55da1efb0"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/self-weight-authoring/SelfWeightRefresh.test.tsx",
+      "sha256": "739f590599e2c338a53ba2427ee9468514f844d051b7d3eff67ae28a782a3d5b"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/operationBatchService.ts",
+      "sha256": "010b4882fc59a9f7228f0111e3a0013efd411e8e8f0e834f31a459c010904dc6"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/selfWeightPlanService.ts",
+      "sha256": "9378805a56c1d66bef83bd7083850948422512c114ac26416337535f1b16b999"
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.lock",
+      "sha256": "a16fbfab2ab2210bc6dbba238a7fa6f336af57abe2b6f700d7c5f3e0a08402b4"
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.toml",
+      "sha256": "9d6527f2f1ab3e303df12f6e03352e96fd39334bcf9b111230fe136a4cb9d391"
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/src/lib.rs",
+      "sha256": "d80e7c1b0b6813db4deea72d226cb1f257692155a11be256e4bc5295ab39ed02"
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/tests/applied_self_weight.rs",
+      "sha256": "c8d400d8ea8be9a08edecb48b4e5e827512d076fe090fed97ba6f16ad4396784"
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/tests/fixtures/applied_self_weight_v1.json",
+      "sha256": "e116e46a51cce5305341af36d531e6534efb436e63b7d737595110a6b8f2514f"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/Cargo.lock",
+      "sha256": "ea48467ce0f8da976e96303214cb0381ff5a8fb9091730d0ffe0a153b0f63ac3"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml",
+      "sha256": "cfa2c68fe4f25365bdec83be7471d8904c823120c90081ce1e8ada06eef60fb3"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/atomic_batch.rs",
+      "sha256": "452a8b5c622334742cf998372c892748603fab18dcc4a0a793d12b65cabb109e"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "sha256": "f3a7995fefd6d591a11edc12f0d141a9308e2cd875f05460ec479fd251bee254"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/rich_authoring.rs",
+      "sha256": "d5756175e7d5d8a3b1c998e827e02c2e934d575425f1e3d58ae3882329da621d"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/tests/generated_self_weight.rs",
+      "sha256": "c837f29e2b91d22d5d53da3179665ff725b333b202b8af84d0c8fe03fd735daa"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/Cargo.toml",
+      "sha256": "35e36952c2e4d37d55992153d726a6cbb709402a3e0dcac08a4712b53288c1c5"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/annulus_geometry.rs",
+      "sha256": "98a781f126af9d8e6d94de96bbe0d9c3815f83760f7deca7a391e612acf979c9"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "ee3acd7fd1a630ea61e53b1e963dbe637a6f45b8e444b240735ae9f276e233c5"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+      "sha256": "3f42e4ffe1140d6f813c14654c636699edaece397d880000a9141ca6d4447d35"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/self_weight.rs",
+      "sha256": "6caf38f71d5db7b1adafb7bf439d24f31df969cd3e41397c1a0a253d21279261"
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/Cargo.toml",
+      "sha256": "531d6fcb62e47c3f4dfa5aae3c920255d40f2f1619036a001c1cb37e691c10f4"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.lock",
+      "sha256": "39d8ac762df47b736cc9159415a8003364e4b0d10bbaad5ed396c4091537524a"
+    }
+  ],
+  "candidate_unchanged": true
+}

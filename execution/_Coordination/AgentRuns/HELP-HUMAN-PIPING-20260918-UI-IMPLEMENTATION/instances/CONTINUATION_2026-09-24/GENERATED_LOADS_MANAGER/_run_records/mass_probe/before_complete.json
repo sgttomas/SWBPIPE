@@ -1,0 +1,2218 @@
+[
+  {
+    "input_model": {
+      "analysis_status": {
+        "mechanics": "draft",
+        "professional_acceptance": "not_assessed",
+        "rule_check": "not_run"
+      },
+      "combinations": [],
+      "components": [],
+      "document_kind": "openpipestress.product_preview.model",
+      "load_cases": [],
+      "materials": [
+        {
+          "elastic_modulus": {
+            "unit": "Pa",
+            "value": 200000000000.0
+          },
+          "id": "material:invented",
+          "label": "Invented elastic material",
+          "provenance": "invented_no_material_standard",
+          "shear_modulus": {
+            "unit": "Pa",
+            "value": 77000000000.0
+          }
+        }
+      ],
+      "nodes": [
+        {
+          "id": "node:root",
+          "label": "Root",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "provenance": "invented"
+        },
+        {
+          "id": "node:tip",
+          "label": "Tip",
+          "position": {
+            "x": 2,
+            "y": 0,
+            "z": 0
+          },
+          "provenance": "invented"
+        }
+      ],
+      "pipe_segments": [
+        {
+          "from": "node:root",
+          "id": "pipe:beam",
+          "label": "Invented beam",
+          "material": "material:invented",
+          "provenance": "invented",
+          "section": {
+            "contents_density": {
+              "unit": "kg/m^3",
+              "value": 0.0
+            },
+            "insulation_density": {
+              "unit": "kg/m^3",
+              "value": 0.0
+            },
+            "insulation_thickness": {
+              "unit": "m",
+              "value": 0.0
+            },
+            "material_density": {
+              "unit": "kg/m^3",
+              "value": 1000.0
+            },
+            "outside_diameter": {
+              "unit": "m",
+              "value": 0.1
+            },
+            "wall_thickness": {
+              "unit": "m",
+              "value": 0.01
+            }
+          },
+          "to": "node:tip",
+          "y_reference": {
+            "x": 0,
+            "y": 1,
+            "z": 0
+          }
+        }
+      ],
+      "project": {
+        "id": "project:invented-self-weight",
+        "units": {
+          "angle": "rad",
+          "force": "N",
+          "length": "m",
+          "pressure": "Pa",
+          "stress": "Pa",
+          "temperature": "degC"
+        }
+      },
+      "schema_version": "0.1.0",
+      "sections": [],
+      "supports": [
+        {
+          "id": "support:root",
+          "label": "Fixed root",
+          "node": "node:root",
+          "provenance": "invented",
+          "restraints": [
+            "UX",
+            "UY",
+            "UZ",
+            "RX",
+            "RY",
+            "RZ"
+          ]
+        }
+      ]
+    },
+    "name": "ordinary",
+    "outcome": {
+      "diagnostics": [],
+      "document_kind": "openpipestress.desktop.self_weight_plan_outcome",
+      "input_model_unchanged": true,
+      "mutation_route": "structured_operations_only",
+      "plan": {
+        "changes": [
+          {
+            "after": "{\"id\":\"case:mass-probe\",\"kind\":\"primitive_user_load\",\"label\":\"Invented numerical mass probe\",\"primitive_loads\":[],\"provenance\":\"Invented numeric boundary probe, no engineering qualification\",\"status\":\"draft\"}",
+            "before": "not_present",
+            "change_kind": "create_load_case",
+            "dimension": "dimensionless",
+            "field_label": "create_load_case",
+            "field_path": "load_cases",
+            "object_type": "Load",
+            "operation_kind": "create",
+            "source_note": "{\"scope_label\":\"selected_pipe_mass_only\",\"source_evidence\":[{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_y\",\"id\":\"load:self-weight:15:case:mass-probe:9:pipe:beam\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-2.827433388230815},\"target\":{\"pipe\":\"pipe:beam\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_y\",\"unit\":\"m/s^2\",\"value\":-1.0},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.0},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1000.0},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":0.1},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.01}},\"mass_kg_per_m\":2.827433388230815,\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-1.0,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.0},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1000.0},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":0.1},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":0.01}},\"pipe_id\":\"pipe:beam\",\"pipe_provenance\":\"invented\",\"referenced_section\":null,\"request_provenance\":\"Invented numeric boundary probe, no engineering qualification\",\"section_ref\":null,\"source_model_hash\":\"sha256:3ba844b22dc927e0635ae510b16a50870440fe3ad2dbeb9d95ff00b347574ef3\"}],\"source_model_hash\":\"sha256:3ba844b22dc927e0635ae510b16a50870440fe3ad2dbeb9d95ff00b347574ef3\"}",
+            "target_ref": "case:mass-probe",
+            "unit": "none"
+          },
+          {
+            "after": "{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_y\",\"id\":\"load:self-weight:15:case:mass-probe:9:pipe:beam\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-2.827433388230815},\"provenance\":\"{\\\"contents_absent\\\":false,\\\"generated_payload\\\":{\\\"category\\\":\\\"distributed_force\\\",\\\"dimension\\\":\\\"force_per_length\\\",\\\"direction\\\":\\\"global_y\\\",\\\"id\\\":\\\"load:self-weight:15:case:mass-probe:9:pipe:beam\\\",\\\"magnitude\\\":{\\\"unit\\\":\\\"N/m\\\",\\\"value\\\":-2.827433388230815},\\\"target\\\":{\\\"pipe\\\":\\\"pipe:beam\\\",\\\"type\\\":\\\"element\\\"}},\\\"gravity\\\":{\\\"axis\\\":\\\"global_y\\\",\\\"unit\\\":\\\"m/s^2\\\",\\\"value\\\":-1.0},\\\"insulation_absent\\\":false,\\\"mass_inputs\\\":{\\\"contents_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":0.0},\\\"material_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":1000.0},\\\"mill_tolerance\\\":null,\\\"outside_diameter\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":0.1},\\\"wall_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":0.01}},\\\"mass_kg_per_m\\\":2.827433388230815,\\\"method\\\":\\\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\\\",\\\"normalized_acceleration_m_per_s2\\\":-1.0,\\\"normalized_dependencies\\\":{\\\"contents_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":0.0},\\\"material_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":1000.0},\\\"mill_tolerance\\\":null,\\\"outside_diameter\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":0.1},\\\"section_ref\\\":null,\\\"wall_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":0.01}},\\\"pipe_id\\\":\\\"pipe:beam\\\",\\\"pipe_provenance\\\":\\\"invented\\\",\\\"referenced_section\\\":null,\\\"request_provenance\\\":\\\"Invented numeric boundary probe, no engineering qualification\\\",\\\"section_ref\\\":null,\\\"source_model_hash\\\":\\\"sha256:3ba844b22dc927e0635ae510b16a50870440fe3ad2dbeb9d95ff00b347574ef3\\\"}\",\"target\":{\"pipe\":\"pipe:beam\",\"type\":\"element\"}}",
+            "before": "not_present",
+            "change_kind": "create_primitive_load",
+            "dimension": "force_per_length",
+            "field_label": "create_primitive_load",
+            "field_path": "primitive_loads",
+            "object_type": "Load",
+            "operation_kind": "create",
+            "source_note": "{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_y\",\"id\":\"load:self-weight:15:case:mass-probe:9:pipe:beam\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-2.827433388230815},\"target\":{\"pipe\":\"pipe:beam\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_y\",\"unit\":\"m/s^2\",\"value\":-1.0},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.0},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1000.0},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":0.1},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.01}},\"mass_kg_per_m\":2.827433388230815,\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-1.0,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.0},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1000.0},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":0.1},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":0.01}},\"pipe_id\":\"pipe:beam\",\"pipe_provenance\":\"invented\",\"referenced_section\":null,\"request_provenance\":\"Invented numeric boundary probe, no engineering qualification\",\"section_ref\":null,\"source_model_hash\":\"sha256:3ba844b22dc927e0635ae510b16a50870440fe3ad2dbeb9d95ff00b347574ef3\"}",
+            "target_ref": "case:mass-probe",
+            "unit": "N/m"
+          }
+        ],
+        "scope_label": "selected_pipe_mass_only",
+        "source_evidence": [
+          {
+            "contents_absent": false,
+            "generated_payload": {
+              "category": "distributed_force",
+              "dimension": "force_per_length",
+              "direction": "global_y",
+              "id": "load:self-weight:15:case:mass-probe:9:pipe:beam",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -2.827433388230815
+              },
+              "target": {
+                "pipe": "pipe:beam",
+                "type": "element"
+              }
+            },
+            "gravity": {
+              "axis": "global_y",
+              "unit": "m/s^2",
+              "value": -1.0
+            },
+            "insulation_absent": false,
+            "mass_inputs": {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_thickness": {
+                "unit": "m",
+                "value": 0.0
+              },
+              "material_density": {
+                "unit": "kg/m^3",
+                "value": 1000.0
+              },
+              "mill_tolerance": null,
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.1
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "mass_kg_per_m": 2.827433388230815,
+            "method": "pipe_mass_per_length_times_explicit_axis_acceleration/v2",
+            "normalized_acceleration_m_per_s2": -1.0,
+            "normalized_dependencies": {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_thickness": {
+                "unit": "m",
+                "value": 0.0
+              },
+              "material_density": {
+                "unit": "kg/m^3",
+                "value": 1000.0
+              },
+              "mill_tolerance": null,
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.1
+              },
+              "section_ref": null,
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "pipe_id": "pipe:beam",
+            "pipe_provenance": "invented",
+            "referenced_section": null,
+            "request_provenance": "Invented numeric boundary probe, no engineering qualification",
+            "section_ref": null,
+            "source_model_hash": "sha256:3ba844b22dc927e0635ae510b16a50870440fe3ad2dbeb9d95ff00b347574ef3"
+          }
+        ],
+        "source_model_hash": "sha256:3ba844b22dc927e0635ae510b16a50870440fe3ad2dbeb9d95ff00b347574ef3"
+      },
+      "requires_user_acceptance": true,
+      "source_model_hash": "sha256:3ba844b22dc927e0635ae510b16a50870440fe3ad2dbeb9d95ff00b347574ef3",
+      "status": "ready"
+    },
+    "request": {
+      "case_id": "case:mass-probe",
+      "gravity": {
+        "axis": "global_y",
+        "unit": "m/s^2",
+        "value": -1
+      },
+      "label": "Invented numerical mass probe",
+      "pipe_refs": [
+        "pipe:beam"
+      ],
+      "provenance": "Invented numeric boundary probe, no engineering qualification",
+      "source_model_hash": "sha256:3ba844b22dc927e0635ae510b16a50870440fe3ad2dbeb9d95ff00b347574ef3"
+    },
+    "transport_equal": true,
+    "wire_outcome": {
+      "diagnostics": [],
+      "document_kind": "openpipestress.desktop.self_weight_plan_outcome",
+      "input_model_unchanged": true,
+      "mutation_route": "structured_operations_only",
+      "plan": {
+        "changes": [
+          {
+            "after": "{\"id\":\"case:mass-probe\",\"kind\":\"primitive_user_load\",\"label\":\"Invented numerical mass probe\",\"primitive_loads\":[],\"provenance\":\"Invented numeric boundary probe, no engineering qualification\",\"status\":\"draft\"}",
+            "before": "not_present",
+            "change_kind": "create_load_case",
+            "dimension": "dimensionless",
+            "field_label": "create_load_case",
+            "field_path": "load_cases",
+            "object_type": "Load",
+            "operation_kind": "create",
+            "source_note": "{\"scope_label\":\"selected_pipe_mass_only\",\"source_evidence\":[{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_y\",\"id\":\"load:self-weight:15:case:mass-probe:9:pipe:beam\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-2.827433388230815},\"target\":{\"pipe\":\"pipe:beam\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_y\",\"unit\":\"m/s^2\",\"value\":-1.0},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.0},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1000.0},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":0.1},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.01}},\"mass_kg_per_m\":2.827433388230815,\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-1.0,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.0},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1000.0},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":0.1},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":0.01}},\"pipe_id\":\"pipe:beam\",\"pipe_provenance\":\"invented\",\"referenced_section\":null,\"request_provenance\":\"Invented numeric boundary probe, no engineering qualification\",\"section_ref\":null,\"source_model_hash\":\"sha256:3ba844b22dc927e0635ae510b16a50870440fe3ad2dbeb9d95ff00b347574ef3\"}],\"source_model_hash\":\"sha256:3ba844b22dc927e0635ae510b16a50870440fe3ad2dbeb9d95ff00b347574ef3\"}",
+            "target_ref": "case:mass-probe",
+            "unit": "none"
+          },
+          {
+            "after": "{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_y\",\"id\":\"load:self-weight:15:case:mass-probe:9:pipe:beam\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-2.827433388230815},\"provenance\":\"{\\\"contents_absent\\\":false,\\\"generated_payload\\\":{\\\"category\\\":\\\"distributed_force\\\",\\\"dimension\\\":\\\"force_per_length\\\",\\\"direction\\\":\\\"global_y\\\",\\\"id\\\":\\\"load:self-weight:15:case:mass-probe:9:pipe:beam\\\",\\\"magnitude\\\":{\\\"unit\\\":\\\"N/m\\\",\\\"value\\\":-2.827433388230815},\\\"target\\\":{\\\"pipe\\\":\\\"pipe:beam\\\",\\\"type\\\":\\\"element\\\"}},\\\"gravity\\\":{\\\"axis\\\":\\\"global_y\\\",\\\"unit\\\":\\\"m/s^2\\\",\\\"value\\\":-1.0},\\\"insulation_absent\\\":false,\\\"mass_inputs\\\":{\\\"contents_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":0.0},\\\"material_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":1000.0},\\\"mill_tolerance\\\":null,\\\"outside_diameter\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":0.1},\\\"wall_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":0.01}},\\\"mass_kg_per_m\\\":2.827433388230815,\\\"method\\\":\\\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\\\",\\\"normalized_acceleration_m_per_s2\\\":-1.0,\\\"normalized_dependencies\\\":{\\\"contents_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":0.0},\\\"material_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":1000.0},\\\"mill_tolerance\\\":null,\\\"outside_diameter\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":0.1},\\\"section_ref\\\":null,\\\"wall_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":0.01}},\\\"pipe_id\\\":\\\"pipe:beam\\\",\\\"pipe_provenance\\\":\\\"invented\\\",\\\"referenced_section\\\":null,\\\"request_provenance\\\":\\\"Invented numeric boundary probe, no engineering qualification\\\",\\\"section_ref\\\":null,\\\"source_model_hash\\\":\\\"sha256:3ba844b22dc927e0635ae510b16a50870440fe3ad2dbeb9d95ff00b347574ef3\\\"}\",\"target\":{\"pipe\":\"pipe:beam\",\"type\":\"element\"}}",
+            "before": "not_present",
+            "change_kind": "create_primitive_load",
+            "dimension": "force_per_length",
+            "field_label": "create_primitive_load",
+            "field_path": "primitive_loads",
+            "object_type": "Load",
+            "operation_kind": "create",
+            "source_note": "{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_y\",\"id\":\"load:self-weight:15:case:mass-probe:9:pipe:beam\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-2.827433388230815},\"target\":{\"pipe\":\"pipe:beam\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_y\",\"unit\":\"m/s^2\",\"value\":-1.0},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.0},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1000.0},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":0.1},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.01}},\"mass_kg_per_m\":2.827433388230815,\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-1.0,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.0},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1000.0},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":0.1},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":0.01}},\"pipe_id\":\"pipe:beam\",\"pipe_provenance\":\"invented\",\"referenced_section\":null,\"request_provenance\":\"Invented numeric boundary probe, no engineering qualification\",\"section_ref\":null,\"source_model_hash\":\"sha256:3ba844b22dc927e0635ae510b16a50870440fe3ad2dbeb9d95ff00b347574ef3\"}",
+            "target_ref": "case:mass-probe",
+            "unit": "N/m"
+          }
+        ],
+        "scope_label": "selected_pipe_mass_only",
+        "source_evidence": [
+          {
+            "contents_absent": false,
+            "generated_payload": {
+              "category": "distributed_force",
+              "dimension": "force_per_length",
+              "direction": "global_y",
+              "id": "load:self-weight:15:case:mass-probe:9:pipe:beam",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -2.827433388230815
+              },
+              "target": {
+                "pipe": "pipe:beam",
+                "type": "element"
+              }
+            },
+            "gravity": {
+              "axis": "global_y",
+              "unit": "m/s^2",
+              "value": -1.0
+            },
+            "insulation_absent": false,
+            "mass_inputs": {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_thickness": {
+                "unit": "m",
+                "value": 0.0
+              },
+              "material_density": {
+                "unit": "kg/m^3",
+                "value": 1000.0
+              },
+              "mill_tolerance": null,
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.1
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "mass_kg_per_m": 2.827433388230815,
+            "method": "pipe_mass_per_length_times_explicit_axis_acceleration/v2",
+            "normalized_acceleration_m_per_s2": -1.0,
+            "normalized_dependencies": {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_thickness": {
+                "unit": "m",
+                "value": 0.0
+              },
+              "material_density": {
+                "unit": "kg/m^3",
+                "value": 1000.0
+              },
+              "mill_tolerance": null,
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.1
+              },
+              "section_ref": null,
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "pipe_id": "pipe:beam",
+            "pipe_provenance": "invented",
+            "referenced_section": null,
+            "request_provenance": "Invented numeric boundary probe, no engineering qualification",
+            "section_ref": null,
+            "source_model_hash": "sha256:3ba844b22dc927e0635ae510b16a50870440fe3ad2dbeb9d95ff00b347574ef3"
+          }
+        ],
+        "source_model_hash": "sha256:3ba844b22dc927e0635ae510b16a50870440fe3ad2dbeb9d95ff00b347574ef3"
+      },
+      "requires_user_acceptance": true,
+      "source_model_hash": "sha256:3ba844b22dc927e0635ae510b16a50870440fe3ad2dbeb9d95ff00b347574ef3",
+      "status": "ready"
+    }
+  },
+  {
+    "input_model": {
+      "analysis_status": {
+        "mechanics": "draft",
+        "professional_acceptance": "not_assessed",
+        "rule_check": "not_run"
+      },
+      "combinations": [],
+      "components": [],
+      "document_kind": "openpipestress.product_preview.model",
+      "load_cases": [],
+      "materials": [
+        {
+          "elastic_modulus": {
+            "unit": "Pa",
+            "value": 200000000000.0
+          },
+          "id": "material:invented",
+          "label": "Invented elastic material",
+          "provenance": "invented_no_material_standard",
+          "shear_modulus": {
+            "unit": "Pa",
+            "value": 77000000000.0
+          }
+        }
+      ],
+      "nodes": [
+        {
+          "id": "node:root",
+          "label": "Root",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "provenance": "invented"
+        },
+        {
+          "id": "node:tip",
+          "label": "Tip",
+          "position": {
+            "x": 2,
+            "y": 0,
+            "z": 0
+          },
+          "provenance": "invented"
+        }
+      ],
+      "pipe_segments": [
+        {
+          "from": "node:root",
+          "id": "pipe:beam",
+          "label": "Invented beam",
+          "material": "material:invented",
+          "provenance": "invented",
+          "section": {
+            "contents_density": {
+              "unit": "kg/m^3",
+              "value": 0.0
+            },
+            "insulation_density": {
+              "unit": "kg/m^3",
+              "value": 0.0
+            },
+            "insulation_thickness": {
+              "unit": "m",
+              "value": 0.0
+            },
+            "material_density": {
+              "unit": "kg/m^3",
+              "value": 1.0
+            },
+            "outside_diameter": {
+              "unit": "m",
+              "value": 1.0
+            },
+            "wall_thickness": {
+              "unit": "m",
+              "value": 1e-9
+            }
+          },
+          "to": "node:tip",
+          "y_reference": {
+            "x": 0,
+            "y": 1,
+            "z": 0
+          }
+        }
+      ],
+      "project": {
+        "id": "project:invented-self-weight",
+        "units": {
+          "angle": "rad",
+          "force": "N",
+          "length": "m",
+          "pressure": "Pa",
+          "stress": "Pa",
+          "temperature": "degC"
+        }
+      },
+      "schema_version": "0.1.0",
+      "sections": [],
+      "supports": [
+        {
+          "id": "support:root",
+          "label": "Fixed root",
+          "node": "node:root",
+          "provenance": "invented",
+          "restraints": [
+            "UX",
+            "UY",
+            "UZ",
+            "RX",
+            "RY",
+            "RZ"
+          ]
+        }
+      ]
+    },
+    "name": "thin_1e9",
+    "outcome": {
+      "diagnostics": [],
+      "document_kind": "openpipestress.desktop.self_weight_plan_outcome",
+      "input_model_unchanged": true,
+      "mutation_route": "structured_operations_only",
+      "plan": {
+        "changes": [
+          {
+            "after": "{\"id\":\"case:mass-probe\",\"kind\":\"primitive_user_load\",\"label\":\"Invented numerical mass probe\",\"primitive_loads\":[],\"provenance\":\"Invented numeric boundary probe, no engineering qualification\",\"status\":\"draft\"}",
+            "before": "not_present",
+            "change_kind": "create_load_case",
+            "dimension": "dimensionless",
+            "field_label": "create_load_case",
+            "field_path": "load_cases",
+            "object_type": "Load",
+            "operation_kind": "create",
+            "source_note": "{\"scope_label\":\"selected_pipe_mass_only\",\"source_evidence\":[{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_y\",\"id\":\"load:self-weight:15:case:mass-probe:9:pipe:beam\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-3.14159273913291e-9},\"target\":{\"pipe\":\"pipe:beam\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_y\",\"unit\":\"m/s^2\",\"value\":-1.0},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.0},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1.0},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":1.0},\"wall_thickness\":{\"unit\":\"m\",\"value\":1e-9}},\"mass_kg_per_m\":3.14159273913291e-9,\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-1.0,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.0},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1.0},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":1.0},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":1e-9}},\"pipe_id\":\"pipe:beam\",\"pipe_provenance\":\"invented\",\"referenced_section\":null,\"request_provenance\":\"Invented numeric boundary probe, no engineering qualification\",\"section_ref\":null,\"source_model_hash\":\"sha256:72b6bd40cd1f4dd94788f91c31685572834f62ec6c4c8a5f6716ea50e5ff2807\"}],\"source_model_hash\":\"sha256:72b6bd40cd1f4dd94788f91c31685572834f62ec6c4c8a5f6716ea50e5ff2807\"}",
+            "target_ref": "case:mass-probe",
+            "unit": "none"
+          },
+          {
+            "after": "{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_y\",\"id\":\"load:self-weight:15:case:mass-probe:9:pipe:beam\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-3.14159273913291e-9},\"provenance\":\"{\\\"contents_absent\\\":false,\\\"generated_payload\\\":{\\\"category\\\":\\\"distributed_force\\\",\\\"dimension\\\":\\\"force_per_length\\\",\\\"direction\\\":\\\"global_y\\\",\\\"id\\\":\\\"load:self-weight:15:case:mass-probe:9:pipe:beam\\\",\\\"magnitude\\\":{\\\"unit\\\":\\\"N/m\\\",\\\"value\\\":-3.14159273913291e-9},\\\"target\\\":{\\\"pipe\\\":\\\"pipe:beam\\\",\\\"type\\\":\\\"element\\\"}},\\\"gravity\\\":{\\\"axis\\\":\\\"global_y\\\",\\\"unit\\\":\\\"m/s^2\\\",\\\"value\\\":-1.0},\\\"insulation_absent\\\":false,\\\"mass_inputs\\\":{\\\"contents_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":0.0},\\\"material_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":1.0},\\\"mill_tolerance\\\":null,\\\"outside_diameter\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":1.0},\\\"wall_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":1e-9}},\\\"mass_kg_per_m\\\":3.14159273913291e-9,\\\"method\\\":\\\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\\\",\\\"normalized_acceleration_m_per_s2\\\":-1.0,\\\"normalized_dependencies\\\":{\\\"contents_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":0.0},\\\"material_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":1.0},\\\"mill_tolerance\\\":null,\\\"outside_diameter\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":1.0},\\\"section_ref\\\":null,\\\"wall_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":1e-9}},\\\"pipe_id\\\":\\\"pipe:beam\\\",\\\"pipe_provenance\\\":\\\"invented\\\",\\\"referenced_section\\\":null,\\\"request_provenance\\\":\\\"Invented numeric boundary probe, no engineering qualification\\\",\\\"section_ref\\\":null,\\\"source_model_hash\\\":\\\"sha256:72b6bd40cd1f4dd94788f91c31685572834f62ec6c4c8a5f6716ea50e5ff2807\\\"}\",\"target\":{\"pipe\":\"pipe:beam\",\"type\":\"element\"}}",
+            "before": "not_present",
+            "change_kind": "create_primitive_load",
+            "dimension": "force_per_length",
+            "field_label": "create_primitive_load",
+            "field_path": "primitive_loads",
+            "object_type": "Load",
+            "operation_kind": "create",
+            "source_note": "{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_y\",\"id\":\"load:self-weight:15:case:mass-probe:9:pipe:beam\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-3.14159273913291e-9},\"target\":{\"pipe\":\"pipe:beam\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_y\",\"unit\":\"m/s^2\",\"value\":-1.0},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.0},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1.0},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":1.0},\"wall_thickness\":{\"unit\":\"m\",\"value\":1e-9}},\"mass_kg_per_m\":3.14159273913291e-9,\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-1.0,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.0},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1.0},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":1.0},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":1e-9}},\"pipe_id\":\"pipe:beam\",\"pipe_provenance\":\"invented\",\"referenced_section\":null,\"request_provenance\":\"Invented numeric boundary probe, no engineering qualification\",\"section_ref\":null,\"source_model_hash\":\"sha256:72b6bd40cd1f4dd94788f91c31685572834f62ec6c4c8a5f6716ea50e5ff2807\"}",
+            "target_ref": "case:mass-probe",
+            "unit": "N/m"
+          }
+        ],
+        "scope_label": "selected_pipe_mass_only",
+        "source_evidence": [
+          {
+            "contents_absent": false,
+            "generated_payload": {
+              "category": "distributed_force",
+              "dimension": "force_per_length",
+              "direction": "global_y",
+              "id": "load:self-weight:15:case:mass-probe:9:pipe:beam",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -3.14159273913291e-9
+              },
+              "target": {
+                "pipe": "pipe:beam",
+                "type": "element"
+              }
+            },
+            "gravity": {
+              "axis": "global_y",
+              "unit": "m/s^2",
+              "value": -1.0
+            },
+            "insulation_absent": false,
+            "mass_inputs": {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_thickness": {
+                "unit": "m",
+                "value": 0.0
+              },
+              "material_density": {
+                "unit": "kg/m^3",
+                "value": 1.0
+              },
+              "mill_tolerance": null,
+              "outside_diameter": {
+                "unit": "m",
+                "value": 1.0
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 1e-9
+              }
+            },
+            "mass_kg_per_m": 3.14159273913291e-9,
+            "method": "pipe_mass_per_length_times_explicit_axis_acceleration/v2",
+            "normalized_acceleration_m_per_s2": -1.0,
+            "normalized_dependencies": {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_thickness": {
+                "unit": "m",
+                "value": 0.0
+              },
+              "material_density": {
+                "unit": "kg/m^3",
+                "value": 1.0
+              },
+              "mill_tolerance": null,
+              "outside_diameter": {
+                "unit": "m",
+                "value": 1.0
+              },
+              "section_ref": null,
+              "wall_thickness": {
+                "unit": "m",
+                "value": 1e-9
+              }
+            },
+            "pipe_id": "pipe:beam",
+            "pipe_provenance": "invented",
+            "referenced_section": null,
+            "request_provenance": "Invented numeric boundary probe, no engineering qualification",
+            "section_ref": null,
+            "source_model_hash": "sha256:72b6bd40cd1f4dd94788f91c31685572834f62ec6c4c8a5f6716ea50e5ff2807"
+          }
+        ],
+        "source_model_hash": "sha256:72b6bd40cd1f4dd94788f91c31685572834f62ec6c4c8a5f6716ea50e5ff2807"
+      },
+      "requires_user_acceptance": true,
+      "source_model_hash": "sha256:72b6bd40cd1f4dd94788f91c31685572834f62ec6c4c8a5f6716ea50e5ff2807",
+      "status": "ready"
+    },
+    "request": {
+      "case_id": "case:mass-probe",
+      "gravity": {
+        "axis": "global_y",
+        "unit": "m/s^2",
+        "value": -1
+      },
+      "label": "Invented numerical mass probe",
+      "pipe_refs": [
+        "pipe:beam"
+      ],
+      "provenance": "Invented numeric boundary probe, no engineering qualification",
+      "source_model_hash": "sha256:72b6bd40cd1f4dd94788f91c31685572834f62ec6c4c8a5f6716ea50e5ff2807"
+    },
+    "transport_equal": false,
+    "wire_outcome": {
+      "diagnostics": [],
+      "document_kind": "openpipestress.desktop.self_weight_plan_outcome",
+      "input_model_unchanged": true,
+      "mutation_route": "structured_operations_only",
+      "plan": {
+        "changes": [
+          {
+            "after": "{\"id\":\"case:mass-probe\",\"kind\":\"primitive_user_load\",\"label\":\"Invented numerical mass probe\",\"primitive_loads\":[],\"provenance\":\"Invented numeric boundary probe, no engineering qualification\",\"status\":\"draft\"}",
+            "before": "not_present",
+            "change_kind": "create_load_case",
+            "dimension": "dimensionless",
+            "field_label": "create_load_case",
+            "field_path": "load_cases",
+            "object_type": "Load",
+            "operation_kind": "create",
+            "source_note": "{\"scope_label\":\"selected_pipe_mass_only\",\"source_evidence\":[{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_y\",\"id\":\"load:self-weight:15:case:mass-probe:9:pipe:beam\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-3.14159273913291e-9},\"target\":{\"pipe\":\"pipe:beam\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_y\",\"unit\":\"m/s^2\",\"value\":-1.0},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.0},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1.0},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":1.0},\"wall_thickness\":{\"unit\":\"m\",\"value\":1e-9}},\"mass_kg_per_m\":3.14159273913291e-9,\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-1.0,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.0},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1.0},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":1.0},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":1e-9}},\"pipe_id\":\"pipe:beam\",\"pipe_provenance\":\"invented\",\"referenced_section\":null,\"request_provenance\":\"Invented numeric boundary probe, no engineering qualification\",\"section_ref\":null,\"source_model_hash\":\"sha256:72b6bd40cd1f4dd94788f91c31685572834f62ec6c4c8a5f6716ea50e5ff2807\"}],\"source_model_hash\":\"sha256:72b6bd40cd1f4dd94788f91c31685572834f62ec6c4c8a5f6716ea50e5ff2807\"}",
+            "target_ref": "case:mass-probe",
+            "unit": "none"
+          },
+          {
+            "after": "{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_y\",\"id\":\"load:self-weight:15:case:mass-probe:9:pipe:beam\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-3.14159273913291e-9},\"provenance\":\"{\\\"contents_absent\\\":false,\\\"generated_payload\\\":{\\\"category\\\":\\\"distributed_force\\\",\\\"dimension\\\":\\\"force_per_length\\\",\\\"direction\\\":\\\"global_y\\\",\\\"id\\\":\\\"load:self-weight:15:case:mass-probe:9:pipe:beam\\\",\\\"magnitude\\\":{\\\"unit\\\":\\\"N/m\\\",\\\"value\\\":-3.14159273913291e-9},\\\"target\\\":{\\\"pipe\\\":\\\"pipe:beam\\\",\\\"type\\\":\\\"element\\\"}},\\\"gravity\\\":{\\\"axis\\\":\\\"global_y\\\",\\\"unit\\\":\\\"m/s^2\\\",\\\"value\\\":-1.0},\\\"insulation_absent\\\":false,\\\"mass_inputs\\\":{\\\"contents_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":0.0},\\\"material_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":1.0},\\\"mill_tolerance\\\":null,\\\"outside_diameter\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":1.0},\\\"wall_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":1e-9}},\\\"mass_kg_per_m\\\":3.14159273913291e-9,\\\"method\\\":\\\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\\\",\\\"normalized_acceleration_m_per_s2\\\":-1.0,\\\"normalized_dependencies\\\":{\\\"contents_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":0.0},\\\"material_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":1.0},\\\"mill_tolerance\\\":null,\\\"outside_diameter\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":1.0},\\\"section_ref\\\":null,\\\"wall_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":1e-9}},\\\"pipe_id\\\":\\\"pipe:beam\\\",\\\"pipe_provenance\\\":\\\"invented\\\",\\\"referenced_section\\\":null,\\\"request_provenance\\\":\\\"Invented numeric boundary probe, no engineering qualification\\\",\\\"section_ref\\\":null,\\\"source_model_hash\\\":\\\"sha256:72b6bd40cd1f4dd94788f91c31685572834f62ec6c4c8a5f6716ea50e5ff2807\\\"}\",\"target\":{\"pipe\":\"pipe:beam\",\"type\":\"element\"}}",
+            "before": "not_present",
+            "change_kind": "create_primitive_load",
+            "dimension": "force_per_length",
+            "field_label": "create_primitive_load",
+            "field_path": "primitive_loads",
+            "object_type": "Load",
+            "operation_kind": "create",
+            "source_note": "{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_y\",\"id\":\"load:self-weight:15:case:mass-probe:9:pipe:beam\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-3.14159273913291e-9},\"target\":{\"pipe\":\"pipe:beam\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_y\",\"unit\":\"m/s^2\",\"value\":-1.0},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.0},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1.0},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":1.0},\"wall_thickness\":{\"unit\":\"m\",\"value\":1e-9}},\"mass_kg_per_m\":3.14159273913291e-9,\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-1.0,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.0},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1.0},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":1.0},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":1e-9}},\"pipe_id\":\"pipe:beam\",\"pipe_provenance\":\"invented\",\"referenced_section\":null,\"request_provenance\":\"Invented numeric boundary probe, no engineering qualification\",\"section_ref\":null,\"source_model_hash\":\"sha256:72b6bd40cd1f4dd94788f91c31685572834f62ec6c4c8a5f6716ea50e5ff2807\"}",
+            "target_ref": "case:mass-probe",
+            "unit": "N/m"
+          }
+        ],
+        "scope_label": "selected_pipe_mass_only",
+        "source_evidence": [
+          {
+            "contents_absent": false,
+            "generated_payload": {
+              "category": "distributed_force",
+              "dimension": "force_per_length",
+              "direction": "global_y",
+              "id": "load:self-weight:15:case:mass-probe:9:pipe:beam",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -3.1415927391329103e-9
+              },
+              "target": {
+                "pipe": "pipe:beam",
+                "type": "element"
+              }
+            },
+            "gravity": {
+              "axis": "global_y",
+              "unit": "m/s^2",
+              "value": -1.0
+            },
+            "insulation_absent": false,
+            "mass_inputs": {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_thickness": {
+                "unit": "m",
+                "value": 0.0
+              },
+              "material_density": {
+                "unit": "kg/m^3",
+                "value": 1.0
+              },
+              "mill_tolerance": null,
+              "outside_diameter": {
+                "unit": "m",
+                "value": 1.0
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 1e-9
+              }
+            },
+            "mass_kg_per_m": 3.1415927391329103e-9,
+            "method": "pipe_mass_per_length_times_explicit_axis_acceleration/v2",
+            "normalized_acceleration_m_per_s2": -1.0,
+            "normalized_dependencies": {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_thickness": {
+                "unit": "m",
+                "value": 0.0
+              },
+              "material_density": {
+                "unit": "kg/m^3",
+                "value": 1.0
+              },
+              "mill_tolerance": null,
+              "outside_diameter": {
+                "unit": "m",
+                "value": 1.0
+              },
+              "section_ref": null,
+              "wall_thickness": {
+                "unit": "m",
+                "value": 1e-9
+              }
+            },
+            "pipe_id": "pipe:beam",
+            "pipe_provenance": "invented",
+            "referenced_section": null,
+            "request_provenance": "Invented numeric boundary probe, no engineering qualification",
+            "section_ref": null,
+            "source_model_hash": "sha256:72b6bd40cd1f4dd94788f91c31685572834f62ec6c4c8a5f6716ea50e5ff2807"
+          }
+        ],
+        "source_model_hash": "sha256:72b6bd40cd1f4dd94788f91c31685572834f62ec6c4c8a5f6716ea50e5ff2807"
+      },
+      "requires_user_acceptance": true,
+      "source_model_hash": "sha256:72b6bd40cd1f4dd94788f91c31685572834f62ec6c4c8a5f6716ea50e5ff2807",
+      "status": "ready"
+    }
+  },
+  {
+    "input_model": {
+      "analysis_status": {
+        "mechanics": "draft",
+        "professional_acceptance": "not_assessed",
+        "rule_check": "not_run"
+      },
+      "combinations": [],
+      "components": [],
+      "document_kind": "openpipestress.product_preview.model",
+      "load_cases": [],
+      "materials": [
+        {
+          "elastic_modulus": {
+            "unit": "Pa",
+            "value": 200000000000.0
+          },
+          "id": "material:invented",
+          "label": "Invented elastic material",
+          "provenance": "invented_no_material_standard",
+          "shear_modulus": {
+            "unit": "Pa",
+            "value": 77000000000.0
+          }
+        }
+      ],
+      "nodes": [
+        {
+          "id": "node:root",
+          "label": "Root",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "provenance": "invented"
+        },
+        {
+          "id": "node:tip",
+          "label": "Tip",
+          "position": {
+            "x": 2,
+            "y": 0,
+            "z": 0
+          },
+          "provenance": "invented"
+        }
+      ],
+      "pipe_segments": [
+        {
+          "from": "node:root",
+          "id": "pipe:beam",
+          "label": "Invented beam",
+          "material": "material:invented",
+          "provenance": "invented",
+          "section": {
+            "contents_density": {
+              "unit": "kg/m^3",
+              "value": 0.0
+            },
+            "insulation_density": {
+              "unit": "kg/m^3",
+              "value": 0.0
+            },
+            "insulation_thickness": {
+              "unit": "m",
+              "value": 0.0
+            },
+            "material_density": {
+              "unit": "kg/m^3",
+              "value": 1.0
+            },
+            "outside_diameter": {
+              "unit": "m",
+              "value": 1.0
+            },
+            "wall_thickness": {
+              "unit": "m",
+              "value": 1e-12
+            }
+          },
+          "to": "node:tip",
+          "y_reference": {
+            "x": 0,
+            "y": 1,
+            "z": 0
+          }
+        }
+      ],
+      "project": {
+        "id": "project:invented-self-weight",
+        "units": {
+          "angle": "rad",
+          "force": "N",
+          "length": "m",
+          "pressure": "Pa",
+          "stress": "Pa",
+          "temperature": "degC"
+        }
+      },
+      "schema_version": "0.1.0",
+      "sections": [],
+      "supports": [
+        {
+          "id": "support:root",
+          "label": "Fixed root",
+          "node": "node:root",
+          "provenance": "invented",
+          "restraints": [
+            "UX",
+            "UY",
+            "UZ",
+            "RX",
+            "RY",
+            "RZ"
+          ]
+        }
+      ]
+    },
+    "name": "thin_1e12",
+    "outcome": {
+      "diagnostics": [],
+      "document_kind": "openpipestress.desktop.self_weight_plan_outcome",
+      "input_model_unchanged": true,
+      "mutation_route": "structured_operations_only",
+      "plan": {
+        "changes": [
+          {
+            "after": "{\"id\":\"case:mass-probe\",\"kind\":\"primitive_user_load\",\"label\":\"Invented numerical mass probe\",\"primitive_loads\":[],\"provenance\":\"Invented numeric boundary probe, no engineering qualification\",\"status\":\"draft\"}",
+            "before": "not_present",
+            "change_kind": "create_load_case",
+            "dimension": "dimensionless",
+            "field_label": "create_load_case",
+            "field_path": "load_cases",
+            "object_type": "Load",
+            "operation_kind": "create",
+            "source_note": "{\"scope_label\":\"selected_pipe_mass_only\",\"source_evidence\":[{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_y\",\"id\":\"load:self-weight:15:case:mass-probe:9:pipe:beam\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-3.1415231561563744e-12},\"target\":{\"pipe\":\"pipe:beam\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_y\",\"unit\":\"m/s^2\",\"value\":-1.0},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.0},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1.0},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":1.0},\"wall_thickness\":{\"unit\":\"m\",\"value\":1e-12}},\"mass_kg_per_m\":3.1415231561563744e-12,\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-1.0,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.0},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1.0},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":1.0},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":1e-12}},\"pipe_id\":\"pipe:beam\",\"pipe_provenance\":\"invented\",\"referenced_section\":null,\"request_provenance\":\"Invented numeric boundary probe, no engineering qualification\",\"section_ref\":null,\"source_model_hash\":\"sha256:216f1d5815f33e21649dc61776fd8890658981615cbb6aaccb702e9e8c2e258e\"}],\"source_model_hash\":\"sha256:216f1d5815f33e21649dc61776fd8890658981615cbb6aaccb702e9e8c2e258e\"}",
+            "target_ref": "case:mass-probe",
+            "unit": "none"
+          },
+          {
+            "after": "{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_y\",\"id\":\"load:self-weight:15:case:mass-probe:9:pipe:beam\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-3.1415231561563744e-12},\"provenance\":\"{\\\"contents_absent\\\":false,\\\"generated_payload\\\":{\\\"category\\\":\\\"distributed_force\\\",\\\"dimension\\\":\\\"force_per_length\\\",\\\"direction\\\":\\\"global_y\\\",\\\"id\\\":\\\"load:self-weight:15:case:mass-probe:9:pipe:beam\\\",\\\"magnitude\\\":{\\\"unit\\\":\\\"N/m\\\",\\\"value\\\":-3.1415231561563744e-12},\\\"target\\\":{\\\"pipe\\\":\\\"pipe:beam\\\",\\\"type\\\":\\\"element\\\"}},\\\"gravity\\\":{\\\"axis\\\":\\\"global_y\\\",\\\"unit\\\":\\\"m/s^2\\\",\\\"value\\\":-1.0},\\\"insulation_absent\\\":false,\\\"mass_inputs\\\":{\\\"contents_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":0.0},\\\"material_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":1.0},\\\"mill_tolerance\\\":null,\\\"outside_diameter\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":1.0},\\\"wall_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":1e-12}},\\\"mass_kg_per_m\\\":3.1415231561563744e-12,\\\"method\\\":\\\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\\\",\\\"normalized_acceleration_m_per_s2\\\":-1.0,\\\"normalized_dependencies\\\":{\\\"contents_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":0.0},\\\"material_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":1.0},\\\"mill_tolerance\\\":null,\\\"outside_diameter\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":1.0},\\\"section_ref\\\":null,\\\"wall_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":1e-12}},\\\"pipe_id\\\":\\\"pipe:beam\\\",\\\"pipe_provenance\\\":\\\"invented\\\",\\\"referenced_section\\\":null,\\\"request_provenance\\\":\\\"Invented numeric boundary probe, no engineering qualification\\\",\\\"section_ref\\\":null,\\\"source_model_hash\\\":\\\"sha256:216f1d5815f33e21649dc61776fd8890658981615cbb6aaccb702e9e8c2e258e\\\"}\",\"target\":{\"pipe\":\"pipe:beam\",\"type\":\"element\"}}",
+            "before": "not_present",
+            "change_kind": "create_primitive_load",
+            "dimension": "force_per_length",
+            "field_label": "create_primitive_load",
+            "field_path": "primitive_loads",
+            "object_type": "Load",
+            "operation_kind": "create",
+            "source_note": "{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_y\",\"id\":\"load:self-weight:15:case:mass-probe:9:pipe:beam\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-3.1415231561563744e-12},\"target\":{\"pipe\":\"pipe:beam\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_y\",\"unit\":\"m/s^2\",\"value\":-1.0},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.0},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1.0},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":1.0},\"wall_thickness\":{\"unit\":\"m\",\"value\":1e-12}},\"mass_kg_per_m\":3.1415231561563744e-12,\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-1.0,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.0},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1.0},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":1.0},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":1e-12}},\"pipe_id\":\"pipe:beam\",\"pipe_provenance\":\"invented\",\"referenced_section\":null,\"request_provenance\":\"Invented numeric boundary probe, no engineering qualification\",\"section_ref\":null,\"source_model_hash\":\"sha256:216f1d5815f33e21649dc61776fd8890658981615cbb6aaccb702e9e8c2e258e\"}",
+            "target_ref": "case:mass-probe",
+            "unit": "N/m"
+          }
+        ],
+        "scope_label": "selected_pipe_mass_only",
+        "source_evidence": [
+          {
+            "contents_absent": false,
+            "generated_payload": {
+              "category": "distributed_force",
+              "dimension": "force_per_length",
+              "direction": "global_y",
+              "id": "load:self-weight:15:case:mass-probe:9:pipe:beam",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -3.1415231561563744e-12
+              },
+              "target": {
+                "pipe": "pipe:beam",
+                "type": "element"
+              }
+            },
+            "gravity": {
+              "axis": "global_y",
+              "unit": "m/s^2",
+              "value": -1.0
+            },
+            "insulation_absent": false,
+            "mass_inputs": {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_thickness": {
+                "unit": "m",
+                "value": 0.0
+              },
+              "material_density": {
+                "unit": "kg/m^3",
+                "value": 1.0
+              },
+              "mill_tolerance": null,
+              "outside_diameter": {
+                "unit": "m",
+                "value": 1.0
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 1e-12
+              }
+            },
+            "mass_kg_per_m": 3.1415231561563744e-12,
+            "method": "pipe_mass_per_length_times_explicit_axis_acceleration/v2",
+            "normalized_acceleration_m_per_s2": -1.0,
+            "normalized_dependencies": {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_thickness": {
+                "unit": "m",
+                "value": 0.0
+              },
+              "material_density": {
+                "unit": "kg/m^3",
+                "value": 1.0
+              },
+              "mill_tolerance": null,
+              "outside_diameter": {
+                "unit": "m",
+                "value": 1.0
+              },
+              "section_ref": null,
+              "wall_thickness": {
+                "unit": "m",
+                "value": 1e-12
+              }
+            },
+            "pipe_id": "pipe:beam",
+            "pipe_provenance": "invented",
+            "referenced_section": null,
+            "request_provenance": "Invented numeric boundary probe, no engineering qualification",
+            "section_ref": null,
+            "source_model_hash": "sha256:216f1d5815f33e21649dc61776fd8890658981615cbb6aaccb702e9e8c2e258e"
+          }
+        ],
+        "source_model_hash": "sha256:216f1d5815f33e21649dc61776fd8890658981615cbb6aaccb702e9e8c2e258e"
+      },
+      "requires_user_acceptance": true,
+      "source_model_hash": "sha256:216f1d5815f33e21649dc61776fd8890658981615cbb6aaccb702e9e8c2e258e",
+      "status": "ready"
+    },
+    "request": {
+      "case_id": "case:mass-probe",
+      "gravity": {
+        "axis": "global_y",
+        "unit": "m/s^2",
+        "value": -1
+      },
+      "label": "Invented numerical mass probe",
+      "pipe_refs": [
+        "pipe:beam"
+      ],
+      "provenance": "Invented numeric boundary probe, no engineering qualification",
+      "source_model_hash": "sha256:216f1d5815f33e21649dc61776fd8890658981615cbb6aaccb702e9e8c2e258e"
+    },
+    "transport_equal": true,
+    "wire_outcome": {
+      "diagnostics": [],
+      "document_kind": "openpipestress.desktop.self_weight_plan_outcome",
+      "input_model_unchanged": true,
+      "mutation_route": "structured_operations_only",
+      "plan": {
+        "changes": [
+          {
+            "after": "{\"id\":\"case:mass-probe\",\"kind\":\"primitive_user_load\",\"label\":\"Invented numerical mass probe\",\"primitive_loads\":[],\"provenance\":\"Invented numeric boundary probe, no engineering qualification\",\"status\":\"draft\"}",
+            "before": "not_present",
+            "change_kind": "create_load_case",
+            "dimension": "dimensionless",
+            "field_label": "create_load_case",
+            "field_path": "load_cases",
+            "object_type": "Load",
+            "operation_kind": "create",
+            "source_note": "{\"scope_label\":\"selected_pipe_mass_only\",\"source_evidence\":[{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_y\",\"id\":\"load:self-weight:15:case:mass-probe:9:pipe:beam\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-3.1415231561563744e-12},\"target\":{\"pipe\":\"pipe:beam\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_y\",\"unit\":\"m/s^2\",\"value\":-1.0},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.0},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1.0},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":1.0},\"wall_thickness\":{\"unit\":\"m\",\"value\":1e-12}},\"mass_kg_per_m\":3.1415231561563744e-12,\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-1.0,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.0},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1.0},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":1.0},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":1e-12}},\"pipe_id\":\"pipe:beam\",\"pipe_provenance\":\"invented\",\"referenced_section\":null,\"request_provenance\":\"Invented numeric boundary probe, no engineering qualification\",\"section_ref\":null,\"source_model_hash\":\"sha256:216f1d5815f33e21649dc61776fd8890658981615cbb6aaccb702e9e8c2e258e\"}],\"source_model_hash\":\"sha256:216f1d5815f33e21649dc61776fd8890658981615cbb6aaccb702e9e8c2e258e\"}",
+            "target_ref": "case:mass-probe",
+            "unit": "none"
+          },
+          {
+            "after": "{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_y\",\"id\":\"load:self-weight:15:case:mass-probe:9:pipe:beam\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-3.1415231561563744e-12},\"provenance\":\"{\\\"contents_absent\\\":false,\\\"generated_payload\\\":{\\\"category\\\":\\\"distributed_force\\\",\\\"dimension\\\":\\\"force_per_length\\\",\\\"direction\\\":\\\"global_y\\\",\\\"id\\\":\\\"load:self-weight:15:case:mass-probe:9:pipe:beam\\\",\\\"magnitude\\\":{\\\"unit\\\":\\\"N/m\\\",\\\"value\\\":-3.1415231561563744e-12},\\\"target\\\":{\\\"pipe\\\":\\\"pipe:beam\\\",\\\"type\\\":\\\"element\\\"}},\\\"gravity\\\":{\\\"axis\\\":\\\"global_y\\\",\\\"unit\\\":\\\"m/s^2\\\",\\\"value\\\":-1.0},\\\"insulation_absent\\\":false,\\\"mass_inputs\\\":{\\\"contents_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":0.0},\\\"material_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":1.0},\\\"mill_tolerance\\\":null,\\\"outside_diameter\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":1.0},\\\"wall_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":1e-12}},\\\"mass_kg_per_m\\\":3.1415231561563744e-12,\\\"method\\\":\\\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\\\",\\\"normalized_acceleration_m_per_s2\\\":-1.0,\\\"normalized_dependencies\\\":{\\\"contents_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":0.0},\\\"material_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":1.0},\\\"mill_tolerance\\\":null,\\\"outside_diameter\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":1.0},\\\"section_ref\\\":null,\\\"wall_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":1e-12}},\\\"pipe_id\\\":\\\"pipe:beam\\\",\\\"pipe_provenance\\\":\\\"invented\\\",\\\"referenced_section\\\":null,\\\"request_provenance\\\":\\\"Invented numeric boundary probe, no engineering qualification\\\",\\\"section_ref\\\":null,\\\"source_model_hash\\\":\\\"sha256:216f1d5815f33e21649dc61776fd8890658981615cbb6aaccb702e9e8c2e258e\\\"}\",\"target\":{\"pipe\":\"pipe:beam\",\"type\":\"element\"}}",
+            "before": "not_present",
+            "change_kind": "create_primitive_load",
+            "dimension": "force_per_length",
+            "field_label": "create_primitive_load",
+            "field_path": "primitive_loads",
+            "object_type": "Load",
+            "operation_kind": "create",
+            "source_note": "{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_y\",\"id\":\"load:self-weight:15:case:mass-probe:9:pipe:beam\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-3.1415231561563744e-12},\"target\":{\"pipe\":\"pipe:beam\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_y\",\"unit\":\"m/s^2\",\"value\":-1.0},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.0},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1.0},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":1.0},\"wall_thickness\":{\"unit\":\"m\",\"value\":1e-12}},\"mass_kg_per_m\":3.1415231561563744e-12,\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-1.0,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.0},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1.0},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":1.0},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":1e-12}},\"pipe_id\":\"pipe:beam\",\"pipe_provenance\":\"invented\",\"referenced_section\":null,\"request_provenance\":\"Invented numeric boundary probe, no engineering qualification\",\"section_ref\":null,\"source_model_hash\":\"sha256:216f1d5815f33e21649dc61776fd8890658981615cbb6aaccb702e9e8c2e258e\"}",
+            "target_ref": "case:mass-probe",
+            "unit": "N/m"
+          }
+        ],
+        "scope_label": "selected_pipe_mass_only",
+        "source_evidence": [
+          {
+            "contents_absent": false,
+            "generated_payload": {
+              "category": "distributed_force",
+              "dimension": "force_per_length",
+              "direction": "global_y",
+              "id": "load:self-weight:15:case:mass-probe:9:pipe:beam",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -3.1415231561563744e-12
+              },
+              "target": {
+                "pipe": "pipe:beam",
+                "type": "element"
+              }
+            },
+            "gravity": {
+              "axis": "global_y",
+              "unit": "m/s^2",
+              "value": -1.0
+            },
+            "insulation_absent": false,
+            "mass_inputs": {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_thickness": {
+                "unit": "m",
+                "value": 0.0
+              },
+              "material_density": {
+                "unit": "kg/m^3",
+                "value": 1.0
+              },
+              "mill_tolerance": null,
+              "outside_diameter": {
+                "unit": "m",
+                "value": 1.0
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 1e-12
+              }
+            },
+            "mass_kg_per_m": 3.1415231561563744e-12,
+            "method": "pipe_mass_per_length_times_explicit_axis_acceleration/v2",
+            "normalized_acceleration_m_per_s2": -1.0,
+            "normalized_dependencies": {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_thickness": {
+                "unit": "m",
+                "value": 0.0
+              },
+              "material_density": {
+                "unit": "kg/m^3",
+                "value": 1.0
+              },
+              "mill_tolerance": null,
+              "outside_diameter": {
+                "unit": "m",
+                "value": 1.0
+              },
+              "section_ref": null,
+              "wall_thickness": {
+                "unit": "m",
+                "value": 1e-12
+              }
+            },
+            "pipe_id": "pipe:beam",
+            "pipe_provenance": "invented",
+            "referenced_section": null,
+            "request_provenance": "Invented numeric boundary probe, no engineering qualification",
+            "section_ref": null,
+            "source_model_hash": "sha256:216f1d5815f33e21649dc61776fd8890658981615cbb6aaccb702e9e8c2e258e"
+          }
+        ],
+        "source_model_hash": "sha256:216f1d5815f33e21649dc61776fd8890658981615cbb6aaccb702e9e8c2e258e"
+      },
+      "requires_user_acceptance": true,
+      "source_model_hash": "sha256:216f1d5815f33e21649dc61776fd8890658981615cbb6aaccb702e9e8c2e258e",
+      "status": "ready"
+    }
+  },
+  {
+    "input_model": {
+      "analysis_status": {
+        "mechanics": "draft",
+        "professional_acceptance": "not_assessed",
+        "rule_check": "not_run"
+      },
+      "combinations": [],
+      "components": [],
+      "document_kind": "openpipestress.product_preview.model",
+      "load_cases": [],
+      "materials": [
+        {
+          "elastic_modulus": {
+            "unit": "Pa",
+            "value": 200000000000.0
+          },
+          "id": "material:invented",
+          "label": "Invented elastic material",
+          "provenance": "invented_no_material_standard",
+          "shear_modulus": {
+            "unit": "Pa",
+            "value": 77000000000.0
+          }
+        }
+      ],
+      "nodes": [
+        {
+          "id": "node:root",
+          "label": "Root",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "provenance": "invented"
+        },
+        {
+          "id": "node:tip",
+          "label": "Tip",
+          "position": {
+            "x": 2,
+            "y": 0,
+            "z": 0
+          },
+          "provenance": "invented"
+        }
+      ],
+      "pipe_segments": [
+        {
+          "from": "node:root",
+          "id": "pipe:beam",
+          "label": "Invented beam",
+          "material": "material:invented",
+          "provenance": "invented",
+          "section": {
+            "contents_density": {
+              "unit": "kg/m^3",
+              "value": 0.0
+            },
+            "insulation_density": {
+              "unit": "kg/m^3",
+              "value": 0.0
+            },
+            "insulation_thickness": {
+              "unit": "m",
+              "value": 0.0
+            },
+            "material_density": {
+              "unit": "kg/m^3",
+              "value": 1.0
+            },
+            "outside_diameter": {
+              "unit": "m",
+              "value": 1.0
+            },
+            "wall_thickness": {
+              "unit": "m",
+              "value": 2.7755575615628914e-17
+            }
+          },
+          "to": "node:tip",
+          "y_reference": {
+            "x": 0,
+            "y": 1,
+            "z": 0
+          }
+        }
+      ],
+      "project": {
+        "id": "project:invented-self-weight",
+        "units": {
+          "angle": "rad",
+          "force": "N",
+          "length": "m",
+          "pressure": "Pa",
+          "stress": "Pa",
+          "temperature": "degC"
+        }
+      },
+      "schema_version": "0.1.0",
+      "sections": [],
+      "supports": [
+        {
+          "id": "support:root",
+          "label": "Fixed root",
+          "node": "node:root",
+          "provenance": "invented",
+          "restraints": [
+            "UX",
+            "UY",
+            "UZ",
+            "RX",
+            "RY",
+            "RZ"
+          ]
+        }
+      ]
+    },
+    "name": "sub_ulp_wall",
+    "outcome": {
+      "diagnostics": [
+        {
+          "affected_objects": [
+            "pipe:beam"
+          ],
+          "code": "SELF_WEIGHT_INPUT_INVALID",
+          "message": "computed mass or intensity is invalid",
+          "remediation": "Correct the referenced explicit inputs and regenerate the proposal.",
+          "severity": "blocking"
+        }
+      ],
+      "document_kind": "openpipestress.desktop.self_weight_plan_outcome",
+      "input_model_unchanged": true,
+      "mutation_route": "structured_operations_only",
+      "plan": null,
+      "requires_user_acceptance": true,
+      "source_model_hash": "sha256:74557b118959c8bfaaf827fd81975086461a55800aa0e18db8005914ab60ee79",
+      "status": "blocked"
+    },
+    "request": {
+      "case_id": "case:mass-probe",
+      "gravity": {
+        "axis": "global_y",
+        "unit": "m/s^2",
+        "value": -1
+      },
+      "label": "Invented numerical mass probe",
+      "pipe_refs": [
+        "pipe:beam"
+      ],
+      "provenance": "Invented numeric boundary probe, no engineering qualification",
+      "source_model_hash": "sha256:74557b118959c8bfaaf827fd81975086461a55800aa0e18db8005914ab60ee79"
+    },
+    "transport_equal": true,
+    "wire_outcome": {
+      "diagnostics": [
+        {
+          "affected_objects": [
+            "pipe:beam"
+          ],
+          "code": "SELF_WEIGHT_INPUT_INVALID",
+          "message": "computed mass or intensity is invalid",
+          "remediation": "Correct the referenced explicit inputs and regenerate the proposal.",
+          "severity": "blocking"
+        }
+      ],
+      "document_kind": "openpipestress.desktop.self_weight_plan_outcome",
+      "input_model_unchanged": true,
+      "mutation_route": "structured_operations_only",
+      "plan": null,
+      "requires_user_acceptance": true,
+      "source_model_hash": "sha256:74557b118959c8bfaaf827fd81975086461a55800aa0e18db8005914ab60ee79",
+      "status": "blocked"
+    }
+  },
+  {
+    "input_model": {
+      "analysis_status": {
+        "mechanics": "draft",
+        "professional_acceptance": "not_assessed",
+        "rule_check": "not_run"
+      },
+      "combinations": [],
+      "components": [],
+      "document_kind": "openpipestress.product_preview.model",
+      "load_cases": [],
+      "materials": [
+        {
+          "elastic_modulus": {
+            "unit": "Pa",
+            "value": 200000000000.0
+          },
+          "id": "material:invented",
+          "label": "Invented elastic material",
+          "provenance": "invented_no_material_standard",
+          "shear_modulus": {
+            "unit": "Pa",
+            "value": 77000000000.0
+          }
+        }
+      ],
+      "nodes": [
+        {
+          "id": "node:root",
+          "label": "Root",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "provenance": "invented"
+        },
+        {
+          "id": "node:tip",
+          "label": "Tip",
+          "position": {
+            "x": 2,
+            "y": 0,
+            "z": 0
+          },
+          "provenance": "invented"
+        }
+      ],
+      "pipe_segments": [
+        {
+          "from": "node:root",
+          "id": "pipe:beam",
+          "label": "Invented beam",
+          "material": "material:invented",
+          "provenance": "invented",
+          "section": {
+            "contents_density": {
+              "unit": "kg/m^3",
+              "value": 0.0
+            },
+            "insulation_density": {
+              "unit": "kg/m^3",
+              "value": 1000000000000.0
+            },
+            "insulation_thickness": {
+              "unit": "m",
+              "value": 1e-12
+            },
+            "material_density": {
+              "unit": "kg/m^3",
+              "value": 1e-30
+            },
+            "outside_diameter": {
+              "unit": "m",
+              "value": 1.0
+            },
+            "wall_thickness": {
+              "unit": "m",
+              "value": 0.01
+            }
+          },
+          "to": "node:tip",
+          "y_reference": {
+            "x": 0,
+            "y": 1,
+            "z": 0
+          }
+        }
+      ],
+      "project": {
+        "id": "project:invented-self-weight",
+        "units": {
+          "angle": "rad",
+          "force": "N",
+          "length": "m",
+          "pressure": "Pa",
+          "stress": "Pa",
+          "temperature": "degC"
+        }
+      },
+      "schema_version": "0.1.0",
+      "sections": [],
+      "supports": [
+        {
+          "id": "support:root",
+          "label": "Fixed root",
+          "node": "node:root",
+          "provenance": "invented",
+          "restraints": [
+            "UX",
+            "UY",
+            "UZ",
+            "RX",
+            "RY",
+            "RZ"
+          ]
+        }
+      ]
+    },
+    "name": "thin_insulation",
+    "outcome": {
+      "diagnostics": [],
+      "document_kind": "openpipestress.desktop.self_weight_plan_outcome",
+      "input_model_unchanged": true,
+      "mutation_route": "structured_operations_only",
+      "plan": {
+        "changes": [
+          {
+            "after": "{\"id\":\"case:mass-probe\",\"kind\":\"primitive_user_load\",\"label\":\"Invented numerical mass probe\",\"primitive_loads\":[],\"provenance\":\"Invented numeric boundary probe, no engineering qualification\",\"status\":\"draft\"}",
+            "before": "not_present",
+            "change_kind": "create_load_case",
+            "dimension": "dimensionless",
+            "field_label": "create_load_case",
+            "field_path": "load_cases",
+            "object_type": "Load",
+            "operation_kind": "create",
+            "source_note": "{\"scope_label\":\"selected_pipe_mass_only\",\"source_evidence\":[{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_y\",\"id\":\"load:self-weight:15:case:mass-probe:9:pipe:beam\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-3.1415231561563743},\"target\":{\"pipe\":\"pipe:beam\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_y\",\"unit\":\"m/s^2\",\"value\":-1.0},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":1000000000000.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":1e-12},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1e-30},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":1.0},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.01}},\"mass_kg_per_m\":3.1415231561563743,\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-1.0,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":1000000000000.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":1e-12},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1e-30},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":1.0},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":0.01}},\"pipe_id\":\"pipe:beam\",\"pipe_provenance\":\"invented\",\"referenced_section\":null,\"request_provenance\":\"Invented numeric boundary probe, no engineering qualification\",\"section_ref\":null,\"source_model_hash\":\"sha256:f0bcf7a774ee2d3d4ff399f17e6349da82bc8e5bdf29e334cefa3501fea29d1e\"}],\"source_model_hash\":\"sha256:f0bcf7a774ee2d3d4ff399f17e6349da82bc8e5bdf29e334cefa3501fea29d1e\"}",
+            "target_ref": "case:mass-probe",
+            "unit": "none"
+          },
+          {
+            "after": "{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_y\",\"id\":\"load:self-weight:15:case:mass-probe:9:pipe:beam\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-3.1415231561563743},\"provenance\":\"{\\\"contents_absent\\\":false,\\\"generated_payload\\\":{\\\"category\\\":\\\"distributed_force\\\",\\\"dimension\\\":\\\"force_per_length\\\",\\\"direction\\\":\\\"global_y\\\",\\\"id\\\":\\\"load:self-weight:15:case:mass-probe:9:pipe:beam\\\",\\\"magnitude\\\":{\\\"unit\\\":\\\"N/m\\\",\\\"value\\\":-3.1415231561563743},\\\"target\\\":{\\\"pipe\\\":\\\"pipe:beam\\\",\\\"type\\\":\\\"element\\\"}},\\\"gravity\\\":{\\\"axis\\\":\\\"global_y\\\",\\\"unit\\\":\\\"m/s^2\\\",\\\"value\\\":-1.0},\\\"insulation_absent\\\":false,\\\"mass_inputs\\\":{\\\"contents_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":1000000000000.0},\\\"insulation_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":1e-12},\\\"material_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":1e-30},\\\"mill_tolerance\\\":null,\\\"outside_diameter\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":1.0},\\\"wall_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":0.01}},\\\"mass_kg_per_m\\\":3.1415231561563743,\\\"method\\\":\\\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\\\",\\\"normalized_acceleration_m_per_s2\\\":-1.0,\\\"normalized_dependencies\\\":{\\\"contents_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":1000000000000.0},\\\"insulation_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":1e-12},\\\"material_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":1e-30},\\\"mill_tolerance\\\":null,\\\"outside_diameter\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":1.0},\\\"section_ref\\\":null,\\\"wall_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":0.01}},\\\"pipe_id\\\":\\\"pipe:beam\\\",\\\"pipe_provenance\\\":\\\"invented\\\",\\\"referenced_section\\\":null,\\\"request_provenance\\\":\\\"Invented numeric boundary probe, no engineering qualification\\\",\\\"section_ref\\\":null,\\\"source_model_hash\\\":\\\"sha256:f0bcf7a774ee2d3d4ff399f17e6349da82bc8e5bdf29e334cefa3501fea29d1e\\\"}\",\"target\":{\"pipe\":\"pipe:beam\",\"type\":\"element\"}}",
+            "before": "not_present",
+            "change_kind": "create_primitive_load",
+            "dimension": "force_per_length",
+            "field_label": "create_primitive_load",
+            "field_path": "primitive_loads",
+            "object_type": "Load",
+            "operation_kind": "create",
+            "source_note": "{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_y\",\"id\":\"load:self-weight:15:case:mass-probe:9:pipe:beam\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-3.1415231561563743},\"target\":{\"pipe\":\"pipe:beam\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_y\",\"unit\":\"m/s^2\",\"value\":-1.0},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":1000000000000.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":1e-12},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1e-30},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":1.0},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.01}},\"mass_kg_per_m\":3.1415231561563743,\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-1.0,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":1000000000000.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":1e-12},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1e-30},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":1.0},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":0.01}},\"pipe_id\":\"pipe:beam\",\"pipe_provenance\":\"invented\",\"referenced_section\":null,\"request_provenance\":\"Invented numeric boundary probe, no engineering qualification\",\"section_ref\":null,\"source_model_hash\":\"sha256:f0bcf7a774ee2d3d4ff399f17e6349da82bc8e5bdf29e334cefa3501fea29d1e\"}",
+            "target_ref": "case:mass-probe",
+            "unit": "N/m"
+          }
+        ],
+        "scope_label": "selected_pipe_mass_only",
+        "source_evidence": [
+          {
+            "contents_absent": false,
+            "generated_payload": {
+              "category": "distributed_force",
+              "dimension": "force_per_length",
+              "direction": "global_y",
+              "id": "load:self-weight:15:case:mass-probe:9:pipe:beam",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -3.1415231561563743
+              },
+              "target": {
+                "pipe": "pipe:beam",
+                "type": "element"
+              }
+            },
+            "gravity": {
+              "axis": "global_y",
+              "unit": "m/s^2",
+              "value": -1.0
+            },
+            "insulation_absent": false,
+            "mass_inputs": {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_density": {
+                "unit": "kg/m^3",
+                "value": 1000000000000.0
+              },
+              "insulation_thickness": {
+                "unit": "m",
+                "value": 1e-12
+              },
+              "material_density": {
+                "unit": "kg/m^3",
+                "value": 1e-30
+              },
+              "mill_tolerance": null,
+              "outside_diameter": {
+                "unit": "m",
+                "value": 1.0
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "mass_kg_per_m": 3.1415231561563743,
+            "method": "pipe_mass_per_length_times_explicit_axis_acceleration/v2",
+            "normalized_acceleration_m_per_s2": -1.0,
+            "normalized_dependencies": {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_density": {
+                "unit": "kg/m^3",
+                "value": 1000000000000.0
+              },
+              "insulation_thickness": {
+                "unit": "m",
+                "value": 1e-12
+              },
+              "material_density": {
+                "unit": "kg/m^3",
+                "value": 1e-30
+              },
+              "mill_tolerance": null,
+              "outside_diameter": {
+                "unit": "m",
+                "value": 1.0
+              },
+              "section_ref": null,
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "pipe_id": "pipe:beam",
+            "pipe_provenance": "invented",
+            "referenced_section": null,
+            "request_provenance": "Invented numeric boundary probe, no engineering qualification",
+            "section_ref": null,
+            "source_model_hash": "sha256:f0bcf7a774ee2d3d4ff399f17e6349da82bc8e5bdf29e334cefa3501fea29d1e"
+          }
+        ],
+        "source_model_hash": "sha256:f0bcf7a774ee2d3d4ff399f17e6349da82bc8e5bdf29e334cefa3501fea29d1e"
+      },
+      "requires_user_acceptance": true,
+      "source_model_hash": "sha256:f0bcf7a774ee2d3d4ff399f17e6349da82bc8e5bdf29e334cefa3501fea29d1e",
+      "status": "ready"
+    },
+    "request": {
+      "case_id": "case:mass-probe",
+      "gravity": {
+        "axis": "global_y",
+        "unit": "m/s^2",
+        "value": -1
+      },
+      "label": "Invented numerical mass probe",
+      "pipe_refs": [
+        "pipe:beam"
+      ],
+      "provenance": "Invented numeric boundary probe, no engineering qualification",
+      "source_model_hash": "sha256:f0bcf7a774ee2d3d4ff399f17e6349da82bc8e5bdf29e334cefa3501fea29d1e"
+    },
+    "transport_equal": false,
+    "wire_outcome": {
+      "diagnostics": [
+        {
+          "affected_objects": [],
+          "code": "SELF-WEIGHT-SOURCE-HASH-MISMATCH",
+          "message": "Original model hash is missing, malformed, or stale.",
+          "remediation": "Recompute the canonical original model hash and regenerate the request.",
+          "severity": "blocking"
+        }
+      ],
+      "document_kind": "openpipestress.desktop.self_weight_plan_outcome",
+      "input_model_unchanged": true,
+      "mutation_route": "structured_operations_only",
+      "plan": null,
+      "requires_user_acceptance": true,
+      "source_model_hash": null,
+      "status": "blocked"
+    }
+  },
+  {
+    "input_model": {
+      "analysis_status": {
+        "mechanics": "draft",
+        "professional_acceptance": "not_assessed",
+        "rule_check": "not_run"
+      },
+      "combinations": [],
+      "components": [],
+      "document_kind": "openpipestress.product_preview.model",
+      "load_cases": [],
+      "materials": [
+        {
+          "elastic_modulus": {
+            "unit": "Pa",
+            "value": 200000000000.0
+          },
+          "id": "material:invented",
+          "label": "Invented elastic material",
+          "provenance": "invented_no_material_standard",
+          "shear_modulus": {
+            "unit": "Pa",
+            "value": 77000000000.0
+          }
+        }
+      ],
+      "nodes": [
+        {
+          "id": "node:root",
+          "label": "Root",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "provenance": "invented"
+        },
+        {
+          "id": "node:tip",
+          "label": "Tip",
+          "position": {
+            "x": 2,
+            "y": 0,
+            "z": 0
+          },
+          "provenance": "invented"
+        }
+      ],
+      "pipe_segments": [
+        {
+          "from": "node:root",
+          "id": "pipe:beam",
+          "label": "Invented beam",
+          "material": "material:invented",
+          "provenance": "invented",
+          "section": {
+            "contents_density": {
+              "unit": "kg/m^3",
+              "value": 0.0
+            },
+            "insulation_density": {
+              "unit": "kg/m^3",
+              "value": 1000000000000000.0
+            },
+            "insulation_thickness": {
+              "unit": "m",
+              "value": 2.7755575615628914e-17
+            },
+            "material_density": {
+              "unit": "kg/m^3",
+              "value": 1e-30
+            },
+            "outside_diameter": {
+              "unit": "m",
+              "value": 1.0
+            },
+            "wall_thickness": {
+              "unit": "m",
+              "value": 0.01
+            }
+          },
+          "to": "node:tip",
+          "y_reference": {
+            "x": 0,
+            "y": 1,
+            "z": 0
+          }
+        }
+      ],
+      "project": {
+        "id": "project:invented-self-weight",
+        "units": {
+          "angle": "rad",
+          "force": "N",
+          "length": "m",
+          "pressure": "Pa",
+          "stress": "Pa",
+          "temperature": "degC"
+        }
+      },
+      "schema_version": "0.1.0",
+      "sections": [],
+      "supports": [
+        {
+          "id": "support:root",
+          "label": "Fixed root",
+          "node": "node:root",
+          "provenance": "invented",
+          "restraints": [
+            "UX",
+            "UY",
+            "UZ",
+            "RX",
+            "RY",
+            "RZ"
+          ]
+        }
+      ]
+    },
+    "name": "sub_ulp_insulation",
+    "outcome": {
+      "diagnostics": [],
+      "document_kind": "openpipestress.desktop.self_weight_plan_outcome",
+      "input_model_unchanged": true,
+      "mutation_route": "structured_operations_only",
+      "plan": {
+        "changes": [
+          {
+            "after": "{\"id\":\"case:mass-probe\",\"kind\":\"primitive_user_load\",\"label\":\"Invented numerical mass probe\",\"primitive_loads\":[],\"provenance\":\"Invented numeric boundary probe, no engineering qualification\",\"status\":\"draft\"}",
+            "before": "not_present",
+            "change_kind": "create_load_case",
+            "dimension": "dimensionless",
+            "field_label": "create_load_case",
+            "field_path": "load_cases",
+            "object_type": "Load",
+            "operation_kind": "create",
+            "source_note": "{\"scope_label\":\"selected_pipe_mass_only\",\"source_evidence\":[{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_y\",\"id\":\"load:self-weight:15:case:mass-probe:9:pipe:beam\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-3.1101767270539014e-32},\"target\":{\"pipe\":\"pipe:beam\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_y\",\"unit\":\"m/s^2\",\"value\":-1.0},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":1000000000000000.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":2.7755575615628914e-17},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1e-30},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":1.0},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.01}},\"mass_kg_per_m\":3.1101767270539014e-32,\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-1.0,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":1000000000000000.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":2.7755575615628914e-17},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1e-30},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":1.0},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":0.01}},\"pipe_id\":\"pipe:beam\",\"pipe_provenance\":\"invented\",\"referenced_section\":null,\"request_provenance\":\"Invented numeric boundary probe, no engineering qualification\",\"section_ref\":null,\"source_model_hash\":\"sha256:c29190f486145e811d68ab219eaa9a3f0b445d9f07accdbdc53901513f7730e8\"}],\"source_model_hash\":\"sha256:c29190f486145e811d68ab219eaa9a3f0b445d9f07accdbdc53901513f7730e8\"}",
+            "target_ref": "case:mass-probe",
+            "unit": "none"
+          },
+          {
+            "after": "{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_y\",\"id\":\"load:self-weight:15:case:mass-probe:9:pipe:beam\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-3.1101767270539014e-32},\"provenance\":\"{\\\"contents_absent\\\":false,\\\"generated_payload\\\":{\\\"category\\\":\\\"distributed_force\\\",\\\"dimension\\\":\\\"force_per_length\\\",\\\"direction\\\":\\\"global_y\\\",\\\"id\\\":\\\"load:self-weight:15:case:mass-probe:9:pipe:beam\\\",\\\"magnitude\\\":{\\\"unit\\\":\\\"N/m\\\",\\\"value\\\":-3.1101767270539014e-32},\\\"target\\\":{\\\"pipe\\\":\\\"pipe:beam\\\",\\\"type\\\":\\\"element\\\"}},\\\"gravity\\\":{\\\"axis\\\":\\\"global_y\\\",\\\"unit\\\":\\\"m/s^2\\\",\\\"value\\\":-1.0},\\\"insulation_absent\\\":false,\\\"mass_inputs\\\":{\\\"contents_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":1000000000000000.0},\\\"insulation_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":2.7755575615628914e-17},\\\"material_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":1e-30},\\\"mill_tolerance\\\":null,\\\"outside_diameter\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":1.0},\\\"wall_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":0.01}},\\\"mass_kg_per_m\\\":3.1101767270539014e-32,\\\"method\\\":\\\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\\\",\\\"normalized_acceleration_m_per_s2\\\":-1.0,\\\"normalized_dependencies\\\":{\\\"contents_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":1000000000000000.0},\\\"insulation_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":2.7755575615628914e-17},\\\"material_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":1e-30},\\\"mill_tolerance\\\":null,\\\"outside_diameter\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":1.0},\\\"section_ref\\\":null,\\\"wall_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":0.01}},\\\"pipe_id\\\":\\\"pipe:beam\\\",\\\"pipe_provenance\\\":\\\"invented\\\",\\\"referenced_section\\\":null,\\\"request_provenance\\\":\\\"Invented numeric boundary probe, no engineering qualification\\\",\\\"section_ref\\\":null,\\\"source_model_hash\\\":\\\"sha256:c29190f486145e811d68ab219eaa9a3f0b445d9f07accdbdc53901513f7730e8\\\"}\",\"target\":{\"pipe\":\"pipe:beam\",\"type\":\"element\"}}",
+            "before": "not_present",
+            "change_kind": "create_primitive_load",
+            "dimension": "force_per_length",
+            "field_label": "create_primitive_load",
+            "field_path": "primitive_loads",
+            "object_type": "Load",
+            "operation_kind": "create",
+            "source_note": "{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_y\",\"id\":\"load:self-weight:15:case:mass-probe:9:pipe:beam\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-3.1101767270539014e-32},\"target\":{\"pipe\":\"pipe:beam\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_y\",\"unit\":\"m/s^2\",\"value\":-1.0},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":1000000000000000.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":2.7755575615628914e-17},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1e-30},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":1.0},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.01}},\"mass_kg_per_m\":3.1101767270539014e-32,\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-1.0,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":1000000000000000.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":2.7755575615628914e-17},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1e-30},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":1.0},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":0.01}},\"pipe_id\":\"pipe:beam\",\"pipe_provenance\":\"invented\",\"referenced_section\":null,\"request_provenance\":\"Invented numeric boundary probe, no engineering qualification\",\"section_ref\":null,\"source_model_hash\":\"sha256:c29190f486145e811d68ab219eaa9a3f0b445d9f07accdbdc53901513f7730e8\"}",
+            "target_ref": "case:mass-probe",
+            "unit": "N/m"
+          }
+        ],
+        "scope_label": "selected_pipe_mass_only",
+        "source_evidence": [
+          {
+            "contents_absent": false,
+            "generated_payload": {
+              "category": "distributed_force",
+              "dimension": "force_per_length",
+              "direction": "global_y",
+              "id": "load:self-weight:15:case:mass-probe:9:pipe:beam",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -3.1101767270539014e-32
+              },
+              "target": {
+                "pipe": "pipe:beam",
+                "type": "element"
+              }
+            },
+            "gravity": {
+              "axis": "global_y",
+              "unit": "m/s^2",
+              "value": -1.0
+            },
+            "insulation_absent": false,
+            "mass_inputs": {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_density": {
+                "unit": "kg/m^3",
+                "value": 1000000000000000.0
+              },
+              "insulation_thickness": {
+                "unit": "m",
+                "value": 2.7755575615628914e-17
+              },
+              "material_density": {
+                "unit": "kg/m^3",
+                "value": 1e-30
+              },
+              "mill_tolerance": null,
+              "outside_diameter": {
+                "unit": "m",
+                "value": 1.0
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "mass_kg_per_m": 3.1101767270539014e-32,
+            "method": "pipe_mass_per_length_times_explicit_axis_acceleration/v2",
+            "normalized_acceleration_m_per_s2": -1.0,
+            "normalized_dependencies": {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_density": {
+                "unit": "kg/m^3",
+                "value": 1000000000000000.0
+              },
+              "insulation_thickness": {
+                "unit": "m",
+                "value": 2.7755575615628914e-17
+              },
+              "material_density": {
+                "unit": "kg/m^3",
+                "value": 1e-30
+              },
+              "mill_tolerance": null,
+              "outside_diameter": {
+                "unit": "m",
+                "value": 1.0
+              },
+              "section_ref": null,
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.01
+              }
+            },
+            "pipe_id": "pipe:beam",
+            "pipe_provenance": "invented",
+            "referenced_section": null,
+            "request_provenance": "Invented numeric boundary probe, no engineering qualification",
+            "section_ref": null,
+            "source_model_hash": "sha256:c29190f486145e811d68ab219eaa9a3f0b445d9f07accdbdc53901513f7730e8"
+          }
+        ],
+        "source_model_hash": "sha256:c29190f486145e811d68ab219eaa9a3f0b445d9f07accdbdc53901513f7730e8"
+      },
+      "requires_user_acceptance": true,
+      "source_model_hash": "sha256:c29190f486145e811d68ab219eaa9a3f0b445d9f07accdbdc53901513f7730e8",
+      "status": "ready"
+    },
+    "request": {
+      "case_id": "case:mass-probe",
+      "gravity": {
+        "axis": "global_y",
+        "unit": "m/s^2",
+        "value": -1
+      },
+      "label": "Invented numerical mass probe",
+      "pipe_refs": [
+        "pipe:beam"
+      ],
+      "provenance": "Invented numeric boundary probe, no engineering qualification",
+      "source_model_hash": "sha256:c29190f486145e811d68ab219eaa9a3f0b445d9f07accdbdc53901513f7730e8"
+    },
+    "transport_equal": false,
+    "wire_outcome": {
+      "diagnostics": [
+        {
+          "affected_objects": [],
+          "code": "SELF-WEIGHT-SOURCE-HASH-MISMATCH",
+          "message": "Original model hash is missing, malformed, or stale.",
+          "remediation": "Recompute the canonical original model hash and regenerate the request.",
+          "severity": "blocking"
+        }
+      ],
+      "document_kind": "openpipestress.desktop.self_weight_plan_outcome",
+      "input_model_unchanged": true,
+      "mutation_route": "structured_operations_only",
+      "plan": null,
+      "requires_user_acceptance": true,
+      "source_model_hash": null,
+      "status": "blocked"
+    }
+  },
+  {
+    "input_model": {
+      "analysis_status": {
+        "mechanics": "draft",
+        "professional_acceptance": "not_assessed",
+        "rule_check": "not_run"
+      },
+      "combinations": [],
+      "components": [],
+      "document_kind": "openpipestress.product_preview.model",
+      "load_cases": [],
+      "materials": [
+        {
+          "elastic_modulus": {
+            "unit": "Pa",
+            "value": 200000000000.0
+          },
+          "id": "material:invented",
+          "label": "Invented elastic material",
+          "provenance": "invented_no_material_standard",
+          "shear_modulus": {
+            "unit": "Pa",
+            "value": 77000000000.0
+          }
+        }
+      ],
+      "nodes": [
+        {
+          "id": "node:root",
+          "label": "Root",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "provenance": "invented"
+        },
+        {
+          "id": "node:tip",
+          "label": "Tip",
+          "position": {
+            "x": 2,
+            "y": 0,
+            "z": 0
+          },
+          "provenance": "invented"
+        }
+      ],
+      "pipe_segments": [
+        {
+          "from": "node:root",
+          "id": "pipe:beam",
+          "label": "Invented beam",
+          "material": "material:invented",
+          "provenance": "invented",
+          "section": {
+            "contents_density": {
+              "unit": "kg/m^3",
+              "value": 1000000000000.0
+            },
+            "insulation_density": {
+              "unit": "kg/m^3",
+              "value": 0.0
+            },
+            "insulation_thickness": {
+              "unit": "m",
+              "value": 0.0
+            },
+            "material_density": {
+              "unit": "kg/m^3",
+              "value": 1e-30
+            },
+            "outside_diameter": {
+              "unit": "m",
+              "value": 1.0
+            },
+            "wall_thickness": {
+              "unit": "m",
+              "value": 0.4999999990686774
+            }
+          },
+          "to": "node:tip",
+          "y_reference": {
+            "x": 0,
+            "y": 1,
+            "z": 0
+          }
+        }
+      ],
+      "project": {
+        "id": "project:invented-self-weight",
+        "units": {
+          "angle": "rad",
+          "force": "N",
+          "length": "m",
+          "pressure": "Pa",
+          "stress": "Pa",
+          "temperature": "degC"
+        }
+      },
+      "schema_version": "0.1.0",
+      "sections": [],
+      "supports": [
+        {
+          "id": "support:root",
+          "label": "Fixed root",
+          "node": "node:root",
+          "provenance": "invented",
+          "restraints": [
+            "UX",
+            "UY",
+            "UZ",
+            "RX",
+            "RY",
+            "RZ"
+          ]
+        }
+      ]
+    },
+    "name": "small_bore_contents",
+    "outcome": {
+      "diagnostics": [],
+      "document_kind": "openpipestress.desktop.self_weight_plan_outcome",
+      "input_model_unchanged": true,
+      "mutation_route": "structured_operations_only",
+      "plan": {
+        "changes": [
+          {
+            "after": "{\"id\":\"case:mass-probe\",\"kind\":\"primitive_user_load\",\"label\":\"Invented numerical mass probe\",\"primitive_loads\":[],\"provenance\":\"Invented numeric boundary probe, no engineering qualification\",\"status\":\"draft\"}",
+            "before": "not_present",
+            "change_kind": "create_load_case",
+            "dimension": "dimensionless",
+            "field_label": "create_load_case",
+            "field_path": "load_cases",
+            "object_type": "Load",
+            "operation_kind": "create",
+            "source_note": "{\"scope_label\":\"selected_pipe_mass_only\",\"source_evidence\":[{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_y\",\"id\":\"load:self-weight:15:case:mass-probe:9:pipe:beam\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-2.7248972640692434e-6},\"target\":{\"pipe\":\"pipe:beam\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_y\",\"unit\":\"m/s^2\",\"value\":-1.0},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":1000000000000.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.0},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1e-30},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":1.0},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.4999999990686774}},\"mass_kg_per_m\":2.7248972640692434e-6,\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-1.0,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":1000000000000.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.0},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1e-30},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":1.0},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":0.4999999990686774}},\"pipe_id\":\"pipe:beam\",\"pipe_provenance\":\"invented\",\"referenced_section\":null,\"request_provenance\":\"Invented numeric boundary probe, no engineering qualification\",\"section_ref\":null,\"source_model_hash\":\"sha256:8976d72694b4bb55575879c4414eb682dea1ae55f4a2b53d5eb10077759c8ee6\"}],\"source_model_hash\":\"sha256:8976d72694b4bb55575879c4414eb682dea1ae55f4a2b53d5eb10077759c8ee6\"}",
+            "target_ref": "case:mass-probe",
+            "unit": "none"
+          },
+          {
+            "after": "{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_y\",\"id\":\"load:self-weight:15:case:mass-probe:9:pipe:beam\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-2.7248972640692434e-6},\"provenance\":\"{\\\"contents_absent\\\":false,\\\"generated_payload\\\":{\\\"category\\\":\\\"distributed_force\\\",\\\"dimension\\\":\\\"force_per_length\\\",\\\"direction\\\":\\\"global_y\\\",\\\"id\\\":\\\"load:self-weight:15:case:mass-probe:9:pipe:beam\\\",\\\"magnitude\\\":{\\\"unit\\\":\\\"N/m\\\",\\\"value\\\":-2.7248972640692434e-6},\\\"target\\\":{\\\"pipe\\\":\\\"pipe:beam\\\",\\\"type\\\":\\\"element\\\"}},\\\"gravity\\\":{\\\"axis\\\":\\\"global_y\\\",\\\"unit\\\":\\\"m/s^2\\\",\\\"value\\\":-1.0},\\\"insulation_absent\\\":false,\\\"mass_inputs\\\":{\\\"contents_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":1000000000000.0},\\\"insulation_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":0.0},\\\"material_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":1e-30},\\\"mill_tolerance\\\":null,\\\"outside_diameter\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":1.0},\\\"wall_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":0.4999999990686774}},\\\"mass_kg_per_m\\\":2.7248972640692434e-6,\\\"method\\\":\\\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\\\",\\\"normalized_acceleration_m_per_s2\\\":-1.0,\\\"normalized_dependencies\\\":{\\\"contents_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":1000000000000.0},\\\"insulation_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":0.0},\\\"insulation_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":0.0},\\\"material_density\\\":{\\\"unit\\\":\\\"kg/m^3\\\",\\\"value\\\":1e-30},\\\"mill_tolerance\\\":null,\\\"outside_diameter\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":1.0},\\\"section_ref\\\":null,\\\"wall_thickness\\\":{\\\"unit\\\":\\\"m\\\",\\\"value\\\":0.4999999990686774}},\\\"pipe_id\\\":\\\"pipe:beam\\\",\\\"pipe_provenance\\\":\\\"invented\\\",\\\"referenced_section\\\":null,\\\"request_provenance\\\":\\\"Invented numeric boundary probe, no engineering qualification\\\",\\\"section_ref\\\":null,\\\"source_model_hash\\\":\\\"sha256:8976d72694b4bb55575879c4414eb682dea1ae55f4a2b53d5eb10077759c8ee6\\\"}\",\"target\":{\"pipe\":\"pipe:beam\",\"type\":\"element\"}}",
+            "before": "not_present",
+            "change_kind": "create_primitive_load",
+            "dimension": "force_per_length",
+            "field_label": "create_primitive_load",
+            "field_path": "primitive_loads",
+            "object_type": "Load",
+            "operation_kind": "create",
+            "source_note": "{\"contents_absent\":false,\"generated_payload\":{\"category\":\"distributed_force\",\"dimension\":\"force_per_length\",\"direction\":\"global_y\",\"id\":\"load:self-weight:15:case:mass-probe:9:pipe:beam\",\"magnitude\":{\"unit\":\"N/m\",\"value\":-2.7248972640692434e-6},\"target\":{\"pipe\":\"pipe:beam\",\"type\":\"element\"}},\"gravity\":{\"axis\":\"global_y\",\"unit\":\"m/s^2\",\"value\":-1.0},\"insulation_absent\":false,\"mass_inputs\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":1000000000000.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.0},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1e-30},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":1.0},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.4999999990686774}},\"mass_kg_per_m\":2.7248972640692434e-6,\"method\":\"pipe_mass_per_length_times_explicit_axis_acceleration/v2\",\"normalized_acceleration_m_per_s2\":-1.0,\"normalized_dependencies\":{\"contents_density\":{\"unit\":\"kg/m^3\",\"value\":1000000000000.0},\"insulation_density\":{\"unit\":\"kg/m^3\",\"value\":0.0},\"insulation_thickness\":{\"unit\":\"m\",\"value\":0.0},\"material_density\":{\"unit\":\"kg/m^3\",\"value\":1e-30},\"mill_tolerance\":null,\"outside_diameter\":{\"unit\":\"m\",\"value\":1.0},\"section_ref\":null,\"wall_thickness\":{\"unit\":\"m\",\"value\":0.4999999990686774}},\"pipe_id\":\"pipe:beam\",\"pipe_provenance\":\"invented\",\"referenced_section\":null,\"request_provenance\":\"Invented numeric boundary probe, no engineering qualification\",\"section_ref\":null,\"source_model_hash\":\"sha256:8976d72694b4bb55575879c4414eb682dea1ae55f4a2b53d5eb10077759c8ee6\"}",
+            "target_ref": "case:mass-probe",
+            "unit": "N/m"
+          }
+        ],
+        "scope_label": "selected_pipe_mass_only",
+        "source_evidence": [
+          {
+            "contents_absent": false,
+            "generated_payload": {
+              "category": "distributed_force",
+              "dimension": "force_per_length",
+              "direction": "global_y",
+              "id": "load:self-weight:15:case:mass-probe:9:pipe:beam",
+              "magnitude": {
+                "unit": "N/m",
+                "value": -2.7248972640692434e-6
+              },
+              "target": {
+                "pipe": "pipe:beam",
+                "type": "element"
+              }
+            },
+            "gravity": {
+              "axis": "global_y",
+              "unit": "m/s^2",
+              "value": -1.0
+            },
+            "insulation_absent": false,
+            "mass_inputs": {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 1000000000000.0
+              },
+              "insulation_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_thickness": {
+                "unit": "m",
+                "value": 0.0
+              },
+              "material_density": {
+                "unit": "kg/m^3",
+                "value": 1e-30
+              },
+              "mill_tolerance": null,
+              "outside_diameter": {
+                "unit": "m",
+                "value": 1.0
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.4999999990686774
+              }
+            },
+            "mass_kg_per_m": 2.7248972640692434e-6,
+            "method": "pipe_mass_per_length_times_explicit_axis_acceleration/v2",
+            "normalized_acceleration_m_per_s2": -1.0,
+            "normalized_dependencies": {
+              "contents_density": {
+                "unit": "kg/m^3",
+                "value": 1000000000000.0
+              },
+              "insulation_density": {
+                "unit": "kg/m^3",
+                "value": 0.0
+              },
+              "insulation_thickness": {
+                "unit": "m",
+                "value": 0.0
+              },
+              "material_density": {
+                "unit": "kg/m^3",
+                "value": 1e-30
+              },
+              "mill_tolerance": null,
+              "outside_diameter": {
+                "unit": "m",
+                "value": 1.0
+              },
+              "section_ref": null,
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.4999999990686774
+              }
+            },
+            "pipe_id": "pipe:beam",
+            "pipe_provenance": "invented",
+            "referenced_section": null,
+            "request_provenance": "Invented numeric boundary probe, no engineering qualification",
+            "section_ref": null,
+            "source_model_hash": "sha256:8976d72694b4bb55575879c4414eb682dea1ae55f4a2b53d5eb10077759c8ee6"
+          }
+        ],
+        "source_model_hash": "sha256:8976d72694b4bb55575879c4414eb682dea1ae55f4a2b53d5eb10077759c8ee6"
+      },
+      "requires_user_acceptance": true,
+      "source_model_hash": "sha256:8976d72694b4bb55575879c4414eb682dea1ae55f4a2b53d5eb10077759c8ee6",
+      "status": "ready"
+    },
+    "request": {
+      "case_id": "case:mass-probe",
+      "gravity": {
+        "axis": "global_y",
+        "unit": "m/s^2",
+        "value": -1
+      },
+      "label": "Invented numerical mass probe",
+      "pipe_refs": [
+        "pipe:beam"
+      ],
+      "provenance": "Invented numeric boundary probe, no engineering qualification",
+      "source_model_hash": "sha256:8976d72694b4bb55575879c4414eb682dea1ae55f4a2b53d5eb10077759c8ee6"
+    },
+    "transport_equal": false,
+    "wire_outcome": {
+      "diagnostics": [
+        {
+          "affected_objects": [],
+          "code": "SELF-WEIGHT-SOURCE-HASH-MISMATCH",
+          "message": "Original model hash is missing, malformed, or stale.",
+          "remediation": "Recompute the canonical original model hash and regenerate the request.",
+          "severity": "blocking"
+        }
+      ],
+      "document_kind": "openpipestress.desktop.self_weight_plan_outcome",
+      "input_model_unchanged": true,
+      "mutation_route": "structured_operations_only",
+      "plan": null,
+      "requires_user_acceptance": true,
+      "source_model_hash": null,
+      "status": "blocked"
+    }
+  }
+]

@@ -7,13 +7,13 @@
 use std::f64::consts::PI;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
-struct Scaled {
+pub(super) struct Scaled {
     mantissa: f64,
     exponent: i32,
 }
 
 impl Scaled {
-    fn from_f64(value: f64) -> Self {
+    pub(super) fn from_f64(value: f64) -> Self {
         debug_assert!(value.is_finite());
         if value == 0.0 {
             return Self {
@@ -60,7 +60,7 @@ impl Scaled {
         }
     }
 
-    fn add(self, other: Self) -> Self {
+    pub(super) fn add(self, other: Self) -> Self {
         if self.mantissa == 0.0 {
             return other;
         }
@@ -74,11 +74,11 @@ impl Scaled {
         Self::from_parts(left + right, exponent)
     }
 
-    fn sub(self, other: Self) -> Self {
+    pub(super) fn sub(self, other: Self) -> Self {
         self.add(other.neg())
     }
 
-    fn mul(self, other: Self) -> Self {
+    pub(super) fn mul(self, other: Self) -> Self {
         if self.mantissa == 0.0 || other.mantissa == 0.0 {
             return Self::from_f64(self.mantissa * other.mantissa);
         }
@@ -88,7 +88,7 @@ impl Scaled {
         )
     }
 
-    fn div(self, other: Self) -> Option<Self> {
+    pub(super) fn div(self, other: Self) -> Option<Self> {
         if other.mantissa == 0.0 {
             return None;
         }
@@ -119,7 +119,7 @@ impl Scaled {
         )
     }
 
-    fn to_f64(self) -> f64 {
+    pub(super) fn to_f64(self) -> f64 {
         if self.mantissa == 0.0 {
             return self.mantissa;
         }

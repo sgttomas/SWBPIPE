@@ -1208,9 +1208,20 @@ fn run_with_context(
     let rich_kind = match (object_type.as_str(), field_path.as_str()) {
         ("Support", "configuration") => Some("update_support"),
         ("Material", "temperature_points") => Some("set_field"),
-        ("Load", "equivalent_static.wind.exposure") => Some("update_load"),
+        ("Load", "equivalent_static.wind.exposure" | "generated_self_weight") => Some("update_load"),
         _ => None,
     };
+    if object_type == "Load" && field_path == "generated_self_weight"
+        && claimed_model_hash.is_none_or(Value::is_null)
+    {
+        checker.schema_blocked = true;
+        checker.push(
+            "OP-SELF-WEIGHT-MODEL-HASH-REQUIRED", "blocking",
+            "Generated self-weight replacements require current complete model-hash evidence.".into(),
+            "Refresh the complete model hash before applying the reviewed replacement.",
+            vec![target_ref.clone()],
+        );
+    }
     let mut rich_model: Option<Value> = None;
     if let Some(expected_kind) = rich_kind {
         if change_kind != expected_kind {

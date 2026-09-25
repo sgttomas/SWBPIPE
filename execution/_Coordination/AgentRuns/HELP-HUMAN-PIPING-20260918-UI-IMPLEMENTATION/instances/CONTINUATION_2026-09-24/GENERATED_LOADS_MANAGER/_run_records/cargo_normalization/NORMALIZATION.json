@@ -1,0 +1,6 @@
+{
+  "path": "projects/chirality-piping/core/model_operations/operation_applier/Cargo.lock",
+  "before_sha256": "46d0215313e5c71e786e681315b589b80b6689e139c62d15f67cd74364a5ff09",
+  "after_sha256": "ea48467ce0f8da976e96303214cb0381ff5a8fb9091730d0ffe0a153b0f63ac3",
+  "result": "Only package/dependency line ordering and blank-line layout changed; per-package nonblank line multiset identical."
+}

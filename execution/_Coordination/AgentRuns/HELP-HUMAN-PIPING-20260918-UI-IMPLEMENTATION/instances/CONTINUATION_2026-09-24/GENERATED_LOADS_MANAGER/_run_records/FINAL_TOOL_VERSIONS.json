@@ -1,0 +1,38 @@
+[
+  {
+    "command": [
+      "node",
+      "--version"
+    ],
+    "exit_code": 0,
+    "stdout": "v24.18.0\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "cargo",
+      "--version"
+    ],
+    "exit_code": 0,
+    "stdout": "cargo 1.97.1 (c980f4866 2026-06-30)\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "rustc",
+      "--version"
+    ],
+    "exit_code": 0,
+    "stdout": "rustc 1.97.1 (8bab26f4f 2026-07-14)\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "--version"
+    ],
+    "exit_code": 0,
+    "stdout": "Python 3.9.6\n",
+    "stderr": ""
+  }
+]

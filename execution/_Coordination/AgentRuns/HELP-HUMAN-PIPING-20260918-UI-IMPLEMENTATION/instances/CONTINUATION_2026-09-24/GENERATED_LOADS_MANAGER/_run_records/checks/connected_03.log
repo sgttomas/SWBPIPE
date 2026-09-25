@@ -1,0 +1,14 @@
+   Compiling open_pipe_stress_operation_applier v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/model_operations/operation_applier)
+   Compiling open_pipe_stress_self_weight_wasm v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/loads/self_weight_wasm)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.83s
+     Running tests/applied_self_weight.rs (/private/tmp/piping-generated-loads-target/self_weight_wasm/debug/deps/applied_self_weight-408c740a23331412)
+
+running 5 tests
+test preapply_source_hash_guard_rejects_dependency_edit ... ok
+test span_edit_scales_weight_and_preserves_manual_load_after_save_reopen ... ok
+test queued_refresh_rejects_a_later_dependency_edit_even_with_current_claim ... ok
+test modified_weight_requires_explicit_preservation_and_remains_fixed_manual ... ok
+test density_edit_must_not_solve_with_stale_applied_self_weight ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+

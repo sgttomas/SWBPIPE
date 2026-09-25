@@ -1,0 +1,12 @@
+{
+  "origin": "/private/tmp/piping-pressure-stress-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/PHYSICS_MANAGER/SECTION_GEOMETRY/AREA_HELPER_HANDOFF",
+  "mechanism": "local source patch git apply after --check; no commit/push/PR/index mutation",
+  "scope": [
+    "annulus_geometry.rs exact shared helper",
+    "pressure_exact.rs visibility-only",
+    "lib.rs module declaration preserving M35 call seam"
+  ],
+  "helper_sha256": "98a781f126af9d8e6d94de96bbe0d9c3815f83760f7deca7a391e612acf979c9",
+  "pressure_exact_after_sha256": "3f42e4ffe1140d6f813c14654c636699edaece397d880000a9141ca6d4447d35",
+  "lib_after_sha256": "ee3acd7fd1a630ea61e53b1e963dbe637a6f45b8e444b240735ae9f276e233c5"
+}

@@ -1,0 +1,13 @@
+   Compiling open_pipe_stress_self_weight_wasm v0.1.0 (/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/loads/self_weight_wasm)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.24s
+     Running unittests src/lib.rs (/private/tmp/piping-generated-loads-target/self_weight_wasm/debug/deps/open_pipe_stress_self_weight_wasm-ca41af1ecbcdb9fb)
+
+running 5 tests
+test tests::full_original_hash_rejects_stale_unknown_model_field ... ok
+test tests::refresh_request_retains_strict_shape_and_original_hash_guards ... ok
+test tests::rejects_malformed_hash_shapes_and_unknown_options ... ok
+test tests::malformed_json_blocks_and_key_order_is_canonical ... ok
+test tests::ready_exact_module_and_json_transport_parity ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

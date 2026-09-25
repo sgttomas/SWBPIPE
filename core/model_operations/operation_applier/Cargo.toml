@@ -17,6 +17,7 @@ crate-type = ["cdylib", "rlib"]
 wasm = ["dep:wasm-bindgen"]
 
 [dependencies]
+open_pipe_stress_product_physics = { path = "../../product_physics" }
 # RFC 8785 (JCS) canonical JSON text — the single canonicalization for every
 # hash seam (completion-plan H5); this crate re-exports its `canonical_json`.
 open_pipe_stress_canonical_json = { path = "../../serialization/canonical_json" }

@@ -1,0 +1,30 @@
+[
+  {
+    "path": "core_implementation/AUTHORING.json",
+    "role": "SurfaceRole.UNCLASSIFIED",
+    "hits": [
+      7
+    ]
+  },
+  {
+    "path": "core_implementation/freeze_01/AUTHORING.json",
+    "role": "SurfaceRole.UNCLASSIFIED",
+    "hits": [
+      7
+    ]
+  },
+  {
+    "path": "core_implementation/freeze_02/AUTHORING.json",
+    "role": "SurfaceRole.UNCLASSIFIED",
+    "hits": [
+      7
+    ]
+  },
+  {
+    "path": "core_implementation/freeze_03/AUTHORING.json",
+    "role": "SurfaceRole.UNCLASSIFIED",
+    "hits": [
+      7
+    ]
+  }
+]

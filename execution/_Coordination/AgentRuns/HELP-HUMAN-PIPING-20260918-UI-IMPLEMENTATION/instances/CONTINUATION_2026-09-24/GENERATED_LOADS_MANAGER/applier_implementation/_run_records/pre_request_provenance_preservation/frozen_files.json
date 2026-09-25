@@ -1,0 +1,26 @@
+[
+  {
+    "path": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+    "sha256": "f3a7995fefd6d591a11edc12f0d141a9308e2cd875f05460ec479fd251bee254"
+  },
+  {
+    "path": "projects/chirality-piping/core/model_operations/operation_applier/src/rich_authoring.rs",
+    "sha256": "8f74ab0a3f1fc0cf799ae99665639b8ba149bc566a87da219ce1db55d3a63d4a"
+  },
+  {
+    "path": "projects/chirality-piping/core/model_operations/operation_applier/src/atomic_batch.rs",
+    "sha256": "452a8b5c622334742cf998372c892748603fab18dcc4a0a793d12b65cabb109e"
+  },
+  {
+    "path": "projects/chirality-piping/core/model_operations/operation_applier/tests/generated_self_weight.rs",
+    "sha256": "33620111f7aaa0e453ff744211359d01ddf33ad53bb2e37eb66c588ac70ffb59"
+  },
+  {
+    "path": "projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml",
+    "sha256": "cfa2c68fe4f25365bdec83be7471d8904c823120c90081ce1e8ada06eef60fb3"
+  },
+  {
+    "path": "projects/chirality-piping/core/model_operations/operation_applier/Cargo.lock",
+    "sha256": "46d0215313e5c71e786e681315b589b80b6689e139c62d15f67cd74364a5ff09"
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/core_implementation/AUTHORING.json",
+    "line": 7,
+    "match": "/private/tmp/piping-generated-loads-20260924",
+    "text": "\"source_root\": \"/private/tmp/piping-generated-loads-20260924\","
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/core_implementation/freeze_01/AUTHORING.json",
+    "line": 7,
+    "match": "/private/tmp/piping-generated-loads-20260924",
+    "text": "\"source_root\": \"/private/tmp/piping-generated-loads-20260924\","
+  }
+]

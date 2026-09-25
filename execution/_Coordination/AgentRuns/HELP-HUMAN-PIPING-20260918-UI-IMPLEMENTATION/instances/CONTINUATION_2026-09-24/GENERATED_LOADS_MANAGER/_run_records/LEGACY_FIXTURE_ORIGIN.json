@@ -1,0 +1,8 @@
+{
+  "origin": "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/GENERATED_LOADS_MANAGER/_run_records/checks/baseline_artifacts/density_baseline.json",
+  "origin_sha256": "5ce7fcc48bfbfb9e6ce379704f97dc437bdf2dbe90c1959a544754fe63a46081",
+  "selector": "initial_applied_model",
+  "fixture_path": "projects/chirality-piping/core/loads/self_weight_wasm/tests/fixtures/applied_self_weight_v1.json",
+  "fixture_sha256": "e116e46a51cce5305341af36d531e6534efb436e63b7d737595110a6b8f2514f",
+  "claim": "Exact extracted JSON value from actual original v1 plan/applier baseline, not regenerated with successor formula; pretty whitespace reserialization only. Invented source inputs."
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "name": "native",
+    "command": [
+      "cargo",
+      "metadata",
+      "--offline",
+      "--format-version",
+      "1",
+      "--manifest-path",
+      "/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml"
+    ],
+    "exit_code": 101,
+    "before_sha256": "8b68e437515761bf5877a485cc99c52947bac386595f0182f5dcbc17732c71af",
+    "after_sha256": "0ee3fa0c2d247d22468746457595abb943a661d5d9aa1d9b4afcd6387e932958",
+    "registry_records_identical": true
+  }
+]

@@ -1,0 +1,587 @@
+{
+  "claim": "Independent exact rational algebra on represented input floats; 100-digit Decimal pi computed by Machin identity. Python legacy expression is illustrative arithmetic, not Rust production execution. No tolerance or acceptance criterion is established here.",
+  "pi_decimal": "3.141592653589793238462643383279502884197169399375105820974944592307816406286208998628034825342117064",
+  "cases": [
+    {
+      "name": "ordinary",
+      "input_f64": {
+        "outside_diameter_m": 0.1,
+        "effective_wall_m": 0.01,
+        "material_density_kg_m3": 1000.0,
+        "contents_density_kg_m3": 0.0,
+        "insulation_thickness_m": 0.0,
+        "insulation_density_kg_m3": 0.0
+      },
+      "exact_represented_inputs": [
+        {
+          "numerator": "3602879701896397",
+          "denominator": "36028797018963968"
+        },
+        {
+          "numerator": "5764607523034235",
+          "denominator": "576460752303423488"
+        },
+        {
+          "numerator": "1000",
+          "denominator": "1"
+        },
+        {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        {
+          "numerator": "0",
+          "denominator": "1"
+        }
+      ],
+      "exact_identity_equalities": [
+        true,
+        true,
+        true
+      ],
+      "areas_over_pi_m2": {
+        "wall": {
+          "numerator": "299076299051606095384123884385495",
+          "denominator": "332306998946228968225951765070086144"
+        },
+        "bore": {
+          "numerator": "531691198313966417414475896837481",
+          "denominator": "332306998946228968225951765070086144"
+        },
+        "insulation": {
+          "numerator": "0",
+          "denominator": "1"
+        }
+      },
+      "component_mass_over_pi_kg_m": {
+        "wall": {
+          "numerator": "37384537381450761923015485548186875",
+          "denominator": "41538374868278621028243970633760768"
+        },
+        "contents": {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        "insulation": {
+          "numerator": "0",
+          "denominator": "1"
+        }
+      },
+      "total_mass_over_pi_kg_m": {
+        "numerator": "37384537381450761923015485548186875",
+        "denominator": "41538374868278621028243970633760768"
+      },
+      "expected_mass_kg_m_decimal": "2.827433388230814141327831415512629556084564323454697480172133388008805456029469043005257672097754910",
+      "expected_q_N_m_at_minus_one_m_s2_decimal": "-2.827433388230814141327831415512629556084564323454697480172133388008805456029469043005257672097754910",
+      "legacy_python_same_expression_mass_kg_m": 2.827433388230815,
+      "legacy_python_relative_error": "3.520287938168436744194653947121123554611147119176582180231118676138358329911030308144483235888836646E-16",
+      "legacy_python_component_mass_kg_m": {
+        "wall": 2.827433388230815,
+        "contents": 0.0,
+        "insulation": 0.0
+      }
+    },
+    {
+      "name": "thin_1e9",
+      "input_f64": {
+        "outside_diameter_m": 1.0,
+        "effective_wall_m": 1e-09,
+        "material_density_kg_m3": 1.0,
+        "contents_density_kg_m3": 0.0,
+        "insulation_thickness_m": 0.0,
+        "insulation_density_kg_m3": 0.0
+      },
+      "exact_represented_inputs": [
+        {
+          "numerator": "1",
+          "denominator": "1"
+        },
+        {
+          "numerator": "4835703278458517",
+          "denominator": "4835703278458516698824704"
+        },
+        {
+          "numerator": "1",
+          "denominator": "1"
+        },
+        {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        {
+          "numerator": "0",
+          "denominator": "1"
+        }
+      ],
+      "exact_identity_equalities": [
+        true,
+        true,
+        true
+      ],
+      "areas_over_pi_m2": {
+        "wall": {
+          "numerator": "23384026173910421950358873977327028964679",
+          "denominator": "23384026197294446691258957323460528314494920687616"
+        },
+        "bore": {
+          "numerator": "5846006525939585498904317380506258101296701207225",
+          "denominator": "23384026197294446691258957323460528314494920687616"
+        },
+        "insulation": {
+          "numerator": "0",
+          "denominator": "1"
+        }
+      },
+      "component_mass_over_pi_kg_m": {
+        "wall": {
+          "numerator": "23384026173910421950358873977327028964679",
+          "denominator": "23384026197294446691258957323460528314494920687616"
+        },
+        "contents": {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        "insulation": {
+          "numerator": "0",
+          "denominator": "1"
+        }
+      },
+      "total_mass_over_pi_kg_m": {
+        "numerator": "23384026173910421950358873977327028964679",
+        "denominator": "23384026197294446691258957323460528314494920687616"
+      },
+      "expected_mass_kg_m_decimal": "3.141592650448200780536239931132097285126827414992377870067740180366399633726132708209244722903592998E-9",
+      "expected_q_N_m_at_minus_one_m_s2_decimal": "-3.141592650448200780536239931132097285126827414992377870067740180366399633726132708209244722903592998E-9",
+      "legacy_python_same_expression_mass_kg_m": 3.14159273913291e-09,
+      "legacy_python_relative_error": "2.822921969343867238663534112762335571994208657983801191516505973139073122259794440850059007131211062E-8",
+      "legacy_python_component_mass_kg_m": {
+        "wall": 3.14159273913291e-09,
+        "contents": 0.0,
+        "insulation": 0.0
+      }
+    },
+    {
+      "name": "thin_1e12",
+      "input_f64": {
+        "outside_diameter_m": 1.0,
+        "effective_wall_m": 1e-12,
+        "material_density_kg_m3": 1.0,
+        "contents_density_kg_m3": 0.0,
+        "insulation_thickness_m": 0.0,
+        "insulation_density_kg_m3": 0.0
+      },
+      "exact_represented_inputs": [
+        {
+          "numerator": "1",
+          "denominator": "1"
+        },
+        {
+          "numerator": "4951760157141521",
+          "denominator": "4951760157141521099596496896"
+        },
+        {
+          "numerator": "1",
+          "denominator": "1"
+        },
+        {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        {
+          "numerator": "0",
+          "denominator": "1"
+        }
+      ],
+      "exact_identity_equalities": [
+        true,
+        true,
+        true
+      ],
+      "areas_over_pi_m2": {
+        "wall": {
+          "numerator": "24519928653829701311901733093175590887025375",
+          "denominator": "24519928653854221733733552434404946937899825954937634816"
+        },
+        "bore": {
+          "numerator": "6129982163439035504779558407289335001381780897847383329",
+          "denominator": "24519928653854221733733552434404946937899825954937634816"
+        },
+        "insulation": {
+          "numerator": "0",
+          "denominator": "1"
+        }
+      },
+      "component_mass_over_pi_kg_m": {
+        "wall": {
+          "numerator": "24519928653829701311901733093175590887025375",
+          "denominator": "24519928653854221733733552434404946937899825954937634816"
+        },
+        "contents": {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        "insulation": {
+          "numerator": "0",
+          "denominator": "1"
+        }
+      },
+      "total_mass_over_pi_kg_m": {
+        "numerator": "24519928653829701311901733093175590887025375",
+        "denominator": "24519928653854221733733552434404946937899825954937634816"
+      },
+      "expected_mass_kg_m_decimal": "3.141592653586651582621093543174006026581690194944529595495560900541816579469929505464116025999042185E-12",
+      "expected_q_N_m_at_minus_one_m_s2_decimal": "-3.141592653586651582621093543174006026581690194944529595495560900541816579469929505464116025999042185E-12",
+      "legacy_python_same_expression_mass_kg_m": 3.1415231561563744e-12,
+      "legacy_python_relative_error": "0.00002212171912160692680108350670367403494794873864235121275509150058082476122274570165183999922399258780",
+      "legacy_python_component_mass_kg_m": {
+        "wall": 3.1415231561563744e-12,
+        "contents": 0.0,
+        "insulation": 0.0
+      }
+    },
+    {
+      "name": "sub_ulp_wall",
+      "input_f64": {
+        "outside_diameter_m": 1.0,
+        "effective_wall_m": 2.7755575615628914e-17,
+        "material_density_kg_m3": 1.0,
+        "contents_density_kg_m3": 0.0,
+        "insulation_thickness_m": 0.0,
+        "insulation_density_kg_m3": 0.0
+      },
+      "exact_represented_inputs": [
+        {
+          "numerator": "1",
+          "denominator": "1"
+        },
+        {
+          "numerator": "1",
+          "denominator": "36028797018963968"
+        },
+        {
+          "numerator": "1",
+          "denominator": "1"
+        },
+        {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        {
+          "numerator": "0",
+          "denominator": "1"
+        }
+      ],
+      "exact_identity_equalities": [
+        true,
+        true,
+        true
+      ],
+      "areas_over_pi_m2": {
+        "wall": {
+          "numerator": "36028797018963967",
+          "denominator": "1298074214633706907132624082305024"
+        },
+        "bore": {
+          "numerator": "324518553658426690754359001612289",
+          "denominator": "1298074214633706907132624082305024"
+        },
+        "insulation": {
+          "numerator": "0",
+          "denominator": "1"
+        }
+      },
+      "component_mass_over_pi_kg_m": {
+        "wall": {
+          "numerator": "36028797018963967",
+          "denominator": "1298074214633706907132624082305024"
+        },
+        "contents": {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        "insulation": {
+          "numerator": "0",
+          "denominator": "1"
+        }
+      },
+      "total_mass_over_pi_kg_m": {
+        "numerator": "36028797018963967",
+        "denominator": "1298074214633706907132624082305024"
+      },
+      "expected_mass_kg_m_decimal": "8.719671245021579506678607676860863199320003060074338517030232142806554311066923666971727364125190054E-17",
+      "expected_q_N_m_at_minus_one_m_s2_decimal": "-8.719671245021579506678607676860863199320003060074338517030232142806554311066923666971727364125190054E-17",
+      "legacy_python_same_expression_mass_kg_m": 0.0,
+      "legacy_python_relative_error": "1",
+      "legacy_python_component_mass_kg_m": {
+        "wall": 0.0,
+        "contents": 0.0,
+        "insulation": 0.0
+      }
+    },
+    {
+      "name": "thin_insulation",
+      "input_f64": {
+        "outside_diameter_m": 1.0,
+        "effective_wall_m": 0.01,
+        "material_density_kg_m3": 1e-30,
+        "contents_density_kg_m3": 0.0,
+        "insulation_thickness_m": 1e-12,
+        "insulation_density_kg_m3": 1000000000000.0
+      },
+      "exact_represented_inputs": [
+        {
+          "numerator": "1",
+          "denominator": "1"
+        },
+        {
+          "numerator": "5764607523034235",
+          "denominator": "576460752303423488"
+        },
+        {
+          "numerator": "178405961588245",
+          "denominator": "178405961588244985132285746181186892047843328"
+        },
+        {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        {
+          "numerator": "4951760157141521",
+          "denominator": "4951760157141521099596496896"
+        },
+        {
+          "numerator": "1000000000000",
+          "denominator": "1"
+        }
+      ],
+      "exact_identity_equalities": [
+        true,
+        true,
+        true
+      ],
+      "areas_over_pi_m2": {
+        "wall": {
+          "numerator": "3289839289567666853228706945076455",
+          "denominator": "332306998946228968225951765070086144"
+        },
+        "bore": {
+          "numerator": "79786910446989575203259234322445081",
+          "denominator": "332306998946228968225951765070086144"
+        },
+        "insulation": {
+          "numerator": "24519928653878741169209441534670346131412257",
+          "denominator": "24519928653854221733733552434404946937899825954937634816"
+        }
+      },
+      "component_mass_over_pi_kg_m": {
+        "wall": {
+          "numerator": "586926941926108392369845603401259889654754271475",
+          "denominator": "59285549689505892056868344324448208820874232148807968788202283012051522375647232"
+        },
+        "contents": {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        "insulation": {
+          "numerator": "5986310706513364543264023812175377473489320556640625",
+          "denominator": "5986310706507378352962293074805895248510699696029696"
+        }
+      },
+      "total_mass_over_pi_kg_m": {
+        "numerator": "59285549689565176414126698815813451525530762529582090491767201258353654754271475",
+        "denominator": "59285549689505892056868344324448208820874232148807968788202283012051522375647232"
+      },
+      "expected_mass_kg_m_decimal": "3.141592653592934767928273129398210574927546101673756186204427839333062394159371515727788572407267728",
+      "expected_q_N_m_at_minus_one_m_s2_decimal": "-3.141592653592934767928273129398210574927546101673756186204427839333062394159371515727788572407267728",
+      "legacy_python_same_expression_mass_kg_m": 3.1415231561563743,
+      "legacy_python_relative_error": "0.00002212172112159252070314157849487670880311683771845545276418280800402969064507463073360205815034153056",
+      "legacy_python_component_mass_kg_m": {
+        "wall": 3.1101767270539014e-32,
+        "contents": 0.0,
+        "insulation": 3.1415231561563743
+      }
+    },
+    {
+      "name": "sub_ulp_insulation",
+      "input_f64": {
+        "outside_diameter_m": 1.0,
+        "effective_wall_m": 0.01,
+        "material_density_kg_m3": 1e-30,
+        "contents_density_kg_m3": 0.0,
+        "insulation_thickness_m": 2.7755575615628914e-17,
+        "insulation_density_kg_m3": 1000000000000000.0
+      },
+      "exact_represented_inputs": [
+        {
+          "numerator": "1",
+          "denominator": "1"
+        },
+        {
+          "numerator": "5764607523034235",
+          "denominator": "576460752303423488"
+        },
+        {
+          "numerator": "178405961588245",
+          "denominator": "178405961588244985132285746181186892047843328"
+        },
+        {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        {
+          "numerator": "1",
+          "denominator": "36028797018963968"
+        },
+        {
+          "numerator": "1000000000000000",
+          "denominator": "1"
+        }
+      ],
+      "exact_identity_equalities": [
+        true,
+        true,
+        true
+      ],
+      "areas_over_pi_m2": {
+        "wall": {
+          "numerator": "3289839289567666853228706945076455",
+          "denominator": "332306998946228968225951765070086144"
+        },
+        "bore": {
+          "numerator": "79786910446989575203259234322445081",
+          "denominator": "332306998946228968225951765070086144"
+        },
+        "insulation": {
+          "numerator": "36028797018963969",
+          "denominator": "1298074214633706907132624082305024"
+        }
+      },
+      "component_mass_over_pi_kg_m": {
+        "wall": {
+          "numerator": "586926941926108392369845603401259889654754271475",
+          "denominator": "59285549689505892056868344324448208820874232148807968788202283012051522375647232"
+        },
+        "contents": {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        "insulation": {
+          "numerator": "1099511627776000030517578125",
+          "denominator": "39614081257132168796771975168"
+        }
+      },
+      "total_mass_over_pi_kg_m": {
+        "numerator": "1645504557321206087826895349148653625789812996409794073199902251889654754271475",
+        "denominator": "59285549689505892056868344324448208820874232148807968788202283012051522375647232"
+      },
+      "expected_mass_kg_m_decimal": "0.08719671245021579990717596846107109527341009534028221094853733609726333269016161256914937856549592273",
+      "expected_q_N_m_at_minus_one_m_s2_decimal": "-0.08719671245021579990717596846107109527341009534028221094853733609726333269016161256914937856549592273",
+      "legacy_python_same_expression_mass_kg_m": 3.1101767270539014e-32,
+      "legacy_python_relative_error": "0.9999999999999999999999999999996433149095122560308463740039526258074194714911798349856305449748957458",
+      "legacy_python_component_mass_kg_m": {
+        "wall": 3.1101767270539014e-32,
+        "contents": 0.0,
+        "insulation": 0.0
+      }
+    },
+    {
+      "name": "small_bore_contents",
+      "input_f64": {
+        "outside_diameter_m": 1.0,
+        "effective_wall_m": 0.4999999990686774,
+        "material_density_kg_m3": 1e-30,
+        "contents_density_kg_m3": 1000000000000.0,
+        "insulation_thickness_m": 0.0,
+        "insulation_density_kg_m3": 0.0
+      },
+      "exact_represented_inputs": [
+        {
+          "numerator": "1",
+          "denominator": "1"
+        },
+        {
+          "numerator": "536870911",
+          "denominator": "1073741824"
+        },
+        {
+          "numerator": "178405961588245",
+          "denominator": "178405961588244985132285746181186892047843328"
+        },
+        {
+          "numerator": "1000000000000",
+          "denominator": "1"
+        },
+        {
+          "numerator": "0",
+          "denominator": "1"
+        },
+        {
+          "numerator": "0",
+          "denominator": "1"
+        }
+      ],
+      "exact_identity_equalities": [
+        true,
+        true,
+        true
+      ],
+      "areas_over_pi_m2": {
+        "wall": {
+          "numerator": "288230376151711743",
+          "denominator": "1152921504606846976"
+        },
+        "bore": {
+          "numerator": "1",
+          "denominator": "1152921504606846976"
+        },
+        "insulation": {
+          "numerator": "0",
+          "denominator": "1"
+        }
+      },
+      "component_mass_over_pi_kg_m": {
+        "wall": {
+          "numerator": "51422017416287692924263697261035",
+          "denominator": "205688069665150755269371147819668813122841983204197482918576128"
+        },
+        "contents": {
+          "numerator": "244140625",
+          "denominator": "281474976710656"
+        },
+        "insulation": {
+          "numerator": "0",
+          "denominator": "1"
+        }
+      },
+      "total_mass_over_pi_kg_m": {
+        "numerator": "178405961588244985132285797603204308335536252263697261035",
+        "denominator": "205688069665150755269371147819668813122841983204197482918576128"
+      },
+      "expected_mass_kg_m_decimal": "0.000002724897264069243671468157742111423170875553389671708724583381858951700629800974005739579661008796575",
+      "expected_q_N_m_at_minus_one_m_s2_decimal": "-0.000002724897264069243671468157742111423170875553389671708724583381858951700629800974005739579661008796575",
+      "legacy_python_same_expression_mass_kg_m": 2.7248972640692434e-06,
+      "legacy_python_relative_error": "8.585220110589139687055656564763660672125740852321187452162758620590987449385105813124842205264477449E-17",
+      "legacy_python_component_mass_kg_m": {
+        "wall": 7.8539816339744835e-31,
+        "contents": 2.7248972640692434e-06,
+        "insulation": 0.0
+      }
+    }
+  ]
+}

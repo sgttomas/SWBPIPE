@@ -1,0 +1,9 @@
+[package]
+name="self_weight_mass_probe"
+version="0.0.0"
+edition="2021"
+[workspace]
+[dependencies]
+serde_json="1"
+open_pipe_stress_self_weight_wasm={path="/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/loads/self_weight_wasm"}
+open_pipe_stress_operation_applier={path="/private/tmp/piping-generated-loads-20260924/projects/chirality-piping/core/model_operations/operation_applier"}

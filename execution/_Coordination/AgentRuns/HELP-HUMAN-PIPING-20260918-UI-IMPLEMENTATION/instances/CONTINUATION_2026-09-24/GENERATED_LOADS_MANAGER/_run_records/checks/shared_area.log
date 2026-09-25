@@ -1,0 +1,12 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (/private/tmp/piping-generated-loads-target/product_physics/debug/deps/open_pipe_stress_product_physics-5b3655bb4848fade)
+
+running 5 tests
+test annulus_geometry::tests::area_does_not_require_distinct_rounded_radii ... ok
+test annulus_geometry::tests::ordinary_source_areas_and_solid_core_are_explicit ... ok
+test annulus_geometry::tests::invalid_and_positive_unrepresentable_areas_fail_closed ... ok
+test annulus_geometry::tests::scaled_area_avoids_intermediate_underflow_before_final_rounding ... ok
+test annulus_geometry::tests::scaled_source_area_does_not_depend_on_resolving_squared_radius_difference ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 199 filtered out; finished in 0.00s
+
