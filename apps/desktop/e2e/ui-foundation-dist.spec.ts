@@ -1132,7 +1132,11 @@ for (const theme of APPEARANCE_THEMES) {
     const inspectorTarget = "support:NL-140";
     await selectTreeRow(page, "support", inspectorTarget);
     await ensureRail(page, "inspector", true);
-    const currentSelection = await page.getByTestId("command-selection-readout").innerText();
+    // The readout sits in a collapsible command bar; read the same textContent that
+    // toHaveText compares below, after it names the selected current target.
+    const selectionReadout = page.getByTestId("command-selection-readout");
+    await expect(selectionReadout).toContainText(`Selected support: ${inspectorTarget}`);
+    const currentSelection = (await selectionReadout.textContent()) ?? "";
     await inspectBundledReference(page);
     const results = page.getByTestId("results-panel");
     const row = results.locator("tbody tr").first();
