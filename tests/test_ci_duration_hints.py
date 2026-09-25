@@ -38,6 +38,25 @@ class RefreshTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             refresh.parse_logs(self.log + '\n' + self.log.splitlines()[0], self.source)
 
+    def test_duplicate_skip_fails(self):
+        with self.assertRaisesRegex(ValueError, 'Duplicate skip'):
+            refresh.parse_logs(self.log + '\n' + self.log.splitlines()[-1], self.source)
+
+    def test_partial_rerun_uses_each_shard_attempt_and_skipped_barrier_has_no_log(self):
+        job = lambda name, attempt=1, conclusion='success': dict(id=hash(name), name=name, run_attempt=attempt,
+                                                                 conclusion=conclusion)
+        jobs = [job('Select source coverage'), job('Accessibility barrier and selected coverage', 1, 'skipped'),
+                job('Source remainder (2/4)', 2), job('Source remainder (1/4)'), job('Desktop E2E (source mode)', 2)]
+        ran = refresh.browser_jobs(jobs)
+        self.assertEqual([j['name'] for j in ran], ['Source remainder (1/4)', 'Source remainder (2/4)'])
+        self.assertEqual(refresh.collection_artifact(7, ran), 'piping-e2e-collection-shard-1-7-1')
+        self.assertEqual(refresh.collection_artifact(7, ran[1:]), 'piping-e2e-collection-shard-2-7-2')
+        for bad in ['failure', 'cancelled']:
+            with self.assertRaises(ValueError):
+                refresh.browser_jobs(jobs + [job('Source remainder (3/4)', 1, bad)])
+        with self.assertRaises(ValueError):
+            refresh.browser_jobs([job('Select source coverage')])
+
     def test_refresh_keeps_unobserved_prior_and_positive_floors(self):
         old = {'version': 1, 'unknown_seconds': 30, 'basis': {'run': 1},
                'seconds': {'kept': 4.0, 'zero': .001, 'measured': 9.0}}

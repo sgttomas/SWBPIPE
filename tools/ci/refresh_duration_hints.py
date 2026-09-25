@@ -55,8 +55,31 @@ def parse_logs(logs, source):
                 raise ValueError('Duplicate duration: ' + canonical)
             durations[canonical] = float(value) * {'ms': .001, 's': 1, 'm': 60}[unit]
         elif (match := SKIPPED.search(line)):
-            skips.add(reporter[' › '.join(match.groups())])
+            canonical = reporter[' › '.join(match.groups())]
+            if canonical in skips:
+                raise ValueError('Duplicate skip: ' + canonical)
+            skips.add(canonical)
     return durations, skips
+
+
+def browser_jobs(jobs):
+    """Latest-attempt browser jobs that ran. A skipped barrier (full mode) has
+    no log; any other non-success means the durations are not reliable."""
+    ran = [j for j in jobs if j['name'].startswith(('Source remainder', 'Accessibility barrier'))
+           and j['conclusion'] != 'skipped']
+    if not ran or any(j['conclusion'] != 'success' for j in ran):
+        raise ValueError('Browser jobs missing or not all successful')
+    return sorted(ran, key=lambda j: j['name'])
+
+
+def collection_artifact(run_id, jobs):
+    """Name of a shard's collection artifact. A partial rerun leaves unrerun
+    shards on their original attempt, so use that job's own attempt."""
+    for job in jobs:
+        match = re.fullmatch(r'Source remainder \((\d+)/4\)', job['name'])
+        if match:
+            return f'piping-e2e-collection-shard-{match.group(1)}-{run_id}-{job["run_attempt"]}'
+    raise ValueError('No source remainder shard in run')
 
 
 def refresh(old, durations, skips, basis):
@@ -76,21 +99,19 @@ def main():
     parser.add_argument('--run', required=True, type=int)
     parser.add_argument('--apply', action='store_true')
     args = parser.parse_args()
-    run = json.loads(gh('run', 'view', str(args.run), '-R', REPO, '--json', 'headSha,conclusion,jobs,attempt'))
+    run = json.loads(gh('run', 'view', str(args.run), '-R', REPO, '--json', 'headSha,conclusion'))
     if run['conclusion'] != 'success':
         raise SystemExit('Run did not succeed; failed or cancelled runs carry no reliable durations')
+    jobs = browser_jobs(json.loads(gh('api', f'repos/{REPO}/actions/runs/{args.run}/jobs?filter=latest&per_page=100'))['jobs'])
     with tempfile.TemporaryDirectory() as tmp:
         gh('run', 'download', str(args.run), '-R', REPO, '-n', 'piping-e2e-selection', '-D', tmp + '/plan')
         plan = json.loads(Path(tmp, 'plan/piping-e2e-plan.json').read_text())
         if plan['mode'] != 'full' or plan['head'] != run['headSha']:
             raise SystemExit('Need a successful full-mode run bound to its own head')
-        shard = next(j for j in run['jobs'] if j['name'].startswith('Source remainder'))['name']
-        artifact = f"piping-e2e-collection-shard-{shard.split('(')[1].split('/')[0]}-{args.run}-{run['attempt']}"
-        gh('run', 'download', str(args.run), '-R', REPO, '-n', artifact, '-D', tmp + '/collection')
+        gh('run', 'download', str(args.run), '-R', REPO, '-n', collection_artifact(args.run, jobs), '-D', tmp + '/collection')
         source_bytes = Path(tmp, 'collection/source.stdout.json').read_bytes()
     source = e2e_plan.collected_tests(json.loads(source_bytes))
-    logs = ''.join(gh('api', f"repos/{REPO}/actions/jobs/{job['databaseId']}/logs").decode()
-                   for job in run['jobs'] if job['name'].startswith(('Source remainder', 'Accessibility barrier')))
+    logs = ''.join(gh('api', f"repos/{REPO}/actions/jobs/{job['id']}/logs").decode() for job in jobs)
     durations, skips = parse_logs(logs, source)
     selected = {key(t) for t in e2e_plan.select_tests(plan, source)}
     if not selected <= set(durations) | skips:
