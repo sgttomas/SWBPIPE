@@ -1,0 +1,52 @@
+mutation m6a-results-unit-display-converted: projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx: replace 'const resultUnits = [...new Set(result.results.map((item) => item.unit))].sort(compareResultUnits);' -> 'const resultUnits = [...new Set(result.results.map((item) => item.unit === "N/m" ? "kN/m" : item.unit))].sort(compareResultUnits);'
+head 8e216efbf2066a7d7a9e083dbcaadf07924b5a01; original blob b985d2f26d9a5862bf194302fc85da2a9f9dd883
+start 2026-09-25T18:49:10.493832Z; load (3.7744140625, 4.56982421875, 4.4150390625)
+cmd: ../../node_modules/.bin/playwright test --project=chromium-desktop --workers=1 --timeout=180000 --reporter=list e2e/r2-smoke.spec.ts:351
+
+
+Running 1 test using 1 worker
+
+  ✘  1 [chromium-desktop] › e2e/r2-smoke.spec.ts:351:1 › R2 browser smoke covers authoring, explicit reference results, and qualified-output refusals (44.1s)
+
+
+  1) [chromium-desktop] › e2e/r2-smoke.spec.ts:351:1 › R2 browser smoke covers authoring, explicit reference results, and qualified-output refusals 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByTestId('result-unit-policy')
+    Expected substring: [32m"N*m/rad, N/m"[39m
+    Received string:    [31m"Source result unitsMPa, N, N*m, mm, rad, boolean, count, kN/m, m, mode_code, N*m/rad, state_code · 830 rows · entered units preserved; displayed quantities follow the display preference where available"[39m
+    Timeout: 10000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('result-unit-policy')[22m
+    [2m    24 × locator resolved to <div class="report-line" data-testid="result-unit-policy">…</div>[22m
+    [2m       - unexpected value "Source result unitsMPa, N, N*m, mm, rad, boolean, count, kN/m, m, mode_code, N*m/rad, state_code · 830 rows · entered units preserved; displayed quantities follow the display preference where available"[22m
+
+
+      719 |   await expect(page.getByTestId("result-unit-policy")).toContainText("MPa, N, N*m, mm, rad");
+      720 |   // The reference's retained source units include its spring rows' N*m/rad and N/m, as entered.
+    > 721 |   await expect(page.getByTestId("result-unit-policy")).toContainText("N*m/rad, N/m");
+          |                                                        ^
+      722 |   await expect(page.getByTestId("result-unit-policy")).toContainText("830 rows");
+      723 |   await expect(page.getByTestId("result-unit-policy")).toContainText("entered units preserved");
+      724 |   await expect(page.getByTestId("result-filter-summary")).toContainText("830 of 830 results match filter");
+        at /home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts:721:56
+
+    Error Context: test-results/r2-smoke-R2-browser-smoke--be17a-d-qualified-output-refusals-chromium-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/r2-smoke-R2-browser-smoke--be17a-d-qualified-output-refusals-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/r2-smoke-R2-browser-smoke--be17a-d-qualified-output-refusals-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium-desktop] › e2e/r2-smoke.spec.ts:351:1 › R2 browser smoke covers authoring, explicit reference results, and qualified-output refusals 
+
+playwright_rc=1 (non-zero means the mutation was caught)
+restored_blob=b985d2f26d9a5862bf194302fc85da2a9f9dd883 equals_HEAD=True
+end 2026-09-25T18:49:58.548060Z

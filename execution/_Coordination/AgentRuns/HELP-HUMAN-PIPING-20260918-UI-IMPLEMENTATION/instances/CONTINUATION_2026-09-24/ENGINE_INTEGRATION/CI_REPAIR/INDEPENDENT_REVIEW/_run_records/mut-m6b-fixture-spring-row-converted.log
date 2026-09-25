@@ -1,0 +1,55 @@
+mutation m6b-fixture-spring-row-converted: projects/chirality-piping/fixtures/product_preview/invented_mechanics_result_precision_1_sparse.json: replace '"id": "result:spring-hanger:support-SH-140:stiffness",\n      "kind": "spring_hanger_user_input_review",\n      "value": 42000.0,\n      "unit": "N/m",' -> '"id": "result:spring-hanger:support-SH-140:stiffness",\n      "kind": "spring_hanger_user_input_review",\n      "value": 42.0,\n      "unit": "kN/m",'
+head 8e216efbf2066a7d7a9e083dbcaadf07924b5a01; original blob 6817e6aa7ae33e4de1cdd81ad7ac1cb67a5cbd73
+start 2026-09-25T18:49:58.598540Z; load (3.33251953125, 4.37548828125, 4.359375)
+cmd: ../../node_modules/.bin/playwright test --project=chromium-desktop --workers=1 --timeout=180000 --reporter=list e2e/r2-smoke.spec.ts:66
+
+
+Running 1 test using 1 worker
+
+  ✘  1 [chromium-desktop] › e2e/r2-smoke.spec.ts:66:1 › recorded reference sources retain the original row, quantity, unit and diagnostic oracles (67ms)
+
+
+  1) [chromium-desktop] › e2e/r2-smoke.spec.ts:66:1 › recorded reference sources retain the original row, quantity, unit and diagnostic oracles 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    [32m- Expected  - 4[39m
+    [31m+ Received  + 0[39m
+
+    [33m@@ -13,10 +13,6 @@[39m
+    [2m    },[22m
+    [2m    "result:component-stiffness:component-C-150:torsional": Object {[22m
+    [2m      "unit": "N*m/rad",[22m
+    [2m      "value": 620000,[22m
+    [2m    },[22m
+    [32m-   "result:spring-hanger:support-SH-140:stiffness": Object {[39m
+    [32m-     "unit": "N/m",[39m
+    [32m-     "value": 42000,[39m
+    [32m-   },[39m
+    [2m  }[22m
+
+      92 |     const joint = referenceModel.components.find((item: any) => item.id === "component:C-150").modifiers;
+      93 |     const hanger = referenceModel.supports.find((item: any) => item.id === "support:SH-140").hanger;
+    > 94 |     expect(Object.fromEntries(springRows.map((row: any) => [row.id, { value: row.value, unit: row.unit }]))).toEqual({
+         |                                                                                                              ^
+      95 |       "result:component-stiffness:component-C-150:axial": joint.axial_stiffness_user_value,
+      96 |       "result:component-stiffness:component-C-150:lateral": joint.lateral_stiffness_user_value,
+      97 |       "result:component-stiffness:component-C-150:angular": joint.angular_stiffness_user_value,
+        at /home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts:94:110
+
+    Error Context: test-results/r2-smoke-recorded-referenc-42424-unit-and-diagnostic-oracles-chromium-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/r2-smoke-recorded-referenc-42424-unit-and-diagnostic-oracles-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/r2-smoke-recorded-referenc-42424-unit-and-diagnostic-oracles-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium-desktop] › e2e/r2-smoke.spec.ts:66:1 › recorded reference sources retain the original row, quantity, unit and diagnostic oracles 
+
+playwright_rc=1 (non-zero means the mutation was caught)
+restored_blob=6817e6aa7ae33e4de1cdd81ad7ac1cb67a5cbd73 equals_HEAD=True
+end 2026-09-25T18:50:01.416093Z

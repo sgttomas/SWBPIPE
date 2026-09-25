@@ -1,0 +1,24 @@
+Derived from band-probe-committed.jsonl (lines grouped by vertical centre of input/summary/clear, 2px tolerance).
+viewport | row_w | current_row_w(+nesting delta) | state | lines | input_w | summary_w | clear_right_gap | overflow
+1280x900 | 280 | 306 | initial | input / summary+clear | 192.1 | 144.3 | 0 | 0 0
+1280x900 | 280 | 306 | filtered | input / summary+clear | 192.1 | 138.2 | 0 | 0 0
+1366x900 | 327.3 | 353.3 | initial | input / summary+clear | 239.4 | 144.3 | 0.0 | 0 0
+1366x900 | 327.3 | 353.3 | filtered | input / summary+clear | 239.4 | 138.2 | 0.0 | 0 0
+1440x900 | 368 | 394 | initial | input / summary+clear | 280.1 | 144.3 | 0 | 0 0
+1440x900 | 368 | 394 | filtered | input / summary+clear | 280.1 | 138.2 | 0 | 0 0
+1470x900 | 384.5 | 410.5 | initial | input / summary+clear | 296.6 | 144.3 | 0.0 | 0 0
+1470x900 | 384.5 | 410.5 | filtered | input / summary+clear | 296.6 | 138.2 | 0.0 | 0 0
+1500x900 | 401 | 427 | initial | input+summary / clear | 160.8 | 144.3 | 0 | 0 0
+1500x900 | 401 | 427 | filtered | input+summary / clear | 166.9 | 138.2 | 0 | 0 0
+1520x900 | 412 | 438 | initial | input+summary / clear | 171.8 | 144.3 | 0 | 0 0
+1520x900 | 412 | 438 | filtered | input+summary / clear | 177.9 | 138.2 | 0 | 0 0
+1536x900 | 420.8 | 446.8 | initial | input+summary / clear | 180.6 | 144.3 | 0.0 | 0 0
+1536x900 | 420.8 | 446.8 | filtered | input+summary / clear | 186.7 | 138.2 | 0.0 | 0 0
+1560x900 | 434 | 460 | initial | input+summary+clear | 153.8 | 144.3 | 0 | 0 0
+1560x900 | 434 | 460 | filtered | input+summary+clear | 159.9 | 138.2 | 0 | 0 0
+1600x900 | 456 | 482 | initial | input+summary+clear | 175.8 | 144.3 | 0 | 0 0
+1600x900 | 456 | 482 | filtered | input+summary+clear | 181.9 | 138.2 | 0 | 0 0
+1680x900 | 500 | 526 | initial | input+summary+clear | 219.8 | 144.3 | 0 | 0 0
+1680x900 | 500 | 526 | filtered | input+summary+clear | 225.9 | 138.2 | 0 | 0 0
+1920x900 | 632 | 658 | initial | input+summary+clear | 351.8 | 144.3 | 0 | 0 0
+1920x900 | 632 | 658 | filtered | input+summary+clear | 357.9 | 138.2 | 0 | 0 0

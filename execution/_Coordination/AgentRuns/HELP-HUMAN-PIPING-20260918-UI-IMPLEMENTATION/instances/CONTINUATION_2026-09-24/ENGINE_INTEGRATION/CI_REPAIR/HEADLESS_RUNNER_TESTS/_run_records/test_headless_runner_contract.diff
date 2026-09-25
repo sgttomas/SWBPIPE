@@ -1,0 +1,402 @@
+diff --git a/projects/chirality-piping/tests/test_headless_runner_contract.py b/projects/chirality-piping/tests/test_headless_runner_contract.py
+index 229783d9b..19be0fb70 100644
+--- a/projects/chirality-piping/tests/test_headless_runner_contract.py
++++ b/projects/chirality-piping/tests/test_headless_runner_contract.py
+@@ -27,7 +27,22 @@ SCHEMA_PATH = ROOT / "schemas" / "headless_runner.schema.yaml"
+ FINAL_RUNNER_PATH = ROOT / "core" / "runner" / "headless" / "src" / "bin" / "openpipestress-runner.rs"
+ COMPAT_RUNNER_PATH = ROOT / "core" / "runner" / "headless" / "src" / "bin" / "headless_preview_runner.rs"
+ HEADLESS_CRATE = ROOT / "core" / "runner" / "headless"
+-PREVIEW_FIXTURE = ROOT / "fixtures" / "product_preview" / "invented_preview_model.json"
++PRODUCT_PHYSICS_CRATE = ROOT / "core" / "product_physics"
++# Bundled legacy demo with nonzero legacy pressure loads. The current product
++# refuses it with PRESSURE_MODEL_REAUTHOR_REQUIRED; it is retained only as the
++# explicit refusal control below and is never used as a success-path input.
++LEGACY_PRESSURE_PREVIEW_FIXTURE = (
++    ROOT / "fixtures" / "product_preview" / "invented_preview_model.json"
++)
++# Synthetic, explicitly authored model (E/nu material, exact pressure region
++# with closure transfers, six-component load case) that the current product
++# solves. Success-path solve inputs use it unchanged.
++AUTHORED_PREVIEW_MODEL = (
++    ROOT / "fixtures" / "model_operations" / "exact_pressure_authoring_model.json"
++)
++# Solver identity recorded in the DEL-10-05 export-results witness inputs; it
++# was the linked product-physics component version before the 0.2.0 change.
++PRIOR_PRODUCT_PHYSICS_VERSION = "0.1.0"
+ EXPORT_SUCCESS_INPUT = (
+     ROOT / "validation/witness/inputs/del1005_export_results_success_input.json"
+ )
+@@ -353,6 +368,62 @@ def runner_binaries():
+     return final, compat
+ 
+ 
++@pytest.fixture(scope="module")
++def linked_solver_identity():
++    """Name and version the runner links as its product-physics component.
++
++    The runner binds export-results to `solver_component_name()` and
++    `solver_component_version()`, which are that crate's CARGO_PKG_NAME and
++    CARGO_PKG_VERSION; read the same values from the crate's Cargo metadata.
++    """
++    metadata = subprocess.run(
++        ["cargo", "metadata", "--format-version", "1", "--no-deps"],
++        cwd=PRODUCT_PHYSICS_CRATE,
++        capture_output=True,
++        text=True,
++        check=False,
++    )
++    assert metadata.returncode == 0, metadata.stderr
++    (package,) = json.loads(metadata.stdout)["packages"]
++    assert package["name"] == "open_pipe_stress_product_physics"
++    return package["name"], package["version"]
++
++
++def bind_solver_identity(body, name, version, *, audit=True, envelopes=True):
++    """Set the export-results solver identity; the witness payload is otherwise unchanged."""
++    export = body.get("export_results")
++    if export is None:
++        return body
++    identity = {
++        "solver_name": name,
++        "solver_version": version,
++        "solver_build_ref": f"{name}@{version}",
++    }
++    if audit:
++        export["audit_manifest"]["solver_version"].update(identity)
++    if envelopes:
++        for envelope in export["result_envelopes"]:
++            envelope.update(identity)
++    return body
++
++
++def export_input(path, linked_solver_identity):
++    """Load a DEL-10-05 export-results witness bound to the linked solver identity.
++
++    The witness files record the solver identity of the component they were
++    generated against. The runner correctly refuses any other identity
++    (REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH; see the identity control test),
++    so export-results tests that protect other properties bind the payload to
++    the component actually linked into the runner under test.
++    """
++    body = json.loads(path.read_text(encoding="utf-8"))
++    return bind_solver_identity(body, *linked_solver_identity)
++
++
++def authored_preview_model():
++    return json.loads(AUTHORED_PREVIEW_MODEL.read_text(encoding="utf-8"))
++
++
+ def final_runner_request(operation):
+     return {
+         "request_id": f"subprocess-{operation.replace('_', '-')}",
+@@ -413,7 +484,7 @@ def run_final(binary, verb, body, *args):
+ 
+ 
+ def active_final_runner_cases():
+-    preview_model = json.loads(PREVIEW_FIXTURE.read_text(encoding="utf-8"))
++    preview_model = authored_preview_model()
+     return [
+         ("validate-input", "validate_input", {}),
+         (
+@@ -444,7 +515,9 @@ def active_final_runner_cases():
+     ]
+ 
+ 
+-def test_final_runner_subprocess_covers_every_active_verb_and_stdout(runner_binaries):
++def test_final_runner_subprocess_covers_every_active_verb_and_stdout(
++    runner_binaries, linked_solver_identity
++):
+     final, _ = runner_binaries
+     for verb, operation, extra in active_final_runner_cases():
+         body = {"request": final_runner_request(operation), **extra}
+@@ -454,6 +527,73 @@ def test_final_runner_subprocess_covers_every_active_verb_and_stdout(runner_bina
+         assert controlled["blocked"] is False
+         assert controlled["payload"]["command"] == verb
+         assert controlled["payload"]["operation"] == operation
++        if verb == "solve":
++            mechanics = controlled["payload"]["mechanics_envelope"]
++            assert mechanics["status"]["mechanics"] == "MECHANICS_SOLVED"
++            assert mechanics["results"]
++            producer = mechanics["producer"]
++            assert (
++                producer["component_name"],
++                producer["component_version"],
++            ) == linked_solver_identity
++
++
++def legacy_nonzero_pressure_loads(model):
++    return {
++        (case["id"], load["id"])
++        for case in model["load_cases"]
++        for load in case["primitive_loads"]
++        if (load["category"] == "pressure" or load["dimension"] == "pressure")
++        and load["magnitude"]["value"] != 0
++    }
++
++
++def assert_legacy_pressure_refusal(mechanics, runner_result, model):
++    """The product refuses a fresh solve of a legacy nonzero-pressure model."""
++    assert mechanics["status"]["mechanics"] == "MODEL_INCOMPLETE"
++    assert mechanics["results"] == []
++    refusals = [
++        diagnostic
++        for diagnostic in mechanics["diagnostics"]
++        if diagnostic["code"] == "PRESSURE_MODEL_REAUTHOR_REQUIRED"
++    ]
++    assert all(diagnostic["severity"] == "blocking" for diagnostic in refusals)
++    assert all(
++        diagnostic["source"] == "core/product_physics/src/pressure_runtime.rs"
++        for diagnostic in refusals
++    )
++    expected = legacy_nonzero_pressure_loads(model)
++    assert expected, "the legacy control must carry nonzero legacy pressure"
++    assert {tuple(diagnostic["affected_refs"]) for diagnostic in refusals} == expected
++    assert "MODEL_INCOMPLETE" in runner_result["analysis_status"]
++    assert "MECHANICS_SOLVED" not in runner_result["analysis_status"]
++    assert runner_result["result_refs"] == []
++
++
++def test_final_runner_refuses_legacy_pressure_demo_as_explicit_control(runner_binaries):
++    final, _ = runner_binaries
++    legacy_model = json.loads(LEGACY_PRESSURE_PREVIEW_FIXTURE.read_text(encoding="utf-8"))
++    body = {
++        "request": final_runner_request("solve"),
++        "solve": {"preview_model": {"model": legacy_model, "materials": []}},
++    }
++    completed = run_final(final, "solve", body, "--explicit-local-private-intent")
++    assert completed.returncode == 1, (completed.stderr, completed.stdout)
++    controlled = json.loads(completed.stdout)
++    # Explicit intent was given, so the refusal itself is visible, not withheld.
++    assert controlled["blocked"] is False
++    payload = controlled["payload"]
++    assert payload["command"] == "solve"
++    assert payload["operation"] == "solve"
++    assert_legacy_pressure_refusal(
++        payload["mechanics_envelope"], payload["runner_result"], legacy_model
++    )
++    # Exit 1 comes from result validation: a refused solve has no result rows.
++    assert any(
++        diagnostic["code"] == "HEADLESS_RUNNER_RESULT_REFS_MISSING"
++        and diagnostic["severity"] == "blocking"
++        for diagnostic in payload["result_validation"]["diagnostics"]
++    )
+ 
+ 
+ def test_final_runner_subprocess_output_file_matches_stdout(runner_binaries, tmp_path):
+@@ -476,7 +616,9 @@ def test_final_runner_subprocess_output_file_matches_stdout(runner_binaries, tmp
+ def test_final_runner_subprocess_blocking_exit_one_writes_no_file(runner_binaries, tmp_path):
+     final, _ = runner_binaries
+     output_path = tmp_path / "must-not-exist.json"
+-    preview_model = json.loads(PREVIEW_FIXTURE.read_text(encoding="utf-8"))
++    # A model the product solves, so exit 1 is attributable to the missing
++    # local-private intent alone rather than to a refused solve.
++    preview_model = authored_preview_model()
+     body = {
+         "request": final_runner_request("solve"),
+         "solve": {"preview_model": {"model": preview_model, "materials": []}},
+@@ -490,10 +632,10 @@ def test_final_runner_subprocess_blocking_exit_one_writes_no_file(runner_binarie
+ 
+ 
+ def test_final_runner_subprocess_export_results_success_is_deterministic_and_zip_exact(
+-    runner_binaries,
++    runner_binaries, linked_solver_identity
+ ):
+     final, _ = runner_binaries
+-    body = json.loads(EXPORT_SUCCESS_INPUT.read_text(encoding="utf-8"))
++    body = export_input(EXPORT_SUCCESS_INPUT, linked_solver_identity)
+     first = run_final(
+         final, "export-results", body, "--explicit-local-private-intent"
+     )
+@@ -530,10 +672,10 @@ def test_final_runner_subprocess_export_results_success_is_deterministic_and_zip
+ 
+ 
+ def test_final_runner_export_results_output_is_only_named_json_file(
+-    runner_binaries, tmp_path
++    runner_binaries, linked_solver_identity, tmp_path
+ ):
+     final, _ = runner_binaries
+-    body = json.loads(EXPORT_SUCCESS_INPUT.read_text(encoding="utf-8"))
++    body = export_input(EXPORT_SUCCESS_INPUT, linked_solver_identity)
+     output = tmp_path / "runner-result.json"
+     completed = run_final(
+         final,
+@@ -557,11 +699,11 @@ def test_final_runner_export_results_output_is_only_named_json_file(
+     ],
+ )
+ def test_final_runner_export_results_failures_have_no_payload_or_file(
+-    runner_binaries, tmp_path, input_path, diagnostic_code
++    runner_binaries, linked_solver_identity, tmp_path, input_path, diagnostic_code
+ ):
+     final, _ = runner_binaries
+     output = tmp_path / "must-not-exist.json"
+-    body = json.loads(input_path.read_text(encoding="utf-8"))
++    body = export_input(input_path, linked_solver_identity)
+     completed = run_final(
+         final,
+         "export-results",
+@@ -581,11 +723,11 @@ def test_final_runner_export_results_failures_have_no_payload_or_file(
+ 
+ 
+ def test_final_runner_export_results_requires_intent_once_and_writes_no_file(
+-    runner_binaries, tmp_path
++    runner_binaries, linked_solver_identity, tmp_path
+ ):
+     final, _ = runner_binaries
+     output = tmp_path / "must-not-exist.json"
+-    body = json.loads(EXPORT_SUCCESS_INPUT.read_text(encoding="utf-8"))
++    body = export_input(EXPORT_SUCCESS_INPUT, linked_solver_identity)
+     completed = run_final(
+         final, "export-results", body, "--output", str(output)
+     )
+@@ -609,10 +751,10 @@ def test_final_runner_export_results_requires_intent_once_and_writes_no_file(
+ 
+ 
+ def test_final_runner_export_results_invalid_wire_payload_preserves_report_code(
+-    runner_binaries,
++    runner_binaries, linked_solver_identity
+ ):
+     final, _ = runner_binaries
+-    body = json.loads(EXPORT_SUCCESS_INPUT.read_text(encoding="utf-8"))
++    body = export_input(EXPORT_SUCCESS_INPUT, linked_solver_identity)
+     body["export_results"]["audit_manifest"]["model_hash"]["value"] = "ABC"
+     completed = run_final(
+         final, "export-results", body, "--explicit-local-private-intent"
+@@ -628,6 +770,55 @@ def test_final_runner_export_results_invalid_wire_payload_preserves_report_code(
+     assert "REPORT-PACKAGE-SHA256-INVALID" in diagnostic["message"]
+ 
+ 
++@pytest.mark.parametrize(
++    ("stale_audit", "stale_envelopes", "message_detail"),
++    [
++        (True, False, "request identity does not match"),
++        (False, True, "result envelope identity does not match"),
++    ],
++)
++def test_final_runner_export_results_refuses_unlinked_solver_identity(
++    runner_binaries,
++    linked_solver_identity,
++    tmp_path,
++    stale_audit,
++    stale_envelopes,
++    message_detail,
++):
++    final, _ = runner_binaries
++    name, linked_version = linked_solver_identity
++    assert linked_version != PRIOR_PRODUCT_PHYSICS_VERSION
++    body = export_input(EXPORT_SUCCESS_INPUT, linked_solver_identity)
++    bind_solver_identity(
++        body,
++        name,
++        PRIOR_PRODUCT_PHYSICS_VERSION,
++        audit=stale_audit,
++        envelopes=stale_envelopes,
++    )
++    output = tmp_path / "must-not-exist.json"
++    completed = run_final(
++        final,
++        "export-results",
++        body,
++        "--output",
++        str(output),
++        "--explicit-local-private-intent",
++    )
++    assert completed.returncode == 1
++    controlled = json.loads(completed.stdout)
++    assert controlled["blocked"] is False
++    assert "report_package" not in controlled["payload"]
++    diagnostic = next(
++        item
++        for item in controlled["payload"]["diagnostics"]
++        if item["code"] == "HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_INVALID"
++    )
++    assert "REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH" in diagnostic["message"]
++    assert message_detail in diagnostic["message"]
++    assert not output.exists()
++
++
+ @pytest.mark.parametrize(
+     ("mutate", "serde_detail"),
+     [
+@@ -644,10 +835,10 @@ def test_final_runner_export_results_invalid_wire_payload_preserves_report_code(
+     ],
+ )
+ def test_final_runner_export_results_wire_deserialization_failures_exit_one(
+-    runner_binaries, tmp_path, mutate, serde_detail
++    runner_binaries, linked_solver_identity, tmp_path, mutate, serde_detail
+ ):
+     final, _ = runner_binaries
+-    body = json.loads(EXPORT_SUCCESS_INPUT.read_text(encoding="utf-8"))
++    body = export_input(EXPORT_SUCCESS_INPUT, linked_solver_identity)
+     mutate(body)
+     output = tmp_path / "must-not-exist.json"
+     completed = run_final(
+@@ -672,10 +863,10 @@ def test_final_runner_export_results_wire_deserialization_failures_exit_one(
+ 
+ 
+ def test_final_runner_export_results_native_size_is_exact_with_constant_cardinality(
+-    runner_binaries,
++    runner_binaries, linked_solver_identity
+ ):
+     final, _ = runner_binaries
+-    body = json.loads(EXPORT_SUCCESS_INPUT.read_text(encoding="utf-8"))
++    body = export_input(EXPORT_SUCCESS_INPUT, linked_solver_identity)
+     body["export_results"]["state_comparison_handoff_records"][0][
+         "invented_padding"
+     ] = "x" * 3_200_000
+@@ -725,7 +916,7 @@ def test_final_runner_subprocess_malformed_input_exits_two(runner_binaries):
+ def test_compatibility_runner_subprocess_controlled_stdout_and_exits(runner_binaries):
+     _, compat = runner_binaries
+     allowed = subprocess.run(
+-        [str(compat), str(PREVIEW_FIXTURE), "--explicit-local-private-intent"],
++        [str(compat), str(AUTHORED_PREVIEW_MODEL), "--explicit-local-private-intent"],
+         capture_output=True,
+         text=True,
+         check=False,
+@@ -734,9 +925,15 @@ def test_compatibility_runner_subprocess_controlled_stdout_and_exits(runner_bina
+     allowed_controlled = json.loads(allowed.stdout)
+     assert allowed_controlled["blocked"] is False
+     assert "runner_result" in allowed_controlled["payload"]
++    assert (
++        allowed_controlled["payload"]["mechanics_envelope"]["status"]["mechanics"]
++        == "MECHANICS_SOLVED"
++    )
+ 
++    # The same solvable model, so exit 1 is attributable to the missing
++    # local-private intent alone rather than to a refused solve.
+     blocked = subprocess.run(
+-        [str(compat), str(PREVIEW_FIXTURE)],
++        [str(compat), str(AUTHORED_PREVIEW_MODEL)],
+         capture_output=True,
+         text=True,
+         check=False,
+@@ -758,5 +955,30 @@ def test_compatibility_runner_subprocess_controlled_stdout_and_exits(runner_bina
+     assert "usage (PROVISIONAL" in usage.stderr
+ 
+ 
++def test_compatibility_runner_refuses_legacy_pressure_demo_as_explicit_control(
++    runner_binaries,
++):
++    _, compat = runner_binaries
++    legacy_model = json.loads(LEGACY_PRESSURE_PREVIEW_FIXTURE.read_text(encoding="utf-8"))
++    refused = subprocess.run(
++        [
++            str(compat),
++            str(LEGACY_PRESSURE_PREVIEW_FIXTURE),
++            "--explicit-local-private-intent",
++        ],
++        capture_output=True,
++        text=True,
++        check=False,
++    )
++    assert refused.returncode == 1, (refused.stderr, refused.stdout)
++    controlled = json.loads(refused.stdout)
++    # Explicit intent was given, so the refusal itself is visible, not withheld.
++    assert controlled["blocked"] is False
++    payload = controlled["payload"]
++    assert_legacy_pressure_refusal(
++        payload["mechanics_envelope"], payload["runner_result"], legacy_model
++    )
++
++
+ if __name__ == "__main__":
+     main()

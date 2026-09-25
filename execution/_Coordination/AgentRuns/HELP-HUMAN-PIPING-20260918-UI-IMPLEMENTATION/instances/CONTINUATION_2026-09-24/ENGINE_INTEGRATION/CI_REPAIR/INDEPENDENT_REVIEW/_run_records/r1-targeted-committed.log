@@ -1,0 +1,33 @@
+cmd: ../../node_modules/.bin/playwright test --project=chromium-desktop --project=chromium-compact --workers=1 --timeout=180000 --reporter=list e2e/gui-workflow-validation.spec.ts:108 e2e/linear-authoring.spec.ts:60 e2e/r2-smoke.spec.ts:66 e2e/r2-smoke.spec.ts:351 e2e/r2-smoke.spec.ts:1703 e2e/ui-foundation.spec.ts:677
+candidate: 8e216efbf2066a7d7a9e083dbcaadf07924b5a01 (committed bytes, clean tree)
+2026-09-25T18:34:00Z
+ 18:34:00 up  1:53,  0 user,  load average: 2.82, 3.40, 3.66
+
+Running 22 tests using 1 worker
+
+  ✓   1 [chromium-desktop] › e2e/gui-workflow-validation.spec.ts:108:1 › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions (33.0s)
+  ✓   2 [chromium-desktop] › e2e/linear-authoring.spec.ts:60:1 › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review (1.2m)
+  ✓   3 [chromium-desktop] › e2e/r2-smoke.spec.ts:66:1 › recorded reference sources retain the original row, quantity, unit and diagnostic oracles (26ms)
+  ✓   4 [chromium-desktop] › e2e/r2-smoke.spec.ts:351:1 › R2 browser smoke covers authoring, explicit reference results, and qualified-output refusals (51.6s)
+  ✓   5 [chromium-desktop] › e2e/r2-smoke.spec.ts:1703:1 › R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps (9.2s)
+  ✓   6 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas light comfortable 1024x768 @explicit-viewport (25.2s)
+  ✓   7 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas light comfortable 1280x800 @explicit-viewport (23.1s)
+  ✓   8 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas light comfortable 1440x920 @explicit-viewport (22.1s)
+  ✓   9 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas light compact 1024x768 @explicit-viewport (22.7s)
+  ✓  10 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas light compact 1280x800 @explicit-viewport (23.9s)
+  ✓  11 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas light compact 1440x920 @explicit-viewport (24.1s)
+  ✓  12 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas dark comfortable 1024x768 @explicit-viewport (25.8s)
+  ✓  13 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas dark comfortable 1280x800 @explicit-viewport (23.6s)
+  ✓  14 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas dark comfortable 1440x920 @explicit-viewport (23.7s)
+  ✓  15 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas dark compact 1024x768 @explicit-viewport (24.9s)
+  ✓  16 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas dark compact 1280x800 @explicit-viewport (21.5s)
+  ✓  17 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas dark compact 1440x920 @explicit-viewport (24.9s)
+  ✓  18 [chromium-compact] › e2e/gui-workflow-validation.spec.ts:108:1 › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions (28.4s)
+  ✓  19 [chromium-compact] › e2e/linear-authoring.spec.ts:60:1 › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review (1.1m)
+  ✓  20 [chromium-compact] › e2e/r2-smoke.spec.ts:66:1 › recorded reference sources retain the original row, quantity, unit and diagnostic oracles (33ms)
+  ✓  21 [chromium-compact] › e2e/r2-smoke.spec.ts:351:1 › R2 browser smoke covers authoring, explicit reference results, and qualified-output refusals (52.5s)
+  ✓  22 [chromium-compact] › e2e/r2-smoke.spec.ts:1703:1 › R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps (10.6s)
+
+  22 passed (10.3m)
+exit=0
+2026-09-25T18:44:16Z

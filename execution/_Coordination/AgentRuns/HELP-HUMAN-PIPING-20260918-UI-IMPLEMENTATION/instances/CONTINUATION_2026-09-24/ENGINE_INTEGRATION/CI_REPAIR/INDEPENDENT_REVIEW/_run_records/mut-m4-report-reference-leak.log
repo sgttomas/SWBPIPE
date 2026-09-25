@@ -1,0 +1,52 @@
+mutation m4-report-reference-leak: projects/chirality-piping/apps/desktop/src/App.tsx: replace '<ReportPanel\n                model={model}\n                knowledge={knowledge}\n                result={currentSolvedResult}' -> '<ReportPanel\n                model={model}\n                knowledge={knowledge}\n                result={currentSolvedResult ?? historicalRun?.mechanicsResult ?? null}'
+head 8e216efbf2066a7d7a9e083dbcaadf07924b5a01; original blob 715fbcb77cc8fe59464e349a217338f333a2c931
+start 2026-09-25T18:47:50.891250Z; load (5.4619140625, 4.892578125, 4.4931640625)
+cmd: ../../node_modules/.bin/playwright test --project=chromium-desktop --workers=1 --timeout=180000 --reporter=list e2e/r2-smoke.spec.ts:351
+
+
+Running 1 test using 1 worker
+
+  ✘  1 [chromium-desktop] › e2e/r2-smoke.spec.ts:351:1 › R2 browser smoke covers authoring, explicit reference results, and qualified-output refusals (49.2s)
+
+
+  1) [chromium-desktop] › e2e/r2-smoke.spec.ts:351:1 › R2 browser smoke covers authoring, explicit reference results, and qualified-output refusals 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByLabel('Report packet').getByTestId('report-redaction-blocked')
+    Expected substring: [32m"R[7mun the bounded preview mechanics path to assemble a report packet[27m"[39m
+    Received string:    [31m"R[7maw report DOM suppressed by redaction controls; the sanitized JSON packet is available above (832 redacted values).[27m"[39m
+    Timeout: 10000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 10000ms[22m
+    [2m  - waiting for getByLabel('Report packet').getByTestId('report-redaction-blocked')[22m
+    [2m    23 × locator resolved to <p class="muted" data-testid="report-redaction-blocked">Raw report DOM suppressed by redaction controls; …</p>[22m
+    [2m       - unexpected value "Raw report DOM suppressed by redaction controls; the sanitized JSON packet is available above (832 redacted values)."[22m
+
+
+      756 |   // is offered from an inspected reference. Redaction suppression of an assembled packet stays
+      757 |   // checked by the pure ReportPanel renders in App.test.tsx.
+    > 758 |   await expect(report.getByTestId("report-redaction-blocked")).toContainText(
+          |                                                                ^
+      759 |     "Run the bounded preview mechanics path to assemble a report packet"
+      760 |   );
+      761 |   await expect(report.getByTestId("report-export-link")).toHaveCount(0);
+        at /home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts:758:64
+
+    Error Context: test-results/r2-smoke-R2-browser-smoke--be17a-d-qualified-output-refusals-chromium-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/r2-smoke-R2-browser-smoke--be17a-d-qualified-output-refusals-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/r2-smoke-R2-browser-smoke--be17a-d-qualified-output-refusals-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium-desktop] › e2e/r2-smoke.spec.ts:351:1 › R2 browser smoke covers authoring, explicit reference results, and qualified-output refusals 
+
+playwright_rc=1 (non-zero means the mutation was caught)
+restored_blob=715fbcb77cc8fe59464e349a217338f333a2c931 equals_HEAD=True
+end 2026-09-25T18:48:44.672849Z

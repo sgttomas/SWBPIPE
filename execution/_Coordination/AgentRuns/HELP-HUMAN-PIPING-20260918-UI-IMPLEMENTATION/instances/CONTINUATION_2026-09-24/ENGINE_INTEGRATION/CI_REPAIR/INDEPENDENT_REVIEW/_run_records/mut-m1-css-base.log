@@ -1,0 +1,48 @@
+mutation m1-css-base: projects/chirality-piping/apps/desktop/src/styles.css: whole file replaced by 5b1ccd356:projects/chirality-piping/apps/desktop/src/styles.css
+head 8e216efbf2066a7d7a9e083dbcaadf07924b5a01; original blob 9ca23130e8d96ba6e0fa5df2509f54b94af50afe
+start 2026-09-25T18:45:13.806410Z; load (3.0966796875, 4.45703125, 4.3134765625)
+cmd: ../../node_modules/.bin/playwright test --project=chromium-desktop --workers=1 --timeout=180000 --reporter=list e2e/ui-foundation.spec.ts:677 -g light comfortable 1280x800
+
+
+Running 1 test using 1 worker
+
+  ✘  1 [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas light comfortable 1280x800 @explicit-viewport (15.4s)
+
+
+  1) [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas light comfortable 1280x800 @explicit-viewport 
+
+    Error: center is covered by result-filter-summary
+
+    [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+       at ui-foundation-workflows.ts:738
+
+      736 |   expect(witness.box.right).toBeLessThanOrEqual(witness.viewport.width);
+      737 |   expect(witness.box.bottom).toBeLessThanOrEqual(witness.viewport.height);
+    > 738 |   expect(witness.centerOwnedByTarget, `center is covered by ${witness.centerOwner ?? "no element"}`).toBe(true);
+          |                                                                                                      ^
+      739 |   if (options.minimumTarget) {
+      740 |     expect(witness.box.width).toBeGreaterThanOrEqual(24);
+      741 |     expect(witness.box.height).toBeGreaterThanOrEqual(24);
+        at expectCenterUnobscured (/home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/ui-foundation-workflows.ts:738:102)
+        at /home/user/wt/engine/projects/chirality-piping/apps/desktop/e2e/ui-foundation.spec.ts:886:9
+
+    Error Context: test-results/ui-foundation-task-and-ana-72367--light-comfortable-1280x800-chromium-desktop/error-context.md
+
+    attachment #10: trace (application/zip) ────────────────────────────────────────────────────────
+    test-results/ui-foundation-task-and-ana-72367--light-comfortable-1280x800-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ui-foundation-task-and-ana-72367--light-comfortable-1280x800-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium-desktop] › e2e/ui-foundation.spec.ts:677:7 › task and analysis dock preserve usable canvas light comfortable 1280x800 @explicit-viewport 
+
+playwright_rc=1 (non-zero means the mutation was caught)
+restored_blob=9ca23130e8d96ba6e0fa5df2509f54b94af50afe equals_HEAD=True
+end 2026-09-25T18:45:35.035734Z

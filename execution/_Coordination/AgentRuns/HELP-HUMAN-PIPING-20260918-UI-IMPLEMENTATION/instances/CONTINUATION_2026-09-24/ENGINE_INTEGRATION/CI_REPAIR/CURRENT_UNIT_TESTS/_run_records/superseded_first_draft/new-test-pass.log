@@ -1,0 +1,14 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/workspace/currentResultUnitPolicy.test.tsx
+
+
+ RUN  v4.1.10 /home/user/wt/engine/projects/chirality-piping/apps/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  19:09:48
+   Duration  3.19s (transform 782ms, setup 217ms, import 902ms, tests 1.45s, environment 445ms)
+
+exit=0

@@ -1,0 +1,58 @@
+{
+ "linked_identity": [
+  "open_pipe_stress_product_physics",
+  "0.2.0"
+ ],
+ "success": {
+  "exit": [
+   0,
+   0
+  ],
+  "stdout_identical": true,
+  "stdout_sha256": "a5768aa84891411c9a4d5c0a5bf135130a3e311f3827b25598fad9980aa00075",
+  "container_len": 28997,
+  "container_sha256_hex": "79f5b27c2b99af1603d29fab4edc34a8f43232d13ee0aab374f955f55b6fa932",
+  "members": [
+   [
+    "package_manifest.json",
+    3620
+   ],
+   [
+    "calculation_report.html",
+    6485
+   ],
+   [
+    "calculation_report.pdf",
+    13339
+   ],
+   [
+    "audit_manifest.json",
+    1014
+   ],
+   [
+    "result_export_invented-result-envelope-001.json",
+    2999
+   ],
+   [
+    "state_comparison_handoff_sections_invented-section-set-001.json",
+    672
+   ]
+  ]
+ },
+ "native_size": {
+  "exit": 0,
+  "container_len": 3229023,
+  "lower_bound_asserted": 3189621,
+  "container_sha256_hex": "96a4f842ec9045726616a58691041287a35d2bd3740ec7b491228310ad376a4e"
+ },
+ "authored_solve": {
+  "exit": 0,
+  "mechanics": "MECHANICS_SOLVED",
+  "results": 175,
+  "producer": {
+   "component_name": "open_pipe_stress_product_physics",
+   "component_version": "0.2.0",
+   "semantic_contract_id": "openpipestress.result_semantics/0.3.0/physics-1"
+  }
+ }
+}

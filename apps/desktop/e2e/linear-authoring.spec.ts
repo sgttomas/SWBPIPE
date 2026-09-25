@@ -245,8 +245,8 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await projectCommand(page, "open-local");
   await openWorkspaceSection(page, "results");
   // A refused browser Run produced no result, so the reopened project carries no saved run to
-  // show as Historical. The saved-run reopen path (HISTORICAL_INPUT_MANIFEST_MISSING and the
-  // recorded status) stays covered by the unit tests of App.test.tsx and HistoricalRunContext.test.tsx.
+  // show as Historical. The saved-run reopen path stays covered by unit tests: the manifest
+  // finding in App.test.tsx and HistoricalRunContext.test.tsx, the recorded status in App.shell.test.tsx.
   await expect(page.getByTestId("results-panel")).toContainText("Run the bounded preview mechanics path to populate result summaries.");
   await expect(page.getByTestId("historical-run-context")).toHaveCount(0);
   expect(await currentModelHash(page)).toBe(baseline350Hash);

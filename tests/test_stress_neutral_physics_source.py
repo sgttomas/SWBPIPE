@@ -180,8 +180,10 @@ def test_method_namespace_removal_substitution_and_relabel_are_rejected(path):
             validate_instance(json.loads(SCHEMA.read_text()), packet, instance_label="invalid namespace")
     packet = deepcopy(original)
     packet["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/unknown-method"
-    rehash_packet(packet)
-    with pytest.raises(ValueError): sn.validate_stress_neutral_export_package_v0_3(packet)
+    # The CSV wire policy is method-bound, so an unknown method cannot even be
+    # re-materialized; the materializer and the validator must each refuse it.
+    with pytest.raises(ValueError, match="SN-CSV-PROFILE-MISMATCH"): rehash_packet(deepcopy(packet))
+    with pytest.raises(ValueError, match="SOURCE_PRODUCER_CONTRACT_UNSUPPORTED"): sn.validate_stress_neutral_export_package_v0_3(packet)
     with pytest.raises(AssertionError): validate_instance(json.loads(SCHEMA.read_text()), packet, instance_label="unknown method")
     packet = deepcopy(original); packet["semantic_contract"]["sha256"] = "f" * 64; rehash_packet(packet)
     with pytest.raises(ValueError, match="SEMANTIC-CONTRACT"):

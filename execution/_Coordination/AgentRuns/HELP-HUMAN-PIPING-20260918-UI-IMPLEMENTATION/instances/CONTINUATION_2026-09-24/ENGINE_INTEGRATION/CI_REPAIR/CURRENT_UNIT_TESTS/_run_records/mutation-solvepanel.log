@@ -1,0 +1,61 @@
+test file: f6721af8bf98710af970e6ed990b723a7497e32f546388780060a2799bbe6a2e  apps/desktop/src/features/workspace/currentResultUnitPolicy.test.tsx
+before: e5bd20ba1ba873c7add676bca9d9be189abbe31b338c658e8f89217968f0f6a1  apps/desktop/src/features/solve/SolvePanel.tsx
+git blob HEAD: e5bd20ba1ba873c7add676bca9d9be189abbe31b338c658e8f89217968f0f6a1  -
+mutated: e20f44c22e6599da8617f5d68d9ac753047daab0fcd5dc47a3a331a14eeba7ab  apps/desktop/src/features/solve/SolvePanel.tsx
+diff --git a/projects/chirality-piping/apps/desktop/src/features/solve/SolvePanel.tsx b/projects/chirality-piping/apps/desktop/src/features/solve/SolvePanel.tsx
+index 78f5f7744..23a4828a6 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/solve/SolvePanel.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/solve/SolvePanel.tsx
+@@ -297,7 +297,7 @@ function buildSolveJobUnitPolicyEvidence({
+     storage_convention: "entered_units_preserved",
+     solve_job_unit_policy: "solve_job_audit_records_model_and_result_units_without_conversion",
+     model_units: sortedStringRecord(model.project.units),
+-    result_units: uniqueSorted((result?.results ?? []).map((item) => item.unit)),
++    result_units: uniqueSorted((result?.results ?? []).map((item) => item.unit)).filter((unit) => unit !== "N*m/rad"),
+     result_row_count: result?.results.length ?? 0,
+     analysis_run_ref: analysisRun?.analysis_run
+       ? reference("AnalysisRun", analysisRun.analysis_run.run_id)
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/workspace/currentResultUnitPolicy.test.tsx
+
+
+ RUN  v4.1.10 /home/user/wt/engine/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/workspace/currentResultUnitPolicy.test.tsx (2 tests | 1 failed) 871ms
+   × reports a qualified Current result's recorded units, including N*m/rad and N/m, unconverted in the solve and design unit lines 721ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/workspace/currentResultUnitPolicy.test.tsx > reports a qualified Current result's recorded units, including N*m/rad and N/m, unconverted in the solve and design unit lines
+AssertionError: expected 'model=angle=rad,force=N,length=m,pres…' to be 'model=angle=rad,force=N,length=m,pres…' // Object.is equality
+
+Expected: "model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC; results=MPa,N,N*m,N*m/rad,N/m,boolean,count,m,mm,mode_code,rad,state_code; rows=830; conversion=false"
+Received: "model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC; results=MPa,N,N*m,N/m,boolean,count,m,mm,mode_code,rad,state_code; rows=830; conversion=false"
+
+ ❯ src/features/workspace/currentResultUnitPolicy.test.tsx:93:48
+     91|
+     92|   const { solve, design, line } = renderPanels(result.current);
+     93|   expect(line(solve, "solve-job-unit-policy")).toBe(`${modelUnits}; re…
+       |                                                ^
+     94|   expect(within(solve.container).getByTestId("solve-job-summary")).toH…
+     95|   expect(within(solve.container).getByTestId("solve-job-summary")).toH…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  19:24:21
+   Duration  2.83s (transform 1.03s, setup 149ms, import 1.29s, tests 871ms, environment 366ms)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /home/user/wt/engine/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run src/features/workspace/currentResultUnitPolicy.test.tsx
+mutant test exit=1
+restored: e5bd20ba1ba873c7add676bca9d9be189abbe31b338c658e8f89217968f0f6a1  apps/desktop/src/features/solve/SolvePanel.tsx
+git diff empty after restore: yes

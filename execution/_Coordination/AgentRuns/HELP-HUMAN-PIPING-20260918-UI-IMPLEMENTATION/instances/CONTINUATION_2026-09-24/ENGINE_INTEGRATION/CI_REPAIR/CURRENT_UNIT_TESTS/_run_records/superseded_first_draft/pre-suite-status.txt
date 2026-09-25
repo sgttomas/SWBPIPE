@@ -1,0 +1,4 @@
+ M projects/chirality-piping/tests/test_stress_neutral_physics_source.py
+?? projects/chirality-piping/apps/desktop/src/features/workspace/currentResultUnitPolicy.test.tsx
+?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CI_REPAIR/CURRENT_UNIT_TESTS/
+?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CI_REPAIR/INDEPENDENT_REVIEW/

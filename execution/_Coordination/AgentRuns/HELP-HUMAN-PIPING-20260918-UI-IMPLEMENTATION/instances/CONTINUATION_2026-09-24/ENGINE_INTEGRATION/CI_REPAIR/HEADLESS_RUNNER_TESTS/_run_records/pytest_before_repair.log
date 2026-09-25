@@ -1,0 +1,229 @@
+    Finished `release` profile [optimized] target(s) in 0.02s
+    Finished `release` profile [optimized] target(s) in 0.03s
+...F..FF..FFF..F.F                                                       [100%]
+=================================== FAILURES ===================================
+_______ test_final_runner_subprocess_covers_every_active_verb_and_stdout _______
+
+runner_binaries = (PosixPath('/home/user/wt/engine/projects/chirality-piping/core/runner/headless/target/debug/openpipestress-runner'), PosixPath('/home/user/wt/engine/projects/chirality-piping/core/runner/headless/target/debug/headless_preview_runner'))
+
+    def test_final_runner_subprocess_covers_every_active_verb_and_stdout(runner_binaries):
+        final, _ = runner_binaries
+        for verb, operation, extra in active_final_runner_cases():
+            body = {"request": final_runner_request(operation), **extra}
+            completed = run_final(final, verb, body, "--explicit-local-private-intent")
+>           assert completed.returncode == 0, (verb, completed.stderr, completed.stdout)
+E           AssertionError: ('solve', '', '{
+E               "payload": {
+E                 "artifact": "openpipestress.headless_runner_cli_output",
+E                 "command": "solve"...    "blocking_count": 0,
+E                 "cloud_transmission_attempted": false,
+E                 "professional_claims_made": false
+E               }
+E             }
+E             ')
+E           assert 1 == 0
+E            +  where 1 = CompletedProcess(args=['/home/user/wt/engine/projects/chirality-piping/core/runner/headless/target/debug/openpipestres...ng_count": 0,\n    "cloud_transmission_attempted": false,\n    "professional_claims_made": false\n  }\n}\n', stderr='').returncode
+
+tests/test_headless_runner_contract.py:452: AssertionError
+_ test_final_runner_subprocess_export_results_success_is_deterministic_and_zip_exact _
+
+runner_binaries = (PosixPath('/home/user/wt/engine/projects/chirality-piping/core/runner/headless/target/debug/openpipestress-runner'), PosixPath('/home/user/wt/engine/projects/chirality-piping/core/runner/headless/target/debug/headless_preview_runner'))
+
+    def test_final_runner_subprocess_export_results_success_is_deterministic_and_zip_exact(
+        runner_binaries,
+    ):
+        final, _ = runner_binaries
+        body = json.loads(EXPORT_SUCCESS_INPUT.read_text(encoding="utf-8"))
+        first = run_final(
+            final, "export-results", body, "--explicit-local-private-intent"
+        )
+        second = run_final(
+            final, "export-results", body, "--explicit-local-private-intent"
+        )
+>       assert first.returncode == second.returncode == 0, (first.stderr, second.stderr)
+E       AssertionError: ('', '')
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/home/user/wt/engine/projects/chirality-piping/core/runner/headless/target/debug/openpipestres...ng_count": 0,\n    "cloud_transmission_attempted": false,\n    "professional_claims_made": false\n  }\n}\n', stderr='').returncode
+
+tests/test_headless_runner_contract.py:503: AssertionError
+_______ test_final_runner_export_results_output_is_only_named_json_file ________
+
+runner_binaries = (PosixPath('/home/user/wt/engine/projects/chirality-piping/core/runner/headless/target/debug/openpipestress-runner'), PosixPath('/home/user/wt/engine/projects/chirality-piping/core/runner/headless/target/debug/headless_preview_runner'))
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-12/test_final_runner_export_resul0')
+
+    def test_final_runner_export_results_output_is_only_named_json_file(
+        runner_binaries, tmp_path
+    ):
+        final, _ = runner_binaries
+        body = json.loads(EXPORT_SUCCESS_INPUT.read_text(encoding="utf-8"))
+        output = tmp_path / "runner-result.json"
+        completed = run_final(
+            final,
+            "export-results",
+            body,
+            "--output",
+            str(output),
+            "--explicit-local-private-intent",
+        )
+>       assert completed.returncode == 0, completed.stderr
+E       AssertionError: 
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/home/user/wt/engine/projects/chirality-piping/core/runner/headless/target/debug/openpipestres...ng_count": 0,\n    "cloud_transmission_attempted": false,\n    "professional_claims_made": false\n  }\n}\n', stderr='').returncode
+
+tests/test_headless_runner_contract.py:546: AssertionError
+_ test_final_runner_export_results_failures_have_no_payload_or_file[input_path2-HEADLESS_RUNNER_EXPORT_RESULTS_PACKAGE_BLOCKED] _
+
+runner_binaries = (PosixPath('/home/user/wt/engine/projects/chirality-piping/core/runner/headless/target/debug/openpipestress-runner'), PosixPath('/home/user/wt/engine/projects/chirality-piping/core/runner/headless/target/debug/headless_preview_runner'))
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-12/test_final_runner_export_resul3')
+input_path = PosixPath('/home/user/wt/engine/projects/chirality-piping/validation/witness/inputs/del1005_export_results_producer_blocked_input.json')
+diagnostic_code = 'HEADLESS_RUNNER_EXPORT_RESULTS_PACKAGE_BLOCKED'
+
+    @pytest.mark.parametrize(
+        ("input_path", "diagnostic_code"),
+        [
+            (EXPORT_MISSING_INPUT, "HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_MISSING"),
+            (EXPORT_MISMATCH_INPUT, "HEADLESS_RUNNER_EXPORT_RESULTS_BINDING_MISMATCH"),
+            (EXPORT_BLOCKED_INPUT, "HEADLESS_RUNNER_EXPORT_RESULTS_PACKAGE_BLOCKED"),
+        ],
+    )
+    def test_final_runner_export_results_failures_have_no_payload_or_file(
+        runner_binaries, tmp_path, input_path, diagnostic_code
+    ):
+        final, _ = runner_binaries
+        output = tmp_path / "must-not-exist.json"
+        body = json.loads(input_path.read_text(encoding="utf-8"))
+        completed = run_final(
+            final,
+            "export-results",
+            body,
+            "--output",
+            str(output),
+            "--explicit-local-private-intent",
+        )
+        assert completed.returncode == 1
+        controlled = json.loads(completed.stdout)
+        assert "report_package" not in controlled["payload"]
+>       assert any(
+            diagnostic["code"] == diagnostic_code
+            for diagnostic in controlled["payload"]["diagnostics"]
+        )
+E       assert False
+E        +  where False = any(<generator object test_final_runner_export_results_failures_have_no_payload_or_file.<locals>.<genexpr> at 0x7f029a5a7920>)
+
+tests/test_headless_runner_contract.py:576: AssertionError
+___ test_final_runner_export_results_requires_intent_once_and_writes_no_file ___
+
+runner_binaries = (PosixPath('/home/user/wt/engine/projects/chirality-piping/core/runner/headless/target/debug/openpipestress-runner'), PosixPath('/home/user/wt/engine/projects/chirality-piping/core/runner/headless/target/debug/headless_preview_runner'))
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-12/test_final_runner_export_resul4')
+
+    def test_final_runner_export_results_requires_intent_once_and_writes_no_file(
+        runner_binaries, tmp_path
+    ):
+        final, _ = runner_binaries
+        output = tmp_path / "must-not-exist.json"
+        body = json.loads(EXPORT_SUCCESS_INPUT.read_text(encoding="utf-8"))
+        completed = run_final(
+            final, "export-results", body, "--output", str(output)
+        )
+        assert completed.returncode == 1
+        controlled = json.loads(completed.stdout)
+        assert controlled["blocked"] is True
+        assert controlled["payload"] is None
+        package_decisions = [
+            decision
+            for decision in controlled["decisions"]
+            if decision["path"] == "$.report_package"
+        ]
+        package_findings = [
+            finding
+            for finding in controlled["findings"]
+            if finding["path"] == "$.report_package"
+        ]
+>       assert len(package_decisions) == len(package_findings) == 1
+E       assert 0 == 1
+E        +  where 0 = len([])
+
+tests/test_headless_runner_contract.py:606: AssertionError
+_ test_final_runner_export_results_invalid_wire_payload_preserves_report_code __
+
+runner_binaries = (PosixPath('/home/user/wt/engine/projects/chirality-piping/core/runner/headless/target/debug/openpipestress-runner'), PosixPath('/home/user/wt/engine/projects/chirality-piping/core/runner/headless/target/debug/headless_preview_runner'))
+
+    def test_final_runner_export_results_invalid_wire_payload_preserves_report_code(
+        runner_binaries,
+    ):
+        final, _ = runner_binaries
+        body = json.loads(EXPORT_SUCCESS_INPUT.read_text(encoding="utf-8"))
+        body["export_results"]["audit_manifest"]["model_hash"]["value"] = "ABC"
+        completed = run_final(
+            final, "export-results", body, "--explicit-local-private-intent"
+        )
+        assert completed.returncode == 1
+        controlled = json.loads(completed.stdout)
+        assert "report_package" not in controlled["payload"]
+        diagnostic = next(
+            item
+            for item in controlled["payload"]["diagnostics"]
+            if item["code"] == "HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_INVALID"
+        )
+>       assert "REPORT-PACKAGE-SHA256-INVALID" in diagnostic["message"]
+E       AssertionError: assert 'REPORT-PACKAGE-SHA256-INVALID' in 'export_results payload is invalid: REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH: request identity does not match the linked product-physics component'
+
+tests/test_headless_runner_contract.py:628: AssertionError
+_ test_final_runner_export_results_native_size_is_exact_with_constant_cardinality _
+
+runner_binaries = (PosixPath('/home/user/wt/engine/projects/chirality-piping/core/runner/headless/target/debug/openpipestress-runner'), PosixPath('/home/user/wt/engine/projects/chirality-piping/core/runner/headless/target/debug/headless_preview_runner'))
+
+    def test_final_runner_export_results_native_size_is_exact_with_constant_cardinality(
+        runner_binaries,
+    ):
+        final, _ = runner_binaries
+        body = json.loads(EXPORT_SUCCESS_INPUT.read_text(encoding="utf-8"))
+        body["export_results"]["state_comparison_handoff_records"][0][
+            "invented_padding"
+        ] = "x" * 3_200_000
+        completed = run_final(
+            final, "export-results", body, "--explicit-local-private-intent"
+        )
+>       assert completed.returncode == 0, completed.stderr
+E       AssertionError: 
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/home/user/wt/engine/projects/chirality-piping/core/runner/headless/target/debug/openpipestres...ng_count": 0,\n    "cloud_transmission_attempted": false,\n    "professional_claims_made": false\n  }\n}\n', stderr='').returncode
+
+tests/test_headless_runner_contract.py:685: AssertionError
+_______ test_compatibility_runner_subprocess_controlled_stdout_and_exits _______
+
+runner_binaries = (PosixPath('/home/user/wt/engine/projects/chirality-piping/core/runner/headless/target/debug/openpipestress-runner'), PosixPath('/home/user/wt/engine/projects/chirality-piping/core/runner/headless/target/debug/headless_preview_runner'))
+
+    def test_compatibility_runner_subprocess_controlled_stdout_and_exits(runner_binaries):
+        _, compat = runner_binaries
+        allowed = subprocess.run(
+            [str(compat), str(PREVIEW_FIXTURE), "--explicit-local-private-intent"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+>       assert allowed.returncode == 0, (allowed.stderr, allowed.stdout)
+E       AssertionError: ('', '{
+E           "payload": {
+E             "mechanics_envelope": {
+E               "accepted_model_state_mutated": false,
+E               "diagnostics...    "blocking_count": 0,
+E             "cloud_transmission_attempted": false,
+E             "professional_claims_made": false
+E           }
+E         }
+E         ')
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/home/user/wt/engine/projects/chirality-piping/core/runner/headless/target/debug/headless_prev...ng_count": 0,\n    "cloud_transmission_attempted": false,\n    "professional_claims_made": false\n  }\n}\n', stderr='').returncode
+
+tests/test_headless_runner_contract.py:733: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_headless_runner_contract.py::test_final_runner_subprocess_covers_every_active_verb_and_stdout
+FAILED tests/test_headless_runner_contract.py::test_final_runner_subprocess_export_results_success_is_deterministic_and_zip_exact
+FAILED tests/test_headless_runner_contract.py::test_final_runner_export_results_output_is_only_named_json_file
+FAILED tests/test_headless_runner_contract.py::test_final_runner_export_results_failures_have_no_payload_or_file[input_path2-HEADLESS_RUNNER_EXPORT_RESULTS_PACKAGE_BLOCKED]
+FAILED tests/test_headless_runner_contract.py::test_final_runner_export_results_requires_intent_once_and_writes_no_file
+FAILED tests/test_headless_runner_contract.py::test_final_runner_export_results_invalid_wire_payload_preserves_report_code
+FAILED tests/test_headless_runner_contract.py::test_final_runner_export_results_native_size_is_exact_with_constant_cardinality
+FAILED tests/test_headless_runner_contract.py::test_compatibility_runner_subprocess_controlled_stdout_and_exits
+8 failed, 10 passed in 0.50s

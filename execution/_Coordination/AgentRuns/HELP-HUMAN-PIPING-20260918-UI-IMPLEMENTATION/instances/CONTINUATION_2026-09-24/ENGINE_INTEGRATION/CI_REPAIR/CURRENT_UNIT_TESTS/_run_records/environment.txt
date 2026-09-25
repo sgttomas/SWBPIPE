@@ -1,0 +1,15 @@
+date: 2026-09-25T19:10:47Z
+host: Linux 6.18.44-fc-v37 x86_64
+nproc: 4
+node: v24.21.0
+npm: 11.19.0
+vitest: vitest/4.1.10 linux-x64 node-v24.21.0
+tsc: Version 5.9.3
+HEAD: 347e214fe265b13e6d24f847f163821f0c833018
+branch: claude/inspiring-ptolemy-zxofd6
+ff command: git -C /home/user/wt/engine merge --ff-only 347e214fe (8e216efbf -> 347e214fe)
+wasm assets:
+af2b07abf12dac915fb0e90124135d578eb7c2b473ec402dbe285900608cb8a8  apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.d.ts
+5682432840e2199512059d7956dfdb51521179b797145a05835a5bfa0be71595  apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.js
+7ca503d4106fb6ea9ac6e0ee5d56429d1d8cfe61b2e542768e23acb6e441932f  apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm
+37a68fc929d21e62fad7683b94f26b7233691df567956908f345c257c8a3ae16  apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts
