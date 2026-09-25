@@ -1,0 +1,11 @@
+# Engine integration record locations
+
+The current portable path authority for this records-only repair is [PORTABILITY_RECORD_RELOCATION.json](PORTABILITY_RECORD_RELOCATION.json). It maps119 original paths at Gitc278f64ba122eb8b848b9f14e58a0e533e94439a to byte-identical raw records in sibling `_run_records` directories, with SHA256 and original relative context. It also binds the narrow portable views of eight briefs and DEPENDENCIES.json, plus deliberately updated manager handoff links.
+
+Raw execution commands, machine coordinates, source hashes and original `git_blob` paths were not rewritten. References inside a moved raw record are interpreted against its original path/commit; use the relocation map to find a moved local target. Other historical records and frozen manifests retain their original paths and hashes as Git-bound evidence, rather than silently becoming new execution records. Original supplied brief bytes remain in Git; the current brief changes are path anchors only.
+
+Current entrypoints: [manager handoff](RETURN.md), [native scenario handoff](NATIVE_HANDOFF.md), [portable dependency view](DEPENDENCIES.json), [consumer final handoff](PHYSICS_READER_JOIN/RESUME_01/RETURN.md), and [final review coverage addendum](FINAL_REVIEW_COVERAGE_ADDENDUM.json). These are navigation aids, not new product or native evidence.
+
+Root owns ROOT_MAIN_UNION, ROOT_VALIDATION_UNION and NATIVE_OBSERVATION_DIAGNOSIS plus all cross-scope active links. Their two flagged engine records and the seven SOLVER_MANAGER records are not part of this119-record map. The native evidence packet is untouched. No policy exception, instruction amendment, receipt, MEMORY entry, product/test/schema/fixture edit or Git mutation is included.
+
+Focused verification is in [_run_records/record_portability_checks.json](_run_records/record_portability_checks.json). The [cross-scope report](_run_records/record_portability_cross_scope_links.json) lists eleven literal references across four Root-owned or out-of-scope files. Ten are historical raw policy/review references; one is a non-executable provenance comment in nativeMechanicsReplay.ts. None was rewritten. ROOT explicitly selected keeping all eleven as historical c278 addresses resolved by original Git plus this map; no unresolved active cross-scope repair is assigned here.

@@ -1,6 +1,8 @@
 # Connected physics-1 reader return
 
-Implemented the assigned reader/semantic/export/persistence-record slice in the joined integration checkout. The bounded candidate consists of the 22 paths and hashes in `OWNED_SOURCE_MANIFEST.json`; actual parentage, context origins and checks are in `EXECUTION.json`. Two TASK children implemented disjoint Rust and desktop surfaces and did not delegate further. No external Git, main-checkout edits, native application or browser work was performed.
+Record-location note: current links below use the byte-identical relocations in `../PORTABILITY_RECORD_RELOCATION.json`. Original handoff bytes remain at `c278f64ba122eb8b848b9f14e58a0e533e94439a:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RETURN.md`; historical status, hash values and Git identities are unchanged. This path repair does not reactivate a completed assignment.
+
+Implemented the assigned reader/semantic/export/persistence-record slice in the joined integration checkout. The bounded candidate consists of the 22 paths and hashes in `OWNED_SOURCE_MANIFEST.json`; actual parentage, context origins and checks are in `_run_records/EXECUTION.json`. Two TASK children implemented disjoint Rust and desktop surfaces and did not delegate further. No external Git, main-checkout edits, native application or browser work was performed.
 
 ## Result
 
@@ -15,7 +17,7 @@ Parent supplied the requested optional `MechanicsResult.contract_evidence` share
 - Rust result_export: 16 passed (6 physics, 4 precision, 6 derivative); `RUST_TASK/cargo-consumer-tests-01.log`.
 - Headless source-binding module: 5 passed, including actual sparse/dense exact solves through opaque invocation proof into canonical export, unchanged source/row accounting, Sensitive refusal, typed no-proof refusal and separate public nonzero legacy-pressure refusal; `headless-regressions-final.log`.
 - Python: 116 distinct focused checks passed. `python-current-canonical.log` has115 passes and an initially absent optional precision-artifact test; the latter passed once live headless artifacts were generated (`python-headless-precision-final.log`). Actual physics and p1 Rust source/derivative hashes agree with Python analysis records, and actual canonical physics documents pass the versioned schema.
-- Desktop: 168 tests passed across11 bounded files, including reader/export/compatibility and parent-authoring/native-package regressions; final TypeScript check passed. `TS_TASK/RETURN.md` and `TS_TASK/EXECUTION.json` identify commands, sources and logs.
+- Desktop: 168 tests passed across11 bounded files, including reader/export/compatibility and parent-authoring/native-package regressions; final TypeScript check passed. `TS_TASK/RETURN.md` and `TS_TASK/_run_records/EXECUTION.json` identify commands, sources and logs.
 - Both WASM engines were built from current candidate source. `TS_TASK/WASM_ARTIFACTS.json` binds outputs. The dependency-only node_modules link and generated candidate artifacts remain available for parent native integration; shared dependencies were not mutated, and no old source/WASM artifacts were substituted.
 - Scoped diff whitespace checks pass. Existing unrelated compiler warnings and jsonschema deprecation warnings are retained in raw logs.
 

@@ -1,0 +1,29 @@
+{
+  "current_local_record_path_updates": [
+    {
+      "maintained_file": "projects/chirality-piping/validation/qualification/capability_inventory.json",
+      "old_record_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/INDEPENDENT_REVIEW/RETURN.md",
+      "new_record_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/_run_records/INDEPENDENT_REVIEW/RETURN.md",
+      "sha256_unchanged": "aed66cd8bac3e427a727683ceac7d34a77e693d35b0d2d8c68da3143d59b0d90",
+      "owner": "Root",
+      "status": "Root reports applied and inventory checker passed"
+    },
+    {
+      "maintained_file": "projects/chirality-piping/validation/qualification/capability_inventory.json",
+      "old_record_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/INDEPENDENT_REVIEW/FINAL_CHECKED_HASHES.json",
+      "new_record_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/_run_records/INDEPENDENT_REVIEW/FINAL_CHECKED_HASHES.json",
+      "sha256_unchanged": "4960a49879c02230c32029fc4ca489f60a120aae3d09c3cae720ee84fddc4873",
+      "owner": "Root",
+      "status": "Root reports applied and inventory checker passed"
+    }
+  ],
+  "root_consequence_record": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/_run_records/RECORD_PORTABILITY/CURRENT_INVENTORY_LINKS.json",
+    "sha256": "0cf1242bd1d00f79afc37ae393b1581084bc1320bb64264cb7cdc44ec9b7a9f7"
+  },
+  "preserve_historical_pointers": [
+    "Promoted fixture source_location and origin_path fields, including original74bd/c278 Git paths",
+    "All git_blob source paths and immutable raw capture/manifest original-address fields"
+  ],
+  "root_owns": "Global work-graph and cross-manager current links; this manager changed no maintained source outside VALIDATION_FOUNDATION."
+}

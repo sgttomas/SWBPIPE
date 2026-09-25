@@ -1,0 +1,997 @@
+{
+  "scope": "Changed and new portability candidate surfaces from initial inventory, current unchanged policy; full project self-check inspected separately",
+  "policy_issues": [],
+  "machine_path_classifications": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/_run_records/ACTUAL_CAPTURE_01.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 17
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/_run_records/ACTUAL_CAPTURE_02.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 17
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/_run_records/ACTUAL_UNICODE_CAPTURE.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 4
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/_run_records/ACTUAL_UNIT_CAPTURE.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 8
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/_run_records/INPUT_ORIGINS.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 12
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/_run_records/namespace-01.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/_run_records/product-check-01.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/_run_records/product-regression-01.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/_run_records/public-01.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/_run_records/public-02.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/_run_records/public-03.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/_run_records/public-04.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/_run_records/public-05.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/_run_records/resource-measurement-01.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/_run_records/source-layer-01.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/_run_records/source-layer-02.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_REVIEW/INDEPENDENT_REVIEW/_run_records/EXECUTION.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 28
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_REVIEW/INDEPENDENT_REVIEW/_run_records/POLICY_RECORD_REVIEW.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 3
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CREATE_SECTION_INPUTS/_run_records/DIAGNOSIS.md",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CREATE_SECTION_INPUTS/_run_records/basis_and_red_control.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CREATE_SECTION_INPUTS/_run_records/red-command.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/CREATE_SECTION_INPUTS/_run_records/verification.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 4
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/EXACT_AUTHORING/BATCH_JOIN_REPAIR/_run_records/focused-01.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/EXACT_AUTHORING/UI_ACCESSIBILITY_REPAIR/_run_records/BINDING.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/FINAL_FRONTEND_REVIEW/INDEPENDENT_REVIEW/_run_records/FINAL_CHECKED_HASHES.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 16
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/FINAL_FRONTEND_REVIEW/INDEPENDENT_REVIEW/_run_records/PROVENANCE.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 15
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/FINAL_FRONTEND_REVIEW/INDEPENDENT_REVIEW/_run_records/SEMANTIC_PROBE_REPAIRED.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/FINAL_SUPPORT_REVIEW/INDEPENDENT_REVIEW/_run_records/EXECUTION.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 29
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/MEMBRANE_RANGE_JOIN/_run_records/range_probe.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 3
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/NATIVE_OBSERVATION_DIAGNOSIS/_run_records/EVIDENCE.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/NATIVE_SOURCE_REVIEW/_run_records/EXECUTION.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 12
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/APP_TESTS/_run_records/EXECUTION.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/BROWSER_FOUNDATION_TESTS/_run_records/BASIS.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/BROWSER_FOUNDATION_TESTS/_run_records/TRANSPILE.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/BROWSER_JOURNEY_TESTS/_run_records/PREMISE_PREIMAGES.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/BROWSER_JOURNEY_TESTS/_run_records/SOURCE_MANIFEST.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/CHECKPOINT_01/_run_records/CHECKS.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/CHECKPOINT_02/_run_records/CHECKS.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/FINAL_CHECKS/_run_records/CHECKS.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/BROWSER_REFERENCE/PANEL_SUPPLEMENT/_run_records/TS02_OUTCOME.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/PYTHON_PARITY_REPAIR/_run_records/ACTUAL_TS_AFTER.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 6
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/PYTHON_PARITY_REPAIR/_run_records/EXECUTION_BASIS.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 17
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/PYTHON_PARITY_REPAIR/_run_records/PROBE_EXECUTION.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/PYTHON_PARITY_REPAIR/_run_records/python-focused-01.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 5
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/PYTHON_PARITY_REPAIR/_run_records/rust-focused-01.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/CHECKS/_run_records/CONNECTED_RUNS_01.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 79
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/CHECKS/_run_records/READER_ATTEMPTS.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/CLI_CAPTURE/ORDINARY_PHYSICS/_run_records/MANIFEST.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 3
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/CLI_CAPTURE/_run_records/MANIFEST.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 8
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/COMPOSITE_TS/_run_records/CR01_CR03.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/COMPOSITE_TS/_run_records/EXECUTION.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 14
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/COMPOSITE_TS/_run_records/SHAPE_DIAGNOSIS_01.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/COMPOSITE_VALIDATOR/REVIEW_REPAIR/_run_records/SOURCE_HASHES.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 3
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/HEADLESS_TASK/_run_records/EXECUTION_BASIS.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 19
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/SCHEMA_TASK/_run_records/EXECUTION.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 22
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/CR02_VALUE_BITS/_run_records/ACTUAL_ANNOTATION_ONLY.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/CR02_VALUE_BITS/_run_records/EXECUTION_BASIS.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/CR02_VALUE_BITS/_run_records/mixed-roundtrip-01.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 4
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/CR02_VALUE_BITS/_run_records/pure-values-01.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 3
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/UTF8_CSV/_run_records/EXECUTION_BASIS.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/UTF8_CSV/_run_records/actual-unicode-01.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 4
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/UTF8_CSV/_run_records/pure-utf8-01.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 7
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/WITNESS_TARGET_INTEROP/_run_records/EXECUTION_BASIS.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/WITNESS_TARGET_INTEROP/_run_records/FOCUSED_TEST_RESULT.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 42
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/WITNESS_TARGET_INTEROP/_run_records/FOCUSED_TEST_START.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 23
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/_run_records/EXECUTION_BASIS.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 6
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/_run_records/P1_REGRESSION_01.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/STRESS_NEUTRAL_PYTHON/_run_records/focused-01.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 3
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FANIN/_run_records/CANDIDATES.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 23
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/ANALYSIS_SIGNATURE_DELTA/_run_records/MANIFEST.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 5
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/SUPPORT_INTEROP_DELTA/_run_records/CAUSE.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/SUPPORT_INTEROP_DELTA/_run_records/MANIFEST.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/_run_records/APP_COMMAND.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 4
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/_run_records/CHECKS.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 13
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/_run_records/EXECUTION_PROVENANCE.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 61
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/_run_records/FINAL_RUNTIME.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 4
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/TS_FINAL_FREEZE/_run_records/INTEROP_RESULT.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 8
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/_run_records/EXECUTION_BASIS.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 10
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/_run_records/FINAL_INTEROP_CHECK.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 4
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RESUME_01/_run_records/FINAL_OWNED_SOURCE_MANIFEST.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RULE_SOURCE_IMMUTABILITY/_run_records/headless-immutability-execution.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 5
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RULE_SOURCE_IMMUTABILITY/_run_records/solve-lifecycle-execution.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RULE_SOURCE_IMMUTABILITY/_run_records/state-and-history-execution.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RULE_SOURCE_IMMUTABILITY/_run_records/tsc-execution.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RUST_TASK/_run_records/EXECUTION_BASIS.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 20
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/RUST_TASK/_run_records/cargo-consumer-tests-01.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/TS_TASK/_run_records/EXECUTION.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 20
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/_run_records/CHECKPOINT_SOURCE_MANIFEST.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/_run_records/EXECUTION.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 10
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/_run_records/headless-connected-execution.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 3
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/ROOT_MAIN_UNION/INDEPENDENT_REVIEW/_run_records/FINAL_CHECKED_BASIS.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 14
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/ROOT_VALIDATION_UNION/INDEPENDENT_REVIEW/_run_records/FINAL_CHECKED_BASIS.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 26
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_BLOCK_FANIN/READER_RESOLUTION/_run_records/EXECUTION_BASIS.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_BLOCK_FANIN/_run_records/FANIN_01.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_BLOCK_FANIN/_run_records/existing-public-01.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_BLOCK_FANIN/_run_records/product-check-01.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_BLOCK_FANIN/_run_records/reader-union-01.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM/INDEPENDENT_REVIEW/_run_records/EXECUTION.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 9
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM/INDEPENDENT_REVIEW/_run_records/ORIGIN_COMPARISON.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 18
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM/_run_records/CHECKS.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 3
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM/_run_records/INPUT_ORIGINS.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 28
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_ENDPOINT_MAXIMUM/_run_records/STANDALONE_EXECUTION.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 3
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/AUTHORING_NATIVE/_run_records/FOCUSED_EVIDENCE_CHECK.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/AUTHORING_NATIVE/_run_records/REVIEW_EXECUTION.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 7
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/_run_records/ACTUAL_THERMAL_TS_FROZEN.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 4
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/_run_records/BROWSER_FINAL_HASHES_AND_CHECKS.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/_run_records/FINDINGS.md",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/_run_records/PROBES_FROZEN_PYTHON.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 10
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/CONSUMERS/_run_records/REPAIR_ACTUAL_PYTHON_AND_BINDINGS.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/PRODUCER/_run_records/REVIEW_EXECUTION.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/STABLE_REVIEW/PRODUCER/_run_records/verification.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 15
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/_run_records/DEPENDENCIES.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/_run_records/PRECISION_UI_COMPANION.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 4
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/_run_records/THERMAL_UI_CAPTURE.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 4
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/_run_records/UI_PRODUCER_CAPTURE.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/_run_records/WORKSPACE_DISPATCH_OBSERVATION.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/_run_records/joined-raw-execution.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/_run_records/product-check-02.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/_run_records/product-regressions-01.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/_run_records/product-regressions-02.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/_run_records/product-regressions-03.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/_run_records/product-regressions-04.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/_run_records/POST_CONTAINMENT_PROVENANCE.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/_run_records/PROBE_SOURCE_FREEZE.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 7
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/_run_records/PROVENANCE.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 29
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_CONTAINMENT_01/_run_records/STAGES.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 5
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/RESUME_01/_run_records/STAGES.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/WHOLE_REVIEW_RESUME_01/_run_records/CONTAINMENT_CHECK_EVIDENCE.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/WHOLE_REVIEW_RESUME_01/_run_records/FINAL_RUNTIME_EVIDENCE.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/PORTABILITY_REPAIR/_run_records/INPUT_FINDINGS.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/_run_records/INDEPENDENT_REVIEW/FINAL_CHECKED_HASHES.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 10
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/_run_records/INDEPENDENT_REVIEW/PRIVATE_SOURCE_HASHES.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 61
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/STATIC_REFERENCE_BASIS/_run_records/INDEPENDENT_REVIEW/PROVENANCE.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 16
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/FINAL_CHECKED_HASHES.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 35
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/FIRST_STATIC_BINDINGS/INDEPENDENT_REVIEW/PROVENANCE.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 16
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/FIRST_STATIC_BINDINGS/WIRE_BASIS.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/HARNESS_INVENTORY/INVENTORY.md",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/HARNESS_INVENTORY/SOURCES.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 35
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/INDEPENDENT_REVIEW/CHECKER_RUN.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/INDEPENDENT_REVIEW/FINDINGS.md",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/INDEPENDENT_REVIEW/PROVENANCE.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 16
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/ORDINARY_PHYSICS_ADAPTER/COMPARISON_RUN_01/dense_scrutiny/ledger.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 41
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/ORDINARY_PHYSICS_ADAPTER/COMPARISON_RUN_01/sparse_interactive/ledger.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 41
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/ORDINARY_PHYSICS_ADAPTER/FIXTURE_PROMOTION/CHECKS.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/ORDINARY_PHYSICS_ADAPTER/FOCUSED_CHECKS_01.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/ORDINARY_PHYSICS_ADAPTER/FOCUSED_CHECKS_02.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/ORDINARY_PHYSICS_ADAPTER/HEADLESS_BUILD/BUILD_RESULT.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 26
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/ORDINARY_PHYSICS_ADAPTER/HEADLESS_BUILD/BUILD_STARTED.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 24
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/ORDINARY_PHYSICS_ADAPTER/HEADLESS_BUILD/DEPENDENCY_CROSSCHECK.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 34
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/ORDINARY_PHYSICS_ADAPTER/HEADLESS_BUILD/SOURCE_AFTER.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1347
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/ORDINARY_PHYSICS_ADAPTER/HEADLESS_BUILD/SOURCE_BEFORE.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1347
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/ORDINARY_PHYSICS_ADAPTER/HEADLESS_BUILD/metadata.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/ORDINARY_PHYSICS_ADAPTER/INDEPENDENT_REVIEW/FINAL_CHECKED_BASIS.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 9
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/ORDINARY_PHYSICS_ADAPTER/INDEPENDENT_REVIEW/FIXTURE_PROMOTION_FINAL_BASIS_03.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 9
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/ORDINARY_PHYSICS_ADAPTER/INDEPENDENT_REVIEW/PROVENANCE.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 10
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/ORDINARY_PHYSICS_ADAPTER/INDEPENDENT_REVIEW/REPAIR_BOUNDARIES_02.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 2
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/ORDINARY_PHYSICS_ADAPTER/INDEPENDENT_REVIEW/REPAIR_FINAL_CHECKED_BASIS_02.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 10
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/ORDINARY_PHYSICS_ADAPTER/RECEIVED_READER_CHECK_01/RESULT.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 21
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/ORDINARY_PHYSICS_ADAPTER/STRUCTURE_TASK/CHECKS.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 3
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/ORDINARY_PHYSICS_ADAPTER/STRUCTURE_TASK/PROVENANCE.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 4
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/ORDINARY_PHYSICS_ADAPTER/_run_records/PRELIMINARY_LOG_ORIGIN.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/ORDINARY_PHYSICS_ADAPTER/_run_records/helper_prepare_01.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 4
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/ORDINARY_PHYSICS_ADAPTER/_run_records/helper_prepare_01.stdout.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/SOURCE_FREEZE_01.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/VALIDATION_FOUNDATION/_run_records/SOURCE_FREEZE_02.json",
+      "role": "EVIDENCE",
+      "active": true,
+      "hits": 1
+    }
+  ],
+  "active_findings": []
+}

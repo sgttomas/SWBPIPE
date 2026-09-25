@@ -1,0 +1,128 @@
+{
+  "original_commit": "c278f64ba122eb8b848b9f14e58a0e533e94439a",
+  "scope": "Nine Root-owned raw evidence records; all bytes preserved",
+  "moves": [
+    {
+      "old": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/NATIVE_OBSERVATION_DIAGNOSIS/EVIDENCE.json",
+      "new": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/NATIVE_OBSERVATION_DIAGNOSIS/_run_records/EVIDENCE.json",
+      "sha256": "aae9cb1e5a45b1c705a737c3329197189a5c8618bc276e0f12d26f7a08e537ee",
+      "bytes": 6279,
+      "classification": "immutable raw execution/origin/hash/log observation"
+    },
+    {
+      "old": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/ROOT_MAIN_UNION/INDEPENDENT_REVIEW/FINAL_CHECKED_BASIS.json",
+      "new": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/ROOT_MAIN_UNION/INDEPENDENT_REVIEW/_run_records/FINAL_CHECKED_BASIS.json",
+      "sha256": "5d111ad8dbdb871b332d4e5b57b7b91b5eadbe34ad11df7a47e37b27aa4a9216",
+      "bytes": 5375,
+      "classification": "immutable raw execution/origin/hash/log observation"
+    },
+    {
+      "old": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/POST_CONTAINMENT_PROVENANCE.json",
+      "new": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/_run_records/POST_CONTAINMENT_PROVENANCE.json",
+      "sha256": "ce0b663c8a838a5537126cd752ceaee767185c5d1c635f00e44e17c84cbb4e5e",
+      "bytes": 3476,
+      "classification": "immutable raw execution/origin/hash/log observation"
+    },
+    {
+      "old": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/PROBE_SOURCE_FREEZE.json",
+      "new": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/_run_records/PROBE_SOURCE_FREEZE.json",
+      "sha256": "dcf47f52049243fa17676350fc0c56e51f65fc72fe3b8a33774873339c42a374",
+      "bytes": 1958,
+      "classification": "immutable raw execution/origin/hash/log observation"
+    },
+    {
+      "old": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/PROVENANCE.json",
+      "new": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/_run_records/PROVENANCE.json",
+      "sha256": "3ce9104a7939eac130ca5b64ca29b3814d7aed64bceaaf3281c3c22e4cb1ce82",
+      "bytes": 17538,
+      "classification": "immutable raw execution/origin/hash/log observation"
+    },
+    {
+      "old": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_CONTAINMENT_01/STAGES.json",
+      "new": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_CONTAINMENT_01/_run_records/STAGES.json",
+      "sha256": "ea08a7eec90be24848f965dc9895dc81d87a8476848889a3fb159d2b9622e6ac",
+      "bytes": 3590,
+      "classification": "immutable raw execution/origin/hash/log observation"
+    },
+    {
+      "old": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/RESUME_01/STAGES.json",
+      "new": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/RESUME_01/_run_records/STAGES.json",
+      "sha256": "20fce531a30a37183b9be09b34983c0f69f4475f1c48ef97eeef2417a6c44a5b",
+      "bytes": 1797,
+      "classification": "immutable raw execution/origin/hash/log observation"
+    },
+    {
+      "old": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/WHOLE_REVIEW_RESUME_01/CONTAINMENT_CHECK_EVIDENCE.json",
+      "new": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/WHOLE_REVIEW_RESUME_01/_run_records/CONTAINMENT_CHECK_EVIDENCE.json",
+      "sha256": "4eed1fb2f86cae2e2789c884568d7ff687aa46ae662b0b35b151fa977c28a26a",
+      "bytes": 4334,
+      "classification": "immutable raw execution/origin/hash/log observation"
+    },
+    {
+      "old": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/WHOLE_REVIEW_RESUME_01/FINAL_RUNTIME_EVIDENCE.json",
+      "new": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/WHOLE_REVIEW_RESUME_01/_run_records/FINAL_RUNTIME_EVIDENCE.json",
+      "sha256": "37540bbe411acfb9de5ed9fc052ee6dc0eaa64c249f76eac431dc1864a6ed6f5",
+      "bytes": 1921,
+      "classification": "immutable raw execution/origin/hash/log observation"
+    }
+  ],
+  "historical_reference_rule": "Original path references in frozen raw manifests remain the addresses at the original commit; use this map for current location. Do not reinterpret them as changed evidence or recomputed outcomes.",
+  "current_markdown_link_updates": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/RESUME_RETURN.md",
+      "before_sha256": "6979c452e43caf11bb8ffe9ccd7bae9e51f09a4b411ddf5093cf3258acd3275e",
+      "after_sha256": "5ef2571bde46f4cc86f51ec50ac67a3f39d171b5a206ccc8b5b620e3bbeaf652",
+      "links_updated": 1
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/N05_ADMISSION_OBSERVATION/RECOVERY_DIAGNOSIS/RETURN.md",
+      "before_sha256": "1d91d2a9f7db19eed44bc50122127bc78254e05485bb2e0a2721277ddce3fca1",
+      "after_sha256": "d52ff1f927767608e730654c14dc7ef49b0fe4c9f7c026903c44165a7de10e5b",
+      "links_updated": 3
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/NATIVE_OBSERVATION_DIAGNOSIS/RETURN.md",
+      "before_sha256": "8e79eff30ac89aa3bd30478c18270292bc28a26b010c01348e6a87433ee3bc04",
+      "after_sha256": "a915b49e7d6eb381746a46ac540921d301d224091e532dc1257c0e30c361880f",
+      "change": "current raw-record pointer only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SOLVER_MANAGER/ORDINARY_NUMERICAL_CUT/WHOLE_REVIEW_RESUME_01/RETURN.md",
+      "before_sha256": "ce7e43d12d19947c7de6d379d89a38b250c98338e9236a740cf9380db1b8cb65",
+      "after_sha256": "422a73744157494674f853e6025a166fb4830b662fe1f911dcc7b317067a4477",
+      "change": "current raw-record pointer only"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/ROOT_VALIDATION_UNION/INDEPENDENT_REVIEW/RETURN.md",
+      "before_sha256": "c27a1bbdd67fea3b2af0cc07770c53ac48a37f951243a837c1934f5815b4b4cc",
+      "after_sha256": "dd3b113ec84749bc5989296b97d26ddf4fc039875d9c6391d49c548226ad5b19",
+      "change": "current raw-record pointers only"
+    }
+  ],
+  "new_review_raw_moves": [
+    {
+      "old": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/ROOT_VALIDATION_UNION/INDEPENDENT_REVIEW/CHECKS.json",
+      "new": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/ROOT_VALIDATION_UNION/INDEPENDENT_REVIEW/_run_records/CHECKS.json",
+      "sha256": "a4307fa915b718db6d2a733d1cb1aba50003a4d125114d3a7b01d6e2eaa2994d",
+      "bytes": 11565,
+      "classification": "new independent integration execution evidence, returned after c278",
+      "original_commit": null
+    },
+    {
+      "old": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/ROOT_VALIDATION_UNION/INDEPENDENT_REVIEW/FINAL_CHECKED_BASIS.json",
+      "new": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/ROOT_VALIDATION_UNION/INDEPENDENT_REVIEW/_run_records/FINAL_CHECKED_BASIS.json",
+      "sha256": "069340a48fbd1485d883676466cde81dbe87ddd5395ec29d841d4ae6e7e13783",
+      "bytes": 10424,
+      "classification": "new independent integration execution evidence, returned after c278",
+      "original_commit": null
+    },
+    {
+      "old": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/ROOT_VALIDATION_UNION/INDEPENDENT_REVIEW/verify_union.py",
+      "new": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/ROOT_VALIDATION_UNION/INDEPENDENT_REVIEW/_run_records/verify_union.py",
+      "sha256": "3fc87c7e88bee001c477719156c62bd3bd15e7036a85f1cf7f54a33a9aeeff21",
+      "bytes": 7164,
+      "classification": "new independent integration execution evidence, returned after c278",
+      "original_commit": null
+    }
+  ]
+}

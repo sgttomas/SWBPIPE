@@ -1,0 +1,11 @@
+# Graph integration review
+
+**CLEAR.** The integrated graph is exactly the previously reviewed primary9e8a55 graph, with its14 recorded link replacements and one appended qualification checkpoint. No other status, ownership, numerical policy or authority text changed. Checked graph SHA-256: `8051e6735c7075597c6bf89c294080554abfa3499accf30027cc27542ba9f57f`.
+
+All14 rewritten targets use immutable primary Git addresses and resolve to the expected blob/tree objects. All23 remaining local link targets and all23 pinned Git targets across the whole graph resolve locally. Six pre-existing external/anchor links were not network-queried. This references deferred UI evidence without importing its implementation; the desktop source diff remains empty.
+
+The appended claims are supported by the retained logs:379 practitioner tests passed, and the project-scoped Piping self-check reports no findings. The earlier378/379 failure remains preserved as the initial state and is superseded by the explicit “repair now passes” statement. Earlier dated preparation checkpoints remain historical; current rows and the latest integration checkpoint retain the actual current status. Independent record backcheck and actual-candidate CI/clean DEC-025 are still described as pending, so no qualification completion is invented.
+
+Four of38 original closures, the single CLOSE→RECORD→FINAL boundary, deferred UI/live work, missing broader mechanics/validation and the material/component/code-rule restrictions remain unchanged. No physics/library authority, native witness, programme or release scope is widened by the graph integration.
+
+[_run_records/CHECKED_BASIS.json](_run_records/CHECKED_BASIS.json) binds exact source/current hashes, all link checks and the observed logs; the author script was read but not executed. This review covers only the graph integration and is separate from the concurrent record relocation review and qualification. TASK under original numerical_resume parentage, Root cross-manager assignment; no delegation or implementation authorship. Sole writes are this review directory, with raw captures under `_run_records`. No product/Git mutation, build/native action, network query or test rerun occurred. Return to Root.

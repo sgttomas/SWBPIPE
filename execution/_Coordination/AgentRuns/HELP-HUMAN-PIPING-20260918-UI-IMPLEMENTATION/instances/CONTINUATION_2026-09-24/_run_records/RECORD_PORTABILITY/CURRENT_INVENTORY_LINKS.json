@@ -1,0 +1,6 @@
+{
+  "path": "projects/chirality-piping/validation/qualification/capability_inventory.json",
+  "before_sha256": "f4155abafcd9f76292e48733a8bf6829ee0a0bb1a816b11fbd7e22de3c8d0a5e",
+  "after_sha256": "6b38158475d928e4ed08e367018eb7b4a77ebe1e7b5a2a78ae92f7adbe5b221c",
+  "change": "Only two current local-record paths gain _run_records; target hashes and historical Git/source-location paths unchanged"
+}

@@ -1,5 +1,7 @@
 # Reader, provenance and reference checkpoint
 
+Record-location note: current links below use the byte-identical relocations in `../PORTABILITY_RECORD_RELOCATION.json`. Original handoff bytes remain at `c278f64ba122eb8b848b9f14e58a0e533e94439a:projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/PHYSICS_READER_JOIN/CHECKPOINT_RETURN.md`; historical status, hash values and Git identities are unchanged. This path repair does not reactivate a completed assignment.
+
 This is the existing bounded engine undertaking's checkpoint, not activation of a new validation programme, native qualification, composite completion or release. Parent owns subsequent integration and external Git/native work.
 
 ## Current implemented boundary
@@ -30,9 +32,9 @@ Actual native solve/rule/save/reopen/export witness, browser e2e execution, cohe
 
 ## Final verified handoff
 
-Final App changed-case run passed26/26 (199 unrelated cases excluded by the recorded name filter, not skipped in source). The isolated queued-intent case passed first; whole TypeScript typecheck07 passed on the same frozen source. Final checks/log hashes are in BROWSER_REFERENCE/FINAL_CHECKS/CHECKS.json. The126-test affected8-suite batch remains green at its recorded unchanged source; no production UI paths covered by that batch changed afterward; the separate Rust/Python subset fan-in is recorded independently.
+Final App changed-case run passed26/26 (199 unrelated cases excluded by the recorded name filter, not skipped in source). The isolated queued-intent case passed first; whole TypeScript typecheck07 passed on the same frozen source. Final checks/log hashes are in BROWSER_REFERENCE/FINAL_CHECKS/_run_records/CHECKS.json. The126-test affected8-suite batch remains green at its recorded unchanged source; no production UI paths covered by that batch changed afterward; the separate Rust/Python subset fan-in is recorded independently.
 
-CHECKPOINT_SOURCE_MANIFEST.json binds59 owned/composed source/test paths; CHECKPOINT_INPUT_MANIFEST.json binds retained source inputs and fixtures. These exact paths may be used for the parent's final independent supplement. The nine browser e2e files remain source/syntax-only, with maps in BROWSER_ROUTE_TESTS, BROWSER_FOUNDATION_TESTS and BROWSER_JOURNEY_TESTS. No browser/native window, source/table relabeling, external Git action, new framework or new validation programme was introduced.
+_run_records/CHECKPOINT_SOURCE_MANIFEST.json binds59 owned/composed source/test paths; CHECKPOINT_INPUT_MANIFEST.json binds retained source inputs and fixtures. These exact paths may be used for the parent's final independent supplement. The nine browser e2e files remain source/syntax-only, with maps in BROWSER_ROUTE_TESTS, BROWSER_FOUNDATION_TESTS and BROWSER_JOURNEY_TESTS. No browser/native window, source/table relabeling, external Git action, new framework or new validation programme was introduced.
 
 Parent additionally reports the resolved three-method Rust reader union passed38 checks (18library,10physics,10source-block), documented at ../SOURCE_BLOCK_FANIN/reader-union-01.*. That evidence is parent-executed and does not close the schema/headless/frontend/composite follow-ons listed above. This manager has no running test/build process at return.
 

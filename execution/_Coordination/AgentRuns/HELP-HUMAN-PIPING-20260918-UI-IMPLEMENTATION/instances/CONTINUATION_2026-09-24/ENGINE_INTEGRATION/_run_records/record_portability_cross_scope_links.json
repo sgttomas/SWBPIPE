@@ -1,0 +1,108 @@
+{
+  "original_commit": "c278f64ba122eb8b848b9f14e58a0e533e94439a",
+  "count": 11,
+  "references": [
+    {
+      "referencing_path": "projects/chirality-piping/apps/desktop/src/test/nativeMechanicsReplay.ts",
+      "line": 16,
+      "original_target": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/UI_PRODUCER_CAPTURE.json",
+      "current_target": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/_run_records/UI_PRODUCER_CAPTURE.json",
+      "handling": "Root-owned; preserve explicit historical Git/capture references, update active pointer only if its owner selects",
+      "explicit_git_blob_in_line": false,
+      "surface_role": "UNCLASSIFIED"
+    },
+    {
+      "referencing_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/_run_records/RESOURCE_POLICY_BASIS.json",
+      "line": 7,
+      "original_target": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/resource-measurement-01.json",
+      "current_target": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/_run_records/resource-measurement-01.json",
+      "handling": "Root-owned; preserve explicit historical Git/capture references, update active pointer only if its owner selects",
+      "explicit_git_blob_in_line": false,
+      "surface_role": "EVIDENCE"
+    },
+    {
+      "referencing_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/_run_records/policy_review/EXECUTION.json",
+      "line": 27,
+      "original_target": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/ACTUAL_CAPTURE_01.json",
+      "current_target": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/_run_records/ACTUAL_CAPTURE_01.json",
+      "handling": "Root-owned; preserve explicit historical Git/capture references, update active pointer only if its owner selects",
+      "explicit_git_blob_in_line": false,
+      "surface_role": "EVIDENCE"
+    },
+    {
+      "referencing_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/_run_records/policy_review/EXECUTION.json",
+      "line": 28,
+      "original_target": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/ACTUAL_CAPTURE_02.json",
+      "current_target": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/_run_records/ACTUAL_CAPTURE_02.json",
+      "handling": "Root-owned; preserve explicit historical Git/capture references, update active pointer only if its owner selects",
+      "explicit_git_blob_in_line": false,
+      "surface_role": "EVIDENCE"
+    },
+    {
+      "referencing_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/_run_records/policy_review/EXECUTION.json",
+      "line": 30,
+      "original_target": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/public-04.json",
+      "current_target": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/_run_records/public-04.json",
+      "handling": "Root-owned; preserve explicit historical Git/capture references, update active pointer only if its owner selects",
+      "explicit_git_blob_in_line": false,
+      "surface_role": "EVIDENCE"
+    },
+    {
+      "referencing_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/_run_records/policy_review/EXECUTION.json",
+      "line": 32,
+      "original_target": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/public-05.json",
+      "current_target": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/_run_records/public-05.json",
+      "handling": "Root-owned; preserve explicit historical Git/capture references, update active pointer only if its owner selects",
+      "explicit_git_blob_in_line": false,
+      "surface_role": "EVIDENCE"
+    },
+    {
+      "referencing_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/_run_records/policy_review/EXECUTION.json",
+      "line": 34,
+      "original_target": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/namespace-01.json",
+      "current_target": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/_run_records/namespace-01.json",
+      "handling": "Root-owned; preserve explicit historical Git/capture references, update active pointer only if its owner selects",
+      "explicit_git_blob_in_line": false,
+      "surface_role": "EVIDENCE"
+    },
+    {
+      "referencing_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/_run_records/policy_review/EXECUTION.json",
+      "line": 36,
+      "original_target": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/source-layer-02.json",
+      "current_target": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/_run_records/source-layer-02.json",
+      "handling": "Root-owned; preserve explicit historical Git/capture references, update active pointer only if its owner selects",
+      "explicit_git_blob_in_line": false,
+      "surface_role": "EVIDENCE"
+    },
+    {
+      "referencing_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/_run_records/policy_review/EXECUTION.json",
+      "line": 38,
+      "original_target": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/resource-measurement-01.json",
+      "current_target": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_RECEIPT/_run_records/resource-measurement-01.json",
+      "handling": "Root-owned; preserve explicit historical Git/capture references, update active pointer only if its owner selects",
+      "explicit_git_blob_in_line": false,
+      "surface_role": "EVIDENCE"
+    },
+    {
+      "referencing_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/_run_records/policy_review/ORIGIN.json",
+      "line": 7,
+      "original_target": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_REVIEW/INDEPENDENT_REVIEW/POLICY_RECORD_REVIEW.json",
+      "current_target": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_REVIEW/INDEPENDENT_REVIEW/_run_records/POLICY_RECORD_REVIEW.json",
+      "handling": "Root-owned; preserve explicit historical Git/capture references, update active pointer only if its owner selects",
+      "explicit_git_blob_in_line": false,
+      "surface_role": "EVIDENCE"
+    },
+    {
+      "referencing_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/COMPOSITE_ENGINE/_run_records/policy_review/ORIGIN.json",
+      "line": 17,
+      "original_target": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_REVIEW/INDEPENDENT_REVIEW/EXECUTION.json",
+      "current_target": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/COMPOSITE_REVIEW/INDEPENDENT_REVIEW/_run_records/EXECUTION.json",
+      "handling": "Root-owned; preserve explicit historical Git/capture references, update active pointer only if its owner selects",
+      "explicit_git_blob_in_line": false,
+      "surface_role": "EVIDENCE"
+    }
+  ],
+  "scan_scope": "Literal original repository path and ENGINE_INTEGRATION-relative path occurrences in current tracked checkout outside owned E; no other worktree scanned. No source/native payload excerpts copied.",
+  "root_disposition": "ROOT explicitly selected keeping all11 references unchanged as historical addresses at c278; resolve by original Git and the relocation map. Ten frozen policy/review refs plus one provenance-only source comment. No active cross-scope pointer repair remains assigned to this manager.",
+  "unresolved_active_cross_scope_links": 0
+}

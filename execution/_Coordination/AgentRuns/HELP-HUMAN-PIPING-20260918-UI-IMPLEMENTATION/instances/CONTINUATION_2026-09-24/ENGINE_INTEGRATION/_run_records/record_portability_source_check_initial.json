@@ -1,0 +1,5 @@
+{
+  "initial_check": "Global non-AgentRuns Git diff asserted empty against c278",
+  "result": "Assertion failed after a concurrent out-of-scope validation/qualification/capability_inventory.json change appeared",
+  "disposition": "No file repaired or reverted. Reported to ROOT. Follow-up checks protected product/test/schema/fixture/benchmark/tool/instruction prefixes separately and reports the concurrent qualification record change explicitly. This is a corrected scope attribution, not a passing global-clean-tree claim."
+}

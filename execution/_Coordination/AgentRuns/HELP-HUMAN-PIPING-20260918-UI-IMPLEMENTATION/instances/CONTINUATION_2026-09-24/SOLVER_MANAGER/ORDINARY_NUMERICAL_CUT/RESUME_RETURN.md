@@ -21,7 +21,7 @@ merge, primary checkout, physics or native changes.
   inspection/history but withholds qualified use in all shared Rust/Python/TS
   gates. The headless actual-source canonical route now checks the same standing.
   Valid sensitive cases may also be withheld. This is not a numerical repair.
-- [Actual checks](N05_CONTAINMENT_01/STAGES.json): Rust precision 4/4; headless 3/3
+- [Actual checks](N05_CONTAINMENT_01/_run_records/STAGES.json): Rust precision 4/4; headless 3/3
   with 31 filtered; frontend 91/91 across five suites; TypeScript; Python 85/85
   using three actual current headless raw/document pairs. The test-only gap
   applicability refinement passed its [headless rerun](N05_CONTAINMENT_02/EXECUTION.json).

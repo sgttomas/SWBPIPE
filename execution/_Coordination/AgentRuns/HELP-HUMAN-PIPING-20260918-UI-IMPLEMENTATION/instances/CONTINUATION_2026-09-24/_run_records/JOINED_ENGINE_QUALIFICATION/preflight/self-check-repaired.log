@@ -1,0 +1,22 @@
+> **Generated view — not authority.** Produced by tools/practitioner_harness (command: self-check).
+> Sources cited per finding; on any disagreement the cited source files govern.
+> Regenerate from project files; safe to delete. Structural checks are not approval,
+> issue, authentication, or acceptance of residual risk (K-AUTH-1; D-GOV-01).
+
+# Self-check — consistency audit
+
+Scope: `projects/chirality-piping`
+
+## Root governance status (self-declared; INFO facts)
+
+- `docs/DIRECTIVE.md` (line 5): > **Status: RATIFIED — owner ratification 2026-07-11 (`CONTRACT.md` / K-AUTH-1).** Owner direction of record (2026-07-11, in-session, Ryan Tufts): "You can now take all the `docs/` out of the DRAFT state, making them aut …[truncated]
+- `docs/CONTRACT.md` (line 3): > **Status: RATIFIED — owner ratification 2026-07-11 (K-AUTH-1).** Owner direction of record (2026-07-11, in-session, Ryan Tufts): "You can now take all the `docs/` out of the DRAFT state, making them authoritative." Thi …[truncated]
+- `docs/SPEC.md` (line 5): > **Status: RATIFIED — owner ratification 2026-07-11 (`CONTRACT.md` / K-AUTH-1).** Owner direction of record (2026-07-11, in-session, Ryan Tufts): "You can now take all the `docs/` out of the DRAFT state, making them aut …[truncated]
+- `docs/TYPES.md` (line 5): > **Status: RATIFIED — owner ratification 2026-07-11 (`CONTRACT.md` / K-AUTH-1).** Owner direction of record (2026-07-11, in-session, Ryan Tufts): "You can now take all the `docs/` out of the DRAFT state, making them aut …[truncated]
+
+## Summary
+
+Finding severities: none
+- scope: ['projects/chirality-piping']
+- pointer_files_scanned: 22
+- checks_run: DE-1..8 (domain-engine surfaces incl. stale open issues vs later rulings), GEN-1 (abs-path), GEN-2 (ruling-SHA TBD), GEN-3 (generated labeling), GEN-4 (root governance status facts), GEN-5 (unresolved refs; control files only in v1), GEN-6 (draft-basis-used-as-binding; control files only in v1), GEN-7 (_LATEST pointer currency: target resolution outside .archive + newest-same-class-sibling by date-in-filename), GEN-8 (active-surface portability: structural roles + hash-bound historical exceptions + semantic invariants), GEN-9 (agent-registry currency: AGENTS.md file tokens vs live agents/ files, both directions), GEN-10 (bridge receipt labels + parked-lane carry-forward), GEN-11 (D-44 piping receipt contract), GEN-12 (D-APP-57 app-dev receipt contract), GEN-13 (claims-language DEC-081)
