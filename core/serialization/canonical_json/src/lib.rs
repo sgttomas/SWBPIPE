@@ -25,6 +25,9 @@
 //! arrive distinct from their rounded double through any JavaScript lane
 //! (`JSON.parse` rounds first) — see `fixtures/canonical_hash/README.md`.
 
+pub mod binary64;
+pub mod binary64_cli;
+
 use serde_json::{Number, Value};
 
 pub const CHECKED_PROFILE_V1: &str = "openpipestress_jcs_ijson_v1";

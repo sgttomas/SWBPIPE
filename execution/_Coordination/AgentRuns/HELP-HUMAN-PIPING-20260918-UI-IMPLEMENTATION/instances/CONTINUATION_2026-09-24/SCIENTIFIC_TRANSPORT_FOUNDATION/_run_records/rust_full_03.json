@@ -1,0 +1,82 @@
+{
+  "utc": "2026-09-25T07:15:13.794891+00:00",
+  "command": [
+    "cargo",
+    "test",
+    "--manifest-path",
+    "core/serialization/canonical_json/Cargo.toml",
+    "--locked",
+    "--features",
+    "checked-cli"
+  ],
+  "cwd": "REPO_ROOT/projects/chirality-piping",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "CARGO_BUILD_JOBS": "2",
+    "CARGO_NET_OFFLINE": "true",
+    "OPENPIPESTRESS_CHECKED_JSON_BIN": null,
+    "OPENPIPESTRESS_BINARY64_JSON_BIN": null
+  },
+  "CARGO_TARGET_DIR": "unset",
+  "exit_code": 0,
+  "seconds": 6.508855104446411,
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/Cargo.lock",
+      "sha256": "dc4edf682da807a0240eb20770d8292380aeb9e181b184875ab0ed97d12db2e8"
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/Cargo.toml",
+      "sha256": "4f371b06ff85a2c7eccdebbc0a0b513f3f3d57ebc8d4c759c529b21d7ea48b0f"
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/README.md",
+      "sha256": "f88da9cd452f581630e04ba7911ea2148ccc50e21fd73eaf2475b98cf690336e"
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/adapter.py",
+      "sha256": "f7f94c8d5541dfd1db33c3eab02ca3f8d8b47c39a8780261c1b2b00f8a1bdafd"
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/bin/openpipestress_jcs_binary64.rs",
+      "sha256": "526f30db364a62253a56092c6a5e97759fba74d5581fc7a15765a7ce9765b5c5"
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/bin/openpipestress_jcs_ijson.rs",
+      "sha256": "0a1b2cd84de09c2c83e9af987f1f291b12b977c9111af732dc53df966ebfd45c"
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/binary64.rs",
+      "sha256": "1aabe4f39159779af277224eb3609b79e36f1340ece467ceedb7202b4d0b8d8b"
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/binary64_cli.rs",
+      "sha256": "8b17e860bfd9deac9045ae6b2f853349b5b9e4d4fc2674044a0fc3f7f19c52bc"
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/lib.rs",
+      "sha256": "96e6ca5562849b9136bc75b665d10b421e75a9b9805303c40b68982101889336"
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/tests/binary64_profile.rs",
+      "sha256": "3e56243abf91a39af6034c0bc310d0dca154ddc8707b9b48281fbab3b15e19de"
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/tests/checked_profile.rs",
+      "sha256": "013d0d51b2b774d5c0a552ee8a24aa1aa7a1004a53a7e1875e739f31db71e71e"
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/tests/precision_transport.rs",
+      "sha256": "07eded16d1ffd37c2c9f4c10b57e79e187ef7647704f5dd640a6b0c35f3f5d9a"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_binary64_canonical_json_adapter.py",
+      "sha256": "ff15cc5a559a96be4d7a59660ddc2fc3cb7ed1ef16d17fa4ff9f762203444b64"
+    },
+    {
+      "path": "projects/chirality-piping/tools/serialization/build_checked_json.py",
+      "sha256": "120f0125c5aae4ccc42dce56665c1f6a02353a3bf61c496f735b526f492f49fb"
+    }
+  ],
+  "log_sha256": "84dda97c334377ab880ff7771ee5a60ca6e21b959b9a6636066fd8f00b7ddbd7"
+}

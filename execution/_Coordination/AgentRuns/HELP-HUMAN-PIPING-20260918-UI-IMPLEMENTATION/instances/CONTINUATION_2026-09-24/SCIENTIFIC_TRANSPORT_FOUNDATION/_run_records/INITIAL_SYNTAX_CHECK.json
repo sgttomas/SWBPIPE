@@ -1,0 +1,7 @@
+{
+  "command": "python3 -m py_compile adapter.py build_checked_json.py test_binary64_canonical_json_adapter.py",
+  "result": "unavailable cache location",
+  "python": "system3.9",
+  "error": "PermissionError creating /Users/ryan/Library/Caches/com.apple.python/private/tmp/piping-scientific-json-20260925",
+  "consequence": "Use intended3.13 interpreter and in-memory compile; no source failure established"
+}

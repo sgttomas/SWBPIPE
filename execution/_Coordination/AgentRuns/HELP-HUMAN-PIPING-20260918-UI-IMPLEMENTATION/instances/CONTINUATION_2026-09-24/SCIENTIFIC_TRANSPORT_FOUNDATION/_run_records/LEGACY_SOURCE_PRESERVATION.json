@@ -1,0 +1,12 @@
+{
+  "result": "PASS",
+  "old_lib": "identical after removing two new module declarations",
+  "old_adapter": "entire old file retained as prefix before additive APIs",
+  "byte_identical": [
+    "old CLI",
+    "Cargo.lock",
+    "checked_profile.rs",
+    "precision_transport.rs"
+  ],
+  "runtime_tests": "pending full coordinated checks"
+}

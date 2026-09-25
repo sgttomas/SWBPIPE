@@ -1,0 +1,99 @@
+{
+  "role": "WORKING_ITEMS Type1",
+  "agent": "/root/scientific_transport_manager",
+  "parent": "/root",
+  "mechanism": "collaboration.spawn_agent (native descendant)",
+  "base_commit": "0a438a68672269e5750900792c9565ae9e5555b0",
+  "basis_state": "Final numeric design plus independently backchecked attribution/parser-limit delta",
+  "instructions": [
+    {
+      "origin": "REPO_ROOT/AGENTS.md",
+      "sha256": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd"
+    },
+    {
+      "origin": "REPO_ROOT/agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665"
+    },
+    {
+      "origin": "REPO_ROOT/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "origin": "REPO_ROOT/projects/chirality-piping/AGENTS.md",
+      "sha256": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792"
+    },
+    {
+      "origin": "REPO_ROOT/projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b"
+    },
+    {
+      "origin": "REPO_ROOT/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+    }
+  ],
+  "owner_steering": {
+    "origin": "PRIMARY/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/OWNER_PHYSICS_AUTHORITY_2026-09-25.md",
+    "sha256": "7a84fec1aed4e9c2f945c2ad9a51dedeca7cf824ababf514212645a326a758fa"
+  },
+  "limits": [
+    "Only canonical_json, build_checked_json.py, tightly relevant owned tests/fixtures, and this evidence directory",
+    "No product adoption, carriers, solver edits, library/code-rule population, Git mutations, native/browser/config edits",
+    "One implementation TASK at a time; independent review required",
+    "Heavy build lane remains queued behind composite engine"
+  ],
+  "design": [
+    {
+      "origin": "PRIMARY/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SCIENTIFIC_JSON_PROFILE/DESIGN.md",
+      "sha256": "af4a63c68dc82b0db0492cbd4cc1971bf025c009f359afd9744f2c405aa65c86"
+    },
+    {
+      "origin": "PRIMARY/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SCIENTIFIC_JSON_PROFILE/REFERENCES.md",
+      "sha256": "ff39e75cb20ef8ef0bc0dd29f4fc228696b3138e8d8cfa93bfaa3cd31442005b"
+    },
+    {
+      "origin": "PRIMARY/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SCIENTIFIC_JSON_PROFILE/CASES.md",
+      "sha256": "d91f74aaf99e353158bc2e91d50b0150d32717ca8d485438312e2c33397a67ca"
+    },
+    {
+      "origin": "PRIMARY/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SCIENTIFIC_JSON_PROFILE/probe_numeric_domains.py",
+      "sha256": "f8f9bb432e20e292a270fa147a2fc30249377a759845d236c8fa02f479d323fd"
+    },
+    {
+      "origin": "PRIMARY/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SCIENTIFIC_JSON_PROFILE/BASIS.json",
+      "sha256": "330170c4a19345e3649fc9f7dfcfe5444d626ff0ed9c5dad1388157a672917d2"
+    },
+    {
+      "origin": "PRIMARY/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SCIENTIFIC_JSON_PROFILE/RETURN.md",
+      "sha256": "8857337d078dbc273b7395642b6976355ca59552ca5353036583911462551d94"
+    }
+  ],
+  "independent_design_review": [
+    {
+      "origin": "PRIMARY/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SCIENTIFIC_JSON_PROFILE/_run_records/INDEPENDENT_REVIEW/RETURN.md",
+      "sha256": "3cea6933f7db7487d40c2af9073219c20cbd28a7af71798b16d27751bc2d515f"
+    },
+    {
+      "origin": "PRIMARY/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SCIENTIFIC_JSON_PROFILE/_run_records/INDEPENDENT_REVIEW/FINAL_HASHES.json",
+      "sha256": "0621836ea749b61aada262b93eb850d30b3db01a23fbbb27cc0aa1d190aafb41"
+    },
+    {
+      "origin": "PRIMARY/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SCIENTIFIC_JSON_PROFILE/_run_records/ATTRIBUTION_INDEPENDENT_BACKCHECK/RETURN.md",
+      "sha256": "132ef8ee5d97bacc04276d031ead488bb744d6fa2af42308dc8450b25d1b2da8"
+    },
+    {
+      "origin": "PRIMARY/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SCIENTIFIC_JSON_PROFILE/_run_records/ATTRIBUTION_INDEPENDENT_BACKCHECK/FINAL_CHECKED_HASHES.json",
+      "sha256": "98b0e199d0bc9237324adc910bd5266bdaed9cc66bfa5272d473490a618fa87b"
+    }
+  ],
+  "final_design_binding": {
+    "FINAL_BINDING.json": "99962b581c85a6b5f2f4111a9437757fd0cdcc9e4e8d855e87b51ef475189c7a",
+    "PACKET_MANIFEST.json": "c9fecff2b68b98d4653f8309272b4baf700a6a6bc64f731bd9d173265eb2b764"
+  },
+  "design_owner_confirmation": "Actual collaboration message confirmed final binding and permitted foundation implementation; no numeric/profile conflict.",
+  "recoverable_design_commit": {
+    "commit": "a09931a74e197627105c1287c03957317a297351",
+    "branch": "codex/piping-pipes-20260924",
+    "source": "ROOT actual collaboration message; same previously verified final hashes",
+    "profile_selection": "openpipestress_jcs_binary64_v1"
+  }
+}

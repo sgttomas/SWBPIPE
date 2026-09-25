@@ -1,0 +1,76 @@
+{
+  "base_commit": "0a438a68672269e5750900792c9565ae9e5555b0",
+  "status": "Shared admission parity repair implemented;24Rust/55Python/547tokens pass; independent backcheck pending",
+  "files": [
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/Cargo.toml",
+      "sha256": "4f371b06ff85a2c7eccdebbc0a0b513f3f3d57ebc8d4c759c529b21d7ea48b0f",
+      "bytes": 882,
+      "base_sha256": "531d6fcb62e47c3f4dfa5aae3c920255d40f2f1619036a001c1cb37e691c10f4"
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/adapter.py",
+      "sha256": "f7f94c8d5541dfd1db33c3eab02ca3f8d8b47c39a8780261c1b2b00f8a1bdafd",
+      "bytes": 14509,
+      "base_sha256": "f6c92a186b65f1ae1990194098f668566b190a7ac77376b3fcf792d0711335df"
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/README.md",
+      "sha256": "de4021717cd531cd8474217d4b4b31a25334cc3636615efc911f4c1cefcf6157",
+      "bytes": 6888,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/lib.rs",
+      "sha256": "96e6ca5562849b9136bc75b665d10b421e75a9b9805303c40b68982101889336",
+      "bytes": 17509,
+      "base_sha256": "0236e76eeed2949d95d2826c0c20f68232e6bb4a5ceb983744e8db78628a3573"
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/binary64.rs",
+      "sha256": "6773d3abc6d725e210aa5452e34bd4124ed6943347451be48dcfb275cd76ea6e",
+      "bytes": 17999,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/binary64_cli.rs",
+      "sha256": "8b17e860bfd9deac9045ae6b2f853349b5b9e4d4fc2674044a0fc3f7f19c52bc",
+      "bytes": 2386,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/bin/openpipestress_jcs_binary64.rs",
+      "sha256": "526f30db364a62253a56092c6a5e97759fba74d5581fc7a15765a7ce9765b5c5",
+      "bytes": 808,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/tests/binary64_profile.rs",
+      "sha256": "44ba26aae775ba7cb9c14260f35eceed696aa6e4f04d0d9127805a7534bf232f",
+      "bytes": 14619,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tools/serialization/build_checked_json.py",
+      "sha256": "120f0125c5aae4ccc42dce56665c1f6a02353a3bf61c496f735b526f492f49fb",
+      "bytes": 1277,
+      "base_sha256": "6d5d55434d2ca94c896c2794ebdebc89ef1bb0efbfd605d840b0835a9d654bd3"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_binary64_canonical_json_adapter.py",
+      "sha256": "91a49857fe7206da49615fd57c2a6e489e8a30ce85944762bffc50c21b53fa86",
+      "bytes": 13597,
+      "base_sha256": null
+    }
+  ],
+  "utc": "2026-09-25T07:25:48.331607+00:00",
+  "patch_sha256": "3206a4035178080eb0f1bc1d728eaf606869822bbe73c666add99065b9fabf15",
+  "profile": "openpipestress_jcs_binary64_v1",
+  "supersedes": "SOURCE_FREEZE_03.json",
+  "changed_since_03": [
+    "projects/chirality-piping/core/serialization/canonical_json/README.md",
+    "projects/chirality-piping/core/serialization/canonical_json/src/binary64.rs",
+    "projects/chirality-piping/core/serialization/canonical_json/tests/binary64_profile.rs",
+    "projects/chirality-piping/tests/test_binary64_canonical_json_adapter.py"
+  ]
+}

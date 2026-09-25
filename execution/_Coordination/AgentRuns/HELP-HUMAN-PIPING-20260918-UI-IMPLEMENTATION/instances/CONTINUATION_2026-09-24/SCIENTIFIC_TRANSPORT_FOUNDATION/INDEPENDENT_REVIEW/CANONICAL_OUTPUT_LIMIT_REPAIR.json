@@ -1,0 +1,16 @@
+{
+  "binary_sha256": "4828111a55257248fb962f1505173452d497e6c55d0a5f35aaa5e084b57449f7",
+  "scope": "Actual standalone CLI resource-bound repair probe; no build/product/native UI",
+  "short_token_expansion": {
+    "source_bytes": 5194308,
+    "exit_code": 2,
+    "stdout_bytes": 0,
+    "error": "BINARY64-CLI-ITEM-INVALID probe: BINARY64-JSON-BYTE-LIMIT"
+  },
+  "exact_output_boundary": {
+    "canonical_bytes": 8388608,
+    "first_exit": 0,
+    "round_trip_exit": 0,
+    "identical": true
+  }
+}

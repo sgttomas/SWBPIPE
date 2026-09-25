@@ -1,0 +1,400 @@
+{
+  "status": "Independent review clear; exact unmerged checkpoint selection; no Git mutation by manager",
+  "branch": "codex/piping-scientific-json-20260925",
+  "base_commit": "0a438a68672269e5750900792c9565ae9e5555b0",
+  "design_commit": "a09931a74e197627105c1287c03957317a297351",
+  "profile": "openpipestress_jcs_binary64_v1",
+  "source_freeze_sha256": "34d33c50d3ef2a32280d49bd2803f3184d7eab4cd935e9ab6ca97b1c772c67f7",
+  "source_patch_sha256": "3206a4035178080eb0f1bc1d728eaf606869822bbe73c666add99065b9fabf15",
+  "source": [
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/Cargo.toml",
+      "sha256": "4f371b06ff85a2c7eccdebbc0a0b513f3f3d57ebc8d4c759c529b21d7ea48b0f",
+      "bytes": 882,
+      "base_sha256": "531d6fcb62e47c3f4dfa5aae3c920255d40f2f1619036a001c1cb37e691c10f4"
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/adapter.py",
+      "sha256": "f7f94c8d5541dfd1db33c3eab02ca3f8d8b47c39a8780261c1b2b00f8a1bdafd",
+      "bytes": 14509,
+      "base_sha256": "f6c92a186b65f1ae1990194098f668566b190a7ac77376b3fcf792d0711335df"
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/README.md",
+      "sha256": "de4021717cd531cd8474217d4b4b31a25334cc3636615efc911f4c1cefcf6157",
+      "bytes": 6888,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/lib.rs",
+      "sha256": "96e6ca5562849b9136bc75b665d10b421e75a9b9805303c40b68982101889336",
+      "bytes": 17509,
+      "base_sha256": "0236e76eeed2949d95d2826c0c20f68232e6bb4a5ceb983744e8db78628a3573"
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/binary64.rs",
+      "sha256": "6773d3abc6d725e210aa5452e34bd4124ed6943347451be48dcfb275cd76ea6e",
+      "bytes": 17999,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/binary64_cli.rs",
+      "sha256": "8b17e860bfd9deac9045ae6b2f853349b5b9e4d4fc2674044a0fc3f7f19c52bc",
+      "bytes": 2386,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/bin/openpipestress_jcs_binary64.rs",
+      "sha256": "526f30db364a62253a56092c6a5e97759fba74d5581fc7a15765a7ce9765b5c5",
+      "bytes": 808,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/tests/binary64_profile.rs",
+      "sha256": "44ba26aae775ba7cb9c14260f35eceed696aa6e4f04d0d9127805a7534bf232f",
+      "bytes": 14619,
+      "base_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/tools/serialization/build_checked_json.py",
+      "sha256": "120f0125c5aae4ccc42dce56665c1f6a02353a3bf61c496f735b526f492f49fb",
+      "bytes": 1277,
+      "base_sha256": "6d5d55434d2ca94c896c2794ebdebc89ef1bb0efbfd605d840b0835a9d654bd3"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_binary64_canonical_json_adapter.py",
+      "sha256": "91a49857fe7206da49615fd57c2a6e489e8a30ce85944762bffc50c21b53fa86",
+      "bytes": 13597,
+      "base_sha256": null
+    }
+  ],
+  "evidence": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/API_PLAN.md",
+      "sha256": "4af07629b7c47a12ff3130eb52255a73d5f06b266659762b1c49061ab581926b",
+      "bytes": 2053
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/BASIS.json",
+      "sha256": "d6916e17b553fe33ccdaab92ef2cf450cc1973b2df9788a144cc5855afcbcb42",
+      "bytes": 6072
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/BRIEF.md",
+      "sha256": "acb50de65d9e62fc791579864fb78a73bb3749b1c4e57e8d9def4f9dd9c403ab",
+      "bytes": 1085
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/DELEGATION.json",
+      "sha256": "cc60eafdfadcaae52a8895633036dc2279cab28e0e2462ca3eb544f2e48e6d3c",
+      "bytes": 925
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/INDEPENDENT_REVIEW/CANONICAL_OUTPUT_LIMIT.json",
+      "sha256": "690bc31b50857080ea363134f4ae2a0b32b83859daec7674772ff75c7748ad61",
+      "bytes": 508
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/INDEPENDENT_REVIEW/CANONICAL_OUTPUT_LIMIT_REPAIR.json",
+      "sha256": "972d527faf657cd4f007741a87326317122d0b233aebe0d9331aa5f92ce42b71",
+      "bytes": 496
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/INDEPENDENT_REVIEW/FINAL_CHECKED_BASIS.json",
+      "sha256": "e2ef2b1deb323f21bc108fbf0e4852abcfdd48f5e464deea2f5efe2e1f40b558",
+      "bytes": 5893
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/INDEPENDENT_REVIEW/FINDINGS.md",
+      "sha256": "a913b0dedeba82051bd0f661f798f7d7eb56394a32ef303122133ed6ec426bec",
+      "bytes": 5427
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/INDEPENDENT_REVIEW/INITIAL_CHECKED_BASIS.json",
+      "sha256": "86d212635703dc0fdf25b2c6a36827f864f75cf072f1cdaf47bfcbf560f6210a",
+      "bytes": 7500
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/INDEPENDENT_REVIEW/INTERMEDIATE_REPAIR_CHECKS.json",
+      "sha256": "ff6de732b86133dd84bb30243faae5d297020b3f8d3f00a59bac00a0b6000338",
+      "bytes": 9275
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/INDEPENDENT_REVIEW/NUMERIC_EDGE_PROBES.json",
+      "sha256": "2f4a83f78e150fbfbc649c45e3f4b170400a9f1f6b5f9e41755fcf44e4549cf0",
+      "bytes": 4898
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/INDEPENDENT_REVIEW/RESOURCE_ORDER.json",
+      "sha256": "df8e37f02e432ed1c26193f9ff2c2be9833ae75557468b00796d9c9468a2f484",
+      "bytes": 623
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/INDEPENDENT_REVIEW/RESOURCE_REPAIR_DELTA.patch",
+      "sha256": "b346e9fdbc397868f99ea9e75bf5b770c35c200dbcef68c11dd36309f7e080dd",
+      "bytes": 15481
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/INDEPENDENT_REVIEW/RESOURCE_REPAIR_PROBES.json",
+      "sha256": "496d00bb9c3a2c840d1a44dce1ab367b3b8f48af57cb9c820050b5564bd91fdf",
+      "bytes": 2061
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/INDEPENDENT_REVIEW/RETURN.md",
+      "sha256": "9dd7347fdfd8988c9ee1b10686559520d9ed4d74b283bab3ef90acdb3d1911b1",
+      "bytes": 4854
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/INDEPENDENT_REVIEW/REVIEW_SCOPE.md",
+      "sha256": "7bab1fedbce0bd1e766cf33997de3fd488821202e0f55b39059b5507b6942a1d",
+      "bytes": 3783
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/INDEPENDENT_REVIEW/probe_canonical_output_limit.py",
+      "sha256": "c0fac694e3058310f605847e529b7bd96149071994429b5ea91298649d49711c",
+      "bytes": 1452
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/INDEPENDENT_REVIEW/probe_numeric_edges.py",
+      "sha256": "d3017a837d632a96d8654b941a1dcb29acd0890559551c094b758b0b2df0d308",
+      "bytes": 2014
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/INDEPENDENT_REVIEW/probe_resource_order.py",
+      "sha256": "fb0067ed3b04087da639a89b295411db4b1e47e8893039acfb8da3fe65b9491c",
+      "bytes": 1971
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/INDEPENDENT_REVIEW/probe_resource_repair.py",
+      "sha256": "baf39eb0c015377c8b39e46c5b3531917e52da5b9f5573f2a940e0c7ba69b50e",
+      "bytes": 3105
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/RESOURCE_REPAIR.md",
+      "sha256": "0d747fe72453c30065bd20b7583ae08dfda294340d8d39550a87ce4bb604a6cc",
+      "bytes": 4007
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/RETURN.md",
+      "sha256": "0c7c7420a9e7a1c1127b8fb0f8eeedb49b12cec2146598977cd86a505d871ae3",
+      "bytes": 3987
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/SOURCE_CANDIDATE_01.json",
+      "sha256": "e376d9b278b397ea2d6f36fb56395eabf1f073aca7ceb7dece4f10ce98c63323",
+      "bytes": 2259
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/SOURCE_FREEZE_01.json",
+      "sha256": "1a8c4156d372d75c177c85eb3eafd4312dc02e97f125c72601c1f1462acdf3b2",
+      "bytes": 2989
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/SOURCE_FREEZE_02.json",
+      "sha256": "e8ef7cb2468e529e1fe1db78c28c00ebba072fd023d2d918e10eff2821036ae3",
+      "bytes": 3468
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/SOURCE_FREEZE_03.json",
+      "sha256": "04b99768c6676b29e4a1a7c192a0394dd24039f65a66e4605814e49d59c81b8f",
+      "bytes": 3335
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/SOURCE_FREEZE_04.json",
+      "sha256": "34d33c50d3ef2a32280d49bd2803f3184d7eab4cd935e9ab6ca97b1c772c67f7",
+      "bytes": 3405
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/COMMITTED_DESIGN_BACKCHECK.json",
+      "sha256": "189348a4117200b21a26ba5fb5a90f8d27c46f6705ae52e7e3e6e37239e6a16b",
+      "bytes": 1945
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/ENVIRONMENT.json",
+      "sha256": "bf9ceeab3f9b087330022ca8f2c36c70f7ac975738b055ae5077806db8ecc4d2",
+      "bytes": 787
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/ENVIRONMENT_02.json",
+      "sha256": "2b4c4d4852f73b5547606be14a650a9935212706ae85776e0e9fd79c591c347c",
+      "bytes": 787
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/ENVIRONMENT_03.json",
+      "sha256": "11fe0a584df8dccdd46d26a07ba895ad9e37ff22ddae066f2c9537cf0afc9ee3",
+      "bytes": 787
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/ENVIRONMENT_04.json",
+      "sha256": "4aa9b329ee0bd1961de8744ca25f0c6a7131e2a7a2840f55420704045a3abd94",
+      "bytes": 787
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/FINAL_MANAGER_SOURCE_CHECK.json",
+      "sha256": "e53a02fea1f419976f6cf6cf67df849493339eb11d91470628901a6a5b031d3e",
+      "bytes": 238
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/INITIAL_SYNTAX_CHECK.json",
+      "sha256": "2d61c061ef4cd0185fa8ec37a6d505f8e5d83726e78a8014a5bd5b80290c238b",
+      "bytes": 410
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/LEGACY_SOURCE_PRESERVATION.json",
+      "sha256": "96a099172163a43382a631402629e80f1ed03b28a10daec2f61a3e1e14636b0b",
+      "bytes": 337
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/TEST_SETUP_DISCOVERY.md",
+      "sha256": "0aa913fc6732e85491f251d70d72f5d434e793fedb6d1dce9cc326f921c728fa",
+      "bytes": 593
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/adapter_pretransport_01.json",
+      "sha256": "5b6b0cd88d8892ec2101b878367e853d6e54b5e275b19130f56cd0b7f11db5b1",
+      "bytes": 3413
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/adapter_pretransport_01.log",
+      "sha256": "2a5c716924cc2a3232517179ea4a4f400f067601015d0117ca82b2a592cc3c2d",
+      "bytes": 690
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/explicit_scientific_build_01.json",
+      "sha256": "f6e53a98924aff81b0ac1ab0afb4d5d27963a1e0b03964b79b4854f708717ac7",
+      "bytes": 3362
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/explicit_scientific_build_01.log",
+      "sha256": "6abed8ccd9e35247706c9c9b2520c54dea10e109854961a2eae50a0e4903fc4f",
+      "bytes": 223
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/python_cross_language_01.json",
+      "sha256": "c4db41a9d281f8d8bc9e4ba02b39d0449652bbbafdb12b56431aada25e5375b7",
+      "bytes": 3406
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/python_cross_language_01.log",
+      "sha256": "a0952723079a07bd9a90082176442b4d19193e421d2f387ab0cbdb5f331bc809",
+      "bytes": 318
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/python_cross_language_02.json",
+      "sha256": "f388f6fd38a8ac2e4ce7ebba80b57ceefaf6814bf1779055638a0c7d1bedea3f",
+      "bytes": 3405
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/python_cross_language_02.log",
+      "sha256": "1533863e7f1d2cf47ddcdd8c5530d6feb201188053f72c2e7a002494ea8a6e47",
+      "bytes": 480
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/python_cross_language_03.json",
+      "sha256": "b773bec760ed771aa1cc17c487e624dfc20cbd2ef6b6101d1f8ef36122a9bde5",
+      "bytes": 3405
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/python_cross_language_03.log",
+      "sha256": "a38b9945767dfcdc7f878ce00d15157c60a00efd41798d5b4ab1634165952201",
+      "bytes": 480
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/python_cross_language_04.json",
+      "sha256": "9c1082e906c6f35159f8d5470723e065d91cbd1dbe0d278420be76a2bb32bcc6",
+      "bytes": 3406
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/python_cross_language_04.log",
+      "sha256": "fd271ab7962c301d31191119a2b89241c048abde296086f937ab6f01e421a955",
+      "bytes": 481
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/run_check.py",
+      "sha256": "b4609aec42edb4a534d4815679abf49e3e1f85459e25a8db7f4c4436eb58bce0",
+      "bytes": 2072
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/rust_full_01.json",
+      "sha256": "841b6c500d6429976b3277a1956a3adaef414cd800a770a3f9702e7e3926aef3",
+      "bytes": 3349
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/rust_full_01.log",
+      "sha256": "ce38a6d21844f202e815581c581328c01f0b22a1f5f98977e9c22856220f9627",
+      "bytes": 3457
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/rust_full_02.json",
+      "sha256": "64532552b6519540ea510cb01907b68f1e918e89c109ac23308c065e0e87af0c",
+      "bytes": 3348
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/rust_full_02.log",
+      "sha256": "f80d2d3671f3ebe3bab2c7a916f7c4e966cd52f3b5a776f3252f96e1de6b96c5",
+      "bytes": 3174
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/rust_full_03.json",
+      "sha256": "c047f79761fe55e00107953a77513ee4116a6de4110ef6824642a762027a0814",
+      "bytes": 3349
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/rust_full_03.log",
+      "sha256": "84dda97c334377ab880ff7771ee5a60ca6e21b959b9a6636066fd8f00b7ddbd7",
+      "bytes": 3252
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/rust_full_04.json",
+      "sha256": "a97f327fd814071915968f2e9fda2f34ff133339c2628aa9f1742b474ab6b172",
+      "bytes": 3349
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/rust_full_04.log",
+      "sha256": "52bd72561943c8b57b20b0144dff649f02b0a2fcc86006caadad4f30265f0931",
+      "bytes": 3407
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/source_candidate_01.patch",
+      "sha256": "57a2bc688a9d85f0b7e32a60aafb6a68ed7cc7d7c8ee580672086564b6299614",
+      "bytes": 58941
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/source_candidate_02.patch",
+      "sha256": "d79031be706047839f087117b1b48b785bd9d66007dc6634b5895bfbd851aca9",
+      "bytes": 66069
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/source_candidate_03.patch",
+      "sha256": "97886e2327b95b7291785c0e1f3a48740338fb2511acc7029257d6b3100e2db7",
+      "bytes": 67254
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/_run_records/source_candidate_04.patch",
+      "sha256": "3206a4035178080eb0f1bc1d728eaf606869822bbe73c666add99065b9fabf15",
+      "bytes": 71606
+    }
+  ],
+  "manifest_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/SCIENTIFIC_TRANSPORT_FOUNDATION/HANDOFF_WHITELIST.json",
+  "exclude": [
+    "canonical_json/target/** (all compiled/generated binaries)",
+    "__pycache__/** and *.pyc",
+    "any path not explicitly selected here"
+  ],
+  "source_count": 10,
+  "evidence_count": 61,
+  "checks": {
+    "rust_passed": 24,
+    "python_passed": 55,
+    "cross_language_numeric_tokens": 547,
+    "failed_or_skipped_current": 0
+  },
+  "review_return_sha256": "9dd7347fdfd8988c9ee1b10686559520d9ed4d74b283bab3ef90acdb3d1911b1",
+  "review_final_basis_sha256": "e2ef2b1deb323f21bc108fbf0e4852abcfdd48f5e464deea2f5efe2e1f40b558",
+  "limits": [
+    "standalone foundation only",
+    "no product/native/WASM/SI/receipt/reader activation",
+    "no solver finding closure or merge/release qualification",
+    "exact integer field inventories and qualified invocation integration remain successors"
+  ]
+}

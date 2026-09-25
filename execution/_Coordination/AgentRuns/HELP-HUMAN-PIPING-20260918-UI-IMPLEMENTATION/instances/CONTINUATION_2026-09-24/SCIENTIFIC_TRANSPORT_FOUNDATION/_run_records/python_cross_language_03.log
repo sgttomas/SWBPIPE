@@ -1,0 +1,5 @@
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/private/tmp/piping-scientific-json-20260925/projects/chirality-piping/core/serialization/canonical_json)
+    Finished `release` profile [optimized] target(s) in 1.68s
+.......................................{"conformance_tokens": 547, "random_seed": "0xB1642026", "node": "v24.18.0", "v8": "13.6.233.17-node.50", "scope": "Rust native CLI/Python/stock Node; no WASM or solver qualification"}
+...............
+54 passed in 3.79s

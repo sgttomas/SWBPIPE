@@ -1,0 +1,1686 @@
+--- a/projects/chirality-piping/core/serialization/canonical_json/Cargo.toml
++++ b/projects/chirality-piping/core/serialization/canonical_json/Cargo.toml
+@@ -16,6 +16,11 @@
+ path = "src/bin/openpipestress_jcs_ijson.rs"
+ required-features = ["checked-cli"]
+ 
++[[bin]]
++name = "openpipestress_jcs_binary64"
++path = "src/bin/openpipestress_jcs_binary64.rs"
++required-features = ["checked-cli"]
++
+ [dependencies]
+ serde = { version = "1", features = ["derive"] }
+ serde_json = { version = "1", features = ["float_roundtrip"] }
+--- a/projects/chirality-piping/core/serialization/canonical_json/adapter.py
++++ b/projects/chirality-piping/core/serialization/canonical_json/adapter.py
+@@ -97,3 +97,223 @@
+ 
+ def canonical_sha256_checked_v1(value: Any) -> str:
+     return sha256(canonical_json_checked_v1(value).encode("utf-8")).hexdigest()
++
++
++# Explicit scientific successor. Historical helpers above deliberately retain
++# their acceptance and executable; there is no retry between these profiles.
++BINARY64_PROFILE = "openpipestress_jcs_binary64_v1"
++ENV_BINARY64_EXECUTABLE = "OPENPIPESTRESS_BINARY64_JSON_BIN"
++_KNOWN_BINARY64_EXECUTABLE = _KNOWN_EXECUTABLE.with_name("openpipestress_jcs_binary64")
++_BINARY64_MAX_BYTES = 8 * 1024 * 1024
++_BINARY64_MAX_DEPTH = 128
++_BINARY64_MAX_NODES = 262_144
++_BINARY64_MAX_ITEMS = 4096
++_BINARY64_MAX_REQUEST_BYTES = 64 * 1024 * 1024
++_SAFE_INTEGER = 9_007_199_254_740_991
++
++
++def binary64_executable() -> Path:
++    configured = os.environ.get(ENV_BINARY64_EXECUTABLE)
++    path = Path(configured).expanduser().resolve() if configured else _KNOWN_BINARY64_EXECUTABLE
++    if not path.is_file():
++        raise RuntimeError(f"BINARY64-JSON-AUTHORITY-MISSING: {path}; build explicitly with tools/serialization/build_checked_json.py --profile {BINARY64_PROFILE}")
++    return path
++
++
++def _binary64_string(value: str) -> str:
++    if type(value) is not str:
++        raise ValueError("BINARY64-JSON-STRING-REQUIRED")
++    for character in value:
++        point = ord(character)
++        if 0xD800 <= point <= 0xDFFF:
++            raise ValueError("BINARY64-JSON-LONE-SURROGATE")
++        if 0xFDD0 <= point <= 0xFDEF or point & 0xFFFF in (0xFFFE, 0xFFFF):
++            raise ValueError("BINARY64-JSON-NONCHARACTER")
++    return value
++
++
++def exact_integer(value: Any, minimum: int = -_SAFE_INTEGER, maximum: int = _SAFE_INTEGER) -> int:
++    """Schema-owned programmatic counter/index admission; bool is not an int.
++
++    This cannot authenticate discarded decimal spelling. Typed text adapters
++    must instead use Rust's original-token exact_integer_at before projection.
++    """
++    if type(minimum) is not int or type(maximum) is not int or minimum < -_SAFE_INTEGER or maximum > _SAFE_INTEGER or minimum > maximum:
++        raise ValueError("BINARY64-JSON-EXACT-INTEGER-BOUNDS")
++    if type(value) is not int or not minimum <= value <= maximum:
++        raise ValueError("BINARY64-JSON-EXACT-INTEGER-REQUIRED")
++    return value
++
++
++def scientific_real(value: int | float) -> float:
++    """Explicitly declare a host integer/float as a scientific binary64 real.
++
++    Integer-to-float conversion can discard digits. This is not exact decimal
++    storage; use strings for arbitrary-precision operands or identifiers.
++    """
++    if type(value) not in (int, float):
++        raise ValueError("BINARY64-JSON-SCIENTIFIC-REAL-REQUIRED")
++    try:
++        result = float(value)
++    except OverflowError as exc:
++        raise ValueError("BINARY64-JSON-OVERFLOW") from exc
++    if not math.isfinite(result):
++        raise ValueError("BINARY64-JSON-NON-FINITE")
++    if result == 0.0 and math.copysign(1.0, result) < 0:
++        raise ValueError("BINARY64-JSON-NEGATIVE-ZERO")
++    return result
++
++
++def _bounded_string_size(value: str, maximum: int, *, escaped: bool) -> int:
++    # Count bytes without allocating an encoded/escaped copy. Aliased large
++    # strings must pay their full expansion each time they occur in a snapshot.
++    size = 2 if escaped else 0
++    if len(value) + size > maximum:
++        raise ValueError("BINARY64-JSON-BYTE-LIMIT")
++    for character in value:
++        point = ord(character)
++        if 0xD800 <= point <= 0xDFFF:
++            raise ValueError("BINARY64-JSON-UTF8")
++        if escaped and character in ('"', "\\", "\b", "\t", "\n", "\f", "\r"):
++            size += 2
++        elif escaped and point < 0x20:
++            size += 6
++        else:
++            size += 1 if point < 0x80 else 2 if point < 0x800 else 3 if point < 0x10000 else 4
++        if size > maximum:
++            raise ValueError("BINARY64-JSON-BYTE-LIMIT")
++    return size
++
++
++def _snapshot_bytes(state: list[int], amount: int) -> None:
++    state[1] += amount
++    if state[1] > _BINARY64_MAX_BYTES:
++        raise ValueError("BINARY64-JSON-BYTE-LIMIT")
++
++
++def _freeze_binary64(value: Any, active: set[int], depth: int, state: list[int]) -> Any:
++    if depth > _BINARY64_MAX_DEPTH:
++        raise ValueError("BINARY64-JSON-DEPTH-LIMIT")
++    state[0] += 1
++    if state[0] > _BINARY64_MAX_NODES:
++        raise ValueError("BINARY64-JSON-NODE-LIMIT")
++    if value is None or type(value) is bool:
++        _snapshot_bytes(state, 4 if value is None or value else 5)
++        return value
++    if type(value) is str:
++        _snapshot_bytes(state, _bounded_string_size(value, _BINARY64_MAX_BYTES - state[1], escaped=True))
++        return _binary64_string(value)
++    if type(value) is int:
++        integer = exact_integer(value)
++        _snapshot_bytes(state, len(str(integer)))
++        return integer
++    if type(value) is float:
++        real = scientific_real(value)
++        _snapshot_bytes(state, len(json.dumps(real, allow_nan=False)))
++        return real
++    if type(value) not in (dict, list):
++        raise ValueError(f"BINARY64-JSON-UNSUPPORTED-TYPE: {type(value).__name__}")
++    identity = id(value)
++    if identity in active:
++        raise ValueError("BINARY64-JSON-CYCLIC-VALUE")
++    # Punctuation is known before constructing a frozen container.
++    _snapshot_bytes(state, 2 + max(0, len(value) - 1))
++    active.add(identity)
++    try:
++        if type(value) is dict:
++            frozen = {}
++            for key, item in value.items():
++                _binary64_string(key)
++                _snapshot_bytes(state, _bounded_string_size(key, _BINARY64_MAX_BYTES - state[1], escaped=True) + 1)
++                frozen[key] = _freeze_binary64(item, active, depth + 1, state)
++            return frozen
++        return [_freeze_binary64(item, active, depth + 1, state) for item in value]
++    finally:
++        active.remove(identity)
++
++
++def _response_pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
++    result: dict[str, Any] = {}
++    for key, value in pairs:
++        if key in result:
++            raise ValueError("duplicate response key")
++        result[key] = value
++    return result
++
++
++def canonicalize_binary64_text_batch(items: Sequence[tuple[str, str]]) -> dict[str, str]:
++    """Canonicalize original text through Rust without Python parsing it first.
++
++    Every generic numeric token declares a binary64 real. This authenticates
++    semantic canonical bytes, not original spelling or a typed record schema.
++    """
++    request_items = []
++    seen: set[str] = set()
++    request_header = {"protocol_version": PROTOCOL_VERSION, "profile": BINARY64_PROFILE, "items": []}
++    request_size = len(json.dumps(request_header, separators=(",", ":")))
++    if request_size > _BINARY64_MAX_REQUEST_BYTES:
++        raise ValueError("BINARY64-JSON-REQUEST-BYTE-LIMIT")
++    for item_id, json_text in items:
++        _binary64_string(item_id)
++        if not item_id or item_id in seen:
++            raise ValueError("BINARY64-JSON-ITEM-ID-INVALID")
++        if type(json_text) is not str:
++            raise ValueError("BINARY64-JSON-TEXT-REQUIRED")
++        # Per-document UTF-8 and aggregate escaped-envelope accounting happen
++        # before materialization, including aliases and batches of many items.
++        _bounded_string_size(json_text, _BINARY64_MAX_BYTES, escaped=False)
++        request_size += len('{"id":,"json_text":}') + (1 if request_items else 0)
++        request_size += _bounded_string_size(item_id, _BINARY64_MAX_REQUEST_BYTES - request_size, escaped=True)
++        request_size += _bounded_string_size(json_text, _BINARY64_MAX_REQUEST_BYTES - request_size, escaped=True)
++        seen.add(item_id)
++        request_items.append({"id": item_id, "json_text": json_text})
++        if len(request_items) > _BINARY64_MAX_ITEMS:
++            raise ValueError("BINARY64-JSON-BATCH-LIMIT")
++    request_header["items"] = request_items
++    request = json.dumps(request_header, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
++    completed = subprocess.run([str(binary64_executable())], input=request, text=True, encoding="utf-8", capture_output=True, check=False, shell=False)
++    if completed.returncode != 0:
++        raise RuntimeError(f"BINARY64-JSON-AUTHORITY-REJECTED: {completed.stderr.strip()}")
++    try:
++        response = json.loads(completed.stdout, object_pairs_hook=_response_pairs)
++        if type(response) is not dict or set(response) != {"protocol_version", "profile", "items"}:
++            raise ValueError("response shape")
++        if response["protocol_version"] != PROTOCOL_VERSION or response["profile"] != BINARY64_PROFILE:
++            raise ValueError("profile or protocol mismatch")
++        returned = response["items"]
++        if type(returned) is not list or len(returned) != len(request_items):
++            raise ValueError("response items")
++        for row, submitted in zip(returned, request_items):
++            if type(row) is not dict or set(row) != {"id", "canonical_json"} or row["id"] != submitted["id"] or type(row["canonical_json"]) is not str:
++                raise ValueError("response row")
++            _binary64_string(row["canonical_json"])
++    except (ValueError, TypeError, KeyError) as exc:
++        raise RuntimeError("BINARY64-JSON-AUTHORITY-RESPONSE-INVALID") from exc
++    return {row["id"]: row["canonical_json"] for row in returned}
++
++
++def canonicalize_binary64_batch(items: Sequence[tuple[str, Any]]) -> dict[str, str]:
++    """Freeze actual plain Python snapshots before transport; no raw custody."""
++    def texts():
++        for item_id, value in items:
++            frozen = _freeze_binary64(value, set(), 0, [0, 0])
++            yield item_id, json.dumps(frozen, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
++    # Stream each bounded snapshot into aggregate admission instead of retaining
++    # all serialized documents before checking the request's total expansion.
++    return canonicalize_binary64_text_batch(texts())
++
++
++def canonical_json_binary64_v1_text(json_text: str) -> str:
++    return canonicalize_binary64_text_batch([("value", json_text)])["value"]
++
++
++def canonical_json_binary64_v1(value: Any) -> str:
++    return canonicalize_binary64_batch([("value", value)])["value"]
++
++
++def canonical_sha256_binary64_v1(value: Any) -> str:
++    return sha256(canonical_json_binary64_v1(value).encode("utf-8")).hexdigest()
++
++
++def canonical_sha256_binary64_v1_text(json_text: str) -> str:
++    return sha256(canonical_json_binary64_v1_text(json_text).encode("utf-8")).hexdigest()
+--- /dev/null
++++ b/projects/chirality-piping/core/serialization/canonical_json/README.md
+@@ -0,0 +1,118 @@
++# Canonical JSON profiles
++
++The existing unrestricted `canonical_json`, checked `openpipestress_jcs_ijson_v1`
++APIs and `openpipestress_jcs_ijson` executable retain their historical behavior.
++They do not automatically retry with another profile.
++
++`openpipestress_jcs_binary64_v1` is a separate scientific transport foundation.
++Every JSON number in its generic text API denotes the nearest finite binary64
++value. It uses the Rust ECMAScript formatter for canonical bytes, including
++large finite integral-valued reals. For example `9007199254740993`,
++`9007199254740993.0` and `9.007199254740993e15` all canonicalize to
++`9007199254740992`; a semantic hash cannot authenticate their original spelling.
++This is not exact decimal or arbitrary-precision integer storage.
++
++The new parser rejects duplicate names after escape decoding, invalid JSON,
++lone surrogates, Unicode noncharacters (also in root strings), overflow,
++nonzero tokens rounding to zero, and negative-zero input. Representable
++subnormals are admitted. String normalization is not performed. Property names
++sort by UTF-16 code units. The underflow and negative-zero policies are
++scientific ingress restrictions; the unchanged standalone formatter still
++renders historical IEEE negative zero as `0`.
++
++## Rust APIs and exact integer fields
++
++Use `binary64::parse_binary64_v1_text` for raw text. The returned document
++retains number lexemes so a typed schema adapter can call
++`exact_integer_at("/count", 0, limit)` **before** extracting its `Value` or
++building a DTO. Count/index fields accept only integer tokens (no exponent,
++decimal point or negative zero), with bounds inside ±9007199254740991. Safe
++integer tokens keep their serde integer representation for typed DTOs. Generic
++canonical rendering nevertheless uses binary64 for every number. No field is
++inferred to be a counter from its name; each adopting schema must inventory
++and check its exact fields, required fields and narrower bounds.
++
++`canonical_json_binary64_v1_text` is the generic scientific renderer.
++`canonical_json_binary64_v1_value` checks an actual supplied serde snapshot:
++unsafe i64/u64 values require an explicit typed-owner conversion to f64, or the
++raw-text scientific route. It cannot detect source text already discarded by a
++foreign parser, or recover NaN previously converted into JSON null.
++`exact_integer_token` and `exact_integer_value` support bounded typed adapters;
++they do not qualify a complete record by themselves.
++
++New-profile resource limits are 8MiB UTF-8 for both received and canonical
++documents, depth128 (root depth0),
++262144 value nodes,4096bytes per numeric token, and16MiB cumulative JSON Pointer
++construction. The latter is checked before escaping/allocation to bound
++repeated long-key amplification in token capture. Direct Rust snapshots apply
++the same path-length accounting without allocating paths, so their output cannot
++bypass the parser's resource contract. Object keys are not counted
++as value nodes. These are prospective transport admission limits, not solver
++capability limits or changes to old-profile acceptance. Canonical output bytes (including the parsed-document method), programmatic
++snapshot output bytes and cumulative escaped request bytes are checked before full
++serialization; repeated aliases pay their full expansion each time.
++
++## CLI and Python
++
++Build explicitly; runtime discovery never builds, searches PATH, invokes a
++shell, or falls back to a different serializer:
++
++```sh
++python tools/serialization/build_checked_json.py --profile openpipestress_jcs_binary64_v1
++```
++
++The executable is `openpipestress_jcs_binary64`, beside the old executable in
++`canonical_json/target/checked-json/release`. Python can instead use an explicit
++`OPENPIPESTRESS_BINARY64_JSON_BIN` path. The old environment variable continues
++to select only the old authority.
++
++The new CLI reads one UTF-8 JSON request from stdin, requiring exactly
++`protocol_version`, `profile`, and `items`:
++
++```json
++{"protocol_version":"1.0.0","profile":"openpipestress_jcs_binary64_v1","items":[{"id":"value","json_text":"1e160"}]}
++```
++
++It returns the same protocol/profile plus ordered `{id, canonical_json}` rows.
++Requests have a64MiB envelope limit and4096-item maximum; every item also obeys
++the document limits. Unknown/duplicate fields, duplicate/empty IDs and unsupported
++protocol/profile pairs fail the entire request with exit2 and no partial stdout.
++A caller must not interpret the profile echo as a schema or numerical-method
++qualification.
++
++Python `canonicalize_binary64_text_batch` and `canonical_json_binary64_v1_text`
++send original text directly to Rust. Their generic numeric domain is scientific
++real; schema-owned lexical exact-count checks are not performed by these generic
++calls. Python snapshot APIs `canonicalize_binary64_batch` and
++`canonical_json_binary64_v1` accept only plain dict/list, str, bool, null, safe
++integers and finite floats, rejecting unsupported types, cycles, invalid Unicode
++and negative zero before JSON encoding. `scientific_real(int_or_float)` is an
++explicit real-domain conversion; `exact_integer(value, minimum, maximum)` checks
++programmatic counters and rejects bool/float. Decimal/Fraction and custom classes
++need a separate explicit conversion or string representation.
++
++The SHA-256 helpers hash **Rust-produced canonical bytes**. They do not implement
++Python canonicalization, domain-separated receipts or raw-text custody. New
++record carriers must name their profile/payload scope/version and use their own
++versioned receipt domains. Original source bytes and their scoped digest must
++be retained separately wherever raw custody is claimed; reserialization does
++not recover lost input. Hashes from old and new profiles must never be mixed.
++
++## Adoption boundary
++
++This addition does not activate new solver producers, result readers,
++operation/native/WASM exports, browser object freezing, input capture receipts,
++public-zero projection, stress units, Current/rules/export standing or schema
++versions. Those are explicit successor integrations, including schema-specific
++integer inventories and actual invocation binding. No solver accuracy follows
++from successfully transporting a finite value. Computed -0 requires a separately
++versioned producer projection **before** row binding; this parser will not repair
++an untrusted negative-zero result.
++
++Tests exercise Rust native APIs and CLI, Python and stock Node parsing/rendering,
++adversarial ingress, declared limits and existing-profile behavior. Stock Node
++reference checks are not product WASM or frontend adapter qualification.
++
++References: [RFC8785](https://www.rfc-editor.org/rfc/rfc8785.html),
++[RFC7493](https://www.rfc-editor.org/rfc/rfc7493.html), and the prospective design
++at `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/CORRECTNESS_DESIGN/SCIENTIFIC_JSON_PROFILE/`.
+--- a/projects/chirality-piping/core/serialization/canonical_json/src/lib.rs
++++ b/projects/chirality-piping/core/serialization/canonical_json/src/lib.rs
+@@ -25,6 +25,9 @@
+ //! arrive distinct from their rounded double through any JavaScript lane
+ //! (`JSON.parse` rounds first) — see `fixtures/canonical_hash/README.md`.
+ 
++pub mod binary64;
++pub mod binary64_cli;
++
+ use serde_json::{Number, Value};
+ 
+ pub const CHECKED_PROFILE_V1: &str = "openpipestress_jcs_ijson_v1";
+--- /dev/null
++++ b/projects/chirality-piping/core/serialization/canonical_json/src/binary64.rs
+@@ -0,0 +1,512 @@
++//! Strict scientific JSON ingress. This is an explicitly selected successor,
++//! not a change to checked I-JSON v1 or the unrestricted historical renderer.
++use crate::{ecma_number_to_string, MAX_SAFE_INTEGER};
++use serde_json::{Map, Number, Value};
++use std::collections::BTreeMap;
++
++pub const BINARY64_PROFILE_V1: &str = "openpipestress_jcs_binary64_v1";
++pub const MAX_DOCUMENT_BYTES: usize = 8 * 1024 * 1024;
++pub const MAX_DEPTH: usize = 128;
++pub const MAX_VALUE_NODES: usize = 262_144;
++pub const MAX_NUMBER_BYTES: usize = 4096;
++/// Bounds repeated long-key path construction and retained numeric metadata.
++pub const MAX_CAPTURE_PATH_BYTES: usize = 16 * 1024 * 1024;
++
++/// A parsed scientific document. Numeric lexemes belong to this actual input;
++/// schema adapters must check their exact-integer fields before using `value`.
++/// This object makes no raw-byte-custody or typed-record-qualification claim.
++#[derive(Debug)]
++pub struct Binary64Document {
++    value: Value,
++    numbers: BTreeMap<String, String>,
++}
++
++impl Binary64Document {
++    pub fn value(&self) -> &Value {
++        &self.value
++    }
++    pub fn into_value(self) -> Value {
++        self.value
++    }
++    /// Both received text and its canonical rendering obey the document byte
++    /// bound, so an admitted canonical result can be parsed again unchanged.
++    pub fn canonical_json(&self) -> Result<String, String> {
++        canonical_json_binary64_v1_value(&self.value)
++    }
++    /// Check one field explicitly identified by its schema. Bounds may narrow
++    /// but never extend the safe-integer domain. JSON Pointer uses RFC6901.
++    pub fn exact_integer_at(
++        &self,
++        pointer: &str,
++        minimum: i64,
++        maximum: i64,
++    ) -> Result<i64, String> {
++        let token = self
++            .numbers
++            .get(pointer)
++            .ok_or_else(|| error("EXACT-INTEGER-REQUIRED"))?;
++        exact_integer_token(token, minimum, maximum)
++    }
++}
++
++fn error(reason: &str) -> String {
++    format!("BINARY64-JSON-{reason}")
++}
++
++fn valid_string(text: &str) -> Result<(), String> {
++    if text.chars().any(|c| {
++        let cp = c as u32;
++        (0xfdd0..=0xfdef).contains(&cp) || cp & 0xffff == 0xfffe || cp & 0xffff == 0xffff
++    }) {
++        return Err(error("NONCHARACTER"));
++    }
++    Ok(())
++}
++
++fn integer_bounds(minimum: i64, maximum: i64) -> Result<(), String> {
++    if minimum < -MAX_SAFE_INTEGER || maximum > MAX_SAFE_INTEGER || minimum > maximum {
++        return Err(error("EXACT-INTEGER-BOUNDS"));
++    }
++    Ok(())
++}
++
++/// Original-token admission for a schema-owned count/index. Decimal/exponent
++/// tokens and negative zero fail before binary64 rounding can erase them.
++pub fn exact_integer_token(token: &str, minimum: i64, maximum: i64) -> Result<i64, String> {
++    integer_bounds(minimum, maximum)?;
++    let digits = token.strip_prefix('-').unwrap_or(token);
++    if digits.is_empty()
++        || !digits.bytes().all(|b| b.is_ascii_digit())
++        || (digits.len() > 1 && digits.starts_with('0'))
++        || token == "-0"
++        || digits.len() > 16
++    {
++        return Err(error("EXACT-INTEGER-TOKEN"));
++    }
++    let value = token
++        .parse::<i64>()
++        .map_err(|_| error("EXACT-INTEGER-RANGE"))?;
++    exact_integer_value(value, minimum, maximum)
++}
++
++/// Programmatic integer admission. Passing a floating-point value requires an
++/// explicit caller conversion and cannot establish that it was an exact input.
++pub fn exact_integer_value(value: i64, minimum: i64, maximum: i64) -> Result<i64, String> {
++    integer_bounds(minimum, maximum)?;
++    if !(-MAX_SAFE_INTEGER..=MAX_SAFE_INTEGER).contains(&value)
++        || value < minimum
++        || value > maximum
++    {
++        return Err(error("EXACT-INTEGER-RANGE"));
++    }
++    Ok(value)
++}
++
++/// Parse original UTF-8 text without discarding duplicate names or numeric
++/// spellings. Every generic number in this profile denotes a binary64 real.
++pub fn parse_binary64_v1_text(input: &str) -> Result<Binary64Document, String> {
++    parse_with_byte_limit(input, MAX_DOCUMENT_BYTES)
++}
++
++/// Used by the bounded CLI envelope; not a public way around document limits.
++pub(crate) fn parse_with_byte_limit(
++    input: &str,
++    byte_limit: usize,
++) -> Result<Binary64Document, String> {
++    if input.len() > byte_limit {
++        return Err(error("BYTE-LIMIT"));
++    }
++    let mut parser = Parser {
++        input,
++        offset: 0,
++        nodes: 0,
++        path_bytes: 0,
++        numbers: BTreeMap::new(),
++    };
++    let value = parser.value(0, "")?;
++    parser.whitespace();
++    if parser.offset != input.len() {
++        return Err(error("TRAILING-TEXT"));
++    }
++    Ok(Binary64Document {
++        value,
++        numbers: parser.numbers,
++    })
++}
++
++pub fn canonical_json_binary64_v1_text(input: &str) -> Result<String, String> {
++    parse_binary64_v1_text(input)?.canonical_json()
++}
++
++/// Authenticate an actual supplied serde snapshot, not lost source text.
++/// Unsafe i64/u64 values are rejected: a scientific integer must be explicitly
++/// converted by its typed owner to f64, or supplied via the raw-text real API.
++pub fn canonical_json_binary64_v1_value(value: &Value) -> Result<String, String> {
++    validate_value(value, 0, &mut 0, &mut 0, 0, &mut 0)?;
++    let mut output = String::new();
++    write_value(value, &mut output);
++    if output.len() > MAX_DOCUMENT_BYTES {
++        return Err(error("BYTE-LIMIT"));
++    }
++    Ok(output)
++}
++
++fn output_bytes(bytes: &mut usize, additional: usize) -> Result<(), String> {
++    *bytes = bytes
++        .checked_add(additional)
++        .filter(|size| *size <= MAX_DOCUMENT_BYTES)
++        .ok_or_else(|| error("BYTE-LIMIT"))?;
++    Ok(())
++}
++
++fn string_output_bytes(text: &str, bytes: &mut usize) -> Result<(), String> {
++    // UTF-8 source bytes are a lower bound; check before any escaping/allocation.
++    if text.len() > MAX_DOCUMENT_BYTES.saturating_sub(*bytes) {
++        return Err(error("BYTE-LIMIT"));
++    }
++    output_bytes(bytes, 2)?;
++    for character in text.chars() {
++        let width = match character {
++            '"' | '\\' | '\u{8}' | '\t' | '\n' | '\u{c}' | '\r' => 2,
++            '\u{0}'..='\u{1f}' => 6,
++            _ => character.len_utf8(),
++        };
++        output_bytes(bytes, width)?;
++    }
++    valid_string(text)
++}
++
++fn validate_value(
++    value: &Value,
++    depth: usize,
++    nodes: &mut usize,
++    bytes: &mut usize,
++    path_length: usize,
++    path_bytes: &mut usize,
++) -> Result<(), String> {
++    if depth > MAX_DEPTH {
++        return Err(error("DEPTH-LIMIT"));
++    }
++    *nodes += 1;
++    if *nodes > MAX_VALUE_NODES {
++        return Err(error("NODE-LIMIT"));
++    }
++    match value {
++        Value::Number(n) => {
++            if let Some(v) = n.as_i64() {
++                exact_integer_value(v, -MAX_SAFE_INTEGER, MAX_SAFE_INTEGER)?;
++            } else if let Some(v) = n.as_u64() {
++                if v > MAX_SAFE_INTEGER as u64 {
++                    return Err(error("UNSAFE-HOST-INTEGER"));
++                }
++            }
++            let v = n.as_f64().ok_or_else(|| error("NON-FINITE"))?;
++            if !v.is_finite() {
++                return Err(error("NON-FINITE"));
++            }
++            if v == 0.0 && v.is_sign_negative() {
++                return Err(error("NEGATIVE-ZERO"));
++            }
++            output_bytes(bytes, ecma_number_to_string(v).len())?;
++        }
++        Value::String(s) => string_output_bytes(s, bytes)?,
++        Value::Array(items) => {
++            output_bytes(bytes, 2 + items.len().saturating_sub(1))?;
++            for (index, item) in items.iter().enumerate() {
++                let child = child_path_length(path_length, &index.to_string(), path_bytes)?;
++                validate_value(item, depth + 1, nodes, bytes, child, path_bytes)?;
++            }
++        }
++        Value::Object(items) => {
++            output_bytes(bytes, 2 + items.len().saturating_sub(1))?;
++            for (key, item) in items {
++                string_output_bytes(key, bytes)?;
++                output_bytes(bytes, 1)?;
++                let child = child_path_length(path_length, key, path_bytes)?;
++                validate_value(item, depth + 1, nodes, bytes, child, path_bytes)?;
++            }
++        }
++        Value::Null => output_bytes(bytes, 4)?,
++        Value::Bool(true) => output_bytes(bytes, 4)?,
++        Value::Bool(false) => output_bytes(bytes, 5)?,
++    }
++    Ok(())
++}
++
++// One resource definition for text capture and direct snapshot emission. The
++// latter counts pointer bytes without allocating paths that it does not need.
++fn child_path_length(
++    parent_length: usize,
++    component: &str,
++    cumulative: &mut usize,
++) -> Result<usize, String> {
++    let escaped_len = component
++        .len()
++        .checked_add(
++            component
++                .bytes()
++                .filter(|b| matches!(b, b'~' | b'/'))
++                .count(),
++        )
++        .ok_or_else(|| error("PATH-LIMIT"))?;
++    let length = parent_length
++        .checked_add(1)
++        .and_then(|v| v.checked_add(escaped_len))
++        .ok_or_else(|| error("PATH-LIMIT"))?;
++    *cumulative = cumulative
++        .checked_add(length)
++        .filter(|v| *v <= MAX_CAPTURE_PATH_BYTES)
++        .ok_or_else(|| error("PATH-LIMIT"))?;
++    Ok(length)
++}
++
++fn write_value(value: &Value, output: &mut String) {
++    match value {
++        Value::Number(n) => output.push_str(&ecma_number_to_string(
++            n.as_f64().expect("admitted binary64"),
++        )),
++        Value::Array(items) => {
++            output.push('[');
++            for (index, item) in items.iter().enumerate() {
++                if index > 0 {
++                    output.push(',');
++                }
++                write_value(item, output);
++            }
++            output.push(']');
++        }
++        Value::Object(items) => {
++            let mut keys: Vec<_> = items.keys().collect();
++            keys.sort_by(|a, b| a.encode_utf16().cmp(b.encode_utf16()));
++            output.push('{');
++            for (index, key) in keys.iter().enumerate() {
++                if index > 0 {
++                    output.push(',');
++                }
++                output.push_str(&serde_json::to_string(key).expect("valid string"));
++                output.push(':');
++                write_value(&items[*key], output);
++            }
++            output.push('}');
++        }
++        _ => output.push_str(&serde_json::to_string(value).expect("admitted scalar")),
++    }
++}
++
++struct Parser<'a> {
++    input: &'a str,
++    offset: usize,
++    nodes: usize,
++    path_bytes: usize,
++    numbers: BTreeMap<String, String>,
++}
++impl Parser<'_> {
++    fn peek(&self) -> Option<u8> {
++        self.input.as_bytes().get(self.offset).copied()
++    }
++    fn whitespace(&mut self) {
++        while matches!(self.peek(), Some(b' ' | b'\t' | b'\r' | b'\n')) {
++            self.offset += 1;
++        }
++    }
++    fn consume(&mut self, expected: u8) -> Result<(), String> {
++        self.whitespace();
++        if self.peek() != Some(expected) {
++            return Err(error("SYNTAX"));
++        }
++        self.offset += 1;
++        Ok(())
++    }
++    fn value(&mut self, depth: usize, pointer: &str) -> Result<Value, String> {
++        if depth > MAX_DEPTH {
++            return Err(error("DEPTH-LIMIT"));
++        }
++        self.nodes += 1;
++        if self.nodes > MAX_VALUE_NODES {
++            return Err(error("NODE-LIMIT"));
++        }
++        self.whitespace();
++        match self.peek() {
++            Some(b'n') => {
++                self.literal("null")?;
++                Ok(Value::Null)
++            }
++            Some(b't') => {
++                self.literal("true")?;
++                Ok(Value::Bool(true))
++            }
++            Some(b'f') => {
++                self.literal("false")?;
++                Ok(Value::Bool(false))
++            }
++            Some(b'"') => self.string().map(Value::String),
++            Some(b'[') => {
++                self.offset += 1;
++                let mut items = Vec::new();
++                self.whitespace();
++                if self.peek() == Some(b']') {
++                    self.offset += 1;
++                    return Ok(Value::Array(items));
++                }
++                loop {
++                    let child = self.child_pointer(pointer, &items.len().to_string())?;
++                    items.push(self.value(depth + 1, &child)?);
++                    self.whitespace();
++                    if self.peek() == Some(b']') {
++                        self.offset += 1;
++                        break;
++                    }
++                    self.consume(b',')?;
++                }
++                Ok(Value::Array(items))
++            }
++            Some(b'{') => {
++                self.offset += 1;
++                let mut items = Map::new();
++                self.whitespace();
++                if self.peek() == Some(b'}') {
++                    self.offset += 1;
++                    return Ok(Value::Object(items));
++                }
++                loop {
++                    self.whitespace();
++                    let key = self.string()?;
++                    if items.contains_key(&key) {
++                        return Err(error("DUPLICATE-KEY"));
++                    }
++                    self.consume(b':')?;
++                    let child = self.child_pointer(pointer, &key)?;
++                    let item = self.value(depth + 1, &child)?;
++                    items.insert(key, item);
++                    self.whitespace();
++                    if self.peek() == Some(b'}') {
++                        self.offset += 1;
++                        break;
++                    }
++                    self.consume(b',')?;
++                }
++                Ok(Value::Object(items))
++            }
++            Some(b'-' | b'0'..=b'9') => self.number(pointer),
++            _ => Err(error("SYNTAX")),
++        }
++    }
++    fn child_pointer(&mut self, parent: &str, component: &str) -> Result<String, String> {
++        let length = child_path_length(parent.len(), component, &mut self.path_bytes)?;
++        let mut result = String::with_capacity(length);
++        result.push_str(parent);
++        result.push('/');
++        for character in component.chars() {
++            match character {
++                '~' => result.push_str("~0"),
++                '/' => result.push_str("~1"),
++                _ => result.push(character),
++            }
++        }
++        Ok(result)
++    }
++    fn literal(&mut self, literal: &str) -> Result<(), String> {
++        if !self.input[self.offset..].starts_with(literal) {
++            return Err(error("SYNTAX"));
++        }
++        self.offset += literal.len();
++        Ok(())
++    }
++    fn string(&mut self) -> Result<String, String> {
++        if self.peek() != Some(b'"') {
++            return Err(error("STRING-REQUIRED"));
++        }
++        let start = self.offset;
++        self.offset += 1;
++        // Locate the quoted token without interpreting it. serde validates the
++        // token's escapes, scalar values, controls and surrogate pairs exactly.
++        loop {
++            match self.peek() {
++                None => return Err(error("UNTERMINATED-STRING")),
++                Some(b'"') => {
++                    self.offset += 1;
++                    break;
++                }
++                Some(b'\\') => {
++                    self.offset += 1;
++                    if self.peek().is_none() {
++                        return Err(error("UNTERMINATED-STRING"));
++                    }
++                    self.offset += 1;
++                }
++                _ => self.offset += 1,
++            }
++        }
++        let text: String = serde_json::from_str(&self.input[start..self.offset])
++            .map_err(|_| error("INVALID-STRING"))?;
++        valid_string(&text)?;
++        Ok(text)
++    }
++    fn digits(&mut self) -> usize {
++        let start = self.offset;
++        while matches!(self.peek(), Some(b'0'..=b'9')) {
++            self.offset += 1;
++        }
++        self.offset - start
++    }
++    fn number(&mut self, pointer: &str) -> Result<Value, String> {
++        let start = self.offset;
++        let negative = self.peek() == Some(b'-');
++        if negative {
++            self.offset += 1;
++        }
++        match self.peek() {
++            Some(b'0') => self.offset += 1,
++            Some(b'1'..=b'9') => {
++                self.digits();
++            }
++            _ => return Err(error("NUMBER-SYNTAX")),
++        }
++        if self.peek() == Some(b'.') {
++            self.offset += 1;
++            if self.digits() == 0 {
++                return Err(error("NUMBER-SYNTAX"));
++            }
++        }
++        let significand_end = self.offset;
++        if matches!(self.peek(), Some(b'e' | b'E')) {
++            self.offset += 1;
++            if matches!(self.peek(), Some(b'+' | b'-')) {
++                self.offset += 1;
++            }
++            if self.digits() == 0 {
++                return Err(error("NUMBER-SYNTAX"));
++            }
++        }
++        if self.offset - start > MAX_NUMBER_BYTES {
++            return Err(error("NUMBER-LIMIT"));
++        }
++        let token = &self.input[start..self.offset];
++        let nonzero = self.input[start..significand_end]
++            .bytes()
++            .any(|b| matches!(b, b'1'..=b'9'));
++        // Rust's decimal parser consumes the original token once; there is no
++        // intermediate decimal precision or serde integer/float double-rounding.
++        let value: f64 = token.parse().map_err(|_| error("NUMBER-SYNTAX"))?;
++        if !value.is_finite() {
++            return Err(error("OVERFLOW"));
++        }
++        if value == 0.0 {
++            if nonzero {
++                return Err(error("NONZERO-UNDERFLOW"));
++            }
++            if negative {
++                return Err(error("NEGATIVE-ZERO"));
++            }
++        }
++        self.numbers.insert(pointer.to_owned(), token.to_owned());
++        // Keep admitted safe integer tokens usable by typed integer DTOs.
++        if let Ok(integer) = exact_integer_token(token, -MAX_SAFE_INTEGER, MAX_SAFE_INTEGER) {
++            Ok(Value::Number(integer.into()))
++        } else {
++            Ok(Value::Number(
++                Number::from_f64(value).expect("finite parsed value"),
++            ))
++        }
++    }
++}
+--- /dev/null
++++ b/projects/chirality-piping/core/serialization/canonical_json/src/binary64_cli.rs
+@@ -0,0 +1,71 @@
++//! Pure protocol handler for the standalone scientific authority executable.
++use crate::binary64::{
++    canonical_json_binary64_v1_text, parse_with_byte_limit, BINARY64_PROFILE_V1,
++};
++use serde::{Deserialize, Serialize};
++use std::collections::HashSet;
++
++pub const PROTOCOL_VERSION: &str = "1.0.0";
++pub const MAX_REQUEST_BYTES: usize = 64 * 1024 * 1024;
++pub const MAX_BATCH_ITEMS: usize = 4096;
++
++#[derive(Deserialize)]
++#[serde(deny_unknown_fields)]
++struct Request {
++    protocol_version: String,
++    profile: String,
++    items: Vec<RequestItem>,
++}
++#[derive(Deserialize)]
++#[serde(deny_unknown_fields)]
++struct RequestItem {
++    id: String,
++    json_text: String,
++}
++#[derive(Serialize)]
++struct Response<'a> {
++    protocol_version: &'a str,
++    profile: &'a str,
++    items: Vec<ResponseItem>,
++}
++#[derive(Serialize)]
++struct ResponseItem {
++    id: String,
++    canonical_json: String,
++}
++
++/// Whole-batch success or rejection. The envelope itself is strictly parsed;
++/// duplicate/unknown fields cannot be overwritten or silently ignored.
++pub fn canonicalize_binary64_v1_request(input: &str) -> Result<String, String> {
++    let envelope = parse_with_byte_limit(input, MAX_REQUEST_BYTES)?;
++    let request: Request = serde_json::from_value(envelope.into_value())
++        .map_err(|e| format!("BINARY64-CLI-REQUEST: {e}"))?;
++    if request.protocol_version != PROTOCOL_VERSION {
++        return Err("BINARY64-CLI-PROTOCOL-MISMATCH".into());
++    }
++    if request.profile != BINARY64_PROFILE_V1 {
++        return Err("BINARY64-CLI-PROFILE-MISMATCH".into());
++    }
++    if request.items.len() > MAX_BATCH_ITEMS {
++        return Err("BINARY64-CLI-BATCH-LIMIT".into());
++    }
++    let mut ids = HashSet::new();
++    let mut items = Vec::with_capacity(request.items.len());
++    for item in request.items {
++        if item.id.is_empty() || !ids.insert(item.id.clone()) {
++            return Err("BINARY64-CLI-ITEM-ID-INVALID".into());
++        }
++        let canonical_json = canonical_json_binary64_v1_text(&item.json_text)
++            .map_err(|e| format!("BINARY64-CLI-ITEM-INVALID {}: {e}", item.id))?;
++        items.push(ResponseItem {
++            id: item.id,
++            canonical_json,
++        });
++    }
++    serde_json::to_string(&Response {
++        protocol_version: PROTOCOL_VERSION,
++        profile: BINARY64_PROFILE_V1,
++        items,
++    })
++    .map_err(|e| format!("BINARY64-CLI-RESPONSE: {e}"))
++}
+--- /dev/null
++++ b/projects/chirality-piping/core/serialization/canonical_json/src/bin/openpipestress_jcs_binary64.rs
+@@ -0,0 +1,26 @@
++#![cfg(feature = "checked-cli")]
++use open_pipe_stress_canonical_json::binary64_cli::{
++    canonicalize_binary64_v1_request, MAX_REQUEST_BYTES,
++};
++use std::io::{self, Read};
++fn run() -> Result<(), String> {
++    let mut bytes = Vec::new();
++    io::stdin()
++        .lock()
++        .take(MAX_REQUEST_BYTES as u64 + 1)
++        .read_to_end(&mut bytes)
++        .map_err(|e| format!("BINARY64-CLI-STDIN: {e}"))?;
++    if bytes.len() > MAX_REQUEST_BYTES {
++        return Err("BINARY64-CLI-BYTE-LIMIT".into());
++    }
++    let text = std::str::from_utf8(&bytes).map_err(|_| "BINARY64-CLI-UTF8".to_owned())?;
++    let response = canonicalize_binary64_v1_request(text)?;
++    print!("{response}");
++    Ok(())
++}
++fn main() {
++    if let Err(error) = run() {
++        eprintln!("{error}");
++        std::process::exit(2);
++    }
++}
+--- /dev/null
++++ b/projects/chirality-piping/core/serialization/canonical_json/tests/binary64_profile.rs
+@@ -0,0 +1,396 @@
++use open_pipe_stress_canonical_json::{
++    binary64::*, binary64_cli::*, canonical_json, canonical_json_checked_v1_text,
++    ecma_number_to_string,
++};
++use serde_json::{json, Value};
++
++#[test]
++fn real_spellings_converge_without_integer_variant_precision() {
++    for (tokens, expected) in [
++        (vec!["1e160", "1.0e160"], "1e+160"),
++        (
++            vec!["100000000000000000000", "1e20", "1.0e20"],
++            "100000000000000000000",
++        ),
++        (
++            vec![
++                "9007199254740993",
++                "9007199254740993.0",
++                "9.007199254740993e15",
++            ],
++            "9007199254740992",
++        ),
++        (vec!["18446744073709551615"], "18446744073709552000"),
++        (vec!["1", "1.0", "1e0", "1.0000000000000000001"], "1"),
++        (vec!["0e9999999999999999999"], "0"),
++    ] {
++        for token in tokens {
++            assert_eq!(
++                canonical_json_binary64_v1_text(token).unwrap(),
++                expected,
++                "{token}"
++            );
++        }
++    }
++}
++
++#[test]
++fn rfc_finite_rendering_vectors_and_new_negative_zero_policy() {
++    let vectors = [
++        (0x0000000000000000, "0"),
++        (0x8000000000000000, "0"),
++        (0x0000000000000001, "5e-324"),
++        (0x8000000000000001, "-5e-324"),
++        (0x7fefffffffffffff, "1.7976931348623157e+308"),
++        (0xffefffffffffffff, "-1.7976931348623157e+308"),
++        (0x4340000000000000, "9007199254740992"),
++        (0xc340000000000000, "-9007199254740992"),
++        (0x4430000000000000, "295147905179352830000"),
++        (0x44b52d02c7e14af5, "9.999999999999997e+22"),
++        (0x44b52d02c7e14af6, "1e+23"),
++        (0x44b52d02c7e14af7, "1.0000000000000001e+23"),
++        (0x444b1ae4d6e2ef4e, "999999999999999700000"),
++        (0x444b1ae4d6e2ef4f, "999999999999999900000"),
++        (0x444b1ae4d6e2ef50, "1e+21"),
++        (0x3eb0c6f7a0b5ed8c, "9.999999999999997e-7"),
++        (0x3eb0c6f7a0b5ed8d, "0.000001"),
++        (0x41b3de4355555553, "333333333.3333332"),
++        (0x41b3de4355555554, "333333333.33333325"),
++        (0x41b3de4355555555, "333333333.3333333"),
++        (0x41b3de4355555556, "333333333.3333334"),
++        (0x41b3de4355555557, "333333333.33333343"),
++        (0xbecbf647612f3696, "-0.0000033333333333333333"),
++        (0x43143ff3c1cb0959, "1424953923781206.2"),
++    ];
++    for (bits, expected) in vectors {
++        let value = f64::from_bits(bits);
++        assert_eq!(ecma_number_to_string(value), expected, "{bits:016x}");
++        if bits == 0x8000000000000000 {
++            assert!(canonical_json_binary64_v1_value(&json!(value)).is_err());
++        } else {
++            assert_eq!(
++                canonical_json_binary64_v1_value(&json!(value)).unwrap(),
++                expected
++            );
++            let parsed = parse_binary64_v1_text(expected).unwrap();
++            assert_eq!(parsed.value().as_f64().unwrap().to_bits(), bits);
++        }
++    }
++}
++
++#[test]
++fn original_token_checks_reject_underflow_zero_and_overflow() {
++    for token in [
++        "-0", "-0.0", "-0e3", "-0e-9999", "1e-324", "-1e-324", "1e309", "NaN", "Infinity",
++    ] {
++        assert!(canonical_json_binary64_v1_text(token).is_err(), "{token}");
++    }
++    assert_eq!(
++        canonical_json_binary64_v1_text("2.4703282292062328e-324").unwrap(),
++        "5e-324"
++    );
++    assert!(canonical_json_binary64_v1_text("2.4703282292062327e-324")
++        .unwrap_err()
++        .contains("UNDERFLOW"));
++}
++
++#[test]
++fn original_count_fields_are_checked_before_projection() {
++    let doc = parse_binary64_v1_text(r#"{"count":1,"fraction":1.0000000000000000001,"exp":1e0,"a/b":{"~x":7},"items":[2],"large":9007199254740993,"bool":true}"#).unwrap();
++    assert_eq!(doc.exact_integer_at("/count", 0, 10).unwrap(), 1);
++    assert_eq!(doc.exact_integer_at("/a~1b/~0x", 0, 10).unwrap(), 7);
++    assert_eq!(doc.exact_integer_at("/items/0", 0, 10).unwrap(), 2);
++    assert!(doc.value()["count"].is_i64());
++    for pointer in ["/fraction", "/exp", "/large", "/bool", "/missing"] {
++        assert!(doc.exact_integer_at(pointer, 0, 10).is_err(), "{pointer}");
++    }
++    for token in [
++        "-0",
++        "1.0",
++        "1e0",
++        "01",
++        "+1",
++        "",
++        "-",
++        "9007199254740992",
++        "-9007199254740992",
++        " 1",
++        "1 ",
++    ] {
++        assert!(
++            exact_integer_token(token, -9_007_199_254_740_991, 9_007_199_254_740_991).is_err(),
++            "{token}"
++        );
++    }
++    assert!(exact_integer_token("-1", 0, 10).is_err());
++    assert!(exact_integer_token("1", 2, 1).is_err());
++    assert!(exact_integer_value(1, i64::MIN, i64::MAX).is_err());
++    assert_eq!(
++        exact_integer_token("9007199254740991", 0, 9_007_199_254_740_991).unwrap(),
++        9_007_199_254_740_991
++    );
++}
++
++#[test]
++fn strings_duplicates_sorting_and_syntax_are_strict() {
++    for text in [
++        r#"{"a":1,"\u0061":2}"#,
++        r#"{"x":{"a":1,"a":2}}"#,
++        r#""\ud800""#,
++        r#""\udfff""#,
++        r#""\uffff""#,
++        r#"{"\ufdd0":0}"#,
++        r#"["\udbff\udfff"]"#,
++        "[1,]",
++        "{\"x\":0,}",
++        "[01]",
++        "+1",
++        "1.",
++        "1e",
++        "00",
++        "true false",
++        "\u{feff}0",
++        "\u{a0}0",
++        "{\"x\":\"a\n\"}",
++    ] {
++        assert!(canonical_json_binary64_v1_text(text).is_err(), "{text}");
++    }
++    assert_eq!(
++        canonical_json_binary64_v1_text(r#"{"ｚ":1,"\ud83d\ude00":2,"a":"e\u0301","b":"é"}"#)
++            .unwrap(),
++        "{\"a\":\"e\u{301}\",\"b\":\"é\",\"😀\":2,\"ｚ\":1}"
++    );
++    assert_ne!(
++        canonical_json_binary64_v1_text("\"é\"").unwrap(),
++        canonical_json_binary64_v1_text("\"e\u{301}\"").unwrap()
++    );
++}
++
++#[test]
++fn snapshot_domain_is_explicit_and_does_not_alter_history() {
++    for value in [
++        json!(9_007_199_254_740_993_u64),
++        json!(u64::MAX),
++        json!(i64::MIN),
++        json!(-0.0),
++        json!("\u{ffff}"),
++    ] {
++        assert!(canonical_json_binary64_v1_value(&value).is_err());
++    }
++    let explicitly_real = Value::from(9_007_199_254_740_993_u64 as f64);
++    assert_eq!(
++        canonical_json_binary64_v1_value(&explicitly_real).unwrap(),
++        "9007199254740992"
++    );
++    assert_eq!(
++        canonical_json(&json!(9_007_199_254_740_993_u64)),
++        "9007199254740993"
++    );
++    assert_eq!(canonical_json_checked_v1_text("-0.0").unwrap(), "0");
++    assert!(canonical_json_checked_v1_text("1e160").is_err());
++    assert_eq!(canonical_json_checked_v1_text("1e-324").unwrap(), "0");
++    assert_eq!(
++        canonical_json_checked_v1_text("\"\u{ffff}\"").unwrap(),
++        "\"\u{ffff}\""
++    );
++}
++
++#[test]
++fn bounded_document_depth_number_and_nodes() {
++    let exactly = format!("{}0", " ".repeat(MAX_DOCUMENT_BYTES - 1));
++    assert_eq!(canonical_json_binary64_v1_text(&exactly).unwrap(), "0");
++    assert!(canonical_json_binary64_v1_text(&(exactly + " "))
++        .unwrap_err()
++        .contains("BYTE-LIMIT"));
++    let nest = |n| format!("{}0{}", "[".repeat(n), "]".repeat(n));
++    assert!(canonical_json_binary64_v1_text(&nest(MAX_DEPTH)).is_ok());
++    assert!(canonical_json_binary64_v1_text(&nest(MAX_DEPTH + 1))
++        .unwrap_err()
++        .contains("DEPTH-LIMIT"));
++    assert!(
++        canonical_json_binary64_v1_text(&format!("0e{}", "0".repeat(MAX_NUMBER_BYTES - 2))).is_ok()
++    );
++    assert!(
++        canonical_json_binary64_v1_text(&format!("0e{}", "0".repeat(MAX_NUMBER_BYTES - 1)))
++            .unwrap_err()
++            .contains("NUMBER-LIMIT")
++    );
++    let array = |count| format!("[{}0]", "0,".repeat(count - 1));
++    assert!(canonical_json_binary64_v1_text(&array(MAX_VALUE_NODES - 1)).is_ok());
++    assert!(canonical_json_binary64_v1_text(&array(MAX_VALUE_NODES))
++        .unwrap_err()
++        .contains("NODE-LIMIT"));
++}
++
++#[test]
++fn cli_profile_envelope_and_batch_contract() {
++    let request = json!({"protocol_version":"1.0.0","profile":BINARY64_PROFILE_V1,"items":[{"id":"r","json_text":"1e160"}]});
++    let result: Value =
++        serde_json::from_str(&canonicalize_binary64_v1_request(&request.to_string()).unwrap())
++            .unwrap();
++    assert_eq!(result["profile"], BINARY64_PROFILE_V1);
++    assert_eq!(result["items"][0]["canonical_json"], "1e+160");
++    for (field, value) in [
++        ("profile", json!("openpipestress_jcs_ijson_v1")),
++        ("profile", json!("future")),
++        ("protocol_version", json!("2.0.0")),
++        ("unknown", json!(1)),
++    ] {
++        let mut changed = request.clone();
++        changed[field] = value;
++        assert!(canonicalize_binary64_v1_request(&changed.to_string()).is_err());
++    }
++    let duplicate = request.to_string().replacen("{", "{\"profile\":\"x\",", 1);
++    assert!(canonicalize_binary64_v1_request(&duplicate)
++        .unwrap_err()
++        .contains("DUPLICATE"));
++    let mut duplicate_id = request.clone();
++    duplicate_id["items"]
++        .as_array_mut()
++        .unwrap()
++        .push(request["items"][0].clone());
++    assert!(canonicalize_binary64_v1_request(&duplicate_id.to_string()).is_err());
++    let mut unknown_item = request.clone();
++    unknown_item["items"][0]["surprise"] = json!(true);
++    assert!(canonicalize_binary64_v1_request(&unknown_item.to_string()).is_err());
++    let mut items = request;
++    items["items"] = Value::Array(
++        (0..MAX_BATCH_ITEMS)
++            .map(|i| json!({"id":i.to_string(),"json_text":"0"}))
++            .collect(),
++    );
++    assert!(canonicalize_binary64_v1_request(&items.to_string()).is_ok());
++    items["items"]
++        .as_array_mut()
++        .unwrap()
++        .push(json!({"id":"extra","json_text":"0"}));
++    assert!(canonicalize_binary64_v1_request(&items.to_string())
++        .unwrap_err()
++        .contains("BATCH-LIMIT"));
++    assert!(
++        canonicalize_binary64_v1_request(&" ".repeat(MAX_REQUEST_BYTES + 1))
++            .unwrap_err()
++            .contains("BYTE-LIMIT")
++    );
++}
++
++#[test]
++fn repeated_long_keys_cannot_amplify_capture_without_bound() {
++    let key = "k".repeat(4 * 1024 * 1024);
++    let text = format!("{{\"{key}\":[0,0,0,0]}}");
++    assert!(text.len() < MAX_DOCUMENT_BYTES);
++    assert!(canonical_json_binary64_v1_text(&text)
++        .unwrap_err()
++        .contains("PATH-LIMIT"));
++}
++
++#[test]
++fn programmatic_output_expansion_is_bounded_before_rendering() {
++    // Raw control bytes expand sixfold in JSON. Admission counts that expansion
++    // before constructing the canonical output string.
++    let oversized = Value::String("\u{0}".repeat(MAX_DOCUMENT_BYTES / 6 + 1));
++    assert!(canonical_json_binary64_v1_value(&oversized)
++        .unwrap_err()
++        .contains("BYTE-LIMIT"));
++    let exact = Value::String("a".repeat(MAX_DOCUMENT_BYTES - 2));
++    assert_eq!(
++        canonical_json_binary64_v1_value(&exact).unwrap().len(),
++        MAX_DOCUMENT_BYTES
++    );
++    let one_over = Value::String("a".repeat(MAX_DOCUMENT_BYTES - 1));
++    assert!(canonical_json_binary64_v1_value(&one_over).is_err());
++    for value in [
++        json!({"x": [null, true, false, "é😀\u{0}\n\"\\", 1e160, 0.1]}),
++        json!([]),
++        json!({}),
++    ] {
++        assert!(canonical_json_binary64_v1_value(&value).is_ok());
++    }
++}
++
++#[test]
++fn text_canonical_output_limit_cannot_be_bypassed_by_document_method() {
++    // Short scientific tokens grow when canonical ECMAScript uses decimal
++    // notation. The original text fits8MiB but its canonical form does not.
++    let text = format!(
++        "[\"{}\",{}1e20]",
++        "a".repeat(4 * 1024 * 1024),
++        "1e20,".repeat(199_999)
++    );
++    assert!(text.len() < MAX_DOCUMENT_BYTES);
++    let parsed = parse_binary64_v1_text(&text).unwrap();
++    assert!(parsed.canonical_json().unwrap_err().contains("BYTE-LIMIT"));
++    assert!(canonical_json_binary64_v1_text(&text)
++        .unwrap_err()
++        .contains("BYTE-LIMIT"));
++    let exactly = format!("\"{}\"", "a".repeat(MAX_DOCUMENT_BYTES - 2));
++    let canonical = canonical_json_binary64_v1_text(&exactly).unwrap();
++    assert_eq!(canonical.len(), MAX_DOCUMENT_BYTES);
++    assert_eq!(
++        canonical_json_binary64_v1_text(&canonical).unwrap(),
++        canonical
++    );
++}
++
++#[test]
++fn direct_snapshot_resource_admission_matches_its_canonical_text() {
++    let key = "k".repeat(4 * 1024 * 1024);
++    let value = json!({ key: [0, 0, 0, 0] });
++    assert!(canonical_json_binary64_v1_value(&value)
++        .unwrap_err()
++        .contains("PATH-LIMIT"));
++    let escaped_key = "/~".repeat(2 * 1024 * 1024);
++    let escaped = json!({ escaped_key: [0] });
++    assert!(canonical_json_binary64_v1_value(&escaped)
++        .unwrap_err()
++        .contains("PATH-LIMIT"));
++    for value in [
++        json!({"a/~": [1e160, {"😀": "é"}]}),
++        json!([1, 2, 3]),
++        json!(null),
++    ] {
++        let rendered = canonical_json_binary64_v1_value(&value).unwrap();
++        assert_eq!(
++            canonical_json_binary64_v1_text(&rendered).unwrap(),
++            rendered
++        );
++    }
++}
++
++#[test]
++fn shared_admission_reenters_for_structural_boundaries_and_mixed_values() {
++    let mut depth = json!(0);
++    for _ in 0..MAX_DEPTH {
++        depth = json!([depth]);
++    }
++    let text = canonical_json_binary64_v1_value(&depth).unwrap();
++    assert_eq!(canonical_json_binary64_v1_text(&text).unwrap(), text);
++    assert!(canonical_json_binary64_v1_value(&json!([depth]))
++        .unwrap_err()
++        .contains("DEPTH-LIMIT"));
++    let nodes = Value::Array(vec![json!(0); MAX_VALUE_NODES - 1]);
++    let text = canonical_json_binary64_v1_value(&nodes).unwrap();
++    assert_eq!(canonical_json_binary64_v1_text(&text).unwrap(), text);
++    let too_many = Value::Array(vec![json!(0); MAX_VALUE_NODES]);
++    assert!(canonical_json_binary64_v1_value(&too_many)
++        .unwrap_err()
++        .contains("NODE-LIMIT"));
++    // root/key + three key/index paths consume4*k+10 bytes. This sits within
++    // two bytes of the shared path limit while remaining well below8MiB JSON.
++    let key = "k".repeat((MAX_CAPTURE_PATH_BYTES - 10) / 4);
++    let close_path_limit = json!({key: [0, 0, 0]});
++    let text = canonical_json_binary64_v1_value(&close_path_limit).unwrap();
++    assert_eq!(canonical_json_binary64_v1_text(&text).unwrap(), text);
++    for index in 0..32 {
++        let value = json!({
++            format!("a/~😀{index}"): [1e160, 5e-324, -5e-324, null, true, false,
++                {"nfc":"é", "nfd":"e\u{301}", "escapes":"\u{0}\n\"\\"}],
++            "safe_counts": [-9_007_199_254_740_991_i64, index, 9_007_199_254_740_991_i64]
++        });
++        let rendered = canonical_json_binary64_v1_value(&value).unwrap();
++        assert_eq!(
++            canonical_json_binary64_v1_text(&rendered).unwrap(),
++            rendered
++        );
++    }
++}
+--- a/projects/chirality-piping/tools/serialization/build_checked_json.py
++++ b/projects/chirality-piping/tools/serialization/build_checked_json.py
+@@ -10,19 +10,27 @@
+ DEFAULT_TARGET = CRATE / "target" / "checked-json"
+ 
+ 
+-def build(target_dir: Path = DEFAULT_TARGET) -> Path:
+-    executable = target_dir.resolve() / "release" / "openpipestress_jcs_ijson"
++BINARIES = {
++    "openpipestress_jcs_ijson_v1": "openpipestress_jcs_ijson",
++    "openpipestress_jcs_binary64_v1": "openpipestress_jcs_binary64",
++}
++
++
++def build(target_dir: Path = DEFAULT_TARGET, *, profile: str = "openpipestress_jcs_ijson_v1") -> Path:
++    binary = BINARIES[profile]
++    executable = target_dir.resolve() / "release" / binary
+     subprocess.run([
+         "cargo", "build", "--locked", "--release", "--features", "checked-cli",
+-        "--bin", "openpipestress_jcs_ijson", "--target-dir", str(target_dir.resolve()),
++        "--bin", binary, "--target-dir", str(target_dir.resolve()),
+     ], cwd=CRATE, check=True)
+     return executable
+ 
+ def main() -> None:
+     parser = argparse.ArgumentParser()
+     parser.add_argument("--target-dir", type=Path, default=DEFAULT_TARGET)
++    parser.add_argument("--profile", choices=BINARIES, default="openpipestress_jcs_ijson_v1")
+     args = parser.parse_args()
+-    print(build(args.target_dir))
++    print(build(args.target_dir, profile=args.profile))
+ 
+ 
+ if __name__ == "__main__":
+--- /dev/null
++++ b/projects/chirality-piping/tests/test_binary64_canonical_json_adapter.py
+@@ -0,0 +1,259 @@
++"""Actual Rust authority/Python/stock Node conformance; no product activation."""
++from __future__ import annotations
++
++from decimal import Decimal, localcontext
++from fractions import Fraction
++import hashlib
++import json
++import math
++import os
++from pathlib import Path
++import random
++import struct
++import subprocess
++import sys
++from types import SimpleNamespace
++
++import pytest
++from core.serialization.canonical_json import adapter as api
++
++
++@pytest.fixture(scope='session', autouse=True)
++def explicitly_build_test_authority():
++    # Test setup owns explicit builds, just as the existing project conftest
++    # does for v1. Runtime adapter calls never build or search another profile.
++    if os.environ.get(api.ENV_BINARY64_EXECUTABLE):
++        yield
++        return
++    script = Path(__file__).parents[1] / 'tools/serialization/build_checked_json.py'
++    built = subprocess.run([sys.executable, str(script), '--profile', api.BINARY64_PROFILE], text=True, capture_output=True, check=True)
++    os.environ[api.ENV_BINARY64_EXECUTABLE] = built.stdout.strip()
++    try:
++        yield
++    finally:
++        os.environ.pop(api.ENV_BINARY64_EXECUTABLE, None)
++
++
++def _bits(value: float) -> str:
++    return struct.pack('>d', value).hex()
++
++
++def test_raw_real_tokens_converge_and_preserve_source_distinction() -> None:
++    texts = ['9007199254740993', '9007199254740993.0', '9.007199254740993e15']
++    results = api.canonicalize_binary64_text_batch([(str(i), text) for i, text in enumerate(texts)])
++    assert set(results.values()) == {'9007199254740992'}
++    assert api.canonical_json_binary64_v1_text('1e160') == '1e+160'
++    assert api.canonical_json_binary64_v1_text('18446744073709551615') == '18446744073709552000'
++    raw_a, raw_b = '{"x":9007199254740993}', '{"x":9007199254740992}'
++    assert hashlib.sha256(raw_a.encode()).digest() != hashlib.sha256(raw_b.encode()).digest()
++    assert api.canonical_sha256_binary64_v1_text(raw_a) == api.canonical_sha256_binary64_v1_text(raw_b)
++
++
++@pytest.mark.parametrize('text', [
++    '-0', '-0.0', '-0e3', '1e-324', '-1e-324', '1e309', 'NaN', 'Infinity',
++    '{"a":1,"\\u0061":2}', '{"a":{"x":1,"x":2}}', '"\\ud800"', '"\\udfff"',
++    '"\\uffff"', '{"\\ufdd0":0}', '["\\udbff\\udfff"]', '1 trailing', '[1,]', '+1',
++])
++def test_raw_invalids_reach_rust_and_are_rejected(text: str) -> None:
++    with pytest.raises(RuntimeError, match='AUTHORITY-REJECTED'):
++        api.canonical_json_binary64_v1_text(text)
++
++
++def test_programmatic_real_declaration_and_exact_counters() -> None:
++    assert api.canonical_json_binary64_v1({'real': api.scientific_real(9007199254740993), 'count': api.exact_integer(4, 0, 10)}) == '{"count":4,"real":9007199254740992}'
++    assert api.canonical_json_binary64_v1({'n': 1e160}) == '{"n":1e+160}'
++    for value in [True, 1.0, '1', -1, 11, 9007199254740992]:
++        with pytest.raises(ValueError):
++            api.exact_integer(value, 0, 10)
++    for value in [Decimal('1'), Fraction(1), True, 10 ** 1000]:
++        with pytest.raises(ValueError):
++            api.scientific_real(value)
++    with pytest.raises(ValueError):
++        api.exact_integer(1, minimum=True)
++
++
++@pytest.mark.parametrize('value', [
++    9007199254740992, -9007199254740992, float('nan'), float('inf'), -0.0,
++    {1: 'bad'}, '\ud800', '\uffff', {'\ufdd0': 1}, Decimal('0.1'), Fraction(1, 3),
++    (1, 2), {1, 2}, SimpleNamespace(x=1),
++])
++def test_snapshot_invalids_fail_before_process(value: object, monkeypatch: pytest.MonkeyPatch) -> None:
++    monkeypatch.setattr(api.subprocess, 'run', lambda *a, **kw: pytest.fail('process should not run'))
++    with pytest.raises(ValueError):
++        api.canonical_json_binary64_v1(value)
++
++
++def test_snapshot_cycles_subclasses_and_aliases() -> None:
++    class BadDict(dict):
++        def items(self):
++            pytest.fail('custom method must not be called')
++    class BadString(str):
++        pass
++    for value in [BadDict(x=1), BadString('x'), {BadString('x'): 1}]:
++        with pytest.raises(ValueError):
++            api.canonical_json_binary64_v1(value)
++    cycle: list[object] = []
++    cycle.append(cycle)
++    with pytest.raises(ValueError, match='CYCLIC'):
++        api.canonical_json_binary64_v1(cycle)
++    shared = {'x': 1}
++    assert api.canonical_json_binary64_v1([shared, shared]) == '[{"x":1},{"x":1}]'
++
++
++def test_response_mismatch_never_falls_back(monkeypatch: pytest.MonkeyPatch) -> None:
++    monkeypatch.setattr(api, 'binary64_executable', lambda: Path('/explicit-test-authority'))
++    for stdout in [
++        '{"protocol_version":"1.0.0","profile":"openpipestress_jcs_ijson_v1","items":[]}',
++        '{"protocol_version":"1.0.0","profile":"openpipestress_jcs_binary64_v1","items":[{"id":"wrong","canonical_json":"0"}]}',
++        '{"protocol_version":"1.0.0","profile":"openpipestress_jcs_binary64_v1","items":[{"id":"value","canonical_json":0}]}',
++        '{"profile":"a","profile":"b"}', 'null', '{',
++    ]:
++        monkeypatch.setattr(api.subprocess, 'run', lambda *a, **kw: SimpleNamespace(returncode=0, stdout=stdout))
++        with pytest.raises(RuntimeError, match='RESPONSE-INVALID'):
++            api.canonical_json_binary64_v1(0)
++    monkeypatch.setattr(api.subprocess, 'run', lambda *a, **kw: SimpleNamespace(returncode=2, stderr='profile rejected'))
++    with pytest.raises(RuntimeError, match='AUTHORITY-REJECTED'):
++        api.canonical_json_binary64_v1(0)
++
++
++def test_no_runtime_build_or_old_executable_fallback(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
++    monkeypatch.setenv(api.ENV_BINARY64_EXECUTABLE, str(tmp_path / 'missing'))
++    monkeypatch.setattr(api.subprocess, 'run', lambda *a, **kw: pytest.fail('no build or fallback'))
++    with pytest.raises(RuntimeError, match='AUTHORITY-MISSING'):
++        api.canonical_json_binary64_v1(0)
++
++
++def test_text_route_syntax_limits_and_snapshot_budget() -> None:
++    assert api.canonical_json_binary64_v1_text(' ' * (api._BINARY64_MAX_BYTES - 1) + '0') == '0'
++    with pytest.raises(ValueError, match='BYTE-LIMIT'):
++        api.canonical_json_binary64_v1_text(' ' * api._BINARY64_MAX_BYTES + '0')
++    for items in [[('', '0')], [('same', '0'), ('same', '1')], [(1, '0')], [('x', 1)], [('\uffff', '0')]]:
++        with pytest.raises(ValueError):
++            api.canonicalize_binary64_text_batch(items)
++    value: object = 0
++    for _ in range(api._BINARY64_MAX_DEPTH + 1):
++        value = [value]
++    with pytest.raises(ValueError, match='DEPTH-LIMIT'):
++        api.canonical_json_binary64_v1(value)
++
++
++def test_all_old_fixture_hashes_remain_on_old_profile() -> None:
++    corpus = json.loads((Path(__file__).parents[1] / 'fixtures/canonical_hash/cases.json').read_text())
++    old_supported = 0
++    for case in corpus['cases']:
++        value = json.loads(case['input_json'])
++        try:
++            actual = api.canonical_json_checked_v1(value)
++        except ValueError:
++            continue
++        assert actual == case['expected_canonical'], case['case_id']
++        assert hashlib.sha256(actual.encode()).hexdigest() == case['expected_sha256']
++        old_supported += 1
++    assert old_supported >= 15
++    with pytest.raises(ValueError):
++        api.canonical_json_checked_v1(1e160)
++    assert api.canonical_json_checked_v1(-0.0) == '0'
++
++
++def test_deterministic_cross_language_binary64_conformance() -> None:
++    # Includes ties, adjacent values, exponent boundaries and extreme finite
++    # numbers. Source and seed reproduce the exact tested tokens without a
++    # checked-in self-blessed output table.
++    tokens = ['0', '0.1', '1e160', '1e20', '1e21', '1e-6', '1e-7', '9007199254740993',
++              '18446744073709551615', '2.2250738585072014e-308', '5e-324', '-5e-324',
++              '1.7976931348623157e308', '-1.7976931348623157e308']
++    randomizer = random.Random(0xB1642026)
++    for _ in range(512):
++        bits = randomizer.getrandbits(64)
++        value = struct.unpack('>d', bits.to_bytes(8, 'big'))[0]
++        if math.isfinite(value) and value != 0:
++            tokens.append(repr(value))
++    with localcontext() as context:
++        context.prec = 1200
++        for value in [1.0, math.nextafter(1.0, math.inf), 2.0 ** 53, 1e20, 1e-6, 1e-300, 5e-324]:
++            next_value = math.nextafter(value, math.inf)
++            midpoint = (Decimal.from_float(value) + Decimal.from_float(next_value)) / 2
++            tokens.append(str(midpoint))
++            step = Decimal(1).scaleb(midpoint.adjusted() - 1100)
++            tokens.extend([str(midpoint - step), str(midpoint + step)])
++    rust = api.canonicalize_binary64_text_batch([(str(i), token) for i, token in enumerate(tokens)])
++    node_script = """
++const fs=require('node:fs');
++const tokens=JSON.parse(fs.readFileSync(0,'utf8'));
++const rows=tokens.map(t=>{const n=JSON.parse(t);const b=Buffer.alloc(8);b.writeDoubleBE(n);return {bits:b.toString('hex'),canonical:JSON.stringify(n)};});
++process.stdout.write(JSON.stringify({node:process.version,v8:process.versions.v8,rows}));
++"""
++    node = subprocess.run(['node', '-e', node_script], input=json.dumps(tokens), text=True, capture_output=True, check=True)
++    observed = json.loads(node.stdout)
++    for i, token in enumerate(tokens):
++        row = observed['rows'][i]
++        assert rust[str(i)] == row['canonical'], token
++        assert _bits(float(token)) == row['bits'], token
++        assert _bits(float(rust[str(i)])) == row['bits'], token
++    print(json.dumps({'conformance_tokens': len(tokens), 'random_seed': '0xB1642026', 'node': observed['node'], 'v8': observed['v8'], 'scope': 'Rust native CLI/Python/stock Node; no WASM or solver qualification'}))
++
++
++def test_actual_cli_rejects_invalid_utf8_and_wrong_profile() -> None:
++    invalid = subprocess.run([str(api.binary64_executable())], input=b'\xff', capture_output=True)
++    assert invalid.returncode == 2 and invalid.stdout == b'' and b'UTF8' in invalid.stderr
++    for change in [{'profile': api.PROFILE}, {'protocol_version': '2.0.0'}]:
++        request = {'protocol_version': api.PROTOCOL_VERSION, 'profile': api.BINARY64_PROFILE, 'items': []} | change
++        result = subprocess.run([str(api.binary64_executable())], input=json.dumps(request), text=True, capture_output=True)
++        assert result.returncode == 2 and not result.stdout and 'MISMATCH' in result.stderr
++
++
++def test_alias_expansion_rejected_before_snapshot_materialization(monkeypatch: pytest.MonkeyPatch) -> None:
++    shared = 'x' * (1024 * 1024)
++    original_dumps = api.json.dumps
++    def refuse_snapshot_dump(value, *args, **kwargs):
++        if type(value) is list:
++            pytest.fail('oversized snapshot was serialized before admission')
++        return original_dumps(value, *args, **kwargs)
++    monkeypatch.setattr(api.json, 'dumps', refuse_snapshot_dump)
++    monkeypatch.setattr(api.subprocess, 'run', lambda *args, **kwargs: pytest.fail('process started'))
++    with pytest.raises(ValueError, match='BYTE-LIMIT'):
++        api.canonical_json_binary64_v1([shared] * 9)
++
++
++def test_request_expansion_rejected_before_materialization(monkeypatch: pytest.MonkeyPatch) -> None:
++    # A small test budget exercises exactly the same cumulative64MiB production
++    # path without constructing a64MiB test request. Default limit is pinned.
++    assert api._BINARY64_MAX_REQUEST_BYTES == 64 * 1024 * 1024
++    monkeypatch.setattr(api, '_BINARY64_MAX_REQUEST_BYTES', 512)
++    original_dumps = api.json.dumps
++    def refuse_populated_request(value, *args, **kwargs):
++        if type(value) is dict and value.get('items'):
++            pytest.fail('oversized request was materialized before admission')
++        return original_dumps(value, *args, **kwargs)
++    monkeypatch.setattr(api.json, 'dumps', refuse_populated_request)
++    monkeypatch.setattr(api.subprocess, 'run', lambda *args, **kwargs: pytest.fail('process started'))
++    with pytest.raises(ValueError, match='BYTE-LIMIT'):
++        api.canonicalize_binary64_text_batch([(str(i), '"' + 'a' * 150 + '"') for i in range(4)])
++    with pytest.raises(ValueError, match='BYTE-LIMIT'):
++        api.canonicalize_binary64_batch([(str(i), 'a' * 150) for i in range(4)])
++
++
++def test_preflight_byte_accounting_matches_transport() -> None:
++    values = [None, True, False, 0, -1, 1e160, 0.1, 'é😀\x00\n\"\\', [], {}, {'a': [1, 'b'], '😀': False}]
++    for value in values:
++        state = [0, 0]
++        frozen = api._freeze_binary64(value, set(), 0, state)
++        assert state[1] == len(json.dumps(frozen, ensure_ascii=False, separators=(',', ':'), allow_nan=False).encode('utf-8'))
++    for text in ['', 'é😀\x00\n\"\\', 'x' * 100]:
++        expected = len(json.dumps(text, ensure_ascii=False).encode('utf-8'))
++        assert api._bounded_string_size(text, expected, escaped=True) == expected
++        with pytest.raises(ValueError, match='BYTE-LIMIT'):
++            api._bounded_string_size(text, expected - 1, escaped=True)
++
++
++def test_snapshot_text_and_batch_accepted_outputs_reenter_authority() -> None:
++    values = [None, True, False, 0, 1e160, 5e-324,
++              {'a/~😀': [api.scientific_real(9007199254740993), 'é', 'e\u0301', '\x00\n"\\'], 'count': api.exact_integer(7, 0, 9)}]
++    first = api.canonicalize_binary64_batch([(str(i), value) for i, value in enumerate(values)])
++    assert api.canonicalize_binary64_text_batch(list(first.items())) == first
++    for key, text in first.items():
++        assert api.canonical_json_binary64_v1_text(text) == first[key]
++    # Python's bounded snapshot preflight does not qualify structural metadata:
++    # final Rust authority still rejects paths exceeding its shared resource cap.
++    with pytest.raises(RuntimeError, match='PATH-LIMIT'):
++        api.canonical_json_binary64_v1({'k' * (4 * 1024 * 1024): [0, 0, 0, 0]})

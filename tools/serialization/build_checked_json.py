@@ -10,19 +10,27 @@ CRATE = PROJECT / "core" / "serialization" / "canonical_json"
 DEFAULT_TARGET = CRATE / "target" / "checked-json"
 
 
-def build(target_dir: Path = DEFAULT_TARGET) -> Path:
-    executable = target_dir.resolve() / "release" / "openpipestress_jcs_ijson"
+BINARIES = {
+    "openpipestress_jcs_ijson_v1": "openpipestress_jcs_ijson",
+    "openpipestress_jcs_binary64_v1": "openpipestress_jcs_binary64",
+}
+
+
+def build(target_dir: Path = DEFAULT_TARGET, *, profile: str = "openpipestress_jcs_ijson_v1") -> Path:
+    binary = BINARIES[profile]
+    executable = target_dir.resolve() / "release" / binary
     subprocess.run([
         "cargo", "build", "--locked", "--release", "--features", "checked-cli",
-        "--bin", "openpipestress_jcs_ijson", "--target-dir", str(target_dir.resolve()),
+        "--bin", binary, "--target-dir", str(target_dir.resolve()),
     ], cwd=CRATE, check=True)
     return executable
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--target-dir", type=Path, default=DEFAULT_TARGET)
+    parser.add_argument("--profile", choices=BINARIES, default="openpipestress_jcs_ijson_v1")
     args = parser.parse_args()
-    print(build(args.target_dir))
+    print(build(args.target_dir, profile=args.profile))
 
 
 if __name__ == "__main__":
