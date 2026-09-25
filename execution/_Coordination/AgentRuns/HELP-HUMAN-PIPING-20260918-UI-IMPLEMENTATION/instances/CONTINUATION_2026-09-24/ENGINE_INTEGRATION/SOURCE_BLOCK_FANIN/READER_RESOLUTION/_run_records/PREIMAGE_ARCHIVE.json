@@ -1,0 +1,44 @@
+{
+  "reason": "Historical pre-repair conflict captures; current maintained source has no unresolved markers",
+  "original_commit": "e65001ad50072d3399bf204da02055b0f360353a",
+  "source_changes": false,
+  "policy_changes": false,
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_BLOCK_FANIN/READER_RESOLUTION/core__analysis_runs__compatibility.py.preimage",
+      "sha256": "d56b725fc93b08eca030517aece19e90aad1f3a432adcf9b9a006e779fd79f94",
+      "bytes": 33264,
+      "git_commit": "e65001ad50072d3399bf204da02055b0f360353a",
+      "git_blob": "2dd6994ee3f2499247c6d9f8b51cb972f7dd694a",
+      "resolved_product_path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "resolved_product_sha256": "5e5083a1ed2d25a0e033031e31a65ae85babb45089c03760937bc2dda1c4b945"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_BLOCK_FANIN/READER_RESOLUTION/core__reporting__result_export__src__derivative.rs.preimage",
+      "sha256": "bc295bff598a52cab200b6046828450cb0ea5ad9eb6a5dbcb75dcb77b47a9b22",
+      "bytes": 58449,
+      "git_commit": "e65001ad50072d3399bf204da02055b0f360353a",
+      "git_blob": "29ab3c0044e62e6f7a424e49cacfa4740c68486b",
+      "resolved_product_path": "projects/chirality-piping/core/reporting/result_export/src/derivative.rs",
+      "resolved_product_sha256": "c3e5c91e17cd124bf980a305af8f56e938f3d7cc992177b51d1decd42c7dfa29"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_BLOCK_FANIN/READER_RESOLUTION/core__reporting__result_export__src__lib.rs.preimage",
+      "sha256": "c61f546ae9fcb25df6d4c2500409435d858d411a3e9d42715132d034f945c7bc",
+      "bytes": 65999,
+      "git_commit": "e65001ad50072d3399bf204da02055b0f360353a",
+      "git_blob": "391f9a4047fbd39203f78432ad600b891eacc521",
+      "resolved_product_path": "projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+      "resolved_product_sha256": "04f85b53315f9eec2c7785abb8bbf724d6fdf58026510e738363fec6d0b8f24f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260918-UI-IMPLEMENTATION/instances/CONTINUATION_2026-09-24/ENGINE_INTEGRATION/SOURCE_BLOCK_FANIN/READER_RESOLUTION/core__reporting__result_export__src__semantic_contract.rs.preimage",
+      "sha256": "c3c797451be0d22e890c8155eebc26e78b9d245d233aae8b2375c9efebe18fca",
+      "bytes": 15387,
+      "git_commit": "e65001ad50072d3399bf204da02055b0f360353a",
+      "git_blob": "2dbe7d5759b8818334a7afb4a4ec9f90334d8241",
+      "resolved_product_path": "projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs",
+      "resolved_product_sha256": "a04750cc32b62618df10515c06a869c1bfe94a449ab4f68f47bd1cfcbb240aaf"
+    }
+  ]
+}

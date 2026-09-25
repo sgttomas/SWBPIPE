@@ -1,0 +1,23 @@
+{
+  "actor": "/root/physics_resume/joined_producer_review",
+  "actual_tree_parent": "/root/physics_resume",
+  "requester": "/root",
+  "role": "TASK Type2",
+  "mechanism": "delegated-harness-native",
+  "instruction_origins": {
+    "/private/tmp/piping-engine-integration-20260925/AGENTS.md": "c8ce87ef342902cb081bc659b26fc9a4edda1b6dba513814e5cb1e14e0b1dffd",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/AGENTS.md": "d9481951912ceffdd5bc47dbb6549bf0044f5d92f9fe6a9b11ba5969bfebc792",
+    "/private/tmp/piping-engine-integration-20260925/projects/chirality-piping/loop/LOOP_INIT.md": "c712b6487faa3fab461e181aad1a6c16a2cb0eb734c510744e5037289105df1b",
+    "/private/tmp/piping-engine-integration-20260925/agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "/private/tmp/piping-engine-integration-20260925/.agents/skills/software-code-review/SKILL.md": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
+    "/private/tmp/piping-engine-integration-20260925/.agents/skills/chirality-change/SKILL.md": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba"
+  },
+  "candidate": "e65001ad50072d3399bf204da02055b0f360353a",
+  "base": "aa312755e671b0fc7d598314d591c552749aaea6",
+  "original_source_freeze": "c278f64ba122eb8b848b9f14e58a0e533e94439a",
+  "review_basis": "Immutable Git records at c278f64 plus specific e650 two-link delta; portability moves do not silently rebind reviewed contents",
+  "output_scope": "/private/tmp/piping-joined-qualification-20260925/readiness_review",
+  "execution": "Read-only Git blobs/JSON/hash comparison; no source/Git mutation, builds, native or repeated component tests",
+  "tooling_note": "Initial reconciliation reached completed path coverage but a too-broad final assertion refused concurrent ROOT evidence edits. Updated precheck to report pending record work while refusing maintained-source drift. No product check was rerun.",
+  "completed_utc": "2026-09-25T13:26:35.220138+00:00"
+}

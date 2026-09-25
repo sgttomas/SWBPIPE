@@ -12,7 +12,7 @@ immutable NUM `REVIEWED_SUBSET.json` at
 That manifest hash was checked before edits. The reviewed subset explicitly
 excludes whole-tranche/native qualification and unreviewed transport/schema
 wiring. No broader authority is inferred from the import. Before/after hashes
-and exact conflicting preimages are retained in this directory; per-hunk
+and exact conflicting preimages are retained through the immutable Git addresses in [PREIMAGE_ARCHIVE.md](PREIMAGE_ARCHIVE.md); per-hunk
 semantic dispositions are in `HUNK_RESOLUTIONS.json`.
 
 ## Resolved APIs
