@@ -239,8 +239,8 @@ def make_plan(root, event, base='', head='HEAD', pr=''):
                 pass  # Validation below blocks unresolved or unintegrated targets.
     plan['coverage_full'] = plan['mode'] == 'full'
     plan['coverage_note'] = (('Full deduplicated desktop source coverage, with compact coverage limited to layout/viewport '
-                              'specs, requires barrier and four exact partitions to succeed.' if event == 'pull_request' else
-                              'Full deduplicated source coverage requires barrier and four exact partitions to succeed.')
+                              'specs, requires four exact partitions (accessibility included) to succeed.' if event == 'pull_request' else
+                              'Full deduplicated source coverage requires four exact partitions (accessibility included) to succeed.')
         if plan['coverage_full'] else 'Not applicable: no tests selected or claimed passed.' if plan['mode'] == 'not-applicable'
         else 'Partial source coverage; omitted tests are not passed and this is not DEC093 full surface4 evidence.')
     if plan['mode'] != 'not-applicable' and FAST not in specs:
@@ -350,6 +350,10 @@ def mode_selects(plan, row):
             or (plan['appearance'] and row['file'] == 'e2e/ui-foundation.spec.ts' and '@explicit-viewport' in row['tags']))
 
 
+def omission_reason(plan, row):
+    return 'Outside partial ' + plan['mode'] + ' coverage' if not mode_selects(plan, row) else COMPACT_OMISSION
+
+
 def hosted_profile(plan, row):
     """Desktop always; on pull requests, compact only for layout/viewport subjects."""
     return (plan.get('event') != 'pull_request' or row['project'] != 'chromium-compact'
@@ -383,6 +387,11 @@ def assign_partitions(plan, source, root):
     rest = [t for t in selected if t['file'] != FAST]
     if plan['mode'] != 'full':
         return {'barrier': barrier, **({'selected': rest} if rest else {})}
+    # Full runs start all four shards at once. Accessibility is balanced into
+    # them as an ordinary atomic file group instead of gating them from a fifth
+    # runner that repeated the whole browser setup; a failing shard still
+    # cancels the others (fail-fast matrix).
+    rest = selected
     groups = {}
     bodies = {file: (Path(root) / DESKTOP / file).read_text() for file in {t['file'] for t in rest}}
     for row in rest:
@@ -404,7 +413,7 @@ def assign_partitions(plan, source, root):
         loads[target] += sum(duration_weight(t) for t in rows)
     if any(not rows for rows in bins):
         raise ValueError('Full selection needs four nonempty partitions')
-    return {'barrier': barrier, **{f'shard-{i+1}': rows for i, rows in enumerate(bins)}}
+    return {f'shard-{i+1}': rows for i, rows in enumerate(bins)}
 
 
 def exact_list(rows):
@@ -482,8 +491,7 @@ def collect_candidate(root, plan, stage, shard, evidence_dir):
             raise ValueError('Invalid execution stage or shard')
         keys = {test_key(t) for t in selected}
         evidence.update(status='validated', selected=[dict(t, reason='Selected by ' + plan['mode']) for t in selected],
-            omitted=[dict(t, reason='Outside partial ' + plan['mode'] + ' coverage' if not mode_selects(plan, t) else COMPACT_OMISSION)
-                     for t in source if test_key(t) not in keys],
+            omitted=[dict(t, reason=omission_reason(plan, t)) for t in source if test_key(t) not in keys],
             partition=actual, estimated_seconds={name: round(sum(duration_weight(t) for t in rows), 2) for name, rows in partitions.items()},
             execution_tests=[t for name in names for t in actual[name]],
             execution_commands=[command(directory / (name + '.test-list.txt'), fast=name == 'barrier') for name in names])
@@ -513,7 +521,9 @@ def aggregate(mode, selection, barrier, remainder, numerical_required, numerical
         return False
     if mode == 'not-applicable':
         return barrier == remainder == 'skipped'
-    return mode in {'full', 'changed-specs', 'lean', 'lean-affected'} and barrier == 'success' and remainder == ('success' if mode == 'full' else 'skipped')
+    if mode == 'full':
+        return barrier == 'skipped' and remainder == 'success'
+    return mode in {'changed-specs', 'lean', 'lean-affected'} and barrier == 'success' and remainder == 'skipped'
 
 
 def main():

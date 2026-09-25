@@ -107,7 +107,7 @@ class PolicyTests(unittest.TestCase):
                 self.assertFalse(ci.e2e_irrelevant(ci.PROJECT + path))
 
     def test_shared_unknown_ci_dependencies_and_model_inputs_are_full(self):
-        for path in ['package.json', '.github/workflows/piping-desktop-e2e.yml',
+        for path in ['package.json', '.cargo/config.toml', '.github/workflows/piping-desktop-e2e.yml',
                      '.github/workflows/piping-e2e-cache.yml',
                      '.github/actions/setup-piping-e2e/action.yml', ci.PROJECT + 'tools/ci/e2e_plan.py',
                      ci.PROJECT + 'tools/ci/e2e_duration_hints.json', ci.PROJECT + 'package-lock.json',
@@ -119,6 +119,16 @@ class PolicyTests(unittest.TestCase):
             self.write(path)
             self.commit()
             self.assertEqual(self.plan(base=previous)['mode'], 'full', path)
+
+    def test_full_coverage_note_distinguishes_pr_compact_scope_from_dispatch(self):
+        self.write(ci.DESKTOP + 'src/App.tsx')
+        self.commit()
+        pr, dispatch = self.plan(), self.plan(event='workflow_dispatch')
+        self.assertEqual((pr['mode'], dispatch['mode']), ('full', 'full'))
+        self.assertIn('compact coverage limited', pr['coverage_note'])
+        self.assertNotIn('compact', dispatch['coverage_note'])
+        ci.validate(self.root, pr)
+        ci.validate(self.root, dispatch)
 
     def test_root_instruction_packages_and_project_agent_guidance_are_not_product_inputs(self):
         for path in ['AGENTS.md', 'docs/SPEC.md', 'workflows/construct-local-work-graph/WORKFLOW.md',
@@ -337,6 +347,14 @@ class CollectionTests(unittest.TestCase):
             self.assertIn((file, title, 'chromium-desktop'), selected)
             self.assertNotIn((file, title, 'chromium-compact'), selected)
 
+    def test_omission_reasons_distinguish_partial_selection_from_compact_scope(self):
+        source = self.source()
+        compact_gui = next(t for t in source if t['file'] == 'e2e/gui-workflow-validation.spec.ts'
+                           and t['project'] == 'chromium-compact')
+        layout_only = next(t for t in source if t['title'] == ci.LAYOUT_TITLES[0] and t['project'] == 'chromium-compact')
+        self.assertEqual(ci.omission_reason(self.plan(), compact_gui), ci.COMPACT_OMISSION)
+        self.assertEqual(ci.omission_reason(self.plan('lean'), layout_only), 'Outside partial lean coverage')
+
     def test_missing_duplicate_title_or_profile_fails(self):
         for kind in ['missing', 'duplicate', 'profile']:
             source = self.source()
@@ -383,8 +401,12 @@ class CollectionTests(unittest.TestCase):
             self.assertEqual({k: sorted(map(ci.test_key,v)) for k,v in first.items()},
                              {k: sorted(map(ci.test_key,v)) for k,v in second.items()})
             ci.assert_partition(ci.select_tests(self.plan(), self.source()), [t for rows in first.values() for t in rows])
+            self.assertEqual(sorted(first), ['shard-1', 'shard-2', 'shard-3', 'shard-4'])
             for project in ci.PROJECTS:
-                self.assertEqual(sum(any(t['file'] == serial_file and t['project'] == project for t in rows) for rows in first.values()), 1)
+                for file in (serial_file, ci.FAST):
+                    self.assertEqual(sum(any(t['file'] == file and t['project'] == project for t in rows) for rows in first.values()), 1)
+            lean = ci.assign_partitions(self.plan('lean'), self.source(), root)
+            self.assertEqual(sorted(lean), ['barrier', 'selected'])
             unknown = {**self.source()[0], 'title': 'new', 'title_path': ['new']}
             self.assertEqual(ci.duration_weight(unknown), 30)
 
@@ -438,7 +460,7 @@ class GateTests(unittest.TestCase):
         return ci.aggregate(*args, 'false', 'skipped')
 
     def test_every_mode_fails_closed(self):
-        valid = [('not-applicable', 'skipped', 'skipped'), ('full', 'success', 'success'),
+        valid = [('not-applicable', 'skipped', 'skipped'), ('full', 'skipped', 'success'),
                  ('lean', 'success', 'skipped'), ('lean-affected', 'success', 'skipped'), ('changed-specs', 'success', 'skipped')]
         for mode, barrier, remainder in valid:
             self.assertTrue(self.gate(mode, 'success', barrier, remainder))
@@ -450,6 +472,9 @@ class GateTests(unittest.TestCase):
             self.assertFalse(self.gate(mode, 'success', 'success', 'skipped'))
         self.assertFalse(self.gate('not-applicable', 'success', 'success', 'skipped'))
         self.assertFalse(self.gate('full', 'success', 'success', 'skipped'))
+        # Full runs balance accessibility into the shards; a separate barrier
+        # job running in full mode means the workflow wiring is wrong.
+        self.assertFalse(self.gate('full', 'success', 'success', 'success'))
 
 
 if __name__ == '__main__':

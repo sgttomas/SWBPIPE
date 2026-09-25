@@ -70,13 +70,19 @@ prevent reintroducing repetitions. Collection also rejects a compact tagged test
 or an incomplete appearance matrix. Removed repetitions map to their retained
 same-title desktop counterparts in the implementation evidence.
 
-Full CI starts with accessibility. Four isolated runners then execute exact
-Playwright 1.60 `--test-list` partitions with one worker each. Duration hints use successful PR832 source logs, with earlier provenance retained,
-and are checked into `tools/ci/e2e_duration_hints.json`. Reporter tags are resolved
-through the canonical collected identities. The data includes 435 observed passing
-durations, with positive scheduling floors for 20 existing skips and one passing
-case rounded to zero milliseconds. Those floors are not measured execution times. New or untimed tests use a conservative 30-second
-scheduling weight. These values
+Full CI starts four isolated runners at once, each executing an exact
+Playwright 1.60 `--test-list` partition with one worker. Accessibility is
+balanced into those partitions as an ordinary atomic file group; a separate
+barrier runner repeating the whole browser setup and delaying every shard is
+used only by partial modes. A failing shard cancels the others (fail-fast
+matrix). Duration hints are checked into `tools/ci/e2e_duration_hints.json`;
+their `basis` records the source run, log and collection hashes, with earlier
+provenance retained. Refresh them from any successful full run with
+`python3 tools/ci/refresh_duration_hints.py --run <id> --apply`, which
+launches no browser or test. Reporter tags are resolved through the canonical
+collected identities. Skips and passes rounded to zero milliseconds use positive
+scheduling floors, not measured execution times. New or untimed tests use a
+conservative 30-second scheduling weight. These values
 are scheduling hints, not acceptance limits or a speed guarantee. Assignment is
 deterministic, using the lightest estimated bin first. Files/projects remain
 atomic except the independently set-up UI-foundation and workspace-layout cases;
